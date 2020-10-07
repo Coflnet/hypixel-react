@@ -1,26 +1,26 @@
 /// <reference types="react-scripts" />
 
-interface SearchResponse{
+interface SearchResponse {
     data: Array<string>
 }
 
-interface Player{
+interface Player {
     name: string,
     uuid: string,
     iconUrl?: string
 }
 
-interface Enchantment{
+interface Enchantment {
     id: number,
     name: string
 }
 
-interface Reforge{
+interface Reforge {
     id: number,
     name: string
 }
 
-interface Item{
+interface Item {
     name: string,
     tier?: string,
     category?: string,
@@ -28,13 +28,13 @@ interface Item{
     description?: string
 }
 
-interface ItemPrice{
+interface ItemPrice {
     item: Item,
     end: Date,
     price: number
 }
 
-interface AuctionDetails{
+interface AuctionDetails {
     auction: Auction
     claimed: boolean,
     count: number,
@@ -50,14 +50,14 @@ interface AuctionDetails{
     enchantments: Enchantment[]
 }
 
-interface Auction{
+interface Auction {
     uuid: string,
     highestBid: number,
     item: Item,
     end: Date
 }
 
-interface ItemBids{
+interface ItemBids {
     highestOwn: number,
     highestBid: number,
     item: Item,
@@ -65,13 +65,24 @@ interface ItemBids{
     end: date
 }
 
-interface PlayerDetails{
+interface PlayerDetails {
     bids: ItemBids[],
     auctions: Auction[]
+}
+
+interface EnchantmentFilter {
+    enchantment: Enchantment,
+    level: number
+}
+
+interface ItemPriceData {
+    end: Date,
+    price: number
 }
 
 interface API {
     websocket: WebSocket,
     search(searchText: string): Promise<Player[]>,
     getItemDetails(itemName: string): Promise<Item>
+    getItemPrices(itemName: string, fetchStart: Date, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>
 }

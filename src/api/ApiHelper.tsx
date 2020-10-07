@@ -50,19 +50,32 @@ function initAPI(): API {
         }
         delete response.mId;
         if (response.type.includes("error")) {
-            request.reject(JSON.parse(response.data));
+            request.reject(response.data);
         } else {
             request.resolve(JSON.parse(response.data));
         }
     };
 
+    let apiErrorHandler = (requestType: RequestType, errorMessage: string, requestData: any) => {
+        console.error("-----------------------------------------------------------------------------------------------")
+        console.error("API returned error! RequestType: " + requestType)
+        console.error(errorMessage)
+        console.error("Request-Data: ")
+        console.error(requestData);
+        console.error("-----------------------------------------------------------------------------------------------")
+    }
+
     const websocket: WebSocket = initWebsocket();
 
     let sendRequest = (request: ApiRequest): void => {
         if (websocket.readyState === WebSocket.OPEN) {
-            request.data = btoa(request.data);
+            request.data = btoa(JSON.stringify(request.data));
             requests.push(request);
             websocket.send(JSON.stringify(request));
+        } else if (websocket.readyState === WebSocket.CONNECTING) {
+            setTimeout(() => {
+                sendRequest(request);
+            }, 1000);
         }
     }
 
@@ -82,8 +95,8 @@ function initAPI(): API {
                     })
                     resolve(players);
                 },
-                reject: () => {
-                    reject();
+                reject: (error) => {
+                    apiErrorHandler(RequestType.SEARCH, error, searchText)
                 },
                 data: searchText
             }
@@ -106,9 +119,36 @@ function initAPI(): API {
                     })
                 },
                 reject: (error) => {
-                    reject(error);
+                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemName)
                 },
                 data: itemName
+            });
+        })
+    }
+
+    let getItemPrices = (itemName: string, fetchStart: Date, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]> => {
+        return new Promise((resolve, reject) => {
+            let requestData = {
+                name: itemName,
+                start: Math.round(fetchStart.getTime() / 1000),
+                reforge: reforge ? reforge.id : undefined,
+                enchantments: enchantmentFilter ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
+            };
+            sendRequest({
+                mId: requestCounter++,
+                type: RequestType.ITEM_PRICES,
+                resolve: (data: any) => {
+                    resolve(data.map((priceData: any) => {
+                        return {
+                            end: new Date(priceData.end),
+                            price: priceData.price
+                        } as ItemPriceData;
+                    }));
+                },
+                reject: (error) => {
+                    apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
+                },
+                data: requestData
             });
         })
     }
@@ -116,7 +156,8 @@ function initAPI(): API {
     return {
         websocket: websocket,
         search: search,
-        getItemDetails: getItemDetails
+        getItemDetails: getItemDetails,
+        getItemPrices: getItemPrices
     }
 }
 
