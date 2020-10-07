@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './PriceGraph.css';
 import Chart, { ChartConfiguration } from 'chart.js';
 import api from '../../api/ApiHelper';
@@ -13,6 +13,7 @@ interface Props {
 function PriceGraph(props: Props) {
 
     const priceChartCanvas = useRef<HTMLCanvasElement>(null);
+    let [priceChart, setPriceChart] = useState<Chart>();
 
     let updateChart = (priceChart: Chart) => {
         api.getItemPrices(props.item.name, props.fetchStart, undefined, props.enchantmentFilter).then((results) => {
@@ -20,7 +21,10 @@ function PriceGraph(props: Props) {
             priceChart!.data.datasets![0].data = results.map(item => {
                 return item.price;
             });
+            priceChart!.options.title!.text =
+                "Price for 1 " + props.item.name;
             priceChart.update();
+            setPriceChart(priceChart);
         });
     };
 
@@ -30,10 +34,12 @@ function PriceGraph(props: Props) {
 
     useEffect(() => {
         if (priceChartCanvas && priceChartCanvas.current) {
-            updateChart(createChart(priceConfig));
+            let chart = priceChart || createChart(priceConfig);
+            setPriceChart(chart);
+            updateChart(chart);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [priceChartCanvas])
+    }, [priceChartCanvas, props.item])
 
     return (
         <div className="price-graph">

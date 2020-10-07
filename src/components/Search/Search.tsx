@@ -1,15 +1,21 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import api from '../../api/ApiHelper';
 import { Form, ListGroup, Spinner } from 'react-bootstrap';
 import './Search.css';
-import items from '../../items.json'
+import items from '../../items.json';
+import { Link } from 'react-router-dom';
 
 
 interface SearchResultItem {
-    dataItem: Player | Item
+    dataItem: Player | Item,
+    route: string
 }
 
-function Search() {
+interface Props {
+    selected?: Player | Item
+}
+
+function Search(props) {
 
     let [searchText, setSearchText] = useState("");
     let [results, setResults] = useState<SearchResultItem[]>([]);
@@ -56,6 +62,11 @@ function Search() {
         });
     }
 
+    useEffect(() => {
+        setSearchText("");
+        setResults([]);
+    }, [props.selected])
+
     function searchItems(searchText: string, maxResults?: number): SearchResultItem[] {
         var matches = items.filter(item => {
             return item.toLowerCase().startsWith(searchText);
@@ -67,7 +78,8 @@ function Search() {
             return {
                 dataItem: {
                     name: match,
-                }
+                },
+                route: "/item/" + match
             }
         })
     }
@@ -77,7 +89,8 @@ function Search() {
             api.search(searchText).then(players => {
                 let results: SearchResultItem[] = players.map(p => {
                     return {
-                        dataItem: p
+                        dataItem: p,
+                        route: "/player/" + p.uuid
                     }
                 })
                 resolve(results);
@@ -116,13 +129,15 @@ function Search() {
                     <Spinner animation="border" role="status" variant="primary" /> :
                     <ListGroup>
                         {results.map((result, i) => (
-                            <ListGroup.Item action key={result.dataItem.name}>
-                                {result.dataItem.iconUrl ?
-                                    <img className="search-result-icon" width={64} height={64} src={result.dataItem.iconUrl} alt="" /> :
-                                    <Spinner animation="border" role="status" variant="primary" />
-                                }
-                                {result.dataItem.name}
-                            </ListGroup.Item>
+                            <Link to={result.route} key={result.dataItem.name}>
+                                <ListGroup.Item action>
+                                    {result.dataItem.iconUrl ?
+                                        <img className="search-result-icon" width={64} height={64} src={result.dataItem.iconUrl} alt="" /> :
+                                        <Spinner animation="border" role="status" variant="primary" />
+                                    }
+                                    {result.dataItem.name}
+                                </ListGroup.Item>
+                            </Link>
                         ))}
                     </ListGroup>
             }

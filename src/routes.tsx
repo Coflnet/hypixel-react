@@ -15,6 +15,6 @@ export default (
   <Switch>
     <Route exact path="/" component={() => <Redirect to="/item/diamond" />}/>
     <Route path='/player/:uuid' component={PlayerDetails}/>
-    <Route path='/item/:name' component={ItemDetails}/>
+    <Route path='/item/:itemName' component={ItemDetails}/>
   </Switch>
 );
