@@ -1,48 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Search from '../../components/Search/Search';
 import './PlayerDetails.css';
 import { useParams } from 'react-router-dom';
-import api from '../../api/ApiHelper';
+import AuctionList from '../../components/AuctionList/AuctionList';
+import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
+import BidList from '../../components/BidList/BidList';
+
+enum DetailType {
+    AUCTIONS = "auctions",
+    BIDS = "bids"
+}
 
 function PlayerDetails() {
 
     let { uuid } = useParams();
-    let [playerDetails, setPlayerDetails] = useState<PlayerDetails>();
+    let [detailType, setDetailType] = useState<DetailType>(DetailType.AUCTIONS);
 
-    let getPlayer = (uuid: string): Promise<PlayerDetails> => {
-        return api.getPlayerDetails(uuid);
+    let onDetailTypeChange = (newType: DetailType) => {
+        setDetailType(newType);
     }
 
-    useEffect(() => {
-        /*
-        currently not working
-        getPlayer(uuid).then((playerDetails) => {
-            setPlayerDetails(playerDetails);
-        })
-        */
-    }, [])
-
-    let auctionList = playerDetails?.auctions.map(auction => {
-        return (
-            <ul>
-                <li key={auction.uuid}>{auction.item.name}</li>
-            </ul>)
-    })
-    let bidList = playerDetails?.bids.map(bid => {
-        return (
-            <ul>
-                <li key={bid.auctionUUID + " - " + bid.item.name}>{bid.item.name}</li>
-            </ul>)
-    })
+    let getButtonVariant = (type: DetailType): string => {
+        return type === detailType ? "primary" : "light";
+    }
 
     return (
         <div className="player-details">
-            <Search />
-            <h1>PlayerDetails</h1>
-            <p>Bids: </p>
-            {bidList}
-            <h2>Auctions: </h2>
-            {auctionList}
+            <Search selected={uuid} />
+            <ToggleButtonGroup className="player-details-type" type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
+                <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">Auctions</ToggleButton>
+                <ToggleButton value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">Bids</ToggleButton>
+            </ToggleButtonGroup>
+            {detailType === DetailType.AUCTIONS ? <AuctionList playerUUID={uuid} /> : undefined}
+            {detailType === DetailType.BIDS ? <BidList playerUUID={uuid} /> : undefined}
         </div >
     );
 }

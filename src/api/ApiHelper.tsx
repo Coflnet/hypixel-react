@@ -69,7 +69,11 @@ function initAPI(): API {
 
     let sendRequest = (request: ApiRequest): void => {
         if (websocket.readyState === WebSocket.OPEN) {
-            request.data = btoa(JSON.stringify(request.data));
+            try {
+                request.data = btoa(JSON.stringify(request.data));
+            } catch (error) {
+                throw new Error("couldnt btoa this data: " + request.data);
+            }
             requests.push(request);
             websocket.send(JSON.stringify(request));
         } else if (websocket.readyState === WebSocket.CONNECTING) {
@@ -163,8 +167,8 @@ function initAPI(): API {
                     resolve({
                         bids: playerData.bids.map(bid => {
                             return {
+                                uuid: bid.uuid,
                                 highestOwn: bid.highestOwn,
-                                auctionUUID: bid.aucitonId,
                                 end: new Date(bid.end),
                                 highestBid: bid.highestBid,
                                 item: {
@@ -192,12 +196,75 @@ function initAPI(): API {
         });
     }
 
+    let getAuctions = (uuid: string, amount: number, offset: number): Promise<Auction[]> => {
+        return new Promise((resolve, reject) => {
+            let requestData = {
+                uuid: uuid,
+                amount: amount,
+                offset: offset
+            };
+            sendRequest({
+                mId: requestCounter++,
+                type: RequestType.PLAYER_AUCTION,
+                data: requestData,
+                resolve: (auctions) => {
+                    resolve(auctions.map(auction => {
+                        return {
+                            uuid: auction.uuid,
+                            end: new Date(auction.end),
+                            item: {
+                                name: auction.itemName
+                            },
+                            highestBid: auction.highestBid
+                        } as Auction
+                    }))
+                },
+                reject: (error) => {
+                    apiErrorHandler(RequestType.PLAYER_AUCTION, error, requestData);
+                }
+            })
+        });
+    }
+
+    let getBids = (uuid: string, amount: number, offset: number): Promise<ItemBid[]> => {
+        return new Promise((resolve, reject) => {
+            let requestData = {
+                uuid: uuid,
+                amount: amount,
+                offset: offset
+            };
+            sendRequest({
+                mId: requestCounter++,
+                type: RequestType.PLAYER_BIDS,
+                data: requestData,
+                resolve: (bids) => {
+                    resolve(bids.map(bid => {
+                        return {
+                            uuid: bid.uuid,
+                            end: new Date(bid.end),
+                            item: {
+                                name: bid.itemName
+                            },
+                            highestBid: bid.highestBid,
+                            highestOwn: bid.highestOwn
+                        } as ItemBid
+                    }));
+                },
+                reject: (error) => {
+                    apiErrorHandler(RequestType.PLAYER_BIDS, error, requestData);
+                }
+            })
+        });
+    }
+
     return {
         websocket: websocket,
         search: search,
         getItemDetails: getItemDetails,
         getItemPrices: getItemPrices,
-        getPlayerDetails: getPlayerDetails
+        getPlayerDetails: getPlayerDetails,
+        getAuctions: getAuctions,
+        getBids: getBids
     }
 }
 

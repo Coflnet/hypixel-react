@@ -58,10 +58,10 @@ interface Auction {
 }
 
 interface ItemBid {
+    uuid: string,
     highestOwn: number,
     highestBid: number,
     item: Item,
-    auctionUUID: string,
     end: date
 }
 
@@ -85,5 +85,7 @@ interface API {
     search(searchText: string): Promise<Player[]>,
     getItemDetails(itemName: string): Promise<Item>,
     getItemPrices(itemName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,
-    getPlayerDetails(playerUUID: string): Promise<PlayerDetails>
+    getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,
+    getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>,
+    getBids(uuid: string, amount: number, offset: number): Promise<ItemBid[]>
 }

@@ -12,15 +12,20 @@ interface SearchResultItem {
 }
 
 interface Props {
-    selected?: Player | Item
+    selected?: Player | Item | string
 }
 
-function Search(props) {
+function Search(props: Props) {
 
     let [searchText, setSearchText] = useState("");
     let [results, setResults] = useState<SearchResultItem[]>([]);
     let [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout>();
     let [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        setSearchText("");
+        setResults([]);
+    }, [props.selected])
 
     function search(searchText: string) {
         let itemResults: SearchResultItem[] = searchItems(searchText);
@@ -59,11 +64,6 @@ function Search(props) {
             setResults(resultList);
         });
     }
-
-    useEffect(() => {
-        setSearchText("");
-        setResults([]);
-    }, [props.selected])
 
     function searchItems(searchText: string, maxResults?: number): SearchResultItem[] {
         var matches = items.filter(item => {

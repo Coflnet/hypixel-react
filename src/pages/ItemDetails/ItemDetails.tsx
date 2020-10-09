@@ -18,8 +18,6 @@ function ItemDetails() {
         <div className="item-details">
             <Search selected={getItem()} />
             <PriceGraph item={getItem()} />
-            <p>{itemName}</p>
-            <h1>ItemDetails</h1>
         </div >
     );
 }

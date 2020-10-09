@@ -42,7 +42,7 @@ export function ItemPriceRange(props: Props) {
     let [selectedDateRange, setSelectedDateRange] = useState(DEFAULT_DATE_RANGE);
 
     let getButtonVariant = (range: DateRange): string => {
-        return range === selectedDateRange ? "light" : "primary";
+        return range === selectedDateRange ? "primary" : "light";
     }
 
     let onRangeChange = (newRange: DateRange) => {
@@ -55,8 +55,8 @@ export function ItemPriceRange(props: Props) {
     return (
         <ToggleButtonGroup className="item-price-range" type="radio" name="options" value={selectedDateRange} onChange={onRangeChange}>
             <ToggleButton className="price-range-button" value={DateRange.DAY} variant={getButtonVariant(DateRange.DAY)} size="lg">1 Day</ToggleButton>
-            <ToggleButton className="price-range-button" value={DateRange.MONTH} variant={getButtonVariant(DateRange.MONTH)} size="lg">1 Week</ToggleButton>
-            <ToggleButton className="price-range-button" value={DateRange.WEEK} variant={getButtonVariant(DateRange.WEEK)} size="lg">1 Month</ToggleButton>
+            <ToggleButton className="price-range-button" value={DateRange.WEEK} variant={getButtonVariant(DateRange.WEEK)} size="lg">1 Week</ToggleButton>
+            <ToggleButton className="price-range-button" value={DateRange.MONTH} variant={getButtonVariant(DateRange.MONTH)} size="lg">1 Month</ToggleButton>
             <ToggleButton className="price-range-button" value={DateRange.ALL} variant={getButtonVariant(DateRange.ALL)} size="lg">All Time</ToggleButton>
         </ToggleButtonGroup>
     )
