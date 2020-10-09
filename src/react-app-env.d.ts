@@ -57,16 +57,16 @@ interface Auction {
     end: Date
 }
 
-interface ItemBids {
+interface ItemBid {
     highestOwn: number,
     highestBid: number,
     item: Item,
-    auctionUUID: number,
+    auctionUUID: string,
     end: date
 }
 
 interface PlayerDetails {
-    bids: ItemBids[],
+    bids: ItemBid[],
     auctions: Auction[]
 }
 
@@ -83,6 +83,7 @@ interface ItemPriceData {
 interface API {
     websocket: WebSocket,
     search(searchText: string): Promise<Player[]>,
-    getItemDetails(itemName: string): Promise<Item>
-    getItemPrices(itemName: string, fetchStart: Date, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>
+    getItemDetails(itemName: string): Promise<Item>,
+    getItemPrices(itemName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,
+    getPlayerDetails(playerUUID: string): Promise<PlayerDetails>
 }

@@ -84,6 +84,7 @@ function initAPI(): API {
             var request: ApiRequest = {
                 mId: requestCounter++,
                 type: RequestType.SEARCH,
+                data: searchText,
                 resolve: (data: any) => {
                     var players: Player[] = data.map(p => {
                         let player: Player = {
@@ -97,8 +98,7 @@ function initAPI(): API {
                 },
                 reject: (error) => {
                     apiErrorHandler(RequestType.SEARCH, error, searchText)
-                },
-                data: searchText
+                }
             }
             sendRequest(request);
         })
@@ -109,6 +109,7 @@ function initAPI(): API {
             sendRequest({
                 mId: requestCounter++,
                 type: RequestType.ITEM_DETAILS,
+                data: itemName,
                 resolve: (data: any) => {
                     resolve({
                         name: data.AltNames[0],
@@ -120,23 +121,23 @@ function initAPI(): API {
                 },
                 reject: (error) => {
                     apiErrorHandler(RequestType.ITEM_DETAILS, error, itemName)
-                },
-                data: itemName
+                }
             });
         })
     }
 
-    let getItemPrices = (itemName: string, fetchStart: Date, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]> => {
+    let getItemPrices = (itemName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]> => {
         return new Promise((resolve, reject) => {
             let requestData = {
                 name: itemName,
-                start: Math.round(fetchStart.getTime() / 1000),
+                start: Math.round(fetchStart / 1000),
                 reforge: reforge ? reforge.id : undefined,
                 enchantments: enchantmentFilter ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
             };
             sendRequest({
                 mId: requestCounter++,
                 type: RequestType.ITEM_PRICES,
+                data: requestData,
                 resolve: (data: any) => {
                     resolve(data.map((priceData: any) => {
                         return {
@@ -147,17 +148,56 @@ function initAPI(): API {
                 },
                 reject: (error) => {
                     apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
-                },
-                data: requestData
+                }
             });
         })
+    }
+
+    let getPlayerDetails = (playerUUID: string): Promise<PlayerDetails> => {
+        return new Promise((resolve, reject) => {
+            sendRequest({
+                mId: requestCounter++,
+                type: RequestType.PLAYER_DETAIL,
+                data: playerUUID,
+                resolve: (playerData: any) => {
+                    resolve({
+                        bids: playerData.bids.map(bid => {
+                            return {
+                                highestOwn: bid.highestOwn,
+                                auctionUUID: bid.aucitonId,
+                                end: new Date(bid.end),
+                                highestBid: bid.highestBid,
+                                item: {
+                                    name: bid.itemName
+                                }
+                            } as ItemBid
+                        }),
+                        auctions: playerData.auctions.map(auction => {
+                            return {
+                                uuid: auction.auctionId,
+                                highestBid: auction.highestBid,
+                                end: new Date(auction.end),
+                                item: {
+                                    name: auction.itemName
+                                }
+                            } as Auction
+                        })
+                    } as PlayerDetails
+                    );
+                },
+                reject: (error) => {
+                    apiErrorHandler(RequestType.PLAYER_DETAIL, error, playerUUID)
+                }
+            })
+        });
     }
 
     return {
         websocket: websocket,
         search: search,
         getItemDetails: getItemDetails,
-        getItemPrices: getItemPrices
+        getItemPrices: getItemPrices,
+        getPlayerDetails: getPlayerDetails
     }
 }
 

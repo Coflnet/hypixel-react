@@ -48,9 +48,7 @@ function Search(props) {
         Promise.all(promises).then(itemResults => {
             let resultList = results.slice();
             itemResults.forEach((item, i) => {
-                //TODO: nicht mehr per Index suchen
-                //let result = resultList.find(r => { return r.dataItem.name === item.name }) || resultLi;
-                let result = resultList[i];
+                let result = resultList.find(r => { return r.dataItem.name === item.name });
                 if (result) {
                     let dataItem = result.dataItem as Item;
                     dataItem.category = item.category;

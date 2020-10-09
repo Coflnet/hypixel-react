@@ -1,6 +1,6 @@
 import React from 'react';
 import Search from '../../components/Search/Search';
-import PriceGraph from '../PriceGraph/PriceGraph';
+import PriceGraph from '../../components/PriceGraph/PriceGraph';
 import './ItemDetails.css';
 import { useParams } from "react-router-dom";
 
@@ -17,7 +17,7 @@ function ItemDetails() {
     return (
         <div className="item-details">
             <Search selected={getItem()} />
-            <PriceGraph item={getItem()} fetchStart={new Date(new Date().setDate(new Date().getDate() - 7))} />
+            <PriceGraph item={getItem()} />
             <p>{itemName}</p>
             <h1>ItemDetails</h1>
         </div >
