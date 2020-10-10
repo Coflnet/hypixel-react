@@ -81,7 +81,6 @@ interface ItemPriceData {
 }
 
 interface API {
-    websocket: WebSocket,
     search(searchText: string): Promise<Player[]>,
     getItemDetails(itemName: string): Promise<Item>,
     getItemPrices(itemName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,

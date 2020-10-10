@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ListGroup } from 'react-bootstrap';
+import { ListGroup, Spinner } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
 import { numberWithThousandsSeperators } from '../../utils/NumberFormatter';
@@ -75,7 +75,7 @@ function AuctionList(props: Props) {
 
     return (
         <div className="auction-list">
-            <InfiniteScroll dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<h4>Loading...</h4>}>
+            <InfiniteScroll dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<Spinner animation="border" role="status" variant="primary" />}>
                 <ListGroup>
                     {auctionList}
                 </ListGroup>

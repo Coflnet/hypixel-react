@@ -1,62 +1,8 @@
 import { parseAuction, parseItem, parseItemBid, parseItemPriceData, parsePlayer, parsePlayerDetails } from "../utils/APIResponseParser";
-
-enum RequestType {
-    SEARCH = "search",
-    PLAYER_DETAIL = "playerDetails",
-    ITEM_PRICES = "itemPrices",
-    AUCTION_DETAILS = "auctionDetails",
-    ITEM_DETAILS = "itemDetails",
-    PLAYER_AUCTION = "playerAuctions",
-    PLAYER_BIDS = "playerBids"
-}
-
-interface ApiRequest {
-    mId: number,
-    type: RequestType,
-    data: any,
-    resolve: Function,
-    reject: Function
-}
+import { RequestType } from "./ApiTypes.d";
+import { websocketHelper } from './WebsocketHelper';
 
 function initAPI(): API {
-
-    const requests: ApiRequest[] = [];
-    let requestCounter: number = 0;
-
-    let initWebsocket = (): WebSocket => {
-        let websocket = new WebSocket("wss://skyblock-backend.coflnet.com/skyblock");
-        websocket.onopen = onWebsocketOpen;
-        websocket.onclose = onWebsocketClose;
-        websocket.onerror = onWebsocketError;
-        websocket.onmessage = onWebsocketMessage;
-        return websocket;
-    };
-
-    let onWebsocketOpen = (): void => {
-        console.log("Websocket open");
-    };
-
-    let onWebsocketClose = (): void => {
-        console.log("Websocket closed");
-    };
-
-    let onWebsocketError = (e: Event): void => {
-        console.error(e)
-    };
-
-    let onWebsocketMessage = (e: MessageEvent): void => {
-        var response: any = JSON.parse(e.data);
-        let request: ApiRequest | undefined = requests.find(e => e.mId === response.mId);
-        if (!request) {
-            return;
-        }
-        delete response.mId;
-        if (response.type.includes("error")) {
-            request.reject(response.data);
-        } else {
-            request.resolve(JSON.parse(response.data));
-        }
-    };
 
     let apiErrorHandler = (requestType: RequestType, errorMessage: string, requestData: any) => {
         console.error("-----------------------------------------------------------------------------------------------")
@@ -67,28 +13,9 @@ function initAPI(): API {
         console.error("-----------------------------------------------------------------------------------------------")
     }
 
-    const websocket: WebSocket = initWebsocket();
-
-    let sendRequest = (request: ApiRequest): void => {
-        if (websocket.readyState === WebSocket.OPEN) {
-            try {
-                request.data = btoa(JSON.stringify(request.data));
-            } catch (error) {
-                throw new Error("couldnt btoa this data: " + request.data);
-            }
-            requests.push(request);
-            websocket.send(JSON.stringify(request));
-        } else if (websocket.readyState === WebSocket.CONNECTING) {
-            setTimeout(() => {
-                sendRequest(request);
-            }, 1000);
-        }
-    }
-
     let search = (searchText: string): Promise<Player[]> => {
         return new Promise((resolve, reject) => {
-            var request: ApiRequest = {
-                mId: requestCounter++,
+            websocketHelper.sendRequest({
                 type: RequestType.SEARCH,
                 data: searchText,
                 resolve: (players: any) => {
@@ -99,15 +26,13 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SEARCH, error, searchText)
                 }
-            }
-            sendRequest(request);
+            });
         })
     }
 
     let getItemDetails = (itemName: string): Promise<Item> => {
         return new Promise((resolve, reject) => {
-            sendRequest({
-                mId: requestCounter++,
+            websocketHelper.sendRequest({
                 type: RequestType.ITEM_DETAILS,
                 data: itemName,
                 resolve: (item: any) => {
@@ -128,8 +53,7 @@ function initAPI(): API {
                 reforge: reforge ? reforge.id : undefined,
                 enchantments: enchantmentFilter ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
             };
-            sendRequest({
-                mId: requestCounter++,
+            websocketHelper.sendRequest({
                 type: RequestType.ITEM_PRICES,
                 data: requestData,
                 resolve: (data: any) => {
@@ -146,8 +70,7 @@ function initAPI(): API {
 
     let getPlayerDetails = (playerUUID: string): Promise<PlayerDetails> => {
         return new Promise((resolve, reject) => {
-            sendRequest({
-                mId: requestCounter++,
+            websocketHelper.sendRequest({
                 type: RequestType.PLAYER_DETAIL,
                 data: playerUUID,
                 resolve: (playerData: any) => {
@@ -167,8 +90,7 @@ function initAPI(): API {
                 amount: amount,
                 offset: offset
             };
-            sendRequest({
-                mId: requestCounter++,
+            websocketHelper.sendRequest({
                 type: RequestType.PLAYER_AUCTION,
                 data: requestData,
                 resolve: (auctions: any) => {
@@ -190,8 +112,7 @@ function initAPI(): API {
                 amount: amount,
                 offset: offset
             };
-            sendRequest({
-                mId: requestCounter++,
+            websocketHelper.sendRequest({
                 type: RequestType.PLAYER_BIDS,
                 data: requestData,
                 resolve: (bids: any) => {
@@ -207,7 +128,6 @@ function initAPI(): API {
     }
 
     return {
-        websocket: websocket,
         search: search,
         getItemDetails: getItemDetails,
         getItemPrices: getItemPrices,

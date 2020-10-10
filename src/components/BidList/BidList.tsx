@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ListGroup } from 'react-bootstrap';
+import { ListGroup, Spinner } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
 import { numberWithThousandsSeperators } from '../../utils/NumberFormatter';
@@ -77,7 +77,7 @@ function BidList(props: Props) {
 
     return (
         <div className="bid-list">
-            <InfiniteScroll dataLength={bids.length} next={loadNewBids} hasMore={!allBidsLoaded} loader={<h4>Loading...</h4>}>
+            <InfiniteScroll dataLength={bids.length} next={loadNewBids} hasMore={!allBidsLoaded} loader={<Spinner animation="border" role="status" variant="primary" />}>
                 <ListGroup>
                     {bidsList}
                 </ListGroup>
