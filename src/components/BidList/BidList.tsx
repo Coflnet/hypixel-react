@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ListGroup } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
-import { numberWithThousandsSeperators } from '../../utils/Formatter/NumberFormatter';
+import { numberWithThousandsSeperators } from '../../utils/NumberFormatter';
 import './BidList.css'
 
 interface Props {

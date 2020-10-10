@@ -1,3 +1,5 @@
+import { parseAuction, parseItem, parseItemBid, parseItemPriceData, parsePlayer, parsePlayerDetails } from "../utils/APIResponseParser";
+
 enum RequestType {
     SEARCH = "search",
     PLAYER_DETAIL = "playerDetails",
@@ -89,18 +91,12 @@ function initAPI(): API {
                 mId: requestCounter++,
                 type: RequestType.SEARCH,
                 data: searchText,
-                resolve: (data: any) => {
-                    var players: Player[] = data.map(p => {
-                        let player: Player = {
-                            name: p[0],
-                            uuid: p[1],
-                            iconUrl: "https://crafatar.com/avatars/" + p[1]
-                        };
-                        return player;
-                    })
-                    resolve(players);
+                resolve: (players: any) => {
+                    resolve(players.map((player: any) => {
+                        return parsePlayer(player);
+                    }));
                 },
-                reject: (error) => {
+                reject: (error: any) => {
                     apiErrorHandler(RequestType.SEARCH, error, searchText)
                 }
             }
@@ -114,16 +110,10 @@ function initAPI(): API {
                 mId: requestCounter++,
                 type: RequestType.ITEM_DETAILS,
                 data: itemName,
-                resolve: (data: any) => {
-                    resolve({
-                        name: data.AltNames[0],
-                        category: data.Category,
-                        iconUrl: data.IconUrl || '/barrier.png',
-                        tier: data.Tier,
-                        description: data.Description
-                    })
+                resolve: (item: any) => {
+                    resolve(parseItem(item))
                 },
-                reject: (error) => {
+                reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_DETAILS, error, itemName)
                 }
             });
@@ -144,13 +134,10 @@ function initAPI(): API {
                 data: requestData,
                 resolve: (data: any) => {
                     resolve(data.map((priceData: any) => {
-                        return {
-                            end: new Date(priceData.end),
-                            price: priceData.price
-                        } as ItemPriceData;
+                        return parseItemPriceData(priceData);
                     }));
                 },
-                reject: (error) => {
+                reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
                 }
             });
@@ -164,32 +151,9 @@ function initAPI(): API {
                 type: RequestType.PLAYER_DETAIL,
                 data: playerUUID,
                 resolve: (playerData: any) => {
-                    resolve({
-                        bids: playerData.bids.map(bid => {
-                            return {
-                                uuid: bid.uuid,
-                                highestOwn: bid.highestOwn,
-                                end: new Date(bid.end),
-                                highestBid: bid.highestBid,
-                                item: {
-                                    name: bid.itemName
-                                }
-                            } as ItemBid
-                        }),
-                        auctions: playerData.auctions.map(auction => {
-                            return {
-                                uuid: auction.auctionId,
-                                highestBid: auction.highestBid,
-                                end: new Date(auction.end),
-                                item: {
-                                    name: auction.itemName
-                                }
-                            } as Auction
-                        })
-                    } as PlayerDetails
-                    );
+                    resolve(parsePlayerDetails(playerData));
                 },
-                reject: (error) => {
+                reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_DETAIL, error, playerUUID)
                 }
             })
@@ -207,19 +171,12 @@ function initAPI(): API {
                 mId: requestCounter++,
                 type: RequestType.PLAYER_AUCTION,
                 data: requestData,
-                resolve: (auctions) => {
-                    resolve(auctions.map(auction => {
-                        return {
-                            uuid: auction.uuid,
-                            end: new Date(auction.end),
-                            item: {
-                                name: auction.itemName
-                            },
-                            highestBid: auction.highestBid
-                        } as Auction
+                resolve: (auctions: any) => {
+                    resolve(auctions.map((auction: any) => {
+                        return parseAuction(auction);
                     }))
                 },
-                reject: (error) => {
+                reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_AUCTION, error, requestData);
                 }
             })
@@ -237,20 +194,12 @@ function initAPI(): API {
                 mId: requestCounter++,
                 type: RequestType.PLAYER_BIDS,
                 data: requestData,
-                resolve: (bids) => {
-                    resolve(bids.map(bid => {
-                        return {
-                            uuid: bid.uuid,
-                            end: new Date(bid.end),
-                            item: {
-                                name: bid.itemName
-                            },
-                            highestBid: bid.highestBid,
-                            highestOwn: bid.highestOwn
-                        } as ItemBid
+                resolve: (bids: any) => {
+                    resolve(bids.map((bid: any) => {
+                        return parseItemBid(bid);
                     }));
                 },
-                reject: (error) => {
+                reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_BIDS, error, requestData);
                 }
             })
