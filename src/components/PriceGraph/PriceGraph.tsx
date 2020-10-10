@@ -23,7 +23,7 @@ function PriceGraph(props: Props) {
             updateChart(chart, fetchspan);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [priceChartCanvas, props.item])
+    }, [priceChartCanvas, props.item, props.enchantmentFilter])
 
     let updateChart = (priceChart: Chart, fetchspan: number) => {
         api.getItemPrices(props.item.name, fetchspan, undefined, props.enchantmentFilter).then((results) => {

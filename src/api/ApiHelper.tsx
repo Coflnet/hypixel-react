@@ -1,4 +1,4 @@
-import { parseAuction, parseItem, parseItemBid, parseItemPriceData, parsePlayer, parsePlayerDetails } from "../utils/APIResponseParser";
+import { parseAuction, parseEnchantment, parseItem, parseItemBid, parseItemPriceData, parsePlayer, parsePlayerDetails } from "../utils/Parser/APIResponseParser";
 import { RequestType } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 
@@ -51,7 +51,7 @@ function initAPI(): API {
                 name: itemName,
                 start: Math.round(fetchStart / 1000),
                 reforge: reforge ? reforge.id : undefined,
-                enchantments: enchantmentFilter ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
+                enchantments: enchantmentFilter && enchantmentFilter.enchantment && enchantmentFilter.level ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
             };
             websocketHelper.sendRequest({
                 type: RequestType.ITEM_PRICES,
@@ -127,13 +127,31 @@ function initAPI(): API {
         });
     }
 
+    let getEnchantments = (): Promise<Enchantment[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.ALL_ENCHANTMENTS,
+                data: "",
+                resolve: (enchantments: any) => {
+                    resolve(enchantments.map((enchantment: any, i: number) => {
+                        return parseEnchantment(enchantment, i);
+                    }))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, "");
+                }
+            })
+        })
+    }
+
     return {
         search: search,
         getItemDetails: getItemDetails,
         getItemPrices: getItemPrices,
         getPlayerDetails: getPlayerDetails,
         getAuctions: getAuctions,
-        getBids: getBids
+        getBids: getBids,
+        getEnchantments: getEnchantments
     }
 }
 

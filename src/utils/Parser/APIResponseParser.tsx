@@ -71,3 +71,23 @@ export function parsePlayer(player: any): Player {
         iconUrl: "https://crafatar.com/avatars/" + player[1]
     }
 }
+
+export function parseEnchantment(enchantment: any, id: number): Enchantment {
+
+    function formatEnchantmentName(enchantment: string): string {
+        let formatted: string = enchantment.replace("_", " ");
+        formatted = capitalizeWords(formatted);
+        return formatted;
+    }
+
+    function capitalizeWords(text: string): string {
+        return text.replace(/\w\S*/g, function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    }
+
+    return {
+        id: id,
+        name: formatEnchantmentName(enchantment)
+    }
+}

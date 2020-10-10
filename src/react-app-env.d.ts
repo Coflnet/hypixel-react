@@ -12,7 +12,7 @@ interface Player {
 
 interface Enchantment {
     id: number,
-    name: string
+    name?: string
 }
 
 interface Reforge {
@@ -71,8 +71,8 @@ interface PlayerDetails {
 }
 
 interface EnchantmentFilter {
-    enchantment: Enchantment,
-    level: number
+    enchantment?: Enchantment,
+    level?: number
 }
 
 interface ItemPriceData {
@@ -86,5 +86,6 @@ interface API {
     getItemPrices(itemName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,
     getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,
     getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>,
-    getBids(uuid: string, amount: number, offset: number): Promise<ItemBid[]>
+    getBids(uuid: string, amount: number, offset: number): Promise<ItemBid[]>,
+    getEnchantments(): Promise<Enchantment[]>
 }
