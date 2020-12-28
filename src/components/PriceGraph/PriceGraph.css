@@ -1,3 +1,9 @@
 .price-graph {
     height: 60vh;
+    width: 99vw;
+    position: relative;
+}
+
+.loadingDiv {
+    position: absolute;
 }

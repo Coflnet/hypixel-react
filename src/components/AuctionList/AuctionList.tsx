@@ -75,7 +75,7 @@ function AuctionList(props: Props) {
 
     return (
         <div className="auction-list">
-            <InfiniteScroll dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<Spinner animation="border" role="status" variant="primary" />}>
+            <InfiniteScroll style={{overflow: "hidden"}} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<Spinner animation="border" role="status" variant="primary" />}>
                 <ListGroup>
                     {auctionList}
                 </ListGroup>
