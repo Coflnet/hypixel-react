@@ -1,4 +1,5 @@
 import { ApiRequest, WebsocketHelper } from "./ApiTypes.d";
+import {Base64} from "js-base64";
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
@@ -12,10 +13,12 @@ function initWebsocket(): WebSocket {
 
     let onWebsocketClose = (): void => {
         console.log("Websocket closed");
+        console.log("reopening Websocket")
+        websocket = getNewWebsocket();
     };
 
     let onWebsocketError = (e: Event): void => {
-        console.error(e)
+        console.error(e);
     };
 
     let onWebsocketMessage = (e: MessageEvent): void => {
@@ -32,19 +35,24 @@ function initWebsocket(): WebSocket {
         }
     };
 
-    let websocket = new WebSocket("wss://skyblock-backend.coflnet.com/skyblock");
-    websocket.onopen = onWebsocketOpen;
-    websocket.onclose = onWebsocketClose;
-    websocket.onerror = onWebsocketError;
-    websocket.onmessage = onWebsocketMessage;
-    return websocket;
+    let getNewWebsocket = (): WebSocket => {
+        let websocket = new WebSocket("wss://skyblock-backend.coflnet.com/skyblock");
+        websocket.onopen = onWebsocketOpen;
+        websocket.onclose = onWebsocketClose;
+        websocket.onerror = onWebsocketError;
+        websocket.onmessage = onWebsocketMessage;
+        return websocket;
+    }
+
+    return getNewWebsocket();
 }
 
 function sendRequest(request: ApiRequest): void {
     if (websocket.readyState === WebSocket.OPEN) {
         request.mId = requestCounter++;
+
         try {
-            request.data = btoa(JSON.stringify(request.data));
+            request.data = Base64.encode(JSON.stringify(request.data));
         } catch (error) {
             throw new Error("couldnt btoa this data: " + request.data);
         }

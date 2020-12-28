@@ -56,7 +56,7 @@ export function parseItemPriceData(priceData: any): ItemPriceData {
 
 export function parseItem(item: any): Item {
     return {
-        name: item.AltNames[0],
+        name: item.Name,
         category: item.Category,
         iconUrl: item.IconUrl || '/barrier.png',
         tier: item.Tier,
@@ -69,5 +69,25 @@ export function parsePlayer(player: any): Player {
         name: player[0],
         uuid: player[1],
         iconUrl: "https://crafatar.com/avatars/" + player[1]
+    }
+}
+
+export function parseEnchantment(enchantment: any, id: number): Enchantment {
+
+    function formatEnchantmentName(enchantment: string): string {
+        let formatted: string = enchantment.replace("_", " ");
+        formatted = capitalizeWords(formatted);
+        return formatted;
+    }
+
+    function capitalizeWords(text: string): string {
+        return text.replace(/\w\S*/g, function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    }
+
+    return {
+        id: id,
+        name: formatEnchantmentName(enchantment)
     }
 }
