@@ -1,4 +1,4 @@
-import { parseAuction, parseEnchantment, parseItem, parseItemBid, parseItemPriceData, parsePlayer, parsePlayerDetails } from "../utils/Parser/APIResponseParser";
+import { parseAuction, parseEnchantment, parseItem, parseItemBid, parseItemPriceData, parsePlayerDetails, parseSearchResultItem } from "../utils/Parser/APIResponseParser";
 import { RequestType } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 
@@ -13,14 +13,14 @@ function initAPI(): API {
         console.error("-----------------------------------------------------------------------------------------------")
     }
 
-    let search = (searchText: string): Promise<Player[]> => {
+    let search = (searchText: string): Promise<SearchResultItem[]> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.SEARCH,
                 data: searchText,
-                resolve: (players: any) => {
-                    resolve(players.map((player: any) => {
-                        return parsePlayer(player);
+                resolve: (items: any) => {
+                    resolve(items.map((item: any) => {
+                        return parseSearchResultItem(item);
                     }));
                 },
                 reject: (error: any) => {

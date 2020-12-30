@@ -64,14 +64,6 @@ export function parseItem(item: any): Item {
     }
 }
 
-export function parsePlayer(player: any): Player {
-    return {
-        name: player[0],
-        uuid: player[1],
-        iconUrl: "https://crafatar.com/avatars/" + player[1]
-    }
-}
-
 export function parseEnchantment(enchantment: any, id: number): Enchantment {
 
     function formatEnchantmentName(enchantment: string): string {
@@ -89,5 +81,17 @@ export function parseEnchantment(enchantment: any, id: number): Enchantment {
     return {
         id: id,
         name: formatEnchantmentName(enchantment)
+    }
+}
+
+export function parseSearchResultItem(item: any): SearchResultItem {
+    return {
+        dataItem: {
+            name: item.name,
+            iconUrl: item.iconUrl,
+            uuid: item.id
+        },
+        type: item.type,
+        route: item.type === "item" ? "/item/" + item.name : "/player/" + item.id
     }
 }
