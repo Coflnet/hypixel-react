@@ -144,8 +144,24 @@ function initAPI(): API {
         })
     }
 
+    let trackSearch = (fullSearchId: string, fullSearchType: string): void => {
+        let requestData = {
+            id: fullSearchId,
+            type: fullSearchType
+        };
+        websocketHelper.sendRequest({
+            type: RequestType.TRACK_SEARCH,
+            data: requestData,
+            resolve: () => {},
+            reject: (error: any) => {
+                apiErrorHandler(RequestType.TRACK_SEARCH, error, requestData);
+            }
+        })
+    }
+
     return {
         search: search,
+        trackSearch: trackSearch,
         getItemDetails: getItemDetails,
         getItemPrices: getItemPrices,
         getPlayerDetails: getPlayerDetails,

@@ -2,13 +2,15 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import api from '../../api/ApiHelper';
 import { Form, ListGroup, Spinner } from 'react-bootstrap';
 import './Search.css';
-import { Link } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 
 interface Props {
     selected?: Player | Item | string
 }
 
 function Search(props: Props) {
+
+    let history = useHistory();
 
     let [searchText, setSearchText] = useState("");
     let [results, setResults] = useState<SearchResultItem[]>([]);
@@ -22,7 +24,7 @@ function Search(props: Props) {
 
     function search(searchText: string) {
         api.search(searchText).then(searchResults => {
-            if(!isLoading){
+            if (!isLoading) {
                 // Läd nicht mehr -> keine Suche mehr in der zwischenzeit
                 return;
             }
@@ -49,11 +51,25 @@ function Search(props: Props) {
         setSearchDebounce(timeout);
     }
 
+    function onKeyPress(e: KeyboardEvent) {
+        if (!results || e.key !== "Enter") {
+            return;
+        }
+        onItemClick(results[0]);
+    }
+
+    function onItemClick(item: SearchResultItem) {
+        api.trackSearch(item.id, item.type);
+        history.push({
+            pathname: item.route
+        })
+    }
+
     return (
         <div className="search">
             <Form>
                 <Form.Group>
-                    <Form.Control type="text" placeholder="Search player/item" value={searchText} onChange={onSearchChange} />
+                    <Form.Control type="text" placeholder="Search player/item" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
                 </Form.Group>
             </Form>
             {
@@ -61,15 +77,13 @@ function Search(props: Props) {
                     <Spinner animation="border" role="status" variant="primary" /> :
                     <ListGroup>
                         {results.map((result, i) => (
-                            <Link to={result.route} key={result.dataItem.name}>
-                                <ListGroup.Item action>
-                                    {result.dataItem.iconUrl ?
-                                        <img className="search-result-icon" width={64} height={64} src={result.dataItem.iconUrl} alt="" /> :
-                                        <Spinner animation="border" role="status" variant="primary" />
-                                    }
-                                    {result.dataItem.name}
-                                </ListGroup.Item>
-                            </Link>
+                            <ListGroup.Item action onClick={(e: any) => { onItemClick(result) }}>
+                                {result.dataItem.iconUrl ?
+                                    <img className="search-result-icon" width={64} height={64} src={result.dataItem.iconUrl} alt="" /> :
+                                    <Spinner animation="border" role="status" variant="primary" />
+                                }
+                                {result.dataItem.name}
+                            </ListGroup.Item>
                         ))}
                     </ListGroup>
             }

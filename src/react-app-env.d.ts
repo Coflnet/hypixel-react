@@ -79,11 +79,13 @@ interface ItemPriceData {
 interface SearchResultItem {
     dataItem: Player | Item,
     type: string,
-    route: string
+    route: string,
+    id: string
 }
 
 interface API {
     search(searchText: string): Promise<SearchResultItem[]>,
+    trackSearch(fullSearchId: string, fullSearchType: string): void,
     getItemDetails(itemName: string): Promise<Item>,
     getItemPrices(itemName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,
     getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,
