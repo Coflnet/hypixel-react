@@ -1,9 +1,5 @@
 /// <reference types="react-scripts" />
 
-interface SearchResponse {
-    data: Array<string>
-}
-
 interface Player {
     name: string,
     uuid: string,
@@ -80,8 +76,14 @@ interface ItemPriceData {
     price: number
 }
 
+interface SearchResultItem {
+    dataItem: Player | Item,
+    type: string,
+    route: string
+}
+
 interface API {
-    search(searchText: string): Promise<Player[]>,
+    search(searchText: string): Promise<SearchResultItem[]>,
     getItemDetails(itemName: string): Promise<Item>,
     getItemPrices(itemName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,
     getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,

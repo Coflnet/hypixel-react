@@ -2,14 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import api from '../../api/ApiHelper';
 import { Form, ListGroup, Spinner } from 'react-bootstrap';
 import './Search.css';
-import items from '../../items.json';
 import { Link } from 'react-router-dom';
-
-
-interface SearchResultItem {
-    dataItem: Player | Item,
-    route: string
-}
 
 interface Props {
     selected?: Player | Item | string
@@ -28,73 +21,13 @@ function Search(props: Props) {
     }, [props.selected])
 
     function search(searchText: string) {
-        let itemResults: SearchResultItem[] = searchItems(searchText);
-        if (itemResults.length < 5) {
-            searchPlayers(searchText).then(playerResults => {
-                onAfterSearch(itemResults, playerResults.slice(0, 5 - itemResults.length))
-            })
-        } else {
-            onAfterSearch(itemResults.slice(0, 5), [])
-        }
-    }
-
-    function onAfterSearch(itemResults: SearchResultItem[], playerResults: SearchResultItem[]) {
-        let results = playerResults.concat(itemResults);;
-        setResults(results);
-        setIsLoading(false);
-        loadAdditionalItemInfo(results, itemResults);
-    }
-
-    function loadAdditionalItemInfo(results: SearchResultItem[], itemResults: SearchResultItem[]): void {
-        let promises: Promise<Item>[] = [];
-        itemResults.forEach(item => {
-            promises.push(api.getItemDetails(item.dataItem.name))
-        })
-        Promise.all(promises).then(itemResults => {
-            let resultList = results.slice();
-            itemResults.forEach((item, i) => {
-                let result = resultList.find(r => { return r.dataItem.name === item.name });
-                if (result) {
-                    let dataItem = result.dataItem as Item;
-                    dataItem.category = item.category;
-                    dataItem.iconUrl = item.iconUrl;
-                    dataItem.tier = item.tier;
-                }
-            })
-            setResults(resultList);
-        });
-    }
-
-    function searchItems(searchText: string, maxResults?: number): SearchResultItem[] {
-        var matches = items.filter(item => {
-            return item.toLowerCase().startsWith(searchText);
-        })
-        if (maxResults) {
-            matches.slice(0, maxResults);
-        }
-        return matches.map(match => {
-            return {
-                dataItem: {
-                    name: match,
-                },
-                route: "/item/" + match
+        api.search(searchText).then(searchResults => {
+            if(!isLoading){
+                // Läd nicht mehr -> keine Suche mehr in der zwischenzeit
+                return;
             }
-        })
-    }
-
-    function searchPlayers(searchText: string): Promise<SearchResultItem[]> {
-        return new Promise(function (resolve, reject) {
-            api.search(searchText).then(players => {
-                let results: SearchResultItem[] = players.map(p => {
-                    return {
-                        dataItem: p,
-                        route: "/player/" + p.uuid
-                    }
-                })
-                resolve(results);
-            }).catch(error => {
-                reject(error);
-            });
+            setResults(searchResults);
+            setIsLoading(false);
         });
     }
 
@@ -102,6 +35,7 @@ function Search(props: Props) {
         let newSearchText: string = (e.target as HTMLInputElement).value;
         setSearchText(newSearchText);
         if (newSearchText === "") {
+            setResults([]);
             setIsLoading(false);
             return;
         }
