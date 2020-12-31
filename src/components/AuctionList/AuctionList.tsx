@@ -27,6 +27,7 @@ function AuctionList(props: Props) {
 
     let loadNewAuctions = (): void => {
         api.getAuctions(props.playerUUID, 20, auctions.length).then(newAuctions => {
+            console.log(newAuctions)
             if (newAuctions.length === 0) {
                 setAllAuctinosLoaded(true);
             }
@@ -58,8 +59,14 @@ function AuctionList(props: Props) {
 
     let getItemImageElement = (auction: Auction) => {
         return (
-            auction.item.iconUrl ? <img className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" /> : undefined
+            auction.item.iconUrl ? <img className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" onError={(error)=>onImageLoadError(auction,error)}/> : undefined
         )
+    }
+
+    let onImageLoadError = (auction: Auction,data:any) => {
+        // todo, something to find the image
+        console.log(data);
+        console.log(auction.item);
     }
 
     let onAuctionClick = (auction: Auction) => {
@@ -75,7 +82,7 @@ function AuctionList(props: Props) {
                     {
                         getItemImageElement(auction)
                     }
-                    {auction.item.tag}
+                    {auction.item.name}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(auction.highestBid)} {getCoinImage()}</p>
                 <p>End of Auction: {auction.end.toLocaleTimeString() + " " + auction.end.toLocaleDateString()}</p>

@@ -89,7 +89,7 @@ export function parseEnchantment(enchantment: any, id: number): Enchantment {
 export function parseSearchResultItem(item: any): SearchResultItem {
     return {
         dataItem: {
-            tag: item.name,
+            name: item.name,
             iconUrl: item.iconUrl,
             uuid: item.id
         },
