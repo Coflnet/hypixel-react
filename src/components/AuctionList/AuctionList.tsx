@@ -27,7 +27,6 @@ function AuctionList(props: Props) {
 
     let loadNewAuctions = (): void => {
         api.getAuctions(props.playerUUID, 20, auctions.length).then(newAuctions => {
-            console.log(newAuctions)
             if (newAuctions.length === 0) {
                 setAllAuctinosLoaded(true);
             }

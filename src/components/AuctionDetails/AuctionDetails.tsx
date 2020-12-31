@@ -22,7 +22,6 @@ function AuctionDetails(props: Props) {
     let loadAuctionDetails = () => {
         api.getAuctionDetails(props.auctionUUID).then(auctionDetails => {
             setAuctionDetails(auctionDetails);
-            console.log(auctionDetails)
         })
     }
 

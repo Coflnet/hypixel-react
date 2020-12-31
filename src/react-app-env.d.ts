@@ -87,7 +87,7 @@ interface SearchResultItem {
 interface API {
     search(searchText: string): Promise<SearchResultItem[]>,
     trackSearch(fullSearchId: string, fullSearchType: string): void,
-    getItemImageUrl(itemTag: string) : Promise<string>,
+    getItemImageUrl(itemTag: string): Promise<string>,
     getItemDetails(itemName: string): Promise<Item>,
     getItemPrices(itemName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,
     getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,
@@ -95,4 +95,10 @@ interface API {
     getBids(uuid: string, amount: number, offset: number): Promise<ItemBid[]>,
     getEnchantments(): Promise<Enchantment[]>,
     getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>
+}
+
+
+interface CacheUtils {
+    getFromCache(type: string, data: string): Promise<any>,
+    setIntoCache(type: string, data: string, response:any): void
 }

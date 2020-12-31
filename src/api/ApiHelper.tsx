@@ -151,7 +151,6 @@ function initAPI(): API {
                 type: RequestType.ALL_ENCHANTMENTS,
                 data: "",
                 resolve: (enchantments: any) => {
-                    console.log(enchantments);
                     resolve(enchantments.map((enchantment: any, i: number) => {
                         return parseEnchantment(enchantment, i);
                     }))

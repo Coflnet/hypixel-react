@@ -67,7 +67,7 @@ function BidList(props: Props) {
                     {
                         getItemImageElement(bid)
                     }
-                    {bid.item.tag}
+                    {bid.item.name}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
                 <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>

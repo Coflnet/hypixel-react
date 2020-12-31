@@ -1,9 +1,9 @@
 import { ApiRequest, WebsocketHelper } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
-import { get, set, keys } from 'idb-keyval';
 import cookie from 'cookie';
 import data from "../components/PriceGraph/PriceGraphConfig";
+import cacheUtils from '../utils/CacheUtils';
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
@@ -35,10 +35,11 @@ function initWebsocket(): WebSocket {
         if (response.type.includes("error")) {
             request.reject(response.data);
         } else {
-            request.resolve(JSON.parse(response.data));
+            let parsedResponse = JSON.parse(response.data);
+            request.resolve(parsedResponse);
             // cache the response 
             if (!request.type.includes("subscribe")) {
-                set(request.type + Base64.decode(request.data), response.data);
+                cacheUtils.setIntoCache(request.type,Base64.decode(request.data),parsedResponse);
             }
         }
     };
@@ -61,36 +62,31 @@ function initWebsocket(): WebSocket {
     return getNewWebsocket();
 }
 
-async function sendRequest(request: ApiRequest): Promise<void> {
-    let requestJson = JSON.stringify(request.data);
-    var cacheValue = await get(request.type + requestJson)
-
-    if (cacheValue) {
-        request.resolve(JSON.parse(cacheValue as string));
-        return;
-    }
-
-    if (websocket.readyState === WebSocket.OPEN) {
-
-
-
-        request.mId = requestCounter++;
-
-        try {
-            request.data = Base64.encode(requestJson);
-        } catch (error) {
-            throw new Error("couldnt btoa this data: " + request.data);
+function sendRequest(request: ApiRequest): Promise<void> {
+    let requestString = JSON.stringify(request.data);
+    return cacheUtils.getFromCache(request.type,requestString).then(cacheValue => {
+        if (cacheValue) {
+            request.resolve(cacheValue);
+            return;
         }
 
+        if (websocket.readyState === WebSocket.OPEN) {
+            request.mId = requestCounter++;
 
+            try {
+                request.data = Base64.encode(requestString);
+            } catch (error) {
+                throw new Error("couldnt btoa this data: " + request.data);
+            }
 
-        requests.push(request);
-        websocket.send(JSON.stringify(request));
-    } else if (websocket.readyState === WebSocket.CONNECTING) {
-        setTimeout(() => {
-            sendRequest(request);
-        }, 1000);
-    }
+            requests.push(request);
+            websocket.send(JSON.stringify(request));
+        } else if (websocket.readyState === WebSocket.CONNECTING) {
+            setTimeout(() => {
+                sendRequest(request);
+            }, 1000);
+        }
+    })
 }
 
 export let websocketHelper: WebsocketHelper = {
