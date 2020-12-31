@@ -39,14 +39,14 @@ function Search(props: Props) {
             clearTimeout(searchDebounce);
         }
         // there is a search response for "", it contains the most popular overall
-        /*if (newSearchText === "") {
+        if (newSearchText === "") {
             setResults([]);
             setIsLoading(false);
             return;
-        } */
+        }
         let timeout = setTimeout(() => {
             search(newSearchText);
-        }, 50);
+        }, 200);
         setSearchDebounce(timeout);
     }
 
