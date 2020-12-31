@@ -3,7 +3,8 @@ export function parseItemBid(bid: any): ItemBid {
         uuid: bid.uuid,
         end: new Date(bid.end),
         item: {
-            name: bid.itemName
+            name: bid.itemName,
+            tag: bid.tag
         },
         highestBid: bid.highestBid,
         highestOwn: bid.highestOwn
@@ -15,6 +16,7 @@ export function parseAuction(auction: any): Auction {
         uuid: auction.uuid,
         end: new Date(auction.end),
         item: {
+            tag: auction.tag,
             name: auction.itemName
         },
         highestBid: auction.highestBid
@@ -30,7 +32,7 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
                 end: new Date(bid.end),
                 highestBid: bid.highestBid,
                 item: {
-                    name: bid.itemName
+                    tag: bid.itemName
                 }
             } as ItemBid
         }),
@@ -40,7 +42,7 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
                 highestBid: auction.highestBid,
                 end: new Date(auction.end),
                 item: {
-                    name: auction.itemName
+                    tag: auction.itemName
                 }
             } as Auction
         })
@@ -56,7 +58,7 @@ export function parseItemPriceData(priceData: any): ItemPriceData {
 
 export function parseItem(item: any): Item {
     return {
-        name: item.Name,
+        tag: item.Name,
         category: item.Category,
         iconUrl: item.IconUrl || '/barrier.png',
         tier: item.Tier,
@@ -87,7 +89,7 @@ export function parseEnchantment(enchantment: any, id: number): Enchantment {
 export function parseSearchResultItem(item: any): SearchResultItem {
     return {
         dataItem: {
-            name: item.name,
+            tag: item.name,
             iconUrl: item.iconUrl,
             uuid: item.id
         },
@@ -104,7 +106,7 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
             end: auctionDetails.end,
             highestBid: auctionDetails.bids[0],
             item: {
-                name: auctionDetails.ItemName,
+                tag: auctionDetails.ItemName,
                 category: auctionDetails.Category,
                 tier: auctionDetails.Tier
             }

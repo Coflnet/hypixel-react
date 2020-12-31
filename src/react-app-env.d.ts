@@ -17,8 +17,9 @@ interface Reforge {
 }
 
 interface Item {
-    name: string,
+    tag: string,
     tier?: string,
+    name?: string,
     category?: string,
     iconUrl?: string,
     description?: string
@@ -86,6 +87,7 @@ interface SearchResultItem {
 interface API {
     search(searchText: string): Promise<SearchResultItem[]>,
     trackSearch(fullSearchId: string, fullSearchType: string): void,
+    getItemImageUrl(itemTag: string) : Promise<string>,
     getItemDetails(itemName: string): Promise<Item>,
     getItemPrices(itemName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,
     getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,

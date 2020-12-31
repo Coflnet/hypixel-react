@@ -34,7 +34,7 @@ function PriceGraph(props: Props) {
         priceChart!.update();
         setPriceChart(priceChart);
 
-        api.getItemPrices(props.item.name, fetchspan, undefined, props.enchantmentFilter).then((results) => {
+        api.getItemPrices(props.item.tag, fetchspan, undefined, props.enchantmentFilter).then((results) => {
             priceChart.clear();
             priceChart!.data.labels = results.map(item => item.end.getTime());
             priceChart!.data.datasets![0].data = results.map(item => {
@@ -44,7 +44,7 @@ function PriceGraph(props: Props) {
                 return (a as number) - (b as number);
             });
             priceChart!.options.title!.text =
-                "Price for 1 " + props.item.name;
+                "Price for 1 " + props.item.tag;
             priceChart.update();
             setPriceChart(priceChart);
             setIsLoading(false);

@@ -28,19 +28,19 @@ function BidList(props: Props) {
                 setAllBidsLoaded(true);
             }
             newBids.forEach(auction => {
-                loadItemImage(auction.item.name, auction.uuid, bids.concat(newBids));
+                loadItemImage(auction.item.tag, auction.uuid, bids.concat(newBids));
             })
             setBids(bids.concat(newBids));
         })
     }
 
-    let loadItemImage = (itemName: string, bidUUID: string, bids: ItemBid[]): void => {
-        api.getItemDetails(itemName).then((item => {
+    let loadItemImage = (itemTag: string, bidUUID: string, bids: ItemBid[]): void => {
+        api.getItemImageUrl(itemTag).then((iconUrl => {
             let updatedBids = bids.slice();
             let bid = updatedBids.find(b => b.uuid === bidUUID);
             if (bid) {
-                if (item.name) {
-                    bid.item = item;
+                if (iconUrl) {
+                    bid.item.iconUrl = iconUrl;
                 }
             }
             setBids(updatedBids);
@@ -67,7 +67,7 @@ function BidList(props: Props) {
                     {
                         getItemImageElement(bid)
                     }
-                    {bid.item.name}
+                    {bid.item.tag}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
                 <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>

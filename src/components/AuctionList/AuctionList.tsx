@@ -31,19 +31,19 @@ function AuctionList(props: Props) {
                 setAllAuctinosLoaded(true);
             }
             newAuctions.forEach(auction => {
-                loadItemImage(auction.item.name, auction.uuid, auctions.concat(newAuctions));
+                loadItemImage(auction.item.tag, auction.uuid, auctions.concat(newAuctions));
             })
             setAuctions(auctions.concat(newAuctions));
         })
     }
 
-    let loadItemImage = (itemName: string, auctionUUID: string, auctions: Auction[]): void => {
-        api.getItemDetails(itemName).then((item => {
+    let loadItemImage = (itemTag: string, auctionUUID: string, auctions: Auction[]): void => {
+        api.getItemImageUrl(itemTag).then((iconUrl => {
             let updatedAuctions = auctions.slice();
             let auction = updatedAuctions.find(a => a.uuid === auctionUUID);
             if (auction) {
-                if (item.name) {
-                    auction.item = item;
+                if (itemTag) {
+                    auction.item.iconUrl = iconUrl;
                 }
             }
             setAuctions(updatedAuctions);
@@ -75,7 +75,7 @@ function AuctionList(props: Props) {
                     {
                         getItemImageElement(auction)
                     }
-                    {auction.item.name}
+                    {auction.item.tag}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(auction.highestBid)} {getCoinImage()}</p>
                 <p>End of Auction: {auction.end.toLocaleTimeString() + " " + auction.end.toLocaleDateString()}</p>

@@ -12,7 +12,7 @@ function ItemDetails() {
 
     let getItem = (): Item => {
         return {
-            name: itemName
+            tag: itemName
         }
     }
 

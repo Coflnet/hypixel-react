@@ -1,7 +1,9 @@
 import { ApiRequest, WebsocketHelper } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
+import { get, set, keys } from 'idb-keyval';
 import cookie from 'cookie';
+import data from "../components/PriceGraph/PriceGraphConfig";
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
@@ -34,6 +36,10 @@ function initWebsocket(): WebSocket {
             request.reject(response.data);
         } else {
             request.resolve(JSON.parse(response.data));
+            // cache the response 
+            if (!request.type.includes("subscribe")) {
+                set(request.type + Base64.decode(request.data), response.data);
+            }
         }
     };
 
@@ -42,9 +48,9 @@ function initWebsocket(): WebSocket {
         // get UUID of user for websocket or generate a new one
         let cookies = cookie.parse(document.cookie);
         cookies.websocketUUID = cookies.websocketUUID || generateUUID();
-        document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, {expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate())});
+        document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
 
-        let websocket = new WebSocket(`wss://skyblock-backend.coflnet.com/skyblock?id=${cookies.websocketUUID}`);
+        let websocket = new WebSocket(`ws://localhost:8008/skyblock?id=${cookies.websocketUUID}`);
         websocket.onopen = onWebsocketOpen;
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
@@ -55,15 +61,29 @@ function initWebsocket(): WebSocket {
     return getNewWebsocket();
 }
 
-function sendRequest(request: ApiRequest): void {
+async function sendRequest(request: ApiRequest): Promise<void> {
+    let requestJson = JSON.stringify(request.data);
+    var cacheValue = await get(request.type + requestJson)
+
+    if (cacheValue) {
+        request.resolve(JSON.parse(cacheValue as string));
+        return;
+    }
+
     if (websocket.readyState === WebSocket.OPEN) {
+
+
+
         request.mId = requestCounter++;
 
         try {
-            request.data = Base64.encode(JSON.stringify(request.data));
+            request.data = Base64.encode(requestJson);
         } catch (error) {
             throw new Error("couldnt btoa this data: " + request.data);
         }
+
+
+
         requests.push(request);
         websocket.send(JSON.stringify(request));
     } else if (websocket.readyState === WebSocket.CONNECTING) {
