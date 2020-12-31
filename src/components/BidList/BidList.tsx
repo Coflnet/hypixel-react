@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ListGroup, Spinner } from 'react-bootstrap';
+import { ListGroup } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
+import { getLoadingElement } from '../../utils/LoadingUtils';
 import { numberWithThousandsSeperators } from '../../utils/NumberFormatter';
 import './BidList.css'
 
@@ -49,7 +50,7 @@ function BidList(props: Props) {
 
     let getItemImageElement = (bid: ItemBid) => {
         return (
-            bid.item.iconUrl ? <img className="bid-item-image" src={bid.item.iconUrl} alt="" /> : undefined
+            bid.item.iconUrl ? <img className="bid-item-image" src={bid.item.iconUrl} alt="" height="48" width="48" /> : undefined
         )
     }
 
@@ -77,7 +78,7 @@ function BidList(props: Props) {
 
     return (
         <div className="bid-list">
-            <InfiniteScroll dataLength={bids.length} next={loadNewBids} hasMore={!allBidsLoaded} loader={<Spinner animation="border" role="status" variant="primary" />}>
+            <InfiniteScroll style={{ overflow: "hidden" }} dataLength={bids.length} next={loadNewBids} hasMore={!allBidsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
                 <ListGroup>
                     {bidsList}
                 </ListGroup>

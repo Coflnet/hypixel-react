@@ -96,3 +96,30 @@ export function parseSearchResultItem(item: any): SearchResultItem {
         id: item.id
     }
 }
+
+export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
+    return {
+        auction: {
+            uuid: auctionDetails.uuid,
+            end: auctionDetails.end,
+            highestBid: auctionDetails.bids[0],
+            item: {
+                name: auctionDetails.ItemName,
+                category: auctionDetails.Category,
+                tier: auctionDetails.Tier
+            }
+        },
+        start: auctionDetails.Start,
+        end: auctionDetails.End,
+        anvilUses: auctionDetails.AnvilUses,
+        auctioneer: auctionDetails.Auctioneer,
+        bids: auctionDetails.bids,
+        claimed: auctionDetails.Claimed,
+        coop: auctionDetails.Coop,
+        count: auctionDetails.Count,
+        enchantments: auctionDetails.Enchantments,
+        profileId: auctionDetails.ProfileId,
+        reforge: auctionDetails.Reforge,
+        startingBid: auctionDetails.StartingBid
+    }
+}

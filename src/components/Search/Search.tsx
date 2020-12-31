@@ -23,6 +23,8 @@ function Search(props: Props) {
     }, [props.selected])
 
     function search(searchText: string) {
+        setIsLoading(true);
+        isLoading = true;
         api.search(searchText).then(searchResults => {
             if (!isLoading) {
                 // Läd nicht mehr -> keine Suche mehr in der zwischenzeit
@@ -36,14 +38,13 @@ function Search(props: Props) {
     function onSearchChange(e: ChangeEvent) {
         let newSearchText: string = (e.target as HTMLInputElement).value;
         setSearchText(newSearchText);
+        if (searchDebounce) {
+            clearTimeout(searchDebounce);
+        }
         if (newSearchText === "") {
             setResults([]);
             setIsLoading(false);
             return;
-        }
-        setIsLoading(true);
-        if (searchDebounce) {
-            clearTimeout(searchDebounce);
         }
         let timeout = setTimeout(() => {
             search(newSearchText);
@@ -74,12 +75,14 @@ function Search(props: Props) {
             </Form>
             {
                 isLoading ?
-                    <Spinner animation="border" role="status" variant="primary" /> :
+                    <div style={{ marginLeft: "auto", marginRight: "auto", textAlign: "center" }}>
+                        <Spinner animation="border" role="status" variant="primary" />
+                    </div> :
                     <ListGroup>
                         {results.map((result, i) => (
-                            <ListGroup.Item action onClick={(e: any) => { onItemClick(result) }}>
+                            <ListGroup.Item key={result.id} action onClick={(e: any) => { onItemClick(result) }} style={i === results.length - 1 ? { marginBottom: "10px" } : {}} >
                                 {result.dataItem.iconUrl ?
-                                    <img className="search-result-icon" width={64} height={64} src={result.dataItem.iconUrl} alt="" /> :
+                                    <img className="search-result-icon" width={32} height={32} src={result.dataItem.iconUrl} alt="" /> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                                 {result.dataItem.name}

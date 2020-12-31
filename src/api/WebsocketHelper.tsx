@@ -1,5 +1,7 @@
 import { ApiRequest, WebsocketHelper } from "./ApiTypes.d";
-import {Base64} from "js-base64";
+import { Base64 } from "js-base64";
+import { v4 as generateUUID } from 'uuid';
+import cookie from 'cookie';
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
@@ -36,7 +38,13 @@ function initWebsocket(): WebSocket {
     };
 
     let getNewWebsocket = (): WebSocket => {
-        let websocket = new WebSocket("wss://skyblock-backend.coflnet.com/skyblock");
+
+        // get UUID of user for websocket or generate a new one
+        let cookies = cookie.parse(document.cookie);
+        cookies.websocketUUID = cookies.websocketUUID || generateUUID();
+        document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, {expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate())});
+
+        let websocket = new WebSocket(`wss://skyblock-backend.coflnet.com/skyblock?id=${generateUUID}`);
         websocket.onopen = onWebsocketOpen;
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;

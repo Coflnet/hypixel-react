@@ -6,3 +6,9 @@
     width: 96%;
     margin-left: 2%;
 }
+
+.loadingBanner {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}

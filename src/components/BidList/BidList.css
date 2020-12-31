@@ -4,5 +4,12 @@
 
 .bid-list {
     width: 96%;
-    margin-left: 2%;
+    margin-left: auto;
+    margin-right: auto
+}
+
+.loadingBanner {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
 }

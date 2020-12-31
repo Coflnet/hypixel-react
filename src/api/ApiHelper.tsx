@@ -1,4 +1,4 @@
-import { parseAuction, parseEnchantment, parseItem, parseItemBid, parseItemPriceData, parsePlayerDetails, parseSearchResultItem } from "../utils/Parser/APIResponseParser";
+import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBid, parseItemPriceData, parsePlayerDetails, parseSearchResultItem } from "../utils/Parser/APIResponseParser";
 import { RequestType } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 
@@ -152,10 +152,25 @@ function initAPI(): API {
         websocketHelper.sendRequest({
             type: RequestType.TRACK_SEARCH,
             data: requestData,
-            resolve: () => {},
+            resolve: () => { },
             reject: (error: any) => {
                 apiErrorHandler(RequestType.TRACK_SEARCH, error, requestData);
             }
+        })
+    }
+
+    let getAuctionDetails = (auctionUUID: string): Promise<AuctionDetails> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.AUCTION_DETAILS,
+                data: auctionUUID,
+                resolve: (auctionDetails) => {
+                    resolve(parseAuctionDetails(auctionDetails));
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.AUCTION_DETAILS, error, auctionUUID);
+                }
+            })
         })
     }
 
@@ -167,7 +182,8 @@ function initAPI(): API {
         getPlayerDetails: getPlayerDetails,
         getAuctions: getAuctions,
         getBids: getBids,
-        getEnchantments: getEnchantments
+        getEnchantments: getEnchantments,
+        getAuctionDetails: getAuctionDetails
     }
 }
 

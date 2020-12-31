@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { ListGroup, Spinner } from 'react-bootstrap';
+import { ListGroup } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
+import { getLoadingElement } from '../../utils/LoadingUtils';
 import { numberWithThousandsSeperators } from '../../utils/NumberFormatter';
 import './AuctionList.css';
+import { useHistory } from "react-router-dom";
 
 interface Props {
     playerUUID: string
 }
 
 function AuctionList(props: Props) {
+
+    let history = useHistory();
 
     let [auctions, setAuctions] = useState<Auction[]>([]);
     let [allAuctionsLoaded, setAllAuctinosLoaded] = useState(false);
@@ -54,13 +58,19 @@ function AuctionList(props: Props) {
 
     let getItemImageElement = (auction: Auction) => {
         return (
-            auction.item.iconUrl ? <img className="auction-item-image" src={auction.item.iconUrl} alt="" /> : undefined
+            auction.item.iconUrl ? <img className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" /> : undefined
         )
+    }
+
+    let onAuctionClick = (auction: Auction) => {
+        history.push({
+            pathname: `/auctionDetails/${auction.uuid}`
+        })
     }
 
     let auctionList = auctions.map(auction => {
         return (
-            <ListGroup.Item key={auction.uuid}>
+            <ListGroup.Item key={auction.uuid} action onClick={() => { onAuctionClick(auction) }}>
                 <h4>
                     {
                         getItemImageElement(auction)
@@ -75,7 +85,7 @@ function AuctionList(props: Props) {
 
     return (
         <div className="auction-list">
-            <InfiniteScroll style={{overflow: "hidden"}} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<Spinner animation="border" role="status" variant="primary" />}>
+            <InfiniteScroll style={{ overflow: "hidden" }} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
                 <ListGroup>
                     {auctionList}
                 </ListGroup>

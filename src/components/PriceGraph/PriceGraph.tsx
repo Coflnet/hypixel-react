@@ -4,7 +4,7 @@ import Chart, { ChartConfiguration } from 'chart.js';
 import api from '../../api/ApiHelper';
 import priceConfig from './PriceGraphConfig'
 import { DEFAULT_DATE_RANGE, getTimeSpanFromDateRange, ItemPriceRange } from '../ItemPriceRange/ItemPriceRange';
-import { Spinner } from 'react-bootstrap';
+import { getLoadingElement } from '../../utils/LoadingUtils'
 
 interface Props {
     item: Item,
@@ -63,14 +63,12 @@ function PriceGraph(props: Props) {
     return (
         <div className="price-graph">
             <ItemPriceRange onRangeChange={onRangeChange} />
-            { isLoading ? (<div style={{ top: "30vh", position: "absolute", left: "50%", fontSize: 30, textAlign: "center" }}>
-                <div style={{ position: "relative", left: "-50%" }}>
-                    <span><Spinner animation="grow" variant="primary"></Spinner>
-                        <Spinner animation="grow" variant="primary"></Spinner>
-                        <Spinner animation="grow" variant="primary"></Spinner></span>
-                    <p>Loading Data...</p>
-                </div>
-            </div>) : ""}
+            { isLoading ? (
+                <div style={{ top: "30vh", position: "absolute", left: "50%", fontSize: 30}}>
+                    <div style={{ position: "relative", left: "-50%" }}>
+                        {getLoadingElement()}
+                    </div>
+                </div>) : ""}
             <canvas ref={priceChartCanvas} />
         </div >
     );

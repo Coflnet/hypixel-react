@@ -91,5 +91,6 @@ interface API {
     getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,
     getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>,
     getBids(uuid: string, amount: number, offset: number): Promise<ItemBid[]>,
-    getEnchantments(): Promise<Enchantment[]>
+    getEnchantments(): Promise<Enchantment[]>,
+    getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>
 }
