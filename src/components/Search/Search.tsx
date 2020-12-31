@@ -23,13 +23,10 @@ function Search(props: Props) {
     }, [props.selected])
 
     function search(searchText: string) {
-        setIsLoading(true);
-        isLoading = true;
+        // only display loading animation if there is no answer for 500ms
+        let sheduledLoading = setTimeout(()=>setIsLoading(true),500);
         api.search(searchText).then(searchResults => {
-            if (!isLoading) {
-                // Läd nicht mehr -> keine Suche mehr in der zwischenzeit
-                return;
-            }
+            clearTimeout(sheduledLoading);
             setResults(searchResults);
             setIsLoading(false);
         });
@@ -41,14 +38,15 @@ function Search(props: Props) {
         if (searchDebounce) {
             clearTimeout(searchDebounce);
         }
-        if (newSearchText === "") {
+        // there is a search response for "", it contains the most popular overall
+        /*if (newSearchText === "") {
             setResults([]);
             setIsLoading(false);
             return;
-        }
+        } */
         let timeout = setTimeout(() => {
             search(newSearchText);
-        }, 500);
+        }, 50);
         setSearchDebounce(timeout);
     }
 

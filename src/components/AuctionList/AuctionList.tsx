@@ -64,7 +64,7 @@ function AuctionList(props: Props) {
 
     let onAuctionClick = (auction: Auction) => {
         history.push({
-            pathname: `/auctionDetails/${auction.uuid}`
+            pathname: `/auction/${auction.uuid}`
         })
     }
 

@@ -17,6 +17,6 @@ export default (
     <Route exact path="/" component={() => <Redirect to="/item/Aspect of the End" />}/>
     <Route path='/player/:uuid' component={PlayerDetails}/>
     <Route path='/item/:itemName' component={ItemDetails}/>
-    <Route path='/auctionDetails/:auctionUUID' component={AuctionDetails}/>
+    <Route path='/auction/:auctionUUID' component={AuctionDetails}/>
   </Switch>
 );
