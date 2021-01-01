@@ -24,15 +24,16 @@ function PriceGraph(props: Props) {
             setPriceChart(chart);
             updateChart(chart, fetchspan);
         }
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [priceChartCanvas, props.item, props.enchantmentFilter])
 
     let updateChart = (priceChart: Chart, fetchspan: number) => {
         setIsLoading(true);
-        priceChart!.data.labels = [];
-        priceChart!.data.datasets![0].data = [];
-        priceChart!.options.title!.text = "Price for 1 " + convertItemNameToTitle(props.item.tag);
-        priceChart!.update();
+        priceChart.data.labels = [];
+        priceChart.data.datasets![0].data = [];
+        priceChart.options.title!.text = "Price for 1 " + convertItemNameToTitle(props.item.tag);
+        priceChart.update();
         setPriceChart(priceChart);
 
         api.getItemPrices(props.item.tag, fetchspan, undefined, props.enchantmentFilter).then((results) => {
@@ -63,7 +64,7 @@ function PriceGraph(props: Props) {
 
         function capitalizeWords(text: string): string {
             return text.replace(/\w\S*/g, function (txt) {
-                if(exceptions.findIndex(a => a === txt) > -1){
+                if (exceptions.findIndex(a => a === txt) > -1) {
                     return txt;
                 }
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -81,12 +82,14 @@ function PriceGraph(props: Props) {
 
     let onRangeChange = (timespan: number) => {
         setFetchspan(timespan);
-        updateChart(priceChart!, timespan);
+        if (priceChart) {
+            updateChart(priceChart!, timespan);
+        }
     }
 
     return (
         <div className="price-graph">
-            <ItemPriceRange onRangeChange={onRangeChange} />
+            <ItemPriceRange onRangeChange={onRangeChange} item={props.item} />
             { isLoading ? (
                 <div style={{ top: "30vh", position: "absolute", left: "50%", fontSize: 30 }}>
                     <div style={{ position: "relative", left: "-50%" }}>

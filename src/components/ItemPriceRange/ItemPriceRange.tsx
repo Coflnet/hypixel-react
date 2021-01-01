@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import './ItemPriceRange.css';
 
@@ -12,7 +12,8 @@ export enum DateRange {
 export const DEFAULT_DATE_RANGE = DateRange.DAY;
 
 interface Props {
-    onRangeChange?(timespan: number): void
+    onRangeChange?(timespan: number): void,
+    item?: Item
 }
 
 export let getTimeSpanFromDateRange = (range: DateRange): number => {
@@ -40,6 +41,13 @@ export let getTimeSpanFromDateRange = (range: DateRange): number => {
 export function ItemPriceRange(props: Props) {
 
     let [selectedDateRange, setSelectedDateRange] = useState(DEFAULT_DATE_RANGE);
+
+    useEffect(() => {
+        if (props.item !== undefined) {
+            onRangeChange(DEFAULT_DATE_RANGE);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.item])
 
     let getButtonVariant = (range: DateRange): string => {
         return range === selectedDateRange ? "primary" : "light";

@@ -19,30 +19,32 @@ function AuctionList(props: Props) {
     let [allAuctionsLoaded, setAllAuctinosLoaded] = useState(false);
 
     useEffect(() => {
-        loadNewAuctions();
+        loadNewAuctions(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.playerUUID]);
 
-    let loadNewAuctions = (): void => {
-        api.getAuctions(props.playerUUID, 20, auctions.length).then(newAuctions => {
-            if (newAuctions.length === 0) {
+    let loadNewAuctions = (reset?: boolean): void => {
+        api.getAuctions(props.playerUUID, 20, reset ? 0 : auctions.length).then(newAuctions => {
+
+            if (newAuctions.length < 20) {
                 setAllAuctinosLoaded(true);
             }
+
+            auctions = reset ? newAuctions : auctions.concat(newAuctions);
+
             newAuctions.forEach(auction => {
-                loadItemImage(auction.item.tag, auction.uuid, auctions.concat(newAuctions));
+                loadItemImage(auction.item, auction.uuid, auctions);
             })
-            setAuctions(auctions.concat(newAuctions));
+            setAuctions(auctions);
         })
     }
 
-    let loadItemImage = (itemTag: string, auctionUUID: string, auctions: Auction[]): void => {
-        api.getItemImageUrl(itemTag).then((iconUrl => {
+    let loadItemImage = (item: Item, auctionUUID: string, auctions: Auction[]): void => {
+        api.getItemImageUrl(item).then((iconUrl => {
             let updatedAuctions = auctions.slice();
             let auction = updatedAuctions.find(a => a.uuid === auctionUUID);
             if (auction) {
-                if (itemTag) {
-                    auction.item.iconUrl = iconUrl;
-                }
+                auction.item.iconUrl = iconUrl;
             }
             setAuctions(updatedAuctions);
         }));;
@@ -56,11 +58,11 @@ function AuctionList(props: Props) {
 
     let getItemImageElement = (auction: Auction) => {
         return (
-            auction.item.iconUrl ? <img className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" onError={(error)=>onImageLoadError(auction,error)}/> : undefined
+            auction.item.iconUrl ? <img className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} /> : undefined
         )
     }
 
-    let onImageLoadError = (auction: Auction,data:any) => {
+    let onImageLoadError = (auction: Auction, data: any) => {
         // todo, something to find the image
         console.log(data);
         console.log(auction.item);

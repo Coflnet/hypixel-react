@@ -87,7 +87,7 @@ interface SearchResultItem {
 interface API {
     search(searchText: string): Promise<SearchResultItem[]>,
     trackSearch(fullSearchId: string, fullSearchType: string): void,
-    getItemImageUrl(itemTag: string): Promise<string>,
+    getItemImageUrl(item: Item): Promise<string>,
     getItemDetails(itemTagOrName: string): Promise<Item>,
     getItemPrices(itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,
     getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,
