@@ -96,7 +96,7 @@ export function parseSearchResultItem(item: any): SearchResultItem {
             uuid: item.id
         },
         type: item.type,
-        route: item.type === "item" ? "/item/" + item.name : "/player/" + item.id,
+        route: item.type === "item" ? "/item/" + item.id : "/player/" + item.id,
         id: item.id
     }
 }

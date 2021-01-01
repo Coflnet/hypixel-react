@@ -14,9 +14,9 @@ import AuctionDetails from './pages/AuctionDetails/AuctionDetails';
  */
 export default (
   <Switch>
-    <Route exact path="/" component={() => <Redirect to="/item/Aspect of the End" />}/>
+    <Route exact path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />}/>
     <Route path='/player/:uuid' component={PlayerDetails}/>
-    <Route path='/item/:itemName' component={ItemDetails}/>
+    <Route path='/item/:tag' component={ItemDetails}/>
     <Route path='/auction/:auctionUUID' component={AuctionDetails}/>
   </Switch>
 );

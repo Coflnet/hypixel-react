@@ -7,12 +7,12 @@ import EnchantmentFilter from '../../components/EnchantmentFilter/EnchantmentFil
 
 function ItemDetails() {
 
-    let { itemName } = useParams();
+    let { tag } = useParams();
     let [enchantmentFilter, setEnchantmentFilter] = useState<EnchantmentFilter>();
 
     let getItem = (): Item => {
         return {
-            tag: itemName
+            tag: tag
         }
     }
 
