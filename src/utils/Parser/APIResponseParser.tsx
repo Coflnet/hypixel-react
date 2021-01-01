@@ -32,7 +32,8 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
                 end: new Date(bid.end),
                 highestBid: bid.highestBid,
                 item: {
-                    tag: bid.itemName
+                    tag: bid.tag,
+                    name: bid.itemName
                 }
             } as ItemBid
         }),
@@ -106,22 +107,23 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
             end: auctionDetails.end,
             highestBid: auctionDetails.bids[0],
             item: {
-                tag: auctionDetails.ItemName,
-                category: auctionDetails.Category,
-                tier: auctionDetails.Tier
+                tag: auctionDetails.tag,
+                name: auctionDetails.itemName,
+                category: auctionDetails.category,
+                tier: auctionDetails.tier
             }
         },
-        start: auctionDetails.Start,
-        end: auctionDetails.End,
-        anvilUses: auctionDetails.AnvilUses,
-        auctioneer: auctionDetails.Auctioneer,
+        start: auctionDetails.start,
+        end: auctionDetails.end,
+        anvilUses: auctionDetails.anvilUses,
+        auctioneer: auctionDetails.auctioneer,
         bids: auctionDetails.bids,
-        claimed: auctionDetails.Claimed,
-        coop: auctionDetails.Coop,
-        count: auctionDetails.Count,
-        enchantments: auctionDetails.Enchantments,
-        profileId: auctionDetails.ProfileId,
-        reforge: auctionDetails.Reforge,
-        startingBid: auctionDetails.StartingBid
+        claimed: auctionDetails.claimed,
+        coop: auctionDetails.coop,
+        count: auctionDetails.count,
+        enchantments: auctionDetails.enchantments,
+        profileId: auctionDetails.profileId,
+        reforge: auctionDetails.reforge,
+        startingBid: auctionDetails.startingBid
     }
 }
