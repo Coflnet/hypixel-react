@@ -3,7 +3,8 @@ export function parseItemBid(bid: any): ItemBid {
         uuid: bid.uuid,
         end: new Date(bid.end),
         item: {
-            name: bid.itemName
+            name: bid.itemName,
+            tag: bid.tag
         },
         highestBid: bid.highestBid,
         highestOwn: bid.highestOwn
@@ -15,6 +16,7 @@ export function parseAuction(auction: any): Auction {
         uuid: auction.uuid,
         end: new Date(auction.end),
         item: {
+            tag: auction.tag,
             name: auction.itemName
         },
         highestBid: auction.highestBid
@@ -30,6 +32,7 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
                 end: new Date(bid.end),
                 highestBid: bid.highestBid,
                 item: {
+                    tag: bid.tag,
                     name: bid.itemName
                 }
             } as ItemBid
@@ -40,6 +43,7 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
                 highestBid: auction.highestBid,
                 end: new Date(auction.end),
                 item: {
+                    tag: auction.tag,
                     name: auction.itemName
                 }
             } as Auction
@@ -56,11 +60,12 @@ export function parseItemPriceData(priceData: any): ItemPriceData {
 
 export function parseItem(item: any): Item {
     return {
-        name: item.Name,
-        category: item.Category,
-        iconUrl: item.IconUrl || '/barrier.png',
-        tier: item.Tier,
-        description: item.Description
+        tag: item.tag,
+        name: item.name,
+        category: item.category,
+        iconUrl: item.iconUrl || '/barrier.png',
+        tier: item.tier,
+        description: item.description
     }
 }
 
@@ -92,7 +97,7 @@ export function parseSearchResultItem(item: any): SearchResultItem {
             uuid: item.id
         },
         type: item.type,
-        route: item.type === "item" ? "/item/" + item.name : "/player/" + item.id,
+        route: item.type === "item" ? "/item/" + item.id : "/player/" + item.id,
         id: item.id
     }
 }
@@ -104,22 +109,23 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
             end: auctionDetails.end,
             highestBid: auctionDetails.bids[0],
             item: {
-                name: auctionDetails.ItemName,
-                category: auctionDetails.Category,
-                tier: auctionDetails.Tier
+                tag: auctionDetails.tag,
+                name: auctionDetails.itemName,
+                category: auctionDetails.category,
+                tier: auctionDetails.tier
             }
         },
-        start: auctionDetails.Start,
-        end: auctionDetails.End,
-        anvilUses: auctionDetails.AnvilUses,
-        auctioneer: auctionDetails.Auctioneer,
+        start: auctionDetails.start,
+        end: auctionDetails.end,
+        anvilUses: auctionDetails.anvilUses,
+        auctioneer: auctionDetails.auctioneer,
         bids: auctionDetails.bids,
-        claimed: auctionDetails.Claimed,
-        coop: auctionDetails.Coop,
-        count: auctionDetails.Count,
-        enchantments: auctionDetails.Enchantments,
-        profileId: auctionDetails.ProfileId,
-        reforge: auctionDetails.Reforge,
-        startingBid: auctionDetails.StartingBid
+        claimed: auctionDetails.claimed,
+        coop: auctionDetails.coop,
+        count: auctionDetails.count,
+        enchantments: auctionDetails.enchantments,
+        profileId: auctionDetails.profileId,
+        reforge: auctionDetails.reforge,
+        startingBid: auctionDetails.startingBid
     }
 }

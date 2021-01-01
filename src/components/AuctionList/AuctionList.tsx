@@ -31,19 +31,19 @@ function AuctionList(props: Props) {
                 setAllAuctinosLoaded(true);
             }
             newAuctions.forEach(auction => {
-                loadItemImage(auction.item.name, auction.uuid, auctions.concat(newAuctions));
+                loadItemImage(auction.item.tag, auction.uuid, auctions.concat(newAuctions));
             })
             setAuctions(auctions.concat(newAuctions));
         })
     }
 
-    let loadItemImage = (itemName: string, auctionUUID: string, auctions: Auction[]): void => {
-        api.getItemDetails(itemName).then((item => {
+    let loadItemImage = (itemTag: string, auctionUUID: string, auctions: Auction[]): void => {
+        api.getItemImageUrl(itemTag).then((iconUrl => {
             let updatedAuctions = auctions.slice();
             let auction = updatedAuctions.find(a => a.uuid === auctionUUID);
             if (auction) {
-                if (item.name) {
-                    auction.item = item;
+                if (itemTag) {
+                    auction.item.iconUrl = iconUrl;
                 }
             }
             setAuctions(updatedAuctions);
@@ -58,13 +58,19 @@ function AuctionList(props: Props) {
 
     let getItemImageElement = (auction: Auction) => {
         return (
-            auction.item.iconUrl ? <img className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" /> : undefined
+            auction.item.iconUrl ? <img className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" onError={(error)=>onImageLoadError(auction,error)}/> : undefined
         )
+    }
+
+    let onImageLoadError = (auction: Auction,data:any) => {
+        // todo, something to find the image
+        console.log(data);
+        console.log(auction.item);
     }
 
     let onAuctionClick = (auction: Auction) => {
         history.push({
-            pathname: `/auctionDetails/${auction.uuid}`
+            pathname: `/auction/${auction.uuid}`
         })
     }
 

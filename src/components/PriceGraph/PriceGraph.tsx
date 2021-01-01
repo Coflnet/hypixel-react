@@ -34,7 +34,7 @@ function PriceGraph(props: Props) {
         priceChart!.update();
         setPriceChart(priceChart);
 
-        api.getItemPrices(props.item.name, fetchspan, undefined, props.enchantmentFilter).then((results) => {
+        api.getItemPrices(props.item.tag, fetchspan, undefined, props.enchantmentFilter).then((results) => {
             priceChart.clear();
             priceChart!.data.labels = results.map(item => item.end.getTime());
             priceChart!.data.datasets![0].data = results.map(item => {

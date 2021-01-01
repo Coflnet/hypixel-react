@@ -30,6 +30,24 @@ function initAPI(): API {
         })
     }
 
+    let getItemImageUrl = (itemTag : string) : Promise<string> => {
+        let prefixes = ["PET","POTION","RUNE"];
+        let isSimple = true;
+        prefixes.forEach(p=>{
+            if(!itemTag || itemTag?.startsWith(p))
+                isSimple=false;
+            });
+        // resolve early
+        if(isSimple)
+            return new Promise((resolve,rej)=>{
+                resolve("https://sky.lea.moe/item/"+itemTag)
+            });
+
+        return getItemDetails(itemTag).then(r=>new Promise((resolve,rej)=>{
+            resolve(r.iconUrl ?? "https://sky.lea.moe/item/BARRIER")
+        }));
+    }
+
     let getItemDetails = (itemName: string): Promise<Item> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
@@ -49,7 +67,7 @@ function initAPI(): API {
         return new Promise((resolve, reject) => {
             let requestData = {
                 name: itemName,
-                start: Math.round(fetchStart / 1000),
+                start: Math.round(fetchStart / 100000 )* 100,
                 reforge: reforge ? reforge.id : undefined,
                 enchantments: enchantmentFilter && enchantmentFilter.enchantment && enchantmentFilter.level ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
             };
@@ -183,7 +201,8 @@ function initAPI(): API {
         getAuctions: getAuctions,
         getBids: getBids,
         getEnchantments: getEnchantments,
-        getAuctionDetails: getAuctionDetails
+        getAuctionDetails: getAuctionDetails,
+        getItemImageUrl: getItemImageUrl
     }
 }
 
