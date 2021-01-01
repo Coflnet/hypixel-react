@@ -30,21 +30,24 @@ function initAPI(): API {
         })
     }
 
-    let getItemImageUrl = (itemTag : string) : Promise<string> => {
-        let prefixes = ["PET","POTION","RUNE"];
-        let isSimple = true;
-        prefixes.forEach(p=>{
-            if(!itemTag || itemTag?.startsWith(p))
-                isSimple=false;
-            });
-        // resolve early
-        if(isSimple)
-            return new Promise((resolve,rej)=>{
-                resolve("https://sky.lea.moe/item/"+itemTag)
-            });
+    let getItemImageUrl = (item: Item): Promise<string> => {
 
-        return getItemDetails(itemTag).then(r=>new Promise((resolve,rej)=>{
-            resolve(r.iconUrl ?? "https://sky.lea.moe/item/BARRIER")
+        if (item.tag !== null) {
+            let prefixes = ["PET", "POTION", "RUNE"];
+            let isSimple = true;
+            prefixes.forEach(p => {
+                if (!item.tag || item.tag?.startsWith(p))
+                    isSimple = false;
+            });
+            // resolve early
+            if (isSimple)
+                return new Promise((resolve, rej) => {
+                    resolve("https://sky.lea.moe/item/" + item.tag)
+                });
+        }
+
+        return getItemDetails(item.tag || item.name!).then(itemDetails => new Promise((resolve, reject) => {
+            resolve(itemDetails.iconUrl ?? "https://sky.lea.moe/item/BARRIER")
         }));
     }
 
@@ -67,7 +70,7 @@ function initAPI(): API {
         return new Promise((resolve, reject) => {
             let requestData = {
                 name: itemTagOrName,
-                start: Math.round(fetchStart / 100000 )* 100,
+                start: Math.round(fetchStart / 100000) * 100,
                 reforge: reforge ? reforge.id : undefined,
                 enchantments: enchantmentFilter && enchantmentFilter.enchantment && enchantmentFilter.level ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
             };

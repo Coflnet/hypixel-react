@@ -16,26 +16,26 @@ function BidList(props: Props) {
     let [allBidsLoaded, setAllBidsLoaded] = useState(false);
 
     useEffect(() => {
+        loadNewBids(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        bids = [];
-        setBids([]);
-        loadNewBids();
     }, [props.playerUUID]);
 
-    let loadNewBids = (): void => {
-        api.getBids(props.playerUUID, 20, bids.length).then(newBids => {
+    let loadNewBids = (reset?: boolean): void => {
+        api.getBids(props.playerUUID, 20, reset ? 0 : bids.length).then(newBids => {
             if (newBids.length < 20) {
                 setAllBidsLoaded(true);
             }
+
+            bids = reset ? newBids : bids.concat(newBids);
             newBids.forEach(auction => {
-                loadItemImage(auction.item.tag, auction.uuid, bids.concat(newBids));
+                loadItemImage(auction.item, auction.uuid, bids);
             })
-            setBids(bids.concat(newBids));
+            setBids(bids);
         })
     }
 
-    let loadItemImage = (itemTag: string, bidUUID: string, bids: ItemBid[]): void => {
-        api.getItemImageUrl(itemTag).then((iconUrl => {
+    let loadItemImage = (item: Item, bidUUID: string, bids: ItemBid[]): void => {
+        api.getItemImageUrl(item).then((iconUrl => {
             let updatedBids = bids.slice();
             let bid = updatedBids.find(b => b.uuid === bidUUID);
             if (bid) {
