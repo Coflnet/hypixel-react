@@ -2,7 +2,6 @@ import { ApiRequest, WebsocketHelper } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
 import cookie from 'cookie';
-import data from "../components/PriceGraph/PriceGraphConfig";
 import cacheUtils from '../utils/CacheUtils';
 
 let requests: ApiRequest[] = [];

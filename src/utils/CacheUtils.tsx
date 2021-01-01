@@ -1,7 +1,4 @@
-import React from 'react';
-import { Spinner } from "react-bootstrap";
-import { get, set, keys } from 'idb-keyval';
-import { Base64 } from 'js-base64';
+import { get, set } from 'idb-keyval';
 
 
 

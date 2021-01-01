@@ -31,6 +31,7 @@ function PriceGraph(props: Props) {
         setIsLoading(true);
         priceChart!.data.labels = [];
         priceChart!.data.datasets![0].data = [];
+        priceChart!.options.title!.text = "Price for 1 " + convertItemNameToTitle(props.item.tag);
         priceChart!.update();
         setPriceChart(priceChart);
 
@@ -43,13 +44,36 @@ function PriceGraph(props: Props) {
             priceChart!.data.labels = priceChart!.data.labels.sort((a, b) => {
                 return (a as number) - (b as number);
             });
-            priceChart!.options.title!.text =
-                "Price for 1 " + props.item.name;
             priceChart.update();
             setPriceChart(priceChart);
             setIsLoading(false);
         });
     };
+
+    /**
+     * Converts a tag (e.g. WOODEN_AXE) to a item name (e.g. Wooden Axe)
+     * - replaces all _ with spaces
+     * - lowercases the word exept first letter (with exception of the defined words)
+     * @param item 
+     */
+    let convertItemNameToTitle = (itemTag: string) => {
+
+        // words that should remain lowercase
+        const exceptions = ["of", "the"];
+
+        function capitalizeWords(text: string): string {
+            return text.replace(/\w\S*/g, function (txt) {
+                if(exceptions.findIndex(a => a === txt) > -1){
+                    return txt;
+                }
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+
+        let formatted: string = itemTag.replaceAll("_", " ").toLowerCase();
+        formatted = capitalizeWords(formatted);
+        return formatted;
+    }
 
     let createChart = (chartConfig: ChartConfiguration): Chart => {
         return new Chart(priceChartCanvas.current as HTMLCanvasElement, chartConfig);
@@ -64,7 +88,7 @@ function PriceGraph(props: Props) {
         <div className="price-graph">
             <ItemPriceRange onRangeChange={onRangeChange} />
             { isLoading ? (
-                <div style={{ top: "30vh", position: "absolute", left: "50%", fontSize: 30}}>
+                <div style={{ top: "30vh", position: "absolute", left: "50%", fontSize: 30 }}>
                     <div style={{ position: "relative", left: "-50%" }}>
                         {getLoadingElement()}
                     </div>

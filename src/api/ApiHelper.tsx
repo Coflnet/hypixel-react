@@ -48,25 +48,25 @@ function initAPI(): API {
         }));
     }
 
-    let getItemDetails = (itemName: string): Promise<Item> => {
+    let getItemDetails = (itemTagOrName: string): Promise<Item> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.ITEM_DETAILS,
-                data: itemName,
+                data: itemTagOrName,
                 resolve: (item: any) => {
                     resolve(parseItem(item))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemName)
+                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTagOrName)
                 }
             });
         })
     }
 
-    let getItemPrices = (itemName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]> => {
+    let getItemPrices = (itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]> => {
         return new Promise((resolve, reject) => {
             let requestData = {
-                name: itemName,
+                name: itemTagOrName,
                 start: Math.round(fetchStart / 100000 )* 100,
                 reforge: reforge ? reforge.id : undefined,
                 enchantments: enchantmentFilter && enchantmentFilter.enchantment && enchantmentFilter.level ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
