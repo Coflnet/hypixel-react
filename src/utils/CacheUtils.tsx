@@ -9,7 +9,6 @@ let cacheUtils: CacheUtils = {
                 if (response) {
                     let parsed = JSON.parse(response as string) as CacheEntry
                     if ( parsed.expireTimeStamp && (new Date()).getTime() < parsed.expireTimeStamp) {
-                        console.log(parsed);
                         resolve(parsed.response)
                         return;
                     }
@@ -24,7 +23,6 @@ let cacheUtils: CacheUtils = {
             expireTimeStamp : (new Date()).getTime() + maxAge * 1000,
             response : response
         }
-        console.log(entry);
         set(type + data, JSON.stringify(entry));
     }
 }
