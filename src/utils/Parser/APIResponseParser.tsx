@@ -59,11 +59,12 @@ export function parseItemPriceData(priceData: any): ItemPriceData {
 
 export function parseItem(item: any): Item {
     return {
-        tag: item.Name,
-        category: item.Category,
-        iconUrl: item.IconUrl || '/barrier.png',
-        tier: item.Tier,
-        description: item.Description
+        tag: item.tag,
+        name: item.name,
+        category: item.category,
+        iconUrl: item.iconUrl || '/barrier.png',
+        tier: item.tier,
+        description: item.description
     }
 }
 
