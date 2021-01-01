@@ -63,9 +63,10 @@ function AuctionList(props: Props) {
     }
 
     let onImageLoadError = (auction: Auction, data: any) => {
-        // todo, something to find the image
-        console.log(data);
-        console.log(auction.item);
+        api.getItemDetails(auction.item.tag || auction.item.name!).then((item) => {
+            auction.item.iconUrl = item.iconUrl;
+            setAuctions(auctions);
+        })
     }
 
     let onAuctionClick = (auction: Auction) => {

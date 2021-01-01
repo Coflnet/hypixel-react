@@ -84,13 +84,13 @@ function EnchantmentFilter(props: Props) {
             <Form.Group>
                 <Form.Label className="enchantment-filter-label">Enchantment: </Form.Label>
                 {enchantments.length > 0 ?
-                    <Form.Control as="select" value={enchantmentFilter?.enchantment?.id} onChange={onEnchantmentChange}>
+                    <Form.Control className="enchantment-filter-select-enchantment" as="select" value={enchantmentFilter?.enchantment?.id} onChange={onEnchantmentChange}>
                         {enchantmentSelectList}
                     </Form.Control> :
                     <Spinner animation="border" role="status" variant="primary" />
                 }
             </Form.Group>
-            <Form.Group className="enchantment-filter-select-level">
+            <Form.Group>
                 <Form.Label className="enchantment-filter-label">Level: </Form.Label>
                 <Form.Control as="select" value={enchantmentFilter?.level} onChange={onLevelChange}>
                     <option>1</option>
