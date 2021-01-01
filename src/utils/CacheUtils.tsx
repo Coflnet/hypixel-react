@@ -8,7 +8,7 @@ let cacheUtils: CacheUtils = {
             get(type + data).then(response => {
                 if (response) {
                     let parsed = JSON.parse(response as string) as CacheEntry
-                    if ( parsed.expireTimeStamp && (new Date()).getTime() < parsed.expireTimeStamp) {
+                    if (parsed.expireTimeStamp && (new Date()).getTime() < parsed.expireTimeStamp) {
                         resolve(parsed.response)
                         return;
                     }
@@ -17,11 +17,11 @@ let cacheUtils: CacheUtils = {
             })
         })
     },
-    setIntoCache: function (type: string, data: string, response: ServerCommandData,maxAge:number = 0): void {
+    setIntoCache: function (type: string, data: string, response: ApiResponse, maxAge: number = 0): void {
 
-        let entry : CacheEntry = {
-            expireTimeStamp : (new Date()).getTime() + maxAge * 1000,
-            response : response
+        let entry: CacheEntry = {
+            expireTimeStamp: (new Date()).getTime() + maxAge * 1000,
+            response: response
         }
         set(type + data, JSON.stringify(entry));
     }
@@ -29,6 +29,6 @@ let cacheUtils: CacheUtils = {
 export default cacheUtils
 
 interface CacheEntry {
-    expireTimeStamp:number;
-    response:ServerCommandData;
+    expireTimeStamp: number;
+    response: ApiResponse;
 }

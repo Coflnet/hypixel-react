@@ -25,7 +25,7 @@ function initWebsocket(): WebSocket {
     };
 
     let onWebsocketMessage = (e: MessageEvent): void => {
-        var response: ServerCommandData = JSON.parse(e.data);
+        var response: ApiResponse = JSON.parse(e.data);
         let request: ApiRequest | undefined = requests.find(e => e.mId === response.mId);
         if (!request) {
             return;
@@ -38,7 +38,7 @@ function initWebsocket(): WebSocket {
             request.resolve(parsedResponse);
             // cache the response 
             let maxAge = response.maxAge;
-            cacheUtils.setIntoCache(request.type,Base64.decode(request.data),parsedResponse,maxAge);
+            cacheUtils.setIntoCache(request.type, Base64.decode(request.data), parsedResponse, maxAge);
         }
     };
 
@@ -62,7 +62,7 @@ function initWebsocket(): WebSocket {
 
 function sendRequest(request: ApiRequest): Promise<void> {
     let requestString = JSON.stringify(request.data);
-    return cacheUtils.getFromCache(request.type,requestString).then(cacheValue => {
+    return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
         if (cacheValue) {
             request.resolve(cacheValue);
             return;

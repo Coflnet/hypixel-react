@@ -99,16 +99,13 @@ interface API {
 
 
 interface CacheUtils {
-    getFromCache(type: string, data: string): Promise<ServerCommandData | null>,
-    setIntoCache(type: string, data: string, response:ServerCommandData,maxAge : number = 0): void
+    getFromCache(type: string, data: string): Promise<ApiResponse | null>,
+    setIntoCache(type: string, data: string, response: ApiResponse, maxAge: number = 0): void
 }
 
-interface CommandData {
-    type:string,
-    data:string,
-    mId?:number
-}
-
-interface ServerCommandData extends CommandData {
-    maxAge:number
+interface ApiResponse {
+    type: string,
+    data: string,
+    mId?: number,
+    maxAge?: number
 }
