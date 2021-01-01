@@ -43,7 +43,8 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
                 highestBid: auction.highestBid,
                 end: new Date(auction.end),
                 item: {
-                    tag: auction.itemName
+                    tag: auction.tag,
+                    name: auction.itemName
                 }
             } as Auction
         })
