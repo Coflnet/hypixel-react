@@ -49,7 +49,7 @@ function initWebsocket(): WebSocket {
         cookies.websocketUUID = cookies.websocketUUID || generateUUID();
         document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
 
-        let websocket = new WebSocket(`ws://localhost:8008/skyblock?id=${cookies.websocketUUID}`);
+        let websocket = new WebSocket(`wss://sky.coflnet.com/skyblock?id=${cookies.websocketUUID}`);
         websocket.onopen = onWebsocketOpen;
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
