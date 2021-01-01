@@ -44,7 +44,7 @@ function PriceGraph(props: Props) {
                 return (a as number) - (b as number);
             });
             priceChart!.options.title!.text =
-                "Price for 1 " + props.item.tag;
+                "Price for 1 " + props.item.name;
             priceChart.update();
             setPriceChart(priceChart);
             setIsLoading(false);
