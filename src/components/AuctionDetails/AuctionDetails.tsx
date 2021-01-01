@@ -17,6 +17,7 @@ function AuctionDetails(props: Props) {
         if (!auctionDetails) {
             loadAuctionDetails()
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     let loadAuctionDetails = () => {

@@ -19,10 +19,8 @@ function AuctionList(props: Props) {
     let [allAuctionsLoaded, setAllAuctinosLoaded] = useState(false);
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        auctions = [];
-        setAuctions([]);
         loadNewAuctions();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.playerUUID]);
 
     let loadNewAuctions = (): void => {

@@ -1,5 +1,4 @@
 import React from 'react';
-import Search from '../../components/Search/Search';
 import AuctionDetails from '../../components/AuctionDetails/AuctionDetails';
 import './AuctionDetails.css';
 import { useParams } from "react-router-dom";

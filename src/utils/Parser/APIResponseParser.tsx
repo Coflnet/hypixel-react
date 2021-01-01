@@ -72,7 +72,7 @@ export function parseItem(item: any): Item {
 export function parseEnchantment(enchantment: any, id: number): Enchantment {
 
     function formatEnchantmentName(enchantment: string): string {
-        let formatted: string = enchantment.replace("_", " ");
+        let formatted: string = enchantment.replaceAll("_", " ");
         formatted = capitalizeWords(formatted);
         return formatted;
     }
