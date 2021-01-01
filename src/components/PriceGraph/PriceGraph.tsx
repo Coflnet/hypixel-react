@@ -17,12 +17,15 @@ function PriceGraph(props: Props) {
     let [priceChart, setPriceChart] = useState<Chart>();
     let [fetchspan, setFetchspan] = useState(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE));
     let [isLoading, setIsLoading] = useState(false);
+    let [noDataFound, setNoDataFound] = useState(false);
 
     useEffect(() => {
         if (priceChartCanvas && priceChartCanvas.current) {
             let chart = priceChart || createChart(priceConfig);
             setPriceChart(chart);
-            updateChart(chart, fetchspan);
+            if (props.item) {
+                updateChart(chart, fetchspan);
+            }
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -46,7 +49,9 @@ function PriceGraph(props: Props) {
                 return (a as number) - (b as number);
             });
             priceChart.update();
+
             setPriceChart(priceChart);
+            setNoDataFound(results.length === 0)
             setIsLoading(false);
         });
     };
@@ -91,11 +96,19 @@ function PriceGraph(props: Props) {
         <div className="price-graph">
             <ItemPriceRange onRangeChange={onRangeChange} item={props.item} />
             { isLoading ? (
-                <div style={{ top: "30vh", position: "absolute", left: "50%", fontSize: 30 }}>
+                <div className="graph-overlay">
                     <div style={{ position: "relative", left: "-50%" }}>
                         {getLoadingElement()}
                     </div>
                 </div>) : ""}
+            {noDataFound && !isLoading ?
+                <div className="graph-overlay">
+                    <div style={{ position: "relative", left: "-50%" }}>
+                        <div style={{ textAlign: "center" }}>
+                            <p>No data found</p>
+                        </div>
+                    </div>
+                </div> : ""}
             <canvas ref={priceChartCanvas} />
         </div >
     );

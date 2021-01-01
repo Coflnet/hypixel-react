@@ -12,4 +12,13 @@
     width: 50%;
     margin-left: auto;
     margin-right: auto;
+    margin-top: 5vh;
+}
+
+.noAuctionFound {
+    margin-right: auto;
+    margin-left: auto;
+    width: max-content;
+    text-align: center;
+    margin-top: 5vh;
 }

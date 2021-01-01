@@ -4,6 +4,9 @@
     position: relative;
 }
 
-.loadingDiv {
+.graph-overlay {
+    top: 30vh;
     position: absolute;
+    left: 50%;
+    font-size: 30
 }

@@ -1,34 +1,43 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { Form, Spinner } from 'react-bootstrap';
+import { Button, Card, Form, Spinner } from 'react-bootstrap';
 import './EnchantmentFilter.css';
 import { useLocation, useHistory } from "react-router-dom";
-import { parseEnchantmentFilter } from '../../utils/Parser/URLParser';
 import api from '../../api/ApiHelper';
-
-function useQuery() {
-    return new URLSearchParams(useLocation().search);
-}
+import { getEnchantmentFilterFromUrl } from '../../utils/Parser/URLParser';
 
 interface Props {
-    onFilterChange?(filter: EnchantmentFilter): void
+    onFilterChange?(filter?: EnchantmentFilter): void
 }
 
 function EnchantmentFilter(props: Props) {
 
     let [enchantments, setEnchantments] = useState<Enchantment[]>([]);
     let [enchantmentFilter, setEnchantmentFilter] = useState<EnchantmentFilter>();
-    let query = useQuery();
+    let [enabled, setEnabled] = useState(false);
+
     let history = useHistory();
+    let query = new URLSearchParams(useLocation().search);
 
     useEffect(() => {
         loadEnchantments();
-        setEnchantmentFilter(getFilterFromUrl());
+        let enchantmentFilter = getEnchantmentFilterFromUrl(query);
+        if (enchantmentFilter) {
+            setEnchantmentFilter(enchantmentFilter);
+            setEnabled(true);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     let loadEnchantments = () => {
         api.getEnchantments().then(enchantments => {
             setEnchantments(enchantments);
+            if (!enchantmentFilter) {
+                setEnchantmentFilter({
+                    enchantment: enchantments[0],
+                    level: 1
+                })
+            }
         })
     }
 
@@ -39,9 +48,6 @@ function EnchantmentFilter(props: Props) {
         };
         updateURLQuery(newEnchantmentFilter);
         setEnchantmentFilter(newEnchantmentFilter);
-        if (props.onFilterChange) {
-            props.onFilterChange(newEnchantmentFilter);
-        }
     }
 
     let onEnchantmentChange = (newEnchantment: ChangeEvent) => {
@@ -53,24 +59,40 @@ function EnchantmentFilter(props: Props) {
         };
         updateURLQuery(newEnchantmentFilter);
         setEnchantmentFilter(newEnchantmentFilter);
+    }
 
+    let onFilterApply = () => {
         if (props.onFilterChange) {
-            props.onFilterChange(newEnchantmentFilter);
+            props.onFilterChange(enchantmentFilter);
         }
     }
 
-    let updateURLQuery = (filter: EnchantmentFilter) => {
+    let onFilterRemove = () => {
+        setEnabled(false);
+        setEnchantmentFilter(undefined);
+        if (props.onFilterChange) {
+            props.onFilterChange(undefined);
+        }
+        updateURLQuery();
+    }
+
+    let onEnable = () => {
+        setEnabled(true);
+        if (!enchantmentFilter) {
+            enchantmentFilter = {
+                enchantment: enchantments[0],
+                level: 1
+            }
+            setEnchantmentFilter(enchantmentFilter);
+        }
+        updateURLQuery(enchantmentFilter);
+    }
+
+    let updateURLQuery = (filter?: EnchantmentFilter) => {
         history.push({
             pathname: history.pathname,
-            search: '?enchantmentFilter=' + btoa(JSON.stringify(filter))
+            search: filter ? '?enchantmentFilter=' + btoa(JSON.stringify(filter)) : ''
         })
-    }
-
-    let getFilterFromUrl = (): EnchantmentFilter | undefined => {
-        let enchantmentFilterBase64 = query.get("enchantmentFilter")
-        if (enchantmentFilterBase64) {
-            return parseEnchantmentFilter(enchantmentFilterBase64);
-        }
     }
 
     let enchantmentSelectList = enchantments.map(enchantment => {
@@ -80,32 +102,54 @@ function EnchantmentFilter(props: Props) {
     })
 
     return (
-        <Form inline className="enchantment-filter">
-            <Form.Group>
-                <Form.Label className="enchantment-filter-label">Enchantment: </Form.Label>
-                {enchantments.length > 0 ?
-                    <Form.Control className="enchantment-filter-select-enchantment" as="select" value={enchantmentFilter?.enchantment?.id} onChange={onEnchantmentChange}>
-                        {enchantmentSelectList}
-                    </Form.Control> :
-                    <Spinner animation="border" role="status" variant="primary" />
-                }
-            </Form.Group>
-            <Form.Group>
-                <Form.Label className="enchantment-filter-label">Level: </Form.Label>
-                <Form.Control as="select" value={enchantmentFilter?.level} onChange={onLevelChange}>
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                    <option>10</option>
-                </Form.Control>
-            </Form.Group>
-        </Form>
+        <div className="enchantment-filter">
+            {!enabled ?
+                <div>
+                    <a href="#" onClick={() => onEnable()}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                        </svg>
+                        <span> Add enchantment filter</span>
+                    </a>
+                </div> :
+                <Card>
+                    <Card.Title style={{ margin: "10px" }}>
+                        Enchantment Filter
+                    </Card.Title>
+                    <Card.Body>
+                        <Form inline style={{ marginBottom: "5px" }} >
+                            <Form.Group>
+                                {enchantments.length > 0 ?
+                                    <Form.Control className="enchantment-filter-select-enchantment" as="select" value={enchantmentFilter?.enchantment?.id} onChange={onEnchantmentChange}>
+                                        {enchantmentSelectList}
+                                    </Form.Control> :
+                                    <Spinner animation="border" role="status" variant="primary" />
+                                }
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Control as="select" value={enchantmentFilter?.level} onChange={onLevelChange}>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                    <option>6</option>
+                                    <option>7</option>
+                                    <option>8</option>
+                                    <option>9</option>
+                                    <option>10</option>
+                                </Form.Control>
+                            </Form.Group>
+                        </Form >
+                        <div>
+                            <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()}>Apply</Button>
+                            <Button className="btn-danger" onClick={() => onFilterRemove()}>Remove Filter</Button>
+                        </div>
+                    </Card.Body>
+                </Card>
+            }
+        </div >
     )
 }
 

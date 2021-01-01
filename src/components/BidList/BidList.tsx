@@ -78,11 +78,13 @@ function BidList(props: Props) {
 
     return (
         <div className="bid-list">
-            <InfiniteScroll style={{ overflow: "hidden" }} dataLength={bids.length} next={loadNewBids} hasMore={!allBidsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
-                <ListGroup>
-                    {bidsList}
-                </ListGroup>
-            </InfiniteScroll>
+            {bids.length === 0 && allBidsLoaded ?
+                <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="" style={{ float: "left", marginRight: "5px" }} /> <p>No bids found</p></div> :
+                <InfiniteScroll style={{ overflow: "hidden" }} dataLength={bids.length} next={loadNewBids} hasMore={!allBidsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
+                    <ListGroup>
+                        {bidsList}
+                    </ListGroup>
+                </InfiniteScroll>}
         </div>
     )
 }
