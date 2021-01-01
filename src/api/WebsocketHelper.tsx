@@ -25,7 +25,7 @@ function initWebsocket(): WebSocket {
     };
 
     let onWebsocketMessage = (e: MessageEvent): void => {
-        var response: any = JSON.parse(e.data);
+        var response: ServerCommandData = JSON.parse(e.data);
         let request: ApiRequest | undefined = requests.find(e => e.mId === response.mId);
         if (!request) {
             return;
@@ -37,9 +37,8 @@ function initWebsocket(): WebSocket {
             let parsedResponse = JSON.parse(response.data);
             request.resolve(parsedResponse);
             // cache the response 
-            if (!request.type.includes("subscribe")) {
-                cacheUtils.setIntoCache(request.type,Base64.decode(request.data),parsedResponse);
-            }
+            let maxAge = response.maxAge;
+            cacheUtils.setIntoCache(request.type,Base64.decode(request.data),parsedResponse,maxAge);
         }
     };
 
@@ -50,7 +49,7 @@ function initWebsocket(): WebSocket {
         cookies.websocketUUID = cookies.websocketUUID || generateUUID();
         document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
 
-        let websocket = new WebSocket(`wss://skyblock-backend.coflnet.com/skyblock?id=${cookies.websocketUUID}`);
+        let websocket = new WebSocket(`ws://localhost:8008/skyblock?id=${cookies.websocketUUID}`);
         websocket.onopen = onWebsocketOpen;
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
