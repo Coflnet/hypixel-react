@@ -35,13 +35,12 @@ interface AuctionDetails {
     auction: Auction
     claimed: boolean,
     count: number,
-    startingBid: number,
     start: Date,
     end: Date,
     auctioneer: Player,
     profileId: string,
     coop: string[],
-    bids: number[],
+    bids: ItemBid[],
     anvilUses: number,
     reforge: Reforge
     enchantments: Enchantment[]
@@ -50,6 +49,7 @@ interface AuctionDetails {
 interface Auction {
     uuid: string,
     highestBid: number,
+    startingBid: number,
     item: Item,
     end: Date
 }

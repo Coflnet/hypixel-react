@@ -10,13 +10,8 @@ import { useLocation } from "react-router-dom";
 function ItemDetails() {
 
     let { tag } = useParams();
-    let [enchantmentFilter, setEnchantmentFilter] = useState<EnchantmentFilter>();
     let query = new URLSearchParams(useLocation().search);
-
-    useEffect(() => {
-        setEnchantmentFilter(getEnchantmentFilterFromUrl(query));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    let [enchantmentFilter, setEnchantmentFilter] = useState<EnchantmentFilter>(getEnchantmentFilterFromUrl(query)!);
 
     let getItem = (): Item => {
         return {

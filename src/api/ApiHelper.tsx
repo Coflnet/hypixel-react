@@ -32,23 +32,27 @@ function initAPI(): API {
 
     let getItemImageUrl = (item: Item): Promise<string> => {
 
-        if (item.tag !== null) {
-            let prefixes = ["PET", "POTION", "RUNE"];
-            let isSimple = true;
-            prefixes.forEach(p => {
-                if (!item.tag || item.tag?.startsWith(p))
-                    isSimple = false;
-            });
-            // resolve early
-            if (isSimple)
-                return new Promise((resolve, rej) => {
-                    resolve("https://sky.lea.moe/item/" + item.tag)
+        return new Promise((resolve, reject) => {
+            if (item.tag !== null) {
+                let prefixes = ["PET", "POTION", "RUNE"];
+                let isSimple = true;
+                prefixes.forEach(p => {
+                    if (!item.tag || item.tag?.startsWith(p))
+                        isSimple = false;
                 });
-        }
+                // resolve early
+                if (isSimple)
+                    resolve("https://sky.lea.moe/item/" + item.tag)
+            }
 
-        return getItemDetails(item.tag || item.name!).then(itemDetails => new Promise((resolve, reject) => {
-            resolve(itemDetails.iconUrl ?? "https://sky.lea.moe/item/BARRIER")
-        }));
+            return getItemDetails(item.tag || item.name!).then(itemDetails => {
+                if (!itemDetails.iconUrl) {
+                    resolve("https://sky.lea.moe/item/" + itemDetails.tag)
+                } else {
+                    resolve(itemDetails.iconUrl || "")
+                }
+            });
+        });
     }
 
     let getItemDetails = (itemTagOrName: string): Promise<Item> => {

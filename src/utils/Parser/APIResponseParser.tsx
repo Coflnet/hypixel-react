@@ -19,6 +19,7 @@ export function parseAuction(auction: any): Auction {
             tag: auction.tag,
             name: auction.itemName
         },
+        startingBid: auction.startingBid,
         highestBid: auction.highestBid
     } as Auction
 }
@@ -63,7 +64,7 @@ export function parseItem(item: any): Item {
         tag: item.tag,
         name: item.name,
         category: item.category,
-        iconUrl: item.iconUrl || '/barrier.png',
+        iconUrl: item.iconUrl,
         tier: item.tier,
         description: item.description
     }
@@ -108,6 +109,7 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
             uuid: auctionDetails.uuid,
             end: auctionDetails.end,
             highestBid: auctionDetails.bids[0],
+            startingBid: auctionDetails.startingBid,
             item: {
                 tag: auctionDetails.tag,
                 name: auctionDetails.itemName,
@@ -125,7 +127,6 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
         count: auctionDetails.count,
         enchantments: auctionDetails.enchantments,
         profileId: auctionDetails.profileId,
-        reforge: auctionDetails.reforge,
-        startingBid: auctionDetails.startingBid
+        reforge: auctionDetails.reforge
     }
 }
