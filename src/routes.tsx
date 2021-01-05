@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Route, Switch, Redirect } from "react-router-dom";
 import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
 import cookie from 'cookie';
+import { MainApp } from './components/MainApp/MainApp';
+import { getLoadingElement } from './utils/LoadingUtils';
 
 /**
  * Import all page components here
  */
-import PlayerDetails from './pages/PlayerDetails/PlayerDetails';
-import ItemDetails from './pages/ItemDetails/ItemDetails';
-import AuctionDetails from './pages/AuctionDetails/AuctionDetails';
-import { MainApp } from './components/MainApp/MainApp';
+const PlayerDetails = React.lazy(() => import('./pages/PlayerDetails/PlayerDetails'));
+const ItemDetails = React.lazy(() => import('./pages/ItemDetails/ItemDetails'));
+const AuctionDetails = React.lazy(() => import('./pages/AuctionDetails/AuctionDetails'));
 
 const matomoTrackingInstance = createInstance({
   urlBase: 'https://track.coflnet.com',
@@ -35,10 +36,12 @@ export default (
   <MatomoProvider value={matomoTrackingInstance}>
     <MainApp>
       <Switch>
-        <Route exact path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />} />
-        <Route path='/player/:uuid' component={PlayerDetails} />
-        <Route path='/item/:tag' component={ItemDetails} />
-        <Route path='/auction/:auctionUUID' component={AuctionDetails} />
+        <Suspense fallback={getLoadingElement()}>
+          <Route exact path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />} />
+          <Route path='/player/:uuid' component={PlayerDetails} />
+          <Route path='/item/:tag' component={ItemDetails} />
+          <Route path='/auction/:auctionUUID' component={AuctionDetails} />
+        </Suspense>
       </Switch>
     </MainApp>
   </MatomoProvider>
