@@ -161,7 +161,7 @@ function initAPI(): API {
                     resolve(enchantments.map((enchantment: any, i: number) => {
                         return parseEnchantment({
                             type: enchantment,
-                            id: i
+                            id: i + 1
                         });
                     }))
                 },

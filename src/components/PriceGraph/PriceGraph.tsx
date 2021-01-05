@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
 import './PriceGraph.css';
 import Chart, { ChartConfiguration } from 'chart.js';
@@ -9,7 +10,8 @@ import { convertTagToName } from '../../utils/Formatter';
 
 interface Props {
     item: Item,
-    enchantmentFilter?: EnchantmentFilter
+    enchantmentFilter?: EnchantmentFilter,
+    onPriceGraphLoadingChange?(state: boolean): void
 }
 
 function PriceGraph(props: Props) {
@@ -17,11 +19,11 @@ function PriceGraph(props: Props) {
     const priceChartCanvas = useRef<HTMLCanvasElement>(null);
     let [priceChart, setPriceChart] = useState<Chart>();
     let [fetchspan, setFetchspan] = useState(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE));
-    let [isLoading, setIsLoading] = useState(false);
+    let [isLoading, setIsLoadingState] = useState(false);
     let [noDataFound, setNoDataFound] = useState(false);
 
     useEffect(() => {
-        if (priceChartCanvas && priceChartCanvas.current) {
+        if (priceChartCanvas && priceChartCanvas.current && props.enchantmentFilter) {
             let chart = priceChart || createChart(priceConfig);
             setPriceChart(chart);
             if (props.item) {
@@ -30,7 +32,19 @@ function PriceGraph(props: Props) {
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [priceChartCanvas, props.item, props.enchantmentFilter])
+    }, [props.enchantmentFilter])
+
+    useEffect(() => {
+        fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
+        setFetchspan(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE))
+        if (priceChartCanvas && priceChartCanvas.current && props.enchantmentFilter === undefined) {
+            let chart = priceChart || createChart(priceConfig);
+            setPriceChart(chart);
+            if (props.item) {
+                updateChart(chart, fetchspan);
+            }
+        }
+    }, [props.item.tag])
 
     let updateChart = (priceChart: Chart, fetchspan: number) => {
         setIsLoading(true);
@@ -41,7 +55,6 @@ function PriceGraph(props: Props) {
         setPriceChart(priceChart);
 
         api.getItemPrices(props.item.tag, fetchspan, undefined, props.enchantmentFilter).then((results) => {
-            priceChart.clear();
             priceChart!.data.labels = results.map(item => item.end.getTime());
             priceChart!.data.datasets![0].data = results.map(item => {
                 return item.price;
@@ -65,6 +78,13 @@ function PriceGraph(props: Props) {
         setFetchspan(timespan);
         if (priceChart) {
             updateChart(priceChart!, timespan);
+        }
+    }
+
+    let setIsLoading = (state: boolean) => {
+        setIsLoadingState(state);
+        if (props.onPriceGraphLoadingChange) {
+            props.onPriceGraphLoadingChange(state);
         }
     }
 

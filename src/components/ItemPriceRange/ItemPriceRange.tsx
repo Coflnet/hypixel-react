@@ -45,7 +45,7 @@ export function ItemPriceRange(props: Props) {
 
     useEffect(() => {
         if (props.item !== undefined) {
-            onRangeChange(DEFAULT_DATE_RANGE);
+            setSelectedDateRange(DEFAULT_DATE_RANGE);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item])

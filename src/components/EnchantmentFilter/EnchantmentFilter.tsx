@@ -1,21 +1,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { Button, Card, Form, Spinner } from 'react-bootstrap';
+import { Badge, Button, Card, Form, Spinner } from 'react-bootstrap';
 import './EnchantmentFilter.css';
 import { useLocation, useHistory } from "react-router-dom";
 import api from '../../api/ApiHelper';
 import { getEnchantmentFilterFromUrl } from '../../utils/Parser/URLParser';
 
 interface Props {
-    onFilterChange?(filter?: EnchantmentFilter): void
+    onFilterChange?(filter?: EnchantmentFilter): void,
+    disabled?: boolean
 }
 
 function EnchantmentFilter(props: Props) {
 
     let [enchantments, setEnchantments] = useState<Enchantment[]>([]);
     let [enchantmentFilter, setEnchantmentFilter] = useState<EnchantmentFilter>();
-    let [enabled, setEnabled] = useState(false);
+    let [expanded, setExpanded] = useState(false);
+    let [isApplied, setIsApplied] = useState(false);
 
     let history = useHistory();
     let query = new URLSearchParams(useLocation().search);
@@ -25,9 +27,13 @@ function EnchantmentFilter(props: Props) {
         enchantmentFilter = getEnchantmentFilterFromUrl(query);
         if (enchantmentFilter) {
             setEnchantmentFilter(enchantmentFilter);
-            setEnabled(true);
+            setExpanded(true);
         }
     }, []);
+
+    useEffect(() => {
+        setIsApplied(false);
+    }, [props.disabled])
 
     let loadEnchantments = () => {
         api.getEnchantments().then(enchantments => {
@@ -47,6 +53,7 @@ function EnchantmentFilter(props: Props) {
             level: parseInt((newLevel.target as HTMLInputElement).value)
         };
         updateURLQuery(newEnchantmentFilter);
+        setIsApplied(false);
         setEnchantmentFilter(newEnchantmentFilter);
     }
 
@@ -57,6 +64,7 @@ function EnchantmentFilter(props: Props) {
             },
             level: enchantmentFilter?.level
         };
+        setIsApplied(false);
         updateURLQuery(newEnchantmentFilter);
         setEnchantmentFilter(newEnchantmentFilter);
     }
@@ -65,10 +73,11 @@ function EnchantmentFilter(props: Props) {
         if (props.onFilterChange) {
             props.onFilterChange(enchantmentFilter);
         }
+        setIsApplied(true);
     }
 
     let onFilterRemove = () => {
-        setEnabled(false);
+        setExpanded(false);
         setEnchantmentFilter(undefined);
         if (props.onFilterChange) {
             props.onFilterChange(undefined);
@@ -77,7 +86,7 @@ function EnchantmentFilter(props: Props) {
     }
 
     let onEnable = () => {
-        setEnabled(true);
+        setExpanded(true);
         if (!enchantmentFilter) {
             enchantmentFilter = {
                 enchantment: enchantments[0],
@@ -103,7 +112,7 @@ function EnchantmentFilter(props: Props) {
 
     return (
         <div className="enchantment-filter">
-            {!enabled ?
+            {!expanded ?
                 <div>
                     <a href="#" onClick={() => onEnable()}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle" viewBox="0 0 16 16">
@@ -116,6 +125,9 @@ function EnchantmentFilter(props: Props) {
                 <Card>
                     <Card.Title style={{ margin: "10px" }}>
                         Enchantment Filter
+                        {isApplied ?
+                            <Badge variant="success" className="appliedBadge">Applied</Badge> :
+                            <Badge variant="danger" className="appliedBadge">Not Applied</Badge>}
                     </Card.Title>
                     <Card.Body>
                         <Form inline style={{ marginBottom: "5px" }} >
@@ -143,8 +155,8 @@ function EnchantmentFilter(props: Props) {
                             </Form.Group>
                         </Form >
                         <div>
-                            <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()}>Apply</Button>
-                            <Button className="btn-danger" onClick={() => onFilterRemove()}>Remove Filter</Button>
+                            <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()} disabled={props.disabled}>Apply</Button>
+                            <Button className="btn-danger" onClick={() => onFilterRemove()} disabled={props.disabled}>Remove Filter</Button>
                         </div>
                     </Card.Body>
                 </Card>

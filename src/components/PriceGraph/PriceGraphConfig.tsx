@@ -18,12 +18,15 @@ export let data: ChartConfiguration = {
             display: true,
             text: "Item price"
         },
+        animation: {
+            duration: 0
+        },
         tooltips: {
             mode: "index",
             intersect: false,
             callbacks: {
                 label: function (tooltipItem, data): string {
-                    return numberWithThousandsSeperators(Math.round(parseInt(tooltipItem.value || "0"))).toString() + " coins";
+                    return ""
                 },
                 title: function (tooltipItem, data) {
                     if (tooltipItem[0] && tooltipItem[0].label) {
