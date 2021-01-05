@@ -1,10 +1,7 @@
-/* eslint-disable no-restricted-globals */
-self.importScripts('https://arc.io/arc-sw-core.js')
+importScripts("https://arc.io/arc-sw-core.js")
 
 self.addEventListener('install', function(event) {
-
+    // Perform install steps
 });
 
-self.addEventListener('fetch', function(event) {
-
-});
+self.addEventListener('fetch', function(event) {});
