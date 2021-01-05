@@ -26,7 +26,7 @@ export let data: ChartConfiguration = {
             intersect: false,
             callbacks: {
                 label: function (tooltipItem, data): string {
-                    return ""
+                    return numberWithThousandsSeperators(Math.round(parseInt(tooltipItem.value || "0"))).toString() + " coins";
                 },
                 title: function (tooltipItem, data) {
                     if (tooltipItem[0] && tooltipItem[0].label) {
