@@ -4,6 +4,8 @@
     "private": true,
     "dependencies": {
         "@datapunt/matomo-tracker-react": "^0.3.1",
+        "@stripe/react-stripe-js": "^1.1.2",
+        "@stripe/stripe-js": "github:stripe/stripe-js",
         "@testing-library/jest-dom": "^4.2.4",
         "@testing-library/react": "^9.5.0",
         "@testing-library/user-event": "^7.2.1",
@@ -24,6 +26,7 @@
         "react-cookie-consent": "^6.2.1",
         "react-countdown": "^2.3.1",
         "react-dom": "^16.13.1",
+        "react-google-login": "^5.2.2",
         "react-infinite-scroll-component": "^5.1.0",
         "react-router-dom": "^5.2.0",
         "react-scripts": "3.4.3",
