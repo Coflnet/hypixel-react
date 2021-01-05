@@ -1,4 +1,4 @@
-import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBid, parseItemPriceData, parsePlayerDetails, parseSearchResultItem } from "../utils/Parser/APIResponseParser";
+import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseSearchResultItem } from "../utils/Parser/APIResponseParser";
 import { RequestType } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 
@@ -71,7 +71,7 @@ function initAPI(): API {
     }
 
     let getItemPrices = (itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]> => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
@@ -130,7 +130,7 @@ function initAPI(): API {
         });
     }
 
-    let getBids = (uuid: string, amount: number, offset: number): Promise<ItemBid[]> => {
+    let getBids = (uuid: string, amount: number, offset: number): Promise<BidForList[]> => {
         return new Promise((resolve, reject) => {
             let requestData = {
                 uuid: uuid,
@@ -142,7 +142,7 @@ function initAPI(): API {
                 data: requestData,
                 resolve: (bids: any) => {
                     resolve(bids.map((bid: any) => {
-                        return parseItemBid(bid);
+                        return parseItemBidForList(bid);
                     }));
                 },
                 reject: (error: any) => {
@@ -159,7 +159,10 @@ function initAPI(): API {
                 data: "",
                 resolve: (enchantments: any) => {
                     resolve(enchantments.map((enchantment: any, i: number) => {
-                        return parseEnchantment(enchantment, i);
+                        return parseEnchantment({
+                            type: enchantment,
+                            id: i
+                        });
                     }))
                 },
                 reject: (error: any) => {
@@ -199,6 +202,21 @@ function initAPI(): API {
         })
     }
 
+    let getPlayerName = (uuid: string): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.PLAYER_NAME,
+                data: uuid,
+                resolve: (name) => {
+                    resolve(name);
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.PLAYER_NAME, error, uuid);
+                }
+            })
+        });
+    }
+
     return {
         search: search,
         trackSearch: trackSearch,
@@ -209,7 +227,8 @@ function initAPI(): API {
         getBids: getBids,
         getEnchantments: getEnchantments,
         getAuctionDetails: getAuctionDetails,
-        getItemImageUrl: getItemImageUrl
+        getItemImageUrl: getItemImageUrl,
+        getPlayerName: getPlayerName
     }
 }
 

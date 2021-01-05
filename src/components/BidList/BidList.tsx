@@ -3,7 +3,7 @@ import { ListGroup } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { numberWithThousandsSeperators } from '../../utils/NumberFormatter';
+import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import './BidList.css'
 
 interface Props {
@@ -12,10 +12,12 @@ interface Props {
 
 function BidList(props: Props) {
 
-    let [bids, setBids] = useState<ItemBid[]>([]);
+    let [bids, setBids] = useState<BidForList[]>([]);
     let [allBidsLoaded, setAllBidsLoaded] = useState(false);
 
     useEffect(() => {
+        setAllBidsLoaded(false);
+        setBids([]);
         loadNewBids(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.playerUUID]);
@@ -34,7 +36,7 @@ function BidList(props: Props) {
         })
     }
 
-    let loadItemImage = (item: Item, bidUUID: string, bids: ItemBid[]): void => {
+    let loadItemImage = (item: Item, bidUUID: string, bids: BidForList[]): void => {
         api.getItemImageUrl(item).then((iconUrl => {
             let updatedBids = bids.slice();
             let bid = updatedBids.find(b => b.uuid === bidUUID);
@@ -48,7 +50,7 @@ function BidList(props: Props) {
     }
 
 
-    let getItemImageElement = (bid: ItemBid) => {
+    let getItemImageElement = (bid: BidForList) => {
         return (
             bid.item.iconUrl ? <img className="bid-item-image" src={bid.item.iconUrl} alt="" height="48" width="48" /> : undefined
         )

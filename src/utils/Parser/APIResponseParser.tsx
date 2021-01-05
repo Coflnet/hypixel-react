@@ -1,4 +1,6 @@
-export function parseItemBid(bid: any): ItemBid {
+import { v4 as generateUUID } from 'uuid';
+
+export function parseItemBidForList(bid: any): BidForList {
     return {
         uuid: bid.uuid,
         end: new Date(bid.end),
@@ -8,6 +10,16 @@ export function parseItemBid(bid: any): ItemBid {
         },
         highestBid: bid.highestBid,
         highestOwn: bid.highestOwn
+    } as BidForList
+}
+
+export function parseItemBid(bid: any): ItemBid {
+    return {
+        auctionId: bid.auctionId,
+        amount: bid.amount,
+        bidder: parsePlayer(bid.bidder),
+        timestamp: bid.timestap,
+        profileId: bid.profileId
     } as ItemBid
 }
 
@@ -36,7 +48,7 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
                     tag: bid.tag,
                     name: bid.itemName
                 }
-            } as ItemBid
+            } as BidForList
         }),
         auctions: playerDetails.auctions.map(auction => {
             return {
@@ -70,7 +82,7 @@ export function parseItem(item: any): Item {
     }
 }
 
-export function parseEnchantment(enchantment: any, id: number): Enchantment {
+export function parseEnchantment(enchantment: any): Enchantment {
 
     function formatEnchantmentName(enchantment: string): string {
         let formatted: string = enchantment.replaceAll("_", " ");
@@ -85,8 +97,9 @@ export function parseEnchantment(enchantment: any, id: number): Enchantment {
     }
 
     return {
-        id: id,
-        name: formatEnchantmentName(enchantment)
+        id: enchantment.id || generateUUID(),
+        level: enchantment.level,
+        name: enchantment.type ? formatEnchantmentName(enchantment.type) : ""
     }
 }
 
@@ -103,11 +116,24 @@ export function parseSearchResultItem(item: any): SearchResultItem {
     }
 }
 
+export function parsePlayer(player: any): Player {
+    if (typeof player === "string") {
+        player = {
+            uuid: player
+        }
+    }
+    return {
+        name: player.name,
+        uuid: player.uuid,
+        iconUrl: player.iconUrl || "https://crafatar.com/avatars/" + player.uuid
+    }
+}
+
 export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
     return {
         auction: {
             uuid: auctionDetails.uuid,
-            end: auctionDetails.end,
+            end: new Date(auctionDetails.end),
             highestBid: auctionDetails.bids[0],
             startingBid: auctionDetails.startingBid,
             item: {
@@ -117,15 +143,18 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
                 tier: auctionDetails.tier
             }
         },
-        start: auctionDetails.start,
-        end: auctionDetails.end,
+        start: new Date(auctionDetails.start),
         anvilUses: auctionDetails.anvilUses,
-        auctioneer: auctionDetails.auctioneer,
-        bids: auctionDetails.bids,
+        auctioneer: parsePlayer(auctionDetails.auctioneerId),
+        bids: auctionDetails.bids.map(bid => {
+            return parseItemBid(bid);
+        }),
         claimed: auctionDetails.claimed,
         coop: auctionDetails.coop,
         count: auctionDetails.count,
-        enchantments: auctionDetails.enchantments,
+        enchantments: auctionDetails.enchantments.map(enchantment => {
+            return parseEnchantment(enchantment);
+        }),
         profileId: auctionDetails.profileId,
         reforge: auctionDetails.reforge
     }

@@ -13,7 +13,8 @@ export const DEFAULT_DATE_RANGE = DateRange.DAY;
 
 interface Props {
     onRangeChange?(timespan: number): void,
-    item?: Item
+    item?: Item,
+    disabled?: boolean
 }
 
 export let getTimeSpanFromDateRange = (range: DateRange): number => {
@@ -60,12 +61,27 @@ export function ItemPriceRange(props: Props) {
         }
     }
 
+    /**
+     * While using the "disabled" prop, the focus state of the ToggleButtons is not removed after changing to another button
+     * Here are all wrong focuses cleard
+     * @param e 
+     */
+    let removeWrongFocus = () => {
+        setTimeout(() => {
+            let elements = document.querySelectorAll(".price-range-button.btn-light.focus")
+            while (elements.length > 0) {
+                elements[0].classList.remove('focus');
+                elements = document.querySelectorAll(".price-range-button.btn-light.focus")
+            }
+        }, 100);
+    }
+
     return (
         <ToggleButtonGroup className="item-price-range" type="radio" name="options" value={selectedDateRange} onChange={onRangeChange}>
-            <ToggleButton className="price-range-button" value={DateRange.DAY} variant={getButtonVariant(DateRange.DAY)} size="lg">1 Day</ToggleButton>
-            <ToggleButton className="price-range-button" value={DateRange.WEEK} variant={getButtonVariant(DateRange.WEEK)} size="lg">1 Week</ToggleButton>
-            <ToggleButton className="price-range-button" value={DateRange.MONTH} variant={getButtonVariant(DateRange.MONTH)} size="lg">1 Month</ToggleButton>
-            <ToggleButton className="price-range-button" value={DateRange.ALL} variant={getButtonVariant(DateRange.ALL)} size="lg">All Time</ToggleButton>
+            <ToggleButton className="price-range-button" value={DateRange.DAY} variant={getButtonVariant(DateRange.DAY)} disabled={props.disabled} onChange={removeWrongFocus} size="lg">1 Day</ToggleButton>
+            <ToggleButton className="price-range-button" value={DateRange.WEEK} variant={getButtonVariant(DateRange.WEEK)} disabled={props.disabled} onChange={removeWrongFocus} size="lg">1 Week</ToggleButton>
+            <ToggleButton className="price-range-button" value={DateRange.MONTH} variant={getButtonVariant(DateRange.MONTH)} disabled={props.disabled} onChange={removeWrongFocus} size="lg">1 Month</ToggleButton>
+            <ToggleButton className="price-range-button" value={DateRange.ALL} variant={getButtonVariant(DateRange.ALL)} disabled={props.disabled} onChange={removeWrongFocus} size="lg">All Time</ToggleButton>
         </ToggleButtonGroup>
     )
 }

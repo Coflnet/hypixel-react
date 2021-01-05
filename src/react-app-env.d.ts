@@ -8,7 +8,8 @@ interface Player {
 
 interface Enchantment {
     id: number,
-    name?: string
+    name?: string,
+    level?: number
 }
 
 interface Reforge {
@@ -36,7 +37,6 @@ interface AuctionDetails {
     claimed: boolean,
     count: number,
     start: Date,
-    end: Date,
     auctioneer: Player,
     profileId: string,
     coop: string[],
@@ -55,6 +55,14 @@ interface Auction {
 }
 
 interface ItemBid {
+    auctionId: string,
+    bidder: Player,
+    amount: number,
+    timestamp: Date,
+    profileId?: string
+}
+
+interface BidForList {
     uuid: string,
     highestOwn: number,
     highestBid: number,
@@ -92,9 +100,10 @@ interface API {
     getItemPrices(itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,
     getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,
     getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>,
-    getBids(uuid: string, amount: number, offset: number): Promise<ItemBid[]>,
+    getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>,
     getEnchantments(): Promise<Enchantment[]>,
-    getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>
+    getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>,
+    getPlayerName(uuid: string): Promise<string>
 }
 
 

@@ -1,3 +1,25 @@
 .auction-details {
     margin: 20px;
 }
+
+.auctionCard {
+    margin-bottom: 20px;
+}
+
+.label {
+    width: 30vw;
+    float: left;
+}
+
+.labelForList {
+    float: left;
+    width: calc(30vw - 20px);
+}
+
+ul {
+    float: left;
+}
+
+#backButton {
+    margin-bottom: 20px;
+}

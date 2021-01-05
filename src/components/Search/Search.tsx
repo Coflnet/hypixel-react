@@ -1,11 +1,12 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import api from '../../api/ApiHelper';
-import { Form, ListGroup, Spinner } from 'react-bootstrap';
+import { Badge, Form, ListGroup, Spinner } from 'react-bootstrap';
 import './Search.css';
 import { useHistory } from "react-router-dom";
+import { convertTagToName } from '../../utils/Formatter';
 
 interface Props {
-    selected?: Player | Item | string
+    selected?: Player | Item
 }
 
 function Search(props: Props) {
@@ -86,6 +87,13 @@ function Search(props: Props) {
         </div>
     );
 
+    let getSelectedElement = (): JSX.Element => {
+        if (!props.selected) {
+            return <div />
+        }
+        return <p><Badge variant="primary">Current:</Badge> <img src={props.selected.iconUrl} width="32" height="32" alt="" style={{marginRight: "10px"}} />{props.selected.name || convertTagToName((props.selected as Item).tag)}</p>
+    }
+
     return (
         <div className="search">
             <Form>
@@ -112,6 +120,7 @@ function Search(props: Props) {
                         }
                     </ListGroup>
             }
+            {props.selected ? getSelectedElement() : ""}
         </div >
     );
 }

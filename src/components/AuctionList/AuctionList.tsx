@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { ListGroup } from 'react-bootstrap';
+import { Badge, ListGroup } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { numberWithThousandsSeperators } from '../../utils/NumberFormatter';
+import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import './AuctionList.css';
 import { useHistory } from "react-router-dom";
+import { useForceUpdate } from '../../utils/Hooks';
 
 interface Props {
     playerUUID: string
@@ -14,11 +15,14 @@ interface Props {
 function AuctionList(props: Props) {
 
     let history = useHistory();
+    let forceUpdate = useForceUpdate();
 
     let [auctions, setAuctions] = useState<Auction[]>([]);
     let [allAuctionsLoaded, setAllAuctinosLoaded] = useState(false);
 
     useEffect(() => {
+        setAllAuctinosLoaded(false);
+        setAuctions([]);
         loadNewAuctions(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.playerUUID]);
@@ -66,6 +70,7 @@ function AuctionList(props: Props) {
         api.getItemDetails(auction.item.tag || auction.item.name!).then((item) => {
             auction.item.iconUrl = item.iconUrl;
             setAuctions(auctions);
+            forceUpdate();
         })
     }
 
@@ -83,6 +88,7 @@ function AuctionList(props: Props) {
                         getItemImageElement(auction)
                     }
                     {auction.item.name}
+                    {auction.end.getTime() < Date.now() ? <Badge variant="danger" style={{ marginLeft: "10px" }}>Ended</Badge> : <Badge variant="success" style={{ marginLeft: "10px" }}>Running</Badge>}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(auction.highestBid)} {getCoinImage()}</p>
                 <p>Starting Bid: {numberWithThousandsSeperators(auction.startingBid)} {getCoinImage()}</p>

@@ -5,6 +5,7 @@ import api from '../../api/ApiHelper';
 import priceConfig from './PriceGraphConfig'
 import { DEFAULT_DATE_RANGE, getTimeSpanFromDateRange, ItemPriceRange } from '../ItemPriceRange/ItemPriceRange';
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { convertTagToName } from '../../utils/Formatter';
 
 interface Props {
     item: Item,
@@ -35,7 +36,7 @@ function PriceGraph(props: Props) {
         setIsLoading(true);
         priceChart.data.labels = [];
         priceChart.data.datasets![0].data = [];
-        priceChart.options.title!.text = "Price for 1 " + convertItemNameToTitle(props.item.tag);
+        priceChart.options.title!.text = "Price for 1 " + convertTagToName(props.item.tag);
         priceChart.update();
         setPriceChart(priceChart);
 
@@ -56,31 +57,6 @@ function PriceGraph(props: Props) {
         });
     };
 
-    /**
-     * Converts a tag (e.g. WOODEN_AXE) to a item name (e.g. Wooden Axe)
-     * - replaces all _ with spaces
-     * - lowercases the word exept first letter (with exception of the defined words)
-     * @param item 
-     */
-    let convertItemNameToTitle = (itemTag: string) => {
-
-        // words that should remain lowercase
-        const exceptions = ["of", "the"];
-
-        function capitalizeWords(text: string): string {
-            return text.replace(/\w\S*/g, function (txt) {
-                if (exceptions.findIndex(a => a === txt) > -1) {
-                    return txt;
-                }
-                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-            });
-        }
-
-        let formatted: string = itemTag.replaceAll("_", " ").toLowerCase();
-        formatted = capitalizeWords(formatted);
-        return formatted;
-    }
-
     let createChart = (chartConfig: ChartConfiguration): Chart => {
         return new Chart(priceChartCanvas.current as HTMLCanvasElement, chartConfig);
     };
@@ -94,7 +70,7 @@ function PriceGraph(props: Props) {
 
     return (
         <div className="price-graph">
-            <ItemPriceRange onRangeChange={onRangeChange} item={props.item} />
+            <ItemPriceRange onRangeChange={onRangeChange} disabled={isLoading} item={props.item} />
             { isLoading ? (
                 <div className="graph-overlay">
                     <div style={{ position: "relative", left: "-50%" }}>
