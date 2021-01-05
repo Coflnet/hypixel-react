@@ -31,9 +31,9 @@ function EnchantmentFilter(props: Props) {
         }
     }, []);
 
-    useEffect(() => {
+    history.listen(() => {
         setIsApplied(false);
-    }, [props.disabled])
+    })
 
     let loadEnchantments = () => {
         api.getEnchantments().then(enchantments => {
@@ -127,7 +127,7 @@ function EnchantmentFilter(props: Props) {
                         Enchantment Filter
                         {isApplied ?
                             <Badge variant="success" className="appliedBadge">Applied</Badge> :
-                            <Badge variant="danger" className="appliedBadge">Not Applied</Badge>}
+                            <Badge variant="danger"  className="appliedBadge">Not Applied</Badge>}
                     </Card.Title>
                     <Card.Body>
                         <Form inline style={{ marginBottom: "5px" }} >
