@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <script src="/preScript.js"></script>
     <script async src="https://arc.io/widget.min.js#WK8BPDas"></script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
@@ -24,21 +25,6 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Skyblock Auction House History</title>
-    <script>
-        if ('serviceWorker' in navigator && location.href.toString().indexOf("localhost") === -1) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/serviceWorker.js').then(function(registration) {
-                    // Registration was successful
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }, function(err) {
-                    // registration failed :(
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
-        } else {
-            console.log("ServiceWorker was not registered");
-        }
-    </script>
 </head>
 
 <body>

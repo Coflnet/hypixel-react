@@ -1,0 +1,20 @@
+window.websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
+window.websocket.onopen = function() {
+    console.log("Websocket opened");
+}
+
+if (location.href.toString().indexOf("localhost") === -1) {
+    console.log("ServiceWorker was not registered. You are on localhost");
+} else if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/serviceWorker.js').then(function(registration) {
+            // Registration was successful
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function(err) {
+            // registration failed :(
+            console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+} else {
+    console.log("ServiceWorker was not registered");
+}

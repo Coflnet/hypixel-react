@@ -10,10 +10,6 @@ let websocket: WebSocket;
 
 function initWebsocket(): void {
 
-    let onWebsocketOpen = (): void => {
-        console.log("Websocket open");
-    };
-
     let onWebsocketClose = (): void => {
         console.log("Websocket closed");
         console.log("reopening Websocket")
@@ -49,8 +45,7 @@ function initWebsocket(): void {
         cookies.websocketUUID = cookies.websocketUUID || generateUUID();
         document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
 
-        let websocket = new WebSocket(`wss://skyblock-backend.coflnet.com/skyblock?id=${cookies.websocketUUID}`);
-        websocket.onopen = onWebsocketOpen;
+        let websocket = (window as any).websocket;
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
         websocket.onmessage = onWebsocketMessage;
