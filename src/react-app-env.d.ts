@@ -103,7 +103,8 @@ interface API {
     getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>,
     getEnchantments(): Promise<Enchantment[]>,
     getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>,
-    getPlayerName(uuid: string): Promise<string>
+    getPlayerName(uuid: string): Promise<string>,
+    setConnectionId(): void
 }
 
 

@@ -1,6 +1,8 @@
 import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseSearchResultItem } from "../utils/Parser/APIResponseParser";
 import { RequestType } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
+import cookie from 'cookie';
+import { v4 as generateUUID } from 'uuid';
 
 function initAPI(): API {
 
@@ -217,6 +219,21 @@ function initAPI(): API {
         });
     }
 
+    let setConnectionId = () => {
+        let cookies = cookie.parse(document.cookie);
+        cookies.websocketUUID = cookies.websocketUUID || generateUUID();
+        document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
+
+        websocketHelper.sendRequest({
+            type: RequestType.SET_CONNECTION_ID,
+            data: cookies.websocketUUID,
+            resolve: () => { },
+            reject: (error: any) => {
+                apiErrorHandler(RequestType.SET_CONNECTION_ID, error, cookies.websocketUUID);
+            }
+        })
+    }
+
     return {
         search: search,
         trackSearch: trackSearch,
@@ -228,7 +245,8 @@ function initAPI(): API {
         getEnchantments: getEnchantments,
         getAuctionDetails: getAuctionDetails,
         getItemImageUrl: getItemImageUrl,
-        getPlayerName: getPlayerName
+        getPlayerName: getPlayerName,
+        setConnectionId: setConnectionId
     }
 }
 

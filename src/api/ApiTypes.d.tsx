@@ -8,7 +8,8 @@ export enum RequestType {
     PLAYER_BIDS = "playerBids",
     ALL_ENCHANTMENTS = "getAllEnchantments",
     TRACK_SEARCH = "trackSearch",
-    PLAYER_NAME = "playerName"
+    PLAYER_NAME = "playerName",
+    SET_CONNECTION_ID = "setConId"
 }
 
 export interface ApiRequest {

@@ -3,7 +3,7 @@ window.websocket.onopen = function() {
     console.log("Websocket opened");
 }
 
-if (location.href.toString().indexOf("localhost") === -1) {
+if (location.href.toString().indexOf("localhost") !== -1) {
     console.log("ServiceWorker was not registered. You are on localhost");
 } else if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
