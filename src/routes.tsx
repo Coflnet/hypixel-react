@@ -13,7 +13,6 @@ const ItemDetails = React.lazy(() => import('./pages/ItemDetails/ItemDetails'));
 const AuctionDetails = React.lazy(() => import('./pages/AuctionDetails/AuctionDetails'));
 const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess/PaymentSuccess'))
 const PaymentCancel = React.lazy(() => import('./pages/PaymentCancel/PaymentCancel'))
-const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'))
 
 const matomoTrackingInstance = createInstance({
   urlBase: 'https://track.coflnet.com',
@@ -29,8 +28,6 @@ function isTrackingAllowed() {
   return false;
 }
 
-
-
 /**
  * All routes go here.
  * Don't forget to import the components above after adding new route.
@@ -40,12 +37,12 @@ export default (
     <MainApp>
       <Switch>
         <Suspense fallback={getLoadingElement()}>
-          <Route exact path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />} />
-          <Route exact path='/player/:uuid' component={PlayerDetails} />
-          <Route exact path='/item/:tag' component={ItemDetails} />
-          <Route exact path='/auction/:auctionUUID' component={AuctionDetails} />
-          <Route exact path='/success' component={PaymentSuccess} />
-          <Route exact path='/cancel' component={PaymentCancel} />
+          <Route path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />} />
+          <Route path='/player/:uuid' component={PlayerDetails} />
+          <Route path='/item/:tag' component={ItemDetails} />
+          <Route path='/auction/:auctionUUID' component={AuctionDetails} />
+          <Route path='/success' component={PaymentSuccess} />
+          <Route path='/cancel' component={PaymentCancel} />
         </Suspense>
       </Switch>
     </MainApp>

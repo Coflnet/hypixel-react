@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 function Cancel() {
     return (
-        <h1>Your payment was canceled</h1>
+        <div>
+            <h1>Your payment was canceled</h1>
+            <h2>If you still have problems after multiple tries, please contact the developer</h2>
+        </div>
     )
 }
 
