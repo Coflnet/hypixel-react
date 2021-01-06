@@ -8,7 +8,7 @@ let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
 let websocket: WebSocket;
 
-function initWebsocket(): WebSocket {
+function initWebsocket(): void {
 
     let onWebsocketOpen = (): void => {
         console.log("Websocket open");
@@ -57,7 +57,7 @@ function initWebsocket(): WebSocket {
         return websocket;
     }
 
-    return getNewWebsocket();
+    websocket = getNewWebsocket();
 }
 
 function sendRequest(request: ApiRequest): Promise<void> {
@@ -68,7 +68,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
             return;
         }
 
-        if (websocket.readyState === WebSocket.OPEN) {
+        if (websocket && websocket.readyState === WebSocket.OPEN) {
             request.mId = requestCounter++;
 
             try {
@@ -79,7 +79,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             requests.push(request);
             websocket.send(JSON.stringify(request));
-        } else if (websocket.readyState === WebSocket.CONNECTING) {
+        } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
             setTimeout(() => {
                 sendRequest(request);
             }, 1000);

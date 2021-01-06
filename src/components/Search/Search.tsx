@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import api from '../../api/ApiHelper';
-import { Badge, Col, Form, ListGroup, Spinner } from 'react-bootstrap';
+import { Badge, Form, ListGroup, Spinner } from 'react-bootstrap';
 import './Search.css';
 import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
