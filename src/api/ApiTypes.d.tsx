@@ -9,7 +9,8 @@ export enum RequestType {
     ALL_ENCHANTMENTS = "getAllEnchantments",
     TRACK_SEARCH = "trackSearch",
     PLAYER_NAME = "playerName",
-    PAYMENT_SESSION = "paymentSession"
+    PAYMENT_SESSION = "paymentSession",
+    PREMIUM_EXPIRATION = 'premiumExpiration'
 }
 
 export interface ApiRequest {

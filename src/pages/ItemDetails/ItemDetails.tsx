@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Search from '../../components/Search/Search';
-import Login from '../../components/Login/Login';
+import Payment from '../../components/Payment/Payment';
 import PriceGraph from '../../components/PriceGraph/PriceGraph';
 import './ItemDetails.css';
 import { useParams } from "react-router-dom";
@@ -45,7 +45,7 @@ function ItemDetails() {
     return (
         <div className="item-details">
             <Search selected={getItem()} />
-            <Login />
+            <Payment />
             <EnchantmentFilter onFilterChange={onEnchantmentFilterChange} disabled={itemPriceGraphLoading} />
             <PriceGraph item={getItem()} enchantmentFilter={enchantmentFilter} onPriceGraphLoadingChange={onPriceGraphLoadingChange} />
         </div >
