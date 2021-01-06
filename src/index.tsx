@@ -5,6 +5,9 @@ import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter } from "react-router-dom";
 import routes from "../src/routes";
+import { websocketHelper } from "./api/WebsocketHelper"
+
+websocketHelper.init();
 
 ReactDOM.render(
   <div>

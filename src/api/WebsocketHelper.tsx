@@ -6,7 +6,7 @@ import cacheUtils from '../utils/CacheUtils';
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
-let websocket: WebSocket = initWebsocket();
+let websocket: WebSocket;
 
 function initWebsocket(): WebSocket {
 
@@ -88,5 +88,6 @@ function sendRequest(request: ApiRequest): Promise<void> {
 }
 
 export let websocketHelper: WebsocketHelper = {
-    sendRequest: sendRequest
+    sendRequest: sendRequest,
+    init: initWebsocket
 }

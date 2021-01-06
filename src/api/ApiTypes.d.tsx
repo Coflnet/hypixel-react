@@ -20,5 +20,6 @@ export interface ApiRequest {
 }
 
 export interface WebsocketHelper {
-    sendRequest(request: ApiRequest): void
+    sendRequest(request: ApiRequest): void,
+    init(): void
 }
