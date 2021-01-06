@@ -25,7 +25,7 @@
     -->
     <title>Skyblock Auction House History</title>
     <script>
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && location.href.toString().indexOf("localhost") === -1) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/serviceWorker.js').then(function(registration) {
                     // Registration was successful
@@ -35,6 +35,8 @@
                     console.log('ServiceWorker registration failed: ', err);
                 });
             });
+        } else {
+            console.log("ServiceWorker was not registered");
         }
     </script>
 </head>

@@ -20,6 +20,10 @@ function AuctionDetails(props: Props) {
     let forceUpdate = useForceUpdate();
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         if (!auctionDetails) {
             loadAuctionDetails()
         }

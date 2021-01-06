@@ -1,9 +1,21 @@
 .search {
     margin-left: 20px;
-    margin-right: 20px;
     margin-top: 20px;
 }
 
 .search-result-icon {
     margin-right: 20px;
+}
+
+.searchBar {
+    display: inline;
+    width: calc(100% - 48px);
+}
+
+.infoIcon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    margin-left: 12px;
+    margin-right: 12px;
 }
