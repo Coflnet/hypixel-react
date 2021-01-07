@@ -3,7 +3,6 @@ import Search from '../../components/Search/Search';
 import PriceGraph from '../../components/PriceGraph/PriceGraph';
 import './ItemDetails.css';
 import { useParams } from "react-router-dom";
-import EnchantmentFilter from '../../components/EnchantmentFilter/EnchantmentFilter';
 import { parseItem } from '../../utils/Parser/APIResponseParser';
 import { convertTagToName } from '../../utils/Formatter';
 import api from '../../api/ApiHelper';
@@ -11,9 +10,7 @@ import api from '../../api/ApiHelper';
 function ItemDetails() {
 
     let { tag } = useParams();
-    let [enchantmentFilter, setEnchantmentFilter] = useState<EnchantmentFilter>();
     let [item, setItem] = useState<Item>();
-    let [itemPriceGraphLoading, setItemPriceGraphLoading] = useState(true);
 
     useEffect(() => {
         api.getItemImageUrl({ tag: tag }).then(iconUrl => {
@@ -33,19 +30,10 @@ function ItemDetails() {
         })
     }
 
-    let onEnchantmentFilterChange = (filter: EnchantmentFilter) => {
-        setEnchantmentFilter(filter);
-    }
-
-    let onPriceGraphLoadingChange = (state: boolean) => {
-        setItemPriceGraphLoading(state);
-    }
-
     return (
         <div className="item-details">
             <Search selected={getItem()} />
-            <EnchantmentFilter onFilterChange={onEnchantmentFilterChange} disabled={itemPriceGraphLoading} />
-            <PriceGraph item={getItem()} enchantmentFilter={enchantmentFilter} onPriceGraphLoadingChange={onPriceGraphLoadingChange} />
+            <PriceGraph item={getItem()} />
         </div >
     );
 }

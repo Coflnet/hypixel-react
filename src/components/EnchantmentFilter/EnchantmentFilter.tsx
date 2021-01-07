@@ -26,6 +26,7 @@ function EnchantmentFilter(props: Props) {
     let query = new URLSearchParams(useLocation().search);
 
     useEffect(() => {
+        mounted = true;
         loadEnchantments();
         enchantmentFilter = getEnchantmentFilterFromUrl(query);
         if (enchantmentFilter) {

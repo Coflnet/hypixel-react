@@ -8,11 +8,10 @@ import { DEFAULT_DATE_RANGE, getTimeSpanFromDateRange, ItemPriceRange } from '..
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import ShareButton from '../ShareButton/ShareButton';
+import EnchantmentFilter from '../EnchantmentFilter/EnchantmentFilter';
 
 interface Props {
-    item: Item,
-    enchantmentFilter?: EnchantmentFilter,
-    onPriceGraphLoadingChange?(state: boolean): void
+    item: Item
 }
 
 function PriceGraph(props: Props) {
@@ -20,57 +19,56 @@ function PriceGraph(props: Props) {
     const priceChartCanvas = useRef<HTMLCanvasElement>(null);
     let [priceChart, setPriceChart] = useState<Chart>();
     let [fetchspan, setFetchspan] = useState(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE));
-    let [isLoading, setIsLoadingState] = useState(false);
+    let [isLoading, setIsLoading] = useState(false);
     let [noDataFound, setNoDataFound] = useState(false);
     let [avgPrice, setAvgPrice] = useState(0);
-
-    useEffect(() => {
-        if (priceChartCanvas && priceChartCanvas.current && props.enchantmentFilter) {
-            let chart = priceChart || createChart(priceConfig);
-            setPriceChart(chart);
-            if (props.item) {
-                updateChart(chart, fetchspan);
-            }
-        }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.enchantmentFilter])
+    let [isFilterable, setIsFilterable] = useState(false);
 
     useEffect(() => {
         fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
         setFetchspan(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE))
-        if (priceChartCanvas && priceChartCanvas.current && props.enchantmentFilter === undefined) {
+        if (priceChartCanvas && priceChartCanvas.current) {
             let chart = priceChart || createChart(priceConfig);
             setPriceChart(chart);
             if (props.item) {
-                updateChart(chart, fetchspan);
+                updateChart(chart, fetchspan, undefined);
             }
         }
     }, [props.item.tag])
 
-    let updateChart = (priceChart: Chart, fetchspan: number) => {
+    let updateChart = (priceChart: Chart, fetchspan: number, enchantmentFilter?: EnchantmentFilter) => {
         setIsLoading(true);
         priceChart.data.labels = [];
         priceChart.data.datasets![0].data = [];
         priceChart.update();
         setPriceChart(priceChart);
 
-        api.getItemPrices(props.item.tag, fetchspan, undefined, props.enchantmentFilter).then((results) => {
-            priceChart!.data.labels = results.map(item => item.end.getTime());
+        api.getItemPrices(props.item.tag, fetchspan, undefined, enchantmentFilter).then((result) => {
 
-            let priceSum = 0;
-            priceChart!.data.datasets![0].data = results.map(item => {
-                priceSum += item.price;
-                return item.price;
-            });
-            setAvgPrice(Math.round(priceSum / results.length))
+
+            priceChart!.data.labels = result.prices.map(item => item.time.getTime());
             priceChart!.data.labels = priceChart!.data.labels.sort((a, b) => {
                 return (a as number) - (b as number);
             });
-            priceChart.update();
 
+            let priceSum = 0;
+            priceChart!.data.datasets![0].data = [];
+            priceChart!.data.datasets![1].data = [];
+            priceChart!.data.datasets![2].data = [];
+
+            result.prices.map(item => {
+                priceSum += item.avg;
+                priceChart!.data!.datasets![0].data!.push(item.avg);
+                priceChart!.data!.datasets![1].data!.push(item.min);
+                priceChart!.data!.datasets![2].data!.push(item.max);
+                priceChart!.data!.datasets![3].data!.push(item.volume);
+            });
+
+            priceChart.update();
+            setIsFilterable(result.filterable);
+            setAvgPrice(Math.round(priceSum / result.prices.length))
             setPriceChart(priceChart);
-            setNoDataFound(results.length === 0)
+            setNoDataFound(result.prices.length === 0)
             setIsLoading(false);
         });
     };
@@ -86,15 +84,9 @@ function PriceGraph(props: Props) {
         }
     }
 
-    let setIsLoading = (state: boolean) => {
-        setIsLoadingState(state);
-        if (props.onPriceGraphLoadingChange) {
-            props.onPriceGraphLoadingChange(state);
-        }
-    }
-
     return (
         <div className="price-graph">
+            {isFilterable ? <EnchantmentFilter disabled={isLoading} onFilterChange={(filter) => { updateChart(priceChart || createChart(priceConfig), fetchspan, filter) }} /> : ""}
             <ItemPriceRange onRangeChange={onRangeChange} disabled={isLoading} item={props.item} />
             { isLoading ? (
                 <div className="graph-overlay">
@@ -114,7 +106,7 @@ function PriceGraph(props: Props) {
                 <canvas ref={priceChartCanvas} />
             </div>
             <div className="additional-infos">
-                <p style={{float: "left", marginLeft: "10px"}}><b>Avg:</b> {isLoading ? "-" : numberWithThousandsSeperators(avgPrice) + " Coins"}</p>
+                <p style={{ float: "left", marginLeft: "10px" }}><b>Avg:</b> {isLoading ? "-" : numberWithThousandsSeperators(avgPrice) + " Coins"}</p>
                 <ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" />
             </div>
         </div >

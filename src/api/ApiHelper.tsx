@@ -72,7 +72,7 @@ function initAPI(): API {
         })
     }
 
-    let getItemPrices = (itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]> => {
+    let getItemPrices = (itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData> => {
         return new Promise((resolve) => {
             let requestData = {
                 name: itemTagOrName,
@@ -84,9 +84,7 @@ function initAPI(): API {
                 type: RequestType.ITEM_PRICES,
                 data: requestData,
                 resolve: (data: any) => {
-                    resolve(data.map((priceData: any) => {
-                        return parseItemPriceData(priceData);
-                    }));
+                    resolve(parseItemPriceData(data));
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)

@@ -1,7 +1,7 @@
 export enum RequestType {
     SEARCH = "fullSearch",
     PLAYER_DETAIL = "playerDetails",
-    ITEM_PRICES = "itemPrices",
+    ITEM_PRICES = "pricerdicer",
     AUCTION_DETAILS = "auctionDetails",
     ITEM_DETAILS = "itemDetails",
     PLAYER_AUCTION = "playerAuctions",
