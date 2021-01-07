@@ -6,7 +6,8 @@ import api from '../../api/ApiHelper';
 import priceConfig from './PriceGraphConfig'
 import { DEFAULT_DATE_RANGE, getTimeSpanFromDateRange, ItemPriceRange } from '../ItemPriceRange/ItemPriceRange';
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { convertTagToName } from '../../utils/Formatter';
+import { numberWithThousandsSeperators } from '../../utils/Formatter';
+import ShareButton from '../ShareButton/ShareButton';
 
 interface Props {
     item: Item,
@@ -21,6 +22,7 @@ function PriceGraph(props: Props) {
     let [fetchspan, setFetchspan] = useState(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE));
     let [isLoading, setIsLoadingState] = useState(false);
     let [noDataFound, setNoDataFound] = useState(false);
+    let [avgPrice, setAvgPrice] = useState(0);
 
     useEffect(() => {
         if (priceChartCanvas && priceChartCanvas.current && props.enchantmentFilter) {
@@ -50,15 +52,18 @@ function PriceGraph(props: Props) {
         setIsLoading(true);
         priceChart.data.labels = [];
         priceChart.data.datasets![0].data = [];
-        priceChart.options.title!.text = "Price for 1 " + convertTagToName(props.item.tag);
         priceChart.update();
         setPriceChart(priceChart);
 
         api.getItemPrices(props.item.tag, fetchspan, undefined, props.enchantmentFilter).then((results) => {
             priceChart!.data.labels = results.map(item => item.end.getTime());
+
+            let priceSum = 0;
             priceChart!.data.datasets![0].data = results.map(item => {
+                priceSum += item.price;
                 return item.price;
             });
+            setAvgPrice(Math.round(priceSum / results.length))
             priceChart!.data.labels = priceChart!.data.labels.sort((a, b) => {
                 return (a as number) - (b as number);
             });
@@ -105,7 +110,13 @@ function PriceGraph(props: Props) {
                         </div>
                     </div>
                 </div> : ""}
-            <canvas ref={priceChartCanvas} />
+            <div className="graph-canvas-container">
+                <canvas ref={priceChartCanvas} />
+            </div>
+            <div className="additional-infos">
+                <p style={{float: "left", marginLeft: "10px"}}><b>Avg:</b> {isLoading ? "-" : numberWithThousandsSeperators(avgPrice) + " Coins"}</p>
+                <ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" />
+            </div>
         </div >
     );
 }

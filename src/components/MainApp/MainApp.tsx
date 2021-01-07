@@ -24,12 +24,13 @@ export function MainApp(props: any) {
                 enableDeclineButton
                 declineButtonStyle={{ backgroundColor: "rgb(65, 65, 65)", borderRadius: "10px", color: "lightgrey", fontSize: "14px" }}
                 buttonStyle={{ backgroundColor: "green", borderRadius: "10px", color: "white", fontSize: "20px" }}
+                contentStyle={{ marginBottom: "0px" }}
                 buttonText="Yes, I understand"
                 declineButtonText="Decline"
                 cookieName="nonEssentialCookiesAllowed"
             >
                 <p>This website uses cookies to enhance the user experience.</p>
-                <p> Click <a href="https://coflnet.com/privacy"> here </a> to get to our privcy policy.</p>
+                <span> Click <a href="https://coflnet.com/privacy"> here </a> to get to our privcy policy.</span>
             </CookieConsent>
         </div>
     )

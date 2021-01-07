@@ -5,25 +5,41 @@ import api from '../../api/ApiHelper';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import './BidList.css'
+import { useHistory } from "react-router-dom";
 
 interface Props {
     playerUUID: string
 }
 
+// Boolean if the component is mounted. Set to false in useEffect cleanup function
+let mounted = true;
+
 function BidList(props: Props) {
 
+    let history = useHistory();
     let [bids, setBids] = useState<BidForList[]>([]);
     let [allBidsLoaded, setAllBidsLoaded] = useState(false);
+
+    useEffect(() => {
+        mounted = true;
+    })
 
     useEffect(() => {
         setAllBidsLoaded(false);
         setBids([]);
         loadNewBids(true);
+
+        return () => { mounted = false }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.playerUUID]);
 
     let loadNewBids = (reset?: boolean): void => {
         api.getBids(props.playerUUID, 20, reset ? 0 : bids.length).then(newBids => {
+
+            if (!mounted) {
+                return;
+            }
+
             if (newBids.length < 20) {
                 setAllBidsLoaded(true);
             }
@@ -62,9 +78,15 @@ function BidList(props: Props) {
         );
     }
 
+    let onBidClick = (bid: BidForList) => {
+        history.push({
+            pathname: `/auction/${bid.uuid}`
+        })
+    }
+
     let bidsList = bids.map(bid => {
         return (
-            <ListGroup.Item key={bid.uuid}>
+            <ListGroup.Item key={bid.uuid} action onClick={() => { onBidClick(bid) }}>
                 <h4>
                     {
                         getItemImageElement(bid)

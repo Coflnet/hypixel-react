@@ -4,7 +4,7 @@ import { Badge, Form, ListGroup, Spinner } from 'react-bootstrap';
 import './Search.css';
 import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
-const InformationDialog = React.lazy(() => import('../InformationDialog/InformationDialog'));
+import InformationDialog from '../InformationDialog/InformationDialog';
 
 interface Props {
     selected?: Player | Item

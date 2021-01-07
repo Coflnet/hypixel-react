@@ -12,6 +12,9 @@ interface Props {
     playerUUID: string
 }
 
+// Boolean if the component is mounted. Set to false in useEffect cleanup function
+let mounted = true;
+
 function AuctionList(props: Props) {
 
     let history = useHistory();
@@ -21,14 +24,24 @@ function AuctionList(props: Props) {
     let [allAuctionsLoaded, setAllAuctinosLoaded] = useState(false);
 
     useEffect(() => {
+        mounted = true;
+    })
+
+    useEffect(() => {
         setAllAuctinosLoaded(false);
         setAuctions([]);
         loadNewAuctions(true);
+
+        return () => { mounted = false };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.playerUUID]);
 
     let loadNewAuctions = (reset?: boolean): void => {
         api.getAuctions(props.playerUUID, 20, reset ? 0 : auctions.length).then(newAuctions => {
+
+            if (!mounted) {
+                return;
+            }
 
             if (newAuctions.length < 20) {
                 setAllAuctinosLoaded(true);

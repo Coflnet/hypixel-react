@@ -6,7 +6,7 @@ interface Props {
     onClose?(): void
 }
 
-function Search(props) {
+function Search(props: Props) {
 
     return (
         <div className="informationDialog">

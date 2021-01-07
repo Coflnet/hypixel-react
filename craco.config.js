@@ -11,6 +11,7 @@ module.exports = {
                         /^modal.*/,
                         /^btn.*/,
                         /^card.*/,
+                        /^spinner.*/,
                         'btn',
                         'active',
                         'body',

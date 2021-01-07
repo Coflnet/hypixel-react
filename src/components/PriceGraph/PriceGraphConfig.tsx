@@ -15,8 +15,10 @@ export let data: ChartConfiguration = {
     options: {
         maintainAspectRatio: false,
         title: {
-            display: true,
-            text: "Item price"
+            display: false,
+        },
+        legend: {
+            display: false
         },
         animation: {
             duration: 0
