@@ -5,7 +5,7 @@ import './Search.css';
 import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
 import InformationDialog from '../InformationDialog/InformationDialog';
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@datapunt/matomo-tracker-react';
 
 interface Props {
     selected?: Player | Item
@@ -26,6 +26,9 @@ function Search(props: Props) {
     useEffect(() => {
         setSearchText("");
         setResults([]);
+        if (props.selected && props.selected.name) {
+            document.title = props.selected.name;
+        }
     }, [props.selected])
 
     let search = () => {
