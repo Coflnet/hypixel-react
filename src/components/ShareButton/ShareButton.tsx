@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './ShareButton.css';
 import { Badge, Button, OverlayTrigger, Popover } from 'react-bootstrap';
+import { useMatomo } from '@datapunt/matomo-tracker-react';
 import { v4 as generateUUID } from 'uuid';
 
 interface Props {
@@ -10,6 +11,8 @@ interface Props {
 }
 
 function ShareButton(props: Props) {
+
+    let { trackEvent } = useMatomo();
 
     let [canUseShareAPI, setCanUseShareAPI] = useState(checkShareAPI());
     let [showOverlayTrigger, setShowOverlayTrigger] = useState(false);
@@ -25,6 +28,10 @@ function ShareButton(props: Props) {
                 text: props.text,
                 url: props.url || window.location.href
             })
+            trackEvent({
+                category: 'share',
+                action: 'shareAPI'
+            })
         } catch (error) {
             setCanUseShareAPI(false);
             copyToClipboard();
@@ -32,8 +39,19 @@ function ShareButton(props: Props) {
     }
 
     function copyToClipboard() {
-        window.navigator.clipboard.writeText(window.location.href);
-        setShowOverlayTrigger(true)
+        if (window.navigator.clipboard) {
+            trackEvent({
+                category: 'share',
+                action: 'copyToClipboard'
+            })
+            window.navigator.clipboard.writeText(window.location.href);
+            setShowOverlayTrigger(true);
+        } else {
+            trackEvent({
+                category: 'share',
+                action: 'noClipboardnoShareAPI'
+            })
+        }
     }
 
     return (
