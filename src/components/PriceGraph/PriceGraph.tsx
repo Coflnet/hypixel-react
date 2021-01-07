@@ -56,7 +56,7 @@ function PriceGraph(props: Props) {
             priceChart!.data.datasets![1].data = [];
             priceChart!.data.datasets![2].data = [];
 
-            result.prices.map(item => {
+            result.prices.forEach(item => {
                 priceSum += item.avg;
                 priceChart!.data!.datasets![0].data!.push(item.avg);
                 priceChart!.data!.datasets![1].data!.push(item.min);

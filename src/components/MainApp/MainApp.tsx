@@ -29,7 +29,7 @@ export function MainApp(props: any) {
                 declineButtonText="Decline"
                 cookieName="nonEssentialCookiesAllowed"
             >
-                <p>This website uses cookies to enhance the user experience.</p>
+                <p>We use cookies to enhance the user experience.</p>
                 <span> Click <a href="https://coflnet.com/privacy"> here </a> to get to our privcy policy.</span>
             </CookieConsent>
         </div>
