@@ -9,7 +9,8 @@ export enum RequestType {
     ALL_ENCHANTMENTS = "getAllEnchantments",
     TRACK_SEARCH = "trackSearch",
     PLAYER_NAME = "playerName",
-    SET_CONNECTION_ID = "setConId"
+    SET_CONNECTION_ID = "setConId",
+    GET_VERSION = "version"
 }
 
 export interface ApiRequest {

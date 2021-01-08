@@ -44,6 +44,7 @@ function initWebsocket(): void {
         if (!websocket) {
             websocket = (window as any).websocket;
             api.setConnectionId();
+            cacheUtils.checkForCacheClear();
         } else {
             // get UUID of user for websocket or generate a new one
             let cookies = cookie.parse(document.cookie);

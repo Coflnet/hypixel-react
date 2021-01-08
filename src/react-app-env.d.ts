@@ -112,13 +112,15 @@ interface API {
     getEnchantments(): Promise<Enchantment[]>,
     getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>,
     getPlayerName(uuid: string): Promise<string>,
-    setConnectionId(): void
+    setConnectionId(): void,
+    getVersion(): Promise<string>
 }
 
 
 interface CacheUtils {
     getFromCache(type: string, data: string): Promise<ApiResponse | null>,
-    setIntoCache(type: string, data: string, response: ApiResponse, maxAge: number = 0): void
+    setIntoCache(type: string, data: string, response: ApiResponse, maxAge: number = 0): void,
+    checkForCacheClear(): void
 }
 
 interface ApiResponse {

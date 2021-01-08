@@ -3,6 +3,7 @@ import { RequestType } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import cookie from 'cookie';
 import { v4 as generateUUID } from 'uuid';
+import { resolve } from "url";
 
 function initAPI(): API {
 
@@ -232,6 +233,21 @@ function initAPI(): API {
         })
     }
 
+    let getVersion = (): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_VERSION,
+                data: "",
+                resolve: (response) => {
+                    resolve(response);
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_VERSION, error, "");
+                }
+            })
+        });
+    }
+
     return {
         search: search,
         trackSearch: trackSearch,
@@ -244,7 +260,8 @@ function initAPI(): API {
         getAuctionDetails: getAuctionDetails,
         getItemImageUrl: getItemImageUrl,
         getPlayerName: getPlayerName,
-        setConnectionId: setConnectionId
+        setConnectionId: setConnectionId,
+        getVersion: getVersion
     }
 }
 
