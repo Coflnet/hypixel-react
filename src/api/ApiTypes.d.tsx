@@ -10,7 +10,8 @@ export enum RequestType {
     TRACK_SEARCH = "trackSearch",
     PLAYER_NAME = "playerName",
     SET_CONNECTION_ID = "setConId",
-    GET_VERSION = "version"
+    GET_VERSION = "version",
+    FCM_TOKEN = "token"
 }
 
 export interface ApiRequest {

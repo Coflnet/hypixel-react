@@ -27,6 +27,9 @@ function isTrackingAllowed() {
   return false;
 }
 
+function initFCM() {
+}
+
 
 
 /**

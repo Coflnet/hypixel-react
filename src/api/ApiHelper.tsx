@@ -248,6 +248,7 @@ function initAPI(): API {
         });
     }
 
+
     return {
         search: search,
         trackSearch: trackSearch,
