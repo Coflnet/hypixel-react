@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Search from '../../components/Search/Search';
-import Payment from '../../components/Payment/Payment';
 import PriceGraph from '../../components/PriceGraph/PriceGraph';
 import './ItemDetails.css';
 import { useParams } from "react-router-dom";
