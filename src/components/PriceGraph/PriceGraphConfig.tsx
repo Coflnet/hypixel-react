@@ -9,14 +9,29 @@ export let data: ChartConfiguration = {
                 label: "price",
                 borderColor: "#22A7F0",
                 fill: false
+            },
+            {
+                label: "min",
+                borderColor: "#228B22",
+                fill: false
+            },
+            {
+                label: "max",
+                borderColor: "#B22222",
+                hidden: true,
+                fill: false
+            },
+            {
+                label: "number of items traded",
+                borderColor: "#000000",
+                fill: true
             }
         ]
     },
     options: {
         maintainAspectRatio: false,
         title: {
-            display: true,
-            text: "Item price"
+            display: false,
         },
         animation: {
             duration: 0
@@ -26,6 +41,13 @@ export let data: ChartConfiguration = {
             intersect: false,
             callbacks: {
                 label: function (tooltipItem, data): string {
+                    if (tooltipItem.datasetIndex) {
+                        let dataSetName = data.datasets![tooltipItem.datasetIndex!].label;
+                        if (dataSetName === data.datasets![3].label) {
+                            return tooltipItem.value + " items sold"
+                        }
+                    }
+
                     return numberWithThousandsSeperators(Math.round(parseInt(tooltipItem.value || "0"))).toString() + " coins";
                 },
                 title: function (tooltipItem, data) {

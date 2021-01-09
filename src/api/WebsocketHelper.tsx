@@ -3,16 +3,13 @@ import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
 import cookie from 'cookie';
 import cacheUtils from '../utils/CacheUtils';
+import api from "./ApiHelper";
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
-let websocket: WebSocket = initWebsocket();
+let websocket: WebSocket;
 
-function initWebsocket(): WebSocket {
-
-    let onWebsocketOpen = (): void => {
-        console.log("Websocket open");
-    };
+function initWebsocket(): void {
 
     let onWebsocketClose = (): void => {
         console.log("Websocket closed");
@@ -44,20 +41,24 @@ function initWebsocket(): WebSocket {
 
     let getNewWebsocket = (): WebSocket => {
 
-        // get UUID of user for websocket or generate a new one
-        let cookies = cookie.parse(document.cookie);
-        cookies.websocketUUID = cookies.websocketUUID || generateUUID();
-        document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
-
-        let websocket = new WebSocket(`wss://skyblock-backend.coflnet.com/skyblock?id=${cookies.websocketUUID}`);
-        websocket.onopen = onWebsocketOpen;
+        if (!websocket) {
+            websocket = (window as any).websocket;
+            api.setConnectionId();
+            cacheUtils.checkForCacheClear();
+        } else {
+            // get UUID of user for websocket or generate a new one
+            let cookies = cookie.parse(document.cookie);
+            cookies.websocketUUID = cookies.websocketUUID || generateUUID();
+            document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
+            websocket = new WebSocket(`wss://skyblock-backend.coflnet.com/skyblock?id=${cookies.websocketUUID}`);
+        }
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
         websocket.onmessage = onWebsocketMessage;
         return websocket;
     }
 
-    return getNewWebsocket();
+    websocket = getNewWebsocket();
 }
 
 function sendRequest(request: ApiRequest): Promise<void> {
@@ -68,7 +69,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
             return;
         }
 
-        if (websocket.readyState === WebSocket.OPEN) {
+        if (websocket && websocket.readyState === WebSocket.OPEN) {
             request.mId = requestCounter++;
 
             try {
@@ -79,14 +80,16 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             requests.push(request);
             websocket.send(JSON.stringify(request));
-        } else if (websocket.readyState === WebSocket.CONNECTING) {
-            setTimeout(() => {
+        } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
+            websocket.onopen = function () {
+                console.log("websocket opened");
                 sendRequest(request);
-            }, 1000);
+            }
         }
     })
 }
 
 export let websocketHelper: WebsocketHelper = {
-    sendRequest: sendRequest
+    sendRequest: sendRequest,
+    init: initWebsocket
 }

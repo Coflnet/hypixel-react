@@ -30,3 +30,4 @@ debug.log
 
 package-lock.json
 .vscode
+.eslintcache

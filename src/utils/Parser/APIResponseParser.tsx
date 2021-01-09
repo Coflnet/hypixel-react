@@ -64,11 +64,23 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
     } as PlayerDetails
 }
 
+export function parseItemPrice(priceData: any): ItemPrice {
+    return {
+        time: new Date(priceData.time),
+        avg: priceData.avg,
+        max: priceData.max,
+        min: priceData.min,
+        volume: priceData.volume
+    } as ItemPrice;
+}
+
 export function parseItemPriceData(priceData: any): ItemPriceData {
     return {
-        end: new Date(priceData.end),
-        price: priceData.price
-    } as ItemPriceData;
+        filterable: priceData.filterable,
+        prices: priceData.prices.map(price => {
+            return parseItemPrice(price);
+        })
+    }
 }
 
 export function parseItem(item: any): Item {

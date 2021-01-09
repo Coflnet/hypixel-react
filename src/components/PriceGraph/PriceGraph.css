@@ -1,6 +1,5 @@
 .price-graph {
-    height: 60vh;
-    width: 99vw;
+    width: 100vw;
     position: relative;
 }
 
@@ -9,4 +8,15 @@
     position: absolute;
     left: 50%;
     font-size: 30
+}
+
+.additional-infos {
+    text-align: right;
+    margin-right: 20px;
+    margin-top: 10px;
+}
+
+.graph-canvas-container {
+    margin-top: 20px;
+    height: 50vh;
 }

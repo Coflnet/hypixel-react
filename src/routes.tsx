@@ -11,8 +11,7 @@ import { getLoadingElement } from './utils/LoadingUtils';
 const PlayerDetails = React.lazy(() => import('./pages/PlayerDetails/PlayerDetails'));
 const ItemDetails = React.lazy(() => import('./pages/ItemDetails/ItemDetails'));
 const AuctionDetails = React.lazy(() => import('./pages/AuctionDetails/AuctionDetails'));
-const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess/PaymentSuccess'))
-const PaymentCancel = React.lazy(() => import('./pages/PaymentCancel/PaymentCancel'))
+const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'));
 
 const matomoTrackingInstance = createInstance({
   urlBase: 'https://track.coflnet.com',
@@ -34,17 +33,16 @@ function isTrackingAllowed() {
  */
 export default (
   <MatomoProvider value={matomoTrackingInstance}>
-    <MainApp>
-      <Switch>
-        <Suspense fallback={getLoadingElement()}>
-          <Route path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />} />
+    <Suspense fallback={getLoadingElement()}>
+      <MainApp>
+        <Switch>
+          <Route exact path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />} />
           <Route path='/player/:uuid' component={PlayerDetails} />
           <Route path='/item/:tag' component={ItemDetails} />
           <Route path='/auction/:auctionUUID' component={AuctionDetails} />
-          <Route path='/success' component={PaymentSuccess} />
-          <Route path='/cancel' component={PaymentCancel} />
-        </Suspense>
-      </Switch>
-    </MainApp>
+          <Route path='*' exact component={NotFound} />
+        </Switch>
+      </MainApp>
+    </Suspense>
   </MatomoProvider>
 );

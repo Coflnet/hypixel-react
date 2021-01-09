@@ -1,4 +1,5 @@
-import { get, set } from 'idb-keyval';
+import { get, set, clear } from 'idb-keyval';
+import api from '../api/ApiHelper';
 
 
 
@@ -24,6 +25,21 @@ let cacheUtils: CacheUtils = {
             response: response
         }
         set(type + data, JSON.stringify(entry));
+    },
+    checkForCacheClear: function () {
+        api.getVersion().then(version => {
+            if (version !== window.localStorage.getItem("version")) {
+                // clear workbox caches
+                caches.keys().then(keys => {
+                    keys.forEach(key => {
+                        caches.delete(key);
+                    })
+                });
+                // clear index db
+                clear();
+            };
+            window.localStorage.setItem("version", version);
+        })
     }
 }
 export default cacheUtils

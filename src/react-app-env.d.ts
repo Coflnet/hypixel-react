@@ -80,9 +80,17 @@ interface EnchantmentFilter {
     level?: number
 }
 
+interface ItemPrice {
+    min: number,
+    max: number,
+    avg: number,
+    volume: number,
+    time: Date
+}
+
 interface ItemPriceData {
-    end: Date,
-    price: number
+    filterable: boolean,
+    prices: Array<ItemPrice>
 }
 
 interface SearchResultItem {
@@ -97,20 +105,23 @@ interface API {
     trackSearch(fullSearchId: string, fullSearchType: string): void,
     getItemImageUrl(item: Item): Promise<string>,
     getItemDetails(itemTagOrName: string): Promise<Item>,
-    getItemPrices(itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData[]>,
+    getItemPrices(itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData>,
     getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,
     getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>,
     getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>,
     getEnchantments(): Promise<Enchantment[]>,
     getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>,
     getPlayerName(uuid: string): Promise<string>,
+    setConnectionId(): void,
+    getVersion(): Promise<string>
     hasPremium(googleId: string): Promise<Date>
 }
 
 
 interface CacheUtils {
     getFromCache(type: string, data: string): Promise<ApiResponse | null>,
-    setIntoCache(type: string, data: string, response: ApiResponse, maxAge: number = 0): void
+    setIntoCache(type: string, data: string, response: ApiResponse, maxAge: number = 0): void,
+    checkForCacheClear(): void
 }
 
 interface ApiResponse {

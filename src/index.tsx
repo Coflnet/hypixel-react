@@ -5,13 +5,12 @@ import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter } from "react-router-dom";
 import routes from "../src/routes";
+import { websocketHelper } from "./api/WebsocketHelper"
+
+websocketHelper.init();
 
 ReactDOM.render(
   <div>
     <BrowserRouter children={routes} />
-    <footer className="footer">
-      <a href="https://coflnet.com/impressum" className="link">Imprint</a>
-      <a href="https://coflnet.com/terms" className="link">Terms of Use</a>
-    </footer>
   </div>
   , document.getElementById('root'))

@@ -1,5 +1,8 @@
-export function parseEnchantmentFilter(enchantmentFilterBase64: string): EnchantmentFilter {
+export function parseEnchantmentFilter(enchantmentFilterBase64: string): EnchantmentFilter | undefined {
     let enchantmentFilter: any = JSON.parse(atob(enchantmentFilterBase64));
+    if (!enchantmentFilter.enchantment || !enchantmentFilter.enchantment.id || !enchantmentFilter.level) {
+        return undefined;
+    }
     return {
         enchantment: {
             id: enchantmentFilter.enchantment.id,

@@ -20,6 +20,10 @@ function AuctionDetails(props: Props) {
     let forceUpdate = useForceUpdate();
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         if (!auctionDetails) {
             loadAuctionDetails()
         }
@@ -46,9 +50,14 @@ function AuctionDetails(props: Props) {
                 auctionDetails.auctioneer.name = name;
             }))
             Promise.all(namePromises).then(() => {
+                setDocumentTitle(auctionDetails);
                 forceUpdate();
             })
         })
+    }
+
+    let setDocumentTitle = (auctionDetails: AuctionDetails) => {
+        document.title = "Auction from " + auctionDetails.auctioneer.name + " for " + auctionDetails.auction.item.name;
     }
 
     let onAucitonEnd = () => {

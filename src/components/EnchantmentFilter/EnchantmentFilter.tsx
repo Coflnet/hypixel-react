@@ -12,6 +12,9 @@ interface Props {
     disabled?: boolean
 }
 
+// Boolean if the component is mounted. Set to false in useEffect cleanup function
+let mounted = true;
+
 function EnchantmentFilter(props: Props) {
 
     let [enchantments, setEnchantments] = useState<Enchantment[]>([]);
@@ -23,12 +26,14 @@ function EnchantmentFilter(props: Props) {
     let query = new URLSearchParams(useLocation().search);
 
     useEffect(() => {
+        mounted = true;
         loadEnchantments();
         enchantmentFilter = getEnchantmentFilterFromUrl(query);
         if (enchantmentFilter) {
             setEnchantmentFilter(enchantmentFilter);
             setExpanded(true);
         }
+        return () => { mounted = false }
     }, []);
 
     history.listen(() => {
@@ -37,6 +42,9 @@ function EnchantmentFilter(props: Props) {
 
     let loadEnchantments = () => {
         api.getEnchantments().then(enchantments => {
+            if (!mounted) {
+                return;
+            }
             setEnchantments(enchantments);
             if (!enchantmentFilter) {
                 setEnchantmentFilter({
@@ -127,7 +135,7 @@ function EnchantmentFilter(props: Props) {
                         Enchantment Filter
                         {isApplied ?
                             <Badge variant="success" className="appliedBadge">Applied</Badge> :
-                            <Badge variant="danger"  className="appliedBadge">Not Applied</Badge>}
+                            <Badge variant="danger" className="appliedBadge">Not Applied</Badge>}
                     </Card.Title>
                     <Card.Body>
                         <Form inline style={{ marginBottom: "5px" }} >
