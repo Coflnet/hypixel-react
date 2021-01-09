@@ -5,6 +5,7 @@
     "dependencies": {
         "@craco/craco": "^6.0.0",
         "@datapunt/matomo-tracker-react": "^0.3.1",
+        "@stripe/stripe-js": "^1.11.0",
         "bootstrap": "^4.5.2",
         "bootstrap-icons": "^1.2.2",
         "chart.js": "^2.9.3",

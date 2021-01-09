@@ -73,61 +73,44 @@ function initAPI(): API {
     });
   };
 
-    let getItemPrices = (itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData> => {
-        return new Promise((resolve) => {
-            let requestData = {
-                name: itemTagOrName,
-                start: Math.round(fetchStart / 100000) * 100,
-                reforge: reforge ? reforge.id : undefined,
-                enchantments: enchantmentFilter && enchantmentFilter.enchantment && enchantmentFilter.level ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
-            };
-            websocketHelper.sendRequest({
-                type: RequestType.ITEM_PRICES,
-                data: requestData,
-                resolve: (data: any) => {
-                    resolve(parseItemPriceData(data));
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
-                }
-            });
-        })
-    }
 
-  let getItemPrices = (
-    itemTagOrName: string,
-    fetchStart: number,
-    reforge?: Reforge,
-    enchantmentFilter?: EnchantmentFilter
-  ): Promise<ItemPriceData[]> => {
+  let getItemDetails = (itemTagOrName: string): Promise<Item> => {
+    return new Promise((resolve, reject) => {
+      websocketHelper.sendRequest({
+        type: RequestType.ITEM_DETAILS,
+        data: itemTagOrName,
+        resolve: (item: any) => {
+          resolve(parseItem(item))
+        },
+        reject: (error: any) => {
+          apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTagOrName)
+        }
+      });
+    })
+  }
+
+
+  let getItemPrices = (itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData> => {
     return new Promise((resolve) => {
       let requestData = {
         name: itemTagOrName,
         start: Math.round(fetchStart / 100000) * 100,
         reforge: reforge ? reforge.id : undefined,
-        enchantments:
-          enchantmentFilter &&
-          enchantmentFilter.enchantment &&
-          enchantmentFilter.level
-            ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]]
-            : undefined,
+        enchantments: enchantmentFilter && enchantmentFilter.enchantment && enchantmentFilter.level ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
       };
       websocketHelper.sendRequest({
         type: RequestType.ITEM_PRICES,
         data: requestData,
         resolve: (data: any) => {
-          resolve(
-            data.map((priceData: any) => {
-              return parseItemPriceData(priceData);
-            })
-          );
+          resolve(parseItemPriceData(data));
         },
         reject: (error: any) => {
-          apiErrorHandler(RequestType.ITEM_PRICES, error, requestData);
-        },
+          apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
+        }
       });
-    });
-  };
+    })
+  }
+
 
   let getPlayerDetails = (playerUUID: string): Promise<PlayerDetails> => {
     return new Promise((resolve, reject) => {
@@ -230,7 +213,7 @@ function initAPI(): API {
     websocketHelper.sendRequest({
       type: RequestType.TRACK_SEARCH,
       data: requestData,
-      resolve: () => {},
+      resolve: () => { },
       reject: (error: any) => {
         apiErrorHandler(RequestType.TRACK_SEARCH, error, requestData);
       },
@@ -267,67 +250,66 @@ function initAPI(): API {
     });
   };
 
-    let setConnectionId = () => {
-        let cookies = cookie.parse(document.cookie);
-        cookies.websocketUUID = cookies.websocketUUID || generateUUID();
-        document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
+  let setConnectionId = () => {
+    let cookies = cookie.parse(document.cookie);
+    cookies.websocketUUID = cookies.websocketUUID || generateUUID();
+    document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
+    websocketHelper.sendRequest({
+      type: RequestType.SET_CONNECTION_ID,
+      data: cookies.websocketUUID,
+      resolve: () => { },
+      reject: (error: any) => {
+        apiErrorHandler(RequestType.SET_CONNECTION_ID, error, cookies.websocketUUID);
+      }
+    })
+  }
 
-        websocketHelper.sendRequest({
-            type: RequestType.SET_CONNECTION_ID,
-            data: cookies.websocketUUID,
-            resolve: () => { },
-            reject: (error: any) => {
-                apiErrorHandler(RequestType.SET_CONNECTION_ID, error, cookies.websocketUUID);
-            }
-        })
-    }
-
-    let getVersion = (): Promise<string> => {
-        return new Promise((resolve, reject) => {
-                type: RequestType.GET_VERSION,
-            websocketHelper.sendRequest({
-                data: "",
-                resolve: (response) => {
-                    resolve(response);
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_VERSION, error, "");
-                }
-            })
-        });
-    }
+  let getVersion = (): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      websocketHelper.sendRequest({
+        type: RequestType.GET_VERSION,
+        data: "",
+        resolve: (response) => {
+          resolve(response);
+        },
+        reject: (error: any) => {
+          apiErrorHandler(RequestType.GET_VERSION, error, "");
+        }
+      })
+    });
+  }
 
   let hasPremium = (googleId: string): Promise<Date> => {
     return new Promise((resolve, reject) => {
       websocketHelper.sendRequest({
         type: RequestType.PREMIUM_EXPIRATION,
         data: googleId,
-        resolve:  (x) => {
+        resolve: (x) => {
+          resolve(x);
         },
-            resolve(x);
         reject: (error: any) => {
           apiErrorHandler(RequestType.PREMIUM_EXPIRATION, error, googleId);
-      });
         },
-  };
-    });
+      })
+    })
+  }
 
-    return {
-        search: search,
-        trackSearch: trackSearch,
-        getItemDetails: getItemDetails,
-        getItemPrices: getItemPrices,
-        getPlayerDetails: getPlayerDetails,
-        getAuctions: getAuctions,
-        getBids: getBids,
-        getEnchantments: getEnchantments,
-        getAuctionDetails: getAuctionDetails,
-        getItemImageUrl: getItemImageUrl,
-        getPlayerName: getPlayerName,
-        setConnectionId: setConnectionId,
-        getVersion: getVersion
+  return {
+    search: search,
+    trackSearch: trackSearch,
+    getItemDetails: getItemDetails,
+    getItemPrices: getItemPrices,
+    getPlayerDetails: getPlayerDetails,
+    getAuctions: getAuctions,
+    getBids: getBids,
+    getEnchantments: getEnchantments,
+    getAuctionDetails: getAuctionDetails,
+    getItemImageUrl: getItemImageUrl,
+    getPlayerName: getPlayerName,
+    setConnectionId: setConnectionId,
     hasPremium: hasPremium,
-    }
+    getVersion: getVersion
+  }
 }
 
 let api = initAPI();

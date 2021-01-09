@@ -16,7 +16,6 @@ function Payment() {
   useEffect(() => {
     if (googleId) {
       api.hasPremium(googleId).then((expiration: Date) => {
-        console.log({ expiration });
         setPremiumExpiration(expiration);
       });
     }
@@ -38,17 +37,15 @@ function Payment() {
       data: googleId,
       resolve: async (sessionId: any) => {
         const stripe = await stripePromise;
-        console.log({ stripe });
         if (stripe) {
-          console.log({ sessionId });
           const result = await stripe.redirectToCheckout({
             sessionId: sessionId,
           });
-          console.log({ result });
+          console.log({result});
         }
       },
       reject: (error: any) => {
-        console.log(error);
+        console.error(error);
       },
     });
   };

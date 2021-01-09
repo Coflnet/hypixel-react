@@ -34,7 +34,6 @@ function ItemDetails() {
     return (
         <div className="item-details">
             <Search selected={getItem()} />
-            <Payment />
             <PriceGraph item={getItem()} />
         </div >
     );
