@@ -13,7 +13,9 @@ importScripts("https://arc.io/arc-sw-core.js");
 
 
 
-workbox.setConfig({ debug: false });
+workbox.setConfig({
+    debug: false
+});
 
 // 
 // https://developers.google.com/web/tools/workbox/reference-docs/latest/workbox.routing#registerRoute
@@ -72,3 +74,55 @@ workbox.routing.registerRoute(
         cacheName: 'workbox:image',
     })
 );
+
+
+importScripts('https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js');
+importScripts('https://www.gstatic.com/firebasejs/7.18.0/firebase-messaging.js');
+// Your web app's Firebase configuration
+var firebaseConfig = {
+    apiKey: "AIzaSyB1yFUo__ZzeTBKw7KRQNHIyhxL7q9cLdI",
+    authDomain: "skyblock-300817.firebaseapp.com",
+    projectId: "skyblock-300817",
+    storageBucket: "skyblock-300817.appspot.com",
+    messagingSenderId: "570302890760",
+    appId: "1:570302890760:web:60cd30b3753f747d6c62bd"
+};
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30')
+messaging.onBackgroundMessage(function(payload) {
+    console.log(payload);
+    const notificationTitle = payload.notification.title;
+    const notificationOptions = {
+        body: payload.notification.body,
+        icon: '/logo192.png',
+        data: {
+            url: payload.data.onClick
+        }, //the url which we gonna use later
+    };
+    return self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+//Code for adding event on click of notification
+self.addEventListener('notificationclick', function(event) {
+    let url = event.notification.data.url;
+    event.notification.close();
+    event.waitUntil(
+        clients.matchAll({
+            type: 'window'
+        }).then(windowClients => {
+            // Check if there is already a window/tab open with the target URL
+            for (var i = 0; i < windowClients.length; i++) {
+                var client = windowClients[i];
+                // If so, just focus it.
+                if (client.url === url && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // If not, then open the target URL in a new window/tab.
+            if (clients.openWindow) {
+                return clients.openWindow(url);
+            }
+        })
+    );
+});
