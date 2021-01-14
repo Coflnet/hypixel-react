@@ -4,6 +4,7 @@ import { websocketHelper } from './WebsocketHelper';
 import cookie from 'cookie';
 import { v4 as generateUUID } from 'uuid';
 import { resolve } from "url";
+import { Stripe } from "@stripe/stripe-js";
 
 function initAPI(): API {
 
@@ -248,20 +249,58 @@ function initAPI(): API {
         });
     }
 
+    let hasPremium = (googleId: string): Promise<Date> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.PREMIUM_EXPIRATION,
+                data: googleId,
+                resolve: (premiumUntil) => {
+                    resolve(premiumUntil);
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.PREMIUM_EXPIRATION, error, googleId);
+                },
+            })
+        })
+    }
+
+    let pay = (stripePromise: Promise<Stripe | null>, googleId: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.PAYMENT_SESSION,
+                data: googleId,
+                resolve: (sessionId: any) => {
+                    stripePromise.then((stripe) => {
+                        if (stripe) {
+                            stripe.redirectToCheckout({ sessionId }).then(result => console.log(result));
+                            resolve();
+                        }
+                    })
+                },
+                reject: (error: any) => {
+                    console.error(error);
+                    reject();
+                },
+            })
+        })
+    }
+
     return {
-        search: search,
-        trackSearch: trackSearch,
-        getItemDetails: getItemDetails,
-        getItemPrices: getItemPrices,
-        getPlayerDetails: getPlayerDetails,
-        getAuctions: getAuctions,
-        getBids: getBids,
-        getEnchantments: getEnchantments,
-        getAuctionDetails: getAuctionDetails,
-        getItemImageUrl: getItemImageUrl,
-        getPlayerName: getPlayerName,
-        setConnectionId: setConnectionId,
-        getVersion: getVersion
+        search,
+        trackSearch,
+        getItemDetails,
+        getItemPrices,
+        getPlayerDetails,
+        getAuctions,
+        getBids,
+        getEnchantments,
+        getAuctionDetails,
+        getItemImageUrl,
+        getPlayerName,
+        setConnectionId,
+        hasPremium,
+        getVersion,
+        pay
     }
 }
 

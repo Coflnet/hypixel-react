@@ -5,6 +5,7 @@
     "dependencies": {
         "@craco/craco": "^6.0.0",
         "@datapunt/matomo-tracker-react": "^0.3.1",
+        "@stripe/stripe-js": "^1.11.0",
         "bootstrap": "^4.5.2",
         "bootstrap-icons": "^1.2.2",
         "chart.js": "^2.9.3",
@@ -16,6 +17,7 @@
         "react-cookie-consent": "^6.2.1",
         "react-countdown": "^2.3.1",
         "react-dom": "^16.13.1",
+        "react-google-login": "^5.2.2",
         "react-infinite-scroll-component": "^5.1.0",
         "react-router-dom": "^5.2.0",
         "react-scripts": "4.0.1",
@@ -25,7 +27,7 @@
         "start": "craco start",
         "build": "craco build",
         "test": "craco test",
-        "eject": "react-scripts eject",
+        "eject": "react-scripts eject"
         "dev-sync": "sh dev-ops/scripts/dev-sync.sh"
     },
     "eslintConfig": {
