@@ -13,6 +13,8 @@ function Payment() {
     const googleId = localStorage.getItem('googleId');
     if (googleId) {
       api.pay(stripePromise, googleId)
+    } else {
+      console.warn('not logged in in google yet')
     }
   };
 
