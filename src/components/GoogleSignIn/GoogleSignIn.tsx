@@ -3,11 +3,8 @@ import { GoogleLogin } from "react-google-login";
 
 function GoogleSignIn() {
 
-    let [googleId, setGoogleId] = useState(localStorage.getItem('googleId'));
-
     const onLoginSucces = (response: any) => {
         localStorage.setItem("googleId", response.googleId);
-        setGoogleId(response.googleId);
     };
 
     return (
