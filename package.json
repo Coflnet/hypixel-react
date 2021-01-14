@@ -27,7 +27,7 @@
         "start": "craco start",
         "build": "craco build",
         "test": "craco test",
-        "eject": "react-scripts eject",
+        "eject": "react-scripts eject"
         "dev-sync": "sh dev-ops/scripts/dev-sync.sh"
     },
     "eslintConfig": {
