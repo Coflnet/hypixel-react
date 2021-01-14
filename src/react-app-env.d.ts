@@ -114,7 +114,8 @@ interface API {
     getPlayerName(uuid: string): Promise<string>,
     setConnectionId(): void,
     getVersion(): Promise<string>
-    hasPremium(googleId: string): Promise<Date>
+    hasPremium(googleId: string): Promise<Date>,
+    pay(stripePromise: Promise<Stripe|null>,gogleId: string): Promise<void>
 }
 
 
