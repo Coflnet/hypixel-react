@@ -13,9 +13,9 @@ function ItemDetails() {
                 <p>Player Heads from <a href="https://mc-heads.net/">mc-heads</a> and <a href="https://craftatar.com">craftatar</a></p>
                 <p>Item icons from <a href="https://sky.lea.moe">sky.lea.moe</a></p>
                 <p>Data from <a href="https://hypixel.net">Hypixel</a></p>
-                <p><a href="https://flou21.de/terms-of-use/">Terms of use</a></p>
-                <p><a href="https://flou21.de/privacy-policy/">Privacy</a></p>
-                <p><a href="https://flou21.de/impressum/">Imprint</a></p>
+                <p><a href="https://coflnet.com/legal">Terms of use</a></p>
+                <p><a href="https://coflnet.com/pricacy">Privacy</a></p>
+                <p><a href="https://coflnet.com/impressum">Imprint</a></p>
             </Card>
         </div >
     );
