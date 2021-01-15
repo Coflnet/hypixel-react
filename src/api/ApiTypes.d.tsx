@@ -14,7 +14,9 @@ export enum RequestType {
     SUBSCRIBE = "subscribe",
     UNSUBSCRIBE = "unsubscribe",
     GET_SUBSCRIPTIONS = "subscriptions",
-    SET_GOOGLE = "setGoogle"
+    SET_GOOGLE = "setGoogle",
+    PAYMENT_SESSION = "paymentSession",
+    PREMIUM_EXPIRATION = 'premiumExpiration'
 }
 
 export enum SubscriptionType {

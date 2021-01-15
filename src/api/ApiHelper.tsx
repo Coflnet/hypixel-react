@@ -253,7 +253,7 @@ function initAPI(): API {
         let requestData = {
             topic: topic,
             price: price,
-            type: types.reduce((a, b) => a + b)
+            type: types.reduce((a, b) => (a as number) + (b as number))
         }
         websocketHelper.sendRequest({
             type: RequestType.SUBSCRIBE,
@@ -300,8 +300,8 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error, "");
                 }
-            }
-        }
+            })
+        })
     }
 
     let hasPremium = (googleId: string): Promise<Date> => {
