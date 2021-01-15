@@ -29,8 +29,6 @@ function isTrackingAllowed() {
   return false;
 }
 
-
-
 /**
  * All routes go here.
  * Don't forget to import the components above after adding new route.

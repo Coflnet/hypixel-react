@@ -3,6 +3,8 @@ import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import cookie from 'cookie';
 import { v4 as generateUUID } from 'uuid';
+import { resolve } from "url";
+import { Stripe } from "@stripe/stripe-js";
 
 function initAPI(): API {
 
@@ -298,6 +300,42 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error, "");
                 }
+            }
+        }
+    }
+
+    let hasPremium = (googleId: string): Promise<Date> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.PREMIUM_EXPIRATION,
+                data: googleId,
+                resolve: (premiumUntil) => {
+                    resolve(premiumUntil);
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.PREMIUM_EXPIRATION, error, googleId);
+                },
+            })
+        })
+    }
+
+    let pay = (stripePromise: Promise<Stripe | null>, googleId: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.PAYMENT_SESSION,
+                data: googleId,
+                resolve: (sessionId: any) => {
+                    stripePromise.then((stripe) => {
+                        if (stripe) {
+                            stripe.redirectToCheckout({ sessionId }).then(result => console.log(result));
+                            resolve();
+                        }
+                    })
+                },
+                reject: (error: any) => {
+                    console.error(error);
+                    reject();
+                },
             })
         })
     }
@@ -330,7 +368,9 @@ function initAPI(): API {
         subscribe,
         unsubscribe,
         getSubscriptions,
-        setGoogle
+        setGoogle,
+        hasPremium,
+        pay
     }
 }
 

@@ -7,6 +7,7 @@
 
 # testing
 /coverage
+cypress/videos
 
 # production
 /build
@@ -27,3 +28,7 @@ yarn-error.log*
 
 # debug
 debug.log
+
+package-lock.json
+.vscode
+.eslintcache

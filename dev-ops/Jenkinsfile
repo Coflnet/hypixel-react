@@ -1,0 +1,52 @@
+properties([pipelineTriggers([githubPush()])])
+node {
+    git url: 'https://github.com/matthias-luger/hypixel-react', branch: 'master'
+}
+pipeline {
+    agent any
+
+    stages {
+        stage('prepare') {
+            steps {
+                echo 'cloning repository'
+                sh 'git clone https://github.com/matthias-luger/hypixel-react'
+                
+            }
+        }
+        stage('build') {
+            steps {
+                nodejs(nodeJSInstallationName: '14.15.1') {
+                    echo 'installing dependencies...'
+                    sh 'cd hypixel-react && npm i'
+                    echo 'building production release'
+                    sh 'cd hypixel-react && npm run build'
+                }
+                
+            }
+        }
+        stage('release') {
+            steps {
+                nodejs(nodeJSInstallationName: '14.15.1') {
+                    echo 'releasing to production'
+                    sh "ssh -tti '/var/jenkins_home/ssh/id_rsa' flo@flou21.de 'mkdir /home/flo/hypixel/ah/files2'"
+                    sh "cd hypixel-react/build && rsync --progress -avz -e 'ssh -i /var/jenkins_home/ssh/id_rsa' . flo@flou21.de:/home/flo/hypixel/ah/files2"
+                    sh "ssh -tti '/var/jenkins_home/ssh/id_rsa' flo@flou21.de 'mv /home/flo/hypixel/ah/files /home/flo/hypixel/ah/files3'"
+                    sh "ssh -tti '/var/jenkins_home/ssh/id_rsa' flo@flou21.de 'mv /home/flo/hypixel/ah/files2 /home/flo/hypixel/ah/files'"
+                    sh "ssh -tti '/var/jenkins_home/ssh/id_rsa' flo@flou21.de 'rm -rf /home/flo/hypixel/ah/files3'"
+                }
+            }
+        }
+        stage('test') {
+            steps {
+                nodejs(nodeJSInstallationName: '14.15.1') {
+                    sh 'npx cypress run --record --key d81a6322-60d9-4973-b79f-f4d56bb4cfb6'
+                }
+            }
+        }
+    }
+    post {
+            always {
+                sh 'rm -rf hypixel-react'
+            }
+        }
+}

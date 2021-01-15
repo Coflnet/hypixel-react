@@ -118,6 +118,8 @@ interface API {
     unsubscribe(topic: string, price: number, type: number): Promise<Number>,
     getSubscriptions(): Promise<Subscription[]>,
     setGoogle(id: string): void
+    hasPremium(googleId: string): Promise<Date>,
+    pay(stripePromise: Promise<Stripe|null>,gogleId: string): Promise<void>
 }
 
 
