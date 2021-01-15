@@ -1,9 +1,8 @@
-import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseSearchResultItem } from "../utils/Parser/APIResponseParser";
-import { RequestType } from "./ApiTypes.d";
+import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import cookie from 'cookie';
 import { v4 as generateUUID } from 'uuid';
-import { resolve } from "url";
 
 function initAPI(): API {
 
@@ -238,8 +237,8 @@ function initAPI(): API {
             websocketHelper.sendRequest({
                 type: RequestType.GET_VERSION,
                 data: "",
-                resolve: (response) => {
-                    resolve(response);
+                resolve: (response: any) => {
+                    resolve(response.toString());
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_VERSION, error, "");
@@ -248,20 +247,90 @@ function initAPI(): API {
         });
     }
 
+    let subscribe = (topic: string, price: number, types: SubscriptionType[]): void => {
+        let requestData = {
+            topic: topic,
+            price: price,
+            type: types.reduce((a, b) => a + b)
+        }
+        websocketHelper.sendRequest({
+            type: RequestType.SUBSCRIBE,
+            data: requestData,
+            resolve: () => {
+
+            },
+            reject: (error) => {
+                apiErrorHandler(RequestType.SUBSCRIBE, error, "");
+            }
+        })
+    }
+
+    let unsubscribe = (topic: string, price: number, type: number): Promise<Number> => {
+        return new Promise((resolve, reject) => {
+            let requestData = {
+                topic,
+                price,
+                type
+            };
+            websocketHelper.sendRequest({
+                type: RequestType.UNSUBSCRIBE,
+                data: requestData,
+                resolve: (response: any) => {
+                    resolve(parseInt(response));
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.UNSUBSCRIBE, error, "");
+                }
+            })
+        });
+    }
+
+    let getSubscriptions = (): Promise<Subscription[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_SUBSCRIPTIONS,
+                data: "",
+                resolve: (response: any[]) => {
+                    resolve(response.map(s => {
+                        return parseSubscription(s)
+                    }));
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error, "");
+                }
+            })
+        })
+    }
+
+    let setGoogle = (id: string) => {
+        websocketHelper.sendRequest({
+            type: RequestType.SET_GOOGLE,
+            data: id,
+            resolve: () => { },
+            reject: (error: any) => {
+                apiErrorHandler(RequestType.SET_GOOGLE, error, "");
+            }
+        })
+    }
+
     return {
-        search: search,
-        trackSearch: trackSearch,
-        getItemDetails: getItemDetails,
-        getItemPrices: getItemPrices,
-        getPlayerDetails: getPlayerDetails,
-        getAuctions: getAuctions,
-        getBids: getBids,
-        getEnchantments: getEnchantments,
-        getAuctionDetails: getAuctionDetails,
-        getItemImageUrl: getItemImageUrl,
-        getPlayerName: getPlayerName,
-        setConnectionId: setConnectionId,
-        getVersion: getVersion
+        search,
+        trackSearch,
+        getItemDetails,
+        getItemPrices,
+        getPlayerDetails,
+        getAuctions,
+        getBids,
+        getEnchantments,
+        getAuctionDetails,
+        getItemImageUrl,
+        getPlayerName,
+        setConnectionId,
+        getVersion,
+        subscribe,
+        unsubscribe,
+        getSubscriptions,
+        setGoogle
     }
 }
 

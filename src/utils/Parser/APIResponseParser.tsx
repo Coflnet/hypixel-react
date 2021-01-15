@@ -1,4 +1,5 @@
 import { v4 as generateUUID } from 'uuid';
+import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
 
 export function parseItemBidForList(bid: any): BidForList {
     return {
@@ -169,5 +170,40 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
         }),
         profileId: auctionDetails.profileId,
         reforge: auctionDetails.reforge
+    }
+}
+
+export function parseSubscriptionTypes(typeInNumeric: number): SubscriptionType[] {
+    let subTypes: SubscriptionType[] = [];
+
+    for (let enumValue in SubscriptionType) {
+        if (typeof SubscriptionType[enumValue] === 'number') {
+            let number = parseInt(SubscriptionType[enumValue]);
+            if (number < typeInNumeric) {
+                typeInNumeric -= number;
+                subTypes.push(SubscriptionType[number.toString()]);
+            }
+        }
+    }
+
+    return subTypes;
+}
+
+function _getTypeFromSubTypes(subTypes: SubscriptionType[]) {
+    var isItem = true;
+    subTypes.forEach(subtype => {
+        if(subtype === SubscriptionType.OUTBID || subtype === SubscriptionType.SOLD || SubscriptionType.BIN){
+            isItem = false;
+        }
+    });
+    return isItem ? "item" : "player";
+}
+
+export function parseSubscription(subscription: any): Subscription {
+    return {
+        price: subscription.price,
+        topicId: subscription.topicId,
+        types: parseSubscriptionTypes(subscription.type),
+        type: _getTypeFromSubTypes(parseSubscriptionTypes(subscription.type))
     }
 }

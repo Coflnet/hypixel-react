@@ -4,9 +4,9 @@ import { Badge, Form, ListGroup, Spinner } from 'react-bootstrap';
 import './Search.css';
 import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
-import InformationDialog from '../InformationDialog/InformationDialog';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
-
+import SideNav from 'react-simple-sidenav';
+import { Link } from 'react-router-dom';
 interface Props {
     selected?: Player | Item
 }
@@ -21,7 +21,7 @@ function Search(props: Props) {
     let [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout>();
     let [isLoading, setIsLoading] = useState(false);
     let [noResultsFound, setNoResultsFound] = useState(false);
-    let [showInformationDialog, setShowInformationDialog] = useState(false);
+    let [showNav, setShowNav] = useState(false);
 
     useEffect(() => {
         setSearchText("");
@@ -96,10 +96,9 @@ function Search(props: Props) {
 
     let infoElement = (
         // eslint-disable-next-line jsx-a11y/anchor-is-valid
-        <span onClick={() => { setShowInformationDialog(true); trackEvent({ category: "informations", action: "open" }) }} className="infoIcon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="blue" className="bi bi-info-circle" viewBox="0 0 16 16">
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+        <span onClick={() => { setShowNav(true); trackEvent({ category: "informations", action: "open" }) }} className="infoIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
             </svg>
         </span>
     );
@@ -108,16 +107,32 @@ function Search(props: Props) {
         if (!props.selected) {
             return <div />
         }
-        return <p><Badge variant="primary">Current:</Badge> <img src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} />{props.selected.name || convertTagToName((props.selected as Item).tag)}</p>
+        return <p className="current"><Badge variant="primary">Current:</Badge> <img src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} />{props.selected.name || convertTagToName((props.selected as Item).tag)}</p>
     }
+
+    let sideNav = (
+        <SideNav showNav={showNav}
+            titleStyle={{ backgroundColor: "#22A7F0", height: "60px", margin: "auto", padding: "0 20px", lineHeight: "60px" }}
+            navStyle={{ width: "60%" }}
+            itemStyle={{ padding: "22px 0px", textDecoration: "none" }}
+            title={<span>Navigation</span>}
+            items={[
+                <Link to="/"><span><img src="/Coin.png" height="48" width="48" alt="" />Prices</span></Link>,
+                <Link to="/subscriptions"><span><img src="/Coin.png" height="48" width="48" alt="" />Subscriptions</span></Link>,
+                <span><img src="/Coin.png" height="48" width="48" alt="" />Premium</span>,
+                <Link to="/about"><span><img src="/Coin.png" height="48" width="48" alt="" />Links / Legal</span></Link>]}
+            onHideNav={() => { setShowNav(false) }
+            }>
+        </SideNav >
+    );
 
     return (
         <div className="search">
-            {showInformationDialog ? <InformationDialog onClose={() => setShowInformationDialog(false)} /> : ""}
+            {sideNav}
             <Form>
                 <Form.Group>
-                    <Form.Control type="text" placeholder="Search player/item" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
                     {infoElement}
+                    <Form.Control type="text" placeholder="Search player/item" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
                 </Form.Group>
             </Form>
             {

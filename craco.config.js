@@ -12,6 +12,8 @@ module.exports = {
                         /^btn.*/,
                         /^card.*/,
                         /^spinner.*/,
+                        /^input-group.*/,
+                        /^table.*/,
                         'btn',
                         'active',
                         'body',

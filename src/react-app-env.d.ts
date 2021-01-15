@@ -113,7 +113,11 @@ interface API {
     getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>,
     getPlayerName(uuid: string): Promise<string>,
     setConnectionId(): void,
-    getVersion(): Promise<string>
+    getVersion(): Promise<string>,
+    subscribe(topic: string, price: number, type: SubscriptionType[]): void,
+    unsubscribe(topic: string, price: number, type: number): Promise<Number>,
+    getSubscriptions(): Promise<Subscription[]>,
+    setGoogle(id: string): void
 }
 
 
