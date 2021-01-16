@@ -174,12 +174,15 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
 }
 
 export function parseSubscriptionTypes(typeInNumeric: number): SubscriptionType[] {
+
+    let keys = Object.keys(SubscriptionType);
     let subTypes: SubscriptionType[] = [];
 
-    for (let enumValue in SubscriptionType) {
+    for (let i = keys.length; i >= 0; i--) {
+        let enumValue = SubscriptionType[keys[i]];
         if (typeof SubscriptionType[enumValue] === 'number') {
             let number = parseInt(SubscriptionType[enumValue]);
-            if (number < typeInNumeric) {
+            if (number <= typeInNumeric && number > 0) {
                 typeInNumeric -= number;
                 subTypes.push(SubscriptionType[number.toString()]);
             }
@@ -192,7 +195,7 @@ export function parseSubscriptionTypes(typeInNumeric: number): SubscriptionType[
 function _getTypeFromSubTypes(subTypes: SubscriptionType[]) {
     var isItem = true;
     subTypes.forEach(subtype => {
-        if(subtype === SubscriptionType.OUTBID || subtype === SubscriptionType.SOLD || SubscriptionType.BIN){
+        if (subtype === SubscriptionType.OUTBID || subtype === SubscriptionType.SOLD || subtype === SubscriptionType.BIN) {
             isItem = false;
         }
     });

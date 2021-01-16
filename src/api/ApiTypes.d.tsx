@@ -26,9 +26,7 @@ export enum SubscriptionType {
     OUTBID = 4,
     SOLD = 8,
     BIN = 16,
-    USE_SELL_NOT_BUY = 32,
-    PAYMENT_SESSION = "paymentSession",
-    PREMIUM_EXPIRATION = 'premiumExpiration'
+    USE_SELL_NOT_BUY = 32
 }
 
 export interface ApiRequest {

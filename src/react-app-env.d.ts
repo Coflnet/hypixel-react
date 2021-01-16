@@ -114,12 +114,12 @@ interface API {
     getPlayerName(uuid: string): Promise<string>,
     setConnectionId(): void,
     getVersion(): Promise<string>,
-    subscribe(topic: string, price: number, type: SubscriptionType[]): void,
-    unsubscribe(topic: string, price: number, type: number): Promise<Number>,
+    subscribe(topic: string, price: number, type: SubscriptionType[]): Promise<void>,
+    unsubscribe(subscription: Subscription): Promise<Number>,
     getSubscriptions(): Promise<Subscription[]>,
-    setGoogle(id: string): void
+    setGoogle(id: string): Promise<void>,
     hasPremium(googleId: string): Promise<Date>,
-    pay(stripePromise: Promise<Stripe|null>,gogleId: string): Promise<void>
+    pay(stripePromise: Promise<Stripe | null>, gogleId: string): Promise<void>
 }
 
 

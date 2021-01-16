@@ -13,7 +13,7 @@ module.exports = {
                         /^card.*/,
                         /^spinner.*/,
                         /^input-group.*/,
-                        /^table.*/,
+                        /^Toastify.*/,
                         'btn',
                         'active',
                         'body',

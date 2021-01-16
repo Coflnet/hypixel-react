@@ -3,7 +3,6 @@ import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import cookie from 'cookie';
 import { v4 as generateUUID } from 'uuid';
-import { resolve } from "url";
 import { Stripe } from "@stripe/stripe-js";
 
 function initAPI(): API {
@@ -249,31 +248,46 @@ function initAPI(): API {
         });
     }
 
-    let subscribe = (topic: string, price: number, types: SubscriptionType[]): void => {
-        let requestData = {
-            topic: topic,
-            price: price,
-            type: types.reduce((a, b) => (a as number) + (b as number))
-        }
-        websocketHelper.sendRequest({
-            type: RequestType.SUBSCRIBE,
-            data: requestData,
-            resolve: () => {
+    let subscribe = (topic: string, price: number, types: SubscriptionType[]): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            // Add none, so reduce works (doesnt change the result)
+            types.push(SubscriptionType.NONE);
 
-            },
-            reject: (error) => {
-                apiErrorHandler(RequestType.SUBSCRIBE, error, "");
+            let requestData = {
+                topic: topic,
+                price: price,
+                type: types.reduce((a, b) => (a as number) + (b as number))
             }
-        })
+            websocketHelper.sendRequest({
+                type: RequestType.SUBSCRIBE,
+                data: requestData,
+                resolve: () => {
+                    resolve();
+                },
+                reject: (error) => {
+                    error = JSON.parse(error);
+                    reject(error.Message);
+                }
+            })
+        });
     }
 
-    let unsubscribe = (topic: string, price: number, type: number): Promise<Number> => {
+    let unsubscribe = (subscription: Subscription): Promise<Number> => {
         return new Promise((resolve, reject) => {
+
+            // Add none, so reduce works (doesnt change the result)
+            subscription.types.push(SubscriptionType.NONE);
+
             let requestData = {
-                topic,
-                price,
-                type
-            };
+                topic: subscription.topicId,
+                price: subscription.price,
+                type: subscription.types.reduce((a, b) => {
+                    let aNum: number = typeof a === "number" ? (a as number) : (parseInt(SubscriptionType[a]));
+                    let bNum: number = typeof b === "number" ? (b as number) : (parseInt(SubscriptionType[b]));
+                    return aNum + bNum;
+                })
+            }
+
             websocketHelper.sendRequest({
                 type: RequestType.UNSUBSCRIBE,
                 data: requestData,
@@ -340,14 +354,18 @@ function initAPI(): API {
         })
     }
 
-    let setGoogle = (id: string) => {
-        websocketHelper.sendRequest({
-            type: RequestType.SET_GOOGLE,
-            data: id,
-            resolve: () => { },
-            reject: (error: any) => {
-                apiErrorHandler(RequestType.SET_GOOGLE, error, "");
-            }
+    let setGoogle = (id: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.SET_GOOGLE,
+                data: id,
+                resolve: () => {
+                    resolve();
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.SET_GOOGLE, error, id);
+                }
+            })
         })
     }
 

@@ -4,6 +4,9 @@ import { Button, FormControl, InputGroup, Modal } from 'react-bootstrap';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 import api from '../../api/ApiHelper';
 import { SubscriptionType } from '../../api/ApiTypes.d';
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Props {
     topic: string
@@ -16,11 +19,16 @@ function SubscribeButton(props: Props) {
     let [price, setPrice] = useState("");
     let [isPriceAbove, setIsPriceAbove] = useState(true);
     let [onlyInstantBuy, setOnlyInstantBuy] = useState(false);
+    let [isLoggedIn, setIsLoggedIn] = useState(false);
 
     function onSubscribe() {
         trackEvent({ action: "subscriptions", category: "subscribed" });
-        console.log("subscribe");
-        api.subscribe(props.topic, parseInt(price), getSubscriptionTypes())
+        setShowDialog(false);
+        api.subscribe(props.topic, parseInt(price), getSubscriptionTypes()).then(() => {
+            toast.success("Subscription success!");
+        }).catch(error => {
+            toast.error(error);
+        })
     }
 
     function getSubscriptionTypes(): SubscriptionType[] {
@@ -35,6 +43,10 @@ function SubscribeButton(props: Props) {
             types.push(SubscriptionType.BIN);
         }
         return types;
+    }
+
+    function onLogin() {
+        setIsLoggedIn(true);
     }
 
     function isNotifyDisabled() {
@@ -54,26 +66,32 @@ function SubscribeButton(props: Props) {
                     <Modal.Title>Create a Notification</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <InputGroup className="price-input">
-                        <InputGroup.Prepend>
-                            <InputGroup.Text id="inputGroup-sizing-sm">Item price</InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm" type="number" onChange={(e) => setPrice(e.target.value)} />
-                    </InputGroup>
-                    <h5>Notify me ... </h5>
-                    <div className="input-data">
-                        <input type="radio" id="priceAboveCheckbox" defaultChecked={true} name="priceState" onChange={(e) => setIsPriceAbove(true)} />
-                        <label htmlFor="priceAboveCheckbox">if the price is above the selected value</label>
-                    </div>
-                    <div className="input-data">
-                        <input type="radio" id="priceBelowCheckbox" name="priceState" onChange={(e) => setIsPriceAbove(false)} />
-                        <label htmlFor="priceBelowCheckbox">if the price is below the selected value</label>
-                    </div>
-                    <div className="input-data">
-                        <input type="checkbox" id="onlyIstantBuy" onClick={(e) => { setOnlyInstantBuy((e.target as HTMLInputElement).checked) }} />
-                        <label htmlFor="onlyIstantBuy">only for instant buy</label>
-                    </div>
-                    <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">Notify me</Button>
+                    {isLoggedIn ?
+                        <div>
+                            <InputGroup className="price-input">
+                                <InputGroup.Prepend>
+                                    <InputGroup.Text id="inputGroup-sizing-sm">Item price</InputGroup.Text>
+                                </InputGroup.Prepend>
+                                <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm" type="number" onChange={(e) => setPrice(e.target.value)} />
+                            </InputGroup>
+                            <h5>Notify me ... </h5>
+                            <div className="input-data">
+                                <input type="radio" id="priceAboveCheckbox" defaultChecked={true} name="priceState" onChange={(e) => setIsPriceAbove(true)} />
+                                <label htmlFor="priceAboveCheckbox">if the price is above the selected value</label>
+                            </div>
+                            <div className="input-data">
+                                <input type="radio" id="priceBelowCheckbox" name="priceState" onChange={(e) => setIsPriceAbove(false)} />
+                                <label htmlFor="priceBelowCheckbox">if the price is below the selected value</label>
+                            </div>
+                            <div className="input-data">
+                                <input type="checkbox" id="onlyIstantBuy" onClick={(e) => { setOnlyInstantBuy((e.target as HTMLInputElement).checked) }} />
+                                <label htmlFor="onlyIstantBuy">only for instant buy</label>
+                            </div>
+                            <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">Notify me</Button>
+                        </div> :
+                        <p>To use subscriptions, please login with Google: </p>
+                    }
+                    <GoogleSignIn onAfterLogin={onLogin} />
                 </Modal.Body>
             </Modal>
         </div>
