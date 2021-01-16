@@ -2,6 +2,10 @@ import React, { useEffect } from 'react';
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useLocation } from "react-router-dom";
 import CookieConsent from 'react-cookie-consent';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 export function MainApp(props: any) {
 
@@ -32,6 +36,7 @@ export function MainApp(props: any) {
                 <p>We use cookies to enhance the user experience.</p>
                 <span> Click <a href="https://coflnet.com/privacy"> here </a> to get to our privcy policy.</span>
             </CookieConsent>
+            <ToastContainer />
         </div>
     )
 }

@@ -1,9 +1,8 @@
-import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseSearchResultItem } from "../utils/Parser/APIResponseParser";
-import { RequestType } from "./ApiTypes.d";
+import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import cookie from 'cookie';
 import { v4 as generateUUID } from 'uuid';
-import { resolve } from "url";
 import { Stripe } from "@stripe/stripe-js";
 
 function initAPI(): API {
@@ -143,6 +142,7 @@ function initAPI(): API {
                 type: RequestType.PLAYER_BIDS,
                 data: requestData,
                 resolve: (bids: any) => {
+                    console.log(bids);
                     resolve(bids.map((bid: any) => {
                         return parseItemBidForList(bid);
                     }));
@@ -239,14 +239,84 @@ function initAPI(): API {
             websocketHelper.sendRequest({
                 type: RequestType.GET_VERSION,
                 data: "",
-                resolve: (response) => {
-                    resolve(response);
+                resolve: (response: any) => {
+                    resolve(response.toString());
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_VERSION, error, "");
                 }
             })
         });
+    }
+
+    let subscribe = (topic: string, price: number, types: SubscriptionType[]): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            // Add none, so reduce works (doesnt change the result)
+            types.push(SubscriptionType.NONE);
+
+            let requestData = {
+                topic: topic,
+                price: price,
+                type: types.reduce((a, b) => (a as number) + (b as number))
+            }
+            websocketHelper.sendRequest({
+                type: RequestType.SUBSCRIBE,
+                data: requestData,
+                resolve: () => {
+                    resolve();
+                },
+                reject: (error) => {
+                    error = JSON.parse(error);
+                    reject(error.Message);
+                }
+            })
+        });
+    }
+
+    let unsubscribe = (subscription: Subscription): Promise<Number> => {
+        return new Promise((resolve, reject) => {
+
+            // Add none, so reduce works (doesnt change the result)
+            subscription.types.push(SubscriptionType.NONE);
+
+            let requestData = {
+                topic: subscription.topicId,
+                price: subscription.price,
+                type: subscription.types.reduce((a, b) => {
+                    let aNum: number = typeof a === "number" ? (a as number) : (parseInt(SubscriptionType[a]));
+                    let bNum: number = typeof b === "number" ? (b as number) : (parseInt(SubscriptionType[b]));
+                    return aNum + bNum;
+                })
+            }
+
+            websocketHelper.sendRequest({
+                type: RequestType.UNSUBSCRIBE,
+                data: requestData,
+                resolve: (response: any) => {
+                    resolve(parseInt(response));
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.UNSUBSCRIBE, error, "");
+                }
+            })
+        });
+    }
+
+    let getSubscriptions = (): Promise<Subscription[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_SUBSCRIPTIONS,
+                data: "",
+                resolve: (response: any[]) => {
+                    resolve(response.map(s => {
+                        return parseSubscription(s)
+                    }));
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error, "");
+                }
+            })
+        })
     }
 
     let hasPremium = (googleId: string): Promise<Date> => {
@@ -285,6 +355,21 @@ function initAPI(): API {
         })
     }
 
+    let setGoogle = (id: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.SET_GOOGLE,
+                data: id,
+                resolve: () => {
+                    resolve();
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.SET_GOOGLE, error, id);
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -298,8 +383,12 @@ function initAPI(): API {
         getItemImageUrl,
         getPlayerName,
         setConnectionId,
-        hasPremium,
         getVersion,
+        subscribe,
+        unsubscribe,
+        getSubscriptions,
+        setGoogle,
+        hasPremium,
         pay
     }
 }

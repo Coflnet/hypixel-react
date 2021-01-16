@@ -11,9 +11,11 @@
 }
 
 .additional-infos {
-    text-align: right;
-    margin-right: 20px;
+    display: inline-flex;
+    text-align: center;
     margin-top: 10px;
+    width: 90%;
+    margin-left: 5%;
 }
 
 .graph-canvas-container {
