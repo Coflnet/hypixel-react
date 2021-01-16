@@ -68,7 +68,7 @@ function BidList(props: Props) {
 
     let getItemImageElement = (bid: BidForList) => {
         return (
-            bid.item.iconUrl ? <img className="bid-item-image" src={bid.item.iconUrl} alt="" height="48" width="48" /> : undefined
+            bid.item.iconUrl ? <img crossOrigin="anonymous" className="bid-item-image" src={bid.item.iconUrl} alt="" height="48" width="48" /> : undefined
         )
     }
 
