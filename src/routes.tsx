@@ -12,6 +12,8 @@ const PlayerDetails = React.lazy(() => import('./pages/PlayerDetails/PlayerDetai
 const ItemDetails = React.lazy(() => import('./pages/ItemDetails/ItemDetails'));
 const AuctionDetails = React.lazy(() => import('./pages/AuctionDetails/AuctionDetails'));
 const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'));
+const Subscriptions = React.lazy(() => import('./pages/Subscriptions/Subscriptions'));
+const About = React.lazy(() => import('./pages/About/About'));
 
 const matomoTrackingInstance = createInstance({
   urlBase: 'https://track.coflnet.com',
@@ -40,6 +42,8 @@ export default (
           <Route path='/player/:uuid' component={PlayerDetails} />
           <Route path='/item/:tag' component={ItemDetails} />
           <Route path='/auction/:auctionUUID' component={AuctionDetails} />
+          <Route path='/about' component={About} />
+          <Route path='/subscriptions' component={Subscriptions} />
           <Route path='*' exact component={NotFound} />
         </Switch>
       </MainApp>
