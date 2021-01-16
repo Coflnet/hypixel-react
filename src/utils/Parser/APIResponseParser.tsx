@@ -10,7 +10,8 @@ export function parseItemBidForList(bid: any): BidForList {
             tag: bid.tag
         },
         highestBid: bid.highestBid,
-        highestOwn: bid.highestOwn
+        highestOwn: bid.highestOwn,
+        bin: bid.bin
     } as BidForList
 }
 
@@ -20,7 +21,8 @@ export function parseItemBid(bid: any): ItemBid {
         amount: bid.amount,
         bidder: parsePlayer(bid.bidder),
         timestamp: bid.timestap,
-        profileId: bid.profileId
+        profileId: bid.profileId,
+        bin: bid.bin
     } as ItemBid
 }
 
@@ -33,7 +35,8 @@ export function parseAuction(auction: any): Auction {
             name: auction.itemName
         },
         startingBid: auction.startingBid,
-        highestBid: auction.highestBid
+        highestBid: auction.highestBid,
+        bin: auction.bin
     } as Auction
 }
 
@@ -59,7 +62,8 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
                 item: {
                     tag: auction.tag,
                     name: auction.itemName
-                }
+                },
+                bin: auction.bin
             } as Auction
         })
     } as PlayerDetails
@@ -154,7 +158,8 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
                 name: auctionDetails.itemName,
                 category: auctionDetails.category,
                 tier: auctionDetails.tier
-            }
+            },
+            bin: auctionDetails.bin
         },
         start: new Date(auctionDetails.start),
         anvilUses: auctionDetails.anvilUses,

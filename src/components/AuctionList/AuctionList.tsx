@@ -101,7 +101,8 @@ function AuctionList(props: Props) {
                         getItemImageElement(auction)
                     }
                     {auction.item.name}
-                    {auction.end.getTime() < Date.now() ? <Badge variant="danger" style={{ marginLeft: "10px" }}>Ended</Badge> : <Badge variant="success" style={{ marginLeft: "10px" }}>Running</Badge>}
+                    {auction.end.getTime() < Date.now() || (auction.bin && auction.highestBid > 0) ? <Badge variant="danger" style={{ marginLeft: "10px" }}>Ended</Badge> : <Badge variant="success" style={{ marginLeft: "10px" }}>Running</Badge>}
+                {auction.bin ? <Badge style={{marginLeft: "5px"}} variant="secondary">BIN</Badge> : ""}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(auction.highestBid)} {getCoinImage()}</p>
                 <p>Starting Bid: {numberWithThousandsSeperators(auction.startingBid)} {getCoinImage()}</p>
