@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
@@ -40,6 +41,10 @@ function AuctionDetails(props: Props) {
             api.getItemImageUrl(auctionDetails.auction.item).then(url => {
                 auctionDetails.auction.item.iconUrl = url;
                 forceUpdate();
+            })
+            api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
+                auctionDetails.auction.item = item;
+                setAuctionDetails(auctionDetails);
             })
 
             let namePromises: Promise<void>[] = [];
@@ -101,6 +106,14 @@ function AuctionDetails(props: Props) {
         </svg>
     );
 
+    function appendItemDescription(node) {
+        if (node) {
+            if (auctionDetails?.auction.item.description) {
+                node.appendChild((auctionDetails.auction.item.description as any).replaceColorCodes());
+            }
+        }
+    }
+
     const labelBadgeVariant = "primary";
     const countBadgeVariant = "dark";
 
@@ -141,14 +154,19 @@ function AuctionDetails(props: Props) {
                 </p>
                 <p>
                     <span className="label">
-                        <Badge variant={labelBadgeVariant}>Category:</Badge>
-                    </span> {convertTagToName(auctionDetails?.auction.item.category)}
+                        <Badge variant={labelBadgeVariant}>Description:</Badge>
+                    </span> <span id="item-description" ref={appendItemDescription}></span>
                 </p>
                 <p>
                     <span className="label">
                         <Badge variant={labelBadgeVariant}>Tier:</Badge>
                     </span>
                     <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.tier}</span>
+                </p>
+                <p>
+                    <span className="label">
+                        <Badge variant={labelBadgeVariant}>Category:</Badge>
+                    </span> {convertTagToName(auctionDetails?.auction.item.category)}
                 </p>
                 <p>
                     <span className="label">
@@ -198,10 +216,10 @@ function AuctionDetails(props: Props) {
     return (
         <div className="auction-details">
             <Search />
-            <Card className="auctionCard">
+            <Card className="auction-card">
                 {auctionCardContent}
             </Card>
-            <Card className="auctionCard">
+            <Card className="auction-card">
                 <Card.Header>
                     <h5>Bids</h5>
                     {auctionDetails && auctionDetails?.bids.length > 1 ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
