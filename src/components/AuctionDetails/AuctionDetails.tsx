@@ -3,7 +3,7 @@ import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
 import { Badge, Card, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { numberWithThousandsSeperators } from '../../utils/Formatter';
+import { getStyleForTier, numberWithThousandsSeperators, convertTagToName } from '../../utils/Formatter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import Search from '../Search/Search';
 import { useHistory } from "react-router-dom";
@@ -66,6 +66,18 @@ function AuctionDetails(props: Props) {
         document.title = "Auction from " + auctionDetails.auctioneer.name + " for " + auctionDetails.auction.item.name;
     }
 
+    let getTimeToolTipString = () => {
+
+        if (!auctionDetails) {
+            return "";
+        }
+
+        if (auctionDetails?.auction.bin && auctionDetails.auction.highestBid > 0 && auctionDetails.bids.length > 0) {
+            return moment(auctionDetails.bids[0].timestamp).format('MMMM Do YYYY, h:mm:ss a')
+        }
+        return moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')
+    }
+
     let onAucitonEnd = () => {
         forceUpdate();
     }
@@ -101,12 +113,12 @@ function AuctionDetails(props: Props) {
                 </h5>
                 <OverlayTrigger
                     overlay={<Tooltip id={generateUUID()}>
-                        {auctionDetails.auction.bin ? moment(auctionDetails.bids[0].timestamp).format('MMMM Do YYYY, h:mm:ss a') : moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')}
+                        {getTimeToolTipString()}
                     </Tooltip>}>
                     {
                         isRunning(auctionDetails) ?
                             <span>
-                                {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : "-"}
+                                End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : "-"}
                             </span> :
                             <span>
                                 Auction ended {auctionDetails.auction.bin ? moment(auctionDetails.bids[0].timestamp).fromNow() : moment(auctionDetails.auction.end).fromNow()}
@@ -128,13 +140,13 @@ function AuctionDetails(props: Props) {
                 <p>
                     <span className="label">
                         <Badge variant={labelBadgeVariant}>Category:</Badge>
-                    </span> {auctionDetails?.auction.item.category}
+                    </span> {convertTagToName(auctionDetails?.auction.item.category)}
                 </p>
                 <p>
                     <span className="label">
                         <Badge variant={labelBadgeVariant}>Tier:</Badge>
                     </span>
-                    {auctionDetails?.auction.item.tier}
+                    <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.tier}</span>
                 </p>
                 <p>
                     <span className="label">

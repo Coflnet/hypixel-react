@@ -5,6 +5,8 @@
  Default-Seperator: '.'
 */
 
+import { CSSProperties } from "react";
+
 export function numberWithThousandsSeperators(number?: number, seperator?: string): string {
     if (!number) {
         return "0";
@@ -39,4 +41,29 @@ export function convertTagToName(itemTag?: string): string {
     let formatted: string = itemTag.replaceAll("_", " ").toLowerCase();
     formatted = capitalizeWords(formatted);
     return formatted;
+}
+
+export function getStyleForTier(tier?: string): CSSProperties {
+
+    const DEFAULT_COLOR = "black";
+    enum TIER_COLORS {
+        COMMON = "black",
+        UNCOMMON = "#55ff55",
+        RARE = "#5555ff",
+        EPIC = "#aa00aa",
+        LEGENDARY = "#ffaa00",
+        MYTHIC = "#ff55ff",
+        SUPREME = "#AA0000",
+        SPECIAL = "#FF5555",
+        VERY_SPECIAL = "#FF5555"
+    }
+
+
+    let color = !tier ? DEFAULT_COLOR : (TIER_COLORS[tier.toUpperCase()] || DEFAULT_COLOR);
+
+    return {
+        color: color,
+        fontFamily: "monospace",
+        fontWeight: "bold"
+    }
 }
