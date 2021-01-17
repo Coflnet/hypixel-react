@@ -10,6 +10,7 @@ import { useHistory } from "react-router-dom";
 import { useForceUpdate } from '../../utils/Hooks';
 import moment from 'moment';
 import { v4 as generateUUID } from 'uuid';
+import { Link } from 'react-router-dom';
 
 interface Props {
     auctionUUID: string
@@ -106,11 +107,12 @@ function AuctionDetails(props: Props) {
     let auctionCardContent = auctionDetails === undefined ? getLoadingElement() : (
         <div>
             <Card.Header>
-                <h5>
+                <Link to={"/item/" + auctionDetails.auction.item.tag}><h5>
                     <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="" style={{ marginRight: "5px" }} />
                     {auctionDetails?.auction.item.name}
                     <Badge variant={countBadgeVariant} style={{ marginLeft: "5px" }}>x{auctionDetails?.count}</Badge>
                 </h5>
+                </Link>
                 <OverlayTrigger
                     overlay={<Tooltip id={generateUUID()}>
                         {getTimeToolTipString()}
