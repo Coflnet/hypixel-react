@@ -14,13 +14,13 @@ function NavBar() {
             <SideNav showNav={showNav}
                 titleStyle={{ backgroundColor: "#22A7F0", height: "60px", margin: "auto", padding: "0 20px", lineHeight: "60px", fontSize: "22px" }}
                 navStyle={{ width: "60%" }}
-                itemStyle={{ padding: "22px 0px", textDecoration: "none" }}
+                itemStyle={{ padding: "22px 0px", listStyleType: "none" }}
                 title={<span>Navigation</span>}
                 items={[
-                    <Link to="/"><span><img src="/Coin.png" height="48" width="48" alt="" />Prices</span></Link>,
-                    <Link to="/subscriptions"><span><img src="/Coin.png" height="48" width="48" alt="" />Subscriptions</span></Link>,
-                    <span><img src="/Coin.png" height="48" width="48" alt="" />Premium</span>,
-                    <Link to="/about"><span><img src="/Coin.png" height="48" width="48" alt="" />Links / Legal</span></Link>]}
+                    <Link to="/"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Prices</div></Link>,
+                    <Link to="/subscriptions"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Subscriptions</div></Link>,
+                    <div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Premium</div>,
+                    <Link to="/about"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Links / Legal</div></Link>]}
                 onHideNav={() => { setShowNav(false) }
                 }>
             </SideNav >
