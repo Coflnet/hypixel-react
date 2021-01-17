@@ -7,6 +7,7 @@ export enum RequestType {
     PLAYER_AUCTION = "playerAuctions",
     PLAYER_BIDS = "playerBids",
     ALL_ENCHANTMENTS = "getAllEnchantments",
+    ALL_REFORGES = "getReforges",
     TRACK_SEARCH = "trackSearch",
     PLAYER_NAME = "playerName",
     SET_CONNECTION_ID = "setConId",
@@ -16,7 +17,7 @@ export enum RequestType {
     GET_SUBSCRIPTIONS = "subscriptions",
     SET_GOOGLE = "setGoogle",
     PAYMENT_SESSION = "paymentSession",
-    PREMIUM_EXPIRATION = 'premiumExpiration'
+    PREMIUM_EXPIRATION = 'premiumExpiration',
 }
 
 export enum SubscriptionType {

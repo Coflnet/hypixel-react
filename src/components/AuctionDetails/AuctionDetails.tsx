@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
 import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
@@ -41,10 +40,6 @@ function AuctionDetails(props: Props) {
             api.getItemImageUrl(auctionDetails.auction.item).then(url => {
                 auctionDetails.auction.item.iconUrl = url;
                 forceUpdate();
-            })
-            api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
-                auctionDetails.auction.item = item;
-                setAuctionDetails(auctionDetails);
             })
 
             let namePromises: Promise<void>[] = [];
@@ -106,14 +101,6 @@ function AuctionDetails(props: Props) {
         </svg>
     );
 
-    function appendItemDescription(node) {
-        if (node) {
-            if (auctionDetails?.auction.item.description) {
-                node.appendChild((auctionDetails.auction.item.description as any).replaceColorCodes());
-            }
-        }
-    }
-
     const labelBadgeVariant = "primary";
     const countBadgeVariant = "dark";
 
@@ -151,11 +138,6 @@ function AuctionDetails(props: Props) {
                             checkIcon :
                             XIcon
                     }
-                </p>
-                <p>
-                    <span className="label">
-                        <Badge variant={labelBadgeVariant}>Description:</Badge>
-                    </span> <span id="item-description" ref={appendItemDescription}></span>
                 </p>
                 <p>
                     <span className="label">

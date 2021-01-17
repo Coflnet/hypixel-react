@@ -1,4 +1,4 @@
-import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { v4 as generateUUID } from 'uuid';
@@ -72,13 +72,13 @@ function initAPI(): API {
         })
     }
 
-    let getItemPrices = (itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData> => {
+    let getItemPrices = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<ItemPriceData> => {
         return new Promise((resolve) => {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
-                reforge: reforge ? reforge.id : undefined,
-                enchantments: enchantmentFilter && enchantmentFilter.enchantment !== undefined && enchantmentFilter.level !== undefined ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
+                reforge: itemFilter?.reforge ? itemFilter.reforge.id : undefined,
+                enchantments: itemFilter && itemFilter.enchantment !== undefined && itemFilter.enchantment.level !== undefined ? [[itemFilter.enchantment.id, itemFilter.enchantment.level]] : undefined
             };
             websocketHelper.sendRequest({
                 type: RequestType.ITEM_PRICES,
@@ -163,6 +163,26 @@ function initAPI(): API {
                         return parseEnchantment({
                             type: enchantment,
                             id: i + 1
+                        });
+                    }))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, "");
+                }
+            })
+        })
+    }
+
+    let getReforges = (): Promise<Reforge[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.ALL_REFORGES,
+                data: "",
+                resolve: (reforges: any) => {
+                    resolve(reforges.map((reforge: any, i: number) => {
+                        return parseReforge({
+                            name: reforge,
+                            id: i
                         });
                     }))
                 },
@@ -381,6 +401,7 @@ function initAPI(): API {
         getAuctions,
         getBids,
         getEnchantments,
+        getReforges,
         getAuctionDetails,
         getItemImageUrl,
         getPlayerName,

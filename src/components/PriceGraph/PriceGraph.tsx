@@ -8,7 +8,7 @@ import { DEFAULT_DATE_RANGE, getTimeSpanFromDateRange, ItemPriceRange } from '..
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import ShareButton from '../ShareButton/ShareButton';
-import EnchantmentFilter from '../EnchantmentFilter/EnchantmentFilter';
+import ItemFilter from '../ItemFilter/ItemFilter';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 
 interface Props {
@@ -37,14 +37,14 @@ function PriceGraph(props: Props) {
         }
     }, [props.item.tag])
 
-    let updateChart = (priceChart: Chart, fetchspan: number, enchantmentFilter?: EnchantmentFilter) => {
+    let updateChart = (priceChart: Chart, fetchspan: number, itemFilter?: ItemFilter) => {
         setIsLoading(true);
         priceChart.data.labels = [];
         priceChart.data.datasets![0].data = [];
         priceChart.update();
         setPriceChart(priceChart);
 
-        api.getItemPrices(props.item.tag, fetchspan, undefined, enchantmentFilter).then((result) => {
+        api.getItemPrices(props.item.tag, fetchspan, itemFilter).then((result) => {
 
 
             priceChart!.data.labels = result.prices.map(item => item.time.getTime());
@@ -87,7 +87,7 @@ function PriceGraph(props: Props) {
 
     return (
         <div className="price-graph">
-            {isFilterable ? <EnchantmentFilter disabled={isLoading} onFilterChange={(filter) => { updateChart(priceChart || createChart(priceConfig), fetchspan, filter) }} /> : ""}
+            {isFilterable ? <ItemFilter disabled={isLoading} onFilterChange={(filter) => { updateChart(priceChart || createChart(priceConfig), fetchspan, filter) }} /> : ""}
             <ItemPriceRange onRangeChange={onRangeChange} disabled={isLoading} item={props.item} />
             { isLoading ? (
                 <div className="graph-overlay">
