@@ -1,7 +1,6 @@
 import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
-import cookie from 'cookie';
 import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
 
@@ -220,16 +219,15 @@ function initAPI(): API {
     }
 
     let setConnectionId = () => {
-        let cookies = cookie.parse(document.cookie);
-        cookies.websocketUUID = cookies.websocketUUID || generateUUID();
-        document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
+        let websocketUUID = window.localStorage.getItem("websocketUUID") || generateUUID();
+        window.localStorage.setItem("websocketUUID", websocketUUID);
 
         websocketHelper.sendRequest({
             type: RequestType.SET_CONNECTION_ID,
-            data: cookies.websocketUUID,
+            data: websocketUUID,
             resolve: () => { },
             reject: (error: any) => {
-                apiErrorHandler(RequestType.SET_CONNECTION_ID, error, cookies.websocketUUID);
+                apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID);
             }
         })
     }

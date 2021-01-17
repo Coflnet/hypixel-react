@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
-import { Badge, Card, ListGroup } from 'react-bootstrap';
+import { Badge, Card, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import Search from '../Search/Search';
 import { useHistory } from "react-router-dom";
 import { useForceUpdate } from '../../utils/Hooks';
+import moment from 'moment';
+import { v4 as generateUUID } from 'uuid';
 
 interface Props {
     auctionUUID: string
@@ -56,6 +58,10 @@ function AuctionDetails(props: Props) {
         })
     }
 
+    let isRunning = (auctionDetails: AuctionDetails) => {
+        return auctionDetails.auction.end.getTime() >= Date.now() && !(auctionDetails.auction.bin && auctionDetails.bids.length > 0)
+    }
+
     let setDocumentTitle = (auctionDetails: AuctionDetails) => {
         document.title = "Auction from " + auctionDetails.auctioneer.name + " for " + auctionDetails.auction.item.name;
     }
@@ -93,18 +99,22 @@ function AuctionDetails(props: Props) {
                     {auctionDetails?.auction.item.name}
                     <Badge variant={countBadgeVariant} style={{ marginLeft: "5px" }}>x{auctionDetails?.count}</Badge>
                 </h5>
-                {
-                    auctionDetails.auction.bin && auctionDetails.bids.length > 0 ?
-                        <p>Auction already ended (BIN)</p> :
-                        auctionDetails!.auction.end.getTime() >= Date.now() ?
-                            <h6>
-                                Ends in {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : ""}
-                            </h6> :
-                            <p>Auction already ended</p>
-                }
+                <OverlayTrigger
+                    overlay={<Tooltip id={generateUUID()}>
+                        {auctionDetails.auction.bin ? moment(auctionDetails.bids[0].timestamp).format('MMMM Do YYYY, h:mm:ss a') : moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')}
+                    </Tooltip>}>
+                    {
+                        isRunning(auctionDetails) ?
+                            <span>
+                                {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : "-"}
+                            </span> :
+                            <span>
+                                Auction ended {auctionDetails.auction.bin ? moment(auctionDetails.bids[0].timestamp).fromNow() : moment(auctionDetails.auction.end).fromNow()}
+                            </span>
+                    }
+                </OverlayTrigger>
             </Card.Header>
             <Card.Body>
-
                 <p>
                     <span className="label">
                         <Badge variant={labelBadgeVariant}>BIN:</Badge>
@@ -114,7 +124,6 @@ function AuctionDetails(props: Props) {
                             checkIcon :
                             XIcon
                     }
-
                 </p>
                 <p>
                     <span className="label">

@@ -96,6 +96,7 @@ function SubscriptionList(props: Props) {
                 <NavBar />
                 Your Subscriptions
             </h4>
+            <hr/>
             {isLoggedIn ?
                 <ListGroup style={{ marginTop: "20px" }}>
                     {subscriptionsTableBody}

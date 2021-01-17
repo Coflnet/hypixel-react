@@ -20,7 +20,7 @@ export function parseItemBid(bid: any): ItemBid {
         auctionId: bid.auctionId,
         amount: bid.amount,
         bidder: parsePlayer(bid.bidder),
-        timestamp: bid.timestap,
+        timestamp: new Date(bid.timestamp),
         profileId: bid.profileId,
         bin: bid.bin
     } as ItemBid
