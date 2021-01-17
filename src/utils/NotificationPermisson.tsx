@@ -1,5 +1,7 @@
 export default async function askForNotificationPermissons() {
-
+    if (localStorage.getItem('fcmToken')) {
+        return;
+    }
     // Retrieve an instance of Firebase Messaging so that it can handle background
     // messages.
     // @ts-ignore
@@ -7,5 +9,5 @@ export default async function askForNotificationPermissons() {
         vapidKey: "BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30"
     });
     localStorage.fcmToken = token;
-
+    return token;
 }

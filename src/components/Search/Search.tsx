@@ -5,7 +5,6 @@ import './Search.css';
 import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
 import NavBar from '../NavBar/NavBar';
-import InformationDialog from '../InformationDialog/InformationDialog';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 import askForNotificationPermissons from '../../utils/NotificationPermisson';
 
@@ -32,7 +31,6 @@ function Search(props: Props) {
     }, [props.selected])
 
     let search = () => {
-        askForNotificationPermissons();
         // only display loading animation if there is no answer for 500ms
         let sheduledLoading = setTimeout(() => setIsLoading(true), 500);
         let searchFor = searchText;
