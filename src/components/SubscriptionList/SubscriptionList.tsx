@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, ListGroup } from 'react-bootstrap';
+import { Badge, Button, ListGroup } from 'react-bootstrap';
 import api from '../../api/ApiHelper';
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
 import { getLoadingElement } from '../../utils/LoadingUtils';
@@ -8,6 +8,7 @@ import './SubscriptionList.css'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter';
 import NavBar from '../NavBar/NavBar';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
+import { toast } from 'react-toastify';
 
 interface Props {
 
@@ -72,10 +73,31 @@ function SubscriptionList(props: Props) {
     }
 
     function onDelete(subscription: Subscription) {
-        api.unsubscribe(subscription).then(() => {
-            setSubscriptions(subscriptions.filter(s => s !== subscription))
+        api.unsubscribe(subscription).then((n) => {
+            if (n === 0) {
+                return;
+            }
+            let subs = subscriptions.filter(s => s !== subscription);
+            setSubscriptions(subs);
+            subscriptions = subs;
+
+
+            toast.success(<span>Subscription deleted <Button style={{ float: "right", marginRight: "5px" }} variant="info" onClick={() => { resubscribe(subscription) }}>{repeatIcon} Undo</Button></span>)
         })
     }
+
+    function resubscribe(subscription: Subscription) {
+        api.subscribe(subscription.topicId, subscription.price, subscription.types).then(() => {
+            loadSubscriptions();
+        });
+    }
+
+    let repeatIcon = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-repeat" viewBox="0 0 16 16">
+            <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
+            <path d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
+        </svg>
+    );
 
     let subscriptionsTableBody = subscriptions.map((subscription, i) =>
     (
@@ -96,7 +118,7 @@ function SubscriptionList(props: Props) {
                 <NavBar />
                 Your Subscriptions
             </h4>
-            <hr/>
+            <hr />
             {isLoggedIn ?
                 <ListGroup style={{ marginTop: "20px" }}>
                     {subscriptionsTableBody}
