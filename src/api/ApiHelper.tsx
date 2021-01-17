@@ -78,7 +78,7 @@ function initAPI(): API {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
                 reforge: reforge ? reforge.id : undefined,
-                enchantments: enchantmentFilter && enchantmentFilter.enchantment && enchantmentFilter.level ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
+                enchantments: enchantmentFilter && enchantmentFilter.enchantment !== undefined && enchantmentFilter.level !== undefined ? [[enchantmentFilter.enchantment.id, enchantmentFilter.level]] : undefined
             };
             websocketHelper.sendRequest({
                 type: RequestType.ITEM_PRICES,

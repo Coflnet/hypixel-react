@@ -1,6 +1,6 @@
 export function parseEnchantmentFilter(enchantmentFilterBase64: string): EnchantmentFilter | undefined {
     let enchantmentFilter: any = JSON.parse(atob(enchantmentFilterBase64));
-    if (!enchantmentFilter.enchantment || !enchantmentFilter.enchantment.id || !enchantmentFilter.level) {
+    if (enchantmentFilter.enchantment === undefined || enchantmentFilter.enchantment.id === undefined || enchantmentFilter.level === undefined) {
         return undefined;
     }
     return {
