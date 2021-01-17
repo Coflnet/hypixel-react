@@ -7,6 +7,7 @@ import { SubscriptionType } from '../../api/ApiTypes.d';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useHistory } from "react-router-dom";
 
 interface Props {
     topic: string
@@ -15,6 +16,7 @@ interface Props {
 function SubscribeButton(props: Props) {
 
     let { trackEvent } = useMatomo();
+    let history = useHistory();
     let [showDialog, setShowDialog] = useState(false);
     let [price, setPrice] = useState("");
     let [isPriceAbove, setIsPriceAbove] = useState(true);
@@ -25,9 +27,21 @@ function SubscribeButton(props: Props) {
         trackEvent({ action: "subscriptions", category: "subscribed" });
         setShowDialog(false);
         api.subscribe(props.topic, parseInt(price), getSubscriptionTypes()).then(() => {
-            toast.success("Subscription success!");
+            toast.success("Subscription success!", {
+                onClick: () => {
+                    history.push({
+                        pathname: "/subscriptions"
+                    })
+                }
+            });
         }).catch(error => {
-            toast.error(error);
+            toast.error(error, {
+                onClick: () => {
+                    history.push({
+                        pathname: "/subscriptions"
+                    })
+                }
+            });
         })
     }
 

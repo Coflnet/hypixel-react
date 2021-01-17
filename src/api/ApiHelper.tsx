@@ -255,7 +255,11 @@ function initAPI(): API {
             let requestData = {
                 topic: topic,
                 price: price,
-                type: types.reduce((a, b) => (a as number) + (b as number))
+                type: types.reduce((a, b) => {
+                    let aNum: number = typeof a === "number" ? (a as number) : (parseInt(SubscriptionType[a]));
+                    let bNum: number = typeof b === "number" ? (b as number) : (parseInt(SubscriptionType[b]));
+                    return aNum + bNum;
+                })
             }
             websocketHelper.sendRequest({
                 type: RequestType.SUBSCRIBE,
