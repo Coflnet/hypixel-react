@@ -1,4 +1,5 @@
 import { v4 as generateUUID } from 'uuid';
+import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
 
 export function parseItemBidForList(bid: any): BidForList {
     return {
@@ -9,7 +10,8 @@ export function parseItemBidForList(bid: any): BidForList {
             tag: bid.tag
         },
         highestBid: bid.highestBid,
-        highestOwn: bid.highestOwn
+        highestOwn: bid.highestOwn,
+        bin: bid.bin
     } as BidForList
 }
 
@@ -18,8 +20,9 @@ export function parseItemBid(bid: any): ItemBid {
         auctionId: bid.auctionId,
         amount: bid.amount,
         bidder: parsePlayer(bid.bidder),
-        timestamp: bid.timestap,
-        profileId: bid.profileId
+        timestamp: new Date(bid.timestamp),
+        profileId: bid.profileId,
+        bin: bid.bin
     } as ItemBid
 }
 
@@ -32,7 +35,8 @@ export function parseAuction(auction: any): Auction {
             name: auction.itemName
         },
         startingBid: auction.startingBid,
-        highestBid: auction.highestBid
+        highestBid: auction.highestBid,
+        bin: auction.bin
     } as Auction
 }
 
@@ -58,7 +62,8 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
                 item: {
                     tag: auction.tag,
                     name: auction.itemName
-                }
+                },
+                bin: auction.bin
             } as Auction
         })
     } as PlayerDetails
@@ -153,7 +158,8 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
                 name: auctionDetails.itemName,
                 category: auctionDetails.category,
                 tier: auctionDetails.tier
-            }
+            },
+            bin: auctionDetails.bin
         },
         start: new Date(auctionDetails.start),
         anvilUses: auctionDetails.anvilUses,
@@ -169,5 +175,43 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
         }),
         profileId: auctionDetails.profileId,
         reforge: auctionDetails.reforge
+    }
+}
+
+export function parseSubscriptionTypes(typeInNumeric: number): SubscriptionType[] {
+
+    let keys = Object.keys(SubscriptionType);
+    let subTypes: SubscriptionType[] = [];
+
+    for (let i = keys.length; i >= 0; i--) {
+        let enumValue = SubscriptionType[keys[i]];
+        if (typeof SubscriptionType[enumValue] === 'number') {
+            let number = parseInt(SubscriptionType[enumValue]);
+            if (number <= typeInNumeric && number > 0) {
+                typeInNumeric -= number;
+                subTypes.push(SubscriptionType[number.toString()]);
+            }
+        }
+    }
+
+    return subTypes;
+}
+
+function _getTypeFromSubTypes(subTypes: SubscriptionType[]) {
+    var isItem = true;
+    subTypes.forEach(subtype => {
+        if (subtype === SubscriptionType.OUTBID || subtype === SubscriptionType.SOLD || subtype === SubscriptionType.BIN) {
+            isItem = false;
+        }
+    });
+    return isItem ? "item" : "player";
+}
+
+export function parseSubscription(subscription: any): Subscription {
+    return {
+        price: subscription.price,
+        topicId: subscription.topicId,
+        types: parseSubscriptionTypes(subscription.type),
+        type: _getTypeFromSubTypes(parseSubscriptionTypes(subscription.type))
     }
 }

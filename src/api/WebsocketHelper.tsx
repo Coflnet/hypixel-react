@@ -1,7 +1,5 @@
 import { ApiRequest, WebsocketHelper } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
-import { v4 as generateUUID } from 'uuid';
-import cookie from 'cookie';
 import cacheUtils from '../utils/CacheUtils';
 import api from "./ApiHelper";
 
@@ -24,15 +22,22 @@ function initWebsocket(): void {
     let onWebsocketMessage = (e: MessageEvent): void => {
         var response: ApiResponse = JSON.parse(e.data);
         let request: ApiRequest | undefined = requests.find(e => e.mId === response.mId);
+
         if (!request) {
             return;
         }
+
+
+        let equals = findForEqualSentRequest(request);
+
         delete response.mId;
         if (response.type.includes("error")) {
             request.reject(response.data);
+            equals.forEach(equal => equal.reject());
         } else {
             let parsedResponse = JSON.parse(response.data);
             request.resolve(parsedResponse);
+            equals.forEach(equal => equal.resolve(parsedResponse));
             // cache the response 
             let maxAge = response.maxAge;
             cacheUtils.setIntoCache(request.type, Base64.decode(request.data), parsedResponse, maxAge);
@@ -46,11 +51,10 @@ function initWebsocket(): void {
             api.setConnectionId();
             cacheUtils.checkForCacheClear();
         } else {
-            // get UUID of user for websocket or generate a new one
-            let cookies = cookie.parse(document.cookie);
-            cookies.websocketUUID = cookies.websocketUUID || generateUUID();
-            document.cookie = cookie.serialize("websocketUUID", cookies.websocketUUID, { expires: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate()) });
-            websocket = new WebSocket(`wss://skyblock-backend.coflnet.com/skyblock?id=${cookies.websocketUUID}`);
+            // reconnect
+            websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
+            api.setConnectionId();
+            (window as any).websocket = websocket;
         }
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
@@ -78,6 +82,14 @@ function sendRequest(request: ApiRequest): Promise<void> {
                 throw new Error("couldnt btoa this data: " + request.data);
             }
 
+            // if a equal requests are already sent, dont really send more
+            // at onMessage answer all
+            let equals = findForEqualSentRequest(request);
+            if (equals.length > 0) {
+                requests.push(request);
+                return;
+            }
+
             requests.push(request);
             websocket.send(JSON.stringify(request));
         } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
@@ -86,6 +98,12 @@ function sendRequest(request: ApiRequest): Promise<void> {
                 sendRequest(request);
             }
         }
+    })
+}
+
+function findForEqualSentRequest(request: ApiRequest) {
+    return requests.filter(r => {
+        return r.type === request.type && r.data === request.data && r.mId !== request.mId
     })
 }
 

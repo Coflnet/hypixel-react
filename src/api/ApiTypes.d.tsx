@@ -11,7 +11,24 @@ export enum RequestType {
     PLAYER_NAME = "playerName",
     SET_CONNECTION_ID = "setConId",
     GET_VERSION = "version",
+    SUBSCRIBE = "subscribe",
+    UNSUBSCRIBE = "unsubscribe",
+    GET_SUBSCRIPTIONS = "subscriptions",
+    SET_GOOGLE = "setGoogle",
+    PAYMENT_SESSION = "paymentSession",
+    PREMIUM_EXPIRATION = 'premiumExpiration'
+    GET_VERSION = "version",
     FCM_TOKEN = "token"
+}
+
+export enum SubscriptionType {
+    NONE = 0,
+    PRICE_LOWER_THAN = 1,
+    PRICE_HIGHER_THAN = 2,
+    OUTBID = 4,
+    SOLD = 8,
+    BIN = 16,
+    USE_SELL_NOT_BUY = 32
 }
 
 export interface ApiRequest {
@@ -20,6 +37,13 @@ export interface ApiRequest {
     data: any,
     resolve: Function,
     reject: Function
+}
+
+export interface Subscription {
+    topicId: string,
+    price: number,
+    types: SubscriptionType[],
+    type: string
 }
 
 export interface WebsocketHelper {

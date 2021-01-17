@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Card, Form, Spinner } from 'react-bootstrap';
 import './EnchantmentFilter.css';
 import { useLocation, useHistory } from "react-router-dom";
@@ -17,10 +17,14 @@ let mounted = true;
 
 function EnchantmentFilter(props: Props) {
 
+    const enchantmentSelect = useRef(null);
+    const levelSelect = useRef(null);
+
     let [enchantments, setEnchantments] = useState<Enchantment[]>([]);
     let [enchantmentFilter, setEnchantmentFilter] = useState<EnchantmentFilter>();
     let [expanded, setExpanded] = useState(false);
     let [isApplied, setIsApplied] = useState(false);
+    let [isOnlyUnenchanted, setIsOnlyUnenchanted] = useState(false);
 
     let history = useHistory();
     let query = new URLSearchParams(useLocation().search);
@@ -32,6 +36,9 @@ function EnchantmentFilter(props: Props) {
         if (enchantmentFilter) {
             setEnchantmentFilter(enchantmentFilter);
             setExpanded(true);
+            if (enchantmentFilter.enchantment?.id === 0) {
+                setIsOnlyUnenchanted(true);
+            }
         }
         return () => { mounted = false }
     }, []);
@@ -74,6 +81,30 @@ function EnchantmentFilter(props: Props) {
         };
         setIsApplied(false);
         updateURLQuery(newEnchantmentFilter);
+        setEnchantmentFilter(newEnchantmentFilter);
+    }
+
+    let onOnlyEnchantmentChange = (checked: boolean) => {
+        setIsOnlyUnenchanted(checked);
+        let newEnchantmentFilter = checked ?
+            {
+                enchantment: {
+                    id: 0,
+                    level: 0,
+                    name: "None"
+                },
+                level: 0
+            } :
+            {
+                enchantment: {
+                    id: (enchantmentSelect.current! as any).value,
+                    level: (levelSelect.current! as any).value,
+                    name: (enchantmentSelect.current! as any).options[(enchantmentSelect.current! as any).value - 1].text
+                },
+                level: (levelSelect.current! as any).value
+            };
+        updateURLQuery(newEnchantmentFilter);
+        setIsApplied(false);
         setEnchantmentFilter(newEnchantmentFilter);
     }
 
@@ -141,14 +172,14 @@ function EnchantmentFilter(props: Props) {
                         <Form inline style={{ marginBottom: "5px" }} >
                             <Form.Group>
                                 {enchantments.length > 0 ?
-                                    <Form.Control className="enchantment-filter-select-enchantment" as="select" value={enchantmentFilter?.enchantment?.id} onChange={onEnchantmentChange}>
+                                    <Form.Control className="enchantment-filter-select-enchantment" as="select" onChange={onEnchantmentChange} disabled={isOnlyUnenchanted || props.disabled} ref={enchantmentSelect}>
                                         {enchantmentSelectList}
                                     </Form.Control> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
                             <Form.Group>
-                                <Form.Control as="select" value={enchantmentFilter?.level} onChange={onLevelChange}>
+                                <Form.Control as="select" onChange={onLevelChange} disabled={isOnlyUnenchanted || props.disabled} ref={levelSelect}>
                                     <option>1</option>
                                     <option>2</option>
                                     <option>3</option>
@@ -161,6 +192,8 @@ function EnchantmentFilter(props: Props) {
                                     <option>10</option>
                                 </Form.Control>
                             </Form.Group>
+                            <input type="checkbox" id="noEnchantments" defaultChecked={isOnlyUnenchanted} onClick={(e) => { onOnlyEnchantmentChange((e.target as HTMLInputElement).checked) }} disabled={props.disabled} />
+                            <label htmlFor="noEnchantments">Only unenchanted</label>
                         </Form >
                         <div>
                             <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()} disabled={props.disabled}>Apply</Button>

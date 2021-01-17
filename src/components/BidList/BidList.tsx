@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ListGroup } from 'react-bootstrap';
+import { Badge, ListGroup } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
 import { getLoadingElement } from '../../utils/LoadingUtils';
@@ -68,7 +68,7 @@ function BidList(props: Props) {
 
     let getItemImageElement = (bid: BidForList) => {
         return (
-            bid.item.iconUrl ? <img className="bid-item-image" src={bid.item.iconUrl} alt="" height="48" width="48" /> : undefined
+            bid.item.iconUrl ? <img crossOrigin="anonymous" className="bid-item-image" src={bid.item.iconUrl} alt="" height="48" width="48" /> : undefined
         )
     }
 
@@ -92,6 +92,7 @@ function BidList(props: Props) {
                         getItemImageElement(bid)
                     }
                     {bid.item.name}
+                    {bid.bin ? <Badge variant="secondary" style={{marginLeft: "5px"}}>BIN</Badge> : ""}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
                 <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>
