@@ -5,7 +5,6 @@ import './Search.css';
 import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
 import NavBar from '../NavBar/NavBar';
-import { useMatomo } from '@datapunt/matomo-tracker-react';
 
 interface Props {
     selected?: Player | Item
