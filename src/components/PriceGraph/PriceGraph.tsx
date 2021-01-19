@@ -9,6 +9,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import ShareButton from '../ShareButton/ShareButton';
 import EnchantmentFilter from '../EnchantmentFilter/EnchantmentFilter';
+import SubscribeButton from '../SubscribeButton/SubscribeButton';
 
 interface Props {
     item: Item
@@ -106,8 +107,9 @@ function PriceGraph(props: Props) {
                 <canvas ref={priceChartCanvas} />
             </div>
             <div className="additional-infos">
-                <p style={{ float: "left", marginLeft: "10px" }}><b>Avg:</b> {isLoading ? "-" : numberWithThousandsSeperators(avgPrice) + " Coins"}</p>
-                <ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" />
+                <span style={{ position: "relative", width: "80px", textAlign: "left" }}><b>Avg Price:</b> {isLoading ? "-" : numberWithThousandsSeperators(avgPrice) + " Coins"}</span>
+                <div style={{ position: "relative", flex: "1 1 auto" }}><SubscribeButton topic={props.item.tag} /></div>
+                <div style={{ position: "relative", flex: "1 1 auto" }}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
             </div>
         </div >
     );

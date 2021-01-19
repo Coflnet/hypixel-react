@@ -75,7 +75,7 @@ function AuctionList(props: Props) {
 
     let getItemImageElement = (auction: Auction) => {
         return (
-            auction.item.iconUrl ? <img className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} /> : undefined
+            auction.item.iconUrl ? <img crossOrigin="anonymous" className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} /> : undefined
         )
     }
 
@@ -101,7 +101,8 @@ function AuctionList(props: Props) {
                         getItemImageElement(auction)
                     }
                     {auction.item.name}
-                    {auction.end.getTime() < Date.now() ? <Badge variant="danger" style={{ marginLeft: "10px" }}>Ended</Badge> : <Badge variant="success" style={{ marginLeft: "10px" }}>Running</Badge>}
+                    {auction.end.getTime() < Date.now() || (auction.bin && auction.highestBid > 0) ? <Badge variant="danger" style={{ marginLeft: "10px" }}>Ended</Badge> : <Badge variant="success" style={{ marginLeft: "10px" }}>Running</Badge>}
+                {auction.bin ? <Badge style={{marginLeft: "5px"}} variant="secondary">BIN</Badge> : ""}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(auction.highestBid)} {getCoinImage()}</p>
                 <p>Starting Bid: {numberWithThousandsSeperators(auction.startingBid)} {getCoinImage()}</p>

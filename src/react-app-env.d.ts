@@ -51,7 +51,8 @@ interface Auction {
     highestBid: number,
     startingBid: number,
     item: Item,
-    end: Date
+    end: Date,
+    bin: boolean
 }
 
 interface ItemBid {
@@ -59,7 +60,8 @@ interface ItemBid {
     bidder: Player,
     amount: number,
     timestamp: Date,
-    profileId?: string
+    profileId?: string,
+    bin: boolean
 }
 
 interface BidForList {
@@ -67,7 +69,8 @@ interface BidForList {
     highestOwn: number,
     highestBid: number,
     item: Item,
-    end: date
+    end: date,
+    bin: boolean
 }
 
 interface PlayerDetails {
@@ -113,7 +116,13 @@ interface API {
     getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>,
     getPlayerName(uuid: string): Promise<string>,
     setConnectionId(): void,
-    getVersion(): Promise<string>
+    getVersion(): Promise<string>,
+    subscribe(topic: string, price: number, type: SubscriptionType[]): Promise<void>,
+    unsubscribe(subscription: Subscription): Promise<Number>,
+    getSubscriptions(): Promise<Subscription[]>,
+    setGoogle(id: string): Promise<void>,
+    hasPremium(googleId: string): Promise<Date>,
+    pay(stripePromise: Promise<Stripe | null>, gogleId: string): Promise<void>
 }
 
 

@@ -1,0 +1,9 @@
+.nav-bar {
+    font-size: small;
+}
+
+.link-item-div {
+    height: max-content;
+    width: max-content;
+    margin-left: -40px;
+}

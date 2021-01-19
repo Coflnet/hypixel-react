@@ -8,6 +8,8 @@ if (window.location.href.toString().indexOf("localhost") !== -1 && false) {
 } else if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/serviceWorker.js').then(function(registration) {
+            loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js');
+            loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-messaging.js');
 
             // Registration was successful
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
@@ -15,8 +17,6 @@ if (window.location.href.toString().indexOf("localhost") !== -1 && false) {
             loadScript("https://arc.io/widget.min.js#WK8BPDas");
 
 
-            loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js');
-            loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-messaging.js');
 
             setTimeout(() => pushNotifications(registration), 3000);
         }, function(err) {
@@ -37,7 +37,7 @@ function loadScript(url) {
     document.getElementsByTagName("head")[0].appendChild(script);
 }
 
-async function pushNotifications(serviceWorkerRegistration) {
+function pushNotifications(serviceWorkerRegistration) {
     var firebaseConfig = {
         apiKey: "AIzaSyB1yFUo__ZzeTBKw7KRQNHIyhxL7q9cLdI",
         authDomain: "skyblock-300817.firebaseapp.com",
@@ -47,18 +47,13 @@ async function pushNotifications(serviceWorkerRegistration) {
         appId: "1:570302890760:web:60cd30b3753f747d6c62bd"
     };
     firebase.initializeApp(firebaseConfig);
-
-    // Retrieve an instance of Firebase Messaging so that it can handle background
-    // messages.
     const messaging = firebase.messaging();
     messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30')
     messaging.useServiceWorker(serviceWorkerRegistration)
-    messaging.getToken({
-        vapidKey: "BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30"
-    }).then(token => localStorage.fcmToken = token);
 
     messaging.onMessage(function(payload) {
         // TODO: show the notification on the site
         console.log("on Message", payload);
     });
+    window.messaging = messaging;
 }
