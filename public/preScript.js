@@ -53,10 +53,9 @@ async function pushNotifications(serviceWorkerRegistration) {
     const messaging = firebase.messaging();
     messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30')
     messaging.useServiceWorker(serviceWorkerRegistration)
-    const token = await messaging.getToken({
+    messaging.getToken({
         vapidKey: "BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30"
-    });
-    localStorage.fcmToken = token;
+    }).then(token => localStorage.fcmToken = token);
 
     messaging.onMessage(function(payload) {
         // TODO: show the notification on the site
