@@ -6,7 +6,6 @@ import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
 import NavBar from '../NavBar/NavBar';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
-import askForNotificationPermissons from '../../utils/NotificationPermisson';
 
 interface Props {
     selected?: Player | Item

@@ -372,6 +372,24 @@ function initAPI(): API {
         })
     }
 
+    let setToken = (token: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.FCM_TOKEN,
+                data: { 
+                    "name": "", 
+                    token: token 
+                },
+                resolve: () => {
+                    resolve();
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.FCM_TOKEN, error, token);
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -391,7 +409,8 @@ function initAPI(): API {
         getSubscriptions,
         setGoogle,
         hasPremium,
-        pay
+        pay,
+        setToken
     }
 }
 

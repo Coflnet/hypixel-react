@@ -18,7 +18,7 @@ if (window.location.href.toString().indexOf("localhost") !== -1 && false) {
 
 
 
-            setTimeout(() => pushNotifications(registration), 3000);
+            setTimeout(() => pushNotifications(registration), 300);
         }, function(err) {
             // registration failed :(
             console.log('ServiceWorker registration failed: ', err);

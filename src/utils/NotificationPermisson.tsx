@@ -7,7 +7,7 @@ export default function askForNotificationPermissons() : Promise<string> {
         // Retrieve an instance of Firebase Messaging so that it can handle background
         // messages.
         // @ts-ignore
-        messaging.getToken({
+        window.messaging.getToken({
             vapidKey: "BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30"
         }).then((token:string) =>{ 
             localStorage.fcmToken = token;
