@@ -1,9 +1,10 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
-import { Badge, Card, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Badge, Card, Collapse, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getStyleForTier, numberWithThousandsSeperators, convertTagToName } from '../../utils/Formatter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import Search from '../Search/Search';
@@ -21,6 +22,8 @@ function AuctionDetails(props: Props) {
 
     let history = useHistory();
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails>();
+    let [isItemDetailsCollapse, setIsItemDetailsCollapse] = useState(true);
+    let [showNbtData, setShowNbtData] = useState(false);
     let forceUpdate = useForceUpdate();
 
     useEffect(() => {
@@ -40,7 +43,11 @@ function AuctionDetails(props: Props) {
             setAuctionDetails(auctionDetails);
             api.getItemImageUrl(auctionDetails.auction.item).then(url => {
                 auctionDetails.auction.item.iconUrl = url;
-                forceUpdate();
+                setAuctionDetails(auctionDetails);
+            })
+            api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
+                auctionDetails.auction.item.description = item.description;
+                setAuctionDetails(auctionDetails);
             })
             api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
                 auctionDetails.auction.item = item;
@@ -74,6 +81,7 @@ function AuctionDetails(props: Props) {
 
     let getTimeToolTipString = () => {
 
+
         if (!auctionDetails) {
             return "";
         }
@@ -106,13 +114,17 @@ function AuctionDetails(props: Props) {
         </svg>
     );
 
-    function appendItemDescription(node) {
-        if (node) {
-            if (auctionDetails?.auction.item.description) {
-                node.appendChild((auctionDetails.auction.item.description as any).replaceColorCodes());
-            }
-        }
-    }
+    let arrowUpIcon = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-up" viewBox="0 0 16 16">
+            <path d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z" />
+        </svg>
+    );
+
+    let arrowDownIcon = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-down" viewBox="0 0 16 16">
+            <path d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z" />
+        </svg>
+    );
 
     const labelBadgeVariant = "primary";
     const countBadgeVariant = "dark";
@@ -122,7 +134,7 @@ function AuctionDetails(props: Props) {
             <Card.Header>
                 <Link to={"/item/" + auctionDetails.auction.item.tag}><h5>
                     <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="" style={{ marginRight: "5px" }} />
-                    {auctionDetails?.auction.item.name}
+                    <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
                     <Badge variant={countBadgeVariant} style={{ marginLeft: "5px" }}>x{auctionDetails?.count}</Badge>
                 </h5>
                 </Link>
@@ -136,7 +148,7 @@ function AuctionDetails(props: Props) {
                                 End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : "-"}
                             </span> :
                             <span>
-                                Auction ended {auctionDetails.auction.bin ? moment(auctionDetails.bids[0].timestamp).fromNow() : moment(auctionDetails.auction.end).fromNow()}
+                                Auction ended {auctionDetails.auction.bin && auctionDetails.bids.length > 0 ? moment(auctionDetails.bids[0].timestamp).fromNow() : moment(auctionDetails.auction.end).fromNow()}
                             </span>
                     }
                 </OverlayTrigger>
@@ -151,22 +163,6 @@ function AuctionDetails(props: Props) {
                             checkIcon :
                             XIcon
                     }
-                </p>
-                <p>
-                    <span className="label">
-                        <Badge variant={labelBadgeVariant}>Description:</Badge>
-                    </span> <span id="item-description" ref={appendItemDescription}></span>
-                </p>
-                <p>
-                    <span className="label">
-                        <Badge variant={labelBadgeVariant}>Tier:</Badge>
-                    </span>
-                    <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.tier}</span>
-                </p>
-                <p>
-                    <span className="label">
-                        <Badge variant={labelBadgeVariant}>Category:</Badge>
-                    </span> {convertTagToName(auctionDetails?.auction.item.category)}
                 </p>
                 <p>
                     <span className="label">
@@ -199,6 +195,37 @@ function AuctionDetails(props: Props) {
         </div >
     );
 
+    let itemDetailsCardContent = (auctionDetails === undefined ? getLoadingElement() :
+        <div>
+            <p>
+                <span className="label">
+                    <Badge variant={labelBadgeVariant}>Tier:</Badge>
+                </span>
+                <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.tier}</span>
+            </p>
+            <p>
+                <span className="label">
+                    <Badge variant={labelBadgeVariant}>Category:</Badge>
+                </span> {convertTagToName(auctionDetails?.auction.item.category)}
+            </p>
+            <p>
+                <span className="label">
+                    <Badge variant={labelBadgeVariant}>NBT-Data:</Badge>
+                </span>
+                {showNbtData ?
+                    <span>{JSON.stringify(auctionDetails.nbtData)}</span> :
+                    <a href="#" onClick={() => { setShowNbtData(true) }}>Click to show</a>
+                }
+            </p>
+            <p>
+                <span className="label">
+                    <Badge variant={labelBadgeVariant}>Description:</Badge>
+                </span>
+                <span style={{ float: "left" }} ref={(node) => { if (auctionDetails?.auction.item.description && node) { node.innerHTML = ""; node.append((auctionDetails.auction.item.description as any).replaceColorCodes()) } }}></span>
+            </p>
+        </div>
+    );
+
     let bidList = auctionDetails?.bids.length === 0 ? <p>No bids</p> :
         auctionDetails?.bids.map((bid, i) => {
             let headingStyle = i === 0 ? { color: "green" } : { color: "red" };
@@ -218,6 +245,19 @@ function AuctionDetails(props: Props) {
             <Search />
             <Card className="auction-card">
                 {auctionCardContent}
+            </Card>
+            <Card className="auction-card">
+                <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
+                    <h5>
+                        Item-Details
+                        <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? arrowDownIcon : arrowUpIcon}</span>
+                    </h5>
+                </Card.Header>
+                <Collapse in={!isItemDetailsCollapse}>
+                    <Card.Body>
+                        {itemDetailsCardContent}
+                    </Card.Body>
+                </Collapse>
             </Card>
             <Card className="auction-card">
                 <Card.Header>

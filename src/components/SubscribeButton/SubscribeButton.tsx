@@ -8,6 +8,7 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useHistory } from "react-router-dom";
+import askForNotificationPermissons from '../../utils/NotificationPermisson';
 
 interface Props {
     topic: string
@@ -61,6 +62,8 @@ function SubscribeButton(props: Props) {
 
     function onLogin() {
         setIsLoggedIn(true);
+        askForNotificationPermissons()
+            .then(token => api.setToken(token));
     }
 
     function isNotifyDisabled() {

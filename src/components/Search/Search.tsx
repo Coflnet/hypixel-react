@@ -5,6 +5,7 @@ import './Search.css';
 import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
 import NavBar from '../NavBar/NavBar';
+
 interface Props {
     selected?: Player | Item
 }
