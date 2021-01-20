@@ -214,7 +214,7 @@ function AuctionDetails(props: Props) {
                     <Badge variant={labelBadgeVariant}>Category:</Badge>
                 </span> {convertTagToName(auctionDetails?.auction.item.category)}
             </p>
-            <p>
+            {auctionDetails.nbtData ? <p>
                 <span className="label">
                     <Badge variant={labelBadgeVariant}>NBT-Data:</Badge>
                 </span>
@@ -222,13 +222,15 @@ function AuctionDetails(props: Props) {
                     <span>{JSON.stringify(auctionDetails.nbtData)}</span> :
                     <a href="#" onClick={() => { setShowNbtData(true) }}>Click to show</a>
                 }
-            </p>
-            <p>
+            </p> : ""
+            }
+            {auctionDetails.auction.item.description ? <p>
                 <span className="label">
                     <Badge variant={labelBadgeVariant}>Description:</Badge>
                 </span>
                 <span style={{ float: "left" }} ref={(node) => { if (auctionDetails?.auction.item.description && node) { node.innerHTML = ""; node.append((auctionDetails.auction.item.description as any).replaceColorCodes()) } }}></span>
-            </p>
+            </p> : ""
+            }
         </div>
     );
 

@@ -180,7 +180,7 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
         }),
         profileId: auctionDetails.profileId,
         reforge: auctionDetails.reforge,
-        nbtData: auctionDetails.nbtData.Data
+        nbtData: auctionDetails.nbtData ? auctionDetails.nbtData.Data : undefined
     }
 }
 
