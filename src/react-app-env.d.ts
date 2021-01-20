@@ -43,7 +43,8 @@ interface AuctionDetails {
     bids: ItemBid[],
     anvilUses: number,
     reforge: Reforge
-    enchantments: Enchantment[]
+    enchantments: Enchantment[],
+    nbtData: any
 }
 
 interface Auction {

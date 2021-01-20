@@ -46,7 +46,6 @@ function PriceGraph(props: Props) {
 
         api.getItemPrices(props.item.tag, fetchspan, undefined, enchantmentFilter).then((result) => {
 
-
             priceChart!.data.labels = result.prices.map(item => item.time.getTime());
             priceChart!.data.labels = priceChart!.data.labels.sort((a, b) => {
                 return (a as number) - (b as number);
@@ -56,6 +55,7 @@ function PriceGraph(props: Props) {
             priceChart!.data.datasets![0].data = [];
             priceChart!.data.datasets![1].data = [];
             priceChart!.data.datasets![2].data = [];
+            priceChart!.data.datasets![3].data = [];
 
             result.prices.forEach(item => {
                 priceSum += item.avg;
