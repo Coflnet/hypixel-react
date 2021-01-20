@@ -2,26 +2,28 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Card, Form, Spinner } from 'react-bootstrap';
-import './EnchantmentFilter.css';
+import './ItemFilter.css';
 import { useLocation, useHistory } from "react-router-dom";
 import api from '../../api/ApiHelper';
-import { getEnchantmentFilterFromUrl } from '../../utils/Parser/URLParser';
+import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
 
 interface Props {
-    onFilterChange?(filter?: EnchantmentFilter): void,
+    onFilterChange?(filter?: ItemFilter): void,
     disabled?: boolean
 }
 
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true;
 
-function EnchantmentFilter(props: Props) {
+function ItemFilter(props: Props) {
 
     const enchantmentSelect = useRef(null);
     const levelSelect = useRef(null);
+    const reforgeSelect = useRef(null);
 
     let [enchantments, setEnchantments] = useState<Enchantment[]>([]);
-    let [enchantmentFilter, setEnchantmentFilter] = useState<EnchantmentFilter>();
+    let [reforges, setReforges] = useState<Reforge[]>([]);
+    let [itemFilter, setItemFilter] = useState<ItemFilter>();
     let [expanded, setExpanded] = useState(false);
     let [isApplied, setIsApplied] = useState(false);
     let [isOnlyUnenchanted, setIsOnlyUnenchanted] = useState(false);
@@ -31,12 +33,12 @@ function EnchantmentFilter(props: Props) {
 
     useEffect(() => {
         mounted = true;
-        loadEnchantments();
-        enchantmentFilter = getEnchantmentFilterFromUrl(query);
-        if (enchantmentFilter) {
-            setEnchantmentFilter(enchantmentFilter);
+        loadFilterItems();
+        itemFilter = getItemFilterFromUrl(query);
+        if (itemFilter) {
+            setItemFilter(itemFilter);
             setExpanded(true);
-            if (enchantmentFilter.enchantment?.id === 0) {
+            if (itemFilter.enchantment?.id === 0) {
                 setIsOnlyUnenchanted(true);
             }
         }
@@ -47,53 +49,80 @@ function EnchantmentFilter(props: Props) {
         setIsApplied(false);
     })
 
-    let loadEnchantments = () => {
+    let loadFilterItems = () => {
         api.getEnchantments().then(enchantments => {
-            if (!mounted) {
-                return;
-            }
-            setEnchantments(enchantments);
-            if (!enchantmentFilter) {
-                setEnchantmentFilter({
-                    enchantment: enchantments[0],
-                    level: 1
-                })
-            }
+            api.getReforges().then(reforges => {
+                if (!mounted) {
+                    return;
+                }
+                setEnchantments(enchantments);
+                setReforges(reforges);
+                if (!itemFilter) {
+                    setItemFilter({
+                        enchantment: {
+                            id: enchantments[0].id,
+                            level: 1,
+                            name: enchantments[0].name
+                        },
+                        reforge: {
+                            id: 0
+                        }
+                    })
+                }
+            })
         })
     }
 
-    let onLevelChange = (newLevel: ChangeEvent) => {
-        let newEnchantmentFilter: EnchantmentFilter = {
-            enchantment: enchantmentFilter?.enchantment,
-            level: parseInt((newLevel.target as HTMLInputElement).value)
-        };
-        updateURLQuery(newEnchantmentFilter);
+    let onReforgeChange = (newReforge: ChangeEvent) => {
+        let newFilter: ItemFilter = {
+            enchantment: itemFilter?.enchantment,
+            reforge: {
+                id: parseInt((newReforge.target as HTMLOptionElement).value)
+            }
+        }
+
         setIsApplied(false);
-        setEnchantmentFilter(newEnchantmentFilter);
+        updateURLQuery(newFilter);
+        setItemFilter(newFilter);
+    }
+
+    let onLevelChange = (newLevel: ChangeEvent) => {
+        let newFilter: ItemFilter = {
+            enchantment: {
+                id: itemFilter?.enchantment?.id || 0,
+                level: parseInt((newLevel.target as HTMLInputElement).value)
+            },
+            reforge: itemFilter?.reforge
+        };
+
+        setIsApplied(false);
+        updateURLQuery(newFilter);
+        setItemFilter(newFilter);
     }
 
     let onEnchantmentChange = (newEnchantment: ChangeEvent) => {
-        let newEnchantmentFilter: EnchantmentFilter = {
+        let newFilter: ItemFilter = {
             enchantment: {
-                id: parseInt((newEnchantment.target as HTMLOptionElement).value)
+                id: parseInt((newEnchantment.target as HTMLOptionElement).value),
+                level: itemFilter?.enchantment?.level
             },
-            level: enchantmentFilter?.level
+            reforge: itemFilter?.reforge
         };
         setIsApplied(false);
-        updateURLQuery(newEnchantmentFilter);
-        setEnchantmentFilter(newEnchantmentFilter);
+        updateURLQuery(newFilter);
+        setItemFilter(newFilter);
     }
 
     let onOnlyEnchantmentChange = (checked: boolean) => {
         setIsOnlyUnenchanted(checked);
-        let newEnchantmentFilter = checked ?
+        let newItemFilter: ItemFilter = checked ?
             {
                 enchantment: {
                     id: 0,
                     level: 0,
                     name: "None"
                 },
-                level: 0
+                reforge: itemFilter?.reforge
             } :
             {
                 enchantment: {
@@ -101,23 +130,23 @@ function EnchantmentFilter(props: Props) {
                     level: (levelSelect.current! as any).value,
                     name: (enchantmentSelect.current! as any).options[(enchantmentSelect.current! as any).value - 1].text
                 },
-                level: (levelSelect.current! as any).value
+                reforge: itemFilter?.reforge
             };
-        updateURLQuery(newEnchantmentFilter);
+        updateURLQuery(newItemFilter);
         setIsApplied(false);
-        setEnchantmentFilter(newEnchantmentFilter);
+        setItemFilter(newItemFilter);
     }
 
     let onFilterApply = () => {
         if (props.onFilterChange) {
-            props.onFilterChange(enchantmentFilter);
+            props.onFilterChange(itemFilter);
         }
         setIsApplied(true);
     }
 
     let onFilterRemove = () => {
         setExpanded(false);
-        setEnchantmentFilter(undefined);
+        setItemFilter(undefined);
         if (props.onFilterChange) {
             props.onFilterChange(undefined);
         }
@@ -126,26 +155,31 @@ function EnchantmentFilter(props: Props) {
 
     let onEnable = () => {
         setExpanded(true);
-        if (!enchantmentFilter) {
-            enchantmentFilter = {
-                enchantment: enchantments[0],
-                level: 1
+        if (!itemFilter) {
+            itemFilter = {
+                enchantment: enchantments[0]
             }
-            setEnchantmentFilter(enchantmentFilter);
+            setItemFilter(itemFilter);
         }
-        updateURLQuery(enchantmentFilter);
+        updateURLQuery(itemFilter);
     }
 
-    let updateURLQuery = (filter?: EnchantmentFilter) => {
+    let updateURLQuery = (filter?: ItemFilter) => {
         history.push({
             pathname: history.pathname,
-            search: filter ? '?enchantmentFilter=' + btoa(JSON.stringify(filter)) : ''
+            search: filter ? '?itemFilter=' + btoa(JSON.stringify(filter)) : ''
         })
     }
 
     let enchantmentSelectList = enchantments.map(enchantment => {
         return (
             <option key={enchantment.id} value={enchantment.id}>{enchantment.name}</option>
+        )
+    })
+
+    let reforgeSelectList = reforges.map(reforge => {
+        return (
+            <option key={reforge.id} value={reforge.id}>{reforge.name}</option>
         )
     })
 
@@ -158,12 +192,12 @@ function EnchantmentFilter(props: Props) {
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
                         </svg>
-                        <span> Add enchantment filter</span>
+                        <span> Add Filter</span>
                     </a>
                 </div> :
                 <Card>
                     <Card.Title style={{ margin: "10px" }}>
-                        Enchantment Filter
+                        Filter
                         {isApplied ?
                             <Badge variant="success" className="appliedBadge">Applied</Badge> :
                             <Badge variant="danger" className="appliedBadge">Not Applied</Badge>}
@@ -171,15 +205,23 @@ function EnchantmentFilter(props: Props) {
                     <Card.Body>
                         <Form inline style={{ marginBottom: "5px" }} >
                             <Form.Group>
+                                {reforges.length > 0 ?
+                                    <Form.Control className="reforge-filter-select-reforge" as="select" onChange={onReforgeChange} defaultValue={itemFilter?.reforge?.id} disabled={props.disabled} ref={reforgeSelect}>
+                                        {reforgeSelectList}
+                                    </Form.Control> :
+                                    <Spinner animation="border" role="status" variant="primary" />
+                                }
+                            </Form.Group>
+                            <Form.Group>
                                 {enchantments.length > 0 ?
-                                    <Form.Control className="enchantment-filter-select-enchantment" as="select" onChange={onEnchantmentChange} disabled={isOnlyUnenchanted || props.disabled} ref={enchantmentSelect}>
+                                    <Form.Control className="enchantment-filter-select-enchantment" as="select" onChange={onEnchantmentChange} defaultValue={itemFilter?.enchantment!.id} disabled={isOnlyUnenchanted || props.disabled} ref={enchantmentSelect}>
                                         {enchantmentSelectList}
                                     </Form.Control> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
                             <Form.Group>
-                                <Form.Control as="select" onChange={onLevelChange} disabled={isOnlyUnenchanted || props.disabled} ref={levelSelect}>
+                                <Form.Control as="select" onChange={onLevelChange} defaultValue={itemFilter?.enchantment?.level} disabled={isOnlyUnenchanted || props.disabled} ref={levelSelect}>
                                     <option>1</option>
                                     <option>2</option>
                                     <option>3</option>
@@ -206,4 +248,4 @@ function EnchantmentFilter(props: Props) {
     )
 }
 
-export default EnchantmentFilter;
+export default ItemFilter;

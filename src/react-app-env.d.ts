@@ -14,7 +14,7 @@ interface Enchantment {
 
 interface Reforge {
     id: number,
-    name: string
+    name?: string
 }
 
 interface Item {
@@ -79,9 +79,9 @@ interface PlayerDetails {
     auctions: Auction[]
 }
 
-interface EnchantmentFilter {
+interface ItemFilter {
     enchantment?: Enchantment,
-    level?: number
+    reforge?: Reforge
 }
 
 interface ItemPrice {
@@ -109,11 +109,12 @@ interface API {
     trackSearch(fullSearchId: string, fullSearchType: string): void,
     getItemImageUrl(item: Item): Promise<string>,
     getItemDetails(itemTagOrName: string): Promise<Item>,
-    getItemPrices(itemTagOrName: string, fetchStart: number, reforge?: Reforge, enchantmentFilter?: EnchantmentFilter): Promise<ItemPriceData>,
+    getItemPrices(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<ItemPriceData>,
     getPlayerDetails(playerUUID: string): Promise<PlayerDetails>,
     getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>,
     getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>,
     getEnchantments(): Promise<Enchantment[]>,
+    getReforges(): Promise<Reforge[]>,
     getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>,
     getPlayerName(uuid: string): Promise<string>,
     setConnectionId(): void,

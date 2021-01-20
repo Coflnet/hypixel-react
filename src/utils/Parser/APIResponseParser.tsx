@@ -1,4 +1,3 @@
-import { v4 as generateUUID } from 'uuid';
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
 
 export function parseItemBidForList(bid: any): BidForList {
@@ -99,24 +98,30 @@ export function parseItem(item: any): Item {
     }
 }
 
+function _formatName(enchantment: string): string {
+    let formatted: string = enchantment.replaceAll("_", " ");
+    formatted = _capitalizeWords(formatted);
+    return formatted;
+}
+
+function _capitalizeWords(text: string): string {
+    return text.replace(/\w\S*/g, function (txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+}
+
 export function parseEnchantment(enchantment: any): Enchantment {
-
-    function formatEnchantmentName(enchantment: string): string {
-        let formatted: string = enchantment.replaceAll("_", " ");
-        formatted = capitalizeWords(formatted);
-        return formatted;
-    }
-
-    function capitalizeWords(text: string): string {
-        return text.replace(/\w\S*/g, function (txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-        });
-    }
-
     return {
-        id: enchantment.id || generateUUID(),
+        id: enchantment.id,
         level: enchantment.level,
-        name: enchantment.type ? formatEnchantmentName(enchantment.type) : ""
+        name: enchantment.type ? _formatName(enchantment.type) : ""
+    }
+}
+
+export function parseReforge(reforge: any): Reforge {
+    return {
+        id: reforge.id,
+        name: _formatName(reforge.name)
     }
 }
 

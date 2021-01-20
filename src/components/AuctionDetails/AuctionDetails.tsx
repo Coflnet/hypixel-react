@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
 import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
@@ -47,10 +46,6 @@ function AuctionDetails(props: Props) {
             })
             api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
                 auctionDetails.auction.item.description = item.description;
-                setAuctionDetails(auctionDetails);
-            })
-            api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
-                auctionDetails.auction.item = item;
                 setAuctionDetails(auctionDetails);
             })
 
@@ -163,6 +158,17 @@ function AuctionDetails(props: Props) {
                             checkIcon :
                             XIcon
                     }
+                </p>
+                <p>
+                    <span className="label">
+                        <Badge variant={labelBadgeVariant}>Tier:</Badge>
+                    </span>
+                    <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.tier}</span>
+                </p>
+                <p>
+                    <span className="label">
+                        <Badge variant={labelBadgeVariant}>Category:</Badge>
+                    </span> {convertTagToName(auctionDetails?.auction.item.category)}
                 </p>
                 <p>
                     <span className="label">
