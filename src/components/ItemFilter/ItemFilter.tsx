@@ -51,6 +51,9 @@ function ItemFilter(props: Props) {
 
     let loadFilterItems = () => {
         api.getEnchantments().then(enchantments => {
+            if (!mounted) {
+                return;
+            }
             api.getReforges().then(reforges => {
                 if (!mounted) {
                     return;
