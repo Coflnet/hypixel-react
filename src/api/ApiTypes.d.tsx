@@ -18,6 +18,7 @@ export enum RequestType {
     SET_GOOGLE = "setGoogle",
     PAYMENT_SESSION = "paymentSession",
     PREMIUM_EXPIRATION = 'premiumExpiration',
+    FCM_TOKEN = "token"
 }
 
 export enum SubscriptionType {

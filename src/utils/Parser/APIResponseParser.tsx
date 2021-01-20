@@ -129,7 +129,7 @@ export function parseSearchResultItem(item: any): SearchResultItem {
     return {
         dataItem: {
             name: item.name,
-            iconUrl: item.iconUrl,
+            iconUrl: item.type === "item" ? item.iconUrl : item.iconUrl + "?size=32",
             uuid: item.id
         },
         type: item.type,
@@ -147,7 +147,7 @@ export function parsePlayer(player: any): Player {
     return {
         name: player.name,
         uuid: player.uuid,
-        iconUrl: player.iconUrl || "https://crafatar.com/avatars/" + player.uuid
+        iconUrl: player.iconUrl ? player.iconUrl + "?size=32" : "https://crafatar.com/avatars/" + player.uuid + "?size=32"
     }
 }
 
@@ -179,7 +179,8 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
             return parseEnchantment(enchantment);
         }),
         profileId: auctionDetails.profileId,
-        reforge: auctionDetails.reforge
+        reforge: auctionDetails.reforge,
+        nbtData: auctionDetails.nbtData.Data
     }
 }
 

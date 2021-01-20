@@ -43,7 +43,8 @@ interface AuctionDetails {
     bids: ItemBid[],
     anvilUses: number,
     reforge: Reforge
-    enchantments: Enchantment[]
+    enchantments: Enchantment[],
+    nbtData: any
 }
 
 interface Auction {
@@ -123,7 +124,8 @@ interface API {
     getSubscriptions(): Promise<Subscription[]>,
     setGoogle(id: string): Promise<void>,
     hasPremium(googleId: string): Promise<Date>,
-    pay(stripePromise: Promise<Stripe | null>, gogleId: string): Promise<void>
+    pay(stripePromise: Promise<Stripe | null>, gogleId: string): Promise<void>,
+    setToken(token: string): Promise<void>
 }
 
 

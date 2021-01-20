@@ -44,7 +44,7 @@ export let data: ChartConfiguration = {
                     if (tooltipItem.datasetIndex) {
                         let dataSetName = data.datasets![tooltipItem.datasetIndex!].label;
                         if (dataSetName === data.datasets![3].label) {
-                            return tooltipItem.value + " items sold"
+                            return numberWithThousandsSeperators(Math.round(parseInt(tooltipItem.value || "0"))).toString() + " items sold"
                         }
                     }
 
