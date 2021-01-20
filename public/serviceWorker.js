@@ -11,8 +11,6 @@ importScripts("https://arc.io/arc-sw-core.js");
 // your app's Firebase config object.
 // https://firebase.google.com/docs/web/setup#config-object
 
-
-
 workbox.setConfig({
     debug: false
 });
@@ -75,9 +73,9 @@ workbox.routing.registerRoute(
     })
 );
 
-
 importScripts('https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/7.18.0/firebase-messaging.js');
+
 // Your web app's Firebase configuration
 var firebaseConfig = {
     apiKey: "AIzaSyB1yFUo__ZzeTBKw7KRQNHIyhxL7q9cLdI",
@@ -97,7 +95,7 @@ messaging.onBackgroundMessage(function(payload) {
         body: payload.notification.body,
         icon: '/logo192.png',
         data: {
-            url: payload.data.onClick
+            url: payload.data ? payload.data.onClick : "https://sky.coflnet.com"
         }, //the url which we gonna use later
     };
     return self.registration.showNotification(notificationTitle, notificationOptions);

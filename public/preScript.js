@@ -3,9 +3,7 @@ window.websocket.onopen = function() {
     console.log("Websocket opened");
 }
 
-if (window.location.href.toString().indexOf("localhost") !== -1 && false) {
-    console.log("ServiceWorker was not registered. You are on localhost");
-} else if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/serviceWorker.js').then(function(registration) {
             loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js');
