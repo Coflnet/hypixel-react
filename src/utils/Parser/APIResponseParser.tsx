@@ -174,7 +174,8 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
             return parseEnchantment(enchantment);
         }),
         profileId: auctionDetails.profileId,
-        reforge: auctionDetails.reforge
+        reforge: auctionDetails.reforge,
+        nbtData: auctionDetails.nbtData.Data
     }
 }
 

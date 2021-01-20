@@ -17,6 +17,7 @@ module.exports = {
                         /^tooltip.*/,
                         /^arrow.*/,
                         /^overlay.*/,
+                        /^collapse.*/,
                         'btn',
                         'active',
                         'body',
