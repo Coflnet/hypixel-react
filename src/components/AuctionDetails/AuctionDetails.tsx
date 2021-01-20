@@ -42,10 +42,10 @@ function AuctionDetails(props: Props) {
             setAuctionDetails(auctionDetails);
             api.getItemImageUrl(auctionDetails.auction.item).then(url => {
                 auctionDetails.auction.item.iconUrl = url;
-                forceUpdate();
+                setAuctionDetails(auctionDetails);
             })
             api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
-                auctionDetails.auction.item = item;
+                auctionDetails.auction.item.description = item.description;
                 setAuctionDetails(auctionDetails);
             })
 
@@ -143,7 +143,7 @@ function AuctionDetails(props: Props) {
                                 End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : "-"}
                             </span> :
                             <span>
-                                Auction ended {auctionDetails.auction.bin ? moment(auctionDetails.bids[0].timestamp).fromNow() : moment(auctionDetails.auction.end).fromNow()}
+                                Auction ended {auctionDetails.auction.bin && auctionDetails.bids.length > 0 ? moment(auctionDetails.bids[0].timestamp).fromNow() : moment(auctionDetails.auction.end).fromNow()}
                             </span>
                     }
                 </OverlayTrigger>
