@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
@@ -46,6 +47,10 @@ function AuctionDetails(props: Props) {
             })
             api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
                 auctionDetails.auction.item.description = item.description;
+                setAuctionDetails(auctionDetails);
+            })
+            api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
+                auctionDetails.auction.item = item;
                 setAuctionDetails(auctionDetails);
             })
 
