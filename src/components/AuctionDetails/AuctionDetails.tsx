@@ -189,7 +189,7 @@ function AuctionDetails(props: Props) {
                     </span>
                     <div>
                         {auctionDetails && auctionDetails!.enchantments.length > 0 ?
-                            (<ul>
+                            (<ul className="enchantment-list">
                                 {auctionDetails?.enchantments.map(enchantment => {
                                     return <li key={enchantment.id}>{enchantment.name} {enchantment.level}</li>
                                 })}
