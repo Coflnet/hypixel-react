@@ -7,15 +7,14 @@ const stripePromise = loadStripe(
   "pk_test_51I6N5ZIIRKr1p7dQOGhRRigwIMqgZ3XnoBdbfezFNFgLiR9iaW2YzkRP9kAADCzxSOnqLeqKDVxglDh5uxvY28Dn00vAZR7wQ9"
 );
 
-function Payment() {
+interface Props {
+  googleId: string
+}
+
+function Payment(props: Props) {
 
   const onPay = () => {
-    const googleId = localStorage.getItem('googleId');
-    if (googleId) {
-      api.pay(stripePromise, googleId)
-    } else {
-      console.warn('not logged in in google yet')
-    }
+    api.pay(stripePromise, props.googleId)
   };
 
   return (
