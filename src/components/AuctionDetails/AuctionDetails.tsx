@@ -226,7 +226,7 @@ function AuctionDetails(props: Props) {
             }
             {auctionDetails.auction.item.description ? <p>
                 <span className="label">
-                    <Badge variant={labelBadgeVariant}>Description:</Badge>
+                    <Badge variant={labelBadgeVariant}>Sample description:</Badge>
                 </span>
                 <span style={{ float: "left" }} ref={(node) => { if (auctionDetails?.auction.item.description && node) { node.innerHTML = ""; node.append((auctionDetails.auction.item.description as any).replaceColorCodes()) } }}></span>
             </p> : ""
