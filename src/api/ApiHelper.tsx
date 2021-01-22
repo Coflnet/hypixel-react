@@ -406,7 +406,7 @@ function initAPI(): API {
             websocketHelper.sendRequest({
                 type: RequestType.FCM_TOKEN,
                 data: {
-                    "name": "",
+                    name: "",
                     token: token
                 },
                 resolve: () => {
