@@ -21,7 +21,7 @@ pipeline {
                     echo 'building production release'
                     sh 'cd hypixel-react && npm run build'
                 }
-                
+                sh "cd hypixel-react/dev-ops/scripts && ./include-images.sh"
             }
         }
         stage('release') {
