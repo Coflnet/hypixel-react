@@ -3,6 +3,7 @@ import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
+import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 
 function initAPI(): API {
 
@@ -159,12 +160,16 @@ function initAPI(): API {
                 type: RequestType.ALL_ENCHANTMENTS,
                 data: "",
                 resolve: (enchantments: any) => {
-                    resolve(enchantments.map((enchantment: any, i: number) => {
+                    let parsedEnchantments: Enchantment[] = enchantments.map(enchantment => {
                         return parseEnchantment({
-                            type: enchantment,
-                            id: i + 1
+                            type: enchantment.label,
+                            id: enchantment.id
                         });
-                    }))
+                    });
+                    parsedEnchantments = parsedEnchantments.filter(enchantment => {
+                        return enchantment.name!.toLowerCase() !== 'unknown';
+                    }).sort(enchantmentAndReforgeCompare)
+                    resolve(parsedEnchantments);
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, "");
@@ -179,12 +184,16 @@ function initAPI(): API {
                 type: RequestType.ALL_REFORGES,
                 data: "",
                 resolve: (reforges: any) => {
-                    resolve(reforges.map((reforge: any, i: number) => {
+                    let parsedReforges: Reforge[] = reforges.map(reforge => {
                         return parseReforge({
-                            name: reforge,
-                            id: i
+                            name: reforge.label,
+                            id: reforge.id
                         });
-                    }))
+                    });
+                    parsedReforges = parsedReforges.filter(reforge => {
+                        return reforge.name!.toLowerCase() !== 'unknown';
+                    }).sort(enchantmentAndReforgeCompare)
+                    resolve(parsedReforges);
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, "");
@@ -396,9 +405,9 @@ function initAPI(): API {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.FCM_TOKEN,
-                data: { 
-                    "name": "", 
-                    token: token 
+                data: {
+                    name: "",
+                    token: token
                 },
                 resolve: () => {
                     resolve();

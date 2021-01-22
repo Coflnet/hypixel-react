@@ -26,7 +26,6 @@ function ItemFilter(props: Props) {
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
     let [expanded, setExpanded] = useState(false);
     let [isApplied, setIsApplied] = useState(false);
-    let [isOnlyUnenchanted, setIsOnlyUnenchanted] = useState(false);
 
     let history = useHistory();
     let query = new URLSearchParams(useLocation().search);
@@ -38,9 +37,6 @@ function ItemFilter(props: Props) {
         if (itemFilter) {
             setItemFilter(itemFilter);
             setExpanded(true);
-            if (itemFilter.enchantment?.id === 0) {
-                setIsOnlyUnenchanted(true);
-            }
         }
         return () => { mounted = false }
     }, []);
@@ -68,7 +64,8 @@ function ItemFilter(props: Props) {
                             name: enchantments[0].name
                         },
                         reforge: {
-                            id: 0
+                            id: reforges[0].id,
+                            name: reforges[0].name
                         }
                     })
                 }
@@ -76,11 +73,13 @@ function ItemFilter(props: Props) {
         })
     }
 
-    let onReforgeChange = (newReforge: ChangeEvent) => {
+    let onReforgeChange = (event: ChangeEvent<HTMLSelectElement>) => {
+        let selectedIndex = event.target.options.selectedIndex;
         let newFilter: ItemFilter = {
             enchantment: itemFilter?.enchantment,
             reforge: {
-                id: parseInt((newReforge.target as HTMLOptionElement).value)
+                id: parseInt(event.target.options[selectedIndex].getAttribute('data-id')!),
+                name: event.target.value,
             }
         }
 
@@ -103,10 +102,12 @@ function ItemFilter(props: Props) {
         setItemFilter(newFilter);
     }
 
-    let onEnchantmentChange = (newEnchantment: ChangeEvent) => {
+    let onEnchantmentChange = (newEnchantment: ChangeEvent<HTMLSelectElement>) => {
+        let selectedIndex = newEnchantment.target.options.selectedIndex;
         let newFilter: ItemFilter = {
             enchantment: {
-                id: parseInt((newEnchantment.target as HTMLOptionElement).value),
+                id: parseInt(newEnchantment.target.options[selectedIndex].getAttribute('data-id')!),
+                name: newEnchantment.target.value,
                 level: itemFilter?.enchantment?.level
             },
             reforge: itemFilter?.reforge
@@ -114,30 +115,6 @@ function ItemFilter(props: Props) {
         setIsApplied(false);
         updateURLQuery(newFilter);
         setItemFilter(newFilter);
-    }
-
-    let onOnlyEnchantmentChange = (checked: boolean) => {
-        setIsOnlyUnenchanted(checked);
-        let newItemFilter: ItemFilter = checked ?
-            {
-                enchantment: {
-                    id: 0,
-                    level: 0,
-                    name: "None"
-                },
-                reforge: itemFilter?.reforge
-            } :
-            {
-                enchantment: {
-                    id: (enchantmentSelect.current! as any).value,
-                    level: (levelSelect.current! as any).value,
-                    name: (enchantmentSelect.current! as any).options[(enchantmentSelect.current! as any).value - 1].text
-                },
-                reforge: itemFilter?.reforge
-            };
-        updateURLQuery(newItemFilter);
-        setIsApplied(false);
-        setItemFilter(newItemFilter);
     }
 
     let onFilterApply = () => {
@@ -174,15 +151,19 @@ function ItemFilter(props: Props) {
         })
     }
 
+    let isLevelSelectDisabled = () => {
+        return itemFilter && itemFilter.enchantment && itemFilter.enchantment.name ? (itemFilter.enchantment.name.toLowerCase() === "none" || itemFilter.enchantment.name.toLowerCase() === "any") : false;
+    }
+
     let enchantmentSelectList = enchantments.map(enchantment => {
         return (
-            <option key={enchantment.id} value={enchantment.id}>{enchantment.name}</option>
+            <option data-id={enchantment.id} key={enchantment.id} value={enchantment.name}>{enchantment.name}</option>
         )
     })
 
     let reforgeSelectList = reforges.map(reforge => {
         return (
-            <option key={reforge.id} value={reforge.id}>{reforge.name}</option>
+            <option data-id={reforge.id} key={reforge.id} value={reforge.name}>{reforge.name}</option>
         )
     })
 
@@ -217,14 +198,14 @@ function ItemFilter(props: Props) {
                             </Form.Group>
                             <Form.Group>
                                 {enchantments.length > 0 ?
-                                    <Form.Control className="enchantment-filter-select-enchantment" as="select" onChange={onEnchantmentChange} defaultValue={itemFilter?.enchantment!.id} disabled={isOnlyUnenchanted || props.disabled} ref={enchantmentSelect}>
+                                    <Form.Control className="enchantment-filter-select-enchantment" as="select" onChange={onEnchantmentChange} defaultValue={itemFilter?.enchantment!.id} disabled={props.disabled} ref={enchantmentSelect}>
                                         {enchantmentSelectList}
                                     </Form.Control> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
                             <Form.Group>
-                                <Form.Control as="select" onChange={onLevelChange} defaultValue={itemFilter?.enchantment?.level} disabled={isOnlyUnenchanted || props.disabled} ref={levelSelect}>
+                                <Form.Control as="select" onChange={onLevelChange} defaultValue={itemFilter?.enchantment?.level} disabled={props.disabled || isLevelSelectDisabled()} ref={levelSelect}>
                                     <option>1</option>
                                     <option>2</option>
                                     <option>3</option>
@@ -237,8 +218,6 @@ function ItemFilter(props: Props) {
                                     <option>10</option>
                                 </Form.Control>
                             </Form.Group>
-                            <input type="checkbox" id="noEnchantments" defaultChecked={isOnlyUnenchanted} onClick={(e) => { onOnlyEnchantmentChange((e.target as HTMLInputElement).checked) }} disabled={props.disabled} />
-                            <label htmlFor="noEnchantments">Only unenchanted</label>
                         </Form >
                         <div>
                             <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()} disabled={props.disabled}>Apply</Button>
