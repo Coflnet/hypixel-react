@@ -67,3 +67,17 @@ export function getStyleForTier(tier?: string): CSSProperties {
         fontWeight: "bold"
     }
 }
+
+export function enchantmentAndReforgeCompare(a: Enchantment | Reforge, b: Enchantment | Reforge): number {
+    let aName = a.name ? a.name.toLowerCase() : "";
+    let bName = b.name ? b.name.toLowerCase() : "";
+
+    if (aName === "any" || (aName === "none" && bName !== "any")) {
+        return -1;
+    }
+    if (bName === "any" || bName === "none") {
+        return 1;
+    }
+
+    return aName.localeCompare(bName);
+}
