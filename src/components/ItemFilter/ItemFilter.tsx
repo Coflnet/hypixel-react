@@ -146,7 +146,7 @@ function ItemFilter(props: Props) {
 
     let updateURLQuery = (filter?: ItemFilter) => {
         history.push({
-            pathname: history.pathname,
+            pathname: history.location.pathname,
             search: filter ? '?itemFilter=' + btoa(JSON.stringify(filter)) : ''
         })
     }
