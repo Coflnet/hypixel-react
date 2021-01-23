@@ -13,6 +13,7 @@ const ItemDetails = React.lazy(() => import('./pages/ItemDetails/ItemDetails'));
 const AuctionDetails = React.lazy(() => import('./pages/AuctionDetails/AuctionDetails'));
 const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'));
 const Subscriptions = React.lazy(() => import('./pages/Subscriptions/Subscriptions'));
+const Feedback = React.lazy(() => import('./pages/Feedback/Feedback'));
 const About = React.lazy(() => import('./pages/About/About'));
 
 const matomoTrackingInstance = createInstance({
@@ -44,6 +45,7 @@ export default (
           <Route path='/auction/:auctionUUID' component={AuctionDetails} />
           <Route path='/about' component={About} />
           <Route path='/subscriptions' component={Subscriptions} />
+          <Route path='/feedback' component={Feedback} />
           <Route path='*' exact component={NotFound} />
         </Switch>
       </MainApp>
