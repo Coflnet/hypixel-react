@@ -11,8 +11,18 @@ interface Props {
     playerUUID: string
 }
 
+interface ListState {
+    bids: BidForList[],
+    allBidsLoaded: boolean,
+    yOffset: number,
+    playerUUID: string
+}
+
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true;
+
+// States, to remember the positions in the list, after coming back
+let listStates: ListState[] = [];
 
 function BidList(props: Props) {
 
@@ -25,13 +35,39 @@ function BidList(props: Props) {
     })
 
     useEffect(() => {
-        setAllBidsLoaded(false);
-        setBids([]);
-        loadNewBids(true);
+        let listState = getListState();
+        if (listState !== undefined) {
+            setBids(listState.bids);
+            setAllBidsLoaded(listState.allBidsLoaded);
+            setTimeout(() => {
+                window.scrollTo({
+                    left: 0,
+                    top: listState!.yOffset,
+                    behavior: "auto"
+                })
+            }, 100);
+        } else {
+            window.scrollTo(0, 0);
+            setAllBidsLoaded(false);
+            setBids([]);
+            loadNewBids(true);
+        }
 
-        return () => { mounted = false }
+        let unlisten = history.listen(onHistoryListen);
+
+        return () => {
+            mounted = false;
+            unlisten();
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.playerUUID]);
+
+    let onHistoryListen = () => {
+        let listState = getListState();
+        if (listState) {
+            listState.yOffset = window.pageYOffset;
+        }
+    }
 
     let loadNewBids = (reset?: boolean): void => {
         api.getBids(props.playerUUID, 20, reset ? 0 : bids.length).then(newBids => {
@@ -41,6 +77,7 @@ function BidList(props: Props) {
             }
 
             if (newBids.length < 20) {
+                allBidsLoaded = true;
                 setAllBidsLoaded(true);
             }
 
@@ -49,6 +86,8 @@ function BidList(props: Props) {
                 loadItemImage(auction.item, auction.uuid, bids);
             })
             setBids(bids);
+
+            updateListState();
         })
     }
 
@@ -84,6 +123,27 @@ function BidList(props: Props) {
         })
     }
 
+    let updateListState = () => {
+        let listState = getListState();
+        if (listState) {
+            listState.allBidsLoaded = allBidsLoaded;
+            listState.bids = bids;
+        } else {
+            listStates.push({
+                bids: bids,
+                playerUUID: props.playerUUID,
+                yOffset: window.pageYOffset,
+                allBidsLoaded: allBidsLoaded
+            })
+        }
+    }
+
+    let getListState = (): ListState | undefined => {
+        return listStates.find(state => {
+            return state.playerUUID === props.playerUUID;
+        })
+    }
+
     let bidsList = bids.map(bid => {
         return (
             <ListGroup.Item key={bid.uuid} action onClick={() => { onBidClick(bid) }}>
@@ -92,7 +152,7 @@ function BidList(props: Props) {
                         getItemImageElement(bid)
                     }
                     {bid.item.name}
-                    {bid.bin ? <Badge variant="secondary" style={{marginLeft: "5px"}}>BIN</Badge> : ""}
+                    {bid.bin ? <Badge variant="secondary" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
                 <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>

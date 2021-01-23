@@ -12,8 +12,18 @@ interface Props {
     playerUUID: string
 }
 
+interface ListState {
+    auctions: Auction[],
+    allAuctionsLoaded: boolean,
+    yOffset: number,
+    playerUUID: string
+}
+
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true;
+
+// States, to remember the positions in the list, after coming back
+let listStates: ListState[] = [];
 
 function AuctionList(props: Props) {
 
@@ -28,13 +38,40 @@ function AuctionList(props: Props) {
     })
 
     useEffect(() => {
-        setAllAuctinosLoaded(false);
-        setAuctions([]);
-        loadNewAuctions(true);
 
-        return () => { mounted = false };
+        let listState = getListState();
+        if (listState !== undefined) {
+            setAuctions(listState.auctions);
+            setAllAuctinosLoaded(listState.allAuctionsLoaded);
+            setTimeout(() => {
+                window.scrollTo({
+                    left: 0,
+                    top: listState!.yOffset,
+                    behavior: "auto"
+                })
+            }, 100);
+        } else {
+            window.scrollTo(0, 0);
+            setAllAuctinosLoaded(false);
+            setAuctions([]);
+            loadNewAuctions(true);
+        }
+
+        let unlisten = history.listen(onHistoryListen);
+
+        return () => {
+            mounted = false;
+            unlisten();
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.playerUUID]);
+
+    let onHistoryListen = () => {
+        let listState = getListState();
+        if (listState) {
+            listState.yOffset = window.pageYOffset;
+        }
+    }
 
     let loadNewAuctions = (reset?: boolean): void => {
         api.getAuctions(props.playerUUID, 20, reset ? 0 : auctions.length).then(newAuctions => {
@@ -44,6 +81,7 @@ function AuctionList(props: Props) {
             }
 
             if (newAuctions.length < 20) {
+                allAuctionsLoaded = true;
                 setAllAuctinosLoaded(true);
             }
 
@@ -53,6 +91,8 @@ function AuctionList(props: Props) {
                 loadItemImage(auction.item, auction.uuid, auctions);
             })
             setAuctions(auctions);
+
+            updateListState();
         })
     }
 
@@ -93,6 +133,27 @@ function AuctionList(props: Props) {
         })
     }
 
+    let updateListState = () => {
+        let listState = getListState();
+        if (listState) {
+            listState.allAuctionsLoaded = allAuctionsLoaded;
+            listState.auctions = auctions;
+        } else {
+            listStates.push({
+                auctions: auctions,
+                playerUUID: props.playerUUID,
+                yOffset: window.pageYOffset,
+                allAuctionsLoaded: allAuctionsLoaded
+            })
+        }
+    }
+
+    let getListState = (): ListState | undefined => {
+        return listStates.find(state => {
+            return state.playerUUID === props.playerUUID;
+        })
+    }
+
     let auctionList = auctions.map(auction => {
         return (
             <ListGroup.Item key={auction.uuid} action onClick={() => { onAuctionClick(auction) }}>
@@ -102,7 +163,7 @@ function AuctionList(props: Props) {
                     }
                     {auction.item.name}
                     {auction.end.getTime() < Date.now() || (auction.bin && auction.highestBid > 0) ? <Badge variant="danger" style={{ marginLeft: "10px" }}>Ended</Badge> : <Badge variant="success" style={{ marginLeft: "10px" }}>Running</Badge>}
-                {auction.bin ? <Badge style={{marginLeft: "5px"}} variant="secondary">BIN</Badge> : ""}
+                    {auction.bin ? <Badge style={{ marginLeft: "5px" }} variant="secondary">BIN</Badge> : ""}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(auction.highestBid)} {getCoinImage()}</p>
                 <p>Starting Bid: {numberWithThousandsSeperators(auction.startingBid)} {getCoinImage()}</p>

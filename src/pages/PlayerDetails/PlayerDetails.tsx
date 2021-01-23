@@ -13,10 +13,13 @@ enum DetailType {
     BIDS = "bids"
 }
 
+// save Detailtype for after navigation
+let prevDetailType: DetailType;
+
 function PlayerDetails() {
 
     let { uuid } = useParams();
-    let [detailType, setDetailType] = useState<DetailType>(DetailType.AUCTIONS);
+    let [detailType, setDetailType_] = useState<DetailType>(prevDetailType || DetailType.AUCTIONS);
     let [selectedPlayer, setSelectedPlayer] = useState<Player>();
 
     useEffect(() => {
@@ -34,6 +37,11 @@ function PlayerDetails() {
 
     let getButtonVariant = (type: DetailType): string => {
         return type === detailType ? "primary" : "light";
+    }
+
+    let setDetailType = (type: DetailType) => {
+        prevDetailType = type;
+        setDetailType_(type);
     }
 
     return (
