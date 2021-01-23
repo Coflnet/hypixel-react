@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, ListGroup } from 'react-bootstrap';
+import { Badge, Button, ListGroup } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
 import { getLoadingElement } from '../../utils/LoadingUtils';
@@ -144,6 +144,13 @@ function BidList(props: Props) {
         })
     }
 
+    let upIcon = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-chevron-double-up" viewBox="0 0 16 16">
+            <path d="M7.646 2.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 3.707 2.354 9.354a.5.5 0 1 1-.708-.708l6-6z" />
+            <path d="M7.646 6.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 7.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z" />
+        </svg>
+    );
+
     let bidsList = bids.map(bid => {
         return (
             <ListGroup.Item key={bid.uuid} action onClick={() => { onBidClick(bid) }}>
@@ -169,7 +176,9 @@ function BidList(props: Props) {
                     <ListGroup>
                         {bidsList}
                     </ListGroup>
-                </InfiniteScroll>}
+                </InfiniteScroll>
+            }
+            <Button className="upButton" type="primary" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button>
         </div>
     )
 }
