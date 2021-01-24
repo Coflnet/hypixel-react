@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
+import { useHistory } from "react-router-dom";
 import './ItemPriceRange.css';
 
 export enum DateRange {
@@ -41,6 +42,7 @@ export let getTimeSpanFromDateRange = (range: DateRange): number => {
 
 export function ItemPriceRange(props: Props) {
 
+    let history = useHistory();
     let [selectedDateRange, setSelectedDateRange] = useState(DEFAULT_DATE_RANGE);
 
     useEffect(() => {
@@ -55,6 +57,13 @@ export function ItemPriceRange(props: Props) {
     }
 
     let onRangeChange = (newRange: DateRange) => {
+
+        // Triggers the unapply of the ItemFilter
+        history.push({
+            pathname: history.location.pathname,
+            search: history.location.search
+        });
+
         setSelectedDateRange(newRange);
         if (props.onRangeChange) {
             props.onRangeChange(getTimeSpanFromDateRange(newRange));

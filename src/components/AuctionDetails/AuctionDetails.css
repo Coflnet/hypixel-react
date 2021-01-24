@@ -16,7 +16,7 @@
     width: calc(30vw - 20px);
 }
 
-ul {
+.enchantment-list {
     float: left;
 }
 

@@ -21,7 +21,7 @@ pipeline {
                     echo 'building production release'
                     sh 'cd hypixel-react && npm run build'
                 }
-                
+                sh "cd hypixel-react/dev-ops/scripts && ./include-images.sh"
             }
         }
         stage('release') {
@@ -39,7 +39,7 @@ pipeline {
         stage('test') {
             steps {
                 nodejs(nodeJSInstallationName: '14.15.1') {
-                    sh 'npx cypress run --record --key d81a6322-60d9-4973-b79f-f4d56bb4cfb6'
+                    // sh 'npx cypress run --record --key d81a6322-60d9-4973-b79f-f4d56bb4cfb6'
                 }
             }
         }

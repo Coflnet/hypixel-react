@@ -189,7 +189,7 @@ function AuctionDetails(props: Props) {
                     </span>
                     <div>
                         {auctionDetails && auctionDetails!.enchantments.length > 0 ?
-                            (<ul>
+                            (<ul className="enchantment-list">
                                 {auctionDetails?.enchantments.map(enchantment => {
                                     return <li key={enchantment.id}>{enchantment.name} {enchantment.level}</li>
                                 })}
@@ -226,7 +226,7 @@ function AuctionDetails(props: Props) {
             }
             {auctionDetails.auction.item.description ? <p>
                 <span className="label">
-                    <Badge variant={labelBadgeVariant}>Description:</Badge>
+                    <Badge variant={labelBadgeVariant}>Sample description:</Badge>
                 </span>
                 <span style={{ float: "left" }} ref={(node) => { if (auctionDetails?.auction.item.description && node) { node.innerHTML = ""; node.append((auctionDetails.auction.item.description as any).replaceColorCodes()) } }}></span>
             </p> : ""
