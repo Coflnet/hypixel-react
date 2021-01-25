@@ -30,7 +30,6 @@ function initWebsocket(): void {
 
         let equals = findForEqualSentRequest(request);
 
-        delete response.mId;
         if (response.type.includes("error")) {
             request.reject(response.data);
             equals.forEach(equal => equal.reject());
@@ -42,6 +41,8 @@ function initWebsocket(): void {
             let maxAge = response.maxAge;
             cacheUtils.setIntoCache(request.type, Base64.decode(request.data), parsedResponse, maxAge);
         }
+
+        removeSentRequests([...equals, request]);
     };
 
     let getNewWebsocket = (): WebSocket => {
@@ -104,6 +105,17 @@ function sendRequest(request: ApiRequest): Promise<void> {
 function findForEqualSentRequest(request: ApiRequest) {
     return requests.filter(r => {
         return r.type === request.type && r.data === request.data && r.mId !== request.mId
+    })
+}
+
+function removeSentRequests(toDelete: ApiRequest[]) {
+    requests = requests.filter(request => {
+        for (let i = 0; i < toDelete.length; i++) {
+            if (toDelete[i].mId === request.mId) {
+                return false;
+            }
+        }
+        return true;
     })
 }
 
