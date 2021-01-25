@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { Badge, Button, Card, Form, Spinner } from 'react-bootstrap';
+import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap';
 import './ItemFilter.css';
 import { useLocation, useHistory } from "react-router-dom";
 import api from '../../api/ApiHelper';
@@ -26,6 +26,7 @@ function ItemFilter(props: Props) {
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
     let [expanded, setExpanded] = useState(false);
     let [isApplied, setIsApplied] = useState(false);
+    let [showInfoDialog, setShowInfoDialog] = useState(false);
 
     let history = useHistory();
     let query = new URLSearchParams(useLocation().search);
@@ -167,6 +168,29 @@ function ItemFilter(props: Props) {
         )
     })
 
+    let infoIconElement = (
+        <div>
+            <svg style={{ cursor: "pointer", position: "absolute", top: "10px", right: "10px" }} onClick={() => { setShowInfoDialog(true) }} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#007bff" className="bi bi-info-square-fill" viewBox="0 0 16 16">
+                <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
+            </svg>
+            {
+                showInfoDialog ?
+                    <Modal show={showInfoDialog} onHide={() => { setShowInfoDialog(false) }}>
+                        <Modal.Header closeButton>
+                            <h4>Item-Filter Information</h4>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <p>You can filter by reforge and enchantments. After applying only the auctions matching your filter will be used to update the graph</p>
+                            <hr />
+                            <h4><Badge variant="danger">Caution</Badge></h4>
+                            <p>Some item filter can take quite some time to process. <b>Why?</b> We have to search through millions of auctions to show you the accurate price for a filtered result.</p>
+                            <p>For normal searches we use some technical tricks to greatly improve the search time. Sadly we dont have the resources to provice this for filtered searches.</p>
+                        </Modal.Body>
+                    </Modal> : ""
+            }
+        </div>
+    );
+
     return (
         <div className="enchantment-filter">
             {!expanded ?
@@ -185,6 +209,7 @@ function ItemFilter(props: Props) {
                         {isApplied ?
                             <Badge variant="success" className="appliedBadge">Applied</Badge> :
                             <Badge variant="danger" className="appliedBadge">Not Applied</Badge>}
+                        {infoIconElement}
                     </Card.Title>
                     <Card.Body>
                         <Form inline style={{ marginBottom: "5px" }} >
