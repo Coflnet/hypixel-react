@@ -142,7 +142,6 @@ function initAPI(): API {
                 type: RequestType.PLAYER_BIDS,
                 data: requestData,
                 resolve: (bids: any) => {
-                    console.log(bids);
                     resolve(bids.map((bid: any) => {
                         return parseItemBidForList(bid);
                     }));

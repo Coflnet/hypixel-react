@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, ListGroup } from 'react-bootstrap';
+import { Badge, Button, ListGroup } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
 import { getLoadingElement } from '../../utils/LoadingUtils';
@@ -12,8 +12,18 @@ interface Props {
     playerUUID: string
 }
 
+interface ListState {
+    auctions: Auction[],
+    allAuctionsLoaded: boolean,
+    yOffset: number,
+    playerUUID: string
+}
+
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true;
+
+// States, to remember the positions in the list, after coming back
+let listStates: ListState[] = [];
 
 function AuctionList(props: Props) {
 
@@ -28,13 +38,40 @@ function AuctionList(props: Props) {
     })
 
     useEffect(() => {
-        setAllAuctinosLoaded(false);
-        setAuctions([]);
-        loadNewAuctions(true);
 
-        return () => { mounted = false };
+        let listState = getListState();
+        if (listState !== undefined) {
+            setAuctions(listState.auctions);
+            setAllAuctinosLoaded(listState.allAuctionsLoaded);
+            setTimeout(() => {
+                window.scrollTo({
+                    left: 0,
+                    top: listState!.yOffset,
+                    behavior: "auto"
+                })
+            }, 100);
+        } else {
+            window.scrollTo(0, 0);
+            setAllAuctinosLoaded(false);
+            setAuctions([]);
+            loadNewAuctions(true);
+        }
+
+        let unlisten = history.listen(onHistoryListen);
+
+        return () => {
+            mounted = false;
+            unlisten();
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.playerUUID]);
+
+    let onHistoryListen = () => {
+        let listState = getListState();
+        if (listState) {
+            listState.yOffset = window.pageYOffset;
+        }
+    }
 
     let loadNewAuctions = (reset?: boolean): void => {
         api.getAuctions(props.playerUUID, 20, reset ? 0 : auctions.length).then(newAuctions => {
@@ -44,6 +81,7 @@ function AuctionList(props: Props) {
             }
 
             if (newAuctions.length < 20) {
+                allAuctionsLoaded = true;
                 setAllAuctinosLoaded(true);
             }
 
@@ -53,6 +91,8 @@ function AuctionList(props: Props) {
                 loadItemImage(auction.item, auction.uuid, auctions);
             })
             setAuctions(auctions);
+
+            updateListState();
         })
     }
 
@@ -93,6 +133,34 @@ function AuctionList(props: Props) {
         })
     }
 
+    let updateListState = () => {
+        let listState = getListState();
+        if (listState) {
+            listState.allAuctionsLoaded = allAuctionsLoaded;
+            listState.auctions = auctions;
+        } else {
+            listStates.push({
+                auctions: auctions,
+                playerUUID: props.playerUUID,
+                yOffset: window.pageYOffset,
+                allAuctionsLoaded: allAuctionsLoaded
+            })
+        }
+    }
+
+    let getListState = (): ListState | undefined => {
+        return listStates.find(state => {
+            return state.playerUUID === props.playerUUID;
+        })
+    }
+
+    let upIcon = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-chevron-double-up" viewBox="0 0 16 16">
+            <path d="M7.646 2.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 3.707 2.354 9.354a.5.5 0 1 1-.708-.708l6-6z" />
+            <path d="M7.646 6.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 7.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z" />
+        </svg>
+    );
+
     let auctionList = auctions.map(auction => {
         return (
             <ListGroup.Item key={auction.uuid} action onClick={() => { onAuctionClick(auction) }}>
@@ -102,7 +170,7 @@ function AuctionList(props: Props) {
                     }
                     {auction.item.name}
                     {auction.end.getTime() < Date.now() || (auction.bin && auction.highestBid > 0) ? <Badge variant="danger" style={{ marginLeft: "10px" }}>Ended</Badge> : <Badge variant="success" style={{ marginLeft: "10px" }}>Running</Badge>}
-                {auction.bin ? <Badge style={{marginLeft: "5px"}} variant="secondary">BIN</Badge> : ""}
+                    {auction.bin ? <Badge style={{ marginLeft: "5px" }} variant="secondary">BIN</Badge> : ""}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(auction.highestBid)} {getCoinImage()}</p>
                 <p>Starting Bid: {numberWithThousandsSeperators(auction.startingBid)} {getCoinImage()}</p>
@@ -122,6 +190,7 @@ function AuctionList(props: Props) {
                         </ListGroup>
                     </InfiniteScroll>
             }
+            <Button className="upButton" type="primary" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button>
         </div>
     )
 }

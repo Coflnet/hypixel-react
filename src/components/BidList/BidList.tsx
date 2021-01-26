@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, ListGroup } from 'react-bootstrap';
+import { Badge, Button, ListGroup } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import api from '../../api/ApiHelper';
 import { getLoadingElement } from '../../utils/LoadingUtils';
@@ -11,8 +11,18 @@ interface Props {
     playerUUID: string
 }
 
+interface ListState {
+    bids: BidForList[],
+    allBidsLoaded: boolean,
+    yOffset: number,
+    playerUUID: string
+}
+
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true;
+
+// States, to remember the positions in the list, after coming back
+let listStates: ListState[] = [];
 
 function BidList(props: Props) {
 
@@ -25,13 +35,39 @@ function BidList(props: Props) {
     })
 
     useEffect(() => {
-        setAllBidsLoaded(false);
-        setBids([]);
-        loadNewBids(true);
+        let listState = getListState();
+        if (listState !== undefined) {
+            setBids(listState.bids);
+            setAllBidsLoaded(listState.allBidsLoaded);
+            setTimeout(() => {
+                window.scrollTo({
+                    left: 0,
+                    top: listState!.yOffset,
+                    behavior: "auto"
+                })
+            }, 100);
+        } else {
+            window.scrollTo(0, 0);
+            setAllBidsLoaded(false);
+            setBids([]);
+            loadNewBids(true);
+        }
 
-        return () => { mounted = false }
+        let unlisten = history.listen(onHistoryListen);
+
+        return () => {
+            mounted = false;
+            unlisten();
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.playerUUID]);
+
+    let onHistoryListen = () => {
+        let listState = getListState();
+        if (listState) {
+            listState.yOffset = window.pageYOffset;
+        }
+    }
 
     let loadNewBids = (reset?: boolean): void => {
         api.getBids(props.playerUUID, 20, reset ? 0 : bids.length).then(newBids => {
@@ -41,6 +77,7 @@ function BidList(props: Props) {
             }
 
             if (newBids.length < 20) {
+                allBidsLoaded = true;
                 setAllBidsLoaded(true);
             }
 
@@ -49,6 +86,8 @@ function BidList(props: Props) {
                 loadItemImage(auction.item, auction.uuid, bids);
             })
             setBids(bids);
+
+            updateListState();
         })
     }
 
@@ -84,6 +123,34 @@ function BidList(props: Props) {
         })
     }
 
+    let updateListState = () => {
+        let listState = getListState();
+        if (listState) {
+            listState.allBidsLoaded = allBidsLoaded;
+            listState.bids = bids;
+        } else {
+            listStates.push({
+                bids: bids,
+                playerUUID: props.playerUUID,
+                yOffset: window.pageYOffset,
+                allBidsLoaded: allBidsLoaded
+            })
+        }
+    }
+
+    let getListState = (): ListState | undefined => {
+        return listStates.find(state => {
+            return state.playerUUID === props.playerUUID;
+        })
+    }
+
+    let upIcon = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-chevron-double-up" viewBox="0 0 16 16">
+            <path d="M7.646 2.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 3.707 2.354 9.354a.5.5 0 1 1-.708-.708l6-6z" />
+            <path d="M7.646 6.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 7.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z" />
+        </svg>
+    );
+
     let bidsList = bids.map(bid => {
         return (
             <ListGroup.Item key={bid.uuid} action onClick={() => { onBidClick(bid) }}>
@@ -92,7 +159,7 @@ function BidList(props: Props) {
                         getItemImageElement(bid)
                     }
                     {bid.item.name}
-                    {bid.bin ? <Badge variant="secondary" style={{marginLeft: "5px"}}>BIN</Badge> : ""}
+                    {bid.bin ? <Badge variant="secondary" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
                 </h4>
                 <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
                 <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>
@@ -109,7 +176,9 @@ function BidList(props: Props) {
                     <ListGroup>
                         {bidsList}
                     </ListGroup>
-                </InfiniteScroll>}
+                </InfiniteScroll>
+            }
+            <Button className="upButton" type="primary" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button>
         </div>
     )
 }
