@@ -215,21 +215,28 @@ function ItemFilter(props: Props) {
                         <Form inline style={{ marginBottom: "5px" }} >
                             <Form.Group>
                                 {reforges.length > 0 ?
-                                    <Form.Control className="reforge-filter-select-reforge" as="select" onChange={onReforgeChange} defaultValue={itemFilter?.reforge?.id} disabled={props.disabled} ref={reforgeSelect}>
-                                        {reforgeSelectList}
-                                    </Form.Control> :
+                                    <div>
+                                        <Form.Label>Reforge:</Form.Label>
+                                        <Form.Control className="reforge-filter-select-reforge" as="select" onChange={onReforgeChange} defaultValue={itemFilter?.reforge?.id} disabled={props.disabled} ref={reforgeSelect}>
+                                            {reforgeSelectList}
+                                        </Form.Control>
+                                    </div> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
                             <Form.Group>
                                 {enchantments.length > 0 ?
-                                    <Form.Control className="enchantment-filter-select-enchantment" as="select" onChange={onEnchantmentChange} defaultValue={itemFilter?.enchantment!.id} disabled={props.disabled} ref={enchantmentSelect}>
-                                        {enchantmentSelectList}
-                                    </Form.Control> :
+                                    <div>
+                                        <Form.Label>Enchantment:</Form.Label>
+                                        <Form.Control className="enchantment-filter-select-enchantment" as="select" onChange={onEnchantmentChange} defaultValue={itemFilter?.enchantment!.id} disabled={props.disabled} ref={enchantmentSelect}>
+                                            {enchantmentSelectList}
+                                        </Form.Control>
+                                    </div> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
                             <Form.Group>
+                                <Form.Label>Level:</Form.Label>
                                 <Form.Control as="select" onChange={onLevelChange} defaultValue={itemFilter?.enchantment?.level} disabled={props.disabled || isLevelSelectDisabled()} ref={levelSelect}>
                                     <option>1</option>
                                     <option>2</option>
