@@ -100,6 +100,7 @@ function Search(props: Props) {
 
     return (
         <div className="search">
+            <a href="doom-fire://review">Rate app now!</a>
             <Form>
                 <Form.Group>
                     <NavBar />
