@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Button } from 'react-bootstrap';
 import api from "../../api/ApiHelper";
@@ -9,12 +9,22 @@ const stripePromise = loadStripe(
 
 const PAYMENT_METHOD = "https://play.google.com/billing";
 
+const logPromise: Promise<void> | null = null;
+
 function Payment() {
 
-  let [message, setMessage] = useState("");
+  let [message, _setMessage] = useState('');
+
+  const setMessage = (newMessage: string) => {
+    if (message !== newMessage) {
+      message = newMessage;
+      _setMessage(message);
+    }
+  }
 
   const log = (msg: string) => {
-    setMessage(message + msg + '\n');
+    let newString = message + '\n' + msg;
+    setMessage(newString);
   }
 
   const googleId = () => {
@@ -30,17 +40,18 @@ function Payment() {
   }
 
   const pay = () => {
-    log('Going to pay');
-    log('dont know how to pay..')
   }
 
-  const onPay = async () => {
+  const onPay = () => {
 
     let paymentPossible = checkPaymentPossible()
 
     if (paymentPossible) {
       log('payment is possible')
+      log('Going to pay..');
       pay()
+    } else {
+      log('dont know how to pay..')
     }
 
   }
