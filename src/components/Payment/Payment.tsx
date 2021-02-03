@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Button } from 'react-bootstrap';
 import api from "../../api/ApiHelper";
@@ -9,19 +9,30 @@ const stripePromise = loadStripe(
 
 function Payment() {
 
-  const onPay = () => {
+    let [message, setMessage] = useState("");
+
+  const onPay = async () => {
+    message = '';
     const googleId = localStorage.getItem('googleId');
-    if (googleId) {
-      api.pay(stripePromise, googleId)
+    if ('getDigitalGoodsService' in window) {
+      message += 'digital good service is supported\n'; 
+      const service = await (window as any).getDigitalGoodsService('https://play.google.com/billing');
+      message += JSON.stringify(service) + '\n';
     } else {
-      console.warn('not logged in in google yet')
+      message = 'digital good service is not supported\n'; 
     }
+    setMessage(message);
   };
 
   return (
+    <div>
     <Button className="btn-success" onClick={onPay}>
       Buy Premium
     </Button>
+    <pre>
+      {message}
+    </pre>
+    </div>
   )
 }
 
