@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Button } from 'react-bootstrap';
-import api from "../../api/ApiHelper";
 
+//TODO remove
+/*
 const stripePromise = loadStripe(
   "pk_test_51I6N5ZIIRKr1p7dQOGhRRigwIMqgZ3XnoBdbfezFNFgLiR9iaW2YzkRP9kAADCzxSOnqLeqKDVxglDh5uxvY28Dn00vAZR7wQ9"
 );
+*/
 
 const PAYMENT_METHOD = "https://play.google.com/billing";
 
@@ -39,7 +41,16 @@ function Payment() {
     return true;
   }
 
+  const getProducts = async () => {
+    try {
+      const service =
+        await (window as any).getDigitalGoodsService(PAYMENT_METHOD);
+      log(JSON.stringify(service));
+    } catch (e) { log(JSON.stringify(e)); }
+  }
+
   const pay = () => {
+    const products = getProducts();
   }
 
   const onPay = () => {
