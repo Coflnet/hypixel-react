@@ -55,7 +55,7 @@ function Payment() {
       const service = await getDigitalGoodsService();
       console.log(service);
       if (service) {
-        let details = service.getDetails();
+        let details = await service.getDetails();
         console.log(details);
         if (details) {
           log('got details')
