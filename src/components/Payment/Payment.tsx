@@ -60,7 +60,6 @@ function Payment() {
 
     if (paymentPossible) {
       log('payment is possible')
-      log('Going to pay..');
       pay()
     } else {
       log('dont know how to pay..')
