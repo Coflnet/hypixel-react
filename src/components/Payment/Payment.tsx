@@ -38,6 +38,10 @@ function Payment() {
       log("No PaymentRequest object.");
       return false;
     }
+    if (!('getDigitalGoodsService' in window)) {
+      log('DigitalGoodsService not found');
+      return false;
+    }
     return true;
   }
 
@@ -47,12 +51,17 @@ function Payment() {
 
   const getProducts = async () => {
     try {
+      console.log('hallo');
       const service = await getDigitalGoodsService();
+      console.log(service);
       if (service) {
         let details = service.getDetails();
+        console.log(details);
         if (details) {
           log('got details')
           log(JSON.stringify(details));
+          console.log(details);
+
           details.forEach(element => {
             log(JSON.stringify(element));
           });
