@@ -3,16 +3,11 @@ import React, { useEffect, useState } from "react";
 import { Button } from 'react-bootstrap';
 
 //TODO remove
-/*
-import too
 const stripePromise = loadStripe(
   "pk_test_51I6N5ZIIRKr1p7dQOGhRRigwIMqgZ3XnoBdbfezFNFgLiR9iaW2YzkRP9kAADCzxSOnqLeqKDVxglDh5uxvY28Dn00vAZR7wQ9"
 );
-*/
 
 const PAYMENT_METHOD = "https://play.google.com/billing";
-
-const logPromise: Promise<void> | null = null;
 
 function Payment() {
 
