@@ -1,0 +1,14 @@
+[
+    {
+        "relation": [
+            "delegate_permission/common.handle_all_urls"
+        ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "de.flou.hypixel.skyblock",
+            "sha256_cert_fingerprints": [
+                "AA:E0:DA:A8:35:0A:67:09:84:4D:75:5C:84:43:F4:83:E1:FC:0D:5C:90:32:E1:0B:7B:91:4B:2A:D3:8E:69:F7"
+            ]
+        }
+    }
+]
