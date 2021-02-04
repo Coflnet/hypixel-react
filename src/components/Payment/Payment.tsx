@@ -53,6 +53,9 @@ function Payment() {
         if (details) {
           log('got details')
           log(JSON.stringify(details));
+          details.forEach(element => {
+            log(JSON.stringify(element));
+          });
         } else {
           log('details is empty');
         }
