@@ -50,8 +50,12 @@ function Payment() {
       const service = await getDigitalGoodsService();
       if (service) {
         let details = service.getDetails();
-        log('got details')
-        log(JSON.stringify(details));
+        if (details) {
+          log('got details')
+          log(JSON.stringify(details));
+        } else {
+          log('details is empty');
+        }
       }
     } catch (e) { log(JSON.stringify(e)); log('error'); }
   }
