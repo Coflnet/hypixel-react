@@ -49,7 +49,7 @@ function Payment() {
       if (service) {
         return await service.getDetails(['premium_30', 'premium_1']);
       }
-    } catch(e) {
+    } catch (e) {
       log(e);
       return [];
     }
@@ -77,8 +77,63 @@ function Payment() {
     return true;
   }
 
+  const paymentMethod = () => {
+    return [{
+      supportedMethods: "https://play.google.com/billing",
+      data: {
+        sku: 'premium_1',
+      }
+    }];
+  }
+
+  const paymentDetails = () => {
+    return {
+      total: {
+        label: `Total`,
+        amount: { currency: `USD`, value: `3` }
+      }
+    }
+  }
+
   const pay = async () => {
-    log('payment not implemented yet');
+    log('going to pay..')
+    const request = new PaymentRequest(paymentMethod(), paymentDetails());
+    try {
+      log('showing payment request')
+      const paymentResponse = await request.show();
+      log('got payment response')
+      log(JSON.stringify(paymentResponse))
+      const { purchaseToken } = paymentResponse.details;
+      log(`purchaseToken: ${purchaseToken}`)
+
+      const service = await getDigitalGoodsService();
+
+      // Call backend to validate the purchase.
+      // if (validatePurchaseOnBackend(purchaseToken)) {
+      if (true) {
+        // Acknowledge using the Digital Goods API. Use ‘onetime’ for items
+        // that can only be purchased once and ‘repeatable for items
+        // that can be purchased multiple times.
+        await service.acknowledge(purchaseToken, 'onetime');
+
+        // Optional: tell the PaymentRequest API the validation was
+        // successful. The user-agent may show a "payment successful"
+        // message to the user.
+        log('completing payment..')
+        const paymentComplete = await paymentResponse.complete('success');
+        log('payment completed')
+      } else {
+        // Optional: tell the PaymentRequest API the validation failed. The
+        // user agent may show a message to the user.
+        log('payent failed due to validation reasons')
+        const paymentComplete = await paymentResponse.complete('fail');
+      }
+    } catch (e) {
+      // The purchase failed, and we can handle the failure here. AbortError
+      // usually means a user cancellation
+      log('error occured')
+      log(JSON.stringify(e));
+    }
   }
 
   const onPay = () => {
