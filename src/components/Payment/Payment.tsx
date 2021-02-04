@@ -46,34 +46,25 @@ function Payment() {
   }
 
   const getDigitalGoodsService = async () => {
-      return (window as any).getDigitalGoodsService(PAYMENT_METHOD);
+    return (window as any).getDigitalGoodsService(PAYMENT_METHOD);
   }
 
   const getProducts = async () => {
-    try {
-      console.log('hallo');
-      const service = await getDigitalGoodsService();
-      console.log(service);
-      if (service) {
-        let details = await service.getDetails(['premium_30']);
-        console.log(details);
-        if (details) {
-          log('got details')
-          log(JSON.stringify(details));
-          console.log(details);
-
-          details.forEach(element => {
-            log(JSON.stringify(element));
-          });
-        } else {
-          log('details is empty');
-        }
-      }
-    } catch (e) { log(JSON.stringify(e)); log('error'); }
+    const service = await getDigitalGoodsService();
+    if (service) {
+      return await service.getDetails(['premium_30']);
+    }
   }
 
-  const pay = () => {
-    const products = getProducts();
+  const getProductsJsx = async () => {
+    const products = await getProducts();
+    return (products.map(product => {
+      return <li>{product.title}</li>;
+    }))
+  }
+
+  const pay = async () => {
+    log('payment not implemented yet');
   }
 
   const onPay = () => {
@@ -102,6 +93,9 @@ function Payment() {
       <Button className="btn-success" onClick={clearMessages}>
         Clear Messages
     </Button>
+    <li>
+      {getProductsJsx}
+    </li>
       <pre>
         {message}
       </pre>
