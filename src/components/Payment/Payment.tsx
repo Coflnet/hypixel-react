@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
+import React, { useEffect, useState } from "react";
+// import { loadStripe } from "@stripe/stripe-js";
 import { Button } from 'react-bootstrap';
 
 //TODO remove
 /*
+import too
 const stripePromise = loadStripe(
   "pk_test_51I6N5ZIIRKr1p7dQOGhRRigwIMqgZ3XnoBdbfezFNFgLiR9iaW2YzkRP9kAADCzxSOnqLeqKDVxglDh5uxvY28Dn00vAZR7wQ9"
 );
@@ -16,6 +17,8 @@ const logPromise: Promise<void> | null = null;
 function Payment() {
 
   let [message, _setMessage] = useState('');
+
+  let [productListJsx, setProductListJsx] = useState([]);
 
   const setMessage = (newMessage: string) => {
     if (message !== newMessage) {
@@ -33,6 +36,35 @@ function Payment() {
     return localStorage.getItem('googleId');
   }
 
+  const getDigitalGoodsService = async () => {
+    if (!('getDigitalGoodsService' in window)) {
+      throw 'getDigitalGoodsService not found';
+    }
+    return (window as any).getDigitalGoodsService(PAYMENT_METHOD);
+  }
+
+  const getProducts = async () => {
+    try {
+      const service = await getDigitalGoodsService();
+      if (service) {
+        return await service.getDetails(['premium_30']);
+      }
+    } catch(e) {
+      log(e);
+      return [];
+    }
+  }
+
+  const getProductsJsx = async () => {
+    const products = await getProducts();
+    log('rendering list');
+    log(`got a list with ${products.length} items`)
+    setProductListJsx(products.map(product => {
+      log(JSON.stringify(product));
+      return <li>{product.title}</li>;
+    }))
+  }
+
   const checkPaymentPossible = (): boolean => {
     if (!window.PaymentRequest) {
       log("No PaymentRequest object.");
@@ -43,24 +75,6 @@ function Payment() {
       return false;
     }
     return true;
-  }
-
-  const getDigitalGoodsService = async () => {
-    return (window as any).getDigitalGoodsService(PAYMENT_METHOD);
-  }
-
-  const getProducts = async () => {
-    const service = await getDigitalGoodsService();
-    if (service) {
-      return await service.getDetails(['premium_30']);
-    }
-  }
-
-  const getProductsJsx = async () => {
-    const products = await getProducts();
-    return (products.map(product => {
-      return <li>{product.title}</li>;
-    }))
   }
 
   const pay = async () => {
@@ -84,6 +98,7 @@ function Payment() {
     setMessage('');
   }
 
+  useEffect(() => { getProductsJsx() });
 
   return (
     <div>
@@ -93,9 +108,9 @@ function Payment() {
       <Button className="btn-success" onClick={clearMessages}>
         Clear Messages
     </Button>
-    <li>
-      {getProductsJsx}
-    </li>
+      <li>
+        {productListJsx}
+      </li>
       <pre>
         {message}
       </pre>
