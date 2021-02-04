@@ -98,7 +98,7 @@ function Payment() {
     setMessage('');
   }
 
-  useEffect(() => { getProductsJsx() });
+  useEffect(() => { getProductsJsx() }, []);
 
   return (
     <div>
