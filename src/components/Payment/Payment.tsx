@@ -47,7 +47,7 @@ function Payment() {
     try {
       const service = await getDigitalGoodsService();
       if (service) {
-        return await service.getDetails(['premium_30']);
+        return await service.getDetails(['premium_30', 'premium_1']);
       }
     } catch(e) {
       log(e);
