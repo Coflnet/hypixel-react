@@ -41,12 +41,18 @@ function Payment() {
     return true;
   }
 
+  const getDigitalGoodsService = async () => {
+      return (window as any).getDigitalGoodsService(PAYMENT_METHOD);
+  }
+
   const getProducts = async () => {
     try {
-      const service =
-        await (window as any).getDigitalGoodsService(PAYMENT_METHOD);
-      log(JSON.stringify(service));
-      log('something is in service')
+      const service = await getDigitalGoodsService();
+      if (service) {
+        let details = service.getDetails();
+        log('got details')
+        log(JSON.stringify(details));
+      }
     } catch (e) { log(JSON.stringify(e)); log('error'); }
   }
 
