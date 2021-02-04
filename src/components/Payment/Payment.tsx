@@ -46,7 +46,8 @@ function Payment() {
       const service =
         await (window as any).getDigitalGoodsService(PAYMENT_METHOD);
       log(JSON.stringify(service));
-    } catch (e) { log(JSON.stringify(e)); }
+      log('something is in service')
+    } catch (e) { log(JSON.stringify(e)); log('error'); }
   }
 
   const pay = () => {
