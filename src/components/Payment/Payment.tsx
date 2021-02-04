@@ -103,8 +103,8 @@ function Payment() {
       const paymentResponse = await request.show();
       log('got payment response')
       log(JSON.stringify(paymentResponse))
-      const { purchaseToken } = paymentResponse.details;
-      log(`purchaseToken: ${purchaseToken}`)
+      const { token } = paymentResponse.details;
+      log(`purchaseToken: ${token}`)
 
       const service = await getDigitalGoodsService();
 
@@ -114,7 +114,7 @@ function Payment() {
         // Acknowledge using the Digital Goods API. Use ‘onetime’ for items
         // that can only be purchased once and ‘repeatable for items
         // that can be purchased multiple times.
-        await service.acknowledge(purchaseToken, 'onetime');
+        await service.acknowledge(token, 'onetime');
 
         // Optional: tell the PaymentRequest API the validation was
         // successful. The user-agent may show a "payment successful"
