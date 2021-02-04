@@ -4,13 +4,13 @@ import { useLocation } from "react-router-dom";
 import CookieConsent from 'react-cookie-consent';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
 
 
 
 export function MainApp(props: any) {
 
     const { trackPageView } = useMatomo()
-
     const location = useLocation();
 
     useEffect(() => {
@@ -23,6 +23,7 @@ export function MainApp(props: any) {
 
     return (
         <div>
+            <OfflineBanner />
             {props.children}
             <CookieConsent
                 enableDeclineButton

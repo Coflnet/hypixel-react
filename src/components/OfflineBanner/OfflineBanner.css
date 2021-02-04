@@ -1,0 +1,18 @@
+@keyframes slideFromTop {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.offline-banner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: red;
+    height: 5vh;
+    animation-name: slideFromTop;
+    animation-duration: 0.5s;
+}
