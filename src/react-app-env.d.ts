@@ -125,7 +125,9 @@ interface API {
     setGoogle(id: string): Promise<void>,
     hasPremium(googleId: string): Promise<Date>,
     pay(stripePromise: Promise<Stripe | null>, gogleId: string): Promise<void>,
-    setToken(token: string): Promise<void>
+    setToken(token: string): Promise<void>,
+    getStripeProducts(): Promise<Product[]>,
+    getStripePrices(): Promise<Price[]>
 }
 
 
@@ -143,7 +145,38 @@ interface ApiResponse {
 }
 
 interface Product {
+    itemId: string,
     title: string,
     description: string,
-    price: float
+    price: Price,
+    introductoryPrice: Price
+}
+
+interface Price {
+    productId: string|null,
+    currency: string,
+    value: float
+}
+
+interface PaymentMethod {
+    supportedMethods: string,
+    data: PaymentMethodDataSku
+}
+
+interface PaymentMethodDataSku {
+    sku: string
+}
+
+interface PaymentDetails {
+    total: PaymentDetailsTotal
+}
+
+interface PaymentDetailsTotal {
+    label: string,
+    amount: PaymentDetailTotalAmount
+}
+
+interface PaymentDetailTotalAmount {
+    currency: string,
+    value: string
 }

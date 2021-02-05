@@ -4,10 +4,11 @@ import { websocketHelper } from './WebsocketHelper';
 import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
 import { enchantmentAndReforgeCompare } from "../utils/Formatter";
+import PriceGraph from "../components/PriceGraph/PriceGraph";
 
 function initAPI(): API {
 
-    let apiErrorHandler = (requestType: RequestType, errorMessage: string, requestData: any) => {
+    let apiErrorHandler = (requestType: RequestType, errorMessage: string, requestData: any = null) => {
         console.error("-----------------------------------------------------------------------------------------------")
         console.error("API returned error! RequestType: " + requestType)
         console.error(errorMessage)
@@ -418,6 +419,56 @@ function initAPI(): API {
         })
     }
 
+    let getStripeProducts = (): Promise<Product[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_STRIPE_PRODUCTS,
+                data: null,
+                resolve: (products: any) => {
+                    getStripePrices().then((prices: Price[]) => {
+                        resolve(products.data.filter((product: any) =>
+                            product.active
+                        ).map((product: any) => {
+                            console.log(product);
+                            const price = prices.find(price => price.productId === product.id);
+                            if (!price) {
+                                reject(`price for product ${product.id} not found`);
+                            }
+                            return {
+                                itemId: product.id,
+                                description: product.description,
+                                title: product.name,
+                                price
+                            }
+                        }));
+                    })
+                },
+                reject: (error: any) => apiErrorHandler(RequestType.GET_STRIPE_PRODUCTS, error)
+            })
+        })
+    }
+
+    let getStripePrices = (): Promise<Price[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_STRIPE_PRICES,
+                data: null,
+                resolve: (prices: any) => {
+                    let mappedPrices = prices.data.map((price: any) => {
+                        return {
+                            productId: price.product,
+                            currency: price.currency.toUpperCase(),
+                            value: price.unit_amount / 100.0
+                        }
+                    });
+                    resolve(mappedPrices)
+                },
+                reject: (error: any) => apiErrorHandler(RequestType.GET_STRIPE_PRICES, error)
+            })
+
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -439,7 +490,9 @@ function initAPI(): API {
         setGoogle,
         hasPremium,
         pay,
-        setToken
+        setToken,
+        getStripeProducts,
+        getStripePrices
     }
 }
 
