@@ -7,9 +7,13 @@ const stripePromise = loadStripe(
   "pk_test_51I6N5ZIIRKr1p7dQOGhRRigwIMqgZ3XnoBdbfezFNFgLiR9iaW2YzkRP9kAADCzxSOnqLeqKDVxglDh5uxvY28Dn00vAZR7wQ9"
 );
 
+interface Props {
+  googleId: string
+}
 const PAYMENT_METHOD = "https://play.google.com/billing";
 
-function Payment() {
+
+function Payment(props: Props) {
 
   let [message, _setMessage] = useState('');
 
@@ -141,6 +145,7 @@ function Payment() {
     } else {
       log('dont know how to pay..')
     }
+    api.pay(stripePromise, props.googleId)
 
   }
 
