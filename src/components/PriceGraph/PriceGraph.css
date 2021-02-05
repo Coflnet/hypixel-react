@@ -4,10 +4,7 @@
 }
 
 .graph-overlay {
-    top: 30vh;
     position: absolute;
-    left: 50%;
-    font-size: 30
 }
 
 .additional-infos {
@@ -21,4 +18,7 @@
 .graph-canvas-container {
     margin-top: 20px;
     height: 50vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

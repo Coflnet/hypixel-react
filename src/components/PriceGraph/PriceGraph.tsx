@@ -85,25 +85,25 @@ function PriceGraph(props: Props) {
         }
     }
 
+    let graphOverlayElement = (
+        isLoading ?
+            <div className="graph-overlay">
+                {getLoadingElement()}
+            </div> :
+            noDataFound && !isLoading ?
+                <div className="graph-overlay">
+                    <div style={{ textAlign: "center" }}>
+                        <p>No data found</p>
+                    </div>
+                </div> : ""
+    );
+
     return (
         <div className="price-graph">
             {isFilterable ? <ItemFilter disabled={isLoading} onFilterChange={(filter) => { updateChart(priceChart || createChart(priceConfig), fetchspan, filter) }} /> : ""}
             <ItemPriceRange onRangeChange={onRangeChange} disabled={isLoading} item={props.item} />
-            { isLoading ? (
-                <div className="graph-overlay">
-                    <div style={{ position: "relative", left: "-50%" }}>
-                        {getLoadingElement()}
-                    </div>
-                </div>) : ""}
-            {noDataFound && !isLoading ?
-                <div className="graph-overlay">
-                    <div style={{ position: "relative", left: "-50%" }}>
-                        <div style={{ textAlign: "center" }}>
-                            <p>No data found</p>
-                        </div>
-                    </div>
-                </div> : ""}
             <div className="graph-canvas-container">
+                {graphOverlayElement}
                 <canvas ref={priceChartCanvas} />
             </div>
             <div className="additional-infos">
