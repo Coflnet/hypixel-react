@@ -47,8 +47,9 @@ function Payment() {
     setProductsListJsx(jsx);
   }
 
-  const onPay = () => {
-    paymentProvider.pay();
+  const onPay = async () => {
+    let product = (await getProducts())[0]
+    paymentProvider.pay(product);
   }
 
   const clearMessages = () => {

@@ -34,7 +34,7 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
         return [];
     }
 
-    public async pay(): Promise<boolean> {
+    public async pay(product: Product): Promise<boolean> {
         const request = new PaymentRequest(paymentMethods, paymentDetails);
         const paymentResponse = await request.show();
         const { token } = paymentResponse.details;

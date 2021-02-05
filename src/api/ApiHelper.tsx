@@ -365,21 +365,29 @@ function initAPI(): API {
         })
     }
 
-    let pay = (stripePromise: Promise<Stripe | null>, googleId: string): Promise<void> => {
+    let pay = (stripePromise: Promise<Stripe | null>, product: Product): Promise<void> => {
+        console.log('api pay.., buying product: ');
+        console.log({product});
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.PAYMENT_SESSION,
-                data: googleId,
+                data: product.itemId,
                 resolve: (sessionId: any) => {
+                    console.log('paying is in resolve');
+                    console.log({sessionId})
                     stripePromise.then((stripe) => {
+                        console.log('stripePromise was resolved');
+                        console.log({stripe});
                         if (stripe) {
                             stripe.redirectToCheckout({ sessionId }).then(result => console.log(result));
+                            console.log('came back from checkout')
                             resolve();
                         }
                     })
                 },
                 reject: (error: any) => {
-                    console.error(error);
+                    console.log('error occured')
+                    console.log({error});
                     reject();
                 },
             })

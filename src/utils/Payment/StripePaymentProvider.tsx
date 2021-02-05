@@ -17,13 +17,9 @@ export default class StripePaymentProvider extends AbstractPaymentProvider {
         return await api.getStripeProducts();
     }
 
-    public async pay(): Promise<boolean> {
-        let id = this.googleId();
-        if (id) {
-            api.pay(this.stripePromise, id);
-            return true;
-        }
-        return false;
+    public async pay(product: Product): Promise<boolean> {
+        api.pay(this.stripePromise, product);
+        return true;
     }
 
     public async checkIfPaymentIsPossible(): Promise<boolean> {
