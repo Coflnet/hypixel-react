@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
-// import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import { Button } from 'react-bootstrap';
+import api from '../../api/ApiHelper';
 
-//TODO remove
 const stripePromise = loadStripe(
   "pk_test_51I6N5ZIIRKr1p7dQOGhRRigwIMqgZ3XnoBdbfezFNFgLiR9iaW2YzkRP9kAADCzxSOnqLeqKDVxglDh5uxvY28Dn00vAZR7wQ9"
 );
 
-interface Props {
-  googleId: string
-}
 const PAYMENT_METHOD = "https://play.google.com/billing";
 
+interface Product {
+  title: string,
+  price: number
+}
 
-function Payment(props: Props) {
+function Payment() {
 
   let [message, _setMessage] = useState('');
 
@@ -31,7 +32,7 @@ function Payment(props: Props) {
     setMessage(newString);
   }
 
-  const googleId = () => {
+  const googleId = (): string | null => {
     return localStorage.getItem('googleId');
   }
 
@@ -45,26 +46,33 @@ function Payment(props: Props) {
   const getProducts = async () => {
     try {
       const service = await getDigitalGoodsService();
-      if (service) {
-        return await service.getDetails(['premium_30', 'premium_1']);
-      }
+      return await getProductsFromPlayStore(service);
     } catch (e) {
-      log(e);
-      return [];
+      return await getProductsFromStripe();
     }
+  }
+
+  const getProductsFromPlayStore = async (service) => {
+    if (service) {
+      let result = await service.getDetails(['premium_30', 'premium_1']);
+      log(JSON.stringify(result));
+      return result;
+    }
+  }
+
+  const getProductsFromStripe = async (): Promise<Array<Product>> => {
+    log('fetchiing products from stripe is not implemented yet..');
+    return [];
   }
 
   const getProductsJsx = async () => {
     const products = await getProducts();
-    log('rendering list');
-    log(`got a list with ${products.length} items`)
     setProductListJsx(products.map(product => {
-      log(JSON.stringify(product));
       return <li>{product.title}</li>;
     }))
   }
 
-  const checkPaymentPossible = (): boolean => {
+  const checkPaymentPlayStoreIsPossible = (): boolean => {
     if (!window.PaymentRequest) {
       log("No PaymentRequest object.");
       return false;
@@ -94,58 +102,42 @@ function Payment(props: Props) {
     }
   }
 
-  const pay = async () => {
-    log('going to pay..')
+  const payWithPlayStore = async () => {
     const request = new PaymentRequest(paymentMethod(), paymentDetails());
     try {
-      log('showing payment request')
       const paymentResponse = await request.show();
-      log('got payment response')
-      log(JSON.stringify(paymentResponse))
       const { token } = paymentResponse.details;
-      log(`purchaseToken: ${token}`)
-
       const service = await getDigitalGoodsService();
-
-      // Call backend to validate the purchase.
-      // if (validatePurchaseOnBackend(purchaseToken)) {
-      if (true) {
-        // Acknowledge using the Digital Goods API. Use ‘onetime’ for items
-        // that can only be purchased once and ‘repeatable for items
-        // that can be purchased multiple times.
+      if (validatePaymentToken(token)) {
         await service.acknowledge(token, 'onetime');
-
-        // Optional: tell the PaymentRequest API the validation was
-        // successful. The user-agent may show a "payment successful"
-        // message to the user.
-        log('completing payment..')
         const paymentComplete = await paymentResponse.complete('success');
-        log('payment completed')
       } else {
-        // Optional: tell the PaymentRequest API the validation failed. The
-        // user agent may show a message to the user.
-        log('payent failed due to validation reasons')
         const paymentComplete = await paymentResponse.complete('fail');
       }
     } catch (e) {
-      // The purchase failed, and we can handle the failure here. AbortError
-      // usually means a user cancellation
-      log('error occured')
       log(JSON.stringify(e));
     }
   }
 
-  const onPay = () => {
+  const validatePaymentToken = (token) => {
+    // TODO implement
+    return true;
+  }
 
-    let paymentPossible = checkPaymentPossible()
-
-    if (paymentPossible) {
-      log('payment is possible')
-      pay()
-    } else {
-      log('dont know how to pay..')
+  const payWithStripe = async () => {
+    let id = googleId();
+    if (id) {
+      api.pay(stripePromise, id);
     }
-    api.pay(stripePromise, props.googleId)
+  }
+
+  const onPay = () => {
+    let paymentPossible = checkPaymentPlayStoreIsPossible()
+    if (paymentPossible) {
+      payWithPlayStore()
+    } else {
+      payWithStripe()
+    }
 
   }
 

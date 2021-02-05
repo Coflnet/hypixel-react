@@ -135,7 +135,7 @@ function SubscriptionList(props: Props) {
             {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ""}
 
             <GoogleSignIn onAfterLogin={onLogin} />
-            { isLoggedIn ? <div className="buy-prime-button"><Payment googleId={googleId} /></div> : ""}
+            { isLoggedIn ? <div className="buy-prime-button"><Payment /></div> : ""}
         </div>
     );
 }

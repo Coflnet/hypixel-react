@@ -101,7 +101,6 @@ function Search(props: Props) {
 
     return (
         <div className="search">
-            <Payment />
             <Form>
                 <Form.Group>
                     <NavBar />

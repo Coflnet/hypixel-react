@@ -141,3 +141,9 @@ interface ApiResponse {
     mId?: number,
     maxAge?: number
 }
+
+interface Product {
+    title: string,
+    description: string,
+    price: float
+}
