@@ -13,7 +13,7 @@ export default class StripePaymentProvider extends AbstractPaymentProvider {
         );
     }
 
-    public async getProducts(): Promise<Product[]> {
+    public async getProducts(log: Function): Promise<Product[]> {
         return await api.getStripeProducts();
     }
 
@@ -22,8 +22,7 @@ export default class StripePaymentProvider extends AbstractPaymentProvider {
         return product;
     }
 
-    public async checkIfPaymentIsPossible(log: Function): Promise<boolean> {
-        log('stripe check is executed now');
+    public async checkIfPaymentIsPossible(): Promise<boolean> {
         return true;
     }
 
