@@ -15,7 +15,7 @@ export default async function availablePaymentProvider(log: Function): Promise<A
         log('checking provider..');
         log(JSON.stringify(provider));
         let instance = new provider();
-        let paymentPossible = await instance.checkIfPaymentIsPossible();
+        let paymentPossible = await instance.checkIfPaymentIsPossible(log);
         log('payment is ' + paymentPossible + ' possible')
         if (paymentPossible) {
             log('returning instance ' + provider.toString())
