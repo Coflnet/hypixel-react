@@ -9,7 +9,10 @@ const paymentProviders = [
 
 const defaultPaymentProvider = StripePaymentProvider;
 
+let currentProvider: AbstractPaymentProvider|null = null;
+
 export default async function availablePaymentProvider(log: Function): Promise<AbstractPaymentProvider> {
+    if (currentProvider) return currentProvider;
     log(JSON.stringify(paymentProviders));
     await paymentProviders.forEach(async (provider) => {
         log('checking provider..');
@@ -19,6 +22,7 @@ export default async function availablePaymentProvider(log: Function): Promise<A
         log('payment is ' + paymentPossible + ' possible')
         if (paymentPossible) {
             log('returning instance ' + provider.toString())
+            currentProvider = instance;
             return instance;
         }
     })
