@@ -369,6 +369,8 @@ function initAPI(): API {
         console.log('api pay.., buying product: ');
         console.log({product});
         return new Promise((resolve, reject) => {
+            console.log('sending request.., data is following');
+            console.log(product.itemId);
             websocketHelper.sendRequest({
                 type: RequestType.PAYMENT_SESSION,
                 data: product.itemId,

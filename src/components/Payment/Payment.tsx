@@ -9,7 +9,7 @@ function Payment() {
 
   let [message, _setMessage] = useState('');
 
-  let [productListJsx, _setProductListJsx] = useState<JSX.Element[]>();
+  let [productListJsx, _setProductListJsx] = useState<JSX.Element>();
 
 
   const setMessage = (newMessage: string) => {
@@ -19,7 +19,7 @@ function Payment() {
     }
   }
 
-  const setProductsListJsx = (jsx: JSX.Element[]) => {
+  const setProductsListJsx = (jsx: JSX.Element) => {
     if (productListJsx !== jsx) {
       productListJsx = jsx;
       _setProductListJsx(productListJsx);
@@ -39,16 +39,40 @@ function Payment() {
     return await paymentProvider.getProducts();
   }
 
-  const getProductsJsx = async () => {
+  const getProductsJsx = async (): Promise<JSX.Element> => {
     const products = await getProducts();
-    const jsx = products.map(product => {
-      return <li key={product.itemId}>{product.title}</li>;
-    });
-    setProductsListJsx(jsx);
+    return (
+      <div className="container px-1 py-1">
+        <div className="row justify-content-center">
+          <div className="col-7">
+            <b>Title</b>
+          </div>
+          <div className="col-2">
+            <b>Price</b>
+          </div>
+          <div className="col-3">
+          </div>
+        </div>
+        {products.map(product => <div className="row justify-content-center" key={product.itemId}>
+          <div className="col-7">
+            {product.title}
+          </div>
+          <div className="col-2">
+            {product.price.value}
+          </div>
+          <div className="col-3">
+            <Button onClick={() => {onPay(product)}}>
+              Buy
+            </Button>
+          </div>
+        </div>)
+        }
+      </div>
+    )
   }
 
-  const onPay = async () => {
-    let product = (await getProducts())[0]
+
+  const onPay = async (product: Product) => {
     paymentProvider.pay(product);
   }
 
@@ -56,19 +80,16 @@ function Payment() {
     setMessage('');
   }
 
-  useEffect(() => { getProductsJsx() }, []);
+  const setProductsJsx = async () => setProductsListJsx(await getProductsJsx())
+
+  useEffect(() => { setProductsJsx() }, []);
 
   return (
     <div>
-      <Button className="btn-success" onClick={onPay}>
-        Buy Premium
-    </Button>
       <Button className="btn-success" onClick={clearMessages}>
         Clear Messages
     </Button>
-      <div className="container">
-        {productListJsx}
-      </div>
+      {productListJsx}
       <pre>
         {message}
       </pre>
