@@ -19,7 +19,6 @@ export default async function availablePaymentProvider(): Promise<AbstractPaymen
         let instance = new provider();
         let paymentPossible = await instance.checkIfPaymentIsPossible();
         if (paymentPossible) {
-            log('returning instance ' + provider.toString())
             currentProvider = instance;
             return instance;
         }
