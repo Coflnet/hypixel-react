@@ -12,7 +12,11 @@ const defaultPaymentProvider = StripePaymentProvider;
 let currentProvider: AbstractPaymentProvider|null = null;
 
 export default async function availablePaymentProvider(log: Function): Promise<AbstractPaymentProvider> {
-    if (currentProvider) return currentProvider;
+    if (currentProvider) {
+        return currentProvider
+    } else {
+        log('current provider is empty');
+    }
     log(JSON.stringify(paymentProviders));
     await paymentProviders.forEach(async (provider) => {
         log('checking provider..');
