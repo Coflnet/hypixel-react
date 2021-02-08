@@ -22,7 +22,8 @@ export default class StripePaymentProvider extends AbstractPaymentProvider {
         return product;
     }
 
-    public async checkIfPaymentIsPossible(): Promise<boolean> {
+    public async checkIfPaymentIsPossible(log: Function): Promise<boolean> {
+        log('stripe check is executed now');
         return true;
     }
 

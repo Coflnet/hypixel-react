@@ -13,7 +13,7 @@ export default async function availablePaymentProvider(log: Function): Promise<A
     log(JSON.stringify(paymentProviders));
     await paymentProviders.forEach(async (provider) => {
         log('checking provider..');
-        log(JSON.stringify(provider.toString()));
+        log(JSON.stringify(provider));
         let instance = new provider();
         let paymentPossible = await instance.checkIfPaymentIsPossible();
         log('payment is ' + paymentPossible + ' possible')

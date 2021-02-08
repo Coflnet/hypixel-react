@@ -23,7 +23,7 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
 
     constructor() {
         super();
-        this.checkIfPaymentIsPossible().then(possible => possible ?? this.setDigitalGoodsService())
+        this.checkIfPaymentIsPossible(() => {}).then(possible => possible ?? this.setDigitalGoodsService())
     }
 
     public async getProducts(): Promise<Product[]> {
@@ -49,13 +49,17 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
         }
     }
 
-    public async checkIfPaymentIsPossible(): Promise<boolean> {
+    public async checkIfPaymentIsPossible(log: Function): Promise<boolean> {
+        log('google play check is executed now');
         if (!window.PaymentRequest) {
+            log('payment request is not in scope');
             return false;
         }
         if (!('getDigitalGoodsService' in window)) {
+            log('digital googds service is not in scope');
             return false;
         }
+        log('returning true');
         return true;
     }
 
