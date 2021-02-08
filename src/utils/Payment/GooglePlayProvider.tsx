@@ -24,6 +24,7 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
     constructor() {
         super();
         this.checkIfPaymentIsPossible().then(possible => possible ?? this.setDigitalGoodsService())
+        log('instanciated google play payment provider');
     }
 
     public async getProducts(): Promise<Product[]> {
