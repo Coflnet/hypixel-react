@@ -18,7 +18,7 @@ export default async function availablePaymentProvider(log: Function): Promise<A
         log('current provider is empty');
     }
     log(JSON.stringify(paymentProviders));
-    await paymentProviders.forEach(async (provider) => {
+    for (const provider of paymentProviders) {
         log('checking provider..');
         log(JSON.stringify(provider));
         let instance = new provider();
@@ -29,7 +29,7 @@ export default async function availablePaymentProvider(log: Function): Promise<A
             currentProvider = instance;
             return instance;
         }
-    })
+    }
     log('returning default provider');
     return new defaultPaymentProvider();
 }
