@@ -35,7 +35,7 @@ function Payment() {
   const getProducts = async () => {
     if (!paymentProvider) {
       log('getting payment provider..');
-      paymentProvider = await availablePaymentProvider();
+      paymentProvider = await availablePaymentProvider(log);
       log('got payment provider: ' + typeof(paymentProvider));
       log(JSON.stringify(paymentProvider));
     }
