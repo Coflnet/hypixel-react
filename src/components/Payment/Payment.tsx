@@ -76,7 +76,7 @@ function Payment() {
 
 
   const onPay = async (product: Product) => {
-    paymentProvider.pay(product);
+    log(JSON.stringify(paymentProvider.pay(product)));
   }
 
   const clearMessages = () => {

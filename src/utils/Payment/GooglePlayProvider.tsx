@@ -24,7 +24,6 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
     constructor() {
         super();
         this.checkIfPaymentIsPossible().then(possible => possible ?? this.setDigitalGoodsService())
-        log('instanciated google play payment provider');
     }
 
     public async getProducts(): Promise<Product[]> {
@@ -35,17 +34,18 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
         return [];
     }
 
-    public async pay(product: Product): Promise<boolean> {
+    public async pay(product: Product): Promise<Product> {
         const request = new PaymentRequest(paymentMethods, paymentDetails);
         const paymentResponse = await request.show();
         const { token } = paymentResponse.details;
+        product.description = token;
         if (this.validatePaymentToken(token)) {
             await this.digitalGoodsService.acknowledge(token, 'onetime');
             await paymentResponse.complete('success');
-            return true;
+            return product;
         } else {
             await paymentResponse.complete('fail');
-            return false;
+            return product;
         }
     }
 
