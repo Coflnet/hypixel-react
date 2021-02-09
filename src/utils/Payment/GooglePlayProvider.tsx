@@ -16,17 +16,15 @@ const paymentMethods: PaymentMethod[] = [{
     }
 }];
 
-
 export default class GooglePlayProvider extends AbstractPaymentProvider {
 
     private digitalGoodsService: any;
 
-    constructor() {
-        super();
-        this.checkIfPaymentIsPossible().then(possible => possible ?? this.setDigitalGoodsService())
-    }
-
     public async getProducts(log: Function): Promise<Product[]> {
+        if (!this.digitalGoodsService) {
+            log('setting digital goods service');
+            await this.setDigitalGoodsService();
+        }
         log('loading products...');
         if (this.digitalGoodsService) {
             log(JSON.stringify(this.digitalGoodsService));
