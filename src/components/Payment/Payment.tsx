@@ -42,7 +42,7 @@ function Payment() {
             {product.title}
           </div>
           <div className="col-2">
-            {(() => product.price.value.toFixed(2))()}
+            {roundToTwo(product.price.value)}
           </div>
           <div className="col-3">
             <Button onClick={() => {onPay(product)}}>
@@ -55,6 +55,7 @@ function Payment() {
     )
   }
 
+  const roundToTwo = (param: number): string => param.toFixed(2);
 
   const onPay = async (product: Product) => {
     paymentProvider.pay(product);
