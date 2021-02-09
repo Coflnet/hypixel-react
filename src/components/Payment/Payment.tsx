@@ -7,17 +7,7 @@ let paymentProvider: AbstractPaymentProvider;
 
 function Payment() {
 
-  let [message, _setMessage] = useState('');
-
   let [productListJsx, _setProductListJsx] = useState<JSX.Element>();
-
-
-  const setMessage = (newMessage: string) => {
-    if (message !== newMessage) {
-      message = newMessage;
-      _setMessage(message);
-    }
-  }
 
   const setProductsListJsx = (jsx: JSX.Element) => {
     if (productListJsx !== jsx) {
@@ -26,20 +16,11 @@ function Payment() {
     }
   }
 
-  const log = (msg: string) => {
-    let newString = message + '\n' + msg;
-    setMessage(newString);
-  }
-
-
   const getProducts = async () => {
     if (!paymentProvider) {
-      log('getting payment provider..');
       paymentProvider = await availablePaymentProvider();
-      log('got payment provider: ' + typeof(paymentProvider));
-      log(JSON.stringify(paymentProvider));
     }
-    return await paymentProvider.getProducts(log);
+    return await paymentProvider.getProducts(() => {});
   }
 
   const getProductsJsx = async (): Promise<JSX.Element> => {
@@ -76,11 +57,7 @@ function Payment() {
 
 
   const onPay = async (product: Product) => {
-    log(JSON.stringify(paymentProvider.pay(product)));
-  }
-
-  const clearMessages = () => {
-    setMessage('');
+    paymentProvider.pay(product);
   }
 
   const setProductsJsx = async () => setProductsListJsx(await getProductsJsx())
@@ -89,13 +66,7 @@ function Payment() {
 
   return (
     <div>
-      <Button className="btn-success" onClick={clearMessages}>
-        Clear Messages
-    </Button>
       {productListJsx}
-      <pre>
-        {message}
-      </pre>
     </div>
   )
 }
