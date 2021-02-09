@@ -42,7 +42,7 @@ function Payment() {
             {product.title}
           </div>
           <div className="col-2">
-            {product.price.value}
+            {product.price.value.toFixed(2)}
           </div>
           <div className="col-3">
             <Button onClick={() => {onPay(product)}}>
