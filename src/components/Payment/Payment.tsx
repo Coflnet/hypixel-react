@@ -55,7 +55,7 @@ function Payment() {
     )
   }
 
-  const roundToTwo = (param: number): string => param.toFixed(2);
+  const roundToTwo = (param: number): number => Math.round(param * 10 ** 2) / 10 ** 2;
 
   const onPay = async (product: Product) => {
     paymentProvider.pay(product);
