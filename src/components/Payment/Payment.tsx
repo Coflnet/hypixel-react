@@ -20,7 +20,7 @@ function Payment() {
     if (!paymentProvider) {
       paymentProvider = await availablePaymentProvider();
     }
-    return await paymentProvider.getProducts(() => {});
+    return await paymentProvider.getProducts();
   }
 
   const getProductsJsx = async (): Promise<JSX.Element> => {

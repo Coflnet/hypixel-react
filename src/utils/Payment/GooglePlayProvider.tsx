@@ -20,20 +20,14 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
 
     private digitalGoodsService: any;
 
-    public async getProducts(log: Function): Promise<Product[]> {
+    public async getProducts(): Promise<Product[]> {
         if (!this.digitalGoodsService) {
-            log('setting digital goods service');
             await this.setDigitalGoodsService();
         }
-        log('loading products...');
         if (this.digitalGoodsService) {
-            log(JSON.stringify(this.digitalGoodsService));
             let result = await this.digitalGoodsService.getDetails(['premium_30', 'premium_1']);
-            log('result from getProducts');
-            log(JSON.stringify(result));
             return result;
         }
-        log('returning empty array');
         return [];
     }
 

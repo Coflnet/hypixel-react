@@ -13,7 +13,7 @@ export default class StripePaymentProvider extends AbstractPaymentProvider {
         );
     }
 
-    public async getProducts(log: Function): Promise<Product[]> {
+    public async getProducts(): Promise<Product[]> {
         return await api.getStripeProducts();
     }
 
