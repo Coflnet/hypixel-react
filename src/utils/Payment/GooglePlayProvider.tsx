@@ -67,10 +67,10 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
         return true;
     }
 
-    private setDigitalGoodsService() {
+    private async setDigitalGoodsService() {
         if (!('getDigitalGoodsService' in window)) {
             throw 'getDigitalGoodsService not found';
         }
-        this.digitalGoodsService = (window as any).getDigitalGoodsService(PAYMENT_METHOD);
+        this.digitalGoodsService = await (window as any).getDigitalGoodsService(PAYMENT_METHOD);
     }
 }
