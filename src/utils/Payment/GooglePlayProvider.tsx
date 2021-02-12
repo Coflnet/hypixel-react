@@ -25,7 +25,7 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
             await this.setDigitalGoodsService();
         }
         if (this.digitalGoodsService) {
-            let result = await this.digitalGoodsService.getDetails(['premium_30', 'premium_1']);
+            let result = await this.digitalGoodsService.getDetails(['premium_30', 'premium_1', 'premium_3']);
             return result;
         }
         return [];
