@@ -20,7 +20,8 @@ export enum RequestType {
     PREMIUM_EXPIRATION = 'premiumExpiration',
     FCM_TOKEN = "token",
     GET_STRIPE_PRODUCTS = "getProducts",
-    GET_STRIPE_PRICES = "getPrices"
+    GET_STRIPE_PRICES = "getPrices",
+    VALIDATE_PAYMENT_TOKEN = "gPurchase"
 }
 
 export enum SubscriptionType {

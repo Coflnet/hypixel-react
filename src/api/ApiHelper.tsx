@@ -5,6 +5,7 @@ import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
 import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import PriceGraph from "../components/PriceGraph/PriceGraph";
+import { getPackageName } from "../utils/GoogleUtils";
 
 function initAPI(): API {
 
@@ -479,6 +480,19 @@ function initAPI(): API {
         })
     }
 
+    let validatePaymentToken = (token: string, productId: string, packageName = getPackageName()): Promise<boolean> => {
+        return new Promise((resolve, reject) => { websocketHelper.sendRequest({
+                type: RequestType.VALIDATE_PAYMENT_TOKEN,
+                data: {token, productId, packageName},
+                resolve: (data: any) => true,
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.VALIDATE_PAYMENT_TOKEN, error)
+                    return true;
+                }
+            })
+        });
+    }
+
     return {
         search,
         trackSearch,
@@ -502,7 +516,8 @@ function initAPI(): API {
         pay,
         setToken,
         getStripeProducts,
-        getStripePrices
+        getStripePrices,
+        validatePaymentToken
     }
 }
 

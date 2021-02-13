@@ -127,7 +127,8 @@ interface API {
     pay(stripePromise: Promise<Stripe | null>, product: Product): Promise<void>,
     setToken(token: string): Promise<void>,
     getStripeProducts(): Promise<Product[]>,
-    getStripePrices(): Promise<Price[]>
+    getStripePrices(): Promise<Price[]>,
+    validatePaymentToken(token: string, productId: string, packageName: string = getPackageName()): Promise<boolean>
 }
 
 

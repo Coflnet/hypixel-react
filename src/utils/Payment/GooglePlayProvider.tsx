@@ -1,3 +1,4 @@
+import api from "../../api/ApiHelper";
 import AbstractPaymentProvider from "./AbstractPaymentProvider";
 
 const PAYMENT_METHOD = "https://play.google.com/billing";
@@ -36,7 +37,7 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
         const paymentResponse = await request.show();
         const { token } = paymentResponse.details;
         product.description = token;
-        if (this.validatePaymentToken(token)) {
+        if (this.validatePaymentToken(token, product)) {
             await this.digitalGoodsService.acknowledge(token, 'onetime');
             await paymentResponse.complete('success');
             return product;
@@ -56,9 +57,8 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
         return true;
     }
 
-    private async validatePaymentToken(token: string): Promise<boolean> {
-        //TODO implement
-        return true;
+    private async validatePaymentToken(token: string, product: Product): Promise<boolean> {
+        return api.validatePaymentToken(token, product.itemId);
     }
 
     private async setDigitalGoodsService() {
