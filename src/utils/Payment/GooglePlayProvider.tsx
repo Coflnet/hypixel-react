@@ -6,11 +6,11 @@ const PAYMENT_METHOD = "https://play.google.com/billing";
 const paymentDetails: PaymentDetails = {
     total: {
         label: `Total`,
-        amount: { currency: `USD`, value: `1` }
+        amount: { currency: `EUR`, value: `1` }
     }
 }
 
-const paymentMethods: PaymentMethod[] = [{
+let paymentMethods: PaymentMethod[] = [{
     supportedMethods: "https://play.google.com/billing",
     data: {
         sku: 'premium_1'
@@ -33,11 +33,12 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
     }
 
     public async pay(product: Product): Promise<Product> {
+        paymentMethods[0].data.sku = product.itemId;
         const request = new PaymentRequest(paymentMethods, paymentDetails);
         const paymentResponse = await request.show();
         const { token } = paymentResponse.details;
         product.description = token;
-        if (this.validatePaymentToken(token, product)) {
+        if (await this.validatePaymentToken(token, product)) {
             await this.digitalGoodsService.acknowledge(token, 'onetime');
             await paymentResponse.complete('success');
             return product;
