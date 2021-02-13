@@ -5,7 +5,7 @@ export default abstract class AbstractPaymentProvider {
 
     public abstract getProducts(): Promise<Product[]>;
 
-    public abstract pay(product: Product): Promise<Product>;
+    public abstract pay(product: Product, log: Function): Promise<Product>;
 
     public abstract checkIfPaymentIsPossible(): Promise<boolean>;
 }

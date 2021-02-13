@@ -487,7 +487,7 @@ function initAPI(): API {
                 resolve: (data: any) => true,
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.VALIDATE_PAYMENT_TOKEN, error)
-                    return true;
+                    return false;
                 }
             })
         });
