@@ -475,13 +475,9 @@ function initAPI(): API {
             websocketHelper.sendRequest({
                 type: RequestType.VALIDATE_PAYMENT_TOKEN,
                 data: {token, productId, packageName},
-                resolve: (data: any) => {
-                    // log('data: ' + JSON.stringify(data));
-                    resolve(true);
-                },
+                resolve: (data: any) => resolve(true),
                 reject: (error: any) => {
-                    // log('error: ' + JSON.stringify(error));
-                    apiErrorHandler(RequestType.VALIDATE_PAYMENT_TOKEN, error)
+                    apiErrorHandler(RequestType.VALIDATE_PAYMENT_TOKEN, error);
                     reject(false);
                 }
             })

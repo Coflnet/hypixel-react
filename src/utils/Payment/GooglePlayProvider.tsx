@@ -32,27 +32,17 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
         return [];
     }
 
-    public async pay(product: Product, log: Function): Promise<Product> {
+    public async pay(product: Product): Promise<Product> {
         paymentMethods[0].data.sku = product.itemId;
         const request = new PaymentRequest(paymentMethods, paymentDetails);
         const paymentResponse = await request.show();
         const { token } = paymentResponse.details;
-        log(JSON.stringify({token}));
         product.description = token;
-        let valid;
-        try {
-            log('validating..');
-            valid = await this.validatePaymentToken(token, product);
-            log('validation finished');
-            log(JSON.stringify({valid}));
-        } catch(e)  {log('error validating');log(JSON.stringify(e))}
-        if (valid) {
-            log('valid');
+        if (await this.validatePaymentToken(token, product)) {
             await this.digitalGoodsService.acknowledge(token, 'onetime');
             await paymentResponse.complete('success');
             return product;
         } else {
-            log('not valid');
             await paymentResponse.complete('fail');
             return product;
         }

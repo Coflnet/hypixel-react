@@ -9,25 +9,11 @@ function Payment() {
 
   let [productListJsx, _setProductListJsx] = useState<JSX.Element>();
 
-  let [message, _setMessage] = useState('');
-
-  const setMessage = (newMessage: string) => {
-    if (message !== newMessage) {
-      message = newMessage;
-      _setMessage(message);
-    }
-  }
-
   const setProductsListJsx = (jsx: JSX.Element) => {
     if (productListJsx !== jsx) {
       productListJsx = jsx;
       _setProductListJsx(productListJsx);
     }
-  }
-
-  const log = (msg: string) => {
-    let newString = message + '\n' + msg;
-    setMessage(newString);
   }
 
   const getProducts = async () => {
@@ -72,7 +58,7 @@ function Payment() {
   const roundToTwo = (param: number): number => Math.round(param * 10 ** 2) / 10 ** 2;
 
   const onPay = async (product: Product) => {
-    paymentProvider.pay(product, log);
+    paymentProvider.pay(product);
   }
 
   const setProductsJsx = async () => setProductsListJsx(await getProductsJsx())
@@ -82,9 +68,6 @@ function Payment() {
   return (
     <div>
       {productListJsx}
-      <pre>
-        {message}
-      </pre>
     </div>
   )
 }
