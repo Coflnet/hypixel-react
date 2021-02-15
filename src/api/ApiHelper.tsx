@@ -367,30 +367,20 @@ function initAPI(): API {
     }
 
     let pay = (stripePromise: Promise<Stripe | null>, product: Product): Promise<void> => {
-        console.log('api pay.., buying product: ');
-        console.log({product});
         return new Promise((resolve, reject) => {
-            console.log('sending request.., data is following');
-            console.log(product.itemId);
             websocketHelper.sendRequest({
                 type: RequestType.PAYMENT_SESSION,
                 data: product.itemId,
                 resolve: (sessionId: any) => {
-                    console.log('paying is in resolve');
-                    console.log({sessionId})
                     stripePromise.then((stripe) => {
-                        console.log('stripePromise was resolved');
-                        console.log({stripe});
                         if (stripe) {
                             stripe.redirectToCheckout({ sessionId }).then(result => console.log(result));
-                            console.log('came back from checkout')
                             resolve();
                         }
                     })
                 },
                 reject: (error: any) => {
-                    console.log('error occured')
-                    console.log({error});
+                    apiErrorHandler(RequestType.PAYMENT_SESSION, error);
                     reject();
                 },
             })
@@ -481,13 +471,18 @@ function initAPI(): API {
     }
 
     let validatePaymentToken = (token: string, productId: string, packageName = getPackageName()): Promise<boolean> => {
-        return new Promise((resolve, reject) => { websocketHelper.sendRequest({
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
                 type: RequestType.VALIDATE_PAYMENT_TOKEN,
                 data: {token, productId, packageName},
-                resolve: (data: any) => true,
+                resolve: (data: any) => {
+                    // log('data: ' + JSON.stringify(data));
+                    resolve(true);
+                },
                 reject: (error: any) => {
+                    // log('error: ' + JSON.stringify(error));
                     apiErrorHandler(RequestType.VALIDATE_PAYMENT_TOKEN, error)
-                    return false;
+                    reject(false);
                 }
             })
         });
