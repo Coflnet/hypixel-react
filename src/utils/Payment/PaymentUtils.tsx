@@ -1,4 +1,3 @@
-import AbstractPaymentProvider from "./AbstractPaymentProvider";
 import GooglePlayProvider from "./GooglePlayProvider";
 import StripePaymentProvider from "./StripePaymentProvider";
 
@@ -16,12 +15,12 @@ export default async function availablePaymentProvider(): Promise<AbstractPaymen
         return currentProvider;
     }
     for (const provider of paymentProviders) {
-        let instance = new provider();
+        let instance = provider();
         let paymentPossible = await instance.checkIfPaymentIsPossible();
         if (paymentPossible) {
             currentProvider = instance;
             return instance;
         }
     }
-    return new defaultPaymentProvider();
+    return defaultPaymentProvider();
 }

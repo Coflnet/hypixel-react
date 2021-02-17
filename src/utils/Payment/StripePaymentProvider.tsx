@@ -1,34 +1,32 @@
-import AbstractPaymentProvider from "./AbstractPaymentProvider";
 import { loadStripe } from "@stripe/stripe-js";
 import api from '../../api/ApiHelper';
 
-export default class StripePaymentProvider extends AbstractPaymentProvider {
+let stripePromise: any;
 
-    private stripePromise;
+export default function StripePaymentProvider(): AbstractPaymentProvider {
 
-    constructor() {
-        super();
-        this.stripePromise = loadStripe(
-            "pk_test_51I6N5ZIIRKr1p7dQOGhRRigwIMqgZ3XnoBdbfezFNFgLiR9iaW2YzkRP9kAADCzxSOnqLeqKDVxglDh5uxvY28Dn00vAZR7wQ9"
-        );
+    stripePromise = loadStripe(
+        "pk_test_51I6N5ZIIRKr1p7dQOGhRRigwIMqgZ3XnoBdbfezFNFgLiR9iaW2YzkRP9kAADCzxSOnqLeqKDVxglDh5uxvY28Dn00vAZR7wQ9"
+    );
+
+    let getProducts = (): Promise<Product[]> => {
+        return new Promise((resolve, reject) => {
+            resolve(api.getStripeProducts());
+        })
     }
 
-    public async getProducts(): Promise<Product[]> {
-        return await api.getStripeProducts();
+    let pay = (product: Product): Promise<Product> => {
+        return new Promise((resolve, reject) => {
+            api.pay(stripePromise, product);
+            resolve(product);
+        })
     }
 
-    public async pay(product: Product): Promise<Product> {
-        api.pay(this.stripePromise, product);
-        return product;
-    }
+    let checkIfPaymentIsPossible = (): boolean => true
 
-    public async checkIfPaymentIsPossible(): Promise<boolean> {
-        return true;
-    }
-
-
-    googleId = (): string | null => {
-        //TODO move this function
-        return localStorage.getItem('googleId');
+    return {
+        getProducts,
+        pay,
+        checkIfPaymentIsPossible
     }
 }

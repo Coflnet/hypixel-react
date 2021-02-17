@@ -430,7 +430,6 @@ function initAPI(): API {
                         resolve(products.data.filter((product: any) =>
                             product.active
                         ).map((product: any) => {
-                            console.log(product);
                             const price = prices.find(price => price.productId === product.id);
                             if (!price) {
                                 reject(`price for product ${product.id} not found`);

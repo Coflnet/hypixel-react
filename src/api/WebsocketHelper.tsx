@@ -20,7 +20,6 @@ function initWebsocket(): void {
     };
 
     let onWebsocketMessage = (e: MessageEvent): void => {
-        console.log({e});
         var response: ApiResponse = JSON.parse(e.data);
         let request: ApiRequest | undefined = requests.find(e => e.mId === response.mId);
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Button } from 'react-bootstrap';
-import AbstractPaymentProvider from "../../utils/Payment/AbstractPaymentProvider";
 import availablePaymentProvider from "../../utils/Payment/PaymentUtils";
 
 let paymentProvider: AbstractPaymentProvider;

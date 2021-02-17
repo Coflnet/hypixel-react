@@ -181,3 +181,9 @@ interface PaymentDetailTotalAmount {
     currency: string,
     value: string
 }
+
+interface AbstractPaymentProvider {
+    getProducts(): Promise<Product[]>,
+    pay(product: Product): Promise<Product>,
+    checkIfPaymentIsPossible(): boolean
+}

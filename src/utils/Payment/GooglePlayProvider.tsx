@@ -1,5 +1,4 @@
 import api from "../../api/ApiHelper";
-import AbstractPaymentProvider from "./AbstractPaymentProvider";
 
 const PAYMENT_METHOD = "https://play.google.com/billing";
 
@@ -17,38 +16,49 @@ let paymentMethods: PaymentMethod[] = [{
     }
 }];
 
-export default class GooglePlayProvider extends AbstractPaymentProvider {
+let digitalGoodsService: any;
 
-    private digitalGoodsService: any;
+export default function GooglePlayProvider(): AbstractPaymentProvider {
 
-    public async getProducts(): Promise<Product[]> {
-        if (!this.digitalGoodsService) {
-            await this.setDigitalGoodsService();
+    let getProducts = (): Promise<Product[]> => {
+        return new Promise((resolve, reject) => {
+        if (!digitalGoodsService) {
+            setDigitalGoodsService().then(() => {
+                if (digitalGoodsService) {
+                    digitalGoodsService.getDetails(['premium_30', 'premium_1', 'premium_3']).then(result => resolve(result));
+                }
+                resolve([]);
+            });
         }
-        if (this.digitalGoodsService) {
-            let result = await this.digitalGoodsService.getDetails(['premium_30', 'premium_1', 'premium_3']);
-            return result;
-        }
-        return [];
+
+        })
+    }
+    
+    let pay = (product: Product): Promise<Product> => {
+        return new Promise((resolve, reject) => {
+            paymentMethods[0].data.sku = product.itemId;
+            const request = new PaymentRequest(paymentMethods, paymentDetails);
+            request.show().then(paymentResponse => {
+                const { token } = paymentResponse.details;
+                product.description = token;
+                validatePaymentToken(token, product).then(valid => {
+                    if (valid) {
+                        digitalGoodsService.acknowledge(token, 'onetime').then(() => {
+                            paymentResponse.complete('success').then(() => {
+                                resolve(product)
+                            })
+                        })
+                    } else {
+                        paymentResponse.complete('fail').then(() => {
+                            reject(product)
+                        });
+                    }
+                })
+            });
+        })
     }
 
-    public async pay(product: Product): Promise<Product> {
-        paymentMethods[0].data.sku = product.itemId;
-        const request = new PaymentRequest(paymentMethods, paymentDetails);
-        const paymentResponse = await request.show();
-        const { token } = paymentResponse.details;
-        product.description = token;
-        if (await this.validatePaymentToken(token, product)) {
-            await this.digitalGoodsService.acknowledge(token, 'onetime');
-            await paymentResponse.complete('success');
-            return product;
-        } else {
-            await paymentResponse.complete('fail');
-            return product;
-        }
-    }
-
-    public async checkIfPaymentIsPossible(): Promise<boolean> {
+    let checkIfPaymentIsPossible = (): boolean => {
         if (!window.PaymentRequest) {
             return false;
         }
@@ -58,14 +68,23 @@ export default class GooglePlayProvider extends AbstractPaymentProvider {
         return true;
     }
 
-    private async validatePaymentToken(token: string, product: Product): Promise<boolean> {
+    let validatePaymentToken = (token: string, product: Product): Promise<boolean> => {
         return api.validatePaymentToken(token, product.itemId);
     }
 
-    private async setDigitalGoodsService() {
-        if (!('getDigitalGoodsService' in window)) {
-            throw 'getDigitalGoodsService not found';
-        }
-        this.digitalGoodsService = await (window as any).getDigitalGoodsService(PAYMENT_METHOD);
+    let setDigitalGoodsService = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            if (!('getDigitalGoodsService' in window)) {
+                throw 'getDigitalGoodsService not found';
+            }
+            digitalGoodsService = (window as any).getDigitalGoodsService(PAYMENT_METHOD);
+            resolve();
+        })
+    }
+
+    return {
+        getProducts,
+        pay,
+        checkIfPaymentIsPossible
     }
 }
