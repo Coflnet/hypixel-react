@@ -8,6 +8,19 @@ function Payment() {
 
   let [productListJsx, _setProductListJsx] = useState<JSX.Element>();
 
+  let [message, _setMessage] = useState('');
+
+  useEffect(() => { setProductsJsx() }, []);
+
+  const setMessage = (msg: string) => {
+    if (message !== msg) {
+      message = msg;
+      _setMessage(message);
+    }
+  }
+
+  const log = (msg: string) => setMessage(message + '\n' + msg);
+
   const setProductsListJsx = (jsx: JSX.Element) => {
     if (productListJsx !== jsx) {
       productListJsx = jsx;
@@ -16,9 +29,14 @@ function Payment() {
   }
 
   const getProducts = async () => {
+    log('getting products..');
     if (!paymentProvider) {
+      log('getting payment provider..');
       paymentProvider = await availablePaymentProvider();
+      log('got payment provider');
+      log(JSON.stringify(paymentProvider));
     }
+    log('reallly getting products..');
     return await paymentProvider.getProducts();
   }
 
@@ -62,11 +80,12 @@ function Payment() {
 
   const setProductsJsx = async () => setProductsListJsx(await getProductsJsx())
 
-  useEffect(() => { setProductsJsx() }, []);
-
   return (
     <div>
       {productListJsx}
+      <pre>
+        {message}
+      </pre>
     </div>
   )
 }
