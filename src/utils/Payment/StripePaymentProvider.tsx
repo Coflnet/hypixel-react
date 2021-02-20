@@ -9,7 +9,8 @@ export default function StripePaymentProvider(): AbstractPaymentProvider {
         "pk_test_51I6N5ZIIRKr1p7dQOGhRRigwIMqgZ3XnoBdbfezFNFgLiR9iaW2YzkRP9kAADCzxSOnqLeqKDVxglDh5uxvY28Dn00vAZR7wQ9"
     );
 
-    let getProducts = (): Promise<Product[]> => {
+    let getProducts = (log: Function): Promise<Product[]> => {
+        log('getting products from stripe');
         return new Promise((resolve, reject) => {
             resolve(api.getStripeProducts());
         })

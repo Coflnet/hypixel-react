@@ -32,12 +32,12 @@ function Payment() {
     log('getting products..');
     if (!paymentProvider) {
       log('getting payment provider..');
-      paymentProvider = await availablePaymentProvider();
+      paymentProvider = availablePaymentProvider(log);
       log('got payment provider');
       log(JSON.stringify(paymentProvider));
     }
     log('reallly getting products..');
-    return await paymentProvider.getProducts();
+    return await paymentProvider.getProducts(log);
   }
 
   const getProductsJsx = async (): Promise<JSX.Element> => {
