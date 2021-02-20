@@ -183,7 +183,7 @@ interface PaymentDetailTotalAmount {
 }
 
 interface AbstractPaymentProvider {
-    getProducts(log: Function): Promise<Product[]>,
+    getProducts(): Promise<Product[]>,
     pay(product: Product): Promise<Product>,
     checkIfPaymentIsPossible(): boolean
 }

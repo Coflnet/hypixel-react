@@ -20,22 +20,14 @@ let digitalGoodsService: any;
 
 export default function GooglePlayProvider(): AbstractPaymentProvider {
 
-    let getProducts = (log: Function): Promise<Product[]> => {
-        log('getting products from google');
+    let getProducts = (): Promise<Product[]> => {
         return new Promise((resolve, reject) => {
             if (!digitalGoodsService) {
-                log('getting digital goods service');
-                setDigitalGoodsService(log).then(() => {
+                setDigitalGoodsService().then(() => {
                     if (digitalGoodsService) {
-                        log('got digital goods service');
-                        log(JSON.stringify(digitalGoodsService));
                         digitalGoodsService.getDetails(['premium_30', 'premium_1', 'premium_3']).then(result => {
-                            log('results: ');
-                            log(JSON.stringify(result));
                             resolve(result)
                         }).catch(err => {
-                            log('got an error');
-                            log(JSON.stringify(err));
                             reject(err);
                         });
                     }
@@ -82,14 +74,11 @@ export default function GooglePlayProvider(): AbstractPaymentProvider {
         return api.validatePaymentToken(token, product.itemId);
     }
 
-    let setDigitalGoodsService = (log: Function): Promise<void> => {
+    let setDigitalGoodsService = (): Promise<void> => {
         return new Promise((resolve, reject) => {
-            log('getting digital goods service 2');
             if (!('getDigitalGoodsService' in window)) {
-                log('not found');
                 throw 'getDigitalGoodsService not found';
             }
-            log('digital goods service is in window');
             (window as any).getDigitalGoodsService(PAYMENT_METHOD).then(service => {
                 digitalGoodsService = service
                 resolve()
