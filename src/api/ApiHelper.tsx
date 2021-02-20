@@ -1,10 +1,9 @@
-import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
 import { enchantmentAndReforgeCompare } from "../utils/Formatter";
-import PriceGraph from "../components/PriceGraph/PriceGraph";
 import { getPackageName } from "../utils/GoogleUtils";
 
 function initAPI(): API {
@@ -427,20 +426,7 @@ function initAPI(): API {
                 data: null,
                 resolve: (products: any) => {
                     getStripePrices().then((prices: Price[]) => {
-                        resolve(products.data.filter((product: any) =>
-                            product.active
-                        ).map((product: any) => {
-                            const price = prices.find(price => price.productId === product.id);
-                            if (!price) {
-                                reject(`price for product ${product.id} not found`);
-                            }
-                            return {
-                                itemId: product.id,
-                                description: product.description,
-                                title: product.name,
-                                price
-                            }
-                        }));
+                        resolve(mapStripePrices(products, prices));
                     })
                 },
                 reject: (error: any) => apiErrorHandler(RequestType.GET_STRIPE_PRODUCTS, error)

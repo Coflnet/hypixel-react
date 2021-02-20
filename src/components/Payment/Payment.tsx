@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from 'react-bootstrap';
 import availablePaymentProvider from "../../utils/Payment/PaymentUtils";
+import './Payment.css';
 
 let paymentProvider: AbstractPaymentProvider;
 
@@ -28,25 +29,23 @@ function Payment() {
     return new Promise((resolve, reject) => {
       getProducts().then(products => {
         resolve(
-          <div className="container px-1 py-1">
-            <div className="row justify-content-center">
-              <div className="col-7">
+          <div className="product-grid">
+              <div className="product-column product-column-title product-column-header">
                 <b>Title</b>
               </div>
-              <div className="col-2">
+              <div className="product-column product-column-price product-column-header">
                 <b>Price</b>
               </div>
-              <div className="col-3">
+              <div className="product-column product-column-buy-button product-column-header">
               </div>
-            </div>
-            {products.map(product => <div className="row justify-content-center" key={product.itemId}>
-              <div className="col-7">
+            {products.map(product => <div key={product.itemId} className="product-wrapper">
+              <div className="product-column product-column-title">
                 {product.title}
               </div>
-              <div className="col-2">
+              <div className="product-column product-column-price">
                 {roundToTwo(product.price.value)}
               </div>
-              <div className="col-3">
+              <div className="product-column product-column-buy-button">
                 <Button onClick={() => {onPay(product)}}>
                   Buy
                 </Button>
