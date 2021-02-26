@@ -4,7 +4,7 @@ import { websocketHelper } from './WebsocketHelper';
 import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
 import { enchantmentAndReforgeCompare } from "../utils/Formatter";
-import { getPackageName } from "../utils/GoogleUtils";
+import { googlePlayPackageName } from '../utils/GoogleUtils'
 
 function initAPI(): API {
 
@@ -446,7 +446,7 @@ function initAPI(): API {
         })
     }
 
-    let validatePaymentToken = (token: string, productId: string, packageName = getPackageName()): Promise<boolean> => {
+    let validatePaymentToken = (token: string, productId: string, packageName = googlePlayPackageName): Promise<boolean> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.VALIDATE_PAYMENT_TOKEN,

@@ -58,7 +58,8 @@ function Payment() {
     });
   }
 
-  const roundToTwo = (param: number): number => Math.round((param + Number.EPSILON) * 100) / 100;
+  const roundToTwo = (param: number): number => Math.round(param * 10 ** 2) / 10 ** 2;
+
 
   const onPay = (product: Product) => {
     paymentProvider.pay(product);
