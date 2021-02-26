@@ -222,7 +222,7 @@ export function parseSubscription(subscription: any): Subscription {
     }
 }
 
-export function mapStripePrices(products: any, prices: Price[]): Promise<Product[]> {
+export function mapStripeProducts(products: any, prices: Price[]): Promise<Product[]> {
     return new Promise((resolve, reject) => {
         resolve(products.data.filter((product: any) =>
             product.active
@@ -239,4 +239,14 @@ export function mapStripePrices(products: any, prices: Price[]): Promise<Product
             }
         }));
     })
+}
+
+export function mapStripePrices(prices: any): Price[] {
+    return prices.data.map((price: any) => {
+        return {
+            productId: price.product,
+            currency: price.currency.toUpperCase(),
+            value: price.unit_amount / 100.0
+        }
+    });
 }

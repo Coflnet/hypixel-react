@@ -1,4 +1,4 @@
-import { mapStripePrices, parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { v4 as generateUUID } from 'uuid';
@@ -426,7 +426,7 @@ function initAPI(): API {
                 data: null,
                 resolve: (products: any) => {
                     getStripePrices().then((prices: Price[]) => {
-                        resolve(mapStripePrices(products, prices));
+                        resolve(mapStripeProducts(products, prices));
                     })
                 },
                 reject: (error: any) => apiErrorHandler(RequestType.GET_STRIPE_PRODUCTS, error)
@@ -439,16 +439,7 @@ function initAPI(): API {
             websocketHelper.sendRequest({
                 type: RequestType.GET_STRIPE_PRICES,
                 data: null,
-                resolve: (prices: any) => {
-                    let mappedPrices = prices.data.map((price: any) => {
-                        return {
-                            productId: price.product,
-                            currency: price.currency.toUpperCase(),
-                            value: price.unit_amount / 100.0
-                        }
-                    });
-                    resolve(mappedPrices)
-                },
+                resolve: (prices: any) => resolve(mapStripePrices(prices)),
                 reject: (error: any) => apiErrorHandler(RequestType.GET_STRIPE_PRICES, error)
             })
 
