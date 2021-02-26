@@ -99,7 +99,7 @@ export function parseItem(item: any): Item {
 }
 
 function _formatName(enchantment: string): string {
-    let formatted: string = enchantment.replaceAll("_", " ");
+    let formatted: string = enchantment.replace(new RegExp("_", "g"), " ");
     formatted = _capitalizeWords(formatted);
     return formatted;
 }
