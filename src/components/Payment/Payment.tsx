@@ -1,27 +1,76 @@
-import React from "react";
-import { loadStripe } from "@stripe/stripe-js";
+import React, { useEffect, useState } from "react";
 import { Button } from 'react-bootstrap';
-import api from "../../api/ApiHelper";
+import availablePaymentProvider from "../../utils/Payment/PaymentUtils";
+import './Payment.css';
 
-const stripePromise = loadStripe(
-  "pk_test_51I6N5ZIIRKr1p7dQOGhRRigwIMqgZ3XnoBdbfezFNFgLiR9iaW2YzkRP9kAADCzxSOnqLeqKDVxglDh5uxvY28Dn00vAZR7wQ9"
-);
+let paymentProvider: AbstractPaymentProvider;
 
 function Payment() {
 
-  const onPay = () => {
-    const googleId = localStorage.getItem('googleId');
-    if (googleId) {
-      api.pay(stripePromise, googleId)
-    } else {
-      console.warn('not logged in in google yet')
+  let [productListJsx, _setProductListJsx] = useState<JSX.Element>();
+
+  useEffect(() => { setProductsJsx() }, []);
+
+  const setProductsListJsx = (jsx: JSX.Element) => {
+    if (productListJsx !== jsx) {
+      productListJsx = jsx;
+      _setProductListJsx(productListJsx);
     }
-  };
+  }
+
+  const getProducts = (): Promise<Product[]> => {
+    if (!paymentProvider) {
+      paymentProvider = availablePaymentProvider();
+    }
+    return paymentProvider.getProducts();
+  }
+
+  const getProductsJsx = (): Promise<JSX.Element> => {
+    return new Promise((resolve, reject) => {
+      getProducts().then(products => {
+        resolve(
+          <div className="product-grid">
+              <div className="product-column product-column-title product-column-header">
+                <b>Title</b>
+              </div>
+              <div className="product-column product-column-price product-column-header">
+                <b>Price</b>
+              </div>
+              <div className="product-column product-column-buy-button product-column-header">
+              </div>
+            {products.map(product => <div key={product.itemId} className="product-wrapper">
+              <div className="product-column product-column-title">
+                {product.title}
+              </div>
+              <div className="product-column product-column-price">
+                {roundToTwo(product.price.value)}
+              </div>
+              <div className="product-column product-column-buy-button">
+                <Button onClick={() => {onPay(product)}}>
+                  Buy
+                </Button>
+              </div>
+            </div>)
+            }
+          </div>
+        )
+      });
+    });
+  }
+
+  const roundToTwo = (param: number): number => Math.round(param * 10 ** 2) / 10 ** 2;
+
+
+  const onPay = (product: Product) => {
+    paymentProvider.pay(product);
+  }
+
+  const setProductsJsx = () => getProductsJsx().then(jsx => setProductsListJsx(jsx))
 
   return (
-    <Button className="btn-success" onClick={onPay}>
-      Buy Premium
-    </Button>
+    <div>
+      {productListJsx}
+    </div>
   )
 }
 

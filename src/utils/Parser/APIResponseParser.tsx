@@ -221,3 +221,32 @@ export function parseSubscription(subscription: any): Subscription {
         type: _getTypeFromSubTypes(parseSubscriptionTypes(subscription.type))
     }
 }
+
+export function mapStripeProducts(products: any, prices: Price[]): Promise<Product[]> {
+    return new Promise((resolve, reject) => {
+        resolve(products.data.filter((product: any) =>
+            product.active
+        ).map((product: any) => {
+            const price = prices.find(price => price.productId === product.id);
+            if (!price) {
+                reject(`price for product ${product.id} not found`);
+            }
+            return {
+                itemId: product.id,
+                description: product.description,
+                title: product.name,
+                price
+            }
+        }));
+    })
+}
+
+export function mapStripePrices(prices: any): Price[] {
+    return prices.data.map((price: any) => {
+        return {
+            productId: price.product,
+            currency: price.currency.toUpperCase(),
+            value: price.unit_amount / 100.0
+        }
+    });
+}

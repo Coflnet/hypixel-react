@@ -9,6 +9,7 @@ import { convertTagToName, numberWithThousandsSeperators } from '../../utils/For
 import NavBar from '../NavBar/NavBar';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { toast } from 'react-toastify';
+import Payment from '../Payment/Payment';
 
 interface Props {
 
@@ -21,6 +22,7 @@ function SubscriptionList(props: Props) {
 
     let [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
+    let [googleId, setGoogleId] = useState("");
 
     useEffect(() => {
         mounted = true;
@@ -68,8 +70,12 @@ function SubscriptionList(props: Props) {
     }
 
     function onLogin() {
-        setIsLoggedIn(true);
-        loadSubscriptions();
+        let googleId = localStorage.getItem('googleId');
+        if (googleId) {
+            setGoogleId(googleId);
+            setIsLoggedIn(true);
+            loadSubscriptions();
+        }
     }
 
     function onDelete(subscription: Subscription) {
@@ -129,6 +135,7 @@ function SubscriptionList(props: Props) {
             {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ""}
 
             <GoogleSignIn onAfterLogin={onLogin} />
+            { isLoggedIn ? <Payment />: ""}
         </div>
     );
 }

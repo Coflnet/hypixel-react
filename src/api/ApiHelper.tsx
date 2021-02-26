@@ -1,13 +1,14 @@
-import { parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
 import { enchantmentAndReforgeCompare } from "../utils/Formatter";
+import { googlePlayPackageName } from '../utils/GoogleUtils'
 
 function initAPI(): API {
 
-    let apiErrorHandler = (requestType: RequestType, errorMessage: string, requestData: any) => {
+    let apiErrorHandler = (requestType: RequestType, errorMessage: string, requestData: any = null) => {
         console.error("-----------------------------------------------------------------------------------------------")
         console.error("API returned error! RequestType: " + requestType)
         console.error(errorMessage)
@@ -364,11 +365,11 @@ function initAPI(): API {
         })
     }
 
-    let pay = (stripePromise: Promise<Stripe | null>, googleId: string): Promise<void> => {
+    let pay = (stripePromise: Promise<Stripe | null>, product: Product): Promise<void> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.PAYMENT_SESSION,
-                data: googleId,
+                data: product.itemId,
                 resolve: (sessionId: any) => {
                     stripePromise.then((stripe) => {
                         if (stripe) {
@@ -378,7 +379,7 @@ function initAPI(): API {
                     })
                 },
                 reject: (error: any) => {
-                    console.error(error);
+                    apiErrorHandler(RequestType.PAYMENT_SESSION, error);
                     reject();
                 },
             })
@@ -418,6 +419,47 @@ function initAPI(): API {
         })
     }
 
+    let getStripeProducts = (): Promise<Product[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_STRIPE_PRODUCTS,
+                data: null,
+                resolve: (products: any) => {
+                    getStripePrices().then((prices: Price[]) => {
+                        resolve(mapStripeProducts(products, prices));
+                    })
+                },
+                reject: (error: any) => apiErrorHandler(RequestType.GET_STRIPE_PRODUCTS, error)
+            })
+        })
+    }
+
+    let getStripePrices = (): Promise<Price[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_STRIPE_PRICES,
+                data: null,
+                resolve: (prices: any) => resolve(mapStripePrices(prices)),
+                reject: (error: any) => apiErrorHandler(RequestType.GET_STRIPE_PRICES, error)
+            })
+
+        })
+    }
+
+    let validatePaymentToken = (token: string, productId: string, packageName = googlePlayPackageName): Promise<boolean> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.VALIDATE_PAYMENT_TOKEN,
+                data: {token, productId, packageName},
+                resolve: (data: any) => resolve(true),
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.VALIDATE_PAYMENT_TOKEN, error);
+                    reject(false);
+                }
+            })
+        });
+    }
+
     return {
         search,
         trackSearch,
@@ -439,7 +481,10 @@ function initAPI(): API {
         setGoogle,
         hasPremium,
         pay,
-        setToken
+        setToken,
+        getStripeProducts,
+        getStripePrices,
+        validatePaymentToken
     }
 }
 
