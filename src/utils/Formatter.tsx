@@ -38,7 +38,7 @@ export function convertTagToName(itemTag?: string): string {
         });
     }
 
-    let formatted: string = itemTag.replaceAll("_", " ").toLowerCase();
+    let formatted: string = itemTag.replace(new RegExp("_", "g"), " ").toLowerCase();
     formatted = capitalizeWords(formatted);
     return formatted;
 }

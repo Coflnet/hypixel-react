@@ -28,7 +28,7 @@ let cacheUtils: CacheUtils = {
     },
     checkForCacheClear: function () {
         api.getVersion().then(version => {
-            if (version !== window.localStorage.getItem("version")) {
+            if (window.caches !== undefined) {
                 // clear workbox caches
                 caches.keys().then(keys => {
                     keys.forEach(key => {
