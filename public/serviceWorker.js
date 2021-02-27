@@ -89,9 +89,32 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30')
 messaging.onBackgroundMessage(function(payload) {
-    /* This could be used to modify/shedule additional notifications
-        The notification itself is already displayed
-    */
+    console.log(payload);
+    const request = indexedDB.open('keyval-store', 1);
+    var db;
+    if (payload.data.type != "auction") {
+        console.log("unkown notification type" + payload.data.type);
+        return;
+    }
+
+    var auction = JSON.parse(payload.data.auction);
+
+
+    var key = `auctionDetails\"${auction.uuid}\"`;
+    var data = {
+        expireTimeStamp: (new Date()).getTime() + 60 * 1000,
+        response: auction
+    }
+
+    request.onsuccess = function() {
+        db = this.result; // Average 8ms
+
+        db.transaction('keyval', "readwrite")
+            .objectStore('keyval')
+            .add(JSON.stringify(data), key).onsuccess = function() {
+                console.log("nice");
+            }
+    };
 });
 
 //Code for adding event on click of notification
