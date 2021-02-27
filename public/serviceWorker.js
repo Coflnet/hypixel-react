@@ -89,15 +89,9 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30')
 messaging.onBackgroundMessage(function(payload) {
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/logo192.png',
-        data: {
-            url: payload.data ? payload.data.onClick : "https://sky.coflnet.com"
-        }, //the url which we gonna use later
-    };
-    return self.registration.showNotification(notificationTitle, notificationOptions);
+    /* This could be used to modify/shedule additional notifications
+        The notification itself is already displayed
+    */
 });
 
 //Code for adding event on click of notification

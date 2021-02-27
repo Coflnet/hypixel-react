@@ -6,18 +6,21 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
 
-
+import { useHistory } from "react-router-dom";
+import registerNotificationCallback from '../../utils/NotificationUtils';
 
 export function MainApp(props: any) {
 
     const { trackPageView } = useMatomo()
     const location = useLocation();
+    const history = useHistory();
 
     useEffect(() => {
         trackPageView({
             documentTitle: document.title,
             href: window.location.href,
         });
+        registerNotificationCallback(history);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location])
 
