@@ -15,6 +15,7 @@ const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'));
 const Subscriptions = React.lazy(() => import('./pages/Subscriptions/Subscriptions'));
 const Feedback = React.lazy(() => import('./pages/Feedback/Feedback'));
 const About = React.lazy(() => import('./pages/About/About'));
+const Cancel =  React.lazy(() => import('./pages/PaymentCancel/PaymentCancel'));
 
 const matomoTrackingInstance = createInstance({
   urlBase: 'https://track.coflnet.com',
@@ -46,7 +47,10 @@ export default (
           <Route path='/about' component={About} />
           <Route path='/subscriptions' component={Subscriptions} />
           <Route path='/feedback' component={Feedback} />
+          <Route path='/cancel' component={Cancel} />
           <Route path='*' exact component={NotFound} />
+
+          
         </Switch>
       </MainApp>
     </Suspense>
