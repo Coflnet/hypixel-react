@@ -89,7 +89,6 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30')
 messaging.onBackgroundMessage(function(payload) {
-    console.log(payload);
     const request = indexedDB.open('keyval-store', 1);
     var db;
     if (payload.data.type != "auction") {
@@ -107,13 +106,11 @@ messaging.onBackgroundMessage(function(payload) {
     }
 
     request.onsuccess = function() {
-        db = this.result; // Average 8ms
+        db = this.result;
 
         db.transaction('keyval', "readwrite")
             .objectStore('keyval')
-            .add(JSON.stringify(data), key).onsuccess = function() {
-                console.log("nice");
-            }
+            .add(JSON.stringify(data), key);
     };
 });
 

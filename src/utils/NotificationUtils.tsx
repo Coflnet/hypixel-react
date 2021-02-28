@@ -9,7 +9,6 @@ export default function registerCallback(history)  {
         clearInterval(interval);
     
         messaging.onMessage(function (payload) {
-            console.log("on Message", payload);
             let notification = payload.notification;
             if(payload.data.type == "auction")
             {
