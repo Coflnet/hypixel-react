@@ -28,7 +28,7 @@ if ('serviceWorker' in navigator) {
 
 function loadScript(url) {
 
-    var script = document.createElement("script")
+    let script = document.createElement("script")
     script.type = "text/javascript";
     script.async = true;
     script.src = url;
@@ -36,7 +36,7 @@ function loadScript(url) {
 }
 
 function pushNotifications(serviceWorkerRegistration) {
-    var firebaseConfig = {
+    let firebaseConfig = {
         apiKey: "AIzaSyB1yFUo__ZzeTBKw7KRQNHIyhxL7q9cLdI",
         authDomain: "skyblock-300817.firebaseapp.com",
         projectId: "skyblock-300817",

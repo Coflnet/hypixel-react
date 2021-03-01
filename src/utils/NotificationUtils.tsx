@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 import cacheUtils from "./CacheUtils";
 
 export default function registerCallback(history)  {
-    var interval = setInterval(function() {
+    let interval = setInterval(function() {
         // wait until messaging is definded
         let messaging = (window as any).messaging;
         if (typeof messaging == 'undefined') return;
@@ -30,7 +30,7 @@ export default function registerCallback(history)  {
     }
 
     function savePayloadIntoCache(payload: any) {
-        var auction = JSON.parse(payload.data.auction);
+        let auction = JSON.parse(payload.data.auction);
         cacheUtils.setIntoCache("auctionDetails", JSON.stringify(auction.uuid), auction, 60);
     }
 }
