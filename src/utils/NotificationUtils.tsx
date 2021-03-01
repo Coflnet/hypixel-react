@@ -1,17 +1,16 @@
 import { toast } from "react-toastify";
 import cacheUtils from "./CacheUtils";
 
-export default function registerCallback(history)  {
-    let interval = setInterval(function() {
+export default function registerCallback(history) {
+    let interval = setInterval(function () {
         // wait until messaging is definded
         let messaging = (window as any).messaging;
         if (typeof messaging == 'undefined') return;
         clearInterval(interval);
-    
+
         messaging.onMessage(function (payload) {
             let notification = payload.notification;
-            if(payload.data.type == "auction")
-            {
+            if (payload.data.type == "auction") {
                 savePayloadIntoCache(payload);
             }
             displayNotification(notification);
