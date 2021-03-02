@@ -122,6 +122,7 @@ function AuctionDetails(props: Props) {
     );
 
     const labelBadgeVariant = "primary";
+    const binBadgeVariant = "success";
     const countBadgeVariant = "dark";
 
     let auctionCardContent = auctionDetails === undefined ? getLoadingElement() : (
@@ -131,6 +132,7 @@ function AuctionDetails(props: Props) {
                     <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="" style={{ marginRight: "5px" }} />
                     <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
                     <Badge variant={countBadgeVariant} style={{ marginLeft: "5px" }}>x{auctionDetails?.count}</Badge>
+                    <Badge variant={binBadgeVariant} style={{ marginLeft: "5px" }}>BIN</Badge>
                 </h5>
                 </Link>
                 <OverlayTrigger
