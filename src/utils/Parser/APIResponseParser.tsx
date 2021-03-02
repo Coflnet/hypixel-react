@@ -204,7 +204,7 @@ export function parseSubscriptionTypes(typeInNumeric: number): SubscriptionType[
 }
 
 function _getTypeFromSubTypes(subTypes: SubscriptionType[]) {
-    var isItem = true;
+    let isItem = true;
     subTypes.forEach(subtype => {
         if (subtype === SubscriptionType.OUTBID || subtype === SubscriptionType.SOLD || subtype === SubscriptionType.BIN) {
             isItem = false;

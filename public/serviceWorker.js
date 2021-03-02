@@ -77,7 +77,7 @@ importScripts('https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/7.18.0/firebase-messaging.js');
 
 // Your web app's Firebase configuration
-var firebaseConfig = {
+let firebaseConfig = {
     apiKey: "AIzaSyB1yFUo__ZzeTBKw7KRQNHIyhxL7q9cLdI",
     authDomain: "skyblock-300817.firebaseapp.com",
     projectId: "skyblock-300817",
@@ -89,15 +89,29 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30')
 messaging.onBackgroundMessage(function(payload) {
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/logo192.png',
-        data: {
-            url: payload.data ? payload.data.onClick : "https://sky.coflnet.com"
-        }, //the url which we gonna use later
+    const request = indexedDB.open('keyval-store', 1);
+    let db;
+    if (payload.data.type != "auction") {
+        console.log("unkown notification type" + payload.data.type);
+        return;
+    }
+
+    let auction = JSON.parse(payload.data.auction);
+
+
+    let key = `auctionDetails\"${auction.uuid}\"`;
+    let data = {
+        expireTimeStamp: (new Date()).getTime() + 60 * 1000,
+        response: auction
+    }
+
+    request.onsuccess = function() {
+        db = this.result;
+
+        db.transaction('keyval', "readwrite")
+            .objectStore('keyval')
+            .add(JSON.stringify(data), key);
     };
-    return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 //Code for adding event on click of notification
@@ -109,8 +123,8 @@ self.addEventListener('notificationclick', function(event) {
             type: 'window'
         }).then(windowClients => {
             // Check if there is already a window/tab open with the target URL
-            for (var i = 0; i < windowClients.length; i++) {
-                var client = windowClients[i];
+            for (let i = 0; i < windowClients.length; i++) {
+                let client = windowClients[i];
                 // If so, just focus it.
                 if (client.url === url && 'focus' in client) {
                     return client.focus();
