@@ -5,16 +5,13 @@ import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
 import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
+import { toast } from 'react-toastify';
+import { rejects } from "assert";
 
 function initAPI(): API {
 
-    let apiErrorHandler = (requestType: RequestType, errorMessage: string, requestData: any = null) => {
-        console.error("-----------------------------------------------------------------------------------------------")
-        console.error("API returned error! RequestType: " + requestType)
-        console.error(errorMessage)
-        console.error("Request-Data: ")
-        console.error(requestData);
-        console.error("-----------------------------------------------------------------------------------------------")
+    let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
+        toast.error(error.Message);
     }
 
     let search = (searchText: string): Promise<SearchResultItem[]> => {
@@ -29,6 +26,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SEARCH, error, searchText)
+                    reject();
                 }
             });
         })
@@ -68,14 +66,15 @@ function initAPI(): API {
                     resolve(parseItem(item))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTagOrName)
+                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTagOrName);
+                    reject();
                 }
             });
         })
     }
 
     let getItemPrices = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<ItemPriceData> => {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
@@ -89,7 +88,8 @@ function initAPI(): API {
                     resolve(parseItemPriceData(data));
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
+                    apiErrorHandler(RequestType.ITEM_PRICES, error, requestData);
+                    reject();
                 }
             });
         })
@@ -104,7 +104,8 @@ function initAPI(): API {
                     resolve(parsePlayerDetails(playerData));
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.PLAYER_DETAIL, error, playerUUID)
+                    apiErrorHandler(RequestType.PLAYER_DETAIL, error, playerUUID);
+                    reject();
                 }
             })
         });
@@ -127,6 +128,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_AUCTION, error, requestData);
+                    reject();
                 }
             })
         });
@@ -149,6 +151,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_BIDS, error, requestData);
+                    reject();
                 }
             })
         });
@@ -173,6 +176,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, "");
+                    reject();
                 }
             })
         })
@@ -197,6 +201,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, "");
+                    reject();
                 }
             })
         })
@@ -227,6 +232,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.AUCTION_DETAILS, error, auctionUUID);
+                    reject();
                 }
             })
         })
@@ -242,6 +248,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_NAME, error, uuid);
+                    reject();
                 }
             })
         });
@@ -271,6 +278,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_VERSION, error, "");
+                    reject();
                 }
             })
         });
@@ -297,8 +305,8 @@ function initAPI(): API {
                     resolve();
                 },
                 reject: (error) => {
-                    error = JSON.parse(error);
-                    reject(error.Message);
+                    apiErrorHandler(RequestType.SUBSCRIBE, error, requestData);
+                    reject();
                 }
             })
         });
@@ -328,6 +336,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.UNSUBSCRIBE, error, "");
+                    reject();
                 }
             })
         });
@@ -345,6 +354,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error, "");
+                    reject();
                 }
             })
         })
@@ -360,6 +370,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PREMIUM_EXPIRATION, error, googleId);
+                    reject();
                 },
             })
         })
@@ -396,6 +407,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_GOOGLE, error, id);
+                    reject();
                 }
             })
         })
@@ -414,6 +426,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.FCM_TOKEN, error, token);
+                    reject();
                 }
             })
         })
@@ -429,7 +442,10 @@ function initAPI(): API {
                         resolve(mapStripeProducts(products, prices));
                     })
                 },
-                reject: (error: any) => apiErrorHandler(RequestType.GET_STRIPE_PRODUCTS, error)
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_STRIPE_PRODUCTS, error);
+                    reject();
+                }
             })
         })
     }
@@ -440,7 +456,10 @@ function initAPI(): API {
                 type: RequestType.GET_STRIPE_PRICES,
                 data: null,
                 resolve: (prices: any) => resolve(mapStripePrices(prices)),
-                reject: (error: any) => apiErrorHandler(RequestType.GET_STRIPE_PRICES, error)
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_STRIPE_PRICES, error);
+                        reject();
+                }
             })
 
         })

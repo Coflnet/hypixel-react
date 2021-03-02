@@ -31,8 +31,8 @@ function initWebsocket(): void {
         let equals = findForEqualSentRequest(request);
 
         if (response.type.includes("error")) {
-            request.reject(response.data);
-            equals.forEach(equal => equal.reject());
+            request.reject(JSON.parse(response.data));
+            equals.forEach(equal => equal.reject(JSON.parse(response.data)));
         } else {
             let parsedResponse = JSON.parse(response.data);
             request.resolve(parsedResponse);

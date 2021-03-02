@@ -87,7 +87,6 @@ function SubscriptionList(props: Props) {
             setSubscriptions(subs);
             subscriptions = subs;
 
-
             toast.success(<span>Subscription deleted <Button style={{ float: "right", marginRight: "5px" }} variant="info" onClick={() => { resubscribe(subscription) }}>{repeatIcon} Undo</Button></span>)
         })
     }
