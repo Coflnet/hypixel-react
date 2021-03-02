@@ -20,6 +20,7 @@ interface Props {
 function AuctionDetails(props: Props) {
 
     let history = useHistory();
+    let [isAuctionFound, setIsNoAuctionFound] = useState(false);
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails>();
     let [isItemDetailsCollapse, setIsItemDetailsCollapse] = useState(true);
     let [showNbtData, setShowNbtData] = useState(false);
@@ -63,6 +64,8 @@ function AuctionDetails(props: Props) {
                 setDocumentTitle(auctionDetails);
                 forceUpdate();
             })
+        }).catch(() => {
+            setIsNoAuctionFound(true);
         })
     }
 
@@ -251,33 +254,38 @@ function AuctionDetails(props: Props) {
     return (
         <div className="auction-details">
             <Search />
-            <Card className="auction-card">
-                {auctionCardContent}
-            </Card>
-            <Card className="auction-card">
-                <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
-                    <h5>
-                        Item-Details
+            {isAuctionFound ?
+                <span>No auction with id {props.auctionUUID}</span> :
+                <div>
+                    <Card className="auction-card">
+                        {auctionCardContent}
+                    </Card>
+                    <Card className="auction-card">
+                        <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
+                            <h5>
+                                Item-Details
                         <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? arrowDownIcon : arrowUpIcon}</span>
-                    </h5>
-                </Card.Header>
-                <Collapse in={!isItemDetailsCollapse}>
-                    <Card.Body>
-                        {itemDetailsCardContent}
-                    </Card.Body>
-                </Collapse>
-            </Card>
-            <Card className="auction-card">
-                <Card.Header>
-                    <h5>Bids</h5>
-                    {auctionDetails && auctionDetails?.bids.length > 1 ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
-                </Card.Header>
-                <Card.Body>
-                    <ListGroup>
-                        {bidList || getLoadingElement()}
-                    </ListGroup>
-                </Card.Body>
-            </Card>
+                            </h5>
+                        </Card.Header>
+                        <Collapse in={!isItemDetailsCollapse}>
+                            <Card.Body>
+                                {itemDetailsCardContent}
+                            </Card.Body>
+                        </Collapse>
+                    </Card>
+                    <Card className="auction-card">
+                        <Card.Header>
+                            <h5>Bids</h5>
+                            {auctionDetails && auctionDetails?.bids.length > 1 ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
+                        </Card.Header>
+                        <Card.Body>
+                            <ListGroup>
+                                {bidList || getLoadingElement()}
+                            </ListGroup>
+                        </Card.Body>
+                    </Card>
+                </div>
+            }
         </div>
     )
 }
