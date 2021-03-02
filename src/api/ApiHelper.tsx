@@ -80,12 +80,11 @@ function initAPI(): API {
             };
             websocketHelper.sendRequest({
                 type: RequestType.ITEM_PRICES,
-                data: "asfd",
+                data: requestData,
                 resolve: (data: any) => {
                     resolve(parseItemPriceData(data));
                 },
                 reject: (error: any) => {
-                    console.log(error);
                     apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
                 }
             });
