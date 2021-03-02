@@ -5,16 +5,12 @@ import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
 import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
+import { toast } from 'react-toastify';
 
 function initAPI(): API {
 
-    let apiErrorHandler = (requestType: RequestType, errorMessage: string, requestData: any = null) => {
-        console.error("-----------------------------------------------------------------------------------------------")
-        console.error("API returned error! RequestType: " + requestType)
-        console.error(errorMessage)
-        console.error("Request-Data: ")
-        console.error(requestData);
-        console.error("-----------------------------------------------------------------------------------------------")
+    let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
+        toast.error(error.Message);
     }
 
     let search = (searchText: string): Promise<SearchResultItem[]> => {
@@ -84,11 +80,12 @@ function initAPI(): API {
             };
             websocketHelper.sendRequest({
                 type: RequestType.ITEM_PRICES,
-                data: requestData,
+                data: "asfd",
                 resolve: (data: any) => {
                     resolve(parseItemPriceData(data));
                 },
                 reject: (error: any) => {
+                    console.log(error);
                     apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
                 }
             });
