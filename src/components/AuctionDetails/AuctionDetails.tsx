@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
-import { Badge, Card, Collapse, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Badge, Button, Card, Collapse, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getStyleForTier, numberWithThousandsSeperators, convertTagToName } from '../../utils/Formatter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import Search from '../Search/Search';
@@ -255,7 +255,10 @@ function AuctionDetails(props: Props) {
         <div className="auction-details">
             <Search />
             {isAuctionFound ?
-                <span>No auction with id {props.auctionUUID}</span> :
+                <div>
+                    <p>The auction you tried to see doesn't seem to exist. Please go back.</p><br/>
+                    <Link to="/"><Button>Get back</Button></Link>
+                </div> :
                 <div>
                     <Card className="auction-card">
                         {auctionCardContent}
