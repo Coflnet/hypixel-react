@@ -3,7 +3,7 @@ import { Route, Switch, Redirect } from "react-router-dom";
 import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
 import cookie from 'cookie';
 import { MainApp } from './components/MainApp/MainApp';
-import { getLoadingElement } from './utils/LoadingUtils';
+import { getInitialLoadingElement } from './utils/LoadingUtils';
 
 /**
  * Import all page components here
@@ -37,7 +37,7 @@ function isTrackingAllowed() {
  */
 export default (
   <MatomoProvider value={matomoTrackingInstance}>
-    <Suspense fallback={getLoadingElement()}>
+    <Suspense fallback={getInitialLoadingElement()}>
       <MainApp>
         <Switch>
           <Route exact path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />} />
