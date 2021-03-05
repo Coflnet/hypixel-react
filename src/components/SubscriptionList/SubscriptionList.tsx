@@ -22,7 +22,6 @@ function SubscriptionList(props: Props) {
 
     let [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [googleId, setGoogleId] = useState("");
 
     useEffect(() => {
         mounted = true;
@@ -39,6 +38,13 @@ function SubscriptionList(props: Props) {
             }
             setSubscriptions(subscriptions);
         })
+    }
+
+    function onLogin() {
+        let googleId = localStorage.getItem('googleId');
+        if (googleId) {
+            setIsLoggedIn(true);
+        }
     }
 
     function getSubTypesAsList(subTypes: SubscriptionType[], price: number): JSX.Element {
@@ -67,15 +73,6 @@ function SubscriptionList(props: Props) {
                 })
             }
         </ul>
-    }
-
-    function onLogin() {
-        let googleId = localStorage.getItem('googleId');
-        if (googleId) {
-            setGoogleId(googleId);
-            setIsLoggedIn(true);
-            loadSubscriptions();
-        }
     }
 
     function onDelete(subscription: Subscription) {
@@ -125,16 +122,16 @@ function SubscriptionList(props: Props) {
             </h4>
             <hr />
             {isLoggedIn ?
-                <ListGroup style={{ marginTop: "20px" }}>
-                    {subscriptionsTableBody}
-                </ListGroup>
+                (subscriptions.length > 0 ?
+                    <ListGroup style={{ marginTop: "20px" }}>
+                        {subscriptionsTableBody}
+                    </ListGroup>
+                    : <p>You dont have any subscriptions</p>)
                 : ""
             }
             {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
             {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ""}
-
             <GoogleSignIn onAfterLogin={onLogin} />
-            { isLoggedIn ? <Payment />: ""}
         </div>
     );
 }
