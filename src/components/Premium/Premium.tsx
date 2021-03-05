@@ -5,6 +5,7 @@ import './Premium.css';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { getLoadingElement } from "../../utils/LoadingUtils";
 import { Card } from "react-bootstrap";
+import NavBar from "../NavBar/NavBar";
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -23,7 +24,10 @@ function Premium() {
 
     return (
         <div className="premium">
-            <h1>Premium</h1>
+            <h4>
+                <NavBar />
+                Premium
+            </h4>
             <Card className="premium-card">
                 <p>Premium users get access to the following features:</p>
                 <ul>
@@ -31,7 +35,7 @@ function Premium() {
                 </ul>
             </Card>
             <div>
-                <GoogleSignIn onAfterLogin={onLogin} />
+                <GoogleSignIn onAfterLogin={onLogin} />d
                 {isLoggedIn ? <Payment /> : ""}
                 {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
                 {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ""}
