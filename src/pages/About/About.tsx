@@ -1,12 +1,16 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
+import NavBar from '../../components/NavBar/NavBar';
 import './About.css';
 
 function ItemDetails() {
 
     return (
         <div className="about-page">
-            <h1>About</h1>
+            <h4>
+                <NavBar />
+                About
+            </h4>
             <Card className="about-card">
                 <p>This is an OpenSource project developed on <a href="https://github.com/matthias-luger/hypixel-react">GitHub</a></p>
                 <p>You can support this site by letting it opened and <b>disabling your adblocker</b>. Arc will use some of your bandwith and pay us for that. You can learn more by clicking on the blue icon in the lower left corner. (only there if you disabled your adblocker)</p>
