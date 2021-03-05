@@ -35,7 +35,7 @@ function Premium() {
                 </ul>
             </Card>
             <div>
-                <GoogleSignIn onAfterLogin={onLogin} />d
+                <GoogleSignIn onAfterLogin={onLogin} />
                 {isLoggedIn ? <Payment /> : ""}
                 {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
                 {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ""}
