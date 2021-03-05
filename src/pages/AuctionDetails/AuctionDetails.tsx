@@ -3,7 +3,7 @@ import AuctionDetails from '../../components/AuctionDetails/AuctionDetails';
 import './AuctionDetails.css';
 import { useParams } from "react-router-dom";
 
-function ItemDetails() {
+function AuctionDetailsPage() {
 
     let { auctionUUID } = useParams();
 
@@ -14,4 +14,4 @@ function ItemDetails() {
     );
 }
 
-export default ItemDetails;
+export default AuctionDetailsPage;

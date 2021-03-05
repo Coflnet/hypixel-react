@@ -20,7 +20,7 @@ function NavBar() {
                     items={[
                         <Link to="/"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Prices</div></Link>,
                         <Link to="/subscriptions"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Subscriptions</div></Link>,
-                        <div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Premium</div>,
+                        <Link to="/premium"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Premium</div></Link>,
                         <Link to="/about"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Links / Legal</div></Link>,
                         <Link to="/feedback"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Feedback</div></Link>]}
                     onHideNav={() => { setShowNav(false) }
