@@ -13,8 +13,9 @@ export function getInitialLoadingElement(): JSX.Element {
     return (<div className="center" style={{ height: '500px' }}>
         <div>
             <img src="/logo192.png" height="192"/>
-            <p className="center"><span>Loading <Spinner animation="grow" variant="primary" size="sm"></Spinner>
+            <div className="center">
+                <span>Loading <Spinner animation="grow" variant="primary" size="sm"></Spinner>
             <Spinner animation="grow" variant="primary" size="sm"></Spinner>
-            <Spinner animation="grow" variant="primary" size="sm"></Spinner></span></p>
+            <Spinner animation="grow" variant="primary" size="sm"></Spinner></span></div>
         </div></div>);
 }
