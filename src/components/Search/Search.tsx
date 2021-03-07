@@ -60,7 +60,7 @@ function Search(props: Props) {
         }
         let timeout = setTimeout(() => {
             search();
-        }, 200);
+        }, 0);
         setSearchDebounce(timeout);
     }
 
