@@ -24,10 +24,10 @@ export default function GooglePlayProvider(): AbstractPaymentProvider {
         return new Promise((resolve, reject) => {
             if (!digitalGoodsService) {
                 setDigitalGoodsService().then(() => {
-                    resolve(getProductsFromDigitalGoodsService());
+                    getProductsFromDigitalGoodsService().then(products => resolve(products));
                 });
             } else {
-                resolve(getProductsFromDigitalGoodsService());
+                getProductsFromDigitalGoodsService().then(products => resolve(products));
             }
         })
     }
