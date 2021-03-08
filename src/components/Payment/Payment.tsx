@@ -3,8 +3,6 @@ import { Button } from 'react-bootstrap';
 import availablePaymentProvider from "../../utils/Payment/PaymentUtils";
 import './Payment.css';
 
-let paymentProvider: AbstractPaymentProvider;
-
 function Payment() {
 
   let [productListJsx, _setProductListJsx] = useState<JSX.Element>();
@@ -19,10 +17,7 @@ function Payment() {
   }
 
   const getProducts = (): Promise<Product[]> => {
-    if (!paymentProvider) {
-      paymentProvider = availablePaymentProvider();
-    }
-    return paymentProvider.getProducts();
+    return availablePaymentProvider().getProducts();
   }
 
   const getProductsJsx = (): Promise<JSX.Element> => {
@@ -62,7 +57,7 @@ function Payment() {
 
 
   const onPay = (product: Product) => {
-    paymentProvider.pay(product);
+    availablePaymentProvider().pay(product);
   }
 
   const setProductsJsx = () => getProductsJsx().then(jsx => setProductsListJsx(jsx))
