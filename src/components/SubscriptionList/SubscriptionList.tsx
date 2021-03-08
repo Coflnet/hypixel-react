@@ -9,7 +9,6 @@ import { convertTagToName, numberWithThousandsSeperators } from '../../utils/For
 import NavBar from '../NavBar/NavBar';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { toast } from 'react-toastify';
-import Payment from '../Payment/Payment';
 
 interface Props {
 

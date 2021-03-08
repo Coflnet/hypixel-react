@@ -305,8 +305,7 @@ function initAPI(): API {
                     resolve();
                 },
                 reject: (error) => {
-                    apiErrorHandler(RequestType.SUBSCRIBE, error, requestData);
-                    reject();
+                    reject(error);
                 }
             })
         });
