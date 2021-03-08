@@ -45,7 +45,7 @@ export default (
           <Route path='/player/:uuid' component={PlayerDetails} />
           <Route path='/item/:tag' component={ItemDetails} />
           <Route path='/auction/:auctionUUID' component={AuctionDetails} />
-          <Route path='/premium' exact component={Premium} />
+          <Route path='/premium' component={Premium} />
           <Route path='/about' component={About} />
           <Route path='/subscriptions' component={Subscriptions} />
           <Route path='/feedback' component={Feedback} />

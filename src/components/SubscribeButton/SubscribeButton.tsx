@@ -36,7 +36,7 @@ function SubscribeButton(props: Props) {
                 }
             });
         }).catch(error => {
-            toast.error(error, {
+            toast.error(error.Message, {
                 onClick: () => {
                     history.push({
                         pathname: "/subscriptions"
