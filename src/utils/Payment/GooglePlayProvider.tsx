@@ -24,18 +24,17 @@ export default function GooglePlayProvider(): AbstractPaymentProvider {
         return new Promise((resolve, reject) => {
             if (!digitalGoodsService) {
                 setDigitalGoodsService().then(() => {
-                    if (digitalGoodsService) {
-                        digitalGoodsService.getDetails(['premium_30', 'premium_1', 'premium_3']).then(result => {
-                            resolve(result)
-                        }).catch(err => {
-                            reject(err);
-                        });
-                    }
+                    getProductsFromDigitalGoodsService().then(products => resolve(products));
                 });
+            } else {
+                getProductsFromDigitalGoodsService().then(products => resolve(products));
             }
         })
     }
-    
+
+    let getProductsFromDigitalGoodsService = (): Promise<Product[]> =>
+        digitalGoodsService.getDetails(['premium_30', 'premium_1', 'premium_3'])
+
     let pay = (product: Product): Promise<Product> => {
         return new Promise((resolve, reject) => {
             paymentMethods[0].data.sku = product.itemId;
