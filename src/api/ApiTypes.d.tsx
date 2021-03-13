@@ -46,7 +46,8 @@ export interface Subscription {
     topicId: string,
     price: number,
     types: SubscriptionType[],
-    type: string
+    type: string,
+    title?: string
 }
 
 export interface WebsocketHelper {

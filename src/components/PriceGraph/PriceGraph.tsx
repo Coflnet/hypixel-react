@@ -108,7 +108,7 @@ function PriceGraph(props: Props) {
             </div>
             <div className="additional-infos">
                 <span style={{ position: "relative", width: "80px", textAlign: "left" }}><b>Avg Price:</b> {isLoading ? "-" : numberWithThousandsSeperators(avgPrice) + " Coins"}</span>
-                <div style={{ position: "relative", flex: "1 1 auto" }}><SubscribeButton topic={props.item.tag} /></div>
+                <div style={{ position: "relative", flex: "1 1 auto" }}><SubscribeButton type="item" topic={props.item.tag} /></div>
                 <div style={{ position: "relative", flex: "1 1 auto" }}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
             </div>
         </div >
