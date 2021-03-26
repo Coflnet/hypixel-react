@@ -70,13 +70,22 @@ function SubscribeButton(props: Props) {
                 types.push(SubscriptionType.SOLD);
             }
         }
+        if (props.type === "auction") {
+            types.push(SubscriptionType.AUCTION);
+        }
         return types;
     }
 
     function onLogin() {
         setIsLoggedIn(true);
-        askForNotificationPermissons()
-            .then(token => api.setToken(token));
+        askForNotificationPermissons().then(token => {
+            api.setToken(token).then(() => {
+                if(props.type === "auction"){
+                    onSubscribe();
+                    setShowDialog(false);
+                }
+            });
+        });
     }
 
     function isNotifyDisabled() {
@@ -85,6 +94,14 @@ function SubscribeButton(props: Props) {
         }
         if (props.type === "player") {
             return !gotOutbid && !isSold;
+        }
+    }
+
+    function onClick() {
+        setShowDialog(true);
+        if(isLoggedIn && props.type === "auction"){
+                onSubscribe();
+                setShowDialog(false);
         }
     }
 
@@ -157,7 +174,7 @@ function SubscribeButton(props: Props) {
     return (
         <div className="subscribe-button">
             {dialog}
-            <Button onClick={() => setShowDialog(true)}>{bellIcon} Subscribe</Button>
+            <Button onClick={onClick}>{bellIcon} Subscribe</Button>
         </div >
     );
 }

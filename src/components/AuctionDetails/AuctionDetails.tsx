@@ -12,6 +12,7 @@ import { useForceUpdate } from '../../utils/Hooks';
 import moment from 'moment';
 import { v4 as generateUUID } from 'uuid';
 import { Link } from 'react-router-dom';
+import SubscribeButton from '../SubscribeButton/SubscribeButton';
 
 interface Props {
     auctionUUID: string
@@ -126,20 +127,25 @@ function AuctionDetails(props: Props) {
                     <Badge variant={binBadgeVariant} style={{ marginLeft: "5px" }}>BIN</Badge>
                 </h5>
                 </Link>
-                <OverlayTrigger
-                    overlay={<Tooltip id={generateUUID()}>
-                        {getTimeToolTipString()}
-                    </Tooltip>}>
-                    {
-                        isRunning(auctionDetails) ?
-                            <span>
-                                End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : "-"}
-                            </span> :
-                            <span>
-                                Auction ended {auctionDetails.auction.bin && auctionDetails.bids.length > 0 ? moment(auctionDetails.bids[0].timestamp).fromNow() : moment(auctionDetails.auction.end).fromNow()}
-                            </span>
-                    }
-                </OverlayTrigger>
+                <div className="center">
+                    <OverlayTrigger
+                        overlay={<Tooltip id={generateUUID()}>
+                            {getTimeToolTipString()}
+                        </Tooltip>}>
+                        {
+                            isRunning(auctionDetails) ?
+                                <span className="center-child">
+                                    End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : "-"}
+                                </span> :
+                                <span className="center-child">
+                                    Auction ended {auctionDetails.auction.bin && auctionDetails.bids.length > 0 ? moment(auctionDetails.bids[0].timestamp).fromNow() : moment(auctionDetails.auction.end).fromNow()}
+                                </span>
+                        }
+                    </OverlayTrigger>
+                    <div className="center-child">
+                        <SubscribeButton type="auction" topic={props.auctionUUID} />
+                    </div>
+                </div>
             </Card.Header>
             <Card.Body>
                 <p>
@@ -236,7 +242,7 @@ function AuctionDetails(props: Props) {
             <Search />
             {isAuctionFound ?
                 <div>
-                    <p>The auction you tried to see doesn't seem to exist. Please go back.</p><br/>
+                    <p>The auction you tried to see doesn't seem to exist. Please go back.</p><br />
                     <Link to="/"><Button>Get back</Button></Link>
                 </div> :
                 <div>

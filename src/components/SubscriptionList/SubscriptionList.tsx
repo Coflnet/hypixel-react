@@ -35,10 +35,14 @@ function SubscriptionList(props: Props) {
             if (!mounted) {
                 return;
             }
+            let promises: Promise<void>[] = [];
             subscriptions.forEach(subscription => {
-                getSubscriptionTitle(subscription);
-            })
-            setSubscriptions(subscriptions);
+                promises.push(getSubscriptionTitle(subscription));
+            });
+
+            Promise.all(promises).then(() => {
+                setSubscriptions(subscriptions);
+            });
         })
     }
 
@@ -97,21 +101,31 @@ function SubscriptionList(props: Props) {
         });
     }
 
-    function getSubscriptionTitle(subscription: Subscription) {
+    function getSubscriptionTitle(subscription: Subscription): Promise<void> {
+        return new Promise((resolve, reject) => {
             switch (subscription.type) {
                 case "item":
                     subscription.title = convertTagToName(subscription.topicId);
+                    resolve();
                     break;
                 case "player":
                     api.getPlayerName(subscription.topicId).then(playerName => {
-                        console.log(playerName)
                         subscription.title = playerName;
+                        resolve();
+                    })
+                    break;
+                case "auction":
+                    api.getAuctionDetails(subscription.topicId).then(auctionDetails => {
+                        subscription.title = auctionDetails.auction.item.name || auctionDetails.auction.item.tag;
+                        resolve();
                     })
                     break;
                 default:
                     subscription.title = subscription.topicId;
+                    resolve();
                     break;
             }
+        });
     }
 
     let repeatIcon = (
