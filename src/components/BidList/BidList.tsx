@@ -6,6 +6,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import './BidList.css'
 import { useHistory } from "react-router-dom";
+import SubscribeButton from '../SubscribeButton/SubscribeButton';
 
 interface Props {
     playerUUID: string
@@ -178,6 +179,7 @@ function BidList(props: Props) {
                     </ListGroup>
                 </InfiniteScroll>
             }
+            <div className="subscribe-button"><SubscribeButton type="player" topic={props.playerUUID} /></div>
             <Button className="upButton" type="primary" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button>
         </div>
     )

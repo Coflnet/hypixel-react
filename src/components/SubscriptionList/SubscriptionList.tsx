@@ -35,7 +35,14 @@ function SubscriptionList(props: Props) {
             if (!mounted) {
                 return;
             }
-            setSubscriptions(subscriptions);
+            let promises: Promise<void>[] = [];
+            subscriptions.forEach(subscription => {
+                promises.push(getSubscriptionTitle(subscription));
+            });
+
+            Promise.all(promises).then(() => {
+                setSubscriptions(subscriptions);
+            });
         })
     }
 
@@ -89,8 +96,35 @@ function SubscriptionList(props: Props) {
     }
 
     function resubscribe(subscription: Subscription) {
-        api.subscribe(subscription.topicId, subscription.price, subscription.types).then(() => {
+        api.subscribe(subscription.topicId, subscription.types, subscription.price).then(() => {
             loadSubscriptions();
+        });
+    }
+
+    function getSubscriptionTitle(subscription: Subscription): Promise<void> {
+        return new Promise((resolve, reject) => {
+            switch (subscription.type) {
+                case "item":
+                    subscription.title = convertTagToName(subscription.topicId);
+                    resolve();
+                    break;
+                case "player":
+                    api.getPlayerName(subscription.topicId).then(playerName => {
+                        subscription.title = playerName;
+                        resolve();
+                    })
+                    break;
+                case "auction":
+                    api.getAuctionDetails(subscription.topicId).then(auctionDetails => {
+                        subscription.title = auctionDetails.auction.item.name || auctionDetails.auction.item.tag;
+                        resolve();
+                    })
+                    break;
+                default:
+                    subscription.title = subscription.topicId;
+                    resolve();
+                    break;
+            }
         });
     }
 
@@ -104,7 +138,7 @@ function SubscriptionList(props: Props) {
     let subscriptionsTableBody = subscriptions.map((subscription, i) =>
     (
         <ListGroup.Item key={i}>
-            <h5><Badge style={{ marginRight: "5px" }} variant="primary">{i + 1}</Badge>{subscription.type === "item" ? convertTagToName(subscription.topicId) : subscription.topicId}</h5>
+            <h5><Badge style={{ marginRight: "5px" }} variant="primary">{i + 1}</Badge>{subscription.title}</h5>
             {getSubTypesAsList(subscription.types, subscription.price)}
             <div style={{ position: "absolute", top: "0.75rem", right: "1.25rem" }} onClick={() => { onDelete(subscription) }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" className="bi bi-trash-fill" viewBox="0 0 16 16">

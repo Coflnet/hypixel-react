@@ -22,8 +22,17 @@
     margin-top: 5vh;
 }
 
-.upButton {
+.up-button {
+    z-index: 10;
     position: fixed;
-    right: 20px;
     bottom: 20px;
+    right: 20px;
+    width: 45px;
+}
+
+.subscribe-button {
+    position: fixed;
+    bottom: 20px;
+    right: calc(20px + 45px + 20px);
+    z-index: 10;
 }

@@ -6,7 +6,6 @@ import { Stripe } from "@stripe/stripe-js";
 import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
-import { rejects } from "assert";
 
 function initAPI(): API {
 
@@ -284,20 +283,21 @@ function initAPI(): API {
         });
     }
 
-    let subscribe = (topic: string, price: number, types: SubscriptionType[]): Promise<void> => {
+    let subscribe = (topic: string, types: SubscriptionType[], price?: number): Promise<void> => {
         return new Promise((resolve, reject) => {
             // Add none, so reduce works (doesnt change the result)
             types.push(SubscriptionType.NONE);
 
             let requestData = {
                 topic: topic,
-                price: price,
+                price: price || undefined,
                 type: types.reduce((a, b) => {
                     let aNum: number = typeof a === "number" ? (a as number) : (parseInt(SubscriptionType[a]));
                     let bNum: number = typeof b === "number" ? (b as number) : (parseInt(SubscriptionType[b]));
                     return aNum + bNum;
                 })
             }
+            console.log(requestData);
             websocketHelper.sendRequest({
                 type: RequestType.SUBSCRIBE,
                 data: requestData,
