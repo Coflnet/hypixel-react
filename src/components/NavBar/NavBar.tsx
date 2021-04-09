@@ -35,13 +35,6 @@ function NavBar() {
         background: isDarkMode ? "#272b30" : "#FFFFFF"
     }
 
-    /**
-            --gray: #7a8288;
-    --gray-dark: #3a3f44;
-    --primary: #3a3f44;
-    --secondary: #7a8288;
-        */
-
     return (
         <span>
             <div className="nav-bar">
