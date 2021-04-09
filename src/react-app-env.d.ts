@@ -125,8 +125,8 @@ interface API {
   getVersion(): Promise<string>;
   subscribe(
     topic: string,
-    price: number,
-    type: SubscriptionType[]
+    type: SubscriptionType[],
+    price?: number
   ): Promise<void>;
   unsubscribe(subscription: Subscription): Promise<Number>;
   getSubscriptions(): Promise<Subscription[]>;

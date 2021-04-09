@@ -7,6 +7,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import './AuctionList.css';
 import { useHistory } from "react-router-dom";
 import { useForceUpdate } from '../../utils/Hooks';
+import SubscribeButton from '../SubscribeButton/SubscribeButton';
 
 interface Props {
     playerUUID: string
@@ -190,7 +191,8 @@ function AuctionList(props: Props) {
                         </ListGroup>
                     </InfiniteScroll>
             }
-            <Button className="upButton" type="primary" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button>
+            <div className="subscribe-button"><SubscribeButton type="player" topic={props.playerUUID} /></div>
+            <Button type="primary" className="up-button"  onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button>
         </div>
     )
 }

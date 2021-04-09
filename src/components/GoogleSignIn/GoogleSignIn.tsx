@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "react-google-login";
 import api from "../../api/ApiHelper";
 
@@ -9,6 +9,15 @@ interface Props {
 function GoogleSignIn(props: Props) {
 
     let [googleId, setGoogleId] = useState(localStorage.getItem("googleId"));
+
+    useEffect(() => {
+        if(googleId){
+            onLoginSucces({
+                tokenId: googleId
+            })
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const onLoginSucces = (response: any) => {
         localStorage.setItem("googleId", response.tokenId);

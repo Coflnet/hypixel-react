@@ -20,6 +20,17 @@
     float: left;
 }
 
+.center {
+    text-align: center;
+}
+
+.center-child {
+    display: inline-block;
+    width: 50%;
+    margin: 0 auto;
+    height: 100%;
+}
+
 #backButton {
     margin-bottom: 20px;
 }

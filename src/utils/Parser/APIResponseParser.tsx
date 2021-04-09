@@ -203,14 +203,23 @@ export function parseSubscriptionTypes(typeInNumeric: number): SubscriptionType[
     return subTypes;
 }
 
-function _getTypeFromSubTypes(subTypes: SubscriptionType[]) {
-    let isItem = true;
-    subTypes.forEach(subtype => {
-        if (subtype === SubscriptionType.OUTBID || subtype === SubscriptionType.SOLD || subtype === SubscriptionType.BIN) {
-            isItem = false;
-        }
-    });
-    return isItem ? "item" : "player";
+function _getTypeFromSubTypes(subTypes: SubscriptionType[]): string {
+    let type = "";
+    switch (SubscriptionType[subTypes[0].toString()]) {
+        case SubscriptionType.BIN:
+        case SubscriptionType.PRICE_HIGHER_THAN:
+        case SubscriptionType.PRICE_LOWER_THAN:
+            type = "item"
+            break;
+        case SubscriptionType.OUTBID:
+        case SubscriptionType.SOLD:
+            type = "player";
+            break;
+        case SubscriptionType.AUCTION:
+            type = "auction";
+            break;
+    }
+    return type;
 }
 
 export function parseSubscription(subscription: any): Subscription {

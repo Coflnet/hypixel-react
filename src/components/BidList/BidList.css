@@ -28,3 +28,9 @@
     right: 20px;
     bottom: 20px;
 }
+
+.subscribe-button {
+    position: fixed;
+    bottom: 20px;
+    right: calc(20px + 45px + 20px);
+}

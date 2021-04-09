@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import AuctionDetails from '../../components/AuctionDetails/AuctionDetails';
 import './AuctionDetails.css';
 import { useParams } from "react-router-dom";
+import { useForceUpdate } from '../../utils/Hooks';
 
 function AuctionDetailsPage() {
 
     let { auctionUUID } = useParams();
+    let forceUpdate = useForceUpdate();
+
+    useEffect(() => {
+        forceUpdate();
+    }, [auctionUUID])
 
     return (
         <div className="auction-details-page">
