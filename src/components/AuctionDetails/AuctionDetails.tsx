@@ -39,7 +39,6 @@ function AuctionDetails(props: Props) {
 
     let loadAuctionDetails = () => {
         api.getAuctionDetails(props.auctionUUID).then(auctionDetails => {
-            console.log(auctionDetails);
             auctionDetails.bids.sort((a, b) => b.amount - a.amount)
             setAuctionDetails(auctionDetails);
             api.getItemImageUrl(auctionDetails.auction.item).then(url => {
