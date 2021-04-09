@@ -16,6 +16,15 @@ export function MainApp(props: any) {
     const history = useHistory();
 
     useEffect(() => {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            let script = document.createElement("link")
+            script.rel = "stylesheet";
+            script.href = "/bootstrap-dark.css";
+            document.getElementsByTagName("head")[0].appendChild(script);
+        }
+    },[]);
+
+    useEffect(() => {
         trackPageView({
             documentTitle: document.title,
             href: window.location.href,

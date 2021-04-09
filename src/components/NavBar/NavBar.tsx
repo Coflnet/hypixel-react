@@ -9,13 +9,47 @@ function NavBar() {
     let { trackEvent } = useMatomo();
     let [showNav, setShowNav] = useState(false);
 
+    let isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+
+    const titleStyle = {
+        backgroundColor: isDarkMode ? '#7a8288' : "#22A7F0",
+        height: "60px",
+        margin: "auto",
+        padding: "0 20px",
+        lineHeight: "60px",
+        fontSize: "22px"
+    };
+
+    const navStyle = {
+        width: "60%",
+        background: isDarkMode ? "#3a3f44" : "#FFFFFF"
+    }
+
+    const itemStyle = {
+        padding: "22px 0px",
+        listStyleType: "none",
+        background: isDarkMode ? "#3a3f44" : "#FFFFFF"
+    }
+
+    const itemHoverStyle = {
+        background: isDarkMode ? "#272b30" : "#FFFFFF"
+    }
+
+    /**
+            --gray: #7a8288;
+    --gray-dark: #3a3f44;
+    --primary: #3a3f44;
+    --secondary: #7a8288;
+        */
+
     return (
         <span>
             <div className="nav-bar">
                 <SideNav showNav={showNav}
-                    titleStyle={{ backgroundColor: "#22A7F0", height: "60px", margin: "auto", padding: "0 20px", lineHeight: "60px", fontSize: "22px" }}
-                    navStyle={{ width: "60%" }}
-                    itemStyle={{ padding: "22px 0px", listStyleType: "none" }}
+                    titleStyle={titleStyle}
+                    navStyle={navStyle}
+                    itemStyle={itemStyle}
+                    itemHoverStyle={itemHoverStyle}
                     title={<span>Navigation</span>}
                     items={[
                         <Link to="/"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="" />Prices</div></Link>,

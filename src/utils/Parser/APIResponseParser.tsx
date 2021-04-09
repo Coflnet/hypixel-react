@@ -152,6 +152,8 @@ export function parsePlayer(player: any): Player {
 }
 
 export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
+    console.log(new Date(auctionDetails.end));
+    console.log(auctionDetails.end);
     return {
         auction: {
             uuid: auctionDetails.uuid,
