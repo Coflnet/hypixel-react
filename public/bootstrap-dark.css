@@ -370,9 +370,9 @@ pre code {
 }
 
 .form-control {
-    color: #52575c;
-    background-color: #fff;
-    border: 1px solid #ced4da;
+    color: #bec1c4;
+    background-color: #676869;
+    border: 1px solid #676869;
 }
 
 .form-control:-moz-focusring {
@@ -381,9 +381,9 @@ pre code {
 }
 
 .form-control:focus {
-    color: #52575c;
-    background-color: #fff;
-    border-color: #757f89;
+    color: #bec1c4;
+    background-color: #676869;
+    border-color: #676869;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(58, 63, 68, 0.25);
 }
@@ -409,7 +409,7 @@ pre code {
 }
 
 .form-control::placeholder {
-    color: #7a8288;
+    color: #bec1c4;
     opacity: 1;
 }
 
