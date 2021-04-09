@@ -850,21 +850,21 @@ select.form-control:focus::-ms-value {
 
 .btn-light {
     color: #272b30;
-    background-color: #e9ecef;
-    border-color: #e9ecef;
+    background-color: #939699;
+    border-color: #939699;
 }
 
 .btn-light:hover {
     color: #272b30;
-    background-color: #d3d9df;
-    border-color: #cbd3da;
+    background-color: #747577;
+    border-color: #747577;
 }
 
 .btn-light:focus,
 .btn-light.focus {
     color: #272b30;
-    background-color: #d3d9df;
-    border-color: #cbd3da;
+    background-color: #747577;
+    border-color: #747577;
     box-shadow: 0 0 0 0.2rem rgba(204, 207, 210, 0.5);
 }
 
