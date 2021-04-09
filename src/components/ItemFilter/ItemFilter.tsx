@@ -235,21 +235,23 @@ function ItemFilter(props: Props) {
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
-                            <Form.Group>
-                                <Form.Label>Level:</Form.Label>
-                                <Form.Control as="select" onChange={onLevelChange} defaultValue={itemFilter?.enchantment?.level} disabled={props.disabled || isLevelSelectDisabled()} ref={levelSelect}>
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                    <option>6</option>
-                                    <option>7</option>
-                                    <option>8</option>
-                                    <option>9</option>
-                                    <option>10</option>
-                                </Form.Control>
-                            </Form.Group>
+                            {!(props.disabled || isLevelSelectDisabled()) ?
+                                <Form.Group>
+                                    <Form.Label>Level:</Form.Label>
+                                    <Form.Control as="select" onChange={onLevelChange} defaultValue={itemFilter?.enchantment?.level} ref={levelSelect}>
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                        <option>6</option>
+                                        <option>7</option>
+                                        <option>8</option>
+                                        <option>9</option>
+                                        <option>10</option>
+                                    </Form.Control>
+                                </Form.Group>
+                                : ""}
                         </Form >
                         <div>
                             <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()} disabled={props.disabled}>Apply</Button>
