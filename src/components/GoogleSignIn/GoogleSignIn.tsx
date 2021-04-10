@@ -24,6 +24,8 @@ function GoogleSignIn(props: Props) {
         setGoogleId(response.tokenId);
         api.setGoogle(response.tokenId).then(() => {
             props.onAfterLogin();
+        }).catch(() => {
+            googleId = null;
         })
     };
 
