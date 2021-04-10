@@ -143,7 +143,9 @@ function AuctionDetails(props: Props) {
                         }
                     </OverlayTrigger>
                     <div className="center-child">
-                        <SubscribeButton type="auction" topic={props.auctionUUID} />
+                        {isRunning(auctionDetails) ?
+                            <SubscribeButton type="auction" topic={props.auctionUUID} />
+                            : ""}
                     </div>
                 </div>
             </Card.Header>
