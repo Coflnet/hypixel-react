@@ -645,43 +645,6 @@ select.form-control:focus::-ms-value {
 
 .btn-primary {
     color: #fff;
-    background-color: #7a8288;
-    border-color: #7a8288;
-}
-
-.btn-primary:hover {
-    color: #fff;
-    background-color: #686f74;
-    border-color: #62686d;
-}
-
-.btn-primary:focus,
-.btn-primary.focus {
-    color: #fff;
-    background-color: #686f74;
-    border-color: #62686d;
-    box-shadow: 0 0 0 0.2rem rgba(142, 149, 154, 0.5);
-}
-
-.btn-primary.disabled,
-.btn-primary:disabled {
-    color: #fff;
-    background-color: #7a8288;
-    border-color: #7a8288;
-}
-
-.btn-primary:not(:disabled):not(.disabled):active,
-.btn-primary:not(:disabled):not(.disabled).active,
-.show>.btn-primary.dropdown-toggle {
-    color: #fff;
-    background-color: #62686d;
-    border-color: #5c6267;
-}
-
-.btn-primary:not(:disabled):not(.disabled):active:focus,
-.btn-primary:not(:disabled):not(.disabled).active:focus,
-.show>.btn-primary.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.2rem rgba(142, 149, 154, 0.5);
 }
 
 .btn-success {
