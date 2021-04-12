@@ -26,6 +26,7 @@ function GoogleSignIn(props: Props) {
             props.onAfterLogin();
         }).catch(() => {
             googleId = null;
+            localStorage.removeItem("googleId");
         })
     };
 
