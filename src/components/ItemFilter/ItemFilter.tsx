@@ -214,10 +214,10 @@ function ItemFilter(props: Props) {
                     <Card.Body>
                         <Form inline style={{ marginBottom: "5px" }} >
                             <Form.Group>
-                                {reforges.length > 0 ?
+                                {reforges.length > 0 && itemFilter && itemFilter.reforge ?
                                     <div>
                                         <Form.Label>Reforge:</Form.Label>
-                                        <Form.Control className="reforge-filter-select-reforge" as="select" onChange={onReforgeChange} defaultValue={itemFilter?.reforge?.id} disabled={props.disabled} ref={reforgeSelect}>
+                                        <Form.Control className="reforge-filter-select-reforge" as="select" onChange={onReforgeChange} defaultValue={itemFilter.reforge.name} disabled={props.disabled} ref={reforgeSelect}>
                                             {reforgeSelectList}
                                         </Form.Control>
                                     </div> :
@@ -225,10 +225,10 @@ function ItemFilter(props: Props) {
                                 }
                             </Form.Group>
                             <Form.Group>
-                                {enchantments.length > 0 ?
+                                {enchantments.length > 0 && itemFilter && itemFilter.enchantment ?
                                     <div>
                                         <Form.Label>Enchantment:</Form.Label>
-                                        <Form.Control className="enchantment-filter-select-enchantment" as="select" onChange={onEnchantmentChange} defaultValue={itemFilter?.enchantment!.id} disabled={props.disabled} ref={enchantmentSelect}>
+                                        <Form.Control className="enchantment-filter-select-enchantment" as="select" onChange={onEnchantmentChange} defaultValue={itemFilter.enchantment.name} disabled={props.disabled} ref={enchantmentSelect}>
                                             {enchantmentSelectList}
                                         </Form.Control>
                                     </div> :
