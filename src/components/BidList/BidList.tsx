@@ -179,8 +179,10 @@ function BidList(props: Props) {
                     </ListGroup>
                 </InfiniteScroll>
             }
-            <div className="subscribe-button"><SubscribeButton type="player" topic={props.playerUUID} /></div>
-            <Button className="upButton" type="primary" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button>
+            <div className="fixed-bottom">
+                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button></div>
+                <div className="btn-bottom"><SubscribeButton type="player" topic={props.playerUUID} /></div>
+            </div >
         </div>
     )
 }

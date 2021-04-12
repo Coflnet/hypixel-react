@@ -1,21 +1,21 @@
-.bid-item-image {
+.bid-list>.bid-item-image {
     margin-right: 15px;
 }
 
-.bid-list {
+.bid-list>.bid-list {
     width: 96%;
     margin-left: auto;
     margin-right: auto
 }
 
-.loadingBanner {
+.bid-list>.loadingBanner {
     width: 50%;
     margin-left: auto;
     margin-right: auto;
     margin-top: 5vh;
 }
 
-.noAuctionFound {
+.bid-list>.noAuctionFound {
     margin-right: auto;
     margin-left: auto;
     width: max-content;
@@ -23,14 +23,27 @@
     margin-top: 5vh;
 }
 
-.upButton {
+.bid-list>.upButton {
     position: fixed;
     right: 20px;
     bottom: 20px;
 }
 
-.subscribe-button {
+.bid-list>.subscribe-button {
     position: fixed;
     bottom: 20px;
     right: calc(20px + 45px + 20px);
+}
+
+.bid-list>.fixed-bottom {
+    z-index: 10;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 100%;
+}
+
+.bid-list>.fixed-bottom>.btn-bottom {
+    float: right;
+    margin-left: 10px;
 }
