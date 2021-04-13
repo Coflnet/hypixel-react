@@ -405,7 +405,6 @@ function initAPI(): API {
                     resolve();
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.SET_GOOGLE, error, id);
                     reject();
                 }
             })
