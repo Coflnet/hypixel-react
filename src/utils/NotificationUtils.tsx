@@ -10,7 +10,7 @@ export default function registerCallback(history) {
 
         messaging.onMessage(function (payload) {
             let notification = payload.notification;
-            if (payload.data.type == "auction") {
+            if (payload.data.type === "auction") {
                 savePayloadIntoCache(payload);
             }
             displayNotification(notification);
@@ -21,7 +21,7 @@ export default function registerCallback(history) {
         toast.info(notification.title + "\n" + notification.body, {
             onClick: () => {
                 history.push(
-                    '/' + notification.click_action.match(/\/\/[^\/]+\/([^\.]+)/)[1]
+                    '/' + notification.click_action.match(/\/\/[^/]+\/([^.]+)/)[1]
                 );
             },
             autoClose: 20000

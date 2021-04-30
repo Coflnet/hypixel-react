@@ -11,6 +11,7 @@ function AuctionDetailsPage() {
 
     useEffect(() => {
         forceUpdate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [auctionUUID])
 
     return (
