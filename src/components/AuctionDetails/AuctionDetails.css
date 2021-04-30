@@ -34,3 +34,16 @@
 #backButton {
     margin-bottom: 20px;
 }
+
+.auction-list>.fixed-bottom {
+    z-index: 10;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 100%;
+}
+
+.btn-bottom {
+    float: right;
+    margin-left: 10px;
+}

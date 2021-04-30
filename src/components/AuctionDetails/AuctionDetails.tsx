@@ -195,12 +195,6 @@ function AuctionDetails(props: Props) {
                     {auctionDetails?.auctioneer.name}
                     <img crossOrigin="anonymous" src={auctionDetails?.auctioneer.iconUrl} alt="" height="16" width="16" style={{ marginLeft: "5px" }} />
                 </p>
-                <p>
-                    <span className="label">
-                        <Badge variant={labelBadgeVariant}>Command:</Badge>
-                    </span>
-                    {window.navigator.clipboard ? <div className="btn-bottom"><span onClick={copyClick}>{copyButtonClicked ? copiedIcon : copyIcon}</span></div> : ""}
-                </p>
                 <div>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? "labelForList" : "label"}>
                         <Badge variant={labelBadgeVariant}>Enchantments:</Badge>
@@ -275,33 +269,36 @@ function AuctionDetails(props: Props) {
                     <Link to="/"><Button>Get back</Button></Link>
                 </div> :
                 <div>
-                    <Card className="auction-card">
-                        {auctionCardContent}
-                    </Card>
-                    <Card className="auction-card">
-                        <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
-                            <h5>
-                                Item-Details
+                    <div>
+                        <Card className="auction-card">
+                            {auctionCardContent}
+                        </Card>
+                        <Card className="auction-card">
+                            <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
+                                <h5>
+                                    Item-Details
                         <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? arrowDownIcon : arrowUpIcon}</span>
-                            </h5>
-                        </Card.Header>
-                        <Collapse in={!isItemDetailsCollapse}>
+                                </h5>
+                            </Card.Header>
+                            <Collapse in={!isItemDetailsCollapse}>
+                                <Card.Body>
+                                    {itemDetailsCardContent}
+                                </Card.Body>
+                            </Collapse>
+                        </Card>
+                        <Card className="auction-card">
+                            <Card.Header>
+                                <h5>Bids</h5>
+                                {auctionDetails && auctionDetails?.bids.length > 1 ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
+                            </Card.Header>
                             <Card.Body>
-                                {itemDetailsCardContent}
+                                <ListGroup>
+                                    {bidList || getLoadingElement()}
+                                </ListGroup>
                             </Card.Body>
-                        </Collapse>
-                    </Card>
-                    <Card className="auction-card">
-                        <Card.Header>
-                            <h5>Bids</h5>
-                            {auctionDetails && auctionDetails?.bids.length > 1 ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
-                        </Card.Header>
-                        <Card.Body>
-                            <ListGroup>
-                                {bidList || getLoadingElement()}
-                            </ListGroup>
-                        </Card.Body>
-                    </Card>
+                        </Card>
+                    </div>
+                    <div className="fixed-bottom">{window.navigator.clipboard ? <div className="btn-bottom"><Button type="primary" onClick={copyClick}>{copyButtonClicked ? copiedIcon : copyIcon}</Button></div> : ""}</div>
                 </div>
             }
         </div>
