@@ -8,6 +8,7 @@ import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
 
 import { useHistory } from "react-router-dom";
 import registerNotificationCallback from '../../utils/NotificationUtils';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 
 export function MainApp(props: any) {
 
@@ -15,13 +16,16 @@ export function MainApp(props: any) {
     const location = useLocation();
     const history = useHistory();
 
+    const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
     useEffect(() => {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        if (prefersDarkMode) {
             let script = document.createElement("link")
             script.rel = "stylesheet";
             script.href = "/bootstrap-dark.css";
             document.getElementsByTagName("head")[0].appendChild(script);
         }
+        console.log(prefersDarkMode);
     },[]);
 
     useEffect(() => {
@@ -33,8 +37,18 @@ export function MainApp(props: any) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location])
 
+    const theme = React.useMemo(
+        () =>
+          createMuiTheme({
+            palette: {
+              type: prefersDarkMode ? 'dark' : 'light',
+            },
+          }),
+        [prefersDarkMode],
+      );
+
     return (
-        <div>
+        <ThemeProvider theme={theme}>
             <OfflineBanner />
             {props.children}
             <CookieConsent
@@ -50,6 +64,6 @@ export function MainApp(props: any) {
                 <span> Click <a href="https://coflnet.com/privacy"> here </a> to get to our privcy policy.</span>
             </CookieConsent>
             <ToastContainer />
-        </div>
+    </ThemeProvider>
     )
 }
