@@ -144,7 +144,7 @@ function AuctionDetails(props: Props) {
         <div>
             <Card.Header>
                 <Link to={"/item/" + auctionDetails.auction.item.tag}><h5>
-                    <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="" style={{ marginRight: "5px" }} />
+                    <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="item icon" style={{ marginRight: "5px" }} />
                     <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
                     <Badge variant={countBadgeVariant} style={{ marginLeft: "5px" }}>x{auctionDetails?.count}</Badge>
                     {auctionDetails.auction.bin ? <Badge variant={binBadgeVariant} style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
@@ -195,7 +195,7 @@ function AuctionDetails(props: Props) {
                         <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
                     </span>
                     {auctionDetails?.auctioneer.name}
-                    <img crossOrigin="anonymous" src={auctionDetails?.auctioneer.iconUrl} alt="" height="16" width="16" style={{ marginLeft: "5px" }} />
+                    <img crossOrigin="anonymous" src={auctionDetails?.auctioneer.iconUrl} alt="auctioneer icon" height="16" width="16" style={{ marginLeft: "5px" }} />
                 </p>
                 <div>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? "labelForList" : "label"}>
@@ -256,7 +256,7 @@ function AuctionDetails(props: Props) {
                     {numberWithThousandsSeperators(bid.amount)} Coins
                 </h6>
                 <span>
-                    <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="32" width="32" alt="" style={{ marginRight: "5px" }} />
+                    <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="32" width="32" alt="bidder minecraft icon" style={{ marginRight: "5px" }} />
                     {bid.bidder.name}
                 </span>
             </ListGroup.Item>

@@ -112,13 +112,13 @@ function AuctionList(props: Props) {
 
     let getCoinImage = () => {
         return (
-            <img src="/Coin.png" height="35px" width="35px" alt="" />
+            <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" />
         );
     }
 
     let getItemImageElement = (auction: Auction) => {
         return (
-            auction.item.iconUrl ? <img crossOrigin="anonymous" className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} /> : undefined
+            auction.item.iconUrl ? <img crossOrigin="anonymous" className="auction-item-image" src={auction.item.iconUrl} alt="item icon" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} /> : undefined
         )
     }
 
@@ -209,7 +209,7 @@ function AuctionList(props: Props) {
         <div className="auction-list">
             {
                 auctions.length === 0 && allAuctionsLoaded ?
-                    <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="" style={{ float: "left", marginRight: "5px" }} /> <p>No auctions found</p></div> :
+                    <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} /> <p>No auctions found</p></div> :
                     <InfiniteScroll style={{ overflow: "hidden" }} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
                         <ListGroup>
                             {auctionList}
