@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './OptionsMenu.css';
 import SideNav from 'react-simple-sidenav';
 import { Link } from 'react-router-dom';
 import { useMatomo } from '@datapunt/matomo-tracker-react';

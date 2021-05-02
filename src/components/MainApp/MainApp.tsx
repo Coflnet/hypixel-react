@@ -25,7 +25,6 @@ export function MainApp(props: any) {
             script.href = "/bootstrap-dark.css";
             document.getElementsByTagName("head")[0].appendChild(script);
         }
-        console.log(prefersDarkMode);
     },[]);
 
     useEffect(() => {
