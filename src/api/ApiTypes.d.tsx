@@ -21,7 +21,8 @@ export enum RequestType {
     FCM_TOKEN = "token",
     GET_STRIPE_PRODUCTS = "getProducts",
     GET_STRIPE_PRICES = "getPrices",
-    VALIDATE_PAYMENT_TOKEN = "gPurchase"
+    VALIDATE_PAYMENT_TOKEN = "gPurchase",
+    RECENT_AUCTIONS = "recentAuctions"
 }
 
 export enum SubscriptionType {

@@ -259,3 +259,12 @@ export function mapStripePrices(prices: any): Price[] {
         }
     });
 }
+
+export function parseRecentAuction(auction): RecentAuction{
+    return {
+        end: auction.end,
+        price: auction.price,
+        seller: auction.seller,
+        uuid: auction.uuid
+    }
+}
