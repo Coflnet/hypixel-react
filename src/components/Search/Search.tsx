@@ -5,6 +5,7 @@ import './Search.css';
 import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
 import NavBar from '../NavBar/NavBar';
+import OptionsMenu from '../OptionsMenu/OptionsMenu';
 
 interface Props {
     selected?: Player | Item
@@ -125,7 +126,10 @@ function Search(props: Props) {
                         }
                     </ListGroup>
             }
-            {props.selected ? getSelectedElement() : ""}
+            <div className="bar">
+                {props.selected ? getSelectedElement() : ""}
+                {isLoading ? "" : <OptionsMenu selected={props.selected}/>}
+            </div>
         </div >
     );
 }

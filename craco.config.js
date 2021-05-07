@@ -27,7 +27,10 @@ module.exports = {
                         'form-group',
                         'sr-only',
                         'close',
-                        'input'
+                        'input',
+                        'd-md-none',
+                        'd-none',
+                        'd-md-block'
                     ]
                 }),
             ],
