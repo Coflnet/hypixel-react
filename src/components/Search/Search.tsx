@@ -80,7 +80,7 @@ function Search(props: Props) {
 
     let noResultsFoundElement = (
         <ListGroup.Item key={-1} style={{ marginBottom: "10px" }}>
-            <img className="search-result-icon" width={32} height={32} src="/Barrier.png" alt="" />
+            <img className="search-result-icon" width={32} height={32} src="/Barrier.png" alt="not found icon" />
             No search results
         </ListGroup.Item>
     );
@@ -95,7 +95,7 @@ function Search(props: Props) {
         if (!props.selected) {
             return <div />
         }
-        return <p className="current"><Badge variant="primary">Current:</Badge> <img crossOrigin="anonymous" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} />{props.selected.name || convertTagToName((props.selected as Item).tag)}</p>
+        return <p className="current"><Badge variant="primary">Current:</Badge> <img crossOrigin="anonymous" src={props.selected.iconUrl} width="32" height="32" alt="item icon" style={{ marginRight: "10px" }} />{props.selected.name || convertTagToName((props.selected as Item).tag)}</p>
     }
 
     return (
@@ -116,7 +116,7 @@ function Search(props: Props) {
                                 results.map((result, i) => (
                                     <ListGroup.Item key={result.id} action onClick={(e: any) => { onItemClick(result) }} style={i === results.length - 1 ? { marginBottom: "10px" } : {}} >
                                         {result.dataItem.iconUrl ?
-                                            <img className="search-result-icon" crossOrigin="anonymous" width={32} height={32} src={result.dataItem.iconUrl} alt="" /> :
+                                            <img className="search-result-icon" crossOrigin="anonymous" width={32} height={32} src={result.dataItem.iconUrl} alt="item icon" /> :
                                             <Spinner animation="border" role="status" variant="primary" />
                                         }
                                         {result.dataItem.name}
