@@ -22,7 +22,8 @@ function OptionsMenu(props: Props) {
     const isItemPage = window.location.href.indexOf("/item/") > 0;
     const isPlayerPage = window.location.href.indexOf("/player/") > 0;
     if (isItemPage) {
-        available.push({ title: "Wiki", url: "https://hypixel-skyblock.fandom.com/wiki/" + props.selected?.name })
+        let name = props.selected?.name;
+        available.push({ title: "Wiki", url: "https://hypixel-skyblock.fandom.com/wiki/" + name})
     } else if(isPlayerPage) {
         let player = (props.selected as Player);
         available.push({ title: "SkyCrypt", url: "https://sky.shiiyu.moe/stats/" + player?.uuid })
@@ -42,7 +43,7 @@ function OptionsMenu(props: Props) {
     };
 
     const navigate = (url: string) => {
-        window.location.href = url;
+        window.open(url, "_blank")
     }
 
     return (

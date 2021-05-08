@@ -22,7 +22,6 @@
 
 .bar {
     display: flex;
-    height: 32px;
 }
 
 .current {
