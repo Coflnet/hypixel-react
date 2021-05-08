@@ -1,0 +1,10 @@
+.cardWrapper {
+    padding: 10px;
+    width: 50%;
+    display: inline-block;
+}
+
+.label {
+    width: 30%;
+    float: left;
+}

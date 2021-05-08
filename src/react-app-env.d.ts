@@ -59,7 +59,7 @@ interface Auction {
 interface RecentAuction {
   end: Date,
   price: number,
-  seller: string,
+  seller: Player,
   uuid: string
 }
 

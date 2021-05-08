@@ -16,6 +16,9 @@ interface Props {
     item: Item
 }
 
+// Boolean if the component is mounted. Set to false in useEffect cleanup function
+let mounted = true;
+
 function PriceGraph(props: Props) {
 
     const priceChartCanvas = useRef<HTMLCanvasElement>(null);
@@ -28,6 +31,10 @@ function PriceGraph(props: Props) {
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
 
     useEffect(() => {
+        mounted = true;
+    })
+
+    useEffect(() => {
         fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
         setFetchspan(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE))
         if (priceChartCanvas && priceChartCanvas.current) {
@@ -37,6 +44,11 @@ function PriceGraph(props: Props) {
                 updateChart(chart, fetchspan, undefined);
             }
         }
+
+        return () => {
+            mounted = false;
+        };
+
     }, [props.item.tag])
 
     let updateChart = (priceChart: Chart, fetchspan: number, itemFilter?: ItemFilter) => {
