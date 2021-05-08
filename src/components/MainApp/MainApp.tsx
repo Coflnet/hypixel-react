@@ -58,9 +58,12 @@ export function MainApp(props: any) {
                 buttonText="Yes, I understand"
                 declineButtonText="Decline"
                 cookieName="nonEssentialCookiesAllowed"
+                data-nosnippet
+                style={{paddingLeft:"40px"}}
             >
-                <p>We use cookies to enhance the user experience.</p>
-                <span> Click <a href="https://coflnet.com/privacy"> here </a> to get to our privcy policy.</span>
+                <span data-nosnippet>
+                <p style={{margin:"0px"}}>We use cookies for analytics. <a href="https://coflnet.com/privacy"> privacy policy </a></p>
+                </span>
             </CookieConsent>
             <ToastContainer />
     </ThemeProvider>
