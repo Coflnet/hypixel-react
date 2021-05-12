@@ -98,9 +98,9 @@ function AuctionDetails(props: Props) {
     let copyClick = () => {
         setCopyButtonClicked(true);
         window.navigator.clipboard.writeText("/viewauction " + props.auctionUUID);
-        toast.success(<p>Copied ingame link <br/><i>/viewauction {props.auctionUUID}</i></p>)
+        toast.success(<p>Copied ingame link <br /><i>/viewauction {props.auctionUUID}</i></p>)
     }
-    
+
     let arrowUpIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-up" viewBox="0 0 16 16">
             <path d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z" />
@@ -182,7 +182,7 @@ function AuctionDetails(props: Props) {
                     </span>
                     {auctionDetails?.reforge}
                 </p>
-              
+
                 <Link to={`/player/${auctionDetails.auctioneer.uuid}`}>
                     <p>
                         <span className="label">
@@ -192,7 +192,7 @@ function AuctionDetails(props: Props) {
                         <img crossOrigin="anonymous" src={auctionDetails?.auctioneer.iconUrl} alt="auctioneer icon" height="16" width="16" style={{ marginLeft: "5px" }} />
                     </p>
                 </Link>
-        
+
                 <div>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? "labelForList" : "label"}>
                         <Badge variant={labelBadgeVariant}>Enchantments:</Badge>
@@ -298,6 +298,17 @@ function AuctionDetails(props: Props) {
                             </Card.Body>
                         </Card>
                     </div>
+                    <Card className="auction-card">
+                        <Card.Header>
+                            <h5>Bids</h5>
+                            {auctionDetails ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
+                        </Card.Header>
+                        <Card.Body>
+                            <ListGroup>
+                                {bidList || getLoadingElement()}
+                            </ListGroup>
+                        </Card.Body>
+                    </Card>
                     <div className="fixed-bottom">{window.navigator.clipboard ? <div className="btn-bottom"><Button type="primary" onClick={copyClick}>{copyButtonClicked ? copiedIcon : copyIcon}</Button></div> : ""}</div>
                 </div>
             }

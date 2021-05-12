@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import SideNav from 'react-simple-sidenav';
-import { Link } from 'react-router-dom';
-import { useMatomo } from '@datapunt/matomo-tracker-react';
 import { Button, Fade, Menu, MenuItem } from '@material-ui/core';
 import MoreVert from '@material-ui/icons/MoreVert';
 import { useParams } from "react-router-dom";
@@ -16,7 +13,6 @@ interface AvailableLinks {
 
 function OptionsMenu(props: Props) {
 
-    let { trackEvent } = useMatomo();
     let [anchorEl, setAnchorEl] = useState(null);
 
     let { tag} = useParams();
@@ -58,7 +54,7 @@ function OptionsMenu(props: Props) {
                 ))}
             </div>
 
-        {available.length == 0 ? "" :
+        {available.length === 0 ? "" :
             <div className="d-md-none">
                 <Button aria-controls="fade-menu" aria-haspopup="true" onClick={handleClick}>
                     <MoreVert />
