@@ -5,35 +5,46 @@ import cookie from 'cookie';
 import { MainApp } from './components/MainApp/MainApp';
 import { getInitialLoadingElement } from './utils/LoadingUtils';
 
+interface PreloadComponent {
+  component: React.LazyExoticComponent<React.ComponentType<any>>,
+  preload: Function
+}
+
 /**
  * Import all page components here
  */
-const playerDetailsPromise = import('./pages/PlayerDetails/PlayerDetails');
-const PlayerDetails = React.lazy(() => playerDetailsPromise);
 
-const itemDetailsPromise = import('./pages/ItemDetails/ItemDetails');
-const ItemDetails = React.lazy(() => itemDetailsPromise);
+const ReactLazyPreload = importStatement => {
+  const Component: PreloadComponent = {
+    component: React.lazy(importStatement),
+    preload: importStatement
+  };
+  return Component;
+};
 
-const auctionDetailsPromise = import('./pages/AuctionDetails/AuctionDetails');
-const AuctionDetails = React.lazy(() => auctionDetailsPromise);
+const ItemDetails = ReactLazyPreload(() => import('./pages/ItemDetails/ItemDetails'));
+ItemDetails.preload();
 
-const premiumPromise = import('./pages/Premium/Premium');
-const Premium = React.lazy(() => premiumPromise);
+const PlayerDetails = ReactLazyPreload(() => import('./pages/PlayerDetails/PlayerDetails'));
+const AuctionDetails = ReactLazyPreload(() => import('./pages/AuctionDetails/AuctionDetails'));
+const Premium = ReactLazyPreload(() => import('./pages/Premium/Premium'));
+const NotFound = ReactLazyPreload(() => import('./pages/NotFound/NotFound'));
+const Subscriptions = ReactLazyPreload(() => import('./pages/Subscriptions/Subscriptions'));
+const Feedback = ReactLazyPreload(() => import('./pages/Feedback/Feedback'));
+const About = ReactLazyPreload(() => import('./pages/About/About'));
+const Cancel = ReactLazyPreload(() => import('./pages/PaymentCancel/PaymentCancel'));
 
-const notFoundPromise = import('./pages/NotFound/NotFound');
-const NotFound = React.lazy(() => notFoundPromise);
-
-const subscriptionPromise = import('./pages/Subscriptions/Subscriptions');
-const Subscriptions = React.lazy(() => subscriptionPromise);
-
-const feedbackPromise = import('./pages/Feedback/Feedback');
-const Feedback = React.lazy(() => feedbackPromise);
-
-const aboutPromise = import('./pages/About/About');
-const About = React.lazy(() => aboutPromise);
-
-const cancelPromise = import('./pages/PaymentCancel/PaymentCancel');
-const Cancel = React.lazy(() => cancelPromise);
+setTimeout(() => {
+  PlayerDetails.preload();
+  ItemDetails.preload();
+  AuctionDetails.preload();
+  Premium.preload();
+  NotFound.preload();
+  Subscriptions.preload();
+  Feedback.preload();
+  About.preload();
+  Cancel.preload();
+}, 2000);
 
 const matomoTrackingInstance = createInstance({
   urlBase: 'https://track.coflnet.com',
@@ -59,15 +70,15 @@ export default (
       <MainApp>
         <Switch>
           <Route exact path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />} />
-          <Route path='/player/:uuid' component={PlayerDetails} />
-          <Route path='/item/:tag' component={ItemDetails} />
-          <Route path='/auction/:auctionUUID' component={AuctionDetails} />
-          <Route path='/premium' component={Premium} />
-          <Route path='/about' component={About} />
-          <Route path='/subscriptions' component={Subscriptions} />
-          <Route path='/feedback' component={Feedback} />
-          <Route path='/cancel' component={Cancel} />
-          <Route path='*' exact component={NotFound} />
+          <Route path='/player/:uuid' component={PlayerDetails.component} />
+          <Route path='/item/:tag' component={ItemDetails.component} />
+          <Route path='/auction/:auctionUUID' component={AuctionDetails.component} />
+          <Route path='/premium' component={Premium.component} />
+          <Route path='/about' component={About.component} />
+          <Route path='/subscriptions' component={Subscriptions.component} />
+          <Route path='/feedback' component={Feedback.component} />
+          <Route path='/cancel' component={Cancel.component} />
+          <Route path='*' exact component={NotFound.component} />
         </Switch>
       </MainApp>
     </Suspense>
