@@ -160,7 +160,7 @@ function AuctionDetails(props: Props) {
                     {auctionDetails?.reforge}
                 </p>
                 <Link to={`/player/${auctionDetails.auctioneer.uuid}`}>
-                    <p style={{ cursor: "pointer" }}>
+                    <p>
                         <span className="label">
                             <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
                         </span>
