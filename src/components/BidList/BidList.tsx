@@ -7,6 +7,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import './BidList.css'
 import { useHistory } from "react-router-dom";
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
+import { Link } from 'react-router-dom';
 
 interface Props {
     playerUUID: string
@@ -118,12 +119,6 @@ function BidList(props: Props) {
         );
     }
 
-    let onBidClick = (bid: BidForList) => {
-        history.push({
-            pathname: `/auction/${bid.uuid}`
-        })
-    }
-
     let updateListState = () => {
         let listState = getListState();
         if (listState) {
@@ -154,18 +149,20 @@ function BidList(props: Props) {
 
     let bidsList = bids.map(bid => {
         return (
-            <ListGroup.Item key={bid.uuid} action onClick={() => { onBidClick(bid) }}>
-                <h4>
-                    {
-                        getItemImageElement(bid)
-                    }
-                    {bid.item.name}
-                    {bid.bin ? <Badge variant="secondary" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
-                </h4>
-                <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
-                <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>
-                <p>End of Auction: {bid.end.toLocaleTimeString() + " " + bid.end.toLocaleDateString()}</p>
-            </ListGroup.Item>
+            <Link key={bid.uuid} to={`/auction/${bid.uuid}`}>
+                <ListGroup.Item action>
+                    <h4>
+                        {
+                            getItemImageElement(bid)
+                        }
+                        {bid.item.name}
+                        {bid.bin ? <Badge variant="secondary" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
+                    </h4>
+                    <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
+                    <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>
+                    <p>End of Auction: {bid.end.toLocaleTimeString() + " " + bid.end.toLocaleDateString()}</p>
+                </ListGroup.Item>
+            </Link>
         )
     });
 

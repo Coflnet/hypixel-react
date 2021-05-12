@@ -56,6 +56,13 @@ interface Auction {
   bin: boolean;
 }
 
+interface RecentAuction {
+  end: Date,
+  price: number,
+  seller: Player,
+  uuid: string
+}
+
 interface ItemBid {
   auctionId: string;
   bidder: Player;
@@ -141,6 +148,7 @@ interface API {
     productId: string,
     packageName: string = packageName
   ): Promise<boolean>;
+  getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>
 }
 
 interface CacheUtils {

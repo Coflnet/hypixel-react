@@ -10,10 +10,14 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import ShareButton from '../ShareButton/ShareButton';
 import ItemFilter from '../ItemFilter/ItemFilter';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
+import RecentAuctions from '../RecentAuctions/RecentAuctions';
 
 interface Props {
     item: Item
 }
+
+// Boolean if the component is mounted. Set to false in useEffect cleanup function
+let mounted = true;
 
 function PriceGraph(props: Props) {
 
@@ -24,6 +28,11 @@ function PriceGraph(props: Props) {
     let [noDataFound, setNoDataFound] = useState(false);
     let [avgPrice, setAvgPrice] = useState(0);
     let [isFilterable, setIsFilterable] = useState(false);
+    let [itemFilter, setItemFilter] = useState<ItemFilter>();
+
+    useEffect(() => {
+        mounted = true;
+    })
 
     useEffect(() => {
         fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
@@ -35,6 +44,11 @@ function PriceGraph(props: Props) {
                 updateChart(chart, fetchspan, undefined);
             }
         }
+
+        return () => {
+            mounted = false;
+        };
+
     }, [props.item.tag])
 
     let updateChart = (priceChart: Chart, fetchspan: number, itemFilter?: ItemFilter) => {
@@ -45,6 +59,10 @@ function PriceGraph(props: Props) {
         setPriceChart(priceChart);
 
         api.getItemPrices(props.item.tag, fetchspan, itemFilter).then((result) => {
+
+            if(!mounted){
+                return;
+            }
 
             priceChart!.data.labels = result.prices.map(item => item.time.getTime());
             priceChart!.data.labels = priceChart!.data.labels.sort((a, b) => {
@@ -85,6 +103,11 @@ function PriceGraph(props: Props) {
         }
     }
 
+    let onFilterChange = (filter) => {
+        setItemFilter(filter);
+        updateChart(priceChart || createChart(priceConfig), fetchspan, filter);
+    }
+
     let graphOverlayElement = (
         isLoading ?
             <div className="graph-overlay">
@@ -100,7 +123,7 @@ function PriceGraph(props: Props) {
 
     return (
         <div className="price-graph">
-            {isFilterable ? <ItemFilter disabled={isLoading} onFilterChange={(filter) => { updateChart(priceChart || createChart(priceConfig), fetchspan, filter) }} /> : ""}
+            {isFilterable ? <ItemFilter disabled={isLoading} onFilterChange={onFilterChange}/> : ""}
             <ItemPriceRange onRangeChange={onRangeChange} disabled={isLoading} item={props.item} />
             <div className="graph-canvas-container">
                 {graphOverlayElement}
@@ -111,6 +134,7 @@ function PriceGraph(props: Props) {
                 <div style={{ position: "relative", flex: "1 1 auto" }}><SubscribeButton type="item" topic={props.item.tag} /></div>
                 <div style={{ position: "relative", flex: "1 1 auto" }}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
             </div>
+            <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />
         </div >
     );
 }

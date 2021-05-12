@@ -8,6 +8,7 @@ import './AuctionList.css';
 import { useHistory } from "react-router-dom";
 import { useForceUpdate } from '../../utils/Hooks';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 interface Props {
@@ -130,12 +131,6 @@ function AuctionList(props: Props) {
         })
     }
 
-    let onAuctionClick = (auction: Auction) => {
-        history.push({
-            pathname: `/auction/${auction.uuid}`
-        })
-    }
-
     let updateListState = () => {
         let listState = getListState();
         if (listState) {
@@ -189,19 +184,21 @@ function AuctionList(props: Props) {
 
     let auctionList = auctions.map(auction => {
         return (
-            <ListGroup.Item key={auction.uuid} action onClick={() => { onAuctionClick(auction) }}>
-                <h4>
-                    {
-                        getItemImageElement(auction)
-                    }
-                    {auction.item.name}
-                    {auction.end.getTime() < Date.now() || (auction.bin && auction.highestBid > 0) ? <Badge variant="danger" style={{ marginLeft: "10px" }}>Ended</Badge> : <Badge variant="info" style={{ marginLeft: "10px" }}>Running</Badge>}
-                    {auction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
-                </h4>
-                <p>Highest Bid: {numberWithThousandsSeperators(auction.highestBid)} {getCoinImage()}</p>
-                <p>Starting Bid: {numberWithThousandsSeperators(auction.startingBid)} {getCoinImage()}</p>
-                <p>End of Auction: {auction.end.toLocaleTimeString() + " " + auction.end.toLocaleDateString()}</p>
-            </ListGroup.Item>
+            <Link key={auction.uuid} to={`/auction/${auction.uuid}`}>
+                <ListGroup.Item action>
+                    <h4>
+                        {
+                            getItemImageElement(auction)
+                        }
+                        {auction.item.name}
+                        {auction.end.getTime() < Date.now() || (auction.bin && auction.highestBid > 0) ? <Badge variant="danger" style={{ marginLeft: "10px" }}>Ended</Badge> : <Badge variant="info" style={{ marginLeft: "10px" }}>Running</Badge>}
+                        {auction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
+                    </h4>
+                    <p>Highest Bid: {numberWithThousandsSeperators(auction.highestBid)} {getCoinImage()}</p>
+                    <p>Starting Bid: {numberWithThousandsSeperators(auction.startingBid)} {getCoinImage()}</p>
+                    <p>End of Auction: {auction.end.toLocaleTimeString() + " " + auction.end.toLocaleDateString()}</p>
+                </ListGroup.Item>
+            </Link>
         )
     });
 
@@ -217,9 +214,9 @@ function AuctionList(props: Props) {
                     </InfiniteScroll>
             }
             <div className="fixed-bottom">
-                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button></div>
                 {window.navigator.clipboard ? <div className="btn-bottom"><Button type="primary" onClick={copyClick}>{copyButtonClicked ? copiedIcon : copyIcon}</Button></div> : ""}
                 <div className="btn-bottom"><SubscribeButton type="player" topic={props.playerUUID} /></div>
+                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button></div>
             </div >
         </div >
     )
