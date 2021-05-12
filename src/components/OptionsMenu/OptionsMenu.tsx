@@ -18,12 +18,18 @@ function OptionsMenu(props: Props) {
     let { trackEvent } = useMatomo();
     let [anchorEl, setAnchorEl] = useState(null);
 
+    const getItemTag = (isItemPage: number) => {
+        return window.location.href.substr(isItemPage + 6).split('/')[0].split('?')[0];
+    }
+    
     let available: AvailableLinks[] = [];
-    const isItemPage = window.location.href.indexOf("/item/") > 0;
+    const isItemPage = window.location.href.indexOf("/item/");
     const isPlayerPage = window.location.href.indexOf("/player/") > 0;
-    if (isItemPage) {
+    if (isItemPage> 0) {
         let name = props.selected?.name;
+        let tag = getItemTag(isItemPage);
         available.push({ title: "Wiki", url: "https://hypixel-skyblock.fandom.com/wiki/" + name})
+        available.push({ title: "HyAuctions", url: "https://auctions.craftlink.xyz/items/" + tag})
     } else if(isPlayerPage) {
         let player = (props.selected as Player);
         available.push({ title: "SkyCrypt", url: "https://sky.shiiyu.moe/stats/" + player?.uuid })
@@ -50,7 +56,7 @@ function OptionsMenu(props: Props) {
         <span>
             <div className="d-none d-md-block">
                 {available.map((result, i) => (
-                    <Button variant="outlined" onClick={(e: any) => { navigate(result.url) }}>{result.title}</Button>
+                    <a href={result.url} title={result.title} target="_blank"><Button variant="outlined" >{result.title}</Button></a> 
                 ))}
             </div>
 
