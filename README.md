@@ -1,3 +1,6 @@
+This is the current frontend for https://sky.coflnet.com
+You can contribute by opening pull requests.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

@@ -7,6 +7,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import './BidList.css'
 import { useHistory } from "react-router-dom";
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
+import { Link } from 'react-router-dom';
 
 interface Props {
     playerUUID: string
@@ -108,20 +109,14 @@ function BidList(props: Props) {
 
     let getItemImageElement = (bid: BidForList) => {
         return (
-            bid.item.iconUrl ? <img crossOrigin="anonymous" className="bid-item-image" src={bid.item.iconUrl} alt="" height="48" width="48" /> : undefined
+            bid.item.iconUrl ? <img crossOrigin="anonymous" className="bid-item-image" src={bid.item.iconUrl} alt="item icon" height="48" width="48" /> : undefined
         )
     }
 
     let getCoinImage = () => {
         return (
-            <img src="/Coin.png" height="35px" width="35px" alt="" />
+            <img src="/Coin.png" height="35px" width="35px" alt="coin icon" />
         );
-    }
-
-    let onBidClick = (bid: BidForList) => {
-        history.push({
-            pathname: `/auction/${bid.uuid}`
-        })
     }
 
     let updateListState = () => {
@@ -154,33 +149,37 @@ function BidList(props: Props) {
 
     let bidsList = bids.map(bid => {
         return (
-            <ListGroup.Item key={bid.uuid} action onClick={() => { onBidClick(bid) }}>
-                <h4>
-                    {
-                        getItemImageElement(bid)
-                    }
-                    {bid.item.name}
-                    {bid.bin ? <Badge variant="secondary" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
-                </h4>
-                <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
-                <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>
-                <p>End of Auction: {bid.end.toLocaleTimeString() + " " + bid.end.toLocaleDateString()}</p>
-            </ListGroup.Item>
+            <Link key={bid.uuid} to={`/auction/${bid.uuid}`}>
+                <ListGroup.Item action>
+                    <h4>
+                        {
+                            getItemImageElement(bid)
+                        }
+                        {bid.item.name}
+                        {bid.bin ? <Badge variant="secondary" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
+                    </h4>
+                    <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
+                    <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>
+                    <p>End of Auction: {bid.end.toLocaleTimeString() + " " + bid.end.toLocaleDateString()}</p>
+                </ListGroup.Item>
+            </Link>
         )
     });
 
     return (
         <div className="bid-list">
             {bids.length === 0 && allBidsLoaded ?
-                <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="" style={{ float: "left", marginRight: "5px" }} /> <p>No bids found</p></div> :
+                <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} /> <p>No bids found</p></div> :
                 <InfiniteScroll style={{ overflow: "hidden" }} dataLength={bids.length} next={loadNewBids} hasMore={!allBidsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
                     <ListGroup>
                         {bidsList}
                     </ListGroup>
                 </InfiniteScroll>
             }
-            <div className="subscribe-button"><SubscribeButton type="player" topic={props.playerUUID} /></div>
-            <Button className="upButton" type="primary" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button>
+            <div className="fixed-bottom">
+                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button></div>
+                <div className="btn-bottom"><SubscribeButton type="player" topic={props.playerUUID} /></div>
+            </div >
         </div>
     )
 }

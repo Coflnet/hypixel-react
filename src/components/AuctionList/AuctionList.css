@@ -1,20 +1,20 @@
-.auction-item-image {
+.auction-list>.auction-item-image {
     margin-right: 15px;
 }
 
-.auction-list {
+.auction-list>.auction-list {
     width: 96%;
     margin-left: 2%;
 }
 
-.loadingBanner {
+.auction-list>.loadingBanner {
     width: 50%;
     margin-left: auto;
     margin-right: auto;
     margin-top: 5vh;
 }
 
-.noAuctionFound {
+.auction-list>.noAuctionFound {
     margin-right: auto;
     margin-left: auto;
     width: max-content;
@@ -22,17 +22,15 @@
     margin-top: 5vh;
 }
 
-.up-button {
+.auction-list>.fixed-bottom {
     z-index: 10;
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 45px;
+    width: 100%;
 }
 
-.subscribe-button {
-    position: fixed;
-    bottom: 20px;
-    right: calc(20px + 45px + 20px);
-    z-index: 10;
+.auction-list>.fixed-bottom>.btn-bottom {
+    float: right;
+    margin-left: 10px;
 }

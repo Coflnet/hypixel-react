@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseRecentAuction, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { v4 as generateUUID } from 'uuid';
@@ -477,6 +477,29 @@ function initAPI(): API {
         });
     }
 
+    let getRecentAuctions = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]> => {
+        return new Promise((resolve, reject) => {
+
+            let requestData = {
+                name: itemTagOrName,
+                start: Math.round(fetchStart / 100000) * 100,
+                reforge: itemFilter?.reforge ? itemFilter.reforge.id : undefined,
+                enchantments: itemFilter && itemFilter.enchantment !== undefined && itemFilter.enchantment.level !== undefined && itemFilter.enchantment.id ? [[itemFilter.enchantment.id, itemFilter.enchantment.level]] : undefined
+            };
+            websocketHelper.sendRequest({
+                type: RequestType.RECENT_AUCTIONS,
+                data: requestData,
+                resolve: (data: any) => {
+                    resolve(data.map(a => parseRecentAuction(a)));
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData);
+                    reject();
+                }
+            })
+        });
+    }
+
     return {
         search,
         trackSearch,
@@ -501,7 +524,8 @@ function initAPI(): API {
         setToken,
         getStripeProducts,
         getStripePrices,
-        validatePaymentToken
+        validatePaymentToken,
+        getRecentAuctions
     }
 }
 

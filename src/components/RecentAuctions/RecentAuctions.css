@@ -1,0 +1,33 @@
+.cardWrapper {
+    padding: 15px;
+    display: inline-block;
+}
+
+@media all and (max-width: 480px) {
+    .cardWrapper {
+        width: 100%;
+    }
+}
+
+@media all and (min-width: 480px) and (max-width: 768px) {
+    .cardWrapper {
+        width: 50%;
+    }
+}
+
+@media all and (min-width: 768px) and (max-width: 1024px) {
+    .cardWrapper {
+        width: 25%;
+    }
+}
+
+@media all and (min-width: 1024px) {
+    .cardWrapper {
+        width: 16.66666666666666666666666666666%;
+    }
+}
+
+.label {
+    width: 30%;
+    float: left;
+}
