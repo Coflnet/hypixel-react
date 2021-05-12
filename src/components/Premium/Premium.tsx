@@ -11,13 +11,11 @@ let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
 function Premium() {
 
-    let [googleId, setGoogleId] = useState("");
     let [isLoggedIn, setIsLoggedIn] = useState(false);
 
     function onLogin() {
         let googleId = localStorage.getItem('googleId');
         if (googleId) {
-            setGoogleId(googleId);
             setIsLoggedIn(true);
         }
     }

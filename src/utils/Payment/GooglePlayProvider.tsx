@@ -76,7 +76,7 @@ export default function GooglePlayProvider(): AbstractPaymentProvider {
     let setDigitalGoodsService = (): Promise<void> => {
         return new Promise((resolve, reject) => {
             if (!('getDigitalGoodsService' in window)) {
-                throw 'getDigitalGoodsService not found';
+                throw new Error('getDigitalGoodsService not found');
             }
             (window as any).getDigitalGoodsService(PAYMENT_METHOD).then(service => {
                 digitalGoodsService = service

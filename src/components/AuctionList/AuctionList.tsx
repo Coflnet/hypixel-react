@@ -9,6 +9,7 @@ import { useHistory } from "react-router-dom";
 import { useForceUpdate } from '../../utils/Hooks';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 interface Props {
     playerUUID: string
@@ -34,6 +35,7 @@ function AuctionList(props: Props) {
 
     let [auctions, setAuctions] = useState<Auction[]>([]);
     let [allAuctionsLoaded, setAllAuctinosLoaded] = useState(false);
+    let [copyButtonClicked, setCopyButtonClicked] = useState(false);
 
     useEffect(() => {
         mounted = true;
@@ -111,13 +113,13 @@ function AuctionList(props: Props) {
 
     let getCoinImage = () => {
         return (
-            <img src="/Coin.png" height="35px" width="35px" alt="" />
+            <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" />
         );
     }
 
     let getItemImageElement = (auction: Auction) => {
         return (
-            auction.item.iconUrl ? <img crossOrigin="anonymous" className="auction-item-image" src={auction.item.iconUrl} alt="" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} /> : undefined
+            auction.item.iconUrl ? <img crossOrigin="anonymous" className="auction-item-image" src={auction.item.iconUrl} alt="item icon" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} /> : undefined
         )
     }
 
@@ -157,6 +159,29 @@ function AuctionList(props: Props) {
         </svg>
     );
 
+    let copyIcon = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clipboard" viewBox="0 0 16 16">
+            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+        </svg>
+    );
+
+    let copiedIcon = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clipboard-check" viewBox="0 0 16 16">
+            <path fillRule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
+            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+        </svg>
+    );
+
+    let copyClick = () => {
+        api.getPlayerName(props.playerUUID).then(playerName => {
+            setCopyButtonClicked(true);
+            window.navigator.clipboard.writeText("/ah " + playerName);
+            toast.success(<p>Copied ingame link <br/> <i>/ah {playerName}</i></p>)
+        });
+    }
+
     let auctionList = auctions.map(auction => {
         return (
             <Link key={auction.uuid} to={`/auction/${auction.uuid}`}>
@@ -181,16 +206,19 @@ function AuctionList(props: Props) {
         <div className="auction-list">
             {
                 auctions.length === 0 && allAuctionsLoaded ?
-                    <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="" style={{ float: "left", marginRight: "5px" }} /> <p>No auctions found</p></div> :
+                    <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} /> <p>No auctions found</p></div> :
                     <InfiniteScroll style={{ overflow: "hidden" }} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
                         <ListGroup>
                             {auctionList}
                         </ListGroup>
                     </InfiniteScroll>
             }
-            <div className="subscribe-button"><SubscribeButton type="player" topic={props.playerUUID} /></div>
-            <Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button>
-        </div>
+            <div className="fixed-bottom">
+                {window.navigator.clipboard ? <div className="btn-bottom"><Button type="primary" onClick={copyClick}>{copyButtonClicked ? copiedIcon : copyIcon}</Button></div> : ""}
+                <div className="btn-bottom"><SubscribeButton type="player" topic={props.playerUUID} /></div>
+                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button></div>
+            </div >
+        </div >
     )
 }
 

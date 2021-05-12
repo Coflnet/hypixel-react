@@ -7,7 +7,10 @@ function Payment() {
 
   let [productListJsx, _setProductListJsx] = useState<JSX.Element>();
 
-  useEffect(() => { setProductsJsx() }, []);
+  useEffect(() => {
+    setProductsJsx()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const setProductsListJsx = (jsx: JSX.Element) => {
     if (productListJsx !== jsx) {
@@ -25,14 +28,14 @@ function Payment() {
       getProducts().then(products => {
         resolve(
           <div className="product-grid">
-              <div className="product-column product-column-title product-column-header">
-                <b>Title</b>
-              </div>
-              <div className="product-column product-column-price product-column-header">
-                <b>Price</b>
-              </div>
-              <div className="product-column product-column-buy-button product-column-header">
-              </div>
+            <div className="product-column product-column-title product-column-header">
+              <b>Title</b>
+            </div>
+            <div className="product-column product-column-price product-column-header">
+              <b>Price</b>
+            </div>
+            <div className="product-column product-column-buy-button product-column-header">
+            </div>
             {products.map(product => <div key={product.itemId} className="product-wrapper">
               <div className="product-column product-column-title">
                 {product.title}
@@ -41,7 +44,7 @@ function Payment() {
                 {roundToTwo(product.price.value)}
               </div>
               <div className="product-column product-column-buy-button">
-                <Button onClick={() => {onPay(product)}}>
+                <Button onClick={() => { onPay(product) }}>
                   Buy
                 </Button>
               </div>
