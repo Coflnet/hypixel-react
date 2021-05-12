@@ -8,15 +8,32 @@ import { getInitialLoadingElement } from './utils/LoadingUtils';
 /**
  * Import all page components here
  */
-const PlayerDetails = React.lazy(() => import('./pages/PlayerDetails/PlayerDetails'));
-const ItemDetails = React.lazy(() => import('./pages/ItemDetails/ItemDetails'));
-const AuctionDetails = React.lazy(() => import('./pages/AuctionDetails/AuctionDetails'));
-const Premium = React.lazy(() => import('./pages/Premium/Premium'));
-const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'));
-const Subscriptions = React.lazy(() => import('./pages/Subscriptions/Subscriptions'));
-const Feedback = React.lazy(() => import('./pages/Feedback/Feedback'));
-const About = React.lazy(() => import('./pages/About/About'));
-const Cancel = React.lazy(() => import('./pages/PaymentCancel/PaymentCancel'));
+const playerDetailsPromise = import('./pages/PlayerDetails/PlayerDetails');
+const PlayerDetails = React.lazy(() => playerDetailsPromise);
+
+const itemDetailsPromise = import('./pages/ItemDetails/ItemDetails');
+const ItemDetails = React.lazy(() => itemDetailsPromise);
+
+const auctionDetailsPromise = import('./pages/AuctionDetails/AuctionDetails');
+const AuctionDetails = React.lazy(() => auctionDetailsPromise);
+
+const premiumPromise = import('./pages/Premium/Premium');
+const Premium = React.lazy(() => premiumPromise);
+
+const notFoundPromise = import('./pages/NotFound/NotFound');
+const NotFound = React.lazy(() => notFoundPromise);
+
+const subscriptionPromise = import('./pages/Subscriptions/Subscriptions');
+const Subscriptions = React.lazy(() => subscriptionPromise);
+
+const feedbackPromise = import('./pages/Feedback/Feedback');
+const Feedback = React.lazy(() => feedbackPromise);
+
+const aboutPromise = import('./pages/About/About');
+const About = React.lazy(() => aboutPromise);
+
+const cancelPromise = import('./pages/PaymentCancel/PaymentCancel');
+const Cancel = React.lazy(() => cancelPromise);
 
 const matomoTrackingInstance = createInstance({
   urlBase: 'https://track.coflnet.com',
