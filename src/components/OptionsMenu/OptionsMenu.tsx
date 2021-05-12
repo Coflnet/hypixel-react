@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 import { Button, Fade, Menu, MenuItem } from '@material-ui/core';
 import MoreVert from '@material-ui/icons/MoreVert';
+import { useParams } from "react-router-dom";
 
 interface Props {
     selected?: Player | Item
@@ -18,16 +19,13 @@ function OptionsMenu(props: Props) {
     let { trackEvent } = useMatomo();
     let [anchorEl, setAnchorEl] = useState(null);
 
-    const getItemTag = (isItemPage: number) => {
-        return window.location.href.substr(isItemPage + 6).split('/')[0].split('?')[0];
-    }
+    let { tag} = useParams();
     
     let available: AvailableLinks[] = [];
-    const isItemPage = window.location.href.indexOf("/item/");
+    const isItemPage = window.location.href.indexOf("/item/") > 0;
     const isPlayerPage = window.location.href.indexOf("/player/") > 0;
-    if (isItemPage> 0) {
+    if (isItemPage) {
         let name = props.selected?.name;
-        let tag = getItemTag(isItemPage);
         available.push({ title: "Wiki", url: "https://hypixel-skyblock.fandom.com/wiki/" + name})
         available.push({ title: "HyAuctions", url: "https://auctions.craftlink.xyz/items/" + tag})
     } else if(isPlayerPage) {
