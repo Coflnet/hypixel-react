@@ -4,6 +4,7 @@ import api from '../../api/ApiHelper';
 import './RecentAuctions.css';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { useHistory } from "react-router-dom";
+import moment from 'moment';
 interface Props {
     item: Item,
     fetchspan: number,
@@ -62,6 +63,8 @@ function RecentAuctions(props: Props) {
                     <Card.Body style={{ padding: "10px" }}>
                             <span style={{marginRight: "15px"}}>{recentAuction.seller.name}</span>
                             <img crossOrigin="anonymous" src={recentAuction.seller.iconUrl} alt="" height="24" width="24" />
+                            <hr/>
+                            <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
                     </Card.Body>
                 </Card>
             </div>
