@@ -25,7 +25,8 @@ export function MainApp(props: any) {
             script.href = "/bootstrap-dark.css";
             document.getElementsByTagName("head")[0].appendChild(script);
         }
-    },[]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         trackPageView({
@@ -38,13 +39,13 @@ export function MainApp(props: any) {
 
     const theme = React.useMemo(
         () =>
-          createMuiTheme({
-            palette: {
-              type: prefersDarkMode ? 'dark' : 'light',
-            },
-          }),
+            createMuiTheme({
+                palette: {
+                    type: prefersDarkMode ? 'dark' : 'light',
+                },
+            }),
         [prefersDarkMode],
-      );
+    );
 
     return (
         <ThemeProvider theme={theme}>
@@ -59,13 +60,13 @@ export function MainApp(props: any) {
                 declineButtonText="Decline"
                 cookieName="nonEssentialCookiesAllowed"
                 data-nosnippet
-                style={{paddingLeft:"40px"}}
+                style={{ paddingLeft: "40px" }}
             >
                 <span data-nosnippet>
-                <p style={{margin:"0px"}}>We use cookies for analytics. <a href="https://coflnet.com/privacy"> privacy policy </a></p>
+                    <p style={{ margin: "0px" }}>We use cookies for analytics. <a href="https://coflnet.com/privacy"> privacy policy </a></p>
                 </span>
             </CookieConsent>
             <ToastContainer />
-    </ThemeProvider>
+        </ThemeProvider>
     )
 }
