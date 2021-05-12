@@ -39,7 +39,15 @@ export function convertTagToName(itemTag?: string): string {
     }
 
     let formatted: string = itemTag.replace(new RegExp("_", "g"), " ").toLowerCase();
+
+
     formatted = capitalizeWords(formatted);
+    // special per item Formating
+    formatted = formatted?.replace("Pet Item", '');
+    if (formatted?.startsWith("Pet"))
+        formatted = formatted?.replace("Pet", '') + " Pet";
+    if (formatted?.startsWith("Ring"))
+        formatted = formatted?.replace("Ring ", '') + " Ring";
     return formatted;
 }
 
