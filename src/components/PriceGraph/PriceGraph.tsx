@@ -60,6 +60,10 @@ function PriceGraph(props: Props) {
 
         api.getItemPrices(props.item.tag, fetchspan, itemFilter).then((result) => {
 
+            if(!mounted){
+                return;
+            }
+
             priceChart!.data.labels = result.prices.map(item => item.time.getTime());
             priceChart!.data.labels = priceChart!.data.labels.sort((a, b) => {
                 return (a as number) - (b as number);
