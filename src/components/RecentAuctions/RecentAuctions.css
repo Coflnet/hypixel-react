@@ -1,4 +1,4 @@
-@media only screen and (max-device-width: 480px) {
+@media all and (max-width: 480px) {
     .cardWrapper {
         padding: 15px;
         width: 100%;
@@ -6,7 +6,7 @@
     }
 }
 
-@media only screen and (min-device-width: 480px) and (max-device-width: 768px) {
+@media all and (min-width: 480px) and (max-width: 768px) {
     .cardWrapper {
         padding: 15px;
         width: 50%;
@@ -14,7 +14,7 @@
     }
 }
 
-@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+@media all and (min-width: 768px) and (max-width: 1024px) {
     .cardWrapper {
         padding: 15px;
         width: 25%;
@@ -22,7 +22,7 @@
     }
 }
 
-@media only screen and (min-device-width: 1024px) {
+@media all and (min-width: 1024px) {
     .cardWrapper {
         padding: 15px;
         width: 16.66666666666666666666666666666%;
