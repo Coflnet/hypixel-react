@@ -239,6 +239,8 @@ function AuctionDetails(props: Props) {
             </ListGroup.Item>
         })
 
+    console.log(auctionDetails);
+
     return (
         <div className="auction-details">
             <Search />
@@ -267,7 +269,7 @@ function AuctionDetails(props: Props) {
                     <Card className="auction-card">
                         <Card.Header>
                             <h5>Bids</h5>
-                            {auctionDetails && auctionDetails?.bids.length > 1 ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
+                            {auctionDetails ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
                         </Card.Header>
                         <Card.Body>
                             <ListGroup>
