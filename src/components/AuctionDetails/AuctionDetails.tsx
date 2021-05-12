@@ -222,7 +222,7 @@ function AuctionDetails(props: Props) {
     let bidList = auctionDetails?.bids.length === 0 ? <p>No bids</p> :
         auctionDetails?.bids.map((bid, i) => {
             let headingStyle = i === 0 ? { color: "green" } : { color: "red" };
-            return <Link key={generateUUID()} to={`/player/${auctionDetails?.auctioneer.uuid}`}>
+            return <Link key={generateUUID()} to={`/player/${bid.bidder.uuid}`}>
                 <ListGroup.Item key={bid.amount} action>
                     <h6 style={headingStyle}>
                         {numberWithThousandsSeperators(bid.amount)} Coins
