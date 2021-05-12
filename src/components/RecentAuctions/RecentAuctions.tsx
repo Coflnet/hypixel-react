@@ -42,7 +42,7 @@ function RecentAuctions(props: Props) {
         };
     }, [props.item, props.fetchspan, props.itemFilter]);
 
-    function onCardClick(uuid){
+    function onCardClick(uuid) {
         history.push({
             pathname: `/auction/${uuid}`
         })
@@ -50,21 +50,21 @@ function RecentAuctions(props: Props) {
 
     let recentAuctionList = recentAuctions.map((recentAuction) => {
         return (
-            <div className="cardWrapper col-6" key={recentAuction.uuid}>
-                <Card className="card" onClick={() => {onCardClick(recentAuction.uuid)}}>
+            <div className="cardWrapper" key={recentAuction.uuid}>
+                <Card className="card" onClick={() => { onCardClick(recentAuction.uuid) }}>
                     <Card.Header style={{ padding: "10px" }}>
                         <div style={{ float: "left" }}>
-                            <img crossOrigin="anonymous" src={props.item.iconUrl} width="24" height="24" alt="" style={{ marginRight: "5px" }} />
+                            <img crossOrigin="anonymous" src={props.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} />
                         </div>
                         <div>
                             {numberWithThousandsSeperators(recentAuction.price)} Coins
                         </div>
                     </Card.Header>
                     <Card.Body style={{ padding: "10px" }}>
-                            <span style={{marginRight: "15px"}}>{recentAuction.seller.name}</span>
-                            <img crossOrigin="anonymous" src={recentAuction.seller.iconUrl} alt="" height="24" width="24" />
-                            <hr/>
-                            <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
+                        <img style={{ marginRight: "15px" }} crossOrigin="anonymous" src={recentAuction.seller.iconUrl} alt="" height="24" width="24" />
+                        <span>{recentAuction.seller.name}</span>
+                        <hr />
+                        <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
                     </Card.Body>
                 </Card>
             </div>
