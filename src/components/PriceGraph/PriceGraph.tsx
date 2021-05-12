@@ -100,6 +100,7 @@ function PriceGraph(props: Props) {
     }
 
     let onFilterChange = (filter) => {
+        setItemFilter(filter);
         updateChart(priceChart || createChart(priceConfig), fetchspan, filter);
     }
 
