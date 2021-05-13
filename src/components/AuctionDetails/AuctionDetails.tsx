@@ -246,16 +246,18 @@ function AuctionDetails(props: Props) {
 
     let bidList = auctionDetails?.bids.length === 0 ? <p>No bids</p> :
         auctionDetails?.bids.map((bid, i) => {
+            console.log(bid);
             let headingStyle = i === 0 ? { color: "green" } : { color: "red" };
             return <Link key={generateUUID()} to={`/player/${bid.bidder.uuid}`}>
                 <ListGroup.Item key={bid.amount} action>
-                    <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="48" width="48" alt="bidder minecraft icon" style={{ marginRight: "15px", float: "left" }} />
+                    <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="64" width="64" alt="bidder minecraft icon" style={{ marginRight: "15px", float: "left" }} />
                     <h6 style={headingStyle}>
                         {numberWithThousandsSeperators(bid.amount)} Coins
                     </h6>
                     <span>
                         {bid.bidder.name}
-                    </span>
+                    </span><br/>
+                    <span>{moment(bid.timestamp).fromNow()}</span>
                 </ListGroup.Item>
             </Link>
         })
