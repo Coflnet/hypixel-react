@@ -246,16 +246,18 @@ function AuctionDetails(props: Props) {
 
     let bidList = auctionDetails?.bids.length === 0 ? <p>No bids</p> :
         auctionDetails?.bids.map((bid, i) => {
+            console.log(bid);
             let headingStyle = i === 0 ? { color: "green" } : { color: "red" };
             return <Link key={generateUUID()} to={`/player/${bid.bidder.uuid}`}>
                 <ListGroup.Item key={bid.amount} action>
+                    <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="64" width="64" alt="bidder minecraft icon" style={{ marginRight: "15px", float: "left" }} />
                     <h6 style={headingStyle}>
                         {numberWithThousandsSeperators(bid.amount)} Coins
                     </h6>
                     <span>
-                        <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="32" width="32" alt="bidder minecraft icon" style={{ marginRight: "5px" }} />
                         {bid.bidder.name}
-                    </span>
+                    </span><br/>
+                    <span>{moment(bid.timestamp).fromNow()}</span>
                 </ListGroup.Item>
             </Link>
         })
@@ -298,17 +300,6 @@ function AuctionDetails(props: Props) {
                             </Card.Body>
                         </Card>
                     </div>
-                    <Card className="auction-card">
-                        <Card.Header>
-                            <h5>Bids</h5>
-                            {auctionDetails ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
-                        </Card.Header>
-                        <Card.Body>
-                            <ListGroup>
-                                {bidList || getLoadingElement()}
-                            </ListGroup>
-                        </Card.Body>
-                    </Card>
                     <div className="fixed-bottom">{window.navigator.clipboard ? <div className="btn-bottom"><Button type="primary" onClick={copyClick}>{copyButtonClicked ? copiedIcon : copyIcon}</Button></div> : ""}</div>
                 </div>
             }
