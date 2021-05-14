@@ -27,7 +27,7 @@ function PriceGraph(props: Props) {
     let [isLoading, setIsLoading] = useState(false);
     let [noDataFound, setNoDataFound] = useState(false);
     let [avgPrice, setAvgPrice] = useState(0);
-    let [isFilterable, setIsFilterable] = useState(false);
+    let [isFilterable, setIsFilterable] = useState(true);
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
 
     useEffect(() => {

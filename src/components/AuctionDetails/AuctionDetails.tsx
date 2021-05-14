@@ -270,7 +270,7 @@ function AuctionDetails(props: Props) {
                 </div> :
                 <div>
                     <div>
-                        <Card className="auction-card">
+                        <Card className="auction-card" style={{minHeight: "60vh"}}>
                             {auctionCardContent}
                         </Card>
                         <Card className="auction-card">
