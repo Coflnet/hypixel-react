@@ -289,7 +289,7 @@ function AuctionDetails(props: Props) {
                         <Card className="auction-card">
                             <Card.Header>
                                 <h5>Bids</h5>
-                                {auctionDetails && auctionDetails?.bids.length > 1 ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
+                                {auctionDetails ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
                             </Card.Header>
                             <Card.Body>
                                 <ListGroup>
@@ -298,17 +298,6 @@ function AuctionDetails(props: Props) {
                             </Card.Body>
                         </Card>
                     </div>
-                    <Card className="auction-card">
-                        <Card.Header>
-                            <h5>Bids</h5>
-                            {auctionDetails ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
-                        </Card.Header>
-                        <Card.Body>
-                            <ListGroup>
-                                {bidList || getLoadingElement()}
-                            </ListGroup>
-                        </Card.Body>
-                    </Card>
                     <div className="fixed-bottom">{window.navigator.clipboard ? <div className="btn-bottom"><Button type="primary" onClick={copyClick}>{copyButtonClicked ? copiedIcon : copyIcon}</Button></div> : ""}</div>
                 </div>
             }
