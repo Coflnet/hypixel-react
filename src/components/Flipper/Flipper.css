@@ -1,6 +1,12 @@
 .cardWrapper {
     padding: 15px;
-    display: inline-block;
+    display: inline-table;
+    /* Make the container element behave like a table */
+    /* Set full-width to expand the whole page */
+}
+
+.card {
+    height: 100%;
 }
 
 @media all and (max-width: 480px) {
@@ -27,7 +33,7 @@
     }
 }
 
-.label {
-    width: 30%;
+.card-label {
+    width: 40%;
     float: left;
 }

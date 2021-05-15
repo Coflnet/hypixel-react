@@ -22,7 +22,9 @@ export enum RequestType {
     GET_STRIPE_PRODUCTS = "getProducts",
     GET_STRIPE_PRICES = "getPrices",
     VALIDATE_PAYMENT_TOKEN = "gPurchase",
-    RECENT_AUCTIONS = "recentAuctions"
+    RECENT_AUCTIONS = "recentAuctions",
+    SUBSCRIBE_FLIPS = "subFlip",
+    GET_FLIPS = "getFlips"
 }
 
 export enum SubscriptionType {
@@ -44,6 +46,13 @@ export interface ApiRequest {
     reject: Function
 }
 
+export interface ApiSubscription {
+    mId?: number,
+    type: RequestType,
+    data: any,
+    callback: Function
+}
+
 export interface Subscription {
     topicId: string,
     price: number,
@@ -54,5 +63,6 @@ export interface Subscription {
 
 export interface WebsocketHelper {
     sendRequest(request: ApiRequest): void,
+    subscribe(subscription: ApiSubscription): void,
     init(): void
 }
