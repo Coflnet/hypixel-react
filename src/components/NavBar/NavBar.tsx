@@ -9,10 +9,8 @@ function NavBar() {
     let { trackEvent } = useMatomo();
     let [showNav, setShowNav] = useState(false);
 
-    let isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-
     const titleStyle = {
-        backgroundColor: isDarkMode ? '#7a8288' : "#22A7F0",
+        backgroundColor: '#7a8288',
         height: "60px",
         margin: "auto",
         padding: "0 20px",
@@ -22,17 +20,17 @@ function NavBar() {
 
     const navStyle = {
         width: "60%",
-        background: isDarkMode ? "#3a3f44" : "#FFFFFF"
+        background: "#3a3f44" 
     }
 
     const itemStyle = {
         padding: "22px 0px",
         listStyleType: "none",
-        background: isDarkMode ? "#3a3f44" : "#FFFFFF"
+        background: "#3a3f44"
     }
 
     const itemHoverStyle = {
-        background: isDarkMode ? "#272b30" : "#FFFFFF"
+        background: "#272b30"
     }
 
     return (
