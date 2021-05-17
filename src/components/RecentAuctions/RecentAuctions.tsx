@@ -25,7 +25,7 @@ function RecentAuctions(props: Props) {
     useEffect(() => {
         api.getRecentAuctions(props.item.tag, props.fetchspan, props.itemFilter).then(recentAuctions => {
 
-            if(!mounted){
+            if (!mounted) {
                 return;
             }
 
@@ -73,9 +73,12 @@ function RecentAuctions(props: Props) {
 
     return (
         <div className="recent-auctions">
-            {
-                recentAuctionList
-            }
+            <h3>Recent auctions</h3>
+            <div className="recent-auctions-list">
+                {
+                    recentAuctionList
+                }
+            </div>
         </div >
     );
 }
