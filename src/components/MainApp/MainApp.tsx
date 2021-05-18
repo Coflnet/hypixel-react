@@ -5,10 +5,10 @@ import CookieConsent from 'react-cookie-consent';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
-
 import { useHistory } from "react-router-dom";
 import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
+import cookie from 'cookie';  
 
 export function MainApp(props: any) {
 
@@ -23,13 +23,28 @@ export function MainApp(props: any) {
             documentTitle: document.title,
             href: window.location.href,
         });
-        trackEvent({
-            category: 'uiStyle',
-            action: prefersDarkMode ? 'dark' : 'light'
-        })
+        let uiStyle = window.localStorage.getItem("uiStyle");
+
+        if (isTrackingAllowed() && (!uiStyle || uiStyle !== (prefersDarkMode ? 'dark' : 'light'))) {
+            console.log("UI-Style: " + uiStyle);
+            window.localStorage.setItem("uiStyle", prefersDarkMode ? 'dark' : 'light')
+            trackEvent({
+                category: 'uiStyle',
+                action: prefersDarkMode ? 'dark' : 'light'
+            })
+        }
+
         registerNotificationCallback(history);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location])
+
+    function isTrackingAllowed() {
+        let cookies = cookie.parse(document.cookie);
+        if (cookies.nonEssentialCookiesAllowed !== undefined) {
+            return cookies.nonEssentialCookiesAllowed === "true";
+        }
+        return false;
+    }
 
     const theme = React.useMemo(
         () =>
