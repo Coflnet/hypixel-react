@@ -136,7 +136,7 @@ function AuctionDetails(props: Props) {
         <div>
             <Card.Header>
                 <Link to={"/item/" + auctionDetails.auction.item.tag}><h5>
-                    <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="item icon" style={{ marginRight: "5px" }} />
+                    <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="item icon" style={{ marginRight: "5px" }} loading="lazy"/>
                     <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
                     <Badge variant={countBadgeVariant} style={{ marginLeft: "5px" }}>x{auctionDetails?.count}</Badge>
                     {auctionDetails.auction.bin ? <Badge variant={binBadgeVariant} style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
@@ -189,7 +189,7 @@ function AuctionDetails(props: Props) {
                             <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
                         </span>
                         {auctionDetails?.auctioneer.name}
-                        <img crossOrigin="anonymous" src={auctionDetails?.auctioneer.iconUrl} alt="auctioneer icon" height="16" width="16" style={{ marginLeft: "5px" }} />
+                        <img crossOrigin="anonymous" src={auctionDetails?.auctioneer.iconUrl} alt="auctioneer icon" height="16" width="16" style={{ marginLeft: "5px" }} loading="lazy"/>
                     </p>
                 </Link>
 
@@ -250,7 +250,7 @@ function AuctionDetails(props: Props) {
             let headingStyle = i === 0 ? { color: "green" } : { color: "red" };
             return <Link key={generateUUID()} to={`/player/${bid.bidder.uuid}`}>
                 <ListGroup.Item key={bid.amount} action>
-                    <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="64" width="64" alt="bidder minecraft icon" style={{ marginRight: "15px", float: "left" }} />
+                    <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="64" width="64" alt="bidder minecraft icon" style={{ marginRight: "15px", float: "left" }} loading="lazy"/>
                     <h6 style={headingStyle}>
                         {numberWithThousandsSeperators(bid.amount)} Coins
                     </h6>

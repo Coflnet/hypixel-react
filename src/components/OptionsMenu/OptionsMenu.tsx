@@ -61,6 +61,7 @@ function OptionsMenu(props: Props) {
                 </Button>
                 <Menu
                     id="fade-menu"
+                    aria-label="open menu"
                     anchorEl={anchorEl}
                     keepMounted
                     open={open}

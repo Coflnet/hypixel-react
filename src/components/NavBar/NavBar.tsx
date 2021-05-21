@@ -43,11 +43,11 @@ function NavBar() {
                     itemHoverStyle={itemHoverStyle}
                     title={<span>Navigation</span>}
                     items={[
-                        <Link to="/"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="prices icon" />Prices</div></Link>,
-                        <Link to="/subscriptions"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="subscription icon" />Subscriptions</div></Link>,
-                        <Link to="/premium"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="premium icon" />Premium</div></Link>,
-                        <Link to="/about"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="legal icon" />Links / Legal</div></Link>,
-                        <Link to="/feedback"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="feedback icon" />Feedback</div></Link>]}
+                        <Link to="/"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="prices icon" loading="lazy"/>Prices</div></Link>,
+                        <Link to="/subscriptions"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="subscription icon" loading="lazy"/>Subscriptions</div></Link>,
+                        <Link to="/premium"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="premium icon" loading="lazy"/>Premium</div></Link>,
+                        <Link to="/about"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="legal icon" loading="lazy"/>Links / Legal</div></Link>,
+                        <Link to="/feedback"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="feedback icon" loading="lazy"/>Feedback</div></Link>]}
                     onHideNav={() => { setShowNav(false) }
                     }>
                 </SideNav >
