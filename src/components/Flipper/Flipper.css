@@ -37,3 +37,7 @@
     width: 40%;
     float: left;
 }
+
+.flip-auction-copy-button {
+    float: right;
+}

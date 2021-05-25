@@ -40,7 +40,6 @@ function AuctionDetails(props: Props) {
 
     let loadAuctionDetails = () => {
         api.getAuctionDetails(props.auctionUUID).then(auctionDetails => {
-            console.log(auctionDetails)
             auctionDetails.bids.sort((a, b) => b.amount - a.amount)
             setAuctionDetails(auctionDetails);
             api.getItemImageUrl(auctionDetails.auction.item).then(url => {
@@ -247,7 +246,6 @@ function AuctionDetails(props: Props) {
 
     let bidList = auctionDetails?.bids.length === 0 ? <p>No bids</p> :
         auctionDetails?.bids.map((bid, i) => {
-            console.log(bid);
             let headingStyle = i === 0 ? { color: "green" } : { color: "red" };
             return <Link key={generateUUID()} to={`/player/${bid.bidder.uuid}`}>
                 <ListGroup.Item key={bid.amount} action>

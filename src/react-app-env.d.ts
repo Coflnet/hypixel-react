@@ -116,7 +116,9 @@ interface FlipAuction {
   median: number,
   cost: number,
   name: string,
-  volume: number
+  volume: number,
+  loaded: Date,
+  isCopied: boolean
 }
 
 interface API {

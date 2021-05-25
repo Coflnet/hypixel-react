@@ -297,7 +297,6 @@ function initAPI(): API {
                     return aNum + bNum;
                 })
             }
-            console.log(requestData);
             websocketHelper.sendRequest({
                 type: RequestType.SUBSCRIBE,
                 data: requestData,
