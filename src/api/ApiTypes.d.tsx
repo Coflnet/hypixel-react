@@ -56,3 +56,8 @@ export interface WebsocketHelper {
     sendRequest(request: ApiRequest): void,
     init(): void
 }
+
+export interface HttpApi extends WebsocketHelper {
+    sendLimitedCacheRequest(request:ApiRequest, grouping:number ),
+    sendLimitedCacheRequest(request:ApiRequest)
+}
