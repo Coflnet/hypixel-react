@@ -27,6 +27,10 @@
     }
 }
 
+.recent-auctions>h3 {
+    text-align: center;
+}
+
 .label {
     width: 30%;
     float: left;

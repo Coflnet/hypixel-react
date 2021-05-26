@@ -53,7 +53,7 @@ export function ItemPriceRange(props: Props) {
     }, [props.item])
 
     let getButtonVariant = (range: DateRange): string => {
-        return range === selectedDateRange ? "primary" : "light";
+        return range === selectedDateRange ? "primary" : "secondary";
     }
 
     let onRangeChange = (newRange: DateRange) => {

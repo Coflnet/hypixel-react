@@ -113,13 +113,13 @@ function AuctionList(props: Props) {
 
     let getCoinImage = () => {
         return (
-            <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" />
+            <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" loading="lazy"/>
         );
     }
 
     let getItemImageElement = (auction: Auction) => {
         return (
-            auction.item.iconUrl ? <img crossOrigin="anonymous" className="auction-item-image" src={auction.item.iconUrl} alt="item icon" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} /> : undefined
+            auction.item.iconUrl ? <img crossOrigin="anonymous" className="auction-item-image" src={auction.item.iconUrl} alt="item icon" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} loading="lazy"/> : undefined
         )
     }
 
