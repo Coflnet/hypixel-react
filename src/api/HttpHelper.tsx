@@ -1,6 +1,5 @@
-import { ApiRequest, HttpApi, WebsocketHelper } from "./ApiTypes.d";
+import { ApiRequest, HttpApi } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
-import api from "./ApiHelper";
 import { v4 as generateUUID } from 'uuid';
 import { toast } from "react-toastify";
 const commandEndpoint = "https://sky.coflnet.com/command";
@@ -14,7 +13,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
     return fetch(url, { headers })
         .then(response => response.json())
         .then(json => {
-            if (json.type == "error")
+            if (json.type === "error")
                 toast.error(JSON.parse(json.data).data);
             else
                 request.resolve(json)
