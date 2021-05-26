@@ -109,13 +109,13 @@ function BidList(props: Props) {
 
     let getItemImageElement = (bid: BidForList) => {
         return (
-            bid.item.iconUrl ? <img crossOrigin="anonymous" className="bid-item-image" src={bid.item.iconUrl} alt="item icon" height="48" width="48" /> : undefined
+            bid.item.iconUrl ? <img crossOrigin="anonymous" className="bid-item-image" src={bid.item.iconUrl} alt="item icon" height="48" width="48" loading="lazy"/> : undefined
         )
     }
 
     let getCoinImage = () => {
         return (
-            <img src="/Coin.png" height="35px" width="35px" alt="coin icon" />
+            <img src="/Coin.png" height="35px" width="35px" alt="coin icon" loading="lazy"/>
         );
     }
 
@@ -169,7 +169,7 @@ function BidList(props: Props) {
     return (
         <div className="bid-list">
             {bids.length === 0 && allBidsLoaded ?
-                <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} /> <p>No bids found</p></div> :
+                <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} loading="lazy"/> <p>No bids found</p></div> :
                 <InfiniteScroll style={{ overflow: "hidden" }} dataLength={bids.length} next={loadNewBids} hasMore={!allBidsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
                     <ListGroup>
                         {bidsList}

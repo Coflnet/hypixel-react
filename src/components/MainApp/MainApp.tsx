@@ -5,43 +5,52 @@ import CookieConsent from 'react-cookie-consent';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
-
 import { useHistory } from "react-router-dom";
 import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
+import cookie from 'cookie';  
 
 export function MainApp(props: any) {
 
-    const { trackPageView } = useMatomo()
+    const { trackPageView, trackEvent } = useMatomo()
     const location = useLocation();
     const history = useHistory();
 
     const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     useEffect(() => {
-        if (prefersDarkMode) {
-            let script = document.createElement("link")
-            script.rel = "stylesheet";
-            script.href = "/bootstrap-dark.css";
-            document.getElementsByTagName("head")[0].appendChild(script);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
         trackPageView({
             documentTitle: document.title,
             href: window.location.href,
         });
+        let uiStyle = window.localStorage.getItem("uiStyle");
+
+        if (isTrackingAllowed() && (!uiStyle || uiStyle !== (prefersDarkMode ? 'dark' : 'light'))) {
+            console.log("UI-Style: " + uiStyle);
+            window.localStorage.setItem("uiStyle", prefersDarkMode ? 'dark' : 'light')
+            trackEvent({
+                category: 'uiStyle',
+                action: prefersDarkMode ? 'dark' : 'light'
+            })
+        }
+
         registerNotificationCallback(history);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location])
+
+    function isTrackingAllowed() {
+        let cookies = cookie.parse(document.cookie);
+        if (cookies.nonEssentialCookiesAllowed !== undefined) {
+            return cookies.nonEssentialCookiesAllowed === "true";
+        }
+        return false;
+    }
 
     const theme = React.useMemo(
         () =>
             createMuiTheme({
                 palette: {
-                    type: prefersDarkMode ? 'dark' : 'light',
+                    type: 'dark',
                 },
             }),
         [prefersDarkMode],
