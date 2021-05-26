@@ -117,7 +117,7 @@ interface FlipAuction {
   cost: number,
   name: string,
   volume: number,
-  loaded: Date,
+  showLink: boolean,
   isCopied: boolean
 }
 
@@ -138,7 +138,7 @@ interface API {
   getReforges(): Promise<Reforge[]>;
   getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>;
   getPlayerName(uuid: string): Promise<string>;
-  setConnectionId(): void;
+  setConnectionId(): Promise<void>;
   getVersion(): Promise<string>;
   subscribe(
     topic: string,

@@ -1,35 +1,65 @@
-.cardWrapper {
+.card-wrapper {
     padding: 15px;
     display: inline-table;
     /* Make the container element behave like a table */
     /* Set full-width to expand the whole page */
 }
 
+.cards-wrapper {
+    scroll-snap-stop: always;
+    display: flex;
+    overflow-x: scroll;
+    align-items: stretch;
+    flex-wrap: nowrap;
+}
+
+.cards-wrapper::-webkit-scrollbar {
+    background-color: #272b30;
+}
+
 .card {
     height: 100%;
 }
 
+.cards-wrapper::-webkit-scrollbar {
+    width: 20px;
+}
+
+.cards-wrapper::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+}
+
+.cards-wrapper::-webkit-scrollbar-thumb {
+    background: #3a3f44;
+    border-radius: 10px;
+}
+
+.cards-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #7a8288;
+}
+
 @media all and (max-width: 480px) {
-    .cardWrapper {
-        width: 100%;
+    .card-wrapper {
+        width: calc(100vw - 20px - 40px);
     }
 }
 
 @media all and (min-width: 480px) and (max-width: 768px) {
-    .cardWrapper {
-        width: 50%;
+    .card-wrapper {
+        width: calc(100vw - 20px - 40px);
     }
 }
 
 @media all and (min-width: 768px) and (max-width: 1024px) {
-    .cardWrapper {
-        width: 25%;
+    .card-wrapper {
+        width: calc(50vw - 20px - 40px);
     }
 }
 
 @media all and (min-width: 1024px) {
-    .cardWrapper {
-        width: 16.66666666666666666666666666666%;
+    .card-wrapper {
+        width: 16.66666666666666666666666666666vw;
     }
 }
 

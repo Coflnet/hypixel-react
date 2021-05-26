@@ -253,18 +253,22 @@ function initAPI(): API {
         });
     }
 
-    let setConnectionId = () => {
-        let websocketUUID = window.localStorage.getItem("websocketUUID") || generateUUID();
-        window.localStorage.setItem("websocketUUID", websocketUUID);
-
-        websocketHelper.sendRequest({
-            type: RequestType.SET_CONNECTION_ID,
-            data: websocketUUID,
-            resolve: () => { },
-            reject: (error: any) => {
-                apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID);
-            }
-        })
+    let setConnectionId = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let websocketUUID = window.localStorage.getItem("websocketUUID") || generateUUID();
+            window.localStorage.setItem("websocketUUID", websocketUUID);
+    
+            websocketHelper.sendRequest({
+                type: RequestType.SET_CONNECTION_ID,
+                data: websocketUUID,
+                resolve: () => {
+                    resolve();
+                 },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID);
+                }
+            })
+        });
     }
 
     let getVersion = (): Promise<string> => {
