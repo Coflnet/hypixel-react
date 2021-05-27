@@ -1,8 +1,9 @@
+/*// not critical anymore
 window.websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
 window.websocket.onopen = function() {
     console.log("Websocket opened");
 }
-
+*/
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/serviceWorker.js').then(function(registration) {
@@ -12,7 +13,9 @@ if ('serviceWorker' in navigator) {
             // Registration was successful
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
 
-            loadScript("https://arc.io/widget.min.js#WK8BPDas");
+            setTimeout(() => {
+                loadScript("https://arc.io/widget.min.js#WK8BPDas");
+            }, 5000)
 
 
 
@@ -44,10 +47,18 @@ function pushNotifications(serviceWorkerRegistration) {
         messagingSenderId: "570302890760",
         appId: "1:570302890760:web:60cd30b3753f747d6c62bd"
     };
-    firebase.initializeApp(firebaseConfig);
-    const messaging = firebase.messaging();
-    messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30')
-    messaging.useServiceWorker(serviceWorkerRegistration)
+    waitTilSet();
 
-    window.messaging = messaging;
+    function waitTilSet() {
+        if (!firebase) {
+            setTimeout(waitTilSet, 50); //wait 50 millisecnds then recheck
+            return;
+        }
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+        messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30')
+        messaging.useServiceWorker(serviceWorkerRegistration)
+
+        window.messaging = messaging;
+    }
 }

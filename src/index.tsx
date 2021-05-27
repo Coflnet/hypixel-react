@@ -8,7 +8,6 @@ import { BrowserRouter } from "react-router-dom";
 import routes from "../src/routes";
 import { websocketHelper } from "./api/WebsocketHelper"
 
-websocketHelper.init();
 
 ReactDOM.render(
   <div>

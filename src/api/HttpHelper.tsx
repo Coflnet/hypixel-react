@@ -35,6 +35,5 @@ function getOrGenerateUUid(): string {
 
 export let httpApi: HttpApi = {
     sendRequest: sendRequest,
-    init: ()=>{},
     sendLimitedCacheRequest: sendRequestLimitCache
 }

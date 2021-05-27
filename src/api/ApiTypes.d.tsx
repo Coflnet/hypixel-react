@@ -53,8 +53,7 @@ export interface Subscription {
 }
 
 export interface WebsocketHelper {
-    sendRequest(request: ApiRequest): void,
-    init(): void
+    sendRequest(request: ApiRequest): void
 }
 
 export interface HttpApi extends WebsocketHelper {
