@@ -140,6 +140,8 @@ function Flipper() {
             <h4>Volume</h4>
             <p>Volume is the amount of auctions that were sold in a 24 hour window. 
             It is capped at 60 to keep the flipper fast.</p>
+            <h3>I have another question</h3>
+            Ask via <a href="https://discord.gg/Qm55WEkgu6">discord</a> or <Link >feedback site</Link>
             
         </div >
     );
