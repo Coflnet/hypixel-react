@@ -22,7 +22,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
 function sendRequestLimitCache(request: ApiRequest, grouping = 1): Promise<void> {
     // invalidate the cache every miniute
-    request.mId = new Date().getMinutes() / grouping;
+    request.mId = Math.round (new Date().getMinutes() / grouping);
     return sendRequest(request);
 }
 
