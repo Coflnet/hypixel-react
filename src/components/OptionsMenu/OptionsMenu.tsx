@@ -69,7 +69,7 @@ function OptionsMenu(props: Props) {
                     TransitionComponent={Fade}
                 >
                     {available.map((result, i) => (
-                        <MenuItem onClick={(e: any) => { navigate(result.url) }}>{result.title}</MenuItem>
+                        <MenuItem key={i} onClick={(e: any) => { navigate(result.url) }}>{result.title}</MenuItem>
                     ))}
                 </Menu>
             </div>
