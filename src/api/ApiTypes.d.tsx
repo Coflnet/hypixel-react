@@ -61,8 +61,15 @@ export interface Subscription {
     title?: string
 }
 
-export interface WebsocketHelper {
-    sendRequest(request: ApiRequest): void,
-    subscribe(subscription: ApiSubscription): void,
-    init(): void
+export interface Connection {
+    sendRequest(request: ApiRequest): void
+}
+
+export interface WebsocketHelper extends Connection{
+    subscribe(subscription: ApiSubscription): void
+}
+
+export interface HttpApi extends Connection {
+    sendLimitedCacheRequest(request:ApiRequest, grouping:number ),
+    sendLimitedCacheRequest(request:ApiRequest)
 }

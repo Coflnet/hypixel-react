@@ -5,19 +5,47 @@ import cookie from 'cookie';
 import { MainApp } from './components/MainApp/MainApp';
 import { getInitialLoadingElement } from './utils/LoadingUtils';
 
+interface PreloadComponent {
+  component: React.LazyExoticComponent<React.ComponentType<any>>,
+  preload: Function
+}
+
 /**
  * Import all page components here
  */
-const PlayerDetails = React.lazy(() => import('./pages/PlayerDetails/PlayerDetails'));
-const ItemDetails = React.lazy(() => import('./pages/ItemDetails/ItemDetails'));
-const AuctionDetails = React.lazy(() => import('./pages/AuctionDetails/AuctionDetails'));
-const Premium = React.lazy(() => import('./pages/Premium/Premium'));
-const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'));
-const Subscriptions = React.lazy(() => import('./pages/Subscriptions/Subscriptions'));
-const Feedback = React.lazy(() => import('./pages/Feedback/Feedback'));
-const About = React.lazy(() => import('./pages/About/About'));
-const Cancel = React.lazy(() => import('./pages/PaymentCancel/PaymentCancel'));
+
+const ReactLazyPreload = importStatement => {
+  const Component: PreloadComponent = {
+    component: React.lazy(importStatement),
+    preload: importStatement
+  };
+  return Component;
+};
+
+const ItemDetails = ReactLazyPreload(() => import('./pages/ItemDetails/ItemDetails'));
+ItemDetails.preload();
+
+const PlayerDetails = ReactLazyPreload(() => import('./pages/PlayerDetails/PlayerDetails'));
+const AuctionDetails = ReactLazyPreload(() => import('./pages/AuctionDetails/AuctionDetails'));
+const Premium = ReactLazyPreload(() => import('./pages/Premium/Premium'));
+const NotFound = ReactLazyPreload(() => import('./pages/NotFound/NotFound'));
+const Subscriptions = ReactLazyPreload(() => import('./pages/Subscriptions/Subscriptions'));
+const Feedback = ReactLazyPreload(() => import('./pages/Feedback/Feedback'));
+const About = ReactLazyPreload(() => import('./pages/About/About'));
+const Cancel = ReactLazyPreload(() => import('./pages/PaymentCancel/PaymentCancel'));
 const Flipper = React.lazy(() => import('./pages/Flipper/Flipper'));
+
+setTimeout(() => {
+  PlayerDetails.preload();
+  ItemDetails.preload();
+  AuctionDetails.preload();
+  Premium.preload();
+  NotFound.preload();
+  Subscriptions.preload();
+  Feedback.preload();
+  About.preload();
+  Cancel.preload();
+}, 2000);
 
 const matomoTrackingInstance = createInstance({
   urlBase: 'https://track.coflnet.com',
@@ -43,16 +71,16 @@ export default (
       <MainApp>
         <Switch>
           <Route exact path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />} />
-          <Route path='/player/:uuid' component={PlayerDetails} />
-          <Route path='/item/:tag' component={ItemDetails} />
-          <Route path='/auction/:auctionUUID' component={AuctionDetails} />
+          <Route path='/player/:uuid' component={PlayerDetails.component} />
+          <Route path='/item/:tag' component={ItemDetails.component} />
+          <Route path='/auction/:auctionUUID' component={AuctionDetails.component} />
           <Route path='/flipper' component={Flipper} />
-          <Route path='/premium' component={Premium} />
-          <Route path='/about' component={About} />
-          <Route path='/subscriptions' component={Subscriptions} />
-          <Route path='/feedback' component={Feedback} />
-          <Route path='/cancel' component={Cancel} />
-          <Route path='*' exact component={NotFound} />
+          <Route path='/premium' component={Premium.component} />
+          <Route path='/about' component={About.component} />
+          <Route path='/subscriptions' component={Subscriptions.component} />
+          <Route path='/feedback' component={Feedback.component} />
+          <Route path='/cancel' component={Cancel.component} />
+          <Route path='*' exact component={NotFound.component} />
         </Switch>
       </MainApp>
     </Suspense>

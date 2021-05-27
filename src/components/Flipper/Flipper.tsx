@@ -20,13 +20,13 @@ function Flipper() {
             setFlipAuctions(flips);
             flipAuctions = flips;
         })
-        
+
     }, [])
 
     let subscribeToAuctions = () => {
         api.subscribeFlips(function (newFipAuction: FlipAuction) {
             newFipAuction.showLink = false;
-            
+
             let updatedLastestAuctions = [newFipAuction, ...latestAuctions];
             setLatestAuctions(updatedLastestAuctions);
             latestAuctions = updatedLastestAuctions;
@@ -85,25 +85,29 @@ function Flipper() {
                             }
                             <Card.Body style={{ padding: "10px" }}>
                                 <p>
-                                    <span className="card-label">Cost: </span>
+                                    <span className="card-label">Cost: </span><br />
                                     <span style={{ color: "red" }}>{numberWithThousandsSeperators(flipAuction.cost)} Coins</span>
                                 </p>
                                 <p>
-                                    <span className="card-label">Median price: </span>
+                                    <span className="card-label">Median price: </span><br />
                                     <span>{numberWithThousandsSeperators(flipAuction.median)} Coins</span>
                                 </p>
                                 <p>
-                                    <span className="card-label">Estimated Profit: </span>
+                                    <span className="card-label">Estimated Profit: </span><br />
                                     <span style={{ color: "green" }}>+{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins</span>
                                 </p>
-                                <br />
                                 <hr style={{ marginTop: 0 }} />
-                                <p>
-                                    <span className="card-label">Volume: </span>
-                                    {flipAuction.volume > 59 ? ">60" : "~" + Math.round(flipAuction.volume * 10) / 10} per day
-                                </p>
+                                <div className="flex">
+                                    <div className="flex-max">
+                                        <span className="card-label">Volume: </span>
+                                        {flipAuction.volume > 59 ? ">60" : "~" + Math.round(flipAuction.volume * 10) / 10} per day
+                                    </div>
 
-                                {window.navigator.clipboard ? <div className="flip-auction-copy-button"><Button variant="secondary" onClick={() => { copyClick(flipAuction) }}>{flipAuction.isCopied ? copiedIcon : copyIcon}</Button></div> : ""}
+                                    <div>{window.navigator.clipboard ? <div className="flip-auction-copy-button"><Button variant="secondary" onClick={() => { copyClick(flipAuction) }}>{flipAuction.isCopied ? copiedIcon : copyIcon}</Button></div> : ""}</div>
+                                </div>
+
+
+
                             </Card.Body>
                         </Card>
                     </div >
@@ -114,7 +118,7 @@ function Flipper() {
 
     return (
         <div className="flipper">
-            <p>This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. 
+            <p>This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change.
                 Please write us your opinion and suggestion on our <a href="https://discord.gg/Qm55WEkgu6">discord</a>.</p>
             {latestAuctions.length > 0 ?
                 <div>
@@ -122,14 +126,14 @@ function Flipper() {
                     <h2>Latest profitable Auctions</h2>
                     {mapAuctionElements(latestAuctions)}
                 </div> : <div>
-                <GoogleSignIn onAfterLogin={subscribeToAuctions} />
-                <p>If you have our <a href="/premium">premium plan</a> the latest flips will be displayed here. Please note that it can take a few miniutes until new auctions are created.</p>
+                    <GoogleSignIn onAfterLogin={subscribeToAuctions} />
+                    <p>If you have our <a href="/premium">premium plan</a> the latest flips will be displayed here. Please note that it can take a few miniutes until new auctions are created.</p>
                 </div>}
             <hr />
             <h2>Previously found Flipps</h2>
             {mapAuctionElements(flipAuctions)}
-            <p>These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit. 
-                Keep in mind that these are delayed to protect our paying supporters. 
+            <p>These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
+            Keep in mind that these are delayed to protect our paying supporters.
                 If you want more recent flipps purchase our <a href="/premium">premium plan.</a></p>
             <h2>FAQ</h2>
             <h3>What do these labels mean?</h3>
@@ -138,11 +142,11 @@ function Flipper() {
             <h4>Median Price</h4>
             <p>Median Price is the median price for that item. Taking into account ultimate enchantments, Rarity and stars. (for now)</p>
             <h4>Volume</h4>
-            <p>Volume is the amount of auctions that were sold in a 24 hour window. 
+            <p>Volume is the amount of auctions that were sold in a 24 hour window.
             It is capped at 60 to keep the flipper fast.</p>
             <h3>I have another question</h3>
             Ask via <a href="https://discord.gg/Qm55WEkgu6">discord</a> or <Link >feedback site</Link>
-            
+
         </div >
     );
 }
