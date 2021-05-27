@@ -116,6 +116,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
             websocket.send(JSON.stringify(request));
         } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
             websocket.onopen = function () {
+                api.setConnectionId();
                 sendRequest(request);
             }
         }
