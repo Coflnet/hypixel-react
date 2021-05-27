@@ -29,7 +29,11 @@ function Premium() {
             <Card className="premium-card">
                 <p>Premium users get access to the following features:</p>
                 <ul>
-                    <li>more than 3 subscriptions</li>
+                    <li>Up to 100 subscriptions</li>
+                    <li>Full access to the flipper</li>
+                    <li>Get good flipps faster</li>
+                    <li>Our "thank you"</li>
+                    <li>Priority feature request</li>
                 </ul>
             </Card>
             <div>

@@ -33,6 +33,7 @@ const Subscriptions = ReactLazyPreload(() => import('./pages/Subscriptions/Subsc
 const Feedback = ReactLazyPreload(() => import('./pages/Feedback/Feedback'));
 const About = ReactLazyPreload(() => import('./pages/About/About'));
 const Cancel = ReactLazyPreload(() => import('./pages/PaymentCancel/PaymentCancel'));
+const Flipper = React.lazy(() => import('./pages/Flipper/Flipper'));
 
 setTimeout(() => {
   PlayerDetails.preload();
@@ -73,6 +74,7 @@ export default (
           <Route path='/player/:uuid' component={PlayerDetails.component} />
           <Route path='/item/:tag' component={ItemDetails.component} />
           <Route path='/auction/:auctionUUID' component={AuctionDetails.component} />
+          <Route path='/flipper' component={Flipper} />
           <Route path='/premium' component={Premium.component} />
           <Route path='/about' component={About.component} />
           <Route path='/subscriptions' component={Subscriptions.component} />

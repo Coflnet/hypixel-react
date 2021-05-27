@@ -1,17 +1,18 @@
-import { ApiRequest, WebsocketHelper } from "./ApiTypes.d";
+import { ApiRequest, WebsocketHelper, ApiSubscription } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import cacheUtils from '../utils/CacheUtils';
 import api from "./ApiHelper";
+import { toast } from "react-toastify";
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
 let websocket: WebSocket;
 
+let apiSubscriptions: ApiSubscription[] = [];
+
 function initWebsocket(): void {
 
     let onWebsocketClose = (): void => {
-        console.log("Websocket closed");
-        console.log("reopening Websocket")
         websocket = getNewWebsocket();
     };
 
@@ -19,15 +20,7 @@ function initWebsocket(): void {
         console.error(e);
     };
 
-    let onWebsocketMessage = (e: MessageEvent): void => {
-        let response: ApiResponse = JSON.parse(e.data);
-        let request: ApiRequest | undefined = requests.find(e => e.mId === response.mId);
-
-        if (!request) {
-            return;
-        }
-
-
+    let _handleRequestOnMessage = function (response: ApiResponse, request: ApiRequest) {
         let equals = findForEqualSentRequest(request);
 
         if (response.type.includes("error")) {
@@ -43,6 +36,32 @@ function initWebsocket(): void {
         }
 
         removeSentRequests([...equals, request]);
+    }
+
+    let _handleSubscriptionOnMessage = function (response: ApiResponse, subscription: ApiSubscription) {
+        let parsedResponse = JSON.parse(response.data);
+        if (response.type == "error")
+            toast.error(parsedResponse.data);
+        else
+            subscription.callback(parsedResponse);
+    }
+
+    let onWebsocketMessage = (e: MessageEvent): void => {
+        let response: ApiResponse = JSON.parse(e.data);
+        let request: ApiRequest | undefined = requests.find(e => e.mId === response.mId);
+        let subscription: ApiSubscription | undefined = apiSubscriptions.find(e => e.mId === response.mId);
+
+        if (!request && !subscription) {
+            return;
+        }
+
+        if (request) {
+            _handleRequestOnMessage(response, request);
+        }
+        if (subscription) {
+            _handleSubscriptionOnMessage(response, subscription);
+        }
+
     };
 
     let getNewWebsocket = (): WebSocket => {
@@ -97,11 +116,30 @@ function sendRequest(request: ApiRequest): Promise<void> {
             websocket.send(JSON.stringify(request));
         } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
             websocket.onopen = function () {
-                console.log("websocket opened");
                 sendRequest(request);
             }
         }
     })
+}
+
+function subscribe(subscription: ApiSubscription): void {
+
+    if (websocket && websocket.readyState === WebSocket.OPEN) {
+        subscription.mId = requestCounter++;
+
+        try {
+            subscription.data = Base64.encode(subscription.data);
+        } catch (error) {
+            throw new Error("couldnt btoa this data: " + subscription.data);
+        }
+        apiSubscriptions.push(subscription);
+        websocket.send(JSON.stringify(subscription))
+
+    } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
+        websocket.onopen = function () {
+            subscribe(subscription);
+        }
+    }
 }
 
 function findForEqualSentRequest(request: ApiRequest) {
@@ -122,5 +160,6 @@ function removeSentRequests(toDelete: ApiRequest[]) {
 }
 
 export let websocketHelper: WebsocketHelper = {
-    sendRequest: sendRequest
+    sendRequest: sendRequest,
+    subscribe: subscribe
 }

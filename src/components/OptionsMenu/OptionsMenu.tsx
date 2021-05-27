@@ -50,7 +50,7 @@ function OptionsMenu(props: Props) {
         <span>
             <div className="d-none d-md-block">
                 {available.map((result, i) => (
-                    <a href={result.url} title={result.title} target="_blank" rel="noreferrer"><Button variant="outlined" >{result.title}</Button></a> 
+                    <a key={i} href={result.url} title={result.title} target="_blank" rel="noreferrer"><Button variant="outlined" >{result.title}</Button></a> 
                 ))}
             </div>
 

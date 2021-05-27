@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseRecentAuction, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseRecentAuction, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -254,18 +254,23 @@ function initAPI(): API {
         });
     }
 
-    let setConnectionId = () => {
-        let websocketUUID = window.localStorage.getItem("websocketUUID") || generateUUID();
-        window.localStorage.setItem("websocketUUID", websocketUUID);
-
-        websocketHelper.sendRequest({
-            type: RequestType.SET_CONNECTION_ID,
-            data: websocketUUID,
-            resolve: () => { },
-            reject: (error: any) => {
-                apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID);
-            }
-        })
+    let setConnectionId = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let websocketUUID = window.localStorage.getItem("websocketUUID") || generateUUID();
+            window.localStorage.setItem("websocketUUID", websocketUUID);
+    
+            websocketHelper.sendRequest({
+                type: RequestType.SET_CONNECTION_ID,
+                data: websocketUUID,
+                resolve: () => {
+                    resolve();
+                 },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID);
+                    reject();
+                }
+            })
+        });
     }
 
     let getVersion = (): Promise<string> => {
@@ -298,7 +303,6 @@ function initAPI(): API {
                     return aNum + bNum;
                 })
             }
-            console.log(requestData);
             websocketHelper.sendRequest({
                 type: RequestType.SUBSCRIBE,
                 data: requestData,
@@ -457,7 +461,7 @@ function initAPI(): API {
                 resolve: (prices: any) => resolve(mapStripePrices(prices)),
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_STRIPE_PRICES, error);
-                        reject();
+                    reject();
                 }
             })
 
@@ -468,7 +472,7 @@ function initAPI(): API {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.VALIDATE_PAYMENT_TOKEN,
-                data: {token, productId, packageName},
+                data: { token, productId, packageName },
                 resolve: (data: any) => resolve(true),
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.VALIDATE_PAYMENT_TOKEN, error);
@@ -501,6 +505,37 @@ function initAPI(): API {
         });
     }
 
+    let getFlips = (): Promise<FlipAuction[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_FLIPS,
+                data: "",
+                resolve: (data: any) => {
+                    resolve(data.map(a => parseFlipAuction(a)));
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, "");
+                    reject();
+                }
+            })
+        });
+    }
+
+    let subscribeFlips = (callback: Function) => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.subscribe({
+                type: RequestType.SUBSCRIBE_FLIPS,
+                data: "",
+                callback: function (data) {
+                    if(!data){
+                        return;
+                    }
+                    callback(parseFlipAuction(data));
+                }
+            })
+        });
+    }
+
     return {
         search,
         trackSearch,
@@ -526,7 +561,9 @@ function initAPI(): API {
         getStripeProducts,
         getStripePrices,
         validatePaymentToken,
-        getRecentAuctions
+        getRecentAuctions,
+        getFlips,
+        subscribeFlips
     }
 }
 

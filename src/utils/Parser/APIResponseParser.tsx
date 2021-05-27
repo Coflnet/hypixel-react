@@ -260,11 +260,23 @@ export function mapStripePrices(prices: any): Price[] {
     });
 }
 
-export function parseRecentAuction(auction): RecentAuction{
+export function parseRecentAuction(auction): RecentAuction {
     return {
         end: new Date(auction.end),
         price: auction.price,
         seller: parsePlayer(auction.seller),
         uuid: auction.uuid
+    }
+}
+
+export function parseFlipAuction(flip): FlipAuction {
+    return {
+        isCopied: false,
+        showLink: true,
+        median: flip.median,
+        cost: flip.cost,
+        uuid: flip.uuid,
+        name: flip.name,
+        volume: flip.volume
     }
 }
