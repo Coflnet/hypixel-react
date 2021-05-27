@@ -47,7 +47,7 @@ function initWebsocket(): void {
 
     let getNewWebsocket = (): WebSocket => {
 
-        if (!websocket) {
+        if (!websocket && (window as any).websocket) {
             websocket = (window as any).websocket;
             api.setConnectionId();
             cacheUtils.checkForCacheClear();
@@ -67,6 +67,8 @@ function initWebsocket(): void {
 }
 
 function sendRequest(request: ApiRequest): Promise<void> {
+    if(!websocket)
+        initWebsocket();
     let requestString = JSON.stringify(request.data);
     return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
         if (cacheValue) {
@@ -120,6 +122,5 @@ function removeSentRequests(toDelete: ApiRequest[]) {
 }
 
 export let websocketHelper: WebsocketHelper = {
-    sendRequest: sendRequest,
-    init: initWebsocket
+    sendRequest: sendRequest
 }
