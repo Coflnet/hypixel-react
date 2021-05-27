@@ -267,6 +267,7 @@ function initAPI(): API {
                  },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID);
+                    reject();
                 }
             })
         });

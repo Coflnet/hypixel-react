@@ -36,7 +36,6 @@ function Flipper() {
                 newFipAuction.showLink = true;
                 forceUpdate();
             }, 5000)
-            console.log("hi")
         });
 
         setTimeout(() => {
@@ -71,7 +70,7 @@ function Flipper() {
             auctions.map((flipAuction) => {
                 return (
                     <div className="card-wrapper" key={flipAuction.uuid}>
-                        <Card className="card" style={{ minHeight: "20vh" }}>
+                        <Card className="card">
                             {flipAuction.showLink ?
                                 <Link to={`/auction/${flipAuction.uuid}`}>
                                     <Card.Header style={{ padding: "10px" }}>

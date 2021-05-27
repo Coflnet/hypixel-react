@@ -58,11 +58,6 @@
     }
 }
 
-@media all and (min-width: 1024px) {
-    .card-wrapper {
-        width: 25vw;
-    }
-}
 
 @media all and (min-width: 1024px) and (max-width: 1400px) {
     .card-wrapper {

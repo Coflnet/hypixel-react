@@ -13,8 +13,6 @@ let apiSubscriptions: ApiSubscription[] = [];
 function initWebsocket(): void {
 
     let onWebsocketClose = (): void => {
-        console.log("Websocket closed");
-        console.log("reopening Websocket")
         websocket = getNewWebsocket();
     };
 
@@ -42,8 +40,6 @@ function initWebsocket(): void {
 
     let _handleSubscriptionOnMessage = function (response: ApiResponse, subscription: ApiSubscription) {
         let parsedResponse = JSON.parse(response.data);
-        console.log(response)
-        console.log(response.type == "error")
         if (response.type == "error")
             toast.error(parsedResponse.data);
         else
@@ -120,7 +116,6 @@ function sendRequest(request: ApiRequest): Promise<void> {
             websocket.send(JSON.stringify(request));
         } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
             websocket.onopen = function () {
-                console.log("websocket opened");
                 sendRequest(request);
             }
         }
@@ -142,7 +137,6 @@ function subscribe(subscription: ApiSubscription): void {
 
     } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
         websocket.onopen = function () {
-            console.log("websocket opened");
             subscribe(subscription);
         }
     }
