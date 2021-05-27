@@ -1,9 +1,3 @@
-/*// not critical anymore
-window.websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
-window.websocket.onopen = function() {
-    console.log("Websocket opened");
-}
-*/
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/serviceWorker.js').then(function(registration) {
