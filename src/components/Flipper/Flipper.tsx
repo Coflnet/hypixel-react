@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { Button, Card } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 
 function Flipper() {
 
@@ -18,11 +19,8 @@ function Flipper() {
         api.getFlips().then(flips => {
             setFlipAuctions(flips);
             flipAuctions = flips;
-            setTimeout(function () {
-                subscribeToAuctions();
-            });
         })
-
+        
     }, [])
 
     let subscribeToAuctions = () => {
@@ -37,8 +35,13 @@ function Flipper() {
             setTimeout(() => {
                 newFipAuction.showLink = true;
                 forceUpdate();
-            }, 6000)
+            }, 5000)
+            console.log("hi")
         });
+
+        setTimeout(() => {
+            subscribeToAuctions();
+        }, 30000)
     }
 
     let copyClick = (flipAuction: FlipAuction) => {
@@ -82,12 +85,12 @@ function Flipper() {
                             }
                             <Card.Body style={{ padding: "10px" }}>
                                 <p>
-                                    <span className="card-label">Avg. Price: </span>
-                                    <span>{numberWithThousandsSeperators(flipAuction.cost)} Coins</span>
+                                    <span className="card-label">Cost: </span>
+                                    <span style={{ color: "red" }}>{numberWithThousandsSeperators(flipAuction.cost)} Coins</span>
                                 </p>
                                 <p>
-                                    <span className="card-label">Sell price: </span>
-                                    <span style={{ color: "red" }}>{numberWithThousandsSeperators(flipAuction.median)} Coins</span>
+                                    <span className="card-label">Median price: </span>
+                                    <span>{numberWithThousandsSeperators(flipAuction.median)} Coins</span>
                                 </p>
                                 <p>
                                     <span className="card-label">Estimated Profit: </span>
@@ -111,15 +114,33 @@ function Flipper() {
 
     return (
         <div className="flipper">
+            <p>This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. 
+                Please write us your opinion and suggestion on our <a href="https://discord.gg/Qm55WEkgu6">discord</a>.</p>
             {latestAuctions.length > 0 ?
                 <div>
 
                     <h2>Latest profitable Auctions</h2>
                     {mapAuctionElements(latestAuctions)}
-                </div> : ""}
+                </div> : <div>
+                <GoogleSignIn onAfterLogin={subscribeToAuctions} />
+                <p>If you have our <a href="/premium">premium plan</a> the latest flips will be displayed here. Please note that it can take a few miniutes until new auctions are created.</p>
+                </div>}
             <hr />
-            <h2>Profitable Auctions</h2>
+            <h2>Previously found Flipps</h2>
             {mapAuctionElements(flipAuctions)}
+            <p>These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit. 
+                Keep in mind that these are delayed to protect our paying supporters. 
+                If you want more recent flipps purchase our <a href="/premium">premium plan.</a></p>
+            <h2>FAQ</h2>
+            <h3>What do these labels mean?</h3>
+            <h4>Cost</h4>
+            <p>Cost is the auction price that you would have to pay. </p>
+            <h4>Median Price</h4>
+            <p>Median Price is the median price for that item. Taking into account ultimate enchantments, Rarity and stars. (for now)</p>
+            <h4>Volume</h4>
+            <p>Volume is the amount of auctions that were sold in a 24 hour window. 
+            It is capped at 60 to keep the flipper fast.</p>
+            
         </div >
     );
 }

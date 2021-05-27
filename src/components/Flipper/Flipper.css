@@ -19,6 +19,7 @@
 
 .card {
     height: 100%;
+    min-width: 200px;
 }
 
 .cards-wrapper::-webkit-scrollbar {

@@ -2,6 +2,7 @@ import { ApiRequest, WebsocketHelper, ApiSubscription } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import cacheUtils from '../utils/CacheUtils';
 import api from "./ApiHelper";
+import { toast } from "react-toastify";
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
@@ -41,7 +42,12 @@ function initWebsocket(): void {
 
     let _handleSubscriptionOnMessage = function (response: ApiResponse, subscription: ApiSubscription) {
         let parsedResponse = JSON.parse(response.data);
-        subscription.callback(parsedResponse);
+        console.log(response)
+        console.log(response.type == "error")
+        if (response.type == "error")
+            toast.error(parsedResponse.data);
+        else
+            subscription.callback(parsedResponse);
     }
 
     let onWebsocketMessage = (e: MessageEvent): void => {
