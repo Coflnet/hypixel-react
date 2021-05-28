@@ -115,12 +115,11 @@ interface FlipAuction {
   uuid: string,
   median: number,
   cost: number,
-  name: string,
   volume: number,
   showLink: boolean,
   isCopied: boolean,
-  tag: string,
-  bin: boolean
+  item: Item,
+  bin: boolean,
 }
 
 interface FlipperFilter {

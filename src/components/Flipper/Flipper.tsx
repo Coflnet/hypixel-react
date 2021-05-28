@@ -24,31 +24,44 @@ function Flipper() {
 
     useEffect(() => {
         api.getFlips().then(flips => {
-            setFlipAuctions(flips);
-            flipAuctions = flips;
+            let promises: Promise<void>[] = [];
+            flips.forEach(flip => {
+                let promise = api.getItemImageUrl(flip.item).then(url => {
+                    flip.item.iconUrl = url;
+                });
+                promises.push(promise);
+            })
+
+            Promise.all(promises).then(() => {
+                setFlipAuctions(flips);
+                flipAuctions = flips;
+            })
         });
         subscribeToAuctions();
     }, [])
 
     let subscribeToAuctions = () => {
         api.subscribeFlips((newFipAuction: FlipAuction) => {
-            newFipAuction.showLink = false;
+            api.getItemImageUrl(newFipAuction.item).then((url) => {
+                newFipAuction.item.iconUrl = url;
+                newFipAuction.showLink = false;
 
-            let updatedLastestAuctions = [...latestAuctions, newFipAuction];
-            setLatestAuctions(updatedLastestAuctions);
-            latestAuctions = updatedLastestAuctions;
+                let updatedLastestAuctions = [...latestAuctions, newFipAuction];
+                setLatestAuctions(updatedLastestAuctions);
+                latestAuctions = updatedLastestAuctions;
 
-            if(autoscrollRef.current){
+                if (autoscrollRef.current) {
+                    setTimeout(() => {
+                        onArrowRightClick();
+                    }, 0)
+                }
+
+                // reload for link-update
                 setTimeout(() => {
-                    onArrowRightClick(); 
-                }, 100)
-            }
-
-            // reload for link-update
-            setTimeout(() => {
-                newFipAuction.showLink = true;
-                forceUpdate();
-            }, 5000)
+                    newFipAuction.showLink = true;
+                    forceUpdate();
+                }, 5000)
+            });
         });
     }
 
@@ -65,13 +78,13 @@ function Flipper() {
 
     let onArrowRightClick = () => {
         let element = document.getElementById("rightEndFlipsAnchor")
-        if(element){
+        if (element) {
             element.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
         }
     }
 
     let _setAutoScroll = (value: boolean) => {
-        if(value === true){
+        if (value === true) {
             onArrowRightClick();
         }
         autoscroll = value;
@@ -114,14 +127,15 @@ function Flipper() {
                     <div className="card-wrapper" key={flipAuction.uuid}>
                         <Card className="card">
                             {flipAuction.showLink ?
-                                <Link to={`/auction/${flipAuction.uuid}`}>
-                                    <Card.Header style={{ padding: "10px" }}>
-                                        <span>{flipAuction.name}</span>
-                                    </Card.Header>
-
-                                </Link> :
+                                <Card.Header>
+                                    <Link to={"/item/" + flipAuction.item.tag}>
+                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="item icon" style={{ marginRight: "5px" }} loading="lazy" />
+                                        <span>{flipAuction.item.name}</span>
+                                    </Link>
+                                </Card.Header> :
                                 <Card.Header style={{ padding: "10px" }}>
-                                    <span>{flipAuction.name}</span>
+                                    <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="item icon" style={{ marginRight: "5px" }} loading="lazy" />
+                                    <span>{flipAuction.item.name}</span>
                                 </Card.Header>
                             }
                             <Card.Body style={{ padding: "10px" }}>
@@ -152,7 +166,7 @@ function Flipper() {
                 )
             })
         }
-        {isLatest ? <div id="rightEndFlipsAnchor" /> : ""}
+            {isLatest ? <div id="rightEndFlipsAnchor" /> : ""}
         </div>;
     };
 
@@ -179,8 +193,8 @@ function Flipper() {
                                     </div>
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Label>To newest:</Form.Label>
-                                    <span style={{cursor: "pointer"}} onClick={onArrowRightClick}> {arrowRight}</span>
+                                    <Form.Label style={{cursor: "pointer"}} onClick={onArrowRightClick}>To newest:</Form.Label>
+                                    <span style={{ cursor: "pointer" }} onClick={onArrowRightClick}> {arrowRight}</span>
                                 </Form.Group>
                             </Form>
                             <hr />
