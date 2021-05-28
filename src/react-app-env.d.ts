@@ -118,7 +118,14 @@ interface FlipAuction {
   name: string,
   volume: number,
   showLink: boolean,
-  isCopied: boolean
+  isCopied: boolean,
+  tag: string,
+  bin: boolean
+}
+
+interface FlipperFilter {
+  onyBin?: boolean,
+  minProfit?: number
 }
 
 interface API {

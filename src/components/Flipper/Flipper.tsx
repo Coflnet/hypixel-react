@@ -3,15 +3,19 @@ import api from '../../api/ApiHelper';
 import './Flipper.css';
 import { useForceUpdate } from '../../utils/Hooks';
 import { Link } from 'react-router-dom';
-import { Button, Card } from 'react-bootstrap';
+import { Button, Card, Spinner } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
+import FlipperFilter from './FlipperFilter/FlipperFilter';
+import { getLoadingElement } from '../../utils/LoadingUtils';
 
 function Flipper() {
 
     let [latestAuctions, setLatestAuctions] = useState<FlipAuction[]>([]);
     let [flipAuctions, setFlipAuctions] = useState<FlipAuction[]>([]);
+    let [isLoggedIn, setIsLoggedIn] = useState(false);
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>();
     let forceUpdate = useForceUpdate();
 
     useEffect(() => {
@@ -50,6 +54,10 @@ function Flipper() {
         forceUpdate()
     }
 
+    let onLogin = () => {
+        setIsLoggedIn(true);
+    }
+
     let copyIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clipboard" viewBox="0 0 16 16">
             <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
@@ -65,9 +73,17 @@ function Flipper() {
         </svg>
     );
 
-    let mapAuctionElements = auctions => {
+    let mapAuctionElements = (auctions: FlipAuction[]) => {
         return <div className="cards-wrapper">{
-            auctions.map((flipAuction) => {
+            auctions.filter(auction => {
+                if (flipperFilter?.onyBin && !auction.bin) {
+                    return false;
+                }
+                if (flipperFilter?.minProfit && flipperFilter.minProfit >= (auction.median - auction.cost)) {
+                    return false;
+                }
+                return true;
+            }).map((flipAuction) => {
                 return (
                     <div className="card-wrapper" key={flipAuction.uuid}>
                         <Card className="card">
@@ -117,35 +133,49 @@ function Flipper() {
 
     return (
         <div className="flipper">
-            <p>This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change.
-                Please write us your opinion and suggestion on our <a href="https://discord.gg/Qm55WEkgu6">discord</a>.</p>
-            {latestAuctions.length > 0 ?
-                <div>
+            <Card className="card">
+                <Card.Header>
+                    <Card.Title>
+                        {!isLoggedIn ?
+                            "You need to be logged and have Premium to get profitable Auctions in real time." :
+                            "Latest profitable Auctions"
+                        }
+                    </Card.Title>
+                </Card.Header>
+                <Card.Body>
+                    {isLoggedIn ?
+                        <div>
+                            <FlipperFilter onChange={(newFilter) => { setFlipperFilter(newFilter) }} />
+                            <hr />
+                            {
+                                latestAuctions.length === 0 ?
+                                    <div>
+                                        {<div style={{ textAlign: 'center' }}>
+                                            <span><Spinner animation="grow" variant="primary"></Spinner>
+                                                <Spinner animation="grow" variant="primary"></Spinner>
+                                                <Spinner animation="grow" variant="primary"></Spinner></span>
+                                            <p>Waiting for new flips....</p></div>}
+                                    </div> : ""
+                            }
+                        </div> : ""}
+                    {latestAuctions.length > 0 && isLoggedIn ?
+                        <div style={{ position: "relative" }}>
+                            {mapAuctionElements(latestAuctions)}
+                        </div> : ""}
+                    <GoogleSignIn onAfterLogin={onLogin} />
+                </Card.Body>
+            </Card>
 
-                    <h2>Latest profitable Auctions</h2>
-                    {mapAuctionElements(latestAuctions)}
-                </div> : <div>
-                    <GoogleSignIn onAfterLogin={subscribeToAuctions} />
-                    <p>If you have our <a href="/premium">premium plan</a> the latest flips will be displayed here. Please note that it can take a few miniutes until new auctions are created.</p>
-                </div>}
             <hr />
-            <h2>Previously found Flipps</h2>
-            {mapAuctionElements(flipAuctions)}
-            <p>These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
-            Keep in mind that these are delayed to protect our paying supporters.
-                If you want more recent flipps purchase our <a href="/premium">premium plan.</a></p>
-            <h2>FAQ</h2>
-            <h3>What do these labels mean?</h3>
-            <h4>Cost</h4>
-            <p>Cost is the auction price that you would have to pay. </p>
-            <h4>Median Price</h4>
-            <p>Median Price is the median price for that item. Taking into account ultimate enchantments, Rarity and stars. (for now)</p>
-            <h4>Volume</h4>
-            <p>Volume is the amount of auctions that were sold in a 24 hour window.
-            It is capped at 60 to keep the flipper fast.</p>
-            <h3>I have another question</h3>
-            Ask via <a href="https://discord.gg/Qm55WEkgu6">discord</a> or <Link >feedback site</Link>
-
+            <Card>
+                <Card.Header>
+                    <Card.Title>Preview</Card.Title>
+                    <Card.Subtitle>(found ~5min ago)</Card.Subtitle>
+                </Card.Header>
+                <Card.Body>
+                    {mapAuctionElements(flipAuctions)}
+                </Card.Body>
+            </Card>
         </div >
     );
 }

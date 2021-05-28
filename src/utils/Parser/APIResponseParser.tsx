@@ -277,6 +277,8 @@ export function parseFlipAuction(flip): FlipAuction {
         cost: flip.cost,
         uuid: flip.uuid,
         name: flip.name,
-        volume: flip.volume
+        volume: flip.volume,
+        tag: flip.tag,
+        bin: flip.bin
     }
 }

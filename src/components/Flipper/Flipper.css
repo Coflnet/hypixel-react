@@ -6,7 +6,6 @@
 }
 
 .cards-wrapper {
-    scroll-snap-stop: always;
     display: flex;
     overflow-x: scroll;
     align-items: stretch;
@@ -57,7 +56,6 @@
         width: calc(50vw - 20px - 40px);
     }
 }
-
 
 @media all and (min-width: 1024px) and (max-width: 1400px) {
     .card-wrapper {
