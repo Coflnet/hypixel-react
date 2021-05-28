@@ -22,8 +22,8 @@ function Flipper() {
         api.getFlips().then(flips => {
             setFlipAuctions(flips);
             flipAuctions = flips;
-        })
-
+        });
+        subscribeToAuctions();
     }, [])
 
     let subscribeToAuctions = () => {
