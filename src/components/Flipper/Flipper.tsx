@@ -30,7 +30,7 @@ function Flipper() {
         api.subscribeFlips(function (newFipAuction: FlipAuction) {
             newFipAuction.showLink = false;
 
-            let updatedLastestAuctions = [newFipAuction, ...latestAuctions];
+            let updatedLastestAuctions = [...latestAuctions, newFipAuction];
             setLatestAuctions(updatedLastestAuctions);
             latestAuctions = updatedLastestAuctions;
 

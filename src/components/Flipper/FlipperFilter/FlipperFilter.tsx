@@ -38,7 +38,7 @@ function FlipperFilter(props: Props) {
                 <Form.Group>
                     <div>
                         <Form.Label className="flipper-filter-formfield-label">Min Profit?:</Form.Label>
-                        <Form.Control onChange={onOnlyMinProfitChange} className="flipper-filter-formfield" type="number" />
+                        <Form.Control onChange={onOnlyMinProfitChange} className="flipper-filter-formfield" style={{maxWidth: "300px"}} type="number" />
                     </div>
                 </Form.Group>
             </Form >
