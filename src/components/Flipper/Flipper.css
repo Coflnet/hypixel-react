@@ -92,3 +92,8 @@
 .card-header {
     height: 69px;
 }
+
+.text-link {
+    color: lightskyblue;
+    margin: 0;
+}
