@@ -9,7 +9,7 @@ function Flipper() {
         <div className="flipper">
             <h4>
                 <NavBar />
-                Item-Flipper
+                Item-Flipper (WIP)
             </h4>
             <FlipperComponent />
         </div >

@@ -8,7 +8,6 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
-import { getLoadingElement } from '../../utils/LoadingUtils';
 
 function Flipper() {
 
@@ -120,9 +119,6 @@ function Flipper() {
 
                                     <div>{window.navigator.clipboard ? <div className="flip-auction-copy-button"><Button variant="secondary" onClick={() => { copyClick(flipAuction) }}>{flipAuction.isCopied ? copiedIcon : copyIcon}</Button></div> : ""}</div>
                                 </div>
-
-
-
                             </Card.Body>
                         </Card>
                     </div >
@@ -164,6 +160,10 @@ function Flipper() {
                         </div> : ""}
                     <GoogleSignIn onAfterLogin={onLogin} />
                 </Card.Body>
+                {isLoggedIn ?
+                    <Card.Footer>
+                        This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our discord.
+                </Card.Footer> : ""}
             </Card>
 
             <hr />
@@ -174,6 +174,27 @@ function Flipper() {
                 </Card.Header>
                 <Card.Body>
                     {mapAuctionElements(flipAuctions)}
+                </Card.Body>
+                <Card.Footer>
+                    These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
+                    Keep in mind that these are delayed to protect our paying supporters.
+                If you want more recent flipps purchase our <a href="/premium">premium plan.</a>
+                </Card.Footer>
+            </Card>
+            <hr />
+            <Card>
+                <Card.Header>
+                    <Card.Title>FAQ</Card.Title>
+                </Card.Header>
+                <Card.Body>
+                    <h3>What do these labels mean?</h3>
+                    <h4>Cost</h4>
+                    <p>Cost is the auction price that you would have to pay. </p>
+                    <h4>Median Price</h4>
+                    <p>Median Price is the median price for that item. Taking into account ultimate enchantments, Rarity and stars. (for now)</p>
+                    <h4>Volume</h4>
+                    <p>Volume is the amount of auctions that were sold in a 24 hour window. It is capped at 60 to keep the flipper fast.</p>
+                    <h3>I have another question</h3> Ask via <a href="https://discord.gg/Qm55WEkgu6">discord</a> or <Link >feedback site</Link>
                 </Card.Body>
             </Card>
         </div >
