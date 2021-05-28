@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/ApiHelper';
 import './Flipper.css';
 import { useForceUpdate } from '../../utils/Hooks';
 import { Link } from 'react-router-dom';
-import { Button, Card, Spinner } from 'react-bootstrap';
+import { Button, Card, Form, Spinner } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
@@ -15,10 +15,14 @@ function Flipper() {
     let [flipAuctions, setFlipAuctions] = useState<FlipAuction[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>();
+    let [autoscroll, setAutoscroll] = useState(false);
+
+    const autoscrollRef = useRef(autoscroll);
+    autoscrollRef.current = autoscroll;
+
     let forceUpdate = useForceUpdate();
 
     useEffect(() => {
-
         api.getFlips().then(flips => {
             setFlipAuctions(flips);
             flipAuctions = flips;
@@ -27,12 +31,18 @@ function Flipper() {
     }, [])
 
     let subscribeToAuctions = () => {
-        api.subscribeFlips(function (newFipAuction: FlipAuction) {
+        api.subscribeFlips((newFipAuction: FlipAuction) => {
             newFipAuction.showLink = false;
 
             let updatedLastestAuctions = [...latestAuctions, newFipAuction];
             setLatestAuctions(updatedLastestAuctions);
             latestAuctions = updatedLastestAuctions;
+
+            if(autoscrollRef.current){
+                setTimeout(() => {
+                    onArrowRightClick(); 
+                }, 100)
+            }
 
             // reload for link-update
             setTimeout(() => {
@@ -53,6 +63,21 @@ function Flipper() {
         setIsLoggedIn(true);
     }
 
+    let onArrowRightClick = () => {
+        let element = document.getElementById("rightEndFlipsAnchor")
+        if(element){
+            element.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+        }
+    }
+
+    let _setAutoScroll = (value: boolean) => {
+        if(value === true){
+            onArrowRightClick();
+        }
+        autoscroll = value;
+        setAutoscroll(value);
+    }
+
     let copyIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clipboard" viewBox="0 0 16 16">
             <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
@@ -68,7 +93,13 @@ function Flipper() {
         </svg>
     );
 
-    let mapAuctionElements = (auctions: FlipAuction[]) => {
+    let arrowRight = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z" />
+        </svg>
+    );
+
+    let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div className="cards-wrapper">{
             auctions.filter(auction => {
                 if (flipperFilter?.onyBin && !auction.bin) {
@@ -120,7 +151,9 @@ function Flipper() {
                     </div >
                 )
             })
-        }</div>;
+        }
+        {isLatest ? <div id="rightEndFlipsAnchor" /> : ""}
+        </div>;
     };
 
     return (
@@ -138,6 +171,18 @@ function Flipper() {
                     {isLoggedIn ?
                         <div>
                             <FlipperFilter onChange={(newFilter) => { setFlipperFilter(newFilter) }} />
+                            <Form inline >
+                                <Form.Group>
+                                    <div>
+                                        <Form.Label htmlFor="autoScrollCheckbox" style={{ float: "left", marginRight: "10px" }}>Auto-Scroll?</Form.Label>
+                                        <Form.Check id="autoScrollCheckbox" onChange={(e) => { _setAutoScroll(e.target.checked) }} type="checkbox" />
+                                    </div>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>To newest:</Form.Label>
+                                    <span style={{cursor: "pointer"}} onClick={onArrowRightClick}> {arrowRight}</span>
+                                </Form.Group>
+                            </Form>
                             <hr />
                             {
                                 latestAuctions.length === 0 ?
@@ -152,7 +197,7 @@ function Flipper() {
                         </div> : ""}
                     {latestAuctions.length > 0 && isLoggedIn ?
                         <div style={{ position: "relative" }}>
-                            {mapAuctionElements(latestAuctions)}
+                            {mapAuctionElements(latestAuctions, true)}
                         </div> : ""}
                     <GoogleSignIn onAfterLogin={onLogin} />
                 </Card.Body>
@@ -169,7 +214,7 @@ function Flipper() {
                     <Card.Subtitle>(found ~5min ago)</Card.Subtitle>
                 </Card.Header>
                 <Card.Body>
-                    {mapAuctionElements(flipAuctions)}
+                    {mapAuctionElements(flipAuctions, false)}
                 </Card.Body>
                 <Card.Footer>
                     These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
