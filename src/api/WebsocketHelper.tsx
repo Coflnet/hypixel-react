@@ -85,8 +85,9 @@ function initWebsocket(): void {
     websocket = getNewWebsocket();
 }
 
+let _requestTimout;
 function sendRequest(request: ApiRequest): Promise<void> {
-    if(!websocket)
+    if (!websocket)
         initWebsocket();
     let requestString = JSON.stringify(request.data);
     return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
@@ -115,14 +116,17 @@ function sendRequest(request: ApiRequest): Promise<void> {
             requests.push(request);
             websocket.send(JSON.stringify(request));
         } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
-            websocket.onopen = function () {
-                api.setConnectionId();
-                sendRequest(request);
-            }
+            clearTimeout(_requestTimout);
+            _requestTimout = setTimeout(() => {
+                api.setConnectionId().then(() => {
+                    sendRequest(request);
+                });
+            }, 1000);
         }
     })
 }
 
+let _subscribeTimout;
 function subscribe(subscription: ApiSubscription): void {
 
     if (websocket && websocket.readyState === WebSocket.OPEN) {
@@ -137,9 +141,12 @@ function subscribe(subscription: ApiSubscription): void {
         websocket.send(JSON.stringify(subscription))
 
     } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
-        websocket.onopen = function () {
-            subscribe(subscription);
-        }
+        clearTimeout(_subscribeTimout);
+        _subscribeTimout = setTimeout(() => {
+            api.setConnectionId().then(() => {
+                subscribe(subscription);
+            });
+        }, 1000);
     }
 }
 

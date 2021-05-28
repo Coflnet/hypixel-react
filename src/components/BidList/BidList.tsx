@@ -72,13 +72,13 @@ function BidList(props: Props) {
     }
 
     let loadNewBids = (reset?: boolean): void => {
-        api.getBids(props.playerUUID, 20, reset ? 0 : bids.length).then(newBids => {
+        api.getBids(props.playerUUID, 10, reset ? 0 : bids.length).then(newBids => {
 
             if (!mounted) {
                 return;
             }
 
-            if (newBids.length < 20) {
+            if (newBids.length < 10) {
                 allBidsLoaded = true;
                 setAllBidsLoaded(true);
             }
@@ -156,7 +156,7 @@ function BidList(props: Props) {
                             getItemImageElement(bid)
                         }
                         {bid.item.name}
-                        {bid.bin ? <Badge variant="secondary" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
+                        {bid.bin ? <Badge variant="success" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
                     </h4>
                     <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
                     <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>

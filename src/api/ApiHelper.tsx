@@ -256,9 +256,8 @@ function initAPI(): API {
 
     let setConnectionId = (): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let websocketUUID = window.localStorage.getItem("websocketUUID") || generateUUID();
-            window.localStorage.setItem("websocketUUID", websocketUUID);
-    
+            let websocketUUID = generateUUID();
+                
             websocketHelper.sendRequest({
                 type: RequestType.SET_CONNECTION_ID,
                 data: websocketUUID,

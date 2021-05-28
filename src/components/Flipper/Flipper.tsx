@@ -1,46 +1,69 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/ApiHelper';
 import './Flipper.css';
 import { useForceUpdate } from '../../utils/Hooks';
 import { Link } from 'react-router-dom';
-import { Button, Card } from 'react-bootstrap';
+import { Button, Card, Form, Spinner } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
+import FlipperFilter from './FlipperFilter/FlipperFilter';
+import { getLoadingElement } from '../../utils/LoadingUtils';
 
 function Flipper() {
 
     let [latestAuctions, setLatestAuctions] = useState<FlipAuction[]>([]);
     let [flipAuctions, setFlipAuctions] = useState<FlipAuction[]>([]);
+    let [isLoggedIn, setIsLoggedIn] = useState(false);
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>();
+    let [autoscroll, setAutoscroll] = useState(false);
+
+    const autoscrollRef = useRef(autoscroll);
+    autoscrollRef.current = autoscroll;
+
     let forceUpdate = useForceUpdate();
 
     useEffect(() => {
-
         api.getFlips().then(flips => {
-            setFlipAuctions(flips);
-            flipAuctions = flips;
-        })
+            let promises: Promise<void>[] = [];
+            flips.forEach(flip => {
+                let promise = api.getItemImageUrl(flip.item).then(url => {
+                    flip.item.iconUrl = url;
+                });
+                promises.push(promise);
+            })
 
+            Promise.all(promises).then(() => {
+                setFlipAuctions(flips);
+                flipAuctions = flips;
+            })
+        });
+        subscribeToAuctions();
     }, [])
 
     let subscribeToAuctions = () => {
-        api.subscribeFlips(function (newFipAuction: FlipAuction) {
-            newFipAuction.showLink = false;
+        api.subscribeFlips((newFipAuction: FlipAuction) => {
+            api.getItemImageUrl(newFipAuction.item).then((url) => {
+                newFipAuction.item.iconUrl = url;
+                newFipAuction.showLink = false;
 
-            let updatedLastestAuctions = [newFipAuction, ...latestAuctions];
-            setLatestAuctions(updatedLastestAuctions);
-            latestAuctions = updatedLastestAuctions;
+                let updatedLastestAuctions = [...latestAuctions, newFipAuction];
+                setLatestAuctions(updatedLastestAuctions);
+                latestAuctions = updatedLastestAuctions;
 
-            // reload for link-update
-            setTimeout(() => {
-                newFipAuction.showLink = true;
-                forceUpdate();
-            }, 5000)
+                if (autoscrollRef.current) {
+                    setTimeout(() => {
+                        onArrowRightClick();
+                    }, 0)
+                }
+
+                // reload for link-update
+                setTimeout(() => {
+                    newFipAuction.showLink = true;
+                    forceUpdate();
+                }, 5000)
+            });
         });
-
-        setTimeout(() => {
-            subscribeToAuctions();
-        }, 30000)
     }
 
     let copyClick = (flipAuction: FlipAuction) => {
@@ -48,6 +71,25 @@ function Flipper() {
         window.navigator.clipboard.writeText("/viewauction " + flipAuction.uuid);
         toast.success(<p>Copied ingame link <br /><i>/viewauction {flipAuction.uuid}</i></p>)
         forceUpdate()
+    }
+
+    let onLogin = () => {
+        setIsLoggedIn(true);
+    }
+
+    let onArrowRightClick = () => {
+        let element = document.getElementById("rightEndFlipsAnchor")
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+        }
+    }
+
+    let _setAutoScroll = (value: boolean) => {
+        if (value === true) {
+            onArrowRightClick();
+        }
+        autoscroll = value;
+        setAutoscroll(value);
     }
 
     let copyIcon = (
@@ -65,21 +107,39 @@ function Flipper() {
         </svg>
     );
 
-    let mapAuctionElements = auctions => {
+    let arrowRight = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z" />
+        </svg>
+    );
+
+    let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div className="cards-wrapper">{
-            auctions.map((flipAuction) => {
+            auctions.filter(auction => {
+                if (!isLatest) {
+                    return true;
+                }
+                if (flipperFilter?.onyBin && !auction.bin) {
+                    return false;
+                }
+                if (flipperFilter?.minProfit && flipperFilter.minProfit >= (auction.median - auction.cost)) {
+                    return false;
+                }
+                return true;
+            }).map((flipAuction) => {
                 return (
                     <div className="card-wrapper" key={flipAuction.uuid}>
                         <Card className="card">
                             {flipAuction.showLink ?
-                                <Link to={`/auction/${flipAuction.uuid}`}>
-                                    <Card.Header style={{ padding: "10px" }}>
-                                        <span>{flipAuction.name}</span>
-                                    </Card.Header>
-
-                                </Link> :
+                                <Card.Header>
+                                    <a href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
+                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                        <span>{flipAuction.item.name}</span>
+                                    </a>
+                                </Card.Header> :
                                 <Card.Header style={{ padding: "10px" }}>
-                                    <span>{flipAuction.name}</span>
+                                    <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                    <span>{flipAuction.item.name}</span>
                                 </Card.Header>
                             }
                             <Card.Body style={{ padding: "10px" }}>
@@ -104,48 +164,94 @@ function Flipper() {
 
                                     <div>{window.navigator.clipboard ? <div className="flip-auction-copy-button"><Button variant="secondary" onClick={() => { copyClick(flipAuction) }}>{flipAuction.isCopied ? copiedIcon : copyIcon}</Button></div> : ""}</div>
                                 </div>
-
-
-
                             </Card.Body>
                         </Card>
                     </div >
                 )
             })
-        }</div>;
+        }
+            {isLatest ? <div id="rightEndFlipsAnchor" /> : ""}
+        </div>;
     };
 
     return (
         <div className="flipper">
-            <p>This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change.
-                Please write us your opinion and suggestion on our <a href="https://discord.gg/Qm55WEkgu6">discord</a>.</p>
-            {latestAuctions.length > 0 ?
-                <div>
+            <Card className="card">
+                <Card.Header>
+                    <Card.Title>
+                        {!isLoggedIn ?
+                            "You need to be logged and have Premium to get profitable Auctions in real time." :
+                            "Latest profitable Auctions"
+                        }
+                    </Card.Title>
+                </Card.Header>
+                <Card.Body>
+                    {isLoggedIn ?
+                        <div>
+                            <FlipperFilter onChange={(newFilter) => { setFlipperFilter(newFilter) }} />
+                            <Form inline >
+                                <Form.Group>
+                                    <div>
+                                        <Form.Label htmlFor="autoScrollCheckbox" style={{ float: "left", marginRight: "10px" }}>Auto-Scroll?</Form.Label>
+                                        <Form.Check id="autoScrollCheckbox" onChange={(e) => { _setAutoScroll(e.target.checked) }} type="checkbox" />
+                                    </div>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Label style={{ cursor: "pointer" }} onClick={onArrowRightClick}>To newest:</Form.Label>
+                                    <span style={{ cursor: "pointer" }} onClick={onArrowRightClick}> {arrowRight}</span>
+                                </Form.Group>
+                            </Form>
+                            <hr />
+                            {
+                                latestAuctions.length === 0 ?
+                                    <div>
+                                        {getLoadingElement(<p>Waiting for new flips....</p>)}
+                                    </div> : ""
+                            }
+                        </div> : ""}
+                    {latestAuctions.length > 0 && isLoggedIn ?
+                        <div style={{ position: "relative" }}>
+                            {mapAuctionElements(latestAuctions, true)}
+                        </div> : ""}
+                    <GoogleSignIn onAfterLogin={onLogin} />
+                </Card.Body>
+                {isLoggedIn ?
+                    <Card.Footer>
+                        This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a className="text-link" href="https://discord.gg/Qm55WEkgu6">discord</a>.
+                </Card.Footer> : ""}
+            </Card>
 
-                    <h2>Latest profitable Auctions</h2>
-                    {mapAuctionElements(latestAuctions)}
-                </div> : <div>
-                    <GoogleSignIn onAfterLogin={subscribeToAuctions} />
-                    <p>If you have our <a href="/premium">premium plan</a> the latest flips will be displayed here. Please note that it can take a few miniutes until new auctions are created.</p>
-                </div>}
             <hr />
-            <h2>Previously found Flipps</h2>
-            {mapAuctionElements(flipAuctions)}
-            <p>These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
-            Keep in mind that these are delayed to protect our paying supporters.
-                If you want more recent flipps purchase our <a href="/premium">premium plan.</a></p>
-            <h2>FAQ</h2>
-            <h3>What do these labels mean?</h3>
-            <h4>Cost</h4>
-            <p>Cost is the auction price that you would have to pay. </p>
-            <h4>Median Price</h4>
-            <p>Median Price is the median price for that item. Taking into account ultimate enchantments, Rarity and stars. (for now)</p>
-            <h4>Volume</h4>
-            <p>Volume is the amount of auctions that were sold in a 24 hour window.
-            It is capped at 60 to keep the flipper fast.</p>
-            <h3>I have another question</h3>
-            Ask via <a href="https://discord.gg/Qm55WEkgu6">discord</a> or <Link >feedback site</Link>
-
+            <Card>
+                <Card.Header>
+                    <Card.Title>Preview</Card.Title>
+                    <Card.Subtitle>(found ~5min ago)</Card.Subtitle>
+                </Card.Header>
+                <Card.Body>
+                    {mapAuctionElements(flipAuctions, false)}
+                </Card.Body>
+                <Card.Footer>
+                    These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
+                    Keep in mind that these are delayed to protect our paying supporters.
+                If you want more recent flipps purchase our <Link className="text-link" to="/premium">premium plan.</Link>
+                </Card.Footer>
+            </Card>
+            <hr />
+            <Card>
+                <Card.Header>
+                    <Card.Title>FAQ</Card.Title>
+                </Card.Header>
+                <Card.Body>
+                    <h3>What do these labels mean?</h3>
+                    <h4>Cost</h4>
+                    <p>Cost is the auction price that you would have to pay. </p>
+                    <h4>Median Price</h4>
+                    <p>Median Price is the median price for that item. Taking into account ultimate enchantments, Rarity and stars. (for now)</p>
+                    <h4>Volume</h4>
+                    <p>Volume is the amount of auctions that were sold in a 24 hour window. It is capped at 60 to keep the flipper fast.</p>
+                    <h3>I have another question</h3> Ask via <a className="text-link" href="https://discord.gg/Qm55WEkgu6">discord</a> or <Link className="text-link" to="/feedback" >feedback site</Link>
+                </Card.Body>
+            </Card>
         </div >
     );
 }

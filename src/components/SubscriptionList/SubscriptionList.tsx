@@ -9,6 +9,7 @@ import { convertTagToName, numberWithThousandsSeperators } from '../../utils/For
 import NavBar from '../NavBar/NavBar';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 interface Props {
 
@@ -128,6 +129,19 @@ function SubscriptionList(props: Props) {
         });
     }
 
+    function getSubscriptionTitleElement(subscription: Subscription) {
+        switch (subscription.type) {
+            case "item":
+                return <Link to={"/item/" + subscription.topicId}>{subscription.title}</Link>
+            case "player":
+                return <Link to={"/player/" + subscription.topicId}>{subscription.title}</Link>
+            case "auction":
+                return <Link to={"/auction/" + subscription.topicId}>{subscription.title}</Link>
+            default:
+                return subscription.title;
+        }
+    }
+
     let repeatIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-repeat" viewBox="0 0 16 16">
             <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
@@ -138,9 +152,11 @@ function SubscriptionList(props: Props) {
     let subscriptionsTableBody = subscriptions.map((subscription, i) =>
     (
         <ListGroup.Item key={i}>
-            <h5><Badge style={{ marginRight: "5px" }} variant="primary">{i + 1}</Badge>{subscription.title}</h5>
+            <h5><Badge style={{ marginRight: "5px" }} variant="primary">{i + 1}</Badge>
+                {getSubscriptionTitleElement(subscription)}
+            </h5>
             {getSubTypesAsList(subscription.types, subscription.price)}
-            <div style={{ position: "absolute", top: "0.75rem", right: "1.25rem" }} onClick={() => { onDelete(subscription) }}>
+            <div style={{ position: "absolute", top: "0.75rem", right: "1.25rem", cursor: "pointer" }} onClick={() => { onDelete(subscription) }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" className="bi bi-trash-fill" viewBox="0 0 16 16">
                     <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                 </svg>

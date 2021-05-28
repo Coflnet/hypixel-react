@@ -1,3 +1,4 @@
+import { FlipCameraIosSharp } from '@material-ui/icons';
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
 
 export function parseItemBidForList(bid: any): BidForList {
@@ -276,7 +277,11 @@ export function parseFlipAuction(flip): FlipAuction {
         median: flip.median,
         cost: flip.cost,
         uuid: flip.uuid,
-        name: flip.name,
-        volume: flip.volume
+        volume: flip.volume,
+        bin: flip.bin,
+        item: {
+            tag: flip.tag,
+            name: flip.name
+        }
     }
 }
