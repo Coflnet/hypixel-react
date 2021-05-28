@@ -31,7 +31,7 @@ function FlipperFilter(props: Props) {
             <Form style={{ marginBottom: "5px" }} >
                 <Form.Group>
                     <div>
-                        <Form.Label htmlFor="onlyBinCheckbox" className="flipper-filter-formfield-label">Only BIN-Auctions?:</Form.Label>
+                        <Form.Label htmlFor="onlyBinCheckbox" className="flipper-filter-formfield-label only-bin-label">Only BIN-Auctions?:</Form.Label>
                         <Form.Check id="onlyBinCheckbox" onChange={onOnlyBinChange} className="flipper-filter-formfield" type="checkbox" />
                     </div>
                 </Form.Group>

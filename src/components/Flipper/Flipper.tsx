@@ -40,10 +40,6 @@ function Flipper() {
                 forceUpdate();
             }, 5000)
         });
-
-        setTimeout(() => {
-            subscribeToAuctions();
-        }, 30000)
     }
 
     let copyClick = (flipAuction: FlipAuction) => {
