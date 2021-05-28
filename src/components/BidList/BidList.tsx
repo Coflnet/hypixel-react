@@ -72,13 +72,13 @@ function BidList(props: Props) {
     }
 
     let loadNewBids = (reset?: boolean): void => {
-        api.getBids(props.playerUUID, 20, reset ? 0 : bids.length).then(newBids => {
+        api.getBids(props.playerUUID, 10, reset ? 0 : bids.length).then(newBids => {
 
             if (!mounted) {
                 return;
             }
 
-            if (newBids.length < 20) {
+            if (newBids.length < 10) {
                 allBidsLoaded = true;
                 setAllBidsLoaded(true);
             }
