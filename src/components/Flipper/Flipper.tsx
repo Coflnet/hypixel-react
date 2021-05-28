@@ -8,6 +8,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
+import { getLoadingElement } from '../../utils/LoadingUtils';
 
 function Flipper() {
 
@@ -115,7 +116,7 @@ function Flipper() {
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div className="cards-wrapper">{
             auctions.filter(auction => {
-                if(!isLatest){
+                if (!isLatest) {
                     return true;
                 }
                 if (flipperFilter?.onyBin && !auction.bin) {
@@ -132,12 +133,12 @@ function Flipper() {
                             {flipAuction.showLink ?
                                 <Card.Header>
                                     <a href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
-                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="item icon" style={{ marginRight: "5px" }} loading="lazy" />
+                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                         <span>{flipAuction.item.name}</span>
                                     </a>
                                 </Card.Header> :
                                 <Card.Header style={{ padding: "10px" }}>
-                                    <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="item icon" style={{ marginRight: "5px" }} loading="lazy" />
+                                    <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                     <span>{flipAuction.item.name}</span>
                                 </Card.Header>
                             }
@@ -204,11 +205,7 @@ function Flipper() {
                             {
                                 latestAuctions.length === 0 ?
                                     <div>
-                                        {<div style={{ textAlign: 'center' }}>
-                                            <span><Spinner animation="grow" variant="primary"></Spinner>
-                                                <Spinner animation="grow" variant="primary"></Spinner>
-                                                <Spinner animation="grow" variant="primary"></Spinner></span>
-                                            <p>Waiting for new flips....</p></div>}
+                                        {getLoadingElement(<p>Waiting for new flips....</p>)}
                                     </div> : ""
                             }
                         </div> : ""}
