@@ -86,7 +86,7 @@
 }
 
 .card-header {
-    height: 69px;
+    min-height: 69px;
 }
 
 .text-link {

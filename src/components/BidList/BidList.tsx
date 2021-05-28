@@ -156,7 +156,7 @@ function BidList(props: Props) {
                             getItemImageElement(bid)
                         }
                         {bid.item.name}
-                        {bid.bin ? <Badge variant="secondary" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
+                        {bid.bin ? <Badge variant="success" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
                     </h4>
                     <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
                     <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>

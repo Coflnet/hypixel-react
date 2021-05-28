@@ -128,10 +128,10 @@ function Flipper() {
                         <Card className="card">
                             {flipAuction.showLink ?
                                 <Card.Header>
-                                    <Link to={"/item/" + flipAuction.item.tag}>
+                                    <a href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
                                         <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="item icon" style={{ marginRight: "5px" }} loading="lazy" />
                                         <span>{flipAuction.item.name}</span>
-                                    </Link>
+                                    </a>
                                 </Card.Header> :
                                 <Card.Header style={{ padding: "10px" }}>
                                     <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="item icon" style={{ marginRight: "5px" }} loading="lazy" />
@@ -193,7 +193,7 @@ function Flipper() {
                                     </div>
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Label style={{cursor: "pointer"}} onClick={onArrowRightClick}>To newest:</Form.Label>
+                                    <Form.Label style={{ cursor: "pointer" }} onClick={onArrowRightClick}>To newest:</Form.Label>
                                     <span style={{ cursor: "pointer" }} onClick={onArrowRightClick}> {arrowRight}</span>
                                 </Form.Group>
                             </Form>
