@@ -115,6 +115,9 @@ function Flipper() {
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div className="cards-wrapper">{
             auctions.filter(auction => {
+                if(!isLatest){
+                    return true;
+                }
                 if (flipperFilter?.onyBin && !auction.bin) {
                     return false;
                 }
