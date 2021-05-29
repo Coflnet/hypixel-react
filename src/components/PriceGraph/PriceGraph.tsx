@@ -92,6 +92,11 @@ function PriceGraph(props: Props) {
             setPriceChart(priceChart);
             setNoDataFound(result.prices.length === 0)
             setIsLoading(false);
+        }).catch(() => {
+            setIsLoading(false);
+            setNoDataFound(true);
+            setIsFilterable(false);
+            setAvgPrice(0);
         });
     };
 
