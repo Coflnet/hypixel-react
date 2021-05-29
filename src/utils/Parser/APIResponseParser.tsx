@@ -95,7 +95,8 @@ export function parseItem(item: any): Item {
         category: item.category,
         iconUrl: item.iconUrl,
         tier: item.tier,
-        description: item.description
+        description: item.description,
+        bazaar:item.bazaar
     }
 }
 
