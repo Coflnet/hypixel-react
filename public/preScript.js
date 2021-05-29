@@ -1,19 +1,17 @@
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/serviceWorker.js').then(function(registration) {
-            loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js');
-            loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-messaging.js');
 
-            // Registration was successful
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
 
             setTimeout(() => {
+                loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js');
+                loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-messaging.js');
+                pushNotifications(registration);
                 loadScript("https://arc.io/widget.min.js#WK8BPDas");
             }, 5000)
 
-
-
-            setTimeout(() => pushNotifications(registration), 300);
+            // Registration was successful
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }, function(err) {
             // registration failed :(
             console.log('ServiceWorker registration failed: ', err);
