@@ -3,7 +3,7 @@ import api from '../../api/ApiHelper';
 import './Flipper.css';
 import { useForceUpdate } from '../../utils/Hooks';
 import { Link } from 'react-router-dom';
-import { Button, Card, Form, Spinner } from 'react-bootstrap';
+import { Button, Card, Form } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';

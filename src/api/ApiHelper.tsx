@@ -78,8 +78,7 @@ function initAPI(): API {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
-                reforge: itemFilter?.reforge ? itemFilter.reforge.id : undefined,
-                enchantments: itemFilter && itemFilter.enchantment !== undefined && itemFilter.enchantment.level !== undefined && itemFilter.enchantment.id ? [[itemFilter.enchantment.id, itemFilter.enchantment.level]] : undefined
+                filter:itemFilter
             };
             httpApi.sendRequest({
                 type: RequestType.ITEM_PRICES,
@@ -487,8 +486,7 @@ function initAPI(): API {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
-                reforge: itemFilter?.reforge ? itemFilter.reforge.id : undefined,
-                enchantments: itemFilter && itemFilter.enchantment !== undefined && itemFilter.enchantment.level !== undefined && itemFilter.enchantment.id ? [[itemFilter.enchantment.id, itemFilter.enchantment.level]] : undefined
+                filter:itemFilter
             };
             httpApi.sendLimitedCacheRequest({
                 type: RequestType.RECENT_AUCTIONS,
@@ -535,6 +533,21 @@ function initAPI(): API {
         });
     }
 
+    let getFilter = (name:string): Promise<FilterOptions> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendRequest({
+                type: RequestType.GET_FILTER,
+                data: name,
+                resolve: (data: any) => {
+                    resolve(data);
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_FILTER, error, "");
+                    reject();
+                }
+            })
+        });
+    }
     return {
         search,
         trackSearch,
@@ -562,7 +575,8 @@ function initAPI(): API {
         validatePaymentToken,
         getRecentAuctions,
         getFlips,
-        subscribeFlips
+        subscribeFlips,
+        getFilter
     }
 }
 

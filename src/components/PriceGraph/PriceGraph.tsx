@@ -28,6 +28,7 @@ function PriceGraph(props: Props) {
     let [noDataFound, setNoDataFound] = useState(false);
     let [avgPrice, setAvgPrice] = useState(0);
     let [isFilterable, setIsFilterable] = useState(false);
+    let [filters, setFilters] = useState([] as string[]);
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
     
     let fetchspanRef = useRef(fetchspan);
@@ -88,6 +89,8 @@ function PriceGraph(props: Props) {
 
             priceChart.update();
             setIsFilterable(result.filterable);
+            console.log(result.filters)
+            setFilters(result.filters);
             setAvgPrice(Math.round(priceSum / result.prices.length))
             setPriceChart(priceChart);
             setNoDataFound(result.prices.length === 0)
@@ -131,7 +134,7 @@ function PriceGraph(props: Props) {
 
     return (
         <div className="price-graph">
-            {isFilterable ? <ItemFilter disabled={isLoading} onFilterChange={onFilterChange}/> : ""}
+            {isFilterable ? <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange}/> : ""}
             <ItemPriceRange onRangeChange={onRangeChange} disabled={isLoading} disableAllTime={itemFilter !== undefined} item={props.item} />
             <div className="graph-canvas-container">
                 {graphOverlayElement}

@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
-import { Form, Spinner } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import './FlipperFilter.css';
 
 interface Props {
