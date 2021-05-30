@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <script src="/preScript.js"></script>
+    <script async src="/preScript.js"></script>
     <script async src="/MinecraftColorCodes.3.7.js"></script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
@@ -10,8 +10,9 @@
     <meta name="theme-color" content="#000000" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <meta http-equiv="origin-trial" content="AtbkI9MatGOI+L1r42oKyAYJcGKFJD52DOUpdQUg69BmkN0GIVVUhtqUciZ8ZmfZYSuJfH4qq4bI9mifW0UYPAYAAABVeyJvcmlnaW4iOiJodHRwczovL3NreS5jb2ZsbmV0LmNvbTo0NDMiLCJmZWF0dXJlIjoiRGlnaXRhbEdvb2RzIiwiZXhwaXJ5IjoxNjI2MjIwNzk5fQ==">
-    <link rel="stylesheet" media="all" href="/bootstrap-react.min.css">
-    <link rel="stylesheet" media="all" href="/bootstrap-dark-full.min.css">
+    <!-- Tell the browser that connections to these domains are needed later on -->
+    <link rel="dns-prefetch" href="https://js.stripe.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
@@ -35,9 +36,10 @@
             align-items: center;
             align-content: center;
         }
-        
+
         body {
             background-color: #222;
+            top: 0px;
         }
     </style>
     <!-- Title and description are the last items in the header, they will be replaced by the backend -->

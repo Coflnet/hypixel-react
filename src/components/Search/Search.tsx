@@ -94,7 +94,7 @@ function Search(props: Props) {
 
     let getSelectedElement = (): JSX.Element => {
         if (!props.selected) {
-            return <div />
+            return <p className="current"><Badge variant="primary">Current:</Badge> Auction Details</p>
         }
         return <p className="current"><Badge variant="primary">Current:</Badge> <img crossOrigin="anonymous" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy"/>{props.selected.name || convertTagToName((props.selected as Item).tag)}</p>
     }
@@ -127,7 +127,7 @@ function Search(props: Props) {
                     </ListGroup>
             }
             <div className="bar">
-                {props.selected ? getSelectedElement() : ""}
+                {getSelectedElement()}
                 {isLoading ? "" : <OptionsMenu selected={props.selected}/>}
             </div>
         </div >

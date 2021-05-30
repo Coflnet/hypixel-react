@@ -148,7 +148,7 @@ export function parsePlayer(player: any): Player {
     return {
         name: player.name,
         uuid: player.uuid,
-        iconUrl: player.iconUrl ? player.iconUrl + "?size=32" : "https://crafatar.com/avatars/" + player.uuid + "?size=32"
+        iconUrl: player.iconUrl ? player.iconUrl + "?size=64" : "https://crafatar.com/avatars/" + player.uuid + "?size=64"
     }
 }
 
