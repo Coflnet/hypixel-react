@@ -32,6 +32,10 @@ h1 {
     padding-left: 5px;
 }
 
+h2 {
+    font-size: 1.25rem;
+}
+
 .label {
     width: 30vw;
     float: left;
