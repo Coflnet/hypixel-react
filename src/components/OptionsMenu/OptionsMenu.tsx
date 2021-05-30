@@ -15,21 +15,24 @@ function OptionsMenu(props: Props) {
 
     let [anchorEl, setAnchorEl] = useState(null);
 
-    let { tag} = useParams();
-    
+    let { tag } = useParams();
+
     let available: AvailableLinks[] = [];
     const isItemPage = window.location.href.indexOf("/item/") > 0;
     const isPlayerPage = window.location.href.indexOf("/player/") > 0;
     if (isItemPage) {
         let name = props.selected?.name;
-        available.push({ title: "Wiki", url: "https://hypixel-skyblock.fandom.com/wiki/" + name})
-        available.push({ title: "HyAuctions", url: "https://auctions.craftlink.xyz/items/" + tag})
-    } else if(isPlayerPage) {
+        available.push({ title: "Wiki", url: "https://hypixel-skyblock.fandom.com/wiki/" + name })
+        if ((props.selected as Item).bazaar)
+            available.push({ title: "Bazaartracker", url: "https://bazaartracker.com/product/" + tag })
+        else
+            available.push({ title: "HyAuctions", url: "https://craftlink.xyz/items/" + tag })
+    } else if (isPlayerPage) {
         let player = (props.selected as Player);
         available.push({ title: "SkyCrypt", url: "https://sky.shiiyu.moe/stats/" + player?.uuid })
         available.push({ title: "Plancke", url: "https://plancke.io/hypixel/player/stats/" + player?.uuid })
         available.push({ title: "HyAuctions", url: "https://auctions.craftlink.xyz/players/" + player?.uuid })
-    } 
+    }
 
 
     const open = Boolean(anchorEl);
@@ -50,30 +53,30 @@ function OptionsMenu(props: Props) {
         <span>
             <div className="d-none d-md-block">
                 {available.map((result, i) => (
-                    <a key={i} href={result.url} title={result.title} target="_blank" rel="noreferrer"><Button variant="outlined" >{result.title}</Button></a> 
+                    <a key={i} href={result.url} title={result.title} target="_blank" rel="noreferrer"><Button variant="outlined" >{result.title}</Button></a>
                 ))}
             </div>
 
-        {available.length === 0 ? "" :
-            <div className="d-md-none">
-                <Button aria-controls="fade-menu" aria-haspopup="true" onClick={handleClick}>
-                    <MoreVert />
-                </Button>
-                <Menu
-                    id="fade-menu"
-                    aria-label="open menu"
-                    anchorEl={anchorEl}
-                    keepMounted
-                    open={open}
-                    onClose={handleClose}
-                    TransitionComponent={Fade}
-                >
-                    {available.map((result, i) => (
-                        <MenuItem key={i} onClick={(e: any) => { navigate(result.url) }}>{result.title}</MenuItem>
-                    ))}
-                </Menu>
-            </div>
-                    }
+            {available.length === 0 ? "" :
+                <div className="d-md-none">
+                    <Button aria-controls="fade-menu" aria-haspopup="true" onClick={handleClick}>
+                        <MoreVert />
+                    </Button>
+                    <Menu
+                        id="fade-menu"
+                        aria-label="open menu"
+                        anchorEl={anchorEl}
+                        keepMounted
+                        open={open}
+                        onClose={handleClose}
+                        TransitionComponent={Fade}
+                    >
+                        {available.map((result, i) => (
+                            <MenuItem key={i} onClick={(e: any) => { navigate(result.url) }}>{result.title}</MenuItem>
+                        ))}
+                    </Menu>
+                </div>
+            }
         </span >
     );
 }

@@ -24,6 +24,7 @@ interface Item {
   category?: string;
   iconUrl?: string;
   description?: string;
+  bazaar?: boolean;
 }
 
 interface ItemPrice {
