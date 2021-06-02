@@ -3,7 +3,7 @@ import api from '../../api/ApiHelper';
 import './Flipper.css';
 import { useForceUpdate } from '../../utils/Hooks';
 import { Link } from 'react-router-dom';
-import { Button, Card, Form, Spinner } from 'react-bootstrap';
+import { Button, Card, Form } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
@@ -17,6 +17,7 @@ function Flipper() {
     let [isLoggedIn, setIsLoggedIn] = useState(false);
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>();
     let [autoscroll, setAutoscroll] = useState(false);
+    let [hasPremium, setHasPremium] = useState(false);
 
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
@@ -35,11 +36,20 @@ function Flipper() {
 
             Promise.all(promises).then(() => {
                 setFlipAuctions(flips);
-                flipAuctions = flips;
             })
         });
         subscribeToAuctions();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    let loadHasPremium = () => {
+        let googleId = localStorage.getItem("googleId");
+        api.hasPremium(googleId!).then(hasPremiumUntil => {
+            if (hasPremiumUntil) {
+                setHasPremium(true);
+            }
+        });
+    }
 
     let subscribeToAuctions = () => {
         api.subscribeFlips((newFipAuction: FlipAuction) => {
@@ -75,6 +85,7 @@ function Flipper() {
 
     let onLogin = () => {
         setIsLoggedIn(true);
+        loadHasPremium();
     }
 
     let onArrowRightClick = () => {
@@ -109,7 +120,7 @@ function Flipper() {
 
     let arrowRight = (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z" />
+            <path fillRule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z" />
         </svg>
     );
 
@@ -179,14 +190,14 @@ function Flipper() {
             <Card className="card">
                 <Card.Header>
                     <Card.Title>
-                        {!isLoggedIn ?
+                        {!isLoggedIn || !hasPremium ?
                             "You need to be logged and have Premium to get profitable Auctions in real time." :
                             "Latest profitable Auctions"
                         }
                     </Card.Title>
                 </Card.Header>
                 <Card.Body>
-                    {isLoggedIn ?
+                    {isLoggedIn && hasPremium ?
                         <div>
                             <FlipperFilter onChange={(newFilter) => { setFlipperFilter(newFilter) }} />
                             <Form inline >

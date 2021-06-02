@@ -1,4 +1,3 @@
-import { FlipCameraIosSharp } from '@material-ui/icons';
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
 
 export function parseItemBidForList(bid: any): BidForList {

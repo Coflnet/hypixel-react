@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
-import { Form, Spinner } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import './FlipperFilter.css';
 
 interface Props {
@@ -8,8 +8,8 @@ interface Props {
 
 function FlipperFilter(props: Props) {
 
-    let [onlyBin, setOnlyBin] = useState(false);
-    let [minProfit, setMinProfit] = useState(0);
+    let [onlyBin] = useState(false);
+    let [minProfit] = useState(0);
 
     let onOnlyBinChange = (event: ChangeEvent<HTMLInputElement>) => {
         props.onChange({

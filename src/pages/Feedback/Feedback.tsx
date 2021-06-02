@@ -7,10 +7,10 @@ function Feedback() {
 
     return (
         <div className="feedback-page">
-            <h4>
+            <h1>
                 <NavBar />
                 Feedback
-            </h4>
+            </h1>
             <hr />
             <div>
                 <p>Hey, we are only a small group of developers. We develop this app in our spare time and try to create a usefull application for all the Skyblock players.</p>

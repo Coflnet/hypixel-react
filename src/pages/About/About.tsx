@@ -7,10 +7,10 @@ function ItemDetails() {
 
     return (
         <div className="about-page">
-            <h4>
+            <h1>
                 <NavBar />
                 About
-            </h4>
+            </h1>
             <Card className="about-card">
                 <p>This is an OpenSource project developed on <a href="https://github.com/matthias-luger/hypixel-react">GitHub</a></p>
                 <p>You can support this site by letting it opened and <b>disabling your adblocker</b>. Arc will use some of your bandwith and pay us for that. You can learn more by clicking on the blue icon in the lower left corner. (only there if you disabled your adblocker)</p>

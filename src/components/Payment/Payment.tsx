@@ -1,59 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { Button } from 'react-bootstrap';
+import { Button, Card } from 'react-bootstrap';
+import { getLoadingElement } from "../../utils/LoadingUtils";
 import availablePaymentProvider from "../../utils/Payment/PaymentUtils";
 import './Payment.css';
+import { v4 as generateUUID } from 'uuid';
 
-function Payment() {
+interface Props {
+  hasPremium: boolean
+}
 
-  let [productListJsx, _setProductListJsx] = useState<JSX.Element>();
+function Payment(props: Props) {
+
+  let [products, setProducts] = useState<Product[]>([]);
+  let [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setProductsJsx()
+    loadProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setProductsListJsx = (jsx: JSX.Element) => {
-    if (productListJsx !== jsx) {
-      productListJsx = jsx;
-      _setProductListJsx(productListJsx);
-    }
-  }
-
-  const getProducts = (): Promise<Product[]> => {
-    return availablePaymentProvider().getProducts();
-  }
-
-  const getProductsJsx = (): Promise<JSX.Element> => {
-    return new Promise((resolve, reject) => {
-      getProducts().then(products => {
-        resolve(
-          <div className="product-grid">
-            <div className="product-column product-column-title product-column-header">
-              <b>Title</b>
-            </div>
-            <div className="product-column product-column-price product-column-header">
-              <b>Price</b>
-            </div>
-            <div className="product-column product-column-buy-button product-column-header">
-            </div>
-            {products.map(product => <div key={product.itemId} className="product-wrapper">
-              <div className="product-column product-column-title">
-                {product.title}
-              </div>
-              <div className="product-column product-column-price">
-                {roundToTwo(product.price.value)}
-              </div>
-              <div className="product-column product-column-buy-button">
-                <Button onClick={() => { onPay(product) }}>
-                  Buy
-                </Button>
-              </div>
-            </div>)
-            }
-          </div>
-        )
-      });
-    });
+  function loadProducts(): Promise<void> {
+    return availablePaymentProvider().getProducts().then(products => {
+      setProducts(products);
+      setIsLoading(false);
+    })
   }
 
   const roundToTwo = (param: number): number => Math.round(param * 10 ** 2) / 10 ** 2;
@@ -63,12 +33,35 @@ function Payment() {
     availablePaymentProvider().pay(product);
   }
 
-  const setProductsJsx = () => getProductsJsx().then(jsx => setProductsListJsx(jsx))
+  let planList = products.map(product => {
+    return (
+      <Card key={generateUUID()} className="premium-plan-card">
+        <Card.Header>
+          <h4>{product.title}</h4>
+        </Card.Header>
+        <Card.Body>
+          <h5><span className="premium-price">Price: {roundToTwo(product.price.value)}</span>
+            <Button variant="success" onClick={() => { onPay(product) }}>
+              Buy
+            </Button>
+          </h5>
+        </Card.Body>
+      </Card>)
+  })
 
   return (
     <div>
-      {productListJsx}
-    </div>
+      {
+        isLoading ?
+          getLoadingElement() :
+          (
+            <div className="premium-plans">
+              <h3>Premium-Plans</h3>
+              {planList}
+            </div>
+          )
+      }
+    </div >
   )
 }
 

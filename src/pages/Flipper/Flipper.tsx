@@ -7,10 +7,10 @@ function Flipper() {
 
     return (
         <div className="flipper">
-            <h4>
+            <h1>
                 <NavBar />
                 Item-Flipper (WIP)
-            </h4>
+            </h1>
             <FlipperComponent />
         </div >
     );
