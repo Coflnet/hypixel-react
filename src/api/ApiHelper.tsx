@@ -369,7 +369,7 @@ function initAPI(): API {
                 type: RequestType.PREMIUM_EXPIRATION,
                 data: googleId,
                 resolve: (premiumUntil) => {
-                    resolve(premiumUntil);
+                    resolve(new Date(premiumUntil));
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PREMIUM_EXPIRATION, error, googleId);

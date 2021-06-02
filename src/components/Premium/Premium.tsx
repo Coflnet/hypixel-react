@@ -4,11 +4,13 @@ import Payment from "../Payment/Payment";
 import './Premium.css';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { getLoadingElement } from "../../utils/LoadingUtils";
-import { Card, Modal } from "react-bootstrap";
+import { Card, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import NavBar from "../NavBar/NavBar";
 import PremiumFeatures from "./PremiumFeatures/PremiumFeatures";
 import { Link as LinkIcon } from '@material-ui/icons';
 import api from "../../api/ApiHelper";
+import moment from 'moment';
+import { v4 as generateUUID } from 'uuid';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -64,7 +66,12 @@ function Premium() {
             {
                 hasPremium ?
                     <div>
-                        <p>Your premium expiration date: {hasPremiumUntil?.toLocaleDateString()}</p>
+                        <OverlayTrigger
+                            overlay={<Tooltip id={generateUUID()}>
+                                <span>{hasPremiumUntil?.toDateString()}</span>
+                            </Tooltip>}>
+                            <p>Your premium ends: {moment(hasPremiumUntil).fromNow()}</p>
+                        </OverlayTrigger>
                     </div> : ""
             }
             <hr />
@@ -74,7 +81,7 @@ function Premium() {
                     You can use the following premium-features:
                     </p>
                     : <p>Buy Premium to support us and get access to these exclusive features:</p>}
-                <span style={{ cursor: "pointer", width: "fit-content" }} onClick={() => { setShowFeatureDialog(true) }}><LinkIcon /> Show features</span>
+                <span style={{ cursor: "pointer", width: "fit-content", fontWeight: "bold" }} onClick={() => { setShowFeatureDialog(true) }}><LinkIcon /> Show features</span>
             </Card>
             <div>
                 <GoogleSignIn onAfterLogin={onLogin} />
