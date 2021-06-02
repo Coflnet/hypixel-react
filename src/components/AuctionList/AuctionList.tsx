@@ -207,7 +207,7 @@ function AuctionList(props: Props) {
             {
                 auctions.length === 0 && allAuctionsLoaded ?
                     <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} /> <p>No auctions found</p></div> :
-                    <InfiniteScroll style={{ overflow: "hidden" }} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<div/>}>
+                    <InfiniteScroll style={{ overflow: "hidden" }} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={getLoadingElement()}>
                         <ListGroup>
                             {auctionList}
                         </ListGroup>
