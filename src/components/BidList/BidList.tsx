@@ -72,13 +72,13 @@ function BidList(props: Props) {
     }
 
     let loadNewBids = (reset?: boolean): void => {
-        api.getBids(props.playerUUID, 20, reset ? 0 : bids.length).then(newBids => {
+        api.getBids(props.playerUUID, 10, reset ? 0 : bids.length).then(newBids => {
 
             if (!mounted) {
                 return;
             }
 
-            if (newBids.length < 20) {
+            if (newBids.length < 10) {
                 allBidsLoaded = true;
                 setAllBidsLoaded(true);
             }
@@ -109,13 +109,13 @@ function BidList(props: Props) {
 
     let getItemImageElement = (bid: BidForList) => {
         return (
-            bid.item.iconUrl ? <img crossOrigin="anonymous" className="bid-item-image" src={bid.item.iconUrl} alt="item icon" height="48" width="48" /> : undefined
+            bid.item.iconUrl ? <img crossOrigin="anonymous" className="bid-item-image" src={bid.item.iconUrl} alt="item icon" height="48" width="48" loading="lazy"/> : undefined
         )
     }
 
     let getCoinImage = () => {
         return (
-            <img src="/Coin.png" height="35px" width="35px" alt="coin icon" />
+            <img src="/Coin.png" height="35px" width="35px" alt="coin icon" loading="lazy"/>
         );
     }
 
@@ -156,7 +156,7 @@ function BidList(props: Props) {
                             getItemImageElement(bid)
                         }
                         {bid.item.name}
-                        {bid.bin ? <Badge variant="secondary" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
+                        {bid.bin ? <Badge variant="success" style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
                     </h4>
                     <p>Highest Bid: {numberWithThousandsSeperators(bid.highestBid)} {getCoinImage()}</p>
                     <p>Highest Own: {numberWithThousandsSeperators(bid.highestOwn)} {getCoinImage()}</p>
@@ -169,7 +169,7 @@ function BidList(props: Props) {
     return (
         <div className="bid-list">
             {bids.length === 0 && allBidsLoaded ?
-                <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} /> <p>No bids found</p></div> :
+                <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} loading="lazy"/> <p>No bids found</p></div> :
                 <InfiniteScroll style={{ overflow: "hidden" }} dataLength={bids.length} next={loadNewBids} hasMore={!allBidsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
                     <ListGroup>
                         {bidsList}

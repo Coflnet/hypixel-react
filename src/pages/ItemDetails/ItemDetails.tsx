@@ -12,14 +12,14 @@ function ItemDetails() {
     let { tag } = useParams();
     let [item, setItem] = useState<Item>();
 
-    useEffect(() => {
-        api.getItemImageUrl({ tag: tag }).then(iconUrl => {
-            setItem({
-                tag: tag,
-                name: convertTagToName(tag),
-                iconUrl: iconUrl
-            });
-        })
+    useEffect(() => {     
+        api.getItemDetails(tag).then(detailedItem=>{
+            api.getItemImageUrl({ tag: tag }).then(iconUrl => {
+                detailedItem.name = convertTagToName(tag);
+                detailedItem.iconUrl = iconUrl;
+                setItem(detailedItem);
+            })
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tag]);
 

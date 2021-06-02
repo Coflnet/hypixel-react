@@ -24,6 +24,7 @@ interface Item {
   category?: string;
   iconUrl?: string;
   description?: string;
+  bazaar?: boolean;
 }
 
 interface ItemPrice {
@@ -111,6 +112,22 @@ interface SearchResultItem {
   id: string;
 }
 
+interface FlipAuction {
+  uuid: string,
+  median: number,
+  cost: number,
+  volume: number,
+  showLink: boolean,
+  isCopied: boolean,
+  item: Item,
+  bin: boolean,
+}
+
+interface FlipperFilter {
+  onyBin?: boolean,
+  minProfit?: number
+}
+
 interface API {
   search(searchText: string): Promise<SearchResultItem[]>;
   trackSearch(fullSearchId: string, fullSearchType: string): void;
@@ -128,7 +145,7 @@ interface API {
   getReforges(): Promise<Reforge[]>;
   getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>;
   getPlayerName(uuid: string): Promise<string>;
-  setConnectionId(): void;
+  setConnectionId(): Promise<void>;
   getVersion(): Promise<string>;
   subscribe(
     topic: string,
@@ -148,7 +165,9 @@ interface API {
     productId: string,
     packageName: string = packageName
   ): Promise<boolean>;
-  getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>
+  getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
+  getFlips(): Promise<FlipAuction[]>,
+  subscribeFlips(callback: Function): void
 }
 
 interface CacheUtils {

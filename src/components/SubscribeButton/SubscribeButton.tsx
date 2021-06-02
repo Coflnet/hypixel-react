@@ -97,14 +97,6 @@ function SubscribeButton(props: Props) {
         }
     }
 
-    function onClick() {
-        setShowDialog(true);
-        if(isLoggedIn && props.type === "auction"){
-                onSubscribe();
-                setShowDialog(false);
-        }
-    }
-
     function closeDialog() {
         trackEvent({ action: "subscription dialog closed", category: "subscriptions" });
         setShowDialog(false)

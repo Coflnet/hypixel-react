@@ -78,13 +78,13 @@ function AuctionList(props: Props) {
     }
 
     let loadNewAuctions = (reset?: boolean): void => {
-        api.getAuctions(props.playerUUID, 20, reset ? 0 : auctions.length).then(newAuctions => {
+        api.getAuctions(props.playerUUID, 10, reset ? 0 : auctions.length).then(newAuctions => {
 
             if (!mounted) {
                 return;
             }
 
-            if (newAuctions.length < 20) {
+            if (newAuctions.length < 10) {
                 allAuctionsLoaded = true;
                 setAllAuctinosLoaded(true);
             }
@@ -113,13 +113,13 @@ function AuctionList(props: Props) {
 
     let getCoinImage = () => {
         return (
-            <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" />
+            <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" loading="lazy" />
         );
     }
 
     let getItemImageElement = (auction: Auction) => {
         return (
-            auction.item.iconUrl ? <img crossOrigin="anonymous" className="auction-item-image" src={auction.item.iconUrl} alt="item icon" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} /> : undefined
+            auction.item.iconUrl ? <img crossOrigin="anonymous" className="auction-item-image" src={auction.item.iconUrl} alt="item icon" height="48" width="48" onError={(error) => onImageLoadError(auction, error)} loading="lazy" /> : undefined
         )
     }
 
@@ -178,7 +178,7 @@ function AuctionList(props: Props) {
         api.getPlayerName(props.playerUUID).then(playerName => {
             setCopyButtonClicked(true);
             window.navigator.clipboard.writeText("/ah " + playerName);
-            toast.success(<p>Copied ingame link <br/> <i>/ah {playerName}</i></p>)
+            toast.success(<p>Copied ingame link <br /> <i>/ah {playerName}</i></p>)
         });
     }
 
@@ -207,7 +207,7 @@ function AuctionList(props: Props) {
             {
                 auctions.length === 0 && allAuctionsLoaded ?
                     <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} /> <p>No auctions found</p></div> :
-                    <InfiniteScroll style={{ overflow: "hidden" }} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
+                    <InfiniteScroll style={{ overflow: "hidden" }} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<div/>}>
                         <ListGroup>
                             {auctionList}
                         </ListGroup>

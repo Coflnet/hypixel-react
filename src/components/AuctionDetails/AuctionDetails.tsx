@@ -134,13 +134,17 @@ function AuctionDetails(props: Props) {
 
     let auctionCardContent = auctionDetails === undefined ? getLoadingElement() : (
         <div>
-            <Card.Header>
-                <Link to={"/item/" + auctionDetails.auction.item.tag}><h5>
-                    <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="item icon" style={{ marginRight: "5px" }} />
+            <Card.Header className="auction-card-header">
+                <Link to={"/item/" + auctionDetails.auction.item.tag}><h1>
+                    <span className="item-icon">
+                    <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="item icon" style={{ marginRight: "5px" }} loading="lazy"/>
+                    </span>
+                    <span>
                     <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
                     <Badge variant={countBadgeVariant} style={{ marginLeft: "5px" }}>x{auctionDetails?.count}</Badge>
                     {auctionDetails.auction.bin ? <Badge variant={binBadgeVariant} style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
-                </h5>
+                    </span>
+                </h1>
                 </Link>
                 <div className="center">
                     <OverlayTrigger
@@ -189,7 +193,7 @@ function AuctionDetails(props: Props) {
                             <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
                         </span>
                         {auctionDetails?.auctioneer.name}
-                        <img crossOrigin="anonymous" src={auctionDetails?.auctioneer.iconUrl} alt="auctioneer icon" height="16" width="16" style={{ marginLeft: "5px" }} />
+                        <img crossOrigin="anonymous" src={auctionDetails?.auctioneer.iconUrl} alt="auctioneer icon" height="16" width="16" style={{ marginLeft: "5px" }} loading="lazy"/>
                     </p>
                 </Link>
 
@@ -249,13 +253,14 @@ function AuctionDetails(props: Props) {
             let headingStyle = i === 0 ? { color: "green" } : { color: "red" };
             return <Link key={generateUUID()} to={`/player/${bid.bidder.uuid}`}>
                 <ListGroup.Item key={bid.amount} action>
+                    <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="64" width="64" alt="bidder minecraft icon" style={{ marginRight: "15px", float: "left" }} loading="lazy"/>
                     <h6 style={headingStyle}>
                         {numberWithThousandsSeperators(bid.amount)} Coins
                     </h6>
                     <span>
-                        <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="32" width="32" alt="bidder minecraft icon" style={{ marginRight: "5px" }} />
                         {bid.bidder.name}
-                    </span>
+                    </span><br/>
+                    <span>{moment(bid.timestamp).fromNow()}</span>
                 </ListGroup.Item>
             </Link>
         })
@@ -270,15 +275,15 @@ function AuctionDetails(props: Props) {
                 </div> :
                 <div>
                     <div>
-                        <Card className="auction-card" style={{minHeight: "60vh"}}>
+                        <Card className="auction-card first-card">
                             {auctionCardContent}
                         </Card>
                         <Card className="auction-card">
                             <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
-                                <h5>
+                                <h2>
                                     Item-Details
                         <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? arrowDownIcon : arrowUpIcon}</span>
-                                </h5>
+                                </h2>
                             </Card.Header>
                             <Collapse in={!isItemDetailsCollapse}>
                                 <Card.Body>
@@ -288,8 +293,8 @@ function AuctionDetails(props: Props) {
                         </Card>
                         <Card className="auction-card">
                             <Card.Header>
-                                <h5>Bids</h5>
-                                {auctionDetails && auctionDetails?.bids.length > 1 ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
+                                <h2>Bids</h2>
+                                {auctionDetails ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
                             </Card.Header>
                             <Card.Body>
                                 <ListGroup>
@@ -298,17 +303,6 @@ function AuctionDetails(props: Props) {
                             </Card.Body>
                         </Card>
                     </div>
-                    <Card className="auction-card">
-                        <Card.Header>
-                            <h5>Bids</h5>
-                            {auctionDetails ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
-                        </Card.Header>
-                        <Card.Body>
-                            <ListGroup>
-                                {bidList || getLoadingElement()}
-                            </ListGroup>
-                        </Card.Body>
-                    </Card>
                     <div className="fixed-bottom">{window.navigator.clipboard ? <div className="btn-bottom"><Button type="primary" onClick={copyClick}>{copyButtonClicked ? copiedIcon : copyIcon}</Button></div> : ""}</div>
                 </div>
             }

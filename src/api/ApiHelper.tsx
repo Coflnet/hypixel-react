@@ -1,6 +1,7 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseRecentAuction, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseRecentAuction, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
+import { httpApi } from './HttpHelper';
 import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
 import { enchantmentAndReforgeCompare } from "../utils/Formatter";
@@ -15,7 +16,7 @@ function initAPI(): API {
 
     let search = (searchText: string): Promise<SearchResultItem[]> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.SEARCH,
                 data: searchText,
                 resolve: (items: any) => {
@@ -58,7 +59,7 @@ function initAPI(): API {
 
     let getItemDetails = (itemTagOrName: string): Promise<Item> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.ITEM_DETAILS,
                 data: itemTagOrName,
                 resolve: (item: any) => {
@@ -80,7 +81,7 @@ function initAPI(): API {
                 reforge: itemFilter?.reforge ? itemFilter.reforge.id : undefined,
                 enchantments: itemFilter && itemFilter.enchantment !== undefined && itemFilter.enchantment.level !== undefined && itemFilter.enchantment.id ? [[itemFilter.enchantment.id, itemFilter.enchantment.level]] : undefined
             };
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.ITEM_PRICES,
                 data: requestData,
                 resolve: (data: any) => {
@@ -117,7 +118,7 @@ function initAPI(): API {
                 amount: amount,
                 offset: offset
             };
-            websocketHelper.sendRequest({
+            httpApi.sendLimitedCacheRequest({
                 type: RequestType.PLAYER_AUCTION,
                 data: requestData,
                 resolve: (auctions: any) => {
@@ -129,7 +130,7 @@ function initAPI(): API {
                     apiErrorHandler(RequestType.PLAYER_AUCTION, error, requestData);
                     reject();
                 }
-            })
+            },2)
         });
     }
 
@@ -140,7 +141,7 @@ function initAPI(): API {
                 amount: amount,
                 offset: offset
             };
-            websocketHelper.sendRequest({
+            httpApi.sendLimitedCacheRequest({
                 type: RequestType.PLAYER_BIDS,
                 data: requestData,
                 resolve: (bids: any) => {
@@ -158,7 +159,7 @@ function initAPI(): API {
 
     let getEnchantments = (): Promise<Enchantment[]> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.ALL_ENCHANTMENTS,
                 data: "",
                 resolve: (enchantments: any) => {
@@ -183,7 +184,7 @@ function initAPI(): API {
 
     let getReforges = (): Promise<Reforge[]> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.ALL_REFORGES,
                 data: "",
                 resolve: (reforges: any) => {
@@ -223,7 +224,7 @@ function initAPI(): API {
 
     let getAuctionDetails = (auctionUUID: string): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            httpApi.sendLimitedCacheRequest({
                 type: RequestType.AUCTION_DETAILS,
                 data: auctionUUID,
                 resolve: (auctionDetails) => {
@@ -233,13 +234,13 @@ function initAPI(): API {
                     apiErrorHandler(RequestType.AUCTION_DETAILS, error, auctionUUID);
                     reject();
                 }
-            })
+            },2)
         })
     }
 
     let getPlayerName = (uuid: string): Promise<string> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.PLAYER_NAME,
                 data: uuid,
                 resolve: (name) => {
@@ -253,23 +254,27 @@ function initAPI(): API {
         });
     }
 
-    let setConnectionId = () => {
-        let websocketUUID = window.localStorage.getItem("websocketUUID") || generateUUID();
-        window.localStorage.setItem("websocketUUID", websocketUUID);
-
-        websocketHelper.sendRequest({
-            type: RequestType.SET_CONNECTION_ID,
-            data: websocketUUID,
-            resolve: () => { },
-            reject: (error: any) => {
-                apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID);
-            }
-        })
+    let setConnectionId = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let websocketUUID = generateUUID();
+                
+            websocketHelper.sendRequest({
+                type: RequestType.SET_CONNECTION_ID,
+                data: websocketUUID,
+                resolve: () => {
+                    resolve();
+                 },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID);
+                    reject();
+                }
+            })
+        });
     }
 
     let getVersion = (): Promise<string> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.GET_VERSION,
                 data: "",
                 resolve: (response: any) => {
@@ -297,7 +302,6 @@ function initAPI(): API {
                     return aNum + bNum;
                 })
             }
-            console.log(requestData);
             websocketHelper.sendRequest({
                 type: RequestType.SUBSCRIBE,
                 data: requestData,
@@ -456,7 +460,7 @@ function initAPI(): API {
                 resolve: (prices: any) => resolve(mapStripePrices(prices)),
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_STRIPE_PRICES, error);
-                        reject();
+                    reject();
                 }
             })
 
@@ -467,7 +471,7 @@ function initAPI(): API {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.VALIDATE_PAYMENT_TOKEN,
-                data: {token, productId, packageName},
+                data: { token, productId, packageName },
                 resolve: (data: any) => resolve(true),
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.VALIDATE_PAYMENT_TOKEN, error);
@@ -486,7 +490,7 @@ function initAPI(): API {
                 reforge: itemFilter?.reforge ? itemFilter.reforge.id : undefined,
                 enchantments: itemFilter && itemFilter.enchantment !== undefined && itemFilter.enchantment.level !== undefined && itemFilter.enchantment.id ? [[itemFilter.enchantment.id, itemFilter.enchantment.level]] : undefined
             };
-            websocketHelper.sendRequest({
+            httpApi.sendLimitedCacheRequest({
                 type: RequestType.RECENT_AUCTIONS,
                 data: requestData,
                 resolve: (data: any) => {
@@ -495,6 +499,37 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData);
                     reject();
+                }
+            })
+        });
+    }
+
+    let getFlips = (): Promise<FlipAuction[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_FLIPS,
+                data: "",
+                resolve: (data: any) => {
+                    resolve(data.map(a => parseFlipAuction(a)));
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, "");
+                    reject();
+                }
+            })
+        });
+    }
+
+    let subscribeFlips = (callback: Function) => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.subscribe({
+                type: RequestType.SUBSCRIBE_FLIPS,
+                data: "",
+                callback: function (data) {
+                    if(!data){
+                        return;
+                    }
+                    callback(parseFlipAuction(data));
                 }
             })
         });
@@ -525,7 +560,9 @@ function initAPI(): API {
         getStripeProducts,
         getStripePrices,
         validatePaymentToken,
-        getRecentAuctions
+        getRecentAuctions,
+        getFlips,
+        subscribeFlips
     }
 }
 

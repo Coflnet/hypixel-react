@@ -9,10 +9,8 @@ function NavBar() {
     let { trackEvent } = useMatomo();
     let [showNav, setShowNav] = useState(false);
 
-    let isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-
     const titleStyle = {
-        backgroundColor: isDarkMode ? '#7a8288' : "#22A7F0",
+        backgroundColor: '#7a8288',
         height: "60px",
         margin: "auto",
         padding: "0 20px",
@@ -22,17 +20,17 @@ function NavBar() {
 
     const navStyle = {
         width: "60%",
-        background: isDarkMode ? "#3a3f44" : "#FFFFFF"
+        background: "#3a3f44" 
     }
 
     const itemStyle = {
         padding: "22px 0px",
         listStyleType: "none",
-        background: isDarkMode ? "#3a3f44" : "#FFFFFF"
+        background: "#3a3f44"
     }
 
     const itemHoverStyle = {
-        background: isDarkMode ? "#272b30" : "#FFFFFF"
+        background: "#272b30"
     }
 
     return (
@@ -45,11 +43,12 @@ function NavBar() {
                     itemHoverStyle={itemHoverStyle}
                     title={<span>Navigation</span>}
                     items={[
-                        <Link to="/"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="prices icon" />Prices</div></Link>,
-                        <Link to="/subscriptions"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="subscription icon" />Subscriptions</div></Link>,
-                        <Link to="/premium"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="premium icon" />Premium</div></Link>,
-                        <Link to="/about"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="legal icon" />Links / Legal</div></Link>,
-                        <Link to="/feedback"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="feedback icon" />Feedback</div></Link>]}
+                        <Link to="/"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="prices icon" loading="lazy" />Prices</div></Link>,
+                        <Link to="/flipper"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="premium icon" loading="lazy" />Item-Flipper</div></Link>,
+                        <Link to="/subscriptions"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="subscription icon" loading="lazy" />Subscriptions</div></Link>,
+                        <Link to="/premium"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="premium icon" loading="lazy" />Premium</div></Link>,
+                        <Link to="/about"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="legal icon" loading="lazy" />Links / Legal</div></Link>,
+                        <Link to="/feedback"><div className="link-item-div"><img src="/Coin.png" height="48" width="48" alt="feedback icon" loading="lazy" />Feedback</div></Link>]}
                     onHideNav={() => { setShowNav(false) }
                     }>
                 </SideNav >

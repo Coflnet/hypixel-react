@@ -29,6 +29,9 @@ function PriceGraph(props: Props) {
     let [avgPrice, setAvgPrice] = useState(0);
     let [isFilterable, setIsFilterable] = useState(true);
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
+    
+    let fetchspanRef = useRef(fetchspan);
+    fetchspanRef.current = fetchspan;
 
     useEffect(() => {
         mounted = true;
@@ -89,6 +92,11 @@ function PriceGraph(props: Props) {
             setPriceChart(priceChart);
             setNoDataFound(result.prices.length === 0)
             setIsLoading(false);
+        }).catch(() => {
+            setIsLoading(false);
+            setNoDataFound(true);
+            setIsFilterable(false);
+            setAvgPrice(0);
         });
     };
 
@@ -105,7 +113,7 @@ function PriceGraph(props: Props) {
 
     let onFilterChange = (filter) => {
         setItemFilter(filter);
-        updateChart(priceChart || createChart(priceConfig), fetchspan, filter);
+        updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
     }
 
     let graphOverlayElement = (
@@ -124,7 +132,7 @@ function PriceGraph(props: Props) {
     return (
         <div className="price-graph">
             {isFilterable ? <ItemFilter disabled={isLoading} onFilterChange={onFilterChange}/> : ""}
-            <ItemPriceRange onRangeChange={onRangeChange} disabled={isLoading} item={props.item} />
+            <ItemPriceRange onRangeChange={onRangeChange} disabled={isLoading} disableAllTime={itemFilter !== undefined} item={props.item} />
             <div className="graph-canvas-container">
                 {graphOverlayElement}
                 <canvas ref={priceChartCanvas} />
@@ -134,7 +142,8 @@ function PriceGraph(props: Props) {
                 <div style={{ position: "relative", flex: "1 1 auto" }}><SubscribeButton type="item" topic={props.item.tag} /></div>
                 <div style={{ position: "relative", flex: "1 1 auto" }}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
             </div>
-            <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />
+            <hr/>
+            { props.item?.bazaar ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />}
         </div >
     );
 }

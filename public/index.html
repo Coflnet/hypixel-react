@@ -2,15 +2,17 @@
 <html lang="en">
 
 <head>
-    <script src="/preScript.js"></script>
+    <script async src="/preScript.js"></script>
     <script async src="/MinecraftColorCodes.3.7.js"></script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Browse over 100 million auctions, and the bazzar of Hypixel SkyBlock" />
-    <meta http-equiv="origin-trial" content="AtbkI9MatGOI+L1r42oKyAYJcGKFJD52DOUpdQUg69BmkN0GIVVUhtqUciZ8ZmfZYSuJfH4qq4bI9mifW0UYPAYAAABVeyJvcmlnaW4iOiJodHRwczovL3NreS5jb2ZsbmV0LmNvbTo0NDMiLCJmZWF0dXJlIjoiRGlnaXRhbEdvb2RzIiwiZXhwaXJ5IjoxNjI2MjIwNzk5fQ==">
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <meta http-equiv="origin-trial" content="AtbkI9MatGOI+L1r42oKyAYJcGKFJD52DOUpdQUg69BmkN0GIVVUhtqUciZ8ZmfZYSuJfH4qq4bI9mifW0UYPAYAAABVeyJvcmlnaW4iOiJodHRwczovL3NreS5jb2ZsbmV0LmNvbTo0NDMiLCJmZWF0dXJlIjoiRGlnaXRhbEdvb2RzIiwiZXhwaXJ5IjoxNjI2MjIwNzk5fQ==">
+    <!-- Tell the browser that connections to these domains are needed later on -->
+    <link rel="dns-prefetch" href="https://js.stripe.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
@@ -25,7 +27,6 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>Skyblock Auction House History</title>
     <style>
         .main-loading {
             display: flex;
@@ -37,11 +38,19 @@
             text-align: center;
             font-family: 'Courier New', Courier, monospace;
         }
+
+        body {
+            background-color: #222;
+            top: 0px;
+        }
     </style>
+    <!-- Title and description are the last items in the header, they will be replaced by the backend -->
+    <title>Skyblock Auction House History</title>
+    <meta name="description" content="Browse over 100 million auctions, and the bazzar of Hypixel SkyBlock" />
 </head>
 
 <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>This works better with JavaScript</noscript>
 
     <div id="root">
         <div class="main-loading" style="height: 500px;">
