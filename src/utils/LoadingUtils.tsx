@@ -10,10 +10,10 @@ export function getLoadingElement(text?: JSX.Element): JSX.Element {
 }
 
 export function getInitialLoadingElement(): JSX.Element {
-    return (<div className="center" style={{ height: '500px' }}>
+    return (<div className="main-loading" style={{height: "500px"}}>
         <div>
-            <img src="/logo192.png" height="192" alt="auction house logo" />
-            <div className="center">
+            <img src="/logo192.png" height="192" width="192" alt="auction house logo" />
+            <div className="main-loading">
                 <span>Loading <Spinner animation="grow" variant="primary" size="sm"></Spinner>
                     <Spinner animation="grow" variant="primary" size="sm"></Spinner>
                     <Spinner animation="grow" variant="primary" size="sm"></Spinner></span></div>

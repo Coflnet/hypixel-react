@@ -38,7 +38,7 @@ function PremiumFeatures() {
                     <Card.Title>Our thank you</Card.Title>
                 </Card.Header>
                 <Card.Body>
-                    We are only a small team of 3 developers who develope this application in our spare time. It would really mean a lot to us if you are able to support us.
+                    We are only a small team of developers who develop this application in our spare time. It would really mean a lot to us if you are able to support us.
                     The money will primarily be used to pay for the server to improve the speed and reliability of our service. <br />
                     Thank you. You are the best <EmojiIcon />
                 </Card.Body>
