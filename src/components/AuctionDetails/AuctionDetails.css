@@ -25,18 +25,18 @@
     flex-shrink: 0;
 }
 
-h1 {
+.auction-details h1 {
     font-size: 1.5rem;
     display: flex;
     align-items: center;
     padding-left: 5px;
 }
 
-h2 {
+.auction-details h2 {
     font-size: 1.25rem;
 }
 
-.label {
+.auction-details .label {
     width: 30vw;
     float: left;
 }
@@ -50,7 +50,7 @@ h2 {
     float: left;
 }
 
-.center {
+.auction-details .center {
     text-align: center;
 }
 

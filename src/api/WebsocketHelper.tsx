@@ -40,7 +40,7 @@ function initWebsocket(): void {
 
     let _handleSubscriptionOnMessage = function (response: ApiResponse, subscription: ApiSubscription) {
         let parsedResponse = JSON.parse(response.data);
-        if (response.type == "error")
+        if (response.type === "error")
             toast.error(parsedResponse.data);
         else
             subscription.callback(parsedResponse);

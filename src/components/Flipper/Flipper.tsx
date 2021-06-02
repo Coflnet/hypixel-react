@@ -18,6 +18,7 @@ function Flipper() {
     let [isLoggedIn, setIsLoggedIn] = useState(false);
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>();
     let [autoscroll, setAutoscroll] = useState(false);
+    let [hasPremium, setHasPremium] = useState(false);
 
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
@@ -36,11 +37,20 @@ function Flipper() {
 
             Promise.all(promises).then(() => {
                 setFlipAuctions(flips);
-                flipAuctions = flips;
             })
         });
         subscribeToAuctions();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    let loadHasPremium = () => {
+        let googleId = localStorage.getItem("googleId");
+        api.hasPremium(googleId!).then(hasPremiumUntil => {
+            if (hasPremiumUntil) {
+                setHasPremium(true);
+            }
+        });
+    }
 
     let subscribeToAuctions = () => {
         api.subscribeFlips((newFipAuction: FlipAuction) => {
@@ -76,6 +86,7 @@ function Flipper() {
 
     let onLogin = () => {
         setIsLoggedIn(true);
+        loadHasPremium();
     }
 
     let onArrowRightClick = () => {
@@ -174,14 +185,14 @@ function Flipper() {
             <Card className="card">
                 <Card.Header>
                     <Card.Title>
-                        {!isLoggedIn ?
+                        {!isLoggedIn || !hasPremium ?
                             "You need to be logged and have Premium to get profitable Auctions in real time." :
                             "Latest profitable Auctions"
                         }
                     </Card.Title>
                 </Card.Header>
                 <Card.Body>
-                    {isLoggedIn ?
+                    {isLoggedIn && hasPremium ?
                         <div>
                             <FlipperFilter onChange={(newFilter) => { setFlipperFilter(newFilter) }} />
                             <Form inline >

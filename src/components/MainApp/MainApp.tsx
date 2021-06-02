@@ -8,7 +8,7 @@ import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
 import { useHistory } from "react-router-dom";
 import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
-import cookie from 'cookie';  
+import cookie from 'cookie';
 
 export function MainApp(props: any) {
 
@@ -53,7 +53,7 @@ export function MainApp(props: any) {
                     type: 'dark',
                 },
             }),
-        [prefersDarkMode],
+        [],
     );
 
     return (

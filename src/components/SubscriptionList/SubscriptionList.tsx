@@ -158,10 +158,10 @@ function SubscriptionList(props: Props) {
 
     return (
         <div className="subscription-list">
-            <h4>
+            <h1>
                 <NavBar />
                 Your Subscriptions
-            </h4>
+            </h1>
             <hr />
             {isLoggedIn ?
                 (subscriptions.length > 0 ?
