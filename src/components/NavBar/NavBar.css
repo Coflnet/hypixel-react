@@ -5,5 +5,13 @@
 .link-item-div {
     height: max-content;
     width: max-content;
-    margin-left: -40px;
+    margin-left: 20px;
+}
+
+.navbar-icon {
+    margin-right: 10px;
+}
+
+.nav-bar ul {
+    padding-inline-start: 0;
 }

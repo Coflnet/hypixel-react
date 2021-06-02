@@ -13,6 +13,7 @@ import { v4 as generateUUID } from 'uuid';
 import { Link } from 'react-router-dom';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import { toast } from 'react-toastify';
+import {ArrowDropDown as ArrowDownIcon, ArrowDropUp as ArrowUpIcon} from '@material-ui/icons'
 
 interface Props {
     auctionUUID: string
@@ -100,18 +101,6 @@ function AuctionDetails(props: Props) {
         window.navigator.clipboard.writeText("/viewauction " + props.auctionUUID);
         toast.success(<p>Copied ingame link <br /><i>/viewauction {props.auctionUUID}</i></p>)
     }
-
-    let arrowUpIcon = (
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-up" viewBox="0 0 16 16">
-            <path d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z" />
-        </svg>
-    );
-
-    let arrowDownIcon = (
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-down" viewBox="0 0 16 16">
-            <path d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z" />
-        </svg>
-    );
 
     let copyIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clipboard" viewBox="0 0 16 16">
@@ -282,7 +271,7 @@ function AuctionDetails(props: Props) {
                             <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
                                 <h2>
                                     Item-Details
-                        <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? arrowDownIcon : arrowUpIcon}</span>
+                        <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? <ArrowDownIcon/> : <ArrowUpIcon/>}</span>
                                 </h2>
                             </Card.Header>
                             <Collapse in={!isItemDetailsCollapse}>
