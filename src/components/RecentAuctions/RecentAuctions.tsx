@@ -5,6 +5,7 @@ import './RecentAuctions.css';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import { useForceUpdate } from '../../utils/Hooks';
 interface Props {
     item: Item,
     fetchspan: number,
@@ -17,6 +18,7 @@ let mounted = true;
 function RecentAuctions(props: Props) {
 
     let [recentAuctions, setRecentAuctions] = useState<RecentAuction[]>([]);
+    let forceUpdate = useForceUpdate();
 
     useEffect(() => {
         mounted = true;
@@ -28,17 +30,15 @@ function RecentAuctions(props: Props) {
             if (!mounted) {
                 return;
             }
-
-            let requests: Promise<string>[] = [];
+            
             recentAuctions.forEach(auction => {
-                requests.push(api.getPlayerName(auction.seller.uuid));
-            })
-            Promise.all(requests).then(results => {
-                recentAuctions.forEach((auction, i) => {
-                    auction.seller.name = results[i];
+                api.getPlayerName(auction.seller.uuid).then(name => {
+                    auction.seller.name = name;
+                    forceUpdate();
                 });
-                setRecentAuctions(recentAuctions);
-            });
+            })
+
+            setRecentAuctions(recentAuctions);
         })
 
         return () => {
