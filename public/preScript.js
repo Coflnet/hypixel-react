@@ -42,12 +42,12 @@ function pushNotifications(serviceWorkerRegistration) {
     waitTilSet();
 
     function waitTilSet() {
-        if (!firebase) {
+        if (!window.firebase || !window.firebase.messaging) {
             setTimeout(waitTilSet, 50); //wait 50 millisecnds then recheck
             return;
         }
-        firebase.initializeApp(firebaseConfig);
-        const messaging = firebase.messaging();
+        window.firebase.initializeApp(firebaseConfig);
+        const messaging = window.firebase.messaging();
         messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30')
         messaging.useServiceWorker(serviceWorkerRegistration)
 

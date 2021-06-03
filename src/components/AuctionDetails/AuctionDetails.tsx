@@ -13,7 +13,7 @@ import { v4 as generateUUID } from 'uuid';
 import { Link } from 'react-router-dom';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import { toast } from 'react-toastify';
-import {ArrowDropDown as ArrowDownIcon, ArrowDropUp as ArrowUpIcon} from '@material-ui/icons'
+import { ArrowDropDown as ArrowDownIcon, ArrowDropUp as ArrowUpIcon } from '@material-ui/icons'
 
 interface Props {
     auctionUUID: string
@@ -31,6 +31,11 @@ function AuctionDetails(props: Props) {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+
+    useEffect(() => {
+        loadAuctionDetails();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.auctionUUID]);
 
     useEffect(() => {
         if (!auctionDetails) {
@@ -126,12 +131,12 @@ function AuctionDetails(props: Props) {
             <Card.Header className="auction-card-header">
                 <Link to={"/item/" + auctionDetails.auction.item.tag}><h1>
                     <span className="item-icon">
-                    <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="item icon" style={{ marginRight: "5px" }} loading="lazy"/>
+                        <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" width="48" alt="item icon" style={{ marginRight: "5px" }} loading="lazy" />
                     </span>
                     <span>
-                    <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
-                    <Badge variant={countBadgeVariant} style={{ marginLeft: "5px" }}>x{auctionDetails?.count}</Badge>
-                    {auctionDetails.auction.bin ? <Badge variant={binBadgeVariant} style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
+                        <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
+                        <Badge variant={countBadgeVariant} style={{ marginLeft: "5px" }}>x{auctionDetails?.count}</Badge>
+                        {auctionDetails.auction.bin ? <Badge variant={binBadgeVariant} style={{ marginLeft: "5px" }}>BIN</Badge> : ""}
                     </span>
                 </h1>
                 </Link>
@@ -182,7 +187,7 @@ function AuctionDetails(props: Props) {
                             <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
                         </span>
                         {auctionDetails?.auctioneer.name}
-                        <img crossOrigin="anonymous" src={auctionDetails?.auctioneer.iconUrl} alt="auctioneer icon" height="16" width="16" style={{ marginLeft: "5px" }} loading="lazy"/>
+                        <img crossOrigin="anonymous" src={auctionDetails?.auctioneer.iconUrl} alt="auctioneer icon" height="16" width="16" style={{ marginLeft: "5px" }} loading="lazy" />
                     </p>
                 </Link>
 
@@ -242,13 +247,13 @@ function AuctionDetails(props: Props) {
             let headingStyle = i === 0 ? { color: "green" } : { color: "red" };
             return <Link key={generateUUID()} to={`/player/${bid.bidder.uuid}`}>
                 <ListGroup.Item key={bid.amount} action>
-                    <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="64" width="64" alt="bidder minecraft icon" style={{ marginRight: "15px", float: "left" }} loading="lazy"/>
+                    <img crossOrigin="anonymous" src={bid.bidder.iconUrl} height="64" width="64" alt="bidder minecraft icon" style={{ marginRight: "15px", float: "left" }} loading="lazy" />
                     <h6 style={headingStyle}>
                         {numberWithThousandsSeperators(bid.amount)} Coins
                     </h6>
                     <span>
                         {bid.bidder.name}
-                    </span><br/>
+                    </span><br />
                     <span>{moment(bid.timestamp).fromNow()}</span>
                 </ListGroup.Item>
             </Link>
@@ -271,7 +276,7 @@ function AuctionDetails(props: Props) {
                             <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
                                 <h2>
                                     Item-Details
-                        <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? <ArrowDownIcon/> : <ArrowUpIcon/>}</span>
+                        <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? <ArrowDownIcon /> : <ArrowUpIcon />}</span>
                                 </h2>
                             </Card.Header>
                             <Collapse in={!isItemDetailsCollapse}>
