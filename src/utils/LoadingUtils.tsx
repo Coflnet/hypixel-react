@@ -14,8 +14,6 @@ export function getInitialLoadingElement(): JSX.Element {
         <div>
             <img src="/logo192.png" height="192" width="192" alt="auction house logo" />
             <div className="main-loading">
-                <span>Loading <Spinner animation="grow" variant="primary" size="sm"></Spinner>
-                    <Spinner animation="grow" variant="primary" size="sm"></Spinner>
-                    <Spinner animation="grow" variant="primary" size="sm"></Spinner></span></div>
+                <span>Loading App...</span></div>
         </div></div>);
 }
