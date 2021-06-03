@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import GoogleSignIn from "../GoogleSignIn/GoogleSignIn";
 import Payment from "../Payment/Payment";
 import './Premium.css';
@@ -19,15 +19,20 @@ function Premium() {
 
     let [isLoggedIn, setIsLoggedIn] = useState(false);
     let [showFeatureDialog, setShowFeatureDialog] = useState(false);
-    let [hasPremium, setHasPremium] = useState(false);
+    let [hasPremium, setHasPremium] = useState<boolean>();
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>();
+
+    useEffect(() => {
+        if (!wasAlreadyLoggedInGoogle && !isLoggedIn) {
+            setHasPremium(false);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     function loadHasPremiumUntil(): Promise<void> {
         let googleId = localStorage.getItem('googleId');
         return api.hasPremium(googleId!).then((hasPremiumUntil) => {
-            if (hasPremiumUntil) {
-                setHasPremium(true);
-            }
+            setHasPremium(!!hasPremiumUntil);
             setHasPremiumUntil(hasPremiumUntil)
         });
     }
@@ -75,7 +80,11 @@ function Premium() {
                 Premium
             </h2>
             <hr />
-            {hasPremium ? <p style={{ color: "#00bc8c" }}>You have a premium account. Thank you for your support.</p> : <p style={{ color: "red" }}>You do no have a premium account</p>}
+            {hasPremium === undefined ? "" :
+                hasPremium
+                    ? <p style={{ color: "#00bc8c" }}>You have a premium account. Thank you for your support.</p>
+                    : <p style={{ color: "red" }}>You do no have a premium account</p>
+            }
             {
                 hasPremium ?
                     <div>
@@ -98,11 +107,10 @@ function Premium() {
                 <span style={{ cursor: "pointer", width: "fit-content", fontWeight: "bold", fontSize: "x-large" }} onClick={() => { setShowFeatureDialog(true) }}><LinkIcon /> Show features</span>
             </Card>
             <div>
-                <p>To use premium please login with Google</p>
+                {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use premium please login with Google</p> : ""}
                 <GoogleSignIn onAfterLogin={onLogin} />
-                {isLoggedIn ? <Payment hasPremium={hasPremium} /> : ""}
+                {isLoggedIn ? <Payment hasPremium={hasPremium || false} /> : ""}
                 {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
-                {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ""}
             </div>
             {featureDialog}
         </div>

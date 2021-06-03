@@ -49,7 +49,7 @@ function SubscriptionList(props: Props) {
     }
 
     function onLogin() {
-        let googleId = localStorage.getItem('googleId');
+        let googleId = localStorage.getItem('googleId');      
         if (googleId) {
             setIsLoggedIn(true);
             loadSubscriptions();
