@@ -39,7 +39,6 @@ function Flipper() {
                 setFlipAuctions(flips);
             })
         });
-        subscribeToAuctions();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -52,7 +51,7 @@ function Flipper() {
         });
     }
 
-    let subscribeToAuctions = () => {
+    let subscribeToFlips = () => {
         api.subscribeFlips((newFipAuction: FlipAuction) => {
             api.getItemImageUrl(newFipAuction.item).then((url) => {
                 newFipAuction.item.iconUrl = url;
@@ -87,6 +86,7 @@ function Flipper() {
     let onLogin = () => {
         setIsLoggedIn(true);
         loadHasPremium();
+        subscribeToFlips();
     }
 
     let onArrowRightClick = () => {
