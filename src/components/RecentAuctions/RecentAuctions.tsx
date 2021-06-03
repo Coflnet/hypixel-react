@@ -34,6 +34,7 @@ function RecentAuctions(props: Props) {
             recentAuctions.forEach(auction => {
                 api.getPlayerName(auction.seller.uuid).then(name => {
                     auction.seller.name = name;
+                    setRecentAuctions(recentAuctions);
                     forceUpdate();
                 });
             })
