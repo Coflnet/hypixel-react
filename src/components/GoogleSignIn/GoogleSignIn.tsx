@@ -23,7 +23,7 @@ function GoogleSignIn(props: Props) {
             refreshTokenSetup(response);
             props.onAfterLogin();
         }).catch(() => {
-            toast.error("A Error occoured by trying to sign into google");
+            toast.error("An Error occoured while trying to sign in with google");
             googleId = null;
             localStorage.removeItem("googleId");
         });
