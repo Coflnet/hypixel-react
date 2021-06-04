@@ -7,7 +7,7 @@ function Success() {
         <div className="payment-success">
             <Container>
                 <h1 style={{color: "limegreen"}}>Your payment was handled successfully!</h1>
-                <p>You should get your features withiin the next few minutes.</p>
+                <p>You will get your features within the next few minutes.</p>
                 <p>If any problems should occur please contact us via <Link to="/feedback">the contact page</Link>.</p>
                 <Link to="/"><Button>Return to main page</Button></Link>
             </Container>

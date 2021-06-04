@@ -26,6 +26,16 @@ a {
     color: #007bff
 }
 
+.disable-link-style {
+    color: white;
+    text-decoration: none;
+}
+
+.disable-link-style:hover {
+    color: white;
+    text-decoration: none;
+}
+
 img {
     color: #303030
 }

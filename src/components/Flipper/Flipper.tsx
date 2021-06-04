@@ -135,10 +135,10 @@ function Flipper() {
                 return true;
             }).map((flipAuction) => {
                 return (
-                    <div className="card-wrapper" key={generateUUID()}>
+                    <div className="card-wrapper" key={flipAuction.uuid}>
                         <Card className="card">
                             {flipAuction.showLink ?
-                                <a href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
+                                <a className="disable-link-style" href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
                                     <Card.Header>
                                         <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                         <span>{flipAuction.item.name}</span>
@@ -227,7 +227,7 @@ function Flipper() {
                 </Card.Body>
                 {isLoggedIn ?
                     <Card.Footer>
-                        This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a className="text-link" href="https://discord.gg/Qm55WEkgu6">discord</a>.
+                        This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a href="https://discord.gg/Qm55WEkgu6">discord</a>.
                 </Card.Footer> : ""}
             </Card>
 
@@ -259,7 +259,7 @@ function Flipper() {
                     <p>Median Price is the median price for that item. Taking into account ultimate enchantments, Rarity and stars. (for now)</p>
                     <h4>Volume</h4>
                     <p>Volume is the amount of auctions that were sold in a 24 hour window. It is capped at 60 to keep the flipper fast.</p>
-                    <h3>I have another question</h3> Ask via <a className="text-link" href="https://discord.gg/Qm55WEkgu6">discord</a> or <Link className="text-link" to="/feedback" >feedback site</Link>
+                    <h3>I have another question</h3> Ask via <a href="https://discord.gg/Qm55WEkgu6">discord</a> or <Link to="/feedback" >feedback site</Link>
                 </Card.Body>
             </Card>
         </div >

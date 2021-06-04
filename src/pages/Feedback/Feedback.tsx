@@ -22,6 +22,7 @@ function Feedback() {
                     <hr />
                     <h4>Contact: </h4>
                     <a href="mailto:support@coflnet.com">support@coflnet.com</a>
+                    <a href="https://discord.gg/Qm55WEkgu6">Discord</a> 
                 </div>
             </Container>
         </div >
