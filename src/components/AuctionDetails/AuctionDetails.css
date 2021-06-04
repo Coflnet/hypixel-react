@@ -1,9 +1,9 @@
-.auction-details {
-    margin: 20px;
-}
-
 .auction-card {
     margin-bottom: 20px;
+}
+
+.auction-details a {
+    text-decoration: none;
 }
 
 .first-card {

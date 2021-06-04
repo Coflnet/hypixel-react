@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Fade, Menu, MenuItem } from '@material-ui/core';
 import MoreVert from '@material-ui/icons/MoreVert';
 import { useParams } from "react-router-dom";
+import './OptionsMenu.css';
 
 interface Props {
     selected?: Player | Item
@@ -50,7 +51,7 @@ function OptionsMenu(props: Props) {
     }
 
     return (
-        <span>
+        <div className="options-menu">
             <div className="d-none d-md-block">
                 {available.map((result, i) => (
                     <a key={i} href={result.url} title={result.title} target="_blank" rel="noreferrer"><Button variant="outlined" >{result.title}</Button></a>
@@ -77,7 +78,7 @@ function OptionsMenu(props: Props) {
                     </Menu>
                 </div>
             }
-        </span >
+        </div >
     );
 }
 

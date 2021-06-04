@@ -143,7 +143,7 @@ function BidList(props: Props) {
 
     let bidsList = bids.map(bid => {
         return (
-            <Link key={bid.uuid} to={`/auction/${bid.uuid}`}>
+            <Link className="disable-link-style" key={bid.uuid} to={`/auction/${bid.uuid}`}>
                 <ListGroup.Item action>
                     <h4>
                         {

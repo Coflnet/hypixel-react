@@ -32,7 +32,11 @@ function Premium() {
     function loadHasPremiumUntil(): Promise<void> {
         let googleId = localStorage.getItem('googleId');
         return api.hasPremium(googleId!).then((hasPremiumUntil) => {
-            setHasPremium(!!hasPremiumUntil);
+            let hasPremium = false;
+            if(hasPremiumUntil !== undefined && hasPremiumUntil.getTime() > new Date().getTime()){
+                hasPremium = true;
+            }
+            setHasPremium(hasPremium);
             setHasPremiumUntil(hasPremiumUntil)
         });
     }

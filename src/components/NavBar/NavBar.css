@@ -2,6 +2,11 @@
     font-size: small;
 }
 
+.nav-bar a {
+    text-decoration: none !important;
+    color: #fff;
+}
+
 .link-item-div {
     height: max-content;
     width: max-content;

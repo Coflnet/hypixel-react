@@ -178,7 +178,7 @@ function AuctionList(props: Props) {
 
     let auctionList = auctions.map(auction => {
         return (
-            <Link key={auction.uuid} to={`/auction/${auction.uuid}`}>
+            <Link className="disable-link-style" key={auction.uuid} to={`/auction/${auction.uuid}`}>
                 <ListGroup.Item action>
                     <h4>
                         {
