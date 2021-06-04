@@ -5,7 +5,6 @@ import './RecentAuctions.css';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
-import { useForceUpdate } from '../../utils/Hooks';
 interface Props {
     item: Item,
     fetchspan: number,
@@ -18,7 +17,6 @@ let mounted = true;
 function RecentAuctions(props: Props) {
 
     let [recentAuctions, setRecentAuctions] = useState<RecentAuction[]>([]);
-    let forceUpdate = useForceUpdate();
 
     useEffect(() => {
         mounted = true;
