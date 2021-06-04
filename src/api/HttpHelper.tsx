@@ -28,7 +28,6 @@ function sendRequest(request: ApiRequest): Promise<void> {
         // don't resend in progress requests
         let equals = findForEqualSentRequest(request);
         if (equals.length > 0) {
-            cacheUtils.checkForCacheClear();
             requests.push(request);
             return;
         }

@@ -29,8 +29,13 @@ function GoogleSignIn(props: Props) {
         });
     };
 
+    let style: React.CSSProperties = googleId !== null ? {
+        visibility: "collapse",
+        height: 0
+    } : {};
+
     return (
-        <div style={{visibility: googleId !== null ? "collapse" : "visible"}}>
+        <div style={style}>
             <GoogleLogin
                 clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
                 buttonText="Login"
