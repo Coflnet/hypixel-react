@@ -69,7 +69,6 @@ function initWebsocket(): void {
         if (!websocket && (window as any).websocket) {
             websocket = (window as any).websocket;
             api.setConnectionId();
-            cacheUtils.checkForCacheClear();
         } else {
             // reconnect
             websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
