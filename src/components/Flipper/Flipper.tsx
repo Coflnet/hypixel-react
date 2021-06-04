@@ -10,7 +10,6 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons'
-import { v4 as generateUUID } from 'uuid';
 import Tooltip from '../Tooltip/Tooltip';
 
 function Flipper() {
@@ -218,10 +217,10 @@ function Flipper() {
                                         {getLoadingElement(<p>Waiting for new flips....</p>)}
                                     </div> : ""
                             }
-                        </div> : ""}
-                    {latestAuctions.length > 0 && isLoggedIn ?
-                        <div style={{ position: "relative" }}>
-                            {mapAuctionElements(latestAuctions, true)}
+                            {latestAuctions.length > 0 ?
+                                <div style={{ position: "relative" }}>
+                                    {mapAuctionElements(latestAuctions, true)}
+                                </div> : ""}
                         </div> : ""}
                     <GoogleSignIn onAfterLogin={onLogin} />
                 </Card.Body>

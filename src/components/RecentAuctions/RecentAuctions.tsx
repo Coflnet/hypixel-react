@@ -31,14 +31,6 @@ function RecentAuctions(props: Props) {
                 return;
             }
 
-            recentAuctions.forEach(auction => {
-                api.getPlayerName(auction.seller.uuid).then(name => {
-                    auction.seller.name = name;
-                    setRecentAuctions(recentAuctions);
-                    forceUpdate();
-                });
-            })
-
             setRecentAuctions(recentAuctions);
         })
 
@@ -51,7 +43,7 @@ function RecentAuctions(props: Props) {
     let recentAuctionList = recentAuctions.map((recentAuction) => {
         return (
             <div className="cardWrapper" key={recentAuction.uuid}>
-                <Link className="disable-link-style" to={`/auction/${recentAuction.uuid}`}>
+                <Link class="disable-link-style" to={`/auction/${recentAuction.uuid}`}>
                     <Card className="card">
                         <Card.Header style={{ padding: "10px" }}>
                             <div style={{ float: "left" }}>
@@ -63,7 +55,7 @@ function RecentAuctions(props: Props) {
                         </Card.Header>
                         <Card.Body style={{ padding: "10px" }}>
                             <img style={{ marginRight: "15px" }} crossOrigin="anonymous" src={recentAuction.seller.iconUrl} alt="" height="24" width="24" loading="lazy" />
-                            <span>{recentAuction.seller.name}</span>
+                            <span>{recentAuction.playerName}</span>
                             <hr />
                             <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
                         </Card.Body>
