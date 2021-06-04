@@ -6,15 +6,14 @@ import { useParams } from "react-router-dom";
 import { parseItem } from '../../utils/Parser/APIResponseParser';
 import { convertTagToName } from '../../utils/Formatter';
 import api from '../../api/ApiHelper';
-import { Container } from 'react-bootstrap';
 
 function ItemDetails() {
 
     let { tag } = useParams();
     let [item, setItem] = useState<Item>();
 
-    useEffect(() => {
-        api.getItemDetails(tag).then(detailedItem => {
+    useEffect(() => {     
+        api.getItemDetails(tag).then(detailedItem=>{
             api.getItemImageUrl({ tag: tag }).then(iconUrl => {
                 detailedItem.name = convertTagToName(tag);
                 detailedItem.iconUrl = iconUrl;
@@ -33,10 +32,8 @@ function ItemDetails() {
 
     return (
         <div className="item-details">
-            <Container>
-                <Search selected={getItem()} />
-                <PriceGraph item={getItem()} />
-            </Container>
+            <Search selected={getItem()} />
+            <PriceGraph item={getItem()} />
         </div >
     );
 }

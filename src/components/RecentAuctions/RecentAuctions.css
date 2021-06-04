@@ -3,11 +3,6 @@
     display: inline-block;
 }
 
-.recent-auctions a {
-    text-decoration: none !important;
-    color: #fff;
-}
-
 @media all and (max-width: 480px) {
     .cardWrapper {
         width: 100%;

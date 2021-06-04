@@ -27,16 +27,17 @@ function Flipper() {
 
     useEffect(() => {
         api.getFlips().then(flips => {
-
+            let promises: Promise<void>[] = [];
             flips.forEach(flip => {
-                api.getItemImageUrl(flip.item).then(url => {
+                let promise = api.getItemImageUrl(flip.item).then(url => {
                     flip.item.iconUrl = url;
-                    setFlipAuctions(flips);
-                    forceUpdate();
                 });
+                promises.push(promise);
             })
 
-            setFlipAuctions(flips);
+            Promise.all(promises).then(() => {
+                setFlipAuctions(flips);
+            })
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -136,12 +137,12 @@ function Flipper() {
                     <div className="card-wrapper" key={flipAuction.uuid}>
                         <Card className="card">
                             {flipAuction.showLink ?
-                                <a href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
-                                    <Card.Header>
+                                <Card.Header>
+                                    <a href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
                                         <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                         <span>{flipAuction.item.name}</span>
-                                    </Card.Header>
-                                </a> :
+                                    </a>
+                                </Card.Header> :
                                 <Card.Header style={{ padding: "10px" }}>
                                     <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                     <span>{flipAuction.item.name}</span>
@@ -176,7 +177,7 @@ function Flipper() {
             })
         }
             {isLatest ? <div id="rightEndFlipsAnchor" /> : ""}
-        </div >;
+        </div>;
     };
 
     return (
@@ -238,7 +239,7 @@ function Flipper() {
                 <Card.Footer>
                     These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
                     Keep in mind that these are delayed to protect our paying supporters.
-                If you want more recent flipps purchase our <Link to="/premium">premium plan.</Link>
+                If you want more recent flipps purchase our <Link className="text-link" to="/premium">premium plan.</Link>
                 </Card.Footer>
             </Card>
             <hr />

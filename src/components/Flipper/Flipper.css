@@ -5,11 +5,6 @@
     /* Set full-width to expand the whole page */
 }
 
-.flipper a {
-    color: white;
-    text-decoration: none;
-}
-
 .flipper .cards-wrapper {
     display: flex;
     overflow-x: scroll;
@@ -92,4 +87,9 @@
 
 .flipper .card-header {
     min-height: 69px;
+}
+
+.flipper .text-link {
+    color: lightskyblue;
+    margin: 0;
 }
