@@ -43,7 +43,7 @@ function RecentAuctions(props: Props) {
     let recentAuctionList = recentAuctions.map((recentAuction) => {
         return (
             <div className="cardWrapper" key={recentAuction.uuid}>
-                <Link class="disable-link-style" to={`/auction/${recentAuction.uuid}`}>
+                <Link className="disable-link-style" to={`/auction/${recentAuction.uuid}`}>
                     <Card className="card">
                         <Card.Header style={{ padding: "10px" }}>
                             <div style={{ float: "left" }}>
