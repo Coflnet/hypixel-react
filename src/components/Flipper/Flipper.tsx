@@ -226,7 +226,7 @@ function Flipper() {
                 </Card.Body>
                 {isLoggedIn ?
                     <Card.Footer>
-                        This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a href="https://discord.gg/Qm55WEkgu6">discord</a>.
+                        This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a>.
                 </Card.Footer> : ""}
             </Card>
 
@@ -242,7 +242,7 @@ function Flipper() {
                 <Card.Footer>
                     These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
                     Keep in mind that these are delayed to protect our paying supporters.
-                If you want more recent flipps purchase our <Link to="/premium">premium plan.</Link>
+                If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a>
                 </Card.Footer>
             </Card>
             <hr />
@@ -258,7 +258,7 @@ function Flipper() {
                     <p>Median Price is the median price for that item. Taking into account ultimate enchantments, Rarity and stars. (for now)</p>
                     <h4>Volume</h4>
                     <p>Volume is the amount of auctions that were sold in a 24 hour window. It is capped at 60 to keep the flipper fast.</p>
-                    <h3>I have another question</h3> Ask via <a href="https://discord.gg/Qm55WEkgu6">discord</a> or <Link to="/feedback" >feedback site</Link>
+                    <h3>I have another question</h3> Ask via <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a> or <a target="_blank" href="/feedback" rel="noreferrer">feedback site</a>
                 </Card.Body>
             </Card>
         </div >
