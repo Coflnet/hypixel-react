@@ -31,17 +31,12 @@ function RecentAuctions(props: Props) {
                 return;
             }
 
-            let promises: Promise<void>[] = [];
-
             recentAuctions.forEach(auction => {
-                promises.push(api.getPlayerName(auction.seller.uuid).then(name => {
+                api.getPlayerName(auction.seller.uuid).then(name => {
                     auction.seller.name = name;
-                }).catch(() => { }));
-            })
-
-            Promise.all(promises).then(() => {
-                setRecentAuctions(recentAuctions);
-                forceUpdate();
+                    setRecentAuctions(recentAuctions);
+                    forceUpdate();
+                });
             })
 
             setRecentAuctions(recentAuctions);
