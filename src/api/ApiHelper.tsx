@@ -53,6 +53,8 @@ function initAPI(): API {
                 } else {
                     resolve(itemDetails.iconUrl || "")
                 }
+            }).catch(() => {
+                reject();
             });
         });
     }

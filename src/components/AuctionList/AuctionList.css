@@ -1,3 +1,8 @@
+.auction-list a {
+    color: white;
+    text-decoration: none;
+}
+
 .auction-list>.auction-item-image {
     margin-right: 15px;
 }

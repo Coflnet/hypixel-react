@@ -1,3 +1,8 @@
+.bid-list a {
+    color: white;
+    text-decoration: none;
+}
+
 .bid-list>.bid-item-image {
     margin-right: 15px;
 }

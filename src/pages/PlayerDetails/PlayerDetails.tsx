@@ -3,7 +3,7 @@ import Search from '../../components/Search/Search';
 import './PlayerDetails.css';
 import { useParams } from 'react-router-dom';
 import AuctionList from '../../components/AuctionList/AuctionList';
-import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
+import { Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import BidList from '../../components/BidList/BidList';
 import api from '../../api/ApiHelper';
 import { parsePlayer } from '../../utils/Parser/APIResponseParser';
@@ -46,13 +46,15 @@ function PlayerDetails() {
 
     return (
         <div className="player-details">
-            <Search selected={selectedPlayer} />
-            <ToggleButtonGroup className="player-details-type" type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
-                <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">Auctions</ToggleButton>
-                <ToggleButton value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">Bids</ToggleButton>
-            </ToggleButtonGroup>
-            {detailType === DetailType.AUCTIONS ? <AuctionList playerUUID={uuid} /> : undefined}
-            {detailType === DetailType.BIDS ? <BidList playerUUID={uuid} /> : undefined}
+            <Container>
+                <Search selected={selectedPlayer} />
+                <ToggleButtonGroup className="player-details-type" type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
+                    <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">Auctions</ToggleButton>
+                    <ToggleButton value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">Bids</ToggleButton>
+                </ToggleButtonGroup>
+                {detailType === DetailType.AUCTIONS ? <AuctionList playerUUID={uuid} /> : undefined}
+                {detailType === DetailType.BIDS ? <BidList playerUUID={uuid} /> : undefined}
+            </Container>
         </div >
     );
 }

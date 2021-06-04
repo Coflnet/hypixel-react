@@ -2,6 +2,11 @@
     margin: 20px;
 }
 
+.enchantment-filter a {
+    text-decoration: none !important;
+    color: #fff;
+}
+
 .enchantment-filter-select-enchantment {
     margin-right: 40px;
 }

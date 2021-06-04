@@ -199,7 +199,7 @@ function AuctionDetails(props: Props) {
                         {auctionDetails && auctionDetails!.enchantments.length > 0 ?
                             (<ul className="enchantment-list">
                                 {auctionDetails?.enchantments.map(enchantment => {
-                                    return <li key={enchantment.id}>{enchantment.name} {enchantment.level}</li>
+                                    return <li key={generateUUID()}>{enchantment.name} {enchantment.level}</li>
                                 })}
                             </ul>) :
                             <p>None</p>}
