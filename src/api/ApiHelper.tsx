@@ -13,7 +13,7 @@ function initAPI(): API {
 
     setTimeout(() => {
         cacheUtils.checkForCacheClear();
-    }, 1000);
+    }, 20000);
 
     let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
         toast.error(error.Message);
