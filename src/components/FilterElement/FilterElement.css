@@ -13,3 +13,7 @@
 .appliedBadge {
     margin-left: 10px;
 }
+
+.date-picker {
+    z-index: 2;
+}

@@ -18,6 +18,7 @@ module.exports = {
                         /^arrow.*/,
                         /^overlay.*/,
                         /^collapse.*/,
+                        /^react-datepicker.*/,
                         'btn',
                         'active',
                         'body',

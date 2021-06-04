@@ -1,15 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import {  Form, Spinner } from 'react-bootstrap';
+import { Form, Spinner } from 'react-bootstrap';
 import "react-datepicker/dist/react-datepicker.css";
 import './FilterElement.css';
 import api from '../../api/ApiHelper';
 import DatePicker from "react-datepicker";
 
 // has to be redefined because global types from react-app-env are not accessable
-export enum FilterTypeEnum
-{
+export enum FilterTypeEnum {
     Equal = 1,
     HIGHER = 2,
     LOWER = 4,
@@ -31,6 +30,8 @@ function FilterElement(props: Props) {
 
     let [filterOptions, setFilterOptions] = useState<FilterOptions>();
 
+    let [date, setDate] = useState(new Date())
+
     useEffect(() => {
         mounted = true;
         loadFilterOptions();
@@ -41,7 +42,10 @@ function FilterElement(props: Props) {
 
     let loadFilterOptions = () => {
         api.getFilter(props.filterName!).then(options => {
-            console.log(options)
+            console.log(options);
+            if (!mounted) {
+                return;
+            }
             setFilterOptions(options);
         })
     }
@@ -66,20 +70,13 @@ function FilterElement(props: Props) {
 
     return (
         <div className="generic-filter">
-        <DatePicker />
             {!filterOptions ? <Spinner animation="border" role="status" variant="primary" /> :
                 <div>
                     <Form.Label>{filterOptions.name}</Form.Label>
                     {
-                        hasFlag(filterOptions.type, FilterTypeEnum.DATE)  ?
-                        // no clue how to put the date picker into the from control
-                            <DatePicker 
-                            minDate={filterOptions.options[0]}
-                            maxDate={filterOptions.options[1]}
-                            onChange={(date) => updateFilter(date)}/>
-
-                            :
-                            <Form.Control className="select-filter" as="select" onChange={updateFilter} ref={reforgeSelect}>
+                        hasFlag(filterOptions.type, FilterTypeEnum.DATE)
+                            ? <DatePicker selected={date} onChange={(date) => setDate(date)} popperClassName="date-picker-popper" />
+                            : <Form.Control className="select-filter" as="select" onChange={updateFilter} ref={reforgeSelect}>
                                 {selectOptions}
                             </Form.Control>
                     }
