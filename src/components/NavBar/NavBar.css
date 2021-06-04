@@ -2,7 +2,7 @@
     font-size: small;
 }
 
-@media all and (min-width: 768px) {
+@media all and (min-width: 1024px) {
     .infoIcon {
         position: absolute;
         top: 10px;
