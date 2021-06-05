@@ -7,12 +7,14 @@ import { toast } from "react-toastify";
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
 let websocket: WebSocket;
+let isConnectionIdSet: boolean = false;
 
 let apiSubscriptions: ApiSubscription[] = [];
 
 function initWebsocket(): void {
 
     let onWebsocketClose = (): void => {
+        isConnectionIdSet = false;
         websocket = getNewWebsocket();
     };
 
@@ -68,12 +70,16 @@ function initWebsocket(): void {
 
         if (!websocket && (window as any).websocket) {
             websocket = (window as any).websocket;
-            api.setConnectionId();
-            cacheUtils.checkForCacheClear();
+            api.setConnectionId().then(() => {
+                isConnectionIdSet = true;
+                cacheUtils.checkForCacheClear();
+            })
         } else {
-            // reconnect
-            websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
-            api.setConnectionId();
+            let debugWebsocket = localStorage.getItem("debugWebsocketURL");
+            websocket = new WebSocket(debugWebsocket || 'wss://skyblock-backend.coflnet.com/skyblock');
+            api.setConnectionId().then(() => {
+                isConnectionIdSet = true;
+            });
             (window as any).websocket = websocket;
         }
         websocket.onclose = onWebsocketClose;
@@ -85,7 +91,6 @@ function initWebsocket(): void {
     websocket = getNewWebsocket();
 }
 
-let _requestTimout;
 function sendRequest(request: ApiRequest): Promise<void> {
     if (!websocket)
         initWebsocket();
@@ -96,7 +101,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
             return;
         }
 
-        if (websocket && websocket.readyState === WebSocket.OPEN) {
+        if (_isWebsocketReady()) {
             request.mId = requestCounter++;
 
             try {
@@ -115,18 +120,17 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             requests.push(request);
             websocket.send(JSON.stringify(request));
-        } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
-            clearTimeout(_requestTimout);
-            _requestTimout = setTimeout(() => {
-                api.setConnectionId().then(() => {
-                    sendRequest(request);
-                });
-            }, 1000);
+        } else {
+            if (websocket.readyState === websocket.CLOSED) {
+                return;
+            }
+            setTimeout(() => {
+                sendRequest(request);
+            }, 500);
         }
     })
 }
 
-let _subscribeTimout;
 function subscribe(subscription: ApiSubscription): void {
 
     if (websocket && websocket.readyState === WebSocket.OPEN) {
@@ -140,13 +144,13 @@ function subscribe(subscription: ApiSubscription): void {
         apiSubscriptions.push(subscription);
         websocket.send(JSON.stringify(subscription))
 
-    } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
-        clearTimeout(_subscribeTimout);
-        _subscribeTimout = setTimeout(() => {
-            api.setConnectionId().then(() => {
-                subscribe(subscription);
-            });
-        }, 1000);
+    } else {
+        if (websocket.readyState === websocket.CLOSED) {
+            return;
+        }
+        setTimeout(() => {
+            subscribe(subscription);
+        }, 500);
     }
 }
 
@@ -165,6 +169,10 @@ function removeSentRequests(toDelete: ApiRequest[]) {
         }
         return true;
     })
+}
+
+function _isWebsocketReady() {
+    return websocket && websocket.readyState === WebSocket.OPEN && isConnectionIdSet;
 }
 
 export let websocketHelper: WebsocketHelper = {
