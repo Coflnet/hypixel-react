@@ -2,6 +2,15 @@
     font-size: small;
 }
 
+@media all and (min-width: 1500px) {
+    .infoIcon {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        display: block;
+    }
+}
+
 .nav-bar a {
     text-decoration: none !important;
     color: #fff;
