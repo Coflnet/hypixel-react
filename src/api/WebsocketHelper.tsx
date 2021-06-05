@@ -7,20 +7,24 @@ import { toast } from "react-toastify";
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
 let websocket: WebSocket;
-let isConnectionIdSet: boolean = false;
 
 let apiSubscriptions: ApiSubscription[] = [];
 
 function initWebsocket(): void {
 
     let onWebsocketClose = (): void => {
-        isConnectionIdSet = false;
         websocket = getNewWebsocket();
     };
 
     let onWebsocketError = (e: Event): void => {
         console.error(e);
     };
+
+    let onOpen = (e: Event): void => {
+        console.log("open")
+        // set the connection id first 
+        api.setConnectionId();
+    }
 
     let _handleRequestOnMessage = function (response: ApiResponse, request: ApiRequest) {
         let equals = findForEqualSentRequest(request);
@@ -68,29 +72,21 @@ function initWebsocket(): void {
 
     let getNewWebsocket = (): WebSocket => {
 
-        if (!websocket && (window as any).websocket) {
-            websocket = (window as any).websocket;
-            api.setConnectionId().then(() => {
-                isConnectionIdSet = true;
-                cacheUtils.checkForCacheClear();
-            })
-        } else {
-            let debugWebsocket = localStorage.getItem("debugWebsocketURL");
-            websocket = new WebSocket(debugWebsocket || 'wss://skyblock-backend.coflnet.com/skyblock');
-            api.setConnectionId().then(() => {
-                isConnectionIdSet = true;
-            });
-            (window as any).websocket = websocket;
-        }
+
+        websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
+        (window as any).websocket = websocket;
+
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
         websocket.onmessage = onWebsocketMessage;
+        websocket.onopen = onOpen;
         return websocket;
     }
 
     websocket = getNewWebsocket();
 }
 
+let _requestTimout;
 function sendRequest(request: ApiRequest): Promise<void> {
     if (!websocket)
         initWebsocket();
@@ -120,17 +116,16 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             requests.push(request);
             websocket.send(JSON.stringify(request));
-        } else {
-            if (websocket.readyState === websocket.CLOSED) {
-                return;
-            }
-            setTimeout(() => {
+        } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
+            clearTimeout(_requestTimout);
+            _requestTimout = setTimeout(() => {
                 sendRequest(request);
-            }, 500);
+            }, 1000);
         }
     })
 }
 
+let _subscribeTimout;
 function subscribe(subscription: ApiSubscription): void {
 
     if (websocket && websocket.readyState === WebSocket.OPEN) {
@@ -144,13 +139,13 @@ function subscribe(subscription: ApiSubscription): void {
         apiSubscriptions.push(subscription);
         websocket.send(JSON.stringify(subscription))
 
-    } else {
-        if (websocket.readyState === websocket.CLOSED) {
-            return;
-        }
-        setTimeout(() => {
-            subscribe(subscription);
-        }, 500);
+    } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
+        clearTimeout(_subscribeTimout);
+        _subscribeTimout = setTimeout(() => {
+            api.setConnectionId().then(() => {
+                subscribe(subscription);
+            });
+        }, 1000);
     }
 }
 
@@ -172,7 +167,7 @@ function removeSentRequests(toDelete: ApiRequest[]) {
 }
 
 function _isWebsocketReady() {
-    return websocket && websocket.readyState === WebSocket.OPEN && isConnectionIdSet;
+    return websocket && websocket.readyState === WebSocket.OPEN;
 }
 
 export let websocketHelper: WebsocketHelper = {
