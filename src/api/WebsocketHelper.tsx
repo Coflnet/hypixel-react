@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
 let websocket: WebSocket;
+let isConnectionIdSet: boolean = false;
 
 let apiSubscriptions: ApiSubscription[] = [];
 
@@ -21,9 +22,10 @@ function initWebsocket(): void {
     };
 
     let onOpen = (e: Event): void => {
-        console.log("open")
         // set the connection id first 
-        api.setConnectionId();
+        api.setConnectionId().then(() => {
+            isConnectionIdSet = true;
+        })
     }
 
     let _handleRequestOnMessage = function (response: ApiResponse, request: ApiRequest) {
@@ -72,10 +74,7 @@ function initWebsocket(): void {
 
     let getNewWebsocket = (): WebSocket => {
 
-
         websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
-        (window as any).websocket = websocket;
-
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
         websocket.onmessage = onWebsocketMessage;
@@ -86,7 +85,6 @@ function initWebsocket(): void {
     websocket = getNewWebsocket();
 }
 
-let _requestTimout;
 function sendRequest(request: ApiRequest): Promise<void> {
     if (!websocket)
         initWebsocket();
@@ -117,15 +115,13 @@ function sendRequest(request: ApiRequest): Promise<void> {
             requests.push(request);
             websocket.send(JSON.stringify(request));
         } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
-            clearTimeout(_requestTimout);
-            _requestTimout = setTimeout(() => {
+            setTimeout(() => {
                 sendRequest(request);
-            }, 1000);
+            }, 500);
         }
     })
 }
 
-let _subscribeTimout;
 function subscribe(subscription: ApiSubscription): void {
 
     if (websocket && websocket.readyState === WebSocket.OPEN) {
@@ -140,12 +136,9 @@ function subscribe(subscription: ApiSubscription): void {
         websocket.send(JSON.stringify(subscription))
 
     } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
-        clearTimeout(_subscribeTimout);
-        _subscribeTimout = setTimeout(() => {
-            api.setConnectionId().then(() => {
-                subscribe(subscription);
-            });
-        }, 1000);
+        setTimeout(() => {
+            subscribe(subscription);
+        }, 500);
     }
 }
 
@@ -167,7 +160,7 @@ function removeSentRequests(toDelete: ApiRequest[]) {
 }
 
 function _isWebsocketReady() {
-    return websocket && websocket.readyState === WebSocket.OPEN;
+    return websocket && websocket.readyState === WebSocket.OPEN && isConnectionIdSet;
 }
 
 export let websocketHelper: WebsocketHelper = {
