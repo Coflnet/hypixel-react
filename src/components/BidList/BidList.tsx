@@ -79,7 +79,7 @@ function BidList(props: Props) {
                 return;
             }
 
-            if (newBids.length < 10) {
+            if (newBids.length === 0) {
                 allBidsLoaded = true;
                 setAllBidsLoaded(true);
             }

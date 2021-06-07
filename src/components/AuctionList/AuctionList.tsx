@@ -85,7 +85,7 @@ function AuctionList(props: Props) {
                 return;
             }
 
-            if (newAuctions.length < 10) {
+            if (newAuctions.length === 0) {
                 allAuctionsLoaded = true;
                 setAllAuctinosLoaded(true);
             }
