@@ -114,7 +114,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             requests.push(request);
             websocket.send(JSON.stringify(request));
-        } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
+        } else {
             setTimeout(() => {
                 sendRequest(request);
             }, 500);
@@ -124,7 +124,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
 function subscribe(subscription: ApiSubscription): void {
 
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
+    if (_isWebsocketReady()) {
         subscription.mId = requestCounter++;
 
         try {
@@ -135,7 +135,7 @@ function subscribe(subscription: ApiSubscription): void {
         apiSubscriptions.push(subscription);
         websocket.send(JSON.stringify(subscription))
 
-    } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
+    } else {
         setTimeout(() => {
             subscribe(subscription);
         }, 500);
