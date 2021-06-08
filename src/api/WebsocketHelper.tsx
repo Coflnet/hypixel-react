@@ -3,6 +3,7 @@ import { Base64 } from "js-base64";
 import cacheUtils from '../utils/CacheUtils';
 import api from "./ApiHelper";
 import { toast } from "react-toastify";
+import { getProperty } from '../utils/PropertiesUtils';
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
@@ -72,7 +73,7 @@ function initWebsocket(): void {
             cacheUtils.checkForCacheClear();
         } else {
             // reconnect
-            websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
+            websocket = new WebSocket(getProperty("websocketEndpoint"));
             api.setConnectionId();
             (window as any).websocket = websocket;
         }

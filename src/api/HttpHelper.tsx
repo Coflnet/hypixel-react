@@ -3,7 +3,9 @@ import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
 import { toast } from "react-toastify";
 import cacheUtils from "../utils/CacheUtils";
-const commandEndpoint = "https://sky.coflnet.com/command";
+import { getProperty } from "../utils/PropertiesUtils";
+
+const commandEndpoint = getProperty("commandEndpoint");
 let requests: ApiRequest[] = [];
 
 function sendRequest(request: ApiRequest): Promise<void> {
