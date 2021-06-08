@@ -16,9 +16,10 @@ let cacheUtils: CacheUtils = {
                         }
                     }
                     resolve(null);
+                }).catch(() => {
+                    resolve(null);
                 })
             } catch (error) {
-                console.error(error);
                 resolve(null);
             }
         })
