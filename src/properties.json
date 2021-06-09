@@ -1,0 +1,4 @@
+{
+    "commandEndpoint": "https://sky.coflnet.com/command",
+    "websocketEndpoint": "wss://skyblock-backend.coflnet.com/skyblock"
+}

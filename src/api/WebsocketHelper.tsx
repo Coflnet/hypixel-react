@@ -3,6 +3,7 @@ import { Base64 } from "js-base64";
 import cacheUtils from '../utils/CacheUtils';
 import api from "./ApiHelper";
 import { toast } from "react-toastify";
+import { getProperty } from '../utils/PropertiesUtils';
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
@@ -74,7 +75,7 @@ function initWebsocket(): void {
 
     let getNewWebsocket = (): WebSocket => {
 
-        websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
+        websocket = new WebSocket(getProperty("websocketEndpoint"));
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
         websocket.onmessage = onWebsocketMessage;
