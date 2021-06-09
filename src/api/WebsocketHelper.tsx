@@ -1,4 +1,4 @@
-import { ApiRequest, WebsocketHelper, ApiSubscription } from "./ApiTypes.d";
+import { ApiRequest, WebsocketHelper, ApiSubscription, RequestType } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import cacheUtils from '../utils/CacheUtils';
 import api from "./ApiHelper";
@@ -96,7 +96,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
             return;
         }
 
-        if (_isWebsocketReady()) {
+        if (_isWebsocketReady(request.type)) {
             request.mId = requestCounter++;
 
             try {
@@ -125,7 +125,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
 function subscribe(subscription: ApiSubscription): void {
 
-    if (_isWebsocketReady()) {
+    if (_isWebsocketReady(subscription.type)) {
         subscription.mId = requestCounter++;
 
         try {
@@ -160,8 +160,8 @@ function removeSentRequests(toDelete: ApiRequest[]) {
     })
 }
 
-function _isWebsocketReady() {
-    return websocket && websocket.readyState === WebSocket.OPEN && isConnectionIdSet;
+function _isWebsocketReady(requestType: string) {
+    return websocket && websocket.readyState === WebSocket.OPEN && (isConnectionIdSet || requestType === RequestType.SET_CONNECTION_ID);
 }
 
 export let websocketHelper: WebsocketHelper = {
