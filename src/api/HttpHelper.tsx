@@ -37,12 +37,26 @@ function sendRequest(request: ApiRequest): Promise<void> {
             .then(response => {
                 if (response.ok && response.body === null) {
                     request.reject();
+                    return;
                 }
                 if (!response.ok) {
                     request.reject();
+                    return;
                 }
-                return response.json();
+
+                let parsed;
+                try {
+                    parsed = response.json();
+                } catch (error) {
+                    return;
+                }
+                return parsed;
             }).then(parsedResponse => {
+
+                if (!parsedResponse) {
+                    return;
+                }
+
                 if (parsedResponse.type === "error") {
                     toast.error(JSON.parse(parsedResponse.data).data);
                     request.reject();
