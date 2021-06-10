@@ -499,7 +499,7 @@ function initAPI(): API {
                 type: RequestType.RECENT_AUCTIONS,
                 data: requestData,
                 resolve: (data: any) => {
-                    resolve(data.map(a => parseRecentAuction(a)));
+                    resolve(data?.map(a => parseRecentAuction(a)));
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData);

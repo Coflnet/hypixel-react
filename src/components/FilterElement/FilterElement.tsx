@@ -18,7 +18,8 @@ export enum FilterTypeEnum {
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
-    filterName?: string
+    filterName?: string,
+    value?: any
 }
 
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
@@ -38,34 +39,41 @@ function FilterElement(props: Props) {
         return () => { mounted = false }
     }, []);
 
-
+    let hasFlag = (full?: FilterType, flag?: FilterTypeEnum) => {
+        console.log(full);
+        return full && flag && (full & flag) === flag;
+    }
 
     let loadFilterOptions = () => {
         api.getFilter(props.filterName!).then(options => {
-            console.log(options);
+            console.log(props);
             if (!mounted) {
                 return;
             }
+            if(hasFlag(options.type,FilterTypeEnum.DATE) && props.value )
+                setDate(new Date(parseInt(props.value)*1000));
             setFilterOptions(options);
         })
     }
 
+
     let updateFilter = (event: ChangeEvent<HTMLSelectElement>) => {
         let selectedIndex = event.target.options.selectedIndex;
         let value = event.target.options[selectedIndex].getAttribute('data-id')!;
-        let newFilter = {};
-        newFilter[props.filterName!] = value;
-        props.onFilterChange!(newFilter)
+        updateValue(value);
+    }
+    
+
+    let updateDateFilter = (date : Date ) => {
+        setDate(date);
+        updateValue((date.getTime()/1000).toString());
     }
 
     let selectOptions = filterOptions?.options.map(option => {
         return (<option data-id={option} key={option} value={option}>{option}</option>)
     })
 
-    let hasFlag = (full?: FilterType, flag?: FilterTypeEnum) => {
-        console.log(full);
-        return full && flag && (full & flag) === flag;
-    }
+
 
 
     return (
@@ -75,7 +83,7 @@ function FilterElement(props: Props) {
                     <Form.Label>{filterOptions.name}</Form.Label>
                     {
                         hasFlag(filterOptions.type, FilterTypeEnum.DATE)
-                            ? <DatePicker selected={date} onChange={(date) => setDate(date)} popperClassName="date-picker-popper" />
+                            ? <DatePicker selected={date} onChange={updateDateFilter}  popperClassName="date-picker-popper" />
                             : <Form.Control className="select-filter" as="select" onChange={updateFilter} ref={reforgeSelect}>
                                 {selectOptions}
                             </Form.Control>
@@ -85,6 +93,13 @@ function FilterElement(props: Props) {
 
         </div >
     )
+
+    function updateValue(value: string) {
+        let newFilter = {};
+        newFilter[props.filterName!] = value;
+        console.log(newFilter);
+        props.onFilterChange!(newFilter);
+    }
 }
 
 export default FilterElement;

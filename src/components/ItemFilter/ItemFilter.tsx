@@ -53,7 +53,7 @@ function ItemFilter(props: Props) {
 
         setSelectedFilters([filterName, ...selectedFilters])
 
-        itemFilter![filterName] = "";
+        //itemFilter![filterName] = "";
 
         setIsApplied(false);
         updateURLQuery(itemFilter);
@@ -104,13 +104,20 @@ function ItemFilter(props: Props) {
     let onFilterChange = (filter?: ItemFilter) => {
         console.log(filter);
 
+        if(filter && filter.keys)
+        {
+            var key = filter.keys[0];
+            itemFilter![key] = filter![key];
+        }
+
         setIsApplied(false);
         updateURLQuery(filter);
         setItemFilter(filter);
     }
 
     let filterList = selectedFilters.map(filterName => {
-        return <FilterElement key={generateUUID()} onFilterChange={onFilterChange} filterName={filterName}></FilterElement>
+        return <div key={filterName}><FilterElement key={generateUUID()} onFilterChange={onFilterChange} filterName={filterName} value={itemFilter![filterName]}></FilterElement>
+        <span onClick={() => removeFilter(filterName)}>remove</span></div>
     });
 
     let infoIconElement = (
@@ -136,6 +143,10 @@ function ItemFilter(props: Props) {
         </div>
     );
 
+    function removeFilter(filterName: string) {
+        setSelectedFilters(selectedFilters.filter(f => f != filterName))
+    }
+
     return (
         <div className="enchantment-filter">
             {!expanded ?
@@ -160,8 +171,8 @@ function ItemFilter(props: Props) {
                             <Form.Group>
                                 {props?.filters && props.filters?.length > 0 ?
                                     <div>
-                                        <Form.Label>Select filter:</Form.Label>
                                         <Form.Control className="select-filter" as="select" onChange={addFilter} disabled={props.disabled} ref={reforgeSelect}>
+                                            <option>Click to select filter</option>
                                             {filterSelectList}
                                         </Form.Control>
                                     </div> :
@@ -180,6 +191,8 @@ function ItemFilter(props: Props) {
             }
         </div >
     )
+
+
 }
 
 export default ItemFilter;
