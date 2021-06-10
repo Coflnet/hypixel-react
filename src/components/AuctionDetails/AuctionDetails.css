@@ -1,12 +1,42 @@
-.auction-details {
-    margin: 20px;
-}
-
 .auction-card {
     margin-bottom: 20px;
 }
 
-.label {
+.auction-details a {
+    text-decoration: none;
+}
+
+.first-card {
+    min-height: 385px;
+}
+
+@media all and (max-width: 500px) {
+    .auction-card-header {
+        min-height: 150px;
+    }
+}
+
+.item-icon {
+    display: inline-block;
+    overflow: hidden;
+    font-size: 5px;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.auction-details h1 {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+}
+
+.auction-details h2 {
+    font-size: 1.25rem;
+}
+
+.auction-details .label {
     width: 30vw;
     float: left;
 }
@@ -20,7 +50,7 @@
     float: left;
 }
 
-.center {
+.auction-details .center {
     text-align: center;
 }
 

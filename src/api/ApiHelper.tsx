@@ -7,8 +7,13 @@ import { Stripe } from "@stripe/stripe-js";
 import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
+import cacheUtils from "../utils/CacheUtils";
 
 function initAPI(): API {
+
+    setTimeout(() => {
+        cacheUtils.checkForCacheClear();
+    }, 20000);
 
     let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
         toast.error(error.Message);
@@ -53,6 +58,8 @@ function initAPI(): API {
                 } else {
                     resolve(itemDetails.iconUrl || "")
                 }
+            }).catch(() => {
+                reject();
             });
         });
     }
@@ -129,7 +136,7 @@ function initAPI(): API {
                     apiErrorHandler(RequestType.PLAYER_AUCTION, error, requestData);
                     reject();
                 }
-            },2)
+            }, 2)
         });
     }
 
@@ -233,7 +240,7 @@ function initAPI(): API {
                     apiErrorHandler(RequestType.AUCTION_DETAILS, error, auctionUUID);
                     reject();
                 }
-            },2)
+            }, 2)
         })
     }
 
@@ -256,13 +263,13 @@ function initAPI(): API {
     let setConnectionId = (): Promise<void> => {
         return new Promise((resolve, reject) => {
             let websocketUUID = generateUUID();
-                
+
             websocketHelper.sendRequest({
                 type: RequestType.SET_CONNECTION_ID,
                 data: websocketUUID,
                 resolve: () => {
                     resolve();
-                 },
+                },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID);
                     reject();
@@ -368,7 +375,7 @@ function initAPI(): API {
                 type: RequestType.PREMIUM_EXPIRATION,
                 data: googleId,
                 resolve: (premiumUntil) => {
-                    resolve(premiumUntil);
+                    resolve(new Date(premiumUntil));
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PREMIUM_EXPIRATION, error, googleId);
@@ -524,7 +531,7 @@ function initAPI(): API {
                 type: RequestType.SUBSCRIBE_FLIPS,
                 data: "",
                 callback: function (data) {
-                    if(!data){
+                    if (!data) {
                         return;
                     }
                     callback(parseFlipAuction(data));

@@ -8,8 +8,8 @@ interface Props {
 
 function FlipperFilter(props: Props) {
 
-    let [onlyBin, setOnlyBin] = useState(false);
-    let [minProfit, setMinProfit] = useState(0);
+    let [onlyBin] = useState(false);
+    let [minProfit] = useState(0);
 
     let onOnlyBinChange = (event: ChangeEvent<HTMLInputElement>) => {
         props.onChange({

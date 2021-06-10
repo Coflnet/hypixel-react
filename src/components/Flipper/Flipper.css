@@ -1,11 +1,11 @@
-.card-wrapper {
+.flipper .card-wrapper {
     padding: 15px;
     display: inline-table;
     /* Make the container element behave like a table */
     /* Set full-width to expand the whole page */
 }
 
-.cards-wrapper {
+.flipper .cards-wrapper {
     display: flex;
     overflow-x: scroll;
     align-items: stretch;
@@ -16,80 +16,75 @@
     background-color: #272b30;
 }
 
-.card {
+.flipper .card {
     height: 100%;
     min-width: 200px;
 }
 
-.cards-wrapper::-webkit-scrollbar {
+.flipper .cards-wrapper::-webkit-scrollbar {
     width: 20px;
 }
 
-.cards-wrapper::-webkit-scrollbar-track {
+.flipper .cards-wrapper::-webkit-scrollbar-track {
     box-shadow: inset 0 0 5px grey;
     border-radius: 10px;
 }
 
-.cards-wrapper::-webkit-scrollbar-thumb {
+.flipper .cards-wrapper::-webkit-scrollbar-thumb {
     background: #3a3f44;
     border-radius: 10px;
 }
 
-.cards-wrapper::-webkit-scrollbar-thumb:hover {
+.flipper .cards-wrapper::-webkit-scrollbar-thumb:hover {
     background: #7a8288;
 }
 
 @media all and (max-width: 480px) {
-    .card-wrapper {
+    .flipper .card-wrapper {
         width: calc(100vw - 20px - 40px);
     }
 }
 
 @media all and (min-width: 480px) and (max-width: 768px) {
-    .card-wrapper {
+    .flipper .card-wrapper {
         width: calc(100vw - 20px - 40px);
     }
 }
 
 @media all and (min-width: 768px) and (max-width: 1024px) {
-    .card-wrapper {
+    .flipper .card-wrapper {
         width: calc(50vw - 20px - 40px);
     }
 }
 
 @media all and (min-width: 1024px) and (max-width: 1400px) {
-    .card-wrapper {
+    .flipper .card-wrapper {
         width: 25vw;
     }
 }
 
 @media all and (min-width: 1400px) {
-    .card-wrapper {
+    .flipper .card-wrapper {
         width: 15vw;
     }
 }
 
-.flip-auction-copy-button {
+.flipper .flip-auction-copy-button {
     float: right;
 }
 
-.flex {
+.flipper .flex {
     display: flex;
     flex-grow: 0;
     align-items: center;
 }
 
-.flex-max {
+.flipper .flex-max {
     flex-grow: 100;
     display: flex;
     flex-direction: column;
 }
 
-.card-header {
+.flipper .card-header {
     min-height: 69px;
-}
-
-.text-link {
-    color: lightskyblue;
-    margin: 0;
 }

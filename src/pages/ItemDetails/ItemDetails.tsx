@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { parseItem } from '../../utils/Parser/APIResponseParser';
 import { convertTagToName } from '../../utils/Formatter';
 import api from '../../api/ApiHelper';
+import { Container } from 'react-bootstrap';
 
 function ItemDetails() {
 
@@ -13,13 +14,13 @@ function ItemDetails() {
     let [item, setItem] = useState<Item>();
 
     useEffect(() => {
-        api.getItemImageUrl({ tag: tag }).then(iconUrl => {
-            setItem({
-                tag: tag,
-                name: convertTagToName(tag),
-                iconUrl: iconUrl
-            });
-        })
+        api.getItemDetails(tag).then(detailedItem => {
+            api.getItemImageUrl({ tag: tag }).then(iconUrl => {
+                detailedItem.name = convertTagToName(tag);
+                detailedItem.iconUrl = iconUrl;
+                setItem(detailedItem);
+            })
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tag]);
 
@@ -32,8 +33,10 @@ function ItemDetails() {
 
     return (
         <div className="item-details">
-            <Search selected={getItem()} />
-            <PriceGraph item={getItem()} />
+            <Container>
+                <Search selected={getItem()} />
+                <PriceGraph item={getItem()} />
+            </Container>
         </div >
     );
 }

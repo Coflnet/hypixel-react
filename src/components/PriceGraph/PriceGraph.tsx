@@ -27,8 +27,8 @@ function PriceGraph(props: Props) {
     let [isLoading, setIsLoading] = useState(false);
     let [noDataFound, setNoDataFound] = useState(false);
     let [avgPrice, setAvgPrice] = useState(0);
-    let [isFilterable, setIsFilterable] = useState(false);
     let [filters, setFilters] = useState([] as string[]);
+    let [isFilterable, setIsFilterable] = useState(true);
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
     
     let fetchspanRef = useRef(fetchspan);
@@ -146,7 +146,7 @@ function PriceGraph(props: Props) {
                 <div style={{ position: "relative", flex: "1 1 auto" }}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
             </div>
             <hr/>
-            <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />
+            { props.item?.bazaar ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />}
         </div >
     );
 }

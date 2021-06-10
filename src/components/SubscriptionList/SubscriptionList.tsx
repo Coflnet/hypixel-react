@@ -10,6 +10,7 @@ import NavBar from '../NavBar/NavBar';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import {Delete as DeleteIcon, Undo as UndoIcon} from '@material-ui/icons';
 
 interface Props {
 
@@ -92,7 +93,7 @@ function SubscriptionList(props: Props) {
             setSubscriptions(subs);
             subscriptions = subs;
 
-            toast.success(<span>Subscription deleted <Button style={{ float: "right", marginRight: "5px" }} variant="info" onClick={() => { resubscribe(subscription) }}>{repeatIcon} Undo</Button></span>)
+            toast.success(<span>Subscription deleted <Button style={{ float: "right", marginRight: "5px" }} variant="info" onClick={() => { resubscribe(subscription) }}><UndoIcon/> Undo</Button></span>)
         })
     }
 
@@ -142,13 +143,6 @@ function SubscriptionList(props: Props) {
         }
     }
 
-    let repeatIcon = (
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-repeat" viewBox="0 0 16 16">
-            <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
-            <path d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
-        </svg>
-    );
-
     let subscriptionsTableBody = subscriptions.map((subscription, i) =>
     (
         <ListGroup.Item key={i}>
@@ -157,19 +151,17 @@ function SubscriptionList(props: Props) {
             </h5>
             {getSubTypesAsList(subscription.types, subscription.price)}
             <div style={{ position: "absolute", top: "0.75rem", right: "1.25rem", cursor: "pointer" }} onClick={() => { onDelete(subscription) }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" className="bi bi-trash-fill" viewBox="0 0 16 16">
-                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                </svg>
+                <DeleteIcon color="error"/>
             </div>
         </ListGroup.Item>)
     )
 
     return (
         <div className="subscription-list">
-            <h4>
+            <h1>
                 <NavBar />
                 Your Subscriptions
-            </h4>
+            </h1>
             <hr />
             {isLoggedIn ?
                 (subscriptions.length > 0 ?

@@ -1,4 +1,3 @@
-import { FlipCameraIosSharp } from '@material-ui/icons';
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
 
 export function parseItemBidForList(bid: any): BidForList {
@@ -96,7 +95,8 @@ export function parseItem(item: any): Item {
         category: item.category,
         iconUrl: item.iconUrl,
         tier: item.tier,
-        description: item.description
+        description: item.description,
+        bazaar:item.bazaar
     }
 }
 
@@ -149,7 +149,7 @@ export function parsePlayer(player: any): Player {
     return {
         name: player.name,
         uuid: player.uuid,
-        iconUrl: player.iconUrl ? player.iconUrl + "?size=32" : "https://crafatar.com/avatars/" + player.uuid + "?size=32"
+        iconUrl: player.iconUrl ? player.iconUrl + "?size=64" : "https://crafatar.com/avatars/" + player.uuid + "?size=64"
     }
 }
 
@@ -265,6 +265,7 @@ export function mapStripePrices(prices: any): Price[] {
 export function parseRecentAuction(auction): RecentAuction {
     return {
         end: new Date(auction.end),
+        playerName: auction.playerName,
         price: auction.price,
         seller: parsePlayer(auction.seller),
         uuid: auction.uuid

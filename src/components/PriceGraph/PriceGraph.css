@@ -1,8 +1,3 @@
-.price-graph {
-    width: 99vw;
-    position: relative;
-}
-
 .graph-overlay {
     position: absolute;
 }
@@ -21,4 +16,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.bazaar-notice {
+    padding-left: 30px;
 }

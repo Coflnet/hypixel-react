@@ -8,6 +8,7 @@ import './BidList.css'
 import { useHistory } from "react-router-dom";
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import { Link } from 'react-router-dom';
+import { ArrowUpward as ArrowUpIcon } from '@material-ui/icons'
 
 interface Props {
     playerUUID: string
@@ -78,7 +79,7 @@ function BidList(props: Props) {
                 return;
             }
 
-            if (newBids.length < 10) {
+            if (newBids.length === 0) {
                 allBidsLoaded = true;
                 setAllBidsLoaded(true);
             }
@@ -109,13 +110,13 @@ function BidList(props: Props) {
 
     let getItemImageElement = (bid: BidForList) => {
         return (
-            bid.item.iconUrl ? <img crossOrigin="anonymous" className="bid-item-image" src={bid.item.iconUrl} alt="item icon" height="48" width="48" loading="lazy"/> : undefined
+            bid.item.iconUrl ? <img crossOrigin="anonymous" className="bid-item-image" src={bid.item.iconUrl} alt="item icon" height="48" width="48" loading="lazy" /> : undefined
         )
     }
 
     let getCoinImage = () => {
         return (
-            <img src="/Coin.png" height="35px" width="35px" alt="coin icon" loading="lazy"/>
+            <img src="/Coin.png" height="35px" width="35px" alt="coin icon" loading="lazy" />
         );
     }
 
@@ -140,16 +141,9 @@ function BidList(props: Props) {
         })
     }
 
-    let upIcon = (
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-chevron-double-up" viewBox="0 0 16 16">
-            <path d="M7.646 2.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 3.707 2.354 9.354a.5.5 0 1 1-.708-.708l6-6z" />
-            <path d="M7.646 6.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 7.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z" />
-        </svg>
-    );
-
     let bidsList = bids.map(bid => {
         return (
-            <Link key={bid.uuid} to={`/auction/${bid.uuid}`}>
+            <Link className="disable-link-style" key={bid.uuid} to={`/auction/${bid.uuid}`}>
                 <ListGroup.Item action>
                     <h4>
                         {
@@ -169,7 +163,7 @@ function BidList(props: Props) {
     return (
         <div className="bid-list">
             {bids.length === 0 && allBidsLoaded ?
-                <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} loading="lazy"/> <p>No bids found</p></div> :
+                <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} loading="lazy" /> <p>No bids found</p></div> :
                 <InfiniteScroll style={{ overflow: "hidden" }} dataLength={bids.length} next={loadNewBids} hasMore={!allBidsLoaded} loader={<div className="loadingBanner">{getLoadingElement()}</div>}>
                     <ListGroup>
                         {bidsList}
@@ -177,7 +171,7 @@ function BidList(props: Props) {
                 </InfiniteScroll>
             }
             <div className="fixed-bottom">
-                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button></div>
+                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}><ArrowUpIcon /></Button></div>
                 <div className="btn-bottom"><SubscribeButton type="player" topic={props.playerUUID} /></div>
             </div >
         </div>

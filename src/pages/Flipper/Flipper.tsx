@@ -2,16 +2,19 @@ import React from 'react';
 import './Flipper.css';
 import FlipperComponent from '../../components/Flipper/Flipper';
 import NavBar from '../../components/NavBar/NavBar';
+import { Container } from 'react-bootstrap';
 
 function Flipper() {
 
     return (
         <div className="flipper">
-            <h4>
-                <NavBar />
+            <Container>
+                <h1>
+                    <NavBar />
                 Item-Flipper (WIP)
-            </h4>
-            <FlipperComponent />
+            </h1>
+                <FlipperComponent />
+            </Container>
         </div >
     );
 }

@@ -29,39 +29,31 @@ function RecentAuctions(props: Props) {
                 return;
             }
 
-            let requests: Promise<string>[] = [];
-            recentAuctions.forEach(auction => {
-                requests.push(api.getPlayerName(auction.seller.uuid));
-            })
-            Promise.all(requests).then(results => {
-                recentAuctions.forEach((auction, i) => {
-                    auction.seller.name = results[i];
-                });
-                setRecentAuctions(recentAuctions);
-            });
+            setRecentAuctions(recentAuctions);
         })
 
         return () => {
             mounted = false;
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item, props.fetchspan, props.itemFilter]);
 
     let recentAuctionList = recentAuctions.map((recentAuction) => {
         return (
             <div className="cardWrapper" key={recentAuction.uuid}>
-                <Link to={`/auction/${recentAuction.uuid}`}>
+                <Link className="disable-link-style" to={`/auction/${recentAuction.uuid}`}>
                     <Card className="card">
                         <Card.Header style={{ padding: "10px" }}>
                             <div style={{ float: "left" }}>
-                                <img crossOrigin="anonymous" src={props.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy"/>
+                                <img crossOrigin="anonymous" src={props.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                             </div>
                             <div>
                                 {numberWithThousandsSeperators(recentAuction.price)} Coins
                         </div>
                         </Card.Header>
                         <Card.Body style={{ padding: "10px" }}>
-                            <img style={{ marginRight: "15px" }} crossOrigin="anonymous" src={recentAuction.seller.iconUrl} alt="" height="24" width="24" loading="lazy"/>
-                            <span>{recentAuction.seller.name}</span>
+                            <img style={{ marginRight: "15px" }} crossOrigin="anonymous" src={recentAuction.seller.iconUrl} alt="" height="24" width="24" loading="lazy" />
+                            <span>{recentAuction.playerName}</span>
                             <hr />
                             <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
                         </Card.Body>

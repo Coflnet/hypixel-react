@@ -37,7 +37,7 @@ function Search(props: Props) {
             clearTimeout(sheduledLoading);
 
             // has the searchtext changed?
-            if (searchFor === searchText) {
+            if (searchFor === (document.getElementById('search-bar') as HTMLInputElement).value) {
                 setNoResultsFound(searchResults.length === 0);
                 setResults(searchResults);
                 setIsLoading(false);
@@ -94,9 +94,9 @@ function Search(props: Props) {
 
     let getSelectedElement = (): JSX.Element => {
         if (!props.selected) {
-            return <div />
+            return <p className="current"><Badge variant="primary">Current:</Badge> Auction Details</p>
         }
-        return <p className="current"><Badge variant="primary">Current:</Badge> <img crossOrigin="anonymous" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy"/>{props.selected.name || convertTagToName((props.selected as Item).tag)}</p>
+        return <p className="current"><Badge variant="primary">Current:</Badge> <img crossOrigin="anonymous" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</p>
     }
 
     return (
@@ -104,7 +104,7 @@ function Search(props: Props) {
             <Form>
                 <Form.Group>
                     <NavBar />
-                    <Form.Control type="text" placeholder="Search player/item" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
+                    <Form.Control type="text" placeholder="Search player/item" id="search-bar" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
                 </Form.Group>
             </Form>
             {
@@ -117,7 +117,7 @@ function Search(props: Props) {
                                 results.map((result, i) => (
                                     <ListGroup.Item key={result.id} action onClick={(e: any) => { onItemClick(result) }} style={i === results.length - 1 ? { marginBottom: "10px" } : {}} >
                                         {result.dataItem.iconUrl ?
-                                            <img className="search-result-icon" crossOrigin="anonymous" width={32} height={32} src={result.dataItem.iconUrl} alt="" loading="lazy"/> :
+                                            <img className="search-result-icon" crossOrigin="anonymous" width={32} height={32} src={result.dataItem.iconUrl} alt="" loading="lazy" /> :
                                             <Spinner animation="border" role="status" variant="primary" />
                                         }
                                         {result.dataItem.name}
@@ -127,8 +127,8 @@ function Search(props: Props) {
                     </ListGroup>
             }
             <div className="bar">
-                {props.selected ? getSelectedElement() : ""}
-                {isLoading ? "" : <OptionsMenu selected={props.selected}/>}
+                {getSelectedElement()}
+                {isLoading ? "" : <OptionsMenu selected={props.selected} />}
             </div>
         </div >
     );

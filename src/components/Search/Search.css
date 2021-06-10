@@ -10,12 +10,12 @@
 
 .searchBar {
     display: inline;
-    width: calc(100% - 36px);
+    width: calc(100% - 48px);
 }
 
 .infoIcon {
-    width: 24px;
-    height: 24px;
+    width: 36px;
+    height: 36px;
     cursor: pointer;
     margin-right: 12px;
 }

@@ -24,6 +24,7 @@ interface Item {
   category?: string;
   iconUrl?: string;
   description?: string;
+  bazaar?: boolean;
 }
 
 interface ItemPrice {
@@ -60,7 +61,8 @@ interface RecentAuction {
   end: Date,
   price: number,
   seller: Player,
-  uuid: string
+  uuid: string,
+  playerName: string
 }
 
 interface ItemBid {

@@ -18,3 +18,11 @@
 .product-column {
     font-size: large;
 }
+
+.premium-price {
+    margin-right: 10px;
+}
+
+.premium-plan-card {
+    margin-bottom: 15px;
+}

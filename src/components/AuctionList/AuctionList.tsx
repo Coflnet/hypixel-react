@@ -10,6 +10,7 @@ import { useForceUpdate } from '../../utils/Hooks';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import {ArrowUpward as ArrowUpIcon} from '@material-ui/icons'
 
 interface Props {
     playerUUID: string
@@ -84,7 +85,7 @@ function AuctionList(props: Props) {
                 return;
             }
 
-            if (newAuctions.length < 10) {
+            if (newAuctions.length === 0) {
                 allAuctionsLoaded = true;
                 setAllAuctinosLoaded(true);
             }
@@ -152,13 +153,6 @@ function AuctionList(props: Props) {
         })
     }
 
-    let upIcon = (
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-chevron-double-up" viewBox="0 0 16 16">
-            <path d="M7.646 2.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 3.707 2.354 9.354a.5.5 0 1 1-.708-.708l6-6z" />
-            <path d="M7.646 6.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 7.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z" />
-        </svg>
-    );
-
     let copyIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clipboard" viewBox="0 0 16 16">
             <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
@@ -184,7 +178,7 @@ function AuctionList(props: Props) {
 
     let auctionList = auctions.map(auction => {
         return (
-            <Link key={auction.uuid} to={`/auction/${auction.uuid}`}>
+            <Link className="disable-link-style" key={auction.uuid} to={`/auction/${auction.uuid}`}>
                 <ListGroup.Item action>
                     <h4>
                         {
@@ -207,16 +201,16 @@ function AuctionList(props: Props) {
             {
                 auctions.length === 0 && allAuctionsLoaded ?
                     <div className="noAuctionFound"><img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: "left", marginRight: "5px" }} /> <p>No auctions found</p></div> :
-                    <InfiniteScroll style={{ overflow: "hidden" }} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={<div/>}>
+                    <InfiniteScroll style={{ overflow: "hidden" }} dataLength={auctions.length} next={loadNewAuctions} hasMore={!allAuctionsLoaded} loader={getLoadingElement()}>
                         <ListGroup>
                             {auctionList}
                         </ListGroup>
                     </InfiniteScroll>
             }
             <div className="fixed-bottom">
+                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}><ArrowUpIcon/></Button></div>
                 {window.navigator.clipboard ? <div className="btn-bottom"><Button type="primary" onClick={copyClick}>{copyButtonClicked ? copiedIcon : copyIcon}</Button></div> : ""}
                 <div className="btn-bottom"><SubscribeButton type="player" topic={props.playerUUID} /></div>
-                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}>{upIcon}</Button></div>
             </div >
         </div >
     )

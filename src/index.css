@@ -9,11 +9,6 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-a {
-    text-decoration: none !important;
-    color: #fff;
-}
-
 .footer {
     position: absolute;
     bottom: 0;
@@ -25,6 +20,20 @@ a {
 
 .link {
     margin-left: 20px
+}
+
+a {
+    color: #007bff
+}
+
+.disable-link-style {
+    color: white;
+    text-decoration: none;
+}
+
+.disable-link-style:hover {
+    color: white;
+    text-decoration: none;
 }
 
 img {
