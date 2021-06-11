@@ -10,7 +10,7 @@ import { useForceUpdate } from '../../utils/Hooks';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import {ArrowUpward as ArrowUpIcon} from '@material-ui/icons'
+import { ArrowUpward as ArrowUpIcon } from '@material-ui/icons'
 
 interface Props {
     playerUUID: string
@@ -98,7 +98,9 @@ function AuctionList(props: Props) {
             setAuctions(auctions);
 
             updateListState();
-        })
+        }).catch(() => {
+            setAllAuctinosLoaded(true);
+        });
     }
 
     let loadItemImage = (item: Item, auctionUUID: string, auctions: Auction[]): void => {
@@ -208,7 +210,7 @@ function AuctionList(props: Props) {
                     </InfiniteScroll>
             }
             <div className="fixed-bottom">
-                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}><ArrowUpIcon/></Button></div>
+                <div className="btn-bottom"><Button type="primary" className="up-button" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }) }}><ArrowUpIcon /></Button></div>
                 {window.navigator.clipboard ? <div className="btn-bottom"><Button type="primary" onClick={copyClick}>{copyButtonClicked ? copiedIcon : copyIcon}</Button></div> : ""}
                 <div className="btn-bottom"><SubscribeButton type="player" topic={props.playerUUID} /></div>
             </div >
