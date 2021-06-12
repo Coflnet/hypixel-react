@@ -8,6 +8,7 @@ import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
 import FilterElement from '../FilterElement/FilterElement';
 import { v4 as generateUUID } from 'uuid';
 import {AddCircleOutline as AddIcon, Help as HelpIcon} from '@material-ui/icons';
+import { Link } from '@material-ui/core';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
@@ -37,6 +38,7 @@ function ItemFilter(props: Props) {
         if (itemFilter) {
             setItemFilter(itemFilter);
             setExpanded(true);
+            setSelectedFilters(Object.keys(itemFilter));
         }
         return () => { mounted = false }
     }, []);
@@ -103,16 +105,19 @@ function ItemFilter(props: Props) {
 
     let onFilterChange = (filter?: ItemFilter) => {
         console.log(filter);
+        console.log(Object.keys(filter as object));
 
-        if(filter && filter.keys)
+        var keys = Object.keys(filter as object);
+        if(keys.length > 0)
         {
-            var key = filter.keys[0];
+            var key = keys[0];
             itemFilter![key] = filter![key];
+            console.log("udpated");
         }
 
         setIsApplied(false);
-        updateURLQuery(filter);
-        setItemFilter(filter);
+        updateURLQuery(itemFilter);
+        setItemFilter(itemFilter);
     }
 
     let filterList = selectedFilters.map(filterName => {
@@ -132,11 +137,11 @@ function ItemFilter(props: Props) {
                             <h4>Item-Filter Information</h4>
                         </Modal.Header>
                         <Modal.Body>
-                            <p>You can filter by reforge and enchantments. After applying only the auctions matching your filter will be used to update the graph</p>
+                            <p>You can add various filters depending on the item type. After clicking 'apply' only the auctions matching your filter will be displayed.</p>
                             <hr />
                             <h4><Badge variant="danger">Caution</Badge></h4>
-                            <p>Some item filter can take quite some time to process. <b>Why?</b> We have to search through millions of auctions to show you the accurate price for a filtered result.</p>
-                            <p>For normal searches we use some technical tricks to greatly improve the search time. Sadly we dont have the resources to provice this for filtered searches.</p>
+                            <p>Some filter requests take quite some time to process. Thats because we have to search through millions of auctions that potentially match your filter.</p>
+                            <p>If you are missing a filter please ask for it on our <Link href="/feedback">discord</Link></p>
                         </Modal.Body>
                     </Modal> : ""
             }

@@ -13,7 +13,8 @@ export enum FilterTypeEnum {
     HIGHER = 2,
     LOWER = 4,
     DATE = 8,
-    NUMERICAL = 16
+    NUMERICAL = 16,
+    RANGE = 32
 }
 
 interface Props {
@@ -32,6 +33,7 @@ function FilterElement(props: Props) {
     let [filterOptions, setFilterOptions] = useState<FilterOptions>();
 
     let [date, setDate] = useState(new Date())
+    let [value,setValue] = useState<string>();
 
     useEffect(() => {
         mounted = true;
@@ -40,28 +42,38 @@ function FilterElement(props: Props) {
     }, []);
 
     let hasFlag = (full?: FilterType, flag?: FilterTypeEnum) => {
-        console.log(full);
         return full && flag && (full & flag) === flag;
     }
 
     let loadFilterOptions = () => {
         api.getFilter(props.filterName!).then(options => {
             console.log(props);
+            console.log(options)
             if (!mounted) {
                 return;
             }
             if(hasFlag(options.type,FilterTypeEnum.DATE) && props.value )
                 setDate(new Date(parseInt(props.value)*1000));
+            else
+                setValue(props.value);
             setFilterOptions(options);
         })
     }
 
 
-    let updateFilter = (event: ChangeEvent<HTMLSelectElement>) => {
+    let updateSelectFilter = (event: ChangeEvent<HTMLSelectElement>) => {
         let selectedIndex = event.target.options.selectedIndex;
         let value = event.target.options[selectedIndex].getAttribute('data-id')!;
+        setValue(value);
         updateValue(value);
     }
+
+    let updateInputFilter = (event: ChangeEvent<HTMLInputElement>) => {
+        setValue(event.target.value);
+        updateValue(event.target.value);
+    }
+
+    
     
 
     let updateDateFilter = (date : Date ) => {
@@ -84,7 +96,11 @@ function FilterElement(props: Props) {
                     {
                         hasFlag(filterOptions.type, FilterTypeEnum.DATE)
                             ? <DatePicker selected={date} onChange={updateDateFilter}  popperClassName="date-picker-popper" />
-                            : <Form.Control className="select-filter" as="select" onChange={updateFilter} ref={reforgeSelect}>
+                            : hasFlag(filterOptions.type, FilterTypeEnum.RANGE) ? 
+                            <Form.Control className="select-filter" value={value} onChange={updateInputFilter} ref={reforgeSelect}>
+                                
+                            </Form.Control>
+                            :<Form.Control className="select-filter" value={value} as="select" onChange={updateSelectFilter} ref={reforgeSelect}>
                                 {selectOptions}
                             </Form.Control>
                     }
