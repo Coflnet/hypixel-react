@@ -19,7 +19,7 @@ export enum FilterTypeEnum {
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
-    filterName?: string,
+    options?: FilterOptions,
     value?: any
 }
 
@@ -27,17 +27,16 @@ interface Props {
 let mounted = true;
 
 function FilterElement(props: Props) {
-
-    const reforgeSelect = useRef(null);
-
-    let [filterOptions, setFilterOptions] = useState<FilterOptions>();
-
     let [date, setDate] = useState(new Date())
-    let [value,setValue] = useState<string>();
+    let [value, setValue] = useState<string>();
 
     useEffect(() => {
         mounted = true;
-        loadFilterOptions();
+        console.log(props.options)
+        if (props.options && hasFlag(props.options!.type, FilterTypeEnum.DATE) && props.value)
+            setDate(new Date(parseInt(props.value) * 1000));
+        else
+            setValue(props.value);
         return () => { mounted = false }
     }, []);
 
@@ -45,20 +44,7 @@ function FilterElement(props: Props) {
         return full && flag && (full & flag) === flag;
     }
 
-    let loadFilterOptions = () => {
-        api.getFilter(props.filterName!).then(options => {
-            console.log(props);
-            console.log(options)
-            if (!mounted) {
-                return;
-            }
-            if(hasFlag(options.type,FilterTypeEnum.DATE) && props.value )
-                setDate(new Date(parseInt(props.value)*1000));
-            else
-                setValue(props.value);
-            setFilterOptions(options);
-        })
-    }
+
 
 
     let updateSelectFilter = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -73,15 +59,15 @@ function FilterElement(props: Props) {
         updateValue(event.target.value);
     }
 
-    
-    
 
-    let updateDateFilter = (date : Date ) => {
+
+
+    let updateDateFilter = (date: Date) => {
         setDate(date);
-        updateValue((date.getTime()/1000).toString());
+        updateValue((date.getTime() / 1000).toString());
     }
 
-    let selectOptions = filterOptions?.options.map(option => {
+    let selectOptions = props.options?.options.map(option => {
         return (<option data-id={option} key={option} value={option}>{option}</option>)
     })
 
@@ -90,19 +76,19 @@ function FilterElement(props: Props) {
 
     return (
         <div className="generic-filter">
-            {!filterOptions ? <Spinner animation="border" role="status" variant="primary" /> :
+            {!props.options ? <Spinner animation="border" role="status" variant="primary" /> :
                 <div>
-                    <Form.Label>{filterOptions.name}</Form.Label>
+                    <Form.Label>{props.options.name}</Form.Label>
                     {
-                        hasFlag(filterOptions.type, FilterTypeEnum.DATE)
-                            ? <DatePicker selected={date} onChange={updateDateFilter}  popperClassName="date-picker-popper" />
-                            : hasFlag(filterOptions.type, FilterTypeEnum.RANGE) ? 
-                            <Form.Control className="select-filter" value={value} onChange={updateInputFilter} ref={reforgeSelect}>
-                                
-                            </Form.Control>
-                            :<Form.Control className="select-filter" value={value} as="select" onChange={updateSelectFilter} ref={reforgeSelect}>
-                                {selectOptions}
-                            </Form.Control>
+                        hasFlag(props.options.type, FilterTypeEnum.DATE)
+                            ? <DatePicker selected={date} onChange={updateDateFilter} popperClassName="date-picker-popper" />
+                            : hasFlag(props.options.type, FilterTypeEnum.RANGE) ?
+                                <Form.Control key={"eins"} className="select-filter" value={value} onChange={updateInputFilter}>
+
+                                </Form.Control>
+                                : <Form.Control className="select-filter" value={value} as="select" onChange={updateSelectFilter}>
+                                    {selectOptions}
+                                </Form.Control>
                     }
                 </div>
             }
@@ -112,7 +98,7 @@ function FilterElement(props: Props) {
 
     function updateValue(value: string) {
         let newFilter = {};
-        newFilter[props.filterName!] = value;
+        newFilter[props.options!.name] = value;
         console.log(newFilter);
         props.onFilterChange!(newFilter);
     }

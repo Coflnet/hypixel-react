@@ -7,8 +7,9 @@ import { useLocation, useHistory } from "react-router-dom";
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
 import FilterElement from '../FilterElement/FilterElement';
 import { v4 as generateUUID } from 'uuid';
-import {AddCircleOutline as AddIcon, Help as HelpIcon} from '@material-ui/icons';
+import { AddCircleOutline as AddIcon, Help as HelpIcon } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
+import api from '../../api/ApiHelper';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
@@ -28,6 +29,8 @@ function ItemFilter(props: Props) {
     let [isApplied, setIsApplied] = useState(false);
     let [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     let [showInfoDialog, setShowInfoDialog] = useState(false);
+    let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([]);
+
 
     let history = useHistory();
     let query = new URLSearchParams(useLocation().search);
@@ -47,7 +50,19 @@ function ItemFilter(props: Props) {
         setIsApplied(false);
     })
 
-
+    let loadFilterOptions = (filterName: string) => {
+        if (filterOptions.some(el => el.name == filterName))
+            return;
+        api.getFilter(filterName).then(options => {
+            console.log(props);
+            console.log(options)
+            if (filterOptions.some(el => el.name == filterName))
+                return;
+            filterOptions.push(options);
+            setFilterOptions(filterOptions);
+            //setSelectedFilters([...selectedFilters]);
+        })
+    }
 
     let addFilter = (event: ChangeEvent<HTMLSelectElement>) => {
         let selectedIndex = event.target.options.selectedIndex;
@@ -56,6 +71,7 @@ function ItemFilter(props: Props) {
         setSelectedFilters([filterName, ...selectedFilters])
 
         //itemFilter![filterName] = "";
+        loadFilterOptions(filterName);
 
         setIsApplied(false);
         updateURLQuery(itemFilter);
@@ -108,8 +124,7 @@ function ItemFilter(props: Props) {
         console.log(Object.keys(filter as object));
 
         var keys = Object.keys(filter as object);
-        if(keys.length > 0)
-        {
+        if (keys.length > 0) {
             var key = keys[0];
             itemFilter![key] = filter![key];
             console.log("udpated");
@@ -121,13 +136,13 @@ function ItemFilter(props: Props) {
     }
 
     let filterList = selectedFilters.map(filterName => {
-        return <div key={filterName}><FilterElement key={generateUUID()} onFilterChange={onFilterChange} filterName={filterName} value={itemFilter![filterName]}></FilterElement>
-        <span onClick={() => removeFilter(filterName)}>remove</span></div>
+        return <div key={filterName}><FilterElement key={generateUUID()} onFilterChange={onFilterChange} options={filterOptions.find(f=>f.name == filterName)} value={itemFilter![filterName]}></FilterElement>
+            <span onClick={() => removeFilter(filterName)}>remove</span></div>
     });
 
     let infoIconElement = (
         <div>
-            <span style={{ cursor: "pointer", position: "absolute", top: "10px", right: "10px", color:"#007bff" }} onClick={() => { setShowInfoDialog(true) }}>
+            <span style={{ cursor: "pointer", position: "absolute", top: "10px", right: "10px", color: "#007bff" }} onClick={() => { setShowInfoDialog(true) }}>
                 <HelpIcon />
             </span>
             {
@@ -157,7 +172,7 @@ function ItemFilter(props: Props) {
             {!expanded ?
                 <div>
                     <a href="#" onClick={() => onEnable()}>
-                        <AddIcon/>
+                        <AddIcon />
                         <span> Add Filter</span>
                     </a>
                 </div> :
