@@ -1,5 +1,5 @@
 import React from 'react';
-import NavBar from '../../components/NavBar/NavBar';
+import StartpageComponent from '../../components/Startpage/Startpage'
 import './Startpage.css'
 
 interface Props {
@@ -9,12 +9,8 @@ interface Props {
 function Startpage(props: Props) {
 
     return (
-        <div className="subscriptions-page">
-            <h1>
-                <NavBar />
-                Your Subscriptions
-            </h1>
-            <hr />
+        <div className="startpage">
+            <StartpageComponent />
         </div>
     );
 }

@@ -92,10 +92,10 @@ export function parseItem(item: any): Item {
         tag: item.tag,
         name: item.name,
         category: item.category,
-        iconUrl: item.iconUrl,
+        iconUrl: item.iconUrl || item.icon,
         tier: item.tier,
         description: item.description,
-        bazaar:item.bazaar
+        bazaar: item.bazaar
     }
 }
 
@@ -283,5 +283,12 @@ export function parseFlipAuction(flip): FlipAuction {
             tag: flip.tag,
             name: flip.name
         }
+    }
+}
+
+export function parsePopularSearch(search): PopularSearch {
+    return {
+        title: search.title,
+        url: search.url
     }
 }

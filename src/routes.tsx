@@ -25,6 +25,9 @@ const ReactLazyPreload = importStatement => {
 const ItemDetails = ReactLazyPreload(() => import('./pages/ItemDetails/ItemDetails'));
 ItemDetails.preload();
 
+const Startpage = ReactLazyPreload(() => import('./pages/Startpage/Startpage'));
+Startpage.preload();
+
 const PlayerDetails = ReactLazyPreload(() => import('./pages/PlayerDetails/PlayerDetails'));
 const AuctionDetails = ReactLazyPreload(() => import('./pages/AuctionDetails/AuctionDetails'));
 const Premium = ReactLazyPreload(() => import('./pages/Premium/Premium'));
@@ -70,7 +73,7 @@ export default (
     <Suspense fallback={getInitialLoadingElement()}>
       <MainApp>
         <Switch>
-          <Route exact path="/" component={() => <Redirect to="/item/ASPECT_OF_THE_END" />} />
+          <Route exact path="/" component={Startpage.component} />
           <Route path='/player/:uuid' component={PlayerDetails.component} />
           <Route path='/item/:tag' component={ItemDetails.component} />
           <Route path='/auction/:auctionUUID' component={AuctionDetails.component} />
