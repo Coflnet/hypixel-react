@@ -125,7 +125,7 @@ interface FlipAuction {
 }
 
 interface FlipperFilter {
-  onyBin?: boolean,
+  onlyBin?: boolean,
   minProfit?: number
 }
 

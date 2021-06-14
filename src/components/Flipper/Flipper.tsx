@@ -8,8 +8,8 @@ import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons'
-import Tooltip from '../Tooltip/Tooltip';
+import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons';
+import { v4 as generateUUID } from 'uuid';
 
 function Flipper() {
 
@@ -119,12 +119,12 @@ function Flipper() {
     );
 
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
-        return <div className="cards-wrapper">{
+        return <div className="cards-wrapper" key={generateUUID()}>{
             auctions.filter(auction => {
                 if (!isLatest) {
                     return true;
                 }
-                if (flipperFilter?.onyBin && !auction.bin) {
+                if (flipperFilter?.onlyBin && !auction.bin) {
                     return false;
                 }
                 if (flipperFilter?.minProfit && flipperFilter.minProfit >= (auction.median - auction.cost)) {
@@ -133,22 +133,17 @@ function Flipper() {
                 return true;
             }).map((flipAuction) => {
                 return (
-                    <div className="card-wrapper" key={flipAuction.uuid}>
+                    <div className="card-wrapper" key={generateUUID()}>
                         <Card className="card">
                             {flipAuction.showLink ?
                                 <a className="disable-link-style" href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
                                     <Card.Header>
-                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                        <span>{flipAuction.item.name}</span>
+                                        {flipAuction.bin.toString()}
                                     </Card.Header>
                                 </a> :
-                                <Tooltip type="hover" content={
-                                    <Card.Header style={{ padding: "10px" }}>
-                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                        <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
-                                    </Card.Header>}
-                                    tooltipContent={<span>The link will be available in a few seconds...</span>}
-                                />
+                                <div>
+                                    {flipAuction.bin.toString()}
+                                </div>
                             }
                             <Card.Body style={{ padding: "10px" }}>
                                 <p>
