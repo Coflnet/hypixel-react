@@ -8,8 +8,7 @@ import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons'
-import Tooltip from '../Tooltip/Tooltip';
+import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons';
 import { v4 as generateUUID } from 'uuid';
 
 function Flipper() {
@@ -28,9 +27,6 @@ function Flipper() {
 
     useEffect(() => {
         api.getFlips().then(flips => {
-
-
-            console.log(flips);
 
             flips.forEach(flip => {
                 api.getItemImageUrl(flip.item).then(url => {
