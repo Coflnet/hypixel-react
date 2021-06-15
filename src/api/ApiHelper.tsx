@@ -16,6 +16,10 @@ function initAPI(): API {
     }, 20000);
 
     let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
+        if (error) {
+            return;
+        }
+
         toast.error(error.Message);
     }
 

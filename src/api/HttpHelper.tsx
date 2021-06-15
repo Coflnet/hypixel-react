@@ -37,7 +37,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
         requests.push(request);
         return fetch(url, { headers })
             .then(response => {
-                if (response.ok && response.body === null) {
+                if (checkForValidResponse(response)) {
                     request.reject();
                     return;
                 }
@@ -68,6 +68,10 @@ function sendRequest(request: ApiRequest): Promise<void> {
                 removeSentRequests([...equals, request]);
             });
     })
+
+    function checkForValidResponse(response: Response) {
+        return response.ok && response.body === null;
+    }
 }
 
 function sendRequestLimitCache(request: ApiRequest, grouping = 1): Promise<void> {
