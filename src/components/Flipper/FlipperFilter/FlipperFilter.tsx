@@ -3,7 +3,7 @@ import { Form } from 'react-bootstrap';
 import './FlipperFilter.css';
 
 interface Props {
-    onChange: Function
+    onChange(filter: FlipperFilter)
 }
 
 function FlipperFilter(props: Props) {
@@ -22,7 +22,7 @@ function FlipperFilter(props: Props) {
     let onOnlyMinProfitChange = (event: ChangeEvent<HTMLInputElement>) => {
         props.onChange({
             onlyBin: onlyBin,
-            minProfit: event.target.value
+            minProfit: parseInt(event.target.value)
         });
     }
 

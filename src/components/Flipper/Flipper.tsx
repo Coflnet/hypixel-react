@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons'
+import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons';
 import Tooltip from '../Tooltip/Tooltip';
 
 function Flipper() {
@@ -124,7 +124,7 @@ function Flipper() {
                 if (!isLatest) {
                     return true;
                 }
-                if (flipperFilter?.onyBin && !auction.bin) {
+                if (flipperFilter?.onlyBin && !auction.bin) {
                     return false;
                 }
                 if (flipperFilter?.minProfit && flipperFilter.minProfit >= (auction.median - auction.cost)) {
@@ -226,7 +226,7 @@ function Flipper() {
                 {isLoggedIn ?
                     <Card.Footer>
                         This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a>.
-                </Card.Footer> : ""}
+                    </Card.Footer> : ""}
             </Card>
 
             <hr />
@@ -241,7 +241,7 @@ function Flipper() {
                 <Card.Footer>
                     These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
                     Keep in mind that these are delayed to protect our paying supporters.
-                If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a>
+                    If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a>
                 </Card.Footer>
             </Card>
             <hr />
