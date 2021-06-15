@@ -91,7 +91,9 @@ function BidList(props: Props) {
             setBids(bids);
 
             updateListState();
-        })
+        }).catch(() => {
+            setAllBidsLoaded(true);
+        });
     }
 
     let loadItemImage = (item: Item, bidUUID: string, bids: BidForList[]): void => {
