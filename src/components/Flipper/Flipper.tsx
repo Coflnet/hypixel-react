@@ -142,15 +142,13 @@ function Flipper() {
                                         <span>{flipAuction.item.name}</span>
                                     </Card.Header>
                                 </a> :
-                                <div>
-                                    <Tooltip type="hover" content={
-                                        <Card.Header style={{ padding: "10px" }}>
-                                            <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                            <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
-                                        </Card.Header>}
-                                        tooltipContent={<span>The link will be available in a few seconds...</span>}
-                                    />
-                                </div>
+                                <Tooltip type="hover" content={
+                                    <Card.Header style={{ padding: "10px" }}>
+                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                        <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                    </Card.Header>}
+                                    tooltipContent={<span>The link will be available in a few seconds...</span>}
+                                />
                             }
                             <Card.Body style={{ padding: "10px" }}>
                                 <p>
