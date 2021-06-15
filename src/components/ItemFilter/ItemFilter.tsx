@@ -39,9 +39,10 @@ function ItemFilter(props: Props) {
         mounted = true;
         itemFilter = getItemFilterFromUrl(query);
         if (itemFilter) {
-            setItemFilter(itemFilter);
+            console.log(itemFilter);
             setExpanded(true);
-            setSelectedFilters(Object.keys(itemFilter));
+            Object.keys(itemFilter).forEach(name => enableFilter(name));
+            setItemFilter(itemFilter);
         }
         return () => { mounted = false }
     }, []);
@@ -64,18 +65,33 @@ function ItemFilter(props: Props) {
         })
     }
 
-    let addFilter = (event: ChangeEvent<HTMLSelectElement>) => {
-        let selectedIndex = event.target.options.selectedIndex;
-        let filterName = event.target.options[selectedIndex].getAttribute('data-id')!;
+    let enableFilter = (filterName : string) => {
+        loadFilterOptions(filterName);
 
+        if(!filterOptions.some(el => el.name == filterName))
+        {
+            setTimeout(() => {
+                enableFilter(filterName)
+            }, 50);
+            return;
+        }
+        if(selectedFilters.some(n=>n == filterName))
+            return;
         setSelectedFilters([filterName, ...selectedFilters])
 
         //itemFilter![filterName] = "";
-        loadFilterOptions(filterName);
 
         setIsApplied(false);
         updateURLQuery(itemFilter);
         setItemFilter(itemFilter);
+    }
+
+    let addFilter = (event: ChangeEvent<HTMLSelectElement>) => {
+        let selectedIndex = event.target.options.selectedIndex;
+        let filterName = event.target.options[selectedIndex].getAttribute('data-id')!;
+
+        enableFilter(filterName);
+
     }
 
 
@@ -87,6 +103,7 @@ function ItemFilter(props: Props) {
     }
 
     let onFilterRemove = () => {
+        setSelectedFilters([]);
         setExpanded(false);
         setItemFilter(undefined);
         if (props.onFilterChange) {
@@ -136,7 +153,7 @@ function ItemFilter(props: Props) {
     }
 
     let filterList = selectedFilters.map(filterName => {
-        return <div key={filterName}><FilterElement key={generateUUID()} onFilterChange={onFilterChange} options={filterOptions.find(f=>f.name == filterName)} value={itemFilter![filterName]}></FilterElement>
+        return <div key={filterName}><FilterElement  onFilterChange={onFilterChange} options={filterOptions} filterName={filterName} value={itemFilter![filterName]}></FilterElement>
             <span onClick={() => removeFilter(filterName)}>remove</span></div>
     });
 

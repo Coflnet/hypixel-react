@@ -19,7 +19,8 @@ export enum FilterTypeEnum {
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
-    options?: FilterOptions,
+    options?: FilterOptions[],
+    filterName?: string,
     value?: any
 }
 
@@ -28,12 +29,19 @@ let mounted = true;
 
 function FilterElement(props: Props) {
     let [date, setDate] = useState(new Date())
-    let [value, setValue] = useState<string>();
+    let [value, setValue] = useState("");
+    let options = props.options!.find(f=>f.name == props.filterName)
 
     useEffect(() => {
         mounted = true;
-        console.log(props.options)
-        if (props.options && hasFlag(props.options!.type, FilterTypeEnum.DATE) && props.value)
+
+        if(!options){
+            console.log("not loaded");
+            return;
+        }
+        console.log("WORKS");
+            console.log(props.options);
+        if (props.options && hasFlag(options!.type, FilterTypeEnum.DATE) && props.value)
             setDate(new Date(parseInt(props.value) * 1000));
         else
             setValue(props.value);
@@ -67,7 +75,7 @@ function FilterElement(props: Props) {
         updateValue((date.getTime() / 1000).toString());
     }
 
-    let selectOptions = props.options?.options.map(option => {
+    let selectOptions = options?.options.map(option => {
         return (<option data-id={option} key={option} value={option}>{option}</option>)
     })
 
@@ -76,13 +84,13 @@ function FilterElement(props: Props) {
 
     return (
         <div className="generic-filter">
-            {!props.options ? <Spinner animation="border" role="status" variant="primary" /> :
+            {!options ? <Spinner animation="border" role="status" variant="primary" /> :
                 <div>
-                    <Form.Label>{props.options.name}</Form.Label>
+                    <Form.Label>{options.name}</Form.Label>
                     {
-                        hasFlag(props.options.type, FilterTypeEnum.DATE)
+                        hasFlag(options.type, FilterTypeEnum.DATE)
                             ? <DatePicker selected={date} onChange={updateDateFilter} popperClassName="date-picker-popper" />
-                            : hasFlag(props.options.type, FilterTypeEnum.RANGE) ?
+                            : hasFlag(options.type, FilterTypeEnum.RANGE) ?
                                 <Form.Control key={"eins"} className="select-filter" value={value} onChange={updateInputFilter}>
 
                                 </Form.Control>
@@ -98,7 +106,7 @@ function FilterElement(props: Props) {
 
     function updateValue(value: string) {
         let newFilter = {};
-        newFilter[props.options!.name] = value;
+        newFilter[options!.name] = value;
         console.log(newFilter);
         props.onFilterChange!(newFilter);
     }

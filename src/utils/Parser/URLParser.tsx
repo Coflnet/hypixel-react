@@ -3,10 +3,7 @@ export function parseItemFilter(itemFilterBase64: string): ItemFilter | undefine
     if (!itemFilter) {
         return undefined;
     }
-    return {
-        enchantment: itemFilter.enchantment,
-        reforge: itemFilter.reforge
-    }
+    return itemFilter;
 }
 export function getItemFilterFromUrl(query: URLSearchParams): ItemFilter | undefined {
     let itemFilterBase64 = query.get("itemFilter")
