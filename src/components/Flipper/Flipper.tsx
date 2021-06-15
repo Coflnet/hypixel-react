@@ -9,7 +9,6 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons';
-import { v4 as generateUUID } from 'uuid';
 import Tooltip from '../Tooltip/Tooltip';
 
 function Flipper() {
