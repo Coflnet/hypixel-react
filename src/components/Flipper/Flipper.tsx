@@ -10,6 +10,7 @@ import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons';
 import { v4 as generateUUID } from 'uuid';
+import Tooltip from '../Tooltip/Tooltip';
 
 function Flipper() {
 
@@ -119,7 +120,7 @@ function Flipper() {
     );
 
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
-        return <div className="cards-wrapper" key={generateUUID()}>{
+        return <div className="cards-wrapper">{
             auctions.filter(auction => {
                 if (!isLatest) {
                     return true;
@@ -133,16 +134,23 @@ function Flipper() {
                 return true;
             }).map((flipAuction) => {
                 return (
-                    <div className="card-wrapper" key={generateUUID()}>
+                    <div className="card-wrapper" key={flipAuction.uuid}>
                         <Card className="card">
                             {flipAuction.showLink ?
                                 <a className="disable-link-style" href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
                                     <Card.Header>
-                                        {flipAuction.bin.toString()}
+                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                        <span>{flipAuction.item.name}</span>
                                     </Card.Header>
                                 </a> :
                                 <div>
-                                    {flipAuction.bin.toString()}
+                                    <Tooltip type="hover" content={
+                                        <Card.Header style={{ padding: "10px" }}>
+                                            <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                            <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                        </Card.Header>}
+                                        tooltipContent={<span>The link will be available in a few seconds...</span>}
+                                    />
                                 </div>
                             }
                             <Card.Body style={{ padding: "10px" }}>
@@ -221,7 +229,7 @@ function Flipper() {
                 {isLoggedIn ?
                     <Card.Footer>
                         This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a>.
-                </Card.Footer> : ""}
+                    </Card.Footer> : ""}
             </Card>
 
             <hr />
@@ -236,7 +244,7 @@ function Flipper() {
                 <Card.Footer>
                     These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
                     Keep in mind that these are delayed to protect our paying supporters.
-                If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a>
+                    If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a>
                 </Card.Footer>
             </Card>
             <hr />
