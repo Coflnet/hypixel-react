@@ -85,7 +85,7 @@ function initAPI(): API {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
-                filter:itemFilter
+                filter: itemFilter
             };
             httpApi.sendRequest({
                 type: RequestType.ITEM_PRICES,
@@ -493,13 +493,13 @@ function initAPI(): API {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
-                filter:itemFilter
+                filter: itemFilter
             };
             httpApi.sendLimitedCacheRequest({
                 type: RequestType.RECENT_AUCTIONS,
                 data: requestData,
                 resolve: (data: any) => {
-                    resolve(data?.map(a => parseRecentAuction(a)));
+                    resolve(data.map(a => parseRecentAuction(a)));
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData);
@@ -540,7 +540,7 @@ function initAPI(): API {
         });
     }
 
-    let getFilter = (name:string): Promise<FilterOptions> => {
+    let getFilter = (name: string): Promise<FilterOptions> => {
         return new Promise((resolve, reject) => {
             httpApi.sendRequest({
                 type: RequestType.GET_FILTER,
@@ -549,7 +549,7 @@ function initAPI(): API {
                     resolve(data);
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_FILTER, error, "");
+                    apiErrorHandler(RequestType.GET_FILTER, error, name);
                     reject();
                 }
             })

@@ -26,7 +26,6 @@ export function MainApp(props: any) {
         let uiStyle = window.localStorage.getItem("uiStyle");
 
         if (isTrackingAllowed() && (!uiStyle || uiStyle !== (prefersDarkMode ? 'dark' : 'light'))) {
-            console.log("UI-Style: " + uiStyle);
             window.localStorage.setItem("uiStyle", prefersDarkMode ? 'dark' : 'light')
             trackEvent({
                 category: 'uiStyle',

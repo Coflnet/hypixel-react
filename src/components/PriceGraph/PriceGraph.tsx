@@ -89,7 +89,6 @@ function PriceGraph(props: Props) {
 
             priceChart.update();
             setIsFilterable(result.filterable);
-            console.log(result.filters)
             setFilters(result.filters);
             setAvgPrice(Math.round(priceSum / result.prices.length))
             setPriceChart(priceChart);

@@ -30,24 +30,29 @@ let mounted = true;
 function FilterElement(props: Props) {
     let [date, setDate] = useState(new Date())
     let [value, setValue] = useState("");
-    let options = props.options!.find(f=>f.name == props.filterName)
+    let options = props.options!.find(f => f.name == props.filterName)
 
     useEffect(() => {
         mounted = true;
 
-        if(!options){
-            console.log("not loaded");
+        if (!options) {
             return;
         }
-        console.log("WORKS");
-            console.log(props.options);
-        if (props.options && hasFlag(options!.type, FilterTypeEnum.DATE) && props.value)
+
+        if (props.options && hasFlag(options.type, FilterTypeEnum.DATE) && props.value) {
             setDate(new Date(parseInt(props.value) * 1000));
-        else
+        } else {
             setValue(props.value);
+        }
         return () => { mounted = false }
     }, []);
 
+    /**
+     * Checks an FilterType if a flag is present
+     * @param full the enum that should contain the flag
+     * @param flag the flag to test against
+     * @returns true if the enum contains the flag
+     */
     let hasFlag = (full?: FilterType, flag?: FilterTypeEnum) => {
         return full && flag && (full & flag) === flag;
     }
@@ -80,7 +85,12 @@ function FilterElement(props: Props) {
     })
 
 
+    function updateValue(value: string) {
+        let newFilter = {};
+        newFilter[options!.name] = value;
 
+        props.onFilterChange!(newFilter);
+    }
 
     return (
         <div className="generic-filter">
@@ -103,13 +113,6 @@ function FilterElement(props: Props) {
 
         </div >
     )
-
-    function updateValue(value: string) {
-        let newFilter = {};
-        newFilter[options!.name] = value;
-        console.log(newFilter);
-        props.onFilterChange!(newFilter);
-    }
 }
 
 export default FilterElement;

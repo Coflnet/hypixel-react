@@ -39,7 +39,6 @@ function ItemFilter(props: Props) {
         mounted = true;
         itemFilter = getItemFilterFromUrl(query);
         if (itemFilter) {
-            console.log(itemFilter);
             setExpanded(true);
             Object.keys(itemFilter).forEach(name => enableFilter(name));
             setItemFilter(itemFilter);
@@ -52,34 +51,31 @@ function ItemFilter(props: Props) {
     })
 
     let loadFilterOptions = (filterName: string) => {
-        if (filterOptions.some(el => el.name == filterName))
+        if (filterOptions.some(el => el.name == filterName)) {
             return;
+        }
         api.getFilter(filterName).then(options => {
-            console.log(props);
-            console.log(options)
-            if (filterOptions.some(el => el.name == filterName))
+            if (filterOptions.some(el => el.name == filterName)) {
                 return;
+            }
             filterOptions.push(options);
             setFilterOptions(filterOptions);
-            //setSelectedFilters([...selectedFilters]);
         })
     }
 
-    let enableFilter = (filterName : string) => {
+    let enableFilter = (filterName: string) => {
         loadFilterOptions(filterName);
 
-        if(!filterOptions.some(el => el.name == filterName))
-        {
+        if (!filterOptions.some(el => el.name == filterName)) {
             setTimeout(() => {
                 enableFilter(filterName)
             }, 50);
             return;
         }
-        if(selectedFilters.some(n=>n == filterName))
+        if (selectedFilters.some(n => n == filterName)) {
             return;
+        }
         setSelectedFilters([filterName, ...selectedFilters])
-
-        //itemFilter![filterName] = "";
 
         setIsApplied(false);
         updateURLQuery(itemFilter);
@@ -137,14 +133,10 @@ function ItemFilter(props: Props) {
     }) : ""
 
     let onFilterChange = (filter?: ItemFilter) => {
-        console.log(filter);
-        console.log(Object.keys(filter as object));
-
         var keys = Object.keys(filter as object);
         if (keys.length > 0) {
             var key = keys[0];
             itemFilter![key] = filter![key];
-            console.log("udpated");
         }
 
         setIsApplied(false);
@@ -153,7 +145,7 @@ function ItemFilter(props: Props) {
     }
 
     let filterList = selectedFilters.map(filterName => {
-        return <div key={filterName}><FilterElement  onFilterChange={onFilterChange} options={filterOptions} filterName={filterName} value={itemFilter![filterName]}></FilterElement>
+        return <div key={filterName}><FilterElement onFilterChange={onFilterChange} options={filterOptions} filterName={filterName} value={itemFilter![filterName]}></FilterElement>
             <span onClick={() => removeFilter(filterName)}>remove</span></div>
     });
 
