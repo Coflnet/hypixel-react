@@ -37,11 +37,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
         requests.push(request);
         return fetch(url, { headers })
             .then(response => {
-                if (checkForValidResponse(response)) {
-                    request.reject();
-                    return;
-                }
-                if (!response.ok) {
+                if (!isResponseValid(response)) {
                     request.reject();
                     return;
                 }
@@ -69,8 +65,8 @@ function sendRequest(request: ApiRequest): Promise<void> {
             });
     })
 
-    function checkForValidResponse(response: Response) {
-        return response.ok && response.body === null;
+    function isResponseValid(response: Response) {
+        return response.ok && response.body;
     }
 }
 

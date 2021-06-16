@@ -87,7 +87,6 @@ function ItemFilter(props: Props) {
         let filterName = event.target.options[selectedIndex].getAttribute('data-id')!;
 
         enableFilter(filterName);
-
     }
 
 
