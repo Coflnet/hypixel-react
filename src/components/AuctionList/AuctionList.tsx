@@ -96,8 +96,12 @@ function AuctionList(props: Props) {
                 loadItemImage(auction.item, auction.uuid, auctions);
             })
             setAuctions(auctions);
-
             updateListState();
+
+            if(auctions.length < 10 && newAuctions.length !== 0){
+                loadNewAuctions();
+            }
+
         }).catch(() => {
             setAllAuctinosLoaded(true);
         });

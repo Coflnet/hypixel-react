@@ -90,6 +90,10 @@ function BidList(props: Props) {
             })
             setBids(bids);
 
+            if(bids.length < 10 && newBids.length !== 0){
+                loadNewBids();
+            }
+
             updateListState();
         }).catch(() => {
             setAllBidsLoaded(true);
