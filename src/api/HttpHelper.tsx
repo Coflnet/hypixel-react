@@ -51,7 +51,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
                 return parsed;
             }).then(parsedResponse => {
                 if (!parsedResponse || parsedResponse.type === "error") {
-                    toast.error(JSON.parse(parsedResponse?.data).data);
+                    toast.error(parsedResponse?.data);
                     request.reject();
                     return;
                 }

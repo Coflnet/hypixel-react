@@ -5,3 +5,11 @@
 .date-picker-popper {
     z-index: 2;
 }
+
+.generic-filter {
+    flex-grow: 100;
+}
+
+.react-datepicker-wrapper {
+    width: 100%;
+}

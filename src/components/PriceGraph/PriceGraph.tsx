@@ -4,6 +4,7 @@ import './PriceGraph.css';
 import Chart, { ChartConfiguration } from 'chart.js';
 import api from '../../api/ApiHelper';
 import priceConfig from './PriceGraphConfig'
+import { useLocation } from "react-router-dom";
 import { DEFAULT_DATE_RANGE, getTimeSpanFromDateRange, ItemPriceRange } from '../ItemPriceRange/ItemPriceRange';
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
@@ -11,6 +12,7 @@ import ShareButton from '../ShareButton/ShareButton';
 import ItemFilter from '../ItemFilter/ItemFilter';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import RecentAuctions from '../RecentAuctions/RecentAuctions';
+import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
 
 interface Props {
     item: Item
@@ -33,6 +35,7 @@ function PriceGraph(props: Props) {
     
     let fetchspanRef = useRef(fetchspan);
     fetchspanRef.current = fetchspan;
+    let query = new URLSearchParams(useLocation().search);
 
     useEffect(() => {
         mounted = true;
@@ -42,11 +45,15 @@ function PriceGraph(props: Props) {
         fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
         setFetchspan(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE))
         if (priceChartCanvas && priceChartCanvas.current) {
-            let chart = priceChart || createChart(priceConfig);
-            setPriceChart(chart);
-            if (props.item) {
-                updateChart(chart, fetchspan, undefined);
+            if(!getItemFilterFromUrl(query))
+            {
+                let chart = priceChart || createChart(priceConfig);
+                setPriceChart(chart);
+                if (props.item) {
+                    updateChart(chart, fetchspan, undefined);
+                }
             }
+
         }
 
         return () => {
@@ -145,7 +152,7 @@ function PriceGraph(props: Props) {
                 <div style={{ position: "relative", flex: "1 1 auto" }}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
             </div>
             <hr/>
-            { props.item?.bazaar ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />}
+            { props.item?.bazaar ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter}/>}
         </div >
     );
 }

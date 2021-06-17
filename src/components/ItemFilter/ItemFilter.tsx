@@ -42,13 +42,16 @@ function ItemFilter(props: Props) {
             setExpanded(true);
             Object.keys(itemFilter).forEach(name => enableFilter(name));
             setItemFilter(itemFilter);
+            setTimeout(() => {
+                onFilterApply();
+            }, 1);
         }
+        history.listen(() => {
+            // also gets called when the timespan is changed
+            //setIsApplied(false);
+        })
         return () => { mounted = false }
     }, []);
-
-    history.listen(() => {
-        setIsApplied(false);
-    })
 
     let loadFilterOptions = (filterName: string) => {
         if (filterOptions.some(el => el.name == filterName)) {
@@ -144,8 +147,9 @@ function ItemFilter(props: Props) {
     }
 
     let filterList = selectedFilters.map(filterName => {
-        return <div key={filterName}><FilterElement onFilterChange={onFilterChange} options={filterOptions} filterName={filterName} value={itemFilter![filterName]}></FilterElement>
-            <span onClick={() => removeFilter(filterName)}>remove</span></div>
+        return <div key={filterName} className="filter-element">
+            <FilterElement onFilterChange={onFilterChange} options={filterOptions} filterName={filterName} value={itemFilter![filterName]}></FilterElement>
+            <div><button className="btn btn-danger remove-filter" onClick={() => removeFilter(filterName)}>remove</button></div></div>
     });
 
     let infoIconElement = (
@@ -172,6 +176,12 @@ function ItemFilter(props: Props) {
     );
 
     function removeFilter(filterName: string) {
+        if(itemFilter)
+        {
+            delete itemFilter[filterName];
+            setItemFilter(itemFilter);
+            updateURLQuery(itemFilter);
+        }
         setSelectedFilters(selectedFilters.filter(f => f != filterName))
     }
 
@@ -189,7 +199,7 @@ function ItemFilter(props: Props) {
                         Filter
                         {isApplied ?
                             <Badge variant="success" className="appliedBadge">Applied</Badge> :
-                            <Badge variant="danger" className="appliedBadge">Not Applied</Badge>}
+                            <Badge variant="danger" className="appliedBadge">Filter is currently NOT Applied</Badge>}
                         {infoIconElement}
                     </Card.Title>
                     <Card.Body>
@@ -200,15 +210,16 @@ function ItemFilter(props: Props) {
                                 {props?.filters && props.filters?.length > 0 ?
                                     <div>
                                         <Form.Control className="select-filter" as="select" onChange={addFilter} disabled={props.disabled} ref={reforgeSelect}>
-                                            <option>Click to select filter</option>
+                                            <option>Click to add filter</option>
                                             {filterSelectList}
                                         </Form.Control>
                                     </div> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
-
-                            {filterList}
+                            <div className="filter-container">
+                                {filterList}
+                            </div>
                         </Form >
                         <div>
                             <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()} disabled={props.disabled}>Apply</Button>

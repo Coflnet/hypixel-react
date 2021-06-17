@@ -99,7 +99,7 @@ function FilterElement(props: Props) {
                     <Form.Label>{options.name}</Form.Label>
                     {
                         hasFlag(options.type, FilterTypeEnum.DATE)
-                            ? <DatePicker selected={date} onChange={updateDateFilter} popperClassName="date-picker-popper" />
+                            ? <span><br/><DatePicker className="date-filter form-control" selected={date} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>
                             : hasFlag(options.type, FilterTypeEnum.RANGE) ?
                                 <Form.Control key={"eins"} className="select-filter" value={value} onChange={updateInputFilter}>
 

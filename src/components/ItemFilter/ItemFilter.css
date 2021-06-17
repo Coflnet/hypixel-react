@@ -6,3 +6,27 @@
     text-decoration: none !important;
     color: #fff;
 }
+
+.filter-element {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    width: 50%;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.remove-filter {
+    margin-left: 5px;
+    margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+    .filter-element {
+        width: 100%;
+    }
+}
