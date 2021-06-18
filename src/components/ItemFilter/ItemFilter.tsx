@@ -61,7 +61,7 @@ function ItemFilter(props: Props) {
         }
         updateURLQuery();
         setIsApplied(false);
-    }, props.filters)
+    }, [JSON.stringify(props.filters)])
 
     let enableFilter = (filterName: string) => {
 
