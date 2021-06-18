@@ -6,10 +6,10 @@ import './ItemFilter.css';
 import { useLocation, useHistory } from "react-router-dom";
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
 import FilterElement from '../FilterElement/FilterElement';
-import { v4 as generateUUID } from 'uuid';
-import { AddCircleOutline as AddIcon, Help as HelpIcon } from '@material-ui/icons';
+import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
 import api from '../../api/ApiHelper';
+import { camelCaseToSentenceCase } from '../../utils/Formatter';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
@@ -24,7 +24,7 @@ function ItemFilter(props: Props) {
 
     const reforgeSelect = useRef(null);
 
-    let [itemFilter, setItemFilter] = useState<ItemFilter>();
+    let [itemFilter, _setItemFilter] = useState<ItemFilter>({});
     let [expanded, setExpanded] = useState(false);
     let [isApplied, setIsApplied] = useState(false);
     let [selectedFilters, setSelectedFilters] = useState<string[]>([]);
@@ -38,7 +38,7 @@ function ItemFilter(props: Props) {
     useEffect(() => {
         mounted = true;
         itemFilter = getItemFilterFromUrl(query);
-        if (itemFilter) {
+        if (Object.keys(itemFilter).length > 0) {
             setExpanded(true);
             Object.keys(itemFilter).forEach(name => enableFilter(name));
             setItemFilter(itemFilter);
@@ -53,36 +53,38 @@ function ItemFilter(props: Props) {
         return () => { mounted = false }
     }, []);
 
-    let loadFilterOptions = (filterName: string) => {
-        if (filterOptions.some(el => el.name == filterName)) {
-            return;
+    useEffect(() => {
+        setSelectedFilters([]);
+        setItemFilter({});
+        if (props.onFilterChange) {
+            props.onFilterChange(undefined);
         }
-        api.getFilter(filterName).then(options => {
-            if (filterOptions.some(el => el.name == filterName)) {
-                return;
-            }
-            filterOptions.push(options);
-            setFilterOptions(filterOptions);
-        })
-    }
+        updateURLQuery();
+        setIsApplied(false);
+    }, props.filters)
 
     let enableFilter = (filterName: string) => {
-        loadFilterOptions(filterName);
 
-        if (!filterOptions.some(el => el.name == filterName)) {
-            setTimeout(() => {
-                enableFilter(filterName)
-            }, 50);
+        if (selectedFilters.some(n => n === filterName)) {
             return;
         }
-        if (selectedFilters.some(n => n == filterName)) {
-            return;
-        }
-        setSelectedFilters([filterName, ...selectedFilters])
 
-        setIsApplied(false);
-        updateURLQuery(itemFilter);
-        setItemFilter(itemFilter);
+        selectedFilters = [filterName, ...selectedFilters];
+        setSelectedFilters(selectedFilters);
+
+        api.getFilter(filterName).then(options => {
+
+            if (!mounted) {
+                return;
+            }
+
+            setIsApplied(false);
+            updateURLQuery(itemFilter);
+            setItemFilter(itemFilter);
+
+            filterOptions = [options, ...filterOptions];
+            setFilterOptions(filterOptions);
+        });
     }
 
     let addFilter = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -103,7 +105,8 @@ function ItemFilter(props: Props) {
     let onFilterRemove = () => {
         setSelectedFilters([]);
         setExpanded(false);
-        setItemFilter(undefined);
+        setItemFilter({});
+        setIsApplied(false);
         if (props.onFilterChange) {
             props.onFilterChange(undefined);
         }
@@ -119,6 +122,11 @@ function ItemFilter(props: Props) {
         updateURLQuery(itemFilter);
     }
 
+    let setItemFilter = (itemFilter: ItemFilter) => {
+        _setItemFilter(itemFilter);
+        updateURLQuery(itemFilter);
+    }
+
     let updateURLQuery = (filter?: ItemFilter) => {
         history.push({
             pathname: history.location.pathname,
@@ -126,15 +134,13 @@ function ItemFilter(props: Props) {
         })
     }
 
-
-
     let filterSelectList = props?.filters ? props?.filters.filter(f => !selectedFilters.includes(f)).map(filter => {
         return (
-            <option data-id={filter} key={filter} value={filter}>{filter}</option>
+            <option data-id={filter} key={filter} value={filter}>{camelCaseToSentenceCase(filter)}</option>
         )
     }) : ""
 
-    let onFilterChange = (filter?: ItemFilter) => {
+    function onFilterChange(filter?: ItemFilter) {
         var keys = Object.keys(filter as object);
         if (keys.length > 0) {
             var key = keys[0];
@@ -148,8 +154,8 @@ function ItemFilter(props: Props) {
 
     let filterList = selectedFilters.map(filterName => {
         return <div key={filterName} className="filter-element">
-            <FilterElement onFilterChange={onFilterChange} options={filterOptions} filterName={filterName} value={itemFilter![filterName]}></FilterElement>
-            <div><button className="btn btn-danger remove-filter" onClick={() => removeFilter(filterName)}>remove</button></div></div>
+            <FilterElement onFilterChange={onFilterChange} options={filterOptions.find(f => f.name === filterName)} defaultValue={itemFilter![filterName]}></FilterElement>
+            <div className="remove-filter" onClick={() => removeFilter(filterName)}><DeleteIcon color="error" /></div></div>
     });
 
     let infoIconElement = (
@@ -176,13 +182,12 @@ function ItemFilter(props: Props) {
     );
 
     function removeFilter(filterName: string) {
-        if(itemFilter)
-        {
+        if (itemFilter) {
             delete itemFilter[filterName];
             setItemFilter(itemFilter);
             updateURLQuery(itemFilter);
         }
-        setSelectedFilters(selectedFilters.filter(f => f != filterName))
+        setSelectedFilters(selectedFilters.filter(f => f !== filterName))
     }
 
     return (
@@ -199,7 +204,7 @@ function ItemFilter(props: Props) {
                         Filter
                         {isApplied ?
                             <Badge variant="success" className="appliedBadge">Applied</Badge> :
-                            <Badge variant="danger" className="appliedBadge">Filter is currently NOT Applied</Badge>}
+                            <Badge variant="danger" className="appliedBadge">Filter is currently NOT applied</Badge>}
                         {infoIconElement}
                     </Card.Title>
                     <Card.Body>
@@ -223,7 +228,7 @@ function ItemFilter(props: Props) {
                         </Form >
                         <div>
                             <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()} disabled={props.disabled}>Apply</Button>
-                            <Button className="btn-danger" onClick={() => onFilterRemove()} disabled={props.disabled}>Remove Filter</Button>
+                            <Button className="btn-danger" onClick={() => onFilterRemove()} disabled={props.disabled}>Close</Button>
                         </div>
                     </Card.Body>
                 </Card>

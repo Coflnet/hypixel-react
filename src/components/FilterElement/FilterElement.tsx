@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Form, Spinner } from 'react-bootstrap';
 import "react-datepicker/dist/react-datepicker.css";
 import './FilterElement.css';
-import api from '../../api/ApiHelper';
 import DatePicker from "react-datepicker";
+import { convertTagToName } from '../../utils/Formatter';
 
 // has to be redefined because global types from react-app-env are not accessable
 export enum FilterTypeEnum {
@@ -19,33 +19,13 @@ export enum FilterTypeEnum {
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
-    options?: FilterOptions[],
-    filterName?: string,
-    value?: any
+    options?: FilterOptions,
+    defaultValue?: any
 }
 
-// Boolean if the component is mounted. Set to false in useEffect cleanup function
-let mounted = true;
-
 function FilterElement(props: Props) {
-    let [date, setDate] = useState(new Date())
-    let [value, setValue] = useState("");
-    let options = props.options!.find(f => f.name == props.filterName)
-
-    useEffect(() => {
-        mounted = true;
-
-        if (!options) {
-            return;
-        }
-
-        if (props.options && hasFlag(options.type, FilterTypeEnum.DATE) && props.value) {
-            setDate(new Date(parseInt(props.value) * 1000));
-        } else {
-            setValue(props.value);
-        }
-        return () => { mounted = false }
-    }, []);
+    let defaultValue = parseDefaultValue(props.defaultValue);
+    let [value, setValue] = useState<any>();
 
     /**
      * Checks an FilterType if a flag is present
@@ -53,58 +33,59 @@ function FilterElement(props: Props) {
      * @param flag the flag to test against
      * @returns true if the enum contains the flag
      */
-    let hasFlag = (full?: FilterType, flag?: FilterTypeEnum) => {
+    function hasFlag(full?: FilterType, flag?: FilterTypeEnum) {
         return full && flag && (full & flag) === flag;
     }
 
+    function parseDefaultValue(value: any) {
+        if (props.options && hasFlag(props.options.type, FilterTypeEnum.DATE) && value) {
+            setValue(new Date(parseInt(value) * 1000));
+        } else {
+            return value;
+        }
+    }
 
-
-
-    let updateSelectFilter = (event: ChangeEvent<HTMLSelectElement>) => {
+    function updateSelectFilter (event: ChangeEvent<HTMLSelectElement>) {
         let selectedIndex = event.target.options.selectedIndex;
         let value = event.target.options[selectedIndex].getAttribute('data-id')!;
         setValue(value);
         updateValue(value);
     }
 
-    let updateInputFilter = (event: ChangeEvent<HTMLInputElement>) => {
+    function updateInputFilter (event: ChangeEvent<HTMLInputElement>) {
         setValue(event.target.value);
         updateValue(event.target.value);
     }
 
-
-
-
-    let updateDateFilter = (date: Date) => {
-        setDate(date);
+    function updateDateFilter (date: Date) {
+        setValue(date);
         updateValue((date.getTime() / 1000).toString());
     }
-
-    let selectOptions = options?.options.map(option => {
-        return (<option data-id={option} key={option} value={option}>{option}</option>)
-    })
-
-
+    
     function updateValue(value: string) {
         let newFilter = {};
-        newFilter[options!.name] = value;
+        newFilter[props.options!.name] = value;
 
         props.onFilterChange!(newFilter);
     }
 
+    let selectOptions = props.options?.options.map(option => {
+        return (<option data-id={option} key={option} value={option}>{convertTagToName(option)}</option>)
+    })
+
     return (
         <div className="generic-filter">
-            {!options ? <Spinner animation="border" role="status" variant="primary" /> :
+            {!props.options ? <Spinner animation="border" role="status" variant="primary" /> :
                 <div>
-                    <Form.Label>{options.name}</Form.Label>
+                    <Form.Label>{props.options.name}</Form.Label>
                     {
-                        hasFlag(options.type, FilterTypeEnum.DATE)
-                            ? <span><br/><DatePicker className="date-filter form-control" selected={date} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>
-                            : hasFlag(options.type, FilterTypeEnum.RANGE) ?
-                                <Form.Control key={"eins"} className="select-filter" value={value} onChange={updateInputFilter}>
+                        hasFlag(props.options.type, FilterTypeEnum.DATE)
+                            ? <span><br /><DatePicker className="date-filter form-control" selected={defaultValue} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>
+                            : hasFlag(props.options.type, FilterTypeEnum.RANGE) ?
+                                <Form.Control key={"eins"} className="select-filter" defaultValue={defaultValue} value={value} onChange={updateInputFilter}>
 
                                 </Form.Control>
-                                : <Form.Control className="select-filter" value={value} as="select" onChange={updateSelectFilter}>
+                                : <Form.Control className="select-filter" defaultValue={defaultValue} value={value} as="select" onChange={updateSelectFilter}>
                                     {selectOptions}
                                 </Form.Control>
                     }

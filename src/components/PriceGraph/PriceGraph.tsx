@@ -32,7 +32,7 @@ function PriceGraph(props: Props) {
     let [filters, setFilters] = useState([] as string[]);
     let [isFilterable, setIsFilterable] = useState(true);
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
-    
+
     let fetchspanRef = useRef(fetchspan);
     fetchspanRef.current = fetchspan;
     let query = new URLSearchParams(useLocation().search);
@@ -45,8 +45,7 @@ function PriceGraph(props: Props) {
         fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
         setFetchspan(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE))
         if (priceChartCanvas && priceChartCanvas.current) {
-            if(!getItemFilterFromUrl(query))
-            {
+            if (Object.keys(getItemFilterFromUrl(query)).length === 0) {
                 let chart = priceChart || createChart(priceConfig);
                 setPriceChart(chart);
                 if (props.item) {
@@ -71,7 +70,7 @@ function PriceGraph(props: Props) {
 
         api.getItemPrices(props.item.tag, fetchspan, itemFilter).then((result) => {
 
-            if(!mounted){
+            if (!mounted) {
                 return;
             }
 
@@ -116,7 +115,7 @@ function PriceGraph(props: Props) {
     let onRangeChange = (timespan: number) => {
         setFetchspan(timespan);
         if (priceChart) {
-            updateChart(priceChart!, timespan);
+            updateChart(priceChart!, timespan, itemFilter);
         }
     }
 
@@ -140,7 +139,7 @@ function PriceGraph(props: Props) {
 
     return (
         <div className="price-graph">
-            {isFilterable ? <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange}/> : ""}
+            {isFilterable ? <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} /> : ""}
             <ItemPriceRange onRangeChange={onRangeChange} disabled={isLoading} disableAllTime={itemFilter !== undefined} item={props.item} />
             <div className="graph-canvas-container">
                 {graphOverlayElement}
@@ -151,8 +150,8 @@ function PriceGraph(props: Props) {
                 <div style={{ position: "relative", flex: "1 1 auto" }}><SubscribeButton type="item" topic={props.item.tag} /></div>
                 <div style={{ position: "relative", flex: "1 1 auto" }}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
             </div>
-            <hr/>
-            { props.item?.bazaar ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter}/>}
+            <hr />
+            {props.item?.bazaar ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />}
         </div >
     );
 }

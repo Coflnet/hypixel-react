@@ -106,8 +106,6 @@ interface FilterOptions {
   type: FilterType
 }
 
-
-
 interface ItemPrice {
   min: number;
   max: number;
