@@ -225,7 +225,7 @@ function Startpage() {
                         <Card.Subtitle>Free Premium Extenstion</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        While writing this hypixel conducts maintinance to its servers. Since our <Link to="/premium">premium plan</Link> isn't of much use when there are no new auctions, we are extending the subscriptions of our premium users for as long as this maintinance will last/lasted.
+                        Hypixel currently conducts maintinance to its servers. Since our <Link to="/premium">premium plan</Link> isn't of much use when there are no new auctions, we are extending the subscriptions of our premium users for as long as this maintinance will last/lasted.
                     </Card.Body>
                 </Card>
             </div>
