@@ -619,6 +619,9 @@ function initAPI(): API {
                     reject();
                 }
             }, 1);
+        })
+    }
+
     let getFlipBasedAuctions = (flipUUID: string): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
 
@@ -668,7 +671,7 @@ function initAPI(): API {
         getNewItems,
         getPopularSearches,
         getEndedAuctions,
-        getNewAuctions
+        getNewAuctions,
         getFlipBasedAuctions
     }
 }

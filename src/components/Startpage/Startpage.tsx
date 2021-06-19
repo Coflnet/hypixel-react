@@ -204,8 +204,6 @@ function Startpage() {
         </svg>
     )
 
-    //style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "stretch" }}
-
     return (
         <div className="startpage">
 
