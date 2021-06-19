@@ -85,9 +85,12 @@ export default function GooglePlayProvider(): AbstractPaymentProvider {
         })
     }
 
+    let generateButton = (product: Product): any => { throw 'not implemented' };
+
     return {
         getProducts,
         pay,
-        checkIfPaymentIsPossible
+        checkIfPaymentIsPossible,
+        generateButton
     }
 }

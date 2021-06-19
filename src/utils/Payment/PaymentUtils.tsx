@@ -1,9 +1,11 @@
 import GooglePlayProvider from "./GooglePlayProvider";
 import StripePaymentProvider from "./StripePaymentProvider";
+import PayPalProvider from './PayPalProvider';
 
 const paymentProviders = [
     GooglePlayProvider,
-    StripePaymentProvider
+    StripePaymentProvider,
+    PayPalProvider
 ]
 
 const defaultPaymentProvider = StripePaymentProvider;
