@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/ApiHelper';
 import './Flipper.css';
 import { useForceUpdate } from '../../utils/Hooks';
-import { Button, Card, Form } from 'react-bootstrap';
+import { Button, Card, Form, Badge } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
@@ -134,18 +134,28 @@ function Flipper() {
             }).map((flipAuction) => {
                 return (
                     <div className="card-wrapper" key={flipAuction.uuid}>
-                        <Card className="card">
+                        <Card className="flip-auction-card">
                             {flipAuction.showLink ?
                                 <a className="disable-link-style" href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
-                                    <Card.Header>
-                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                        <span>{flipAuction.item.name}</span>
+                                    <Card.Header style={{ padding: "10px" }}>
+                                        <p>
+                                            <div className="ellipse" style={{ width: "80%", float: "left" }}>
+                                                <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                                <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                            </div>
+                                            {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
+                                        </p>
                                     </Card.Header>
                                 </a> :
                                 <Tooltip type="hover" content={
                                     <Card.Header style={{ padding: "10px" }}>
-                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                        <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                        <p>
+                                            <div className="ellipse" style={{ width: "80%", float: "left" }}>
+                                                <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                                <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                            </div>
+                                            {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
+                                        </p>
                                     </Card.Header>}
                                     tooltipContent={<span>The link will be available in a few seconds...</span>}
                                 />
@@ -217,7 +227,7 @@ function Flipper() {
                                     </div> : ""
                             }
                             {latestAuctions.length > 0 ?
-                                <div style={{ position: "relative" }}>
+                                <div className="premium" style={{ position: "relative" }}>
                                     {mapAuctionElements(latestAuctions, true)}
                                 </div> : ""}
                         </div> : ""}
