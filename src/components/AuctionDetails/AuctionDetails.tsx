@@ -37,13 +37,6 @@ function AuctionDetails(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.auctionUUID]);
 
-    useEffect(() => {
-        if (!auctionDetails) {
-            loadAuctionDetails()
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [auctionDetails?.auction.item.iconUrl])
-
     let loadAuctionDetails = () => {
         api.getAuctionDetails(props.auctionUUID).then(auctionDetails => {
             auctionDetails.bids.sort((a, b) => b.amount - a.amount)

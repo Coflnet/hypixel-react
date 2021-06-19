@@ -1,19 +1,20 @@
-import { ApiRequest, HttpApi, RequestType } from "./ApiTypes.d";
+import { ApiRequest, HttpApi } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
 import { toast } from "react-toastify";
 import cacheUtils from "../utils/CacheUtils";
 import { getProperty } from "../utils/PropertiesUtils";
+import { getNextMessageId } from "../utils/MessageIdUtils";
 
 const commandEndpoint = getProperty("commandEndpoint");
 let requests: ApiRequest[] = [];
 
 function sendRequest(request: ApiRequest): Promise<void> {
+    request.mId = getNextMessageId();
     let requestString = JSON.stringify(request.data);
     let headers = { 'ConId': getOrGenerateUUid() };
-    var url = `${commandEndpoint}/${request.type}/${Base64.encode(requestString)}`;
-    if (request.mId)
-        url += `/${request.mId}`;
+    let url = `${commandEndpoint}/${request.type}/${Base64.encode(requestString)}`;
+    url += `/${request.mId}`;
 
     return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
         if (cacheValue) {
