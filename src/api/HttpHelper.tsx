@@ -13,8 +13,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
     request.mId = getNextMessageId();
     let requestString = JSON.stringify(request.data);
     let headers = { 'ConId': getOrGenerateUUid() };
-    let url = `${commandEndpoint}/${request.type}/${Base64.encode(requestString)}`;
-    url += `/${request.mId}`;
+    var url = `${commandEndpoint}/${request.type}/${Base64.encode(requestString)}`;
 
     return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
         if (cacheValue) {
@@ -67,7 +66,9 @@ function sendRequest(request: ApiRequest): Promise<void> {
                 }
                 request.resolve(parsedResponse)
                 let equals = findForEqualSentRequest(request);
-                equals.forEach(equal => equal.resolve(parsedResponse));
+                equals.forEach(equal =>{
+                    equal.resolve(parsedResponse)
+                });
                 // all http answers are valid for 60 sec
                 let maxAge = 60;
                 cacheUtils.setIntoCache(request.type, Base64.decode(request.data), parsedResponse, maxAge);
@@ -100,7 +101,7 @@ function getOrGenerateUUid(): string {
 }
 function findForEqualSentRequest(request: ApiRequest) {
     return requests.filter(r => {
-        return r.type === request.type && r.data === request.data
+        return r.type === request.type && r.data === request.data && r.mId !== request.mId;
     })
 }
 
