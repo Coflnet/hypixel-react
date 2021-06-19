@@ -54,6 +54,7 @@ function AuctionDetails(props: Props) {
             })
             api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
                 auctionDetails.auction.item.description = item.description;
+                auctionDetails.auction.item.name = item.name;
                 setAuctionDetails(auctionDetails);
             })
 

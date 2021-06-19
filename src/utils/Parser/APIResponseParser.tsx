@@ -90,7 +90,7 @@ export function parseItemPriceData(priceData: any): ItemPriceData {
 export function parseItem(item: any): Item {
     return {
         tag: item.tag,
-        name: item.name,
+        name: item.altNames && item.altNames[0] && item.altNames[0].Name ? item.altNames[0].Name : item.name,
         category: item.category,
         iconUrl: item.iconUrl,
         tier: item.tier,
