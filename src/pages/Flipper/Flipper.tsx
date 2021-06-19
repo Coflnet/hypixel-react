@@ -9,10 +9,11 @@ function Flipper() {
     return (
         <div className="flipper">
             <Container>
-                <h1>
+                <h2>
                     <NavBar />
-                Item-Flipper (WIP)
-            </h1>
+                    Item-Flipper (WIP)
+                </h2>
+                <hr />
                 <FlipperComponent />
             </Container>
         </div >

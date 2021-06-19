@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayerDetails, parseRecentAuction, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -542,6 +542,86 @@ function initAPI(): API {
         });
     }
 
+    let getNewPlayers = (): Promise<Player[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.NEW_PLAYERS,
+                data: "",
+                resolve: function (data) {
+                    resolve(data.map(p => parsePlayer(p)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.NEW_PLAYERS, error, "");
+                    reject();
+                }
+            }, 5);
+        });
+    }
+
+    let getNewItems = (): Promise<Item[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.NEW_ITEMS,
+                data: "",
+                resolve: function (data) {
+                    resolve(data.map(i => parseItem(i)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.NEW_ITEMS, error, "");
+                    reject();
+                }
+            }, 15);
+        });
+    }
+
+    let getPopularSearches = (): Promise<PopularSearch[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.POPULAR_SEARCHES,
+                data: "",
+                resolve: function (data) {
+                    resolve(data.map(s => parsePopularSearch(s)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.POPULAR_SEARCHES, error, "");
+                    reject();
+                }
+            }, 5);
+        });
+    }
+
+    let getEndedAuctions = (): Promise<Auction[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.ENDED_AUCTIONS,
+                data: "",
+                resolve: function (data) {
+                    resolve(data.map(a => parseAuction(a)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ENDED_AUCTIONS, error, "");
+                    reject();
+                }
+            }, 1);
+        });
+    }
+
+    let getNewAuctions = (): Promise<Auction[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.NEW_AUCTIONS,
+                data: "",
+                resolve: function (data) {
+                    resolve(data.map(a => parseAuction(a)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.NEW_AUCTIONS, error, "");
+                    reject();
+                }
+            }, 1);
+        })
+    }
+
     let getFlipBasedAuctions = (flipUUID: string): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
 
@@ -587,6 +667,11 @@ function initAPI(): API {
         getRecentAuctions,
         getFlips,
         subscribeFlips,
+        getNewPlayers,
+        getNewItems,
+        getPopularSearches,
+        getEndedAuctions,
+        getNewAuctions,
         getFlipBasedAuctions
     }
 }

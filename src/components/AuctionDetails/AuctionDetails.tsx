@@ -261,7 +261,7 @@ function AuctionDetails(props: Props) {
 
     return (
         <div className="auction-details">
-            <Search />
+            <Search currentElement={<p className="current"><Badge variant="primary">Current:</Badge> Auction Details</p>} />
             {isAuctionFound ?
                 <div>
                     <p>The auction you tried to see doesn't seem to exist. Please go back.</p><br />
@@ -276,7 +276,7 @@ function AuctionDetails(props: Props) {
                             <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
                                 <h2>
                                     Item-Details
-                        <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? <ArrowDownIcon /> : <ArrowUpIcon />}</span>
+                                    <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? <ArrowDownIcon /> : <ArrowUpIcon />}</span>
                                 </h2>
                             </Card.Header>
                             <Collapse in={!isItemDetailsCollapse}>
