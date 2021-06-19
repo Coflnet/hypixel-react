@@ -54,3 +54,12 @@
 .startpage h4 {
     margin-bottom: 0;
 }
+
+.join-note {
+    margin-right: 35px;
+}
+
+.new-auctions,
+.ended-auctions {
+    min-height: 220px;
+}

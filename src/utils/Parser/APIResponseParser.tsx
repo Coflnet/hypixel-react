@@ -290,6 +290,7 @@ export function parseFlipAuction(flip): FlipAuction {
 export function parsePopularSearch(search): PopularSearch {
     return {
         title: search.title,
-        url: search.url
+        url: search.url,
+        img: search.img
     }
 }

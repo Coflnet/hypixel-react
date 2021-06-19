@@ -240,5 +240,6 @@ interface AbstractPaymentProvider {
 
 interface PopularSearch {
   title: string,
-  url: string
+  url: string,
+  img: string
 }

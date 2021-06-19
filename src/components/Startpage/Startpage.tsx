@@ -9,7 +9,7 @@ import moment from 'moment';
 
 function Startpage() {
 
-    let [newAuctions, setNewAuctions] = useState<Auction[]>([]);
+    let [newAuctions, setNewAuctions] = useState<Auction[]>([{uuid:"",bin:false,end:new Date(),highestBid:0,item:{tag:"ASPECT_OF_THE_END",name:"Loading ..."},startingBid:0}]);
     let [endedAuctions, setEndedAuctions] = useState<Auction[]>([]);
     let [popularSearches, setPopularSearches] = useState<PopularSearch[]>([]);
     let [newPlayers, setNewPlayers] = useState<Player[]>([]);
@@ -109,7 +109,7 @@ function Startpage() {
     }
 
     let newAuctionsElement = (
-        <div className="cards-wrapper">{
+        <div className="cards-wrapper new-auctions">{
             newAuctions.map(getAuctionElement)
         }
         </div >
@@ -123,6 +123,9 @@ function Startpage() {
                     <Link className="disable-link-style" to={search.url}>
                         <Card className="card">
                             <Card.Header style={{ height: "100%" }}>
+                                <div style={{ float: "left" }}>
+                                    <img crossOrigin="anonymous" src={search.img} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                </div>
                                 <Card.Title>{search.title}</Card.Title>
                             </Card.Header>
                         </Card>
@@ -133,7 +136,7 @@ function Startpage() {
     )
 
     let endedAuctionsElement = (
-        <div className="cards-wrapper">{
+        <div className="cards-wrapper ended-auctions">{
             endedAuctions.map(getAuctionElement)}
         </div>
     )
@@ -211,10 +214,10 @@ function Startpage() {
                 <hr />
                 <h1>Skyblock AH history</h1>
                 <p style={{ fontSize: "larger" }}>Browse through 200 million auctions, over two million players and the bazaar of hypixel skyblock</p>
-                <p style={{ fontSize: "large" }}>We also have a Discord server, click <a href="https://discord.gg/Qm55WEkgu6">here</a> to join:</p>
-                <a href="https://discord.gg/Qm55WEkgu6">
-                    {discordIcon}
-                </a>
+                <p style={{ fontSize: "large" }}><span className="join-note">For Updates join our </span> <a href="https://discord.gg/Qm55WEkgu6">{discordIcon}
+
+                </a></p>
+
                 <hr />
             </div>
 
@@ -225,7 +228,10 @@ function Startpage() {
                         <Card.Subtitle>Free Premium Extenstion</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        Hypixel currently conducts maintinance to its servers. Since our <Link to="/premium">premium plan</Link> isn't of much use when there are no new auctions, we are extending the subscriptions of our premium users for as long as this maintinance will last/lasted.
+                        <p>
+                            Hypixel currently conducts maintenance to its servers. Since our <Link to="/premium">premium plan</Link> isn't of much use when there are no new auctions, we are extending the subscriptions of our premium users for as long as this maintinance will last/lasted.
+                        </p>
+                        <a href="https://blog.coflnet.com/skyblock-ah-history">Full blog article</a>
                     </Card.Body>
                 </Card>
             </div>
@@ -280,7 +286,32 @@ function Startpage() {
                     <Card.Title>Hypixel AH history</Card.Title>
                 </Card.Header>
                 <Card.Body>
-                    View, search, browse, and filter by reforge or enchantment. You can find all current and historic prices for the auction house and bazaar on this web tracker. We are tracking about 200 million auctions. Saved more than 250 million bazaar prices in intervalls of 10 seconds. Furthermore there are over two million skyblock players that you can search by name and browse through the auctions they made over the past two years. The autocomplete search is ranked by popularity and allows you to find whatever item you want faster. New Items are added automatically and available within two miniutes after the first auction is startet. We allow you to subscribe to auctions, item prices and being outbid with more to come. Quick urls allow you to link to specific sites. /p/Steve or /i/Oak allow you to create a link without visiting the site first. Please use the contact on the Feedback site to send us suggestions or bug reports.
+                    <p>
+                        View, search, browse, and filter by reforge or enchantment.
+                    </p>
+                    <p>
+                        You can find all current and historic prices for the auction house and bazaar on this web tracker.
+                    </p>
+                    <p>
+                        We are tracking about 200 million auctions. Saved more than 250 million bazaar prices in intervalls of 10 seconds.
+                        Furthermore there are over two million skyblock players that you can search by minecraft user name.
+                        You can browse through the auctions they made over the past two years.
+                        New Items are added automatically and available within two miniutes after the first auction is startet.
+                    </p>
+                    <p>
+                        The autocomplete search is ranked by popularity and allows you to find whatever item you want faster.
+                        Quick urls allow you to link to specific sites. /p/Steve or /i/Oak allow you to create a link without visiting the site first.
+                    </p>
+                    <p>
+                        The free accessible <Link to="/flipper">auction house flipper</Link> allows you to find profitable ah flips in no time.
+                        It suplements the option to browse all of the skyblock history on the web tracker. 
+                        Whats more you can see what auctions were used as reference to determine if a flip is profitable.
+                    </p>
+                    <p>
+                        We allow you to subscribe to auctions, item prices and being outbid with more to come.
+                        Please use the contact on the Feedback site to send us suggestions or bug reports.
+                    </p>
+
                 </Card.Body>
             </Card>
         </div>

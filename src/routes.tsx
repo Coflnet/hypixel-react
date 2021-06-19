@@ -79,7 +79,7 @@ export default (
           <Route path='/player/:uuid' component={PlayerDetails.component} />
           <Route path='/item/:tag' component={ItemDetails.component} />
           <Route path='/auction/:auctionUUID' component={AuctionDetails.component} />
-          <Route path='/flipper' component={Flipper} />
+          <Route path='/flipper' component={Flipper.component} />
           <Route path='/premium' component={Premium.component} />
           <Route path='/about' component={About.component} />
           <Route path='/subscriptions' component={Subscriptions.component} />
