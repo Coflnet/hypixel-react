@@ -8,11 +8,7 @@ import { getProperty } from "../utils/PropertiesUtils";
 const commandEndpoint = getProperty("commandEndpoint");
 let requests: ApiRequest[] = [];
 
-let sendCounter = 0;
-let resolveCounter = 0;
-
 function sendRequest(request: ApiRequest): Promise<void> {
-    console.log("send counter: " + ++sendCounter)
     let requestString = JSON.stringify(request.data);
     let headers = { 'ConId': getOrGenerateUUid() };
     var url = `${commandEndpoint}/${request.type}/${Base64.encode(requestString)}`;
@@ -22,7 +18,6 @@ function sendRequest(request: ApiRequest): Promise<void> {
     return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
         if (cacheValue) {
             request.resolve(cacheValue);
-            console.log("resolve counter " + ++resolveCounter);
             return;
         }
 
@@ -70,11 +65,9 @@ function sendRequest(request: ApiRequest): Promise<void> {
                     return;
                 }
                 request.resolve(parsedResponse)
-                console.log("resolve counter " + ++resolveCounter);
                 let equals = findForEqualSentRequest(request);
                 equals.forEach(equal =>{
                     equal.resolve(parsedResponse)
-                    console.log("resolve counter " + ++resolveCounter);
                 });
                 // all http answers are valid for 60 sec
                 let maxAge = 60;

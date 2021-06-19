@@ -8,10 +8,11 @@ function ItemDetails() {
     return (
         <div className="about-page">
             <Container>
-                <h1>
+                <h2>
                     <NavBar />
-                Links/Legal
-            </h1>
+                    Links/Legal
+                </h2>
+                <hr />
                 <Card className="about-card">
                     <p>This is an OpenSource project developed on <a href="https://github.com/matthias-luger/hypixel-react">GitHub</a></p>
                     <p>You can support this site by letting it opened and <b>disabling your adblocker</b>. Arc will use some of your bandwith and pay us for that. You can learn more by clicking on the blue icon in the lower left corner. (only there if you disabled your adblocker)</p>

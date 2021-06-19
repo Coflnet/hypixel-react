@@ -44,7 +44,7 @@ function NavBar() {
                     itemHoverStyle={itemHoverStyle}
                     title={<span>Navigation</span>}
                     items={[
-                        <Link to="/"><div className="link-item-div"><TrendIcon className="navbar-icon" />Prices</div></Link>,
+                        <Link to="/"><div className="link-item-div"><TrendIcon className="navbar-icon" />Home</div></Link>,
                         <Link to="/flipper"><div className="link-item-div"><StorefrontIcon className="navbar-icon" />Item-Flipper</div></Link>,
                         <Link to="/subscriptions"><div className="link-item-div"><NotificationIcon className="navbar-icon" />Subscriptions</div></Link>,
                         <Link to="/premium"><div className="link-item-div"><AccountBalanceIcon className="navbar-icon" />Premium</div></Link>,

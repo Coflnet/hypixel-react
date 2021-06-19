@@ -1,6 +1,6 @@
 .startpage .card-wrapper {
-    padding: 15px;
-    display: inline-table;
+    padding: 0 15px 15px 0;
+    display: inline-block;
     /* Make the container element behave like a table */
     /* Set full-width to expand the whole page */
 }
@@ -44,4 +44,13 @@
     /* Required for text-overflow to do anything */
     white-space: nowrap;
     overflow: hidden;
+}
+
+.startpage .startpage-list-element-wrapper {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.startpage h4 {
+    margin-bottom: 0;
 }
