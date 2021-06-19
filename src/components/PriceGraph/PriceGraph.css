@@ -1,16 +1,23 @@
-.graph-overlay {
+.price-graph .graph-overlay {
     position: absolute;
 }
 
-.additional-infos {
-    display: inline-flex;
+.price-graph .additional-infos {
+    display: inline-block;
     text-align: center;
     margin-top: 10px;
     width: 90%;
     margin-left: 5%;
 }
 
-.graph-canvas-container {
+.price-graph .avg-price {
+    display: block;
+    text-align: center;
+    min-width: 100%;
+    margin-bottom: 10px;
+}
+
+.price-graph .graph-canvas-container {
     margin-top: 20px;
     height: 50vh;
     display: flex;
@@ -18,6 +25,6 @@
     align-items: center;
 }
 
-.bazaar-notice {
+.price-graph .bazaar-notice {
     padding-left: 30px;
 }
