@@ -208,13 +208,13 @@ function Flipper() {
                                         <Form.Check id="autoScrollCheckbox" onChange={(e) => { _setAutoScroll(e.target.checked) }} type="checkbox" />
                                     </div>
                                 </Form.Group>
-                                <Form.Group>
-                                    <Form.Label style={{ cursor: "pointer" }} onClick={onArrowRightClick}>To newest:</Form.Label>
-                                    <span style={{ cursor: "pointer" }} onClick={onArrowRightClick}> <ArrowRightIcon /></span>
+                                <Form.Group onClick={onArrowRightClick}>
+                                    <Form.Label style={{ cursor: "pointer" }}>To newest:</Form.Label>
+                                    <span style={{ cursor: "pointer" }}> <ArrowRightIcon /></span>
                                 </Form.Group>
-                                <Form.Group>
-                                    <Form.Label style={{ cursor: "pointer" }} onClick={onArrowRightClick}>Clear flips:</Form.Label>
-                                    <span style={{ cursor: "pointer" }} onClick={clearFlips}><DeleteIcon color="error" /></span>
+                                <Form.Group onClick={clearFlips}>
+                                    <Form.Label style={{ cursor: "pointer" }}>Clear flips:</Form.Label>
+                                    <span style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
                                 </Form.Group>
                             </Form>
                             <hr />
