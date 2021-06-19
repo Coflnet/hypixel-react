@@ -32,6 +32,7 @@ function PriceGraph(props: Props) {
     let [filters, setFilters] = useState([] as string[]);
     let [isFilterable, setIsFilterable] = useState(true);
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
+    let [isItemFilterPrefill, setIsItemFilterPrefill] = useState<boolean>(true);
 
     let fetchspanRef = useRef(fetchspan);
     fetchspanRef.current = fetchspan;
@@ -46,7 +47,9 @@ function PriceGraph(props: Props) {
         setFetchspan(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE))
         if (priceChartCanvas && priceChartCanvas.current) {
             if (Object.keys(getItemFilterFromUrl(query)).length === 0) {
+                setIsItemFilterPrefill(false);
                 let chart = priceChart || createChart(priceConfig);
+                priceChart = chart;
                 setPriceChart(chart);
                 if (props.item) {
                     updateChart(chart, fetchspan, undefined);
@@ -100,6 +103,9 @@ function PriceGraph(props: Props) {
             setPriceChart(priceChart);
             setNoDataFound(result.prices.length === 0)
             setIsLoading(false);
+            setTimeout(() => {
+                setIsItemFilterPrefill(false);
+            });
         }).catch(() => {
             setIsLoading(false);
             setNoDataFound(true);
@@ -119,7 +125,7 @@ function PriceGraph(props: Props) {
         }
     }
 
-    let onFilterChange = (filter) => {
+    let onFilterChange = (filter: ItemFilter) => {
         setItemFilter(filter);
         updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
     }
@@ -139,7 +145,7 @@ function PriceGraph(props: Props) {
 
     return (
         <div className="price-graph">
-            {isFilterable ? <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} /> : ""}
+            {isFilterable ? <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} preFilled={isItemFilterPrefill} /> : ""}
             <ItemPriceRange onRangeChange={onRangeChange} disabled={isLoading} disableAllTime={itemFilter !== undefined} item={props.item} />
             <div className="graph-canvas-container">
                 {graphOverlayElement}

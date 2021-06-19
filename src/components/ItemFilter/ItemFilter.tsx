@@ -14,7 +14,8 @@ import { camelCaseToSentenceCase } from '../../utils/Formatter';
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
     disabled?: boolean,
-    filters?: string[]
+    filters?: string[],
+    preFilled: boolean
 }
 
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
@@ -31,7 +32,6 @@ function ItemFilter(props: Props) {
     let [showInfoDialog, setShowInfoDialog] = useState(false);
     let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([]);
 
-
     let history = useHistory();
     let query = new URLSearchParams(useLocation().search);
 
@@ -46,14 +46,15 @@ function ItemFilter(props: Props) {
                 onFilterApply();
             }, 1);
         }
-        history.listen(() => {
-            // also gets called when the timespan is changed
-            //setIsApplied(false);
-        })
         return () => { mounted = false }
     }, []);
 
     useEffect(() => {
+
+        if (props.preFilled) {
+            return;
+        }
+
         setSelectedFilters([]);
         setItemFilter({});
         if (props.onFilterChange) {
