@@ -37,6 +37,7 @@ const Feedback = ReactLazyPreload(() => import('./pages/Feedback/Feedback'));
 const About = ReactLazyPreload(() => import('./pages/About/About'));
 const Cancel = ReactLazyPreload(() => import('./pages/PaymentCancel/PaymentCancel'));
 const Flipper = React.lazy(() => import('./pages/Flipper/Flipper'));
+const Success = ReactLazyPreload(() => import('./pages/PaymentSuccess/PaymentSuccess'));
 
 setTimeout(() => {
   PlayerDetails.preload();
@@ -48,6 +49,7 @@ setTimeout(() => {
   Feedback.preload();
   About.preload();
   Cancel.preload();
+  Success.preload();
 }, 2000);
 
 const matomoTrackingInstance = createInstance({
@@ -83,6 +85,7 @@ export default (
           <Route path='/subscriptions' component={Subscriptions.component} />
           <Route path='/feedback' component={Feedback.component} />
           <Route path='/cancel' component={Cancel.component} />
+          <Route path='/success' component={Success.component} />
           <Route path='*' exact component={NotFound.component} />
         </Switch>
       </MainApp>

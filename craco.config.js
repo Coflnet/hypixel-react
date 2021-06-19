@@ -18,6 +18,7 @@ module.exports = {
                         /^arrow.*/,
                         /^overlay.*/,
                         /^collapse.*/,
+                        /^container.*/,
                         'btn',
                         'active',
                         'body',
@@ -30,7 +31,7 @@ module.exports = {
                         'input',
                         'd-md-none',
                         'd-none',
-                        'd-md-block'
+                        'd-md-block',
                     ]
                 }),
             ],

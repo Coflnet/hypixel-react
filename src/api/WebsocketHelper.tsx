@@ -1,12 +1,14 @@
-import { ApiRequest, WebsocketHelper, ApiSubscription } from "./ApiTypes.d";
+import { ApiRequest, WebsocketHelper, ApiSubscription, RequestType } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import cacheUtils from '../utils/CacheUtils';
 import api from "./ApiHelper";
 import { toast } from "react-toastify";
+import { getProperty } from '../utils/PropertiesUtils';
 
 let requests: ApiRequest[] = [];
 let requestCounter: number = 0;
 let websocket: WebSocket;
+let isConnectionIdSet: boolean = false;
 
 let apiSubscriptions: ApiSubscription[] = [];
 
@@ -19,6 +21,13 @@ function initWebsocket(): void {
     let onWebsocketError = (e: Event): void => {
         console.error(e);
     };
+
+    let onOpen = (e: Event): void => {
+        // set the connection id first 
+        api.setConnectionId().then(() => {
+            isConnectionIdSet = true;
+        })
+    }
 
     let _handleRequestOnMessage = function (response: ApiResponse, request: ApiRequest) {
         let equals = findForEqualSentRequest(request);
@@ -66,25 +75,17 @@ function initWebsocket(): void {
 
     let getNewWebsocket = (): WebSocket => {
 
-        if (!websocket && (window as any).websocket) {
-            websocket = (window as any).websocket;
-            api.setConnectionId();
-        } else {
-            // reconnect
-            websocket = new WebSocket('wss://skyblock-backend.coflnet.com/skyblock');
-            api.setConnectionId();
-            (window as any).websocket = websocket;
-        }
+        websocket = new WebSocket(getProperty("websocketEndpoint"));
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
         websocket.onmessage = onWebsocketMessage;
+        websocket.onopen = onOpen;
         return websocket;
     }
 
     websocket = getNewWebsocket();
 }
 
-let _requestTimout;
 function sendRequest(request: ApiRequest): Promise<void> {
     if (!websocket)
         initWebsocket();
@@ -95,7 +96,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
             return;
         }
 
-        if (websocket && websocket.readyState === WebSocket.OPEN) {
+        if (_isWebsocketReady(request.type)) {
             request.mId = requestCounter++;
 
             try {
@@ -114,21 +115,17 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             requests.push(request);
             websocket.send(JSON.stringify(request));
-        } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
-            clearTimeout(_requestTimout);
-            _requestTimout = setTimeout(() => {
-                api.setConnectionId().then(() => {
-                    sendRequest(request);
-                });
-            }, 1000);
+        } else {
+            setTimeout(() => {
+                sendRequest(request);
+            }, 500);
         }
     })
 }
 
-let _subscribeTimout;
 function subscribe(subscription: ApiSubscription): void {
 
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
+    if (_isWebsocketReady(subscription.type)) {
         subscription.mId = requestCounter++;
 
         try {
@@ -139,13 +136,10 @@ function subscribe(subscription: ApiSubscription): void {
         apiSubscriptions.push(subscription);
         websocket.send(JSON.stringify(subscription))
 
-    } else if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
-        clearTimeout(_subscribeTimout);
-        _subscribeTimout = setTimeout(() => {
-            api.setConnectionId().then(() => {
-                subscribe(subscription);
-            });
-        }, 1000);
+    } else {
+        setTimeout(() => {
+            subscribe(subscription);
+        }, 500);
     }
 }
 
@@ -164,6 +158,10 @@ function removeSentRequests(toDelete: ApiRequest[]) {
         }
         return true;
     })
+}
+
+function _isWebsocketReady(requestType: string) {
+    return websocket && websocket.readyState === WebSocket.OPEN && (isConnectionIdSet || requestType === RequestType.SET_CONNECTION_ID);
 }
 
 export let websocketHelper: WebsocketHelper = {

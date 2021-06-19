@@ -61,7 +61,8 @@ interface RecentAuction {
   end: Date,
   price: number,
   seller: Player,
-  uuid: string
+  uuid: string,
+  playerName: string
 }
 
 interface ItemBid {
@@ -124,7 +125,7 @@ interface FlipAuction {
 }
 
 interface FlipperFilter {
-  onyBin?: boolean,
+  onlyBin?: boolean,
   minProfit?: number
 }
 

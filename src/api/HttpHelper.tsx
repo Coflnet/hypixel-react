@@ -1,9 +1,11 @@
-import { ApiRequest, HttpApi } from "./ApiTypes.d";
+import { ApiRequest, HttpApi, RequestType } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
 import { toast } from "react-toastify";
 import cacheUtils from "../utils/CacheUtils";
-const commandEndpoint = "https://sky.coflnet.com/command";
+import { getProperty } from "../utils/PropertiesUtils";
+
+const commandEndpoint = getProperty("commandEndpoint");
 let requests: ApiRequest[] = [];
 
 let sendCounter = 0;
@@ -39,8 +41,29 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
         requests.push(request);
         return fetch(url, { headers })
-            .then(response => response.json())
-            .then(parsedResponse => {
+            .then(response => {
+                if (response.ok && response.body === null) {
+                    request.reject();
+                    return;
+                }
+                if (!response.ok) {
+                    request.reject();
+                    return;
+                }
+
+                let parsed;
+                try {
+                    parsed = response.json();
+                } catch (error) {
+                    return;
+                }
+                return parsed;
+            }).then(parsedResponse => {
+
+                if (!parsedResponse) {
+                    return;
+                }
+
                 if (parsedResponse.type === "error") {
                     toast.error(JSON.parse(parsedResponse.data).data);
                     request.reject();

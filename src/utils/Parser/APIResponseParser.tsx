@@ -264,6 +264,7 @@ export function mapStripePrices(prices: any): Price[] {
 export function parseRecentAuction(auction): RecentAuction {
     return {
         end: new Date(auction.end),
+        playerName: auction.playerName,
         price: auction.price,
         seller: parsePlayer(auction.seller),
         uuid: auction.uuid

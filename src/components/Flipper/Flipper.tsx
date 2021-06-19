@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/ApiHelper';
 import './Flipper.css';
 import { useForceUpdate } from '../../utils/Hooks';
-import { Link } from 'react-router-dom';
 import { Button, Card, Form } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons'
+import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons';
+import Tooltip from '../Tooltip/Tooltip';
 
 function Flipper() {
 
@@ -27,17 +27,16 @@ function Flipper() {
 
     useEffect(() => {
         api.getFlips().then(flips => {
-            let promises: Promise<void>[] = [];
+
             flips.forEach(flip => {
-                let promise = api.getItemImageUrl(flip.item).then(url => {
+                api.getItemImageUrl(flip.item).then(url => {
                     flip.item.iconUrl = url;
+                    setFlipAuctions(flips);
+                    forceUpdate();
                 });
-                promises.push(promise);
             })
 
-            Promise.all(promises).then(() => {
-                setFlipAuctions(flips);
-            })
+            setFlipAuctions(flips);
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -125,7 +124,7 @@ function Flipper() {
                 if (!isLatest) {
                     return true;
                 }
-                if (flipperFilter?.onyBin && !auction.bin) {
+                if (flipperFilter?.onlyBin && !auction.bin) {
                     return false;
                 }
                 if (flipperFilter?.minProfit && flipperFilter.minProfit >= (auction.median - auction.cost)) {
@@ -137,16 +136,19 @@ function Flipper() {
                     <div className="card-wrapper" key={flipAuction.uuid}>
                         <Card className="card">
                             {flipAuction.showLink ?
-                                <Card.Header>
-                                    <a href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
+                                <a className="disable-link-style" href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
+                                    <Card.Header>
                                         <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                         <span>{flipAuction.item.name}</span>
-                                    </a>
-                                </Card.Header> :
-                                <Card.Header style={{ padding: "10px" }}>
-                                    <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                    <span>{flipAuction.item.name}</span>
-                                </Card.Header>
+                                    </Card.Header>
+                                </a> :
+                                <Tooltip type="hover" content={
+                                    <Card.Header style={{ padding: "10px" }}>
+                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                        <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                    </Card.Header>}
+                                    tooltipContent={<span>The link will be available in a few seconds...</span>}
+                                />
                             }
                             <Card.Body style={{ padding: "10px" }}>
                                 <p>
@@ -177,7 +179,7 @@ function Flipper() {
             })
         }
             {isLatest ? <div id="rightEndFlipsAnchor" /> : ""}
-        </div>;
+        </div >;
     };
 
     return (
@@ -214,17 +216,17 @@ function Flipper() {
                                         {getLoadingElement(<p>Waiting for new flips....</p>)}
                                     </div> : ""
                             }
-                        </div> : ""}
-                    {latestAuctions.length > 0 && isLoggedIn ?
-                        <div style={{ position: "relative" }}>
-                            {mapAuctionElements(latestAuctions, true)}
+                            {latestAuctions.length > 0 ?
+                                <div style={{ position: "relative" }}>
+                                    {mapAuctionElements(latestAuctions, true)}
+                                </div> : ""}
                         </div> : ""}
                     <GoogleSignIn onAfterLogin={onLogin} />
                 </Card.Body>
                 {isLoggedIn ?
                     <Card.Footer>
-                        This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a className="text-link" href="https://discord.gg/Qm55WEkgu6">discord</a>.
-                </Card.Footer> : ""}
+                        This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a>.
+                    </Card.Footer> : ""}
             </Card>
 
             <hr />
@@ -239,7 +241,7 @@ function Flipper() {
                 <Card.Footer>
                     These are flipps that were previosly found. Anyone can use these and there is no cap on estimated profit.
                     Keep in mind that these are delayed to protect our paying supporters.
-                If you want more recent flipps purchase our <Link className="text-link" to="/premium">premium plan.</Link>
+                    If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a>
                 </Card.Footer>
             </Card>
             <hr />
@@ -255,7 +257,7 @@ function Flipper() {
                     <p>Median Price is the median price for that item. Taking into account ultimate enchantments, Rarity and stars. (for now)</p>
                     <h4>Volume</h4>
                     <p>Volume is the amount of auctions that were sold in a 24 hour window. It is capped at 60 to keep the flipper fast.</p>
-                    <h3>I have another question</h3> Ask via <a className="text-link" href="https://discord.gg/Qm55WEkgu6">discord</a> or <Link className="text-link" to="/feedback" >feedback site</Link>
+                    <h3>I have another question</h3> Ask via <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a> or <a target="_blank" href="/feedback" rel="noreferrer">feedback site</a>
                 </Card.Body>
             </Card>
         </div >

@@ -55,7 +55,7 @@ function NavBar() {
                 </SideNav >
             </div>
             <span onClick={() => { setShowNav(true); trackEvent({ category: "informations", action: "open" }) }} className="infoIcon">
-                <MenuIcon />
+                <MenuIcon fontSize="large" />
             </span>
         </span >
     );

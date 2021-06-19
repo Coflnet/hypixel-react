@@ -15,27 +15,28 @@ let cacheUtils: CacheUtils = {
                     }
                 }
                 resolve(null);
+            }).catch(() => {
+                resolve(null);
             })
         })
     },
     setIntoCache: function (type: string, data: string, response: ApiResponse, maxAge: number = 0): void {
-
         let entry: CacheEntry = {
             expireTimeStamp: (new Date()).getTime() + maxAge * 1000,
             response: response
         }
-        set(type + data, JSON.stringify(entry));
+        set(type + data, JSON.stringify(entry)).catch(() => { });
     },
     checkForCacheClear: function () {
         api.getVersion().then(version => {
             let localVersion = window.localStorage.getItem("version");
-            if (window.caches !== undefined  && localVersion !== version) {
+            if (window.caches !== undefined && localVersion !== version) {
                 // clear workbox caches
                 caches.keys().then(keys => {
                     keys.forEach(key => {
                         caches.delete(key);
                     })
-                });
+                }).catch(() => { });
                 // clear index db
                 clear();
             };

@@ -3,6 +3,7 @@ import AuctionDetails from '../../components/AuctionDetails/AuctionDetails';
 import './AuctionDetails.css';
 import { useParams } from "react-router-dom";
 import { useForceUpdate } from '../../utils/Hooks';
+import { Container } from 'react-bootstrap';
 
 function AuctionDetailsPage() {
 
@@ -16,7 +17,9 @@ function AuctionDetailsPage() {
 
     return (
         <div className="auction-details-page">
-            <AuctionDetails auctionUUID={auctionUUID} />
+            <Container>
+                <AuctionDetails auctionUUID={auctionUUID} />
+            </Container>
         </div >
     );
 }
