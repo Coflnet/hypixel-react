@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons';
+import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import Tooltip from '../Tooltip/Tooltip';
 
 function Flipper() {
@@ -101,6 +101,10 @@ function Flipper() {
         }
         autoscroll = value;
         setAutoscroll(value);
+    }
+
+    function clearFlips() {
+        setLatestAuctions([]);
     }
 
     let copyIcon = (
@@ -207,6 +211,10 @@ function Flipper() {
                                 <Form.Group>
                                     <Form.Label style={{ cursor: "pointer" }} onClick={onArrowRightClick}>To newest:</Form.Label>
                                     <span style={{ cursor: "pointer" }} onClick={onArrowRightClick}> <ArrowRightIcon /></span>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Label style={{ cursor: "pointer" }} onClick={onArrowRightClick}>Clear flips:</Form.Label>
+                                    <span style={{ cursor: "pointer" }} onClick={clearFlips}><DeleteIcon color="error" /></span>
                                 </Form.Group>
                             </Form>
                             <hr />
