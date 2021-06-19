@@ -254,7 +254,6 @@ function initAPI(): API {
                     resolve(name);
                 },
                 reject: (error: any) => {
-                    console.log("reject player name");
                     apiErrorHandler(RequestType.PLAYER_NAME, error, uuid);
                     reject();
                 }

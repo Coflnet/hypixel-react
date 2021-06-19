@@ -21,8 +21,8 @@ function Feedback() {
                     <a href="mailto:support@coflnet.com"><Button>Send feedback</Button></a>
                     <hr />
                     <h4>Contact: </h4>
-                    <a href="mailto:support@coflnet.com">support@coflnet.com</a>
-                    <a href="https://discord.gg/Qm55WEkgu6">Discord</a>
+                    <p><a href="mailto:support@coflnet.com"><Button>support@coflnet.com</Button></a></p>
+                    <p><a href="https://discord.gg/Qm55WEkgu6"><Button>Discord</Button></a></p>
                 </div>
             </Container>
         </div >
