@@ -542,6 +542,23 @@ function initAPI(): API {
         });
     }
 
+    let getFlipBasedAuctions = (flipUUID: string): Promise<Auction[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.GET_FLIP_BASED_AUCTIONS,
+                data: flipUUID,
+                resolve: (data: any) => {
+                    resolve(data.map(a => parseAuction(a)));
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_FLIP_BASED_AUCTIONS, error, flipUUID);
+                    reject();
+                }
+            })
+        });
+    }
+
     return {
         search,
         trackSearch,
@@ -569,7 +586,8 @@ function initAPI(): API {
         validatePaymentToken,
         getRecentAuctions,
         getFlips,
-        subscribeFlips
+        subscribeFlips,
+        getFlipBasedAuctions
     }
 }
 

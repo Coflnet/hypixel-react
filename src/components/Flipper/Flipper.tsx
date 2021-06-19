@@ -8,8 +8,9 @@ import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons';
+import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon } from '@material-ui/icons';
 import Tooltip from '../Tooltip/Tooltip';
+import FlipBased from './FlipBased/FlipBased';
 
 function Flipper() {
 
@@ -161,7 +162,14 @@ function Flipper() {
                                 </p>
                                 <p>
                                     <span className="card-label">Estimated Profit: </span><br />
-                                    <span style={{ color: "green" }}>+{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins</span>
+                                    <span style={{ color: "green" }}>
+                                        +{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins
+                                    </span>
+                                    <div style={{float: "right"}}>
+                                        <Tooltip tooltipTitle={<span>Auctions used for calculating the median price</span>} size="xl" type="click" content={<HelpIcon />}
+                                            tooltipContent={<FlipBased flip={flipAuction} />}
+                                        />
+                                    </div>
                                 </p>
                                 <hr style={{ marginTop: 0 }} />
                                 <div className="flex">

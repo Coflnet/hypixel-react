@@ -168,7 +168,8 @@ interface API {
   ): Promise<boolean>;
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
-  subscribeFlips(callback: Function): void
+  subscribeFlips(callback: Function): void,
+  getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>
 }
 
 interface CacheUtils {
