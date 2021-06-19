@@ -36,19 +36,19 @@ const Subscriptions = ReactLazyPreload(() => import('./pages/Subscriptions/Subsc
 const Feedback = ReactLazyPreload(() => import('./pages/Feedback/Feedback'));
 const About = ReactLazyPreload(() => import('./pages/About/About'));
 const Cancel = ReactLazyPreload(() => import('./pages/PaymentCancel/PaymentCancel'));
-const Flipper = React.lazy(() => import('./pages/Flipper/Flipper'));
+const Flipper = ReactLazyPreload(() => import('./pages/Flipper/Flipper'));
 const Success = ReactLazyPreload(() => import('./pages/PaymentSuccess/PaymentSuccess'));
 
 setTimeout(() => {
   PlayerDetails.preload();
   ItemDetails.preload();
   AuctionDetails.preload();
-  Premium.preload();
   NotFound.preload();
   Subscriptions.preload();
   Feedback.preload();
   About.preload();
   Cancel.preload();
+  Flipper.preload();
   Success.preload();
 }, 2000);
 

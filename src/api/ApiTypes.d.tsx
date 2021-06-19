@@ -29,7 +29,8 @@ export enum RequestType {
     NEW_PLAYERS = "newPlayers",
     NEW_ITEMS = "newItems",
     POPULAR_SEARCHES = "popularSearches",
-    ENDED_AUCTIONS = "endedAuctions"
+    ENDED_AUCTIONS = "endedAuctions",
+    GET_FLIP_BASED_AUCTIONS = "flipBased"
 }
 
 export enum SubscriptionType {

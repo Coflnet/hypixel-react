@@ -174,6 +174,7 @@ interface API {
   getPopularSearches(): Promise<PopularSearch[]>,
   getNewItems(): Promise<Item[]>,
   getNewPlayers(): Promise<Player[]>
+  getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>
 }
 
 interface CacheUtils {
