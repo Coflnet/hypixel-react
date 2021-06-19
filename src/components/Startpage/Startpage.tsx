@@ -4,6 +4,7 @@ import api from '../../api/ApiHelper';
 import { Badge, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
+import { Person as PersonIcon, Timer as TimerIcon, FiberNew as NewIcon, Fireplace as FireIcon, Announcement as AnnouncementIcon } from '@material-ui/icons';
 import moment from 'moment';
 
 function Startpage() {
@@ -185,7 +186,7 @@ function Startpage() {
             <div className="startpage-list-element-wrapper">
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
-                        <Card.Title style={{ color: "#40ff00" }}>News / Announcements</Card.Title>
+                        <Card.Title><AnnouncementIcon/><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
                         <Card.Subtitle>Free Premium Extenstion</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
@@ -196,7 +197,7 @@ function Startpage() {
 
             <Card className="startpage-list-element-wrapper">
                 <Card.Header>
-                    <Card.Title>New auctions</Card.Title>
+                    <Card.Title><NewIcon /> New auctions</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     {newAuctionsElement}
@@ -205,7 +206,7 @@ function Startpage() {
 
             <Card className="startpage-list-element-wrapper">
                 <Card.Header>
-                    <Card.Title>Ended auctions</Card.Title>
+                    <Card.Title><TimerIcon /> Ended auctions</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     {endedAuctionsElement}
@@ -214,7 +215,7 @@ function Startpage() {
 
             <Card className="startpage-list-element-wrapper">
                 <Card.Header>
-                    <Card.Title>New players</Card.Title>
+                    <Card.Title><PersonIcon /> New players</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     {newPlayersElement}
@@ -223,7 +224,7 @@ function Startpage() {
 
             <Card className="startpage-list-element-wrapper">
                 <Card.Header>
-                    <Card.Title>Popular searches</Card.Title>
+                    <Card.Title><FireIcon/> Popular searches</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     {popularSearchesElement}
@@ -232,7 +233,7 @@ function Startpage() {
 
             <Card className="startpage-list-element-wrapper">
                 <Card.Header>
-                    <Card.Title>New items</Card.Title>
+                    <Card.Title><NewIcon/> New items</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     {newItemsElement}
