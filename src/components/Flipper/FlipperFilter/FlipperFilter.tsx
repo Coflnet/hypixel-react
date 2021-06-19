@@ -10,21 +10,33 @@ function FlipperFilter(props: Props) {
 
     let [onlyBin, setOnlyBin] = useState(false);
     let [minProfit, setMinProfit] = useState(0);
+    let [maxCost, setMaxCost] = useState<number>();
 
     let onOnlyBinChange = (event: ChangeEvent<HTMLInputElement>) => {
         setOnlyBin(event.target.checked);
         props.onChange({
             onlyBin: event.target.checked,
-            minProfit: minProfit
+            minProfit: minProfit,
+            maxCost: maxCost
         });
     }
 
-    
+
     let onMinProfitChange = (event: ChangeEvent<HTMLInputElement>) => {
         setMinProfit(parseInt(event.target.value))
         props.onChange({
             onlyBin: onlyBin,
-            minProfit: parseInt(event.target.value)
+            minProfit: parseInt(event.target.value),
+            maxCost: maxCost
+        });
+    }
+
+    let onMaxCostChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setMaxCost(parseInt(event.target.value))
+        props.onChange({
+            onlyBin: onlyBin,
+            minProfit: minProfit,
+            maxCost: parseInt(event.target.value),
         });
     }
 
@@ -40,7 +52,13 @@ function FlipperFilter(props: Props) {
                 <Form.Group>
                     <div>
                         <Form.Label className="flipper-filter-formfield-label">Min Profit:</Form.Label>
-                        <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" style={{maxWidth: "300px"}} type="number" />
+                        <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" style={{ maxWidth: "300px" }} type="number" />
+                    </div>
+                </Form.Group>
+                <Form.Group>
+                    <div>
+                        <Form.Label className="flipper-filter-formfield-label">Max Cost:</Form.Label>
+                        <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" style={{ maxWidth: "300px" }} type="number" />
                     </div>
                 </Form.Group>
             </Form >
