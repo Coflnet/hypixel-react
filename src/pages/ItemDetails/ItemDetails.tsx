@@ -16,7 +16,6 @@ function ItemDetails() {
     useEffect(() => {
         api.getItemDetails(tag).then(detailedItem => {
             api.getItemImageUrl({ tag: tag }).then(iconUrl => {
-                detailedItem.name = convertTagToName(tag);
                 detailedItem.iconUrl = iconUrl;
                 setItem(detailedItem);
             })
