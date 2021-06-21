@@ -47,3 +47,15 @@
     float: right;
     margin-left: 10px;
 }
+
+@media all and (min-width: 1200px) {
+    .bid-list .list-group-item {
+        width: 49%;
+        margin-bottom: 15px;
+        display: inline-block;
+        border-radius: 20px;
+    }
+    .bid-list .list-item-link:nth-child(2n) .list-group-item {
+        margin-left: 2%;
+    }
+}

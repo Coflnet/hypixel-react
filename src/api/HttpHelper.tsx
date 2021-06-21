@@ -66,7 +66,9 @@ function sendRequest(request: ApiRequest): Promise<void> {
                 }
                 request.resolve(parsedResponse)
                 let equals = findForEqualSentRequest(request);
-                equals.forEach(equal => equal.resolve(parsedResponse));
+                equals.forEach(equal =>{
+                    equal.resolve(parsedResponse)
+                });
                 // all http answers are valid for 60 sec
                 let maxAge = 60;
                 cacheUtils.setIntoCache(request.type, Base64.decode(request.data), parsedResponse, maxAge);

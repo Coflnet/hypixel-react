@@ -168,7 +168,13 @@ interface API {
   ): Promise<boolean>;
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
-  subscribeFlips(callback: Function): void
+  subscribeFlips(callback: Function): void,
+  getNewAuctions(): Promise<Auction[]>,
+  getEndedAuctions(): Promise<Auction[]>,
+  getPopularSearches(): Promise<PopularSearch[]>,
+  getNewItems(): Promise<Item[]>,
+  getNewPlayers(): Promise<Player[]>
+  getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>
 }
 
 interface CacheUtils {
@@ -230,4 +236,10 @@ interface AbstractPaymentProvider {
   getProducts(): Promise<Product[]>;
   pay(product: Product): Promise<Product>;
   checkIfPaymentIsPossible(): boolean;
+}
+
+interface PopularSearch {
+  title: string,
+  url: string,
+  img: string
 }

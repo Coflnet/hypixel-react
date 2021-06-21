@@ -13,13 +13,13 @@ interface Props {
     type: "hover" | "click",
     content: JSX.Element,
     tooltipContent: JSX.Element,
-    tooltipTitle?: JSX.Element
+    tooltipTitle?: JSX.Element,
+    size?: "sm" | "lg" | "xl"
 }
 
 function Tooltip(props: Props) {
 
     let [showDialog, setShowDialog] = useState(false);
-
     let hoverElement = (
         <OverlayTrigger
             overlay={<BootstrapTooltip id={generateUUID()}>
@@ -31,10 +31,10 @@ function Tooltip(props: Props) {
 
     let clickElement = (
         <div>
-            <div style={{cursor: "pointer"}} onClick={() => { setShowDialog(true) }}>
+            <div style={{ cursor: "pointer" }} onClick={() => { setShowDialog(true) }}>
                 {props.content}
             </div>
-            <Modal show={showDialog} onHide={() => { setShowDialog(false) }}>
+            <Modal size={props.size || "lg"} show={showDialog} onHide={() => { setShowDialog(false) }}>
                 <Modal.Header closeButton>
                     <Modal.Title>{props.tooltipTitle}</Modal.Title>
                 </Modal.Header>

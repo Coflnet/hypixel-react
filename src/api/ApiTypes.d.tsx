@@ -24,7 +24,13 @@ export enum RequestType {
     VALIDATE_PAYMENT_TOKEN = "gPurchase",
     RECENT_AUCTIONS = "recentAuctions",
     SUBSCRIBE_FLIPS = "subFlip",
-    GET_FLIPS = "getFlips"
+    GET_FLIPS = "getFlips",
+    NEW_AUCTIONS = "newAuctions",
+    NEW_PLAYERS = "newPlayers",
+    NEW_ITEMS = "newItems",
+    POPULAR_SEARCHES = "popularSearches",
+    ENDED_AUCTIONS = "endedAuctions",
+    GET_FLIP_BASED_AUCTIONS = "flipBased"
 }
 
 export enum SubscriptionType {
