@@ -8,7 +8,8 @@ import NavBar from '../NavBar/NavBar';
 import OptionsMenu from '../OptionsMenu/OptionsMenu';
 
 interface Props {
-    selected?: Player | Item
+    selected?: Player | Item,
+    currentElement?: JSX.Element
 }
 
 function Search(props: Props) {
@@ -93,8 +94,8 @@ function Search(props: Props) {
     );
 
     let getSelectedElement = (): JSX.Element => {
-        if (!props.selected) {
-            return <p className="current"><Badge variant="primary">Current:</Badge> Auction Details</p>
+        if (!props.selected || props.currentElement) {
+            return props.currentElement || <div/>;
         }
         return <p className="current"><Badge variant="primary">Current:</Badge> <img crossOrigin="anonymous" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</p>
     }

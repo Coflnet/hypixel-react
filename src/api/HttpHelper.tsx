@@ -76,7 +76,7 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
                 }
                 request.resolve(parsedResponse)
                 let equals = findForEqualSentRequest(request);
-                equals.forEach(equal => {
+                equals.forEach(equal =>{
                     equal.resolve(parsedResponse)
                 });
                 // all http answers are valid for 60 sec

@@ -96,8 +96,12 @@ function AuctionList(props: Props) {
                 loadItemImage(auction.item, auction.uuid, auctions);
             })
             setAuctions(auctions);
-
             updateListState();
+
+            if (auctions.length < 10 && newAuctions.length !== 0) {
+                loadNewAuctions();
+            }
+
         }).catch(() => {
             setAllAuctinosLoaded(true);
         });
@@ -178,10 +182,10 @@ function AuctionList(props: Props) {
         });
     }
 
-    let auctionList = auctions.map(auction => {
+    let auctionList = auctions.map((auction, i) => {
         return (
-            <Link className="disable-link-style" key={auction.uuid} to={`/auction/${auction.uuid}`}>
-                <ListGroup.Item action>
+            <Link className="disable-link-style list-item-link" key={auction.uuid} to={`/auction/${auction.uuid}`}>
+                <ListGroup.Item action className="list-group-item">
                     <h4>
                         {
                             getItemImageElement(auction)

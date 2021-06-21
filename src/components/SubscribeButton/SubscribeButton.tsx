@@ -171,7 +171,7 @@ function SubscribeButton(props: Props) {
     return (
         <div className="subscribe-button">
             {dialog}
-            <Button onClick={openDialog}><NotificationIcon /> Subscribe</Button>
+            <Button style={{width: "max-content"}} onClick={openDialog}><NotificationIcon /> Subscribe</Button>
         </div >
     );
 }
