@@ -67,9 +67,7 @@ function RecentAuctions(props: Props) {
         <div className="recent-auctions">
             <h3>Recent auctions</h3>
             <div className="recent-auctions-list">
-                {
-                    recentAuctionList
-                }
+                {recentAuctions.length > 0 ? recentAuctionList : <p style={{textAlign: "center"}}>No recent auctions found</p>}
             </div>
         </div >
     );

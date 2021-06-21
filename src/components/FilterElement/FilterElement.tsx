@@ -68,7 +68,7 @@ function FilterElement(props: Props) {
 
     function updateDateFilter(date: Date) {
         setValue(date);
-        updateValue((date.getTime() / 1000).toString());
+        updateValue(Math.round(date.getTime() / 1000).toString());
     }
 
     function updateValue(value: string) {
@@ -86,6 +86,20 @@ function FilterElement(props: Props) {
         return (<option data-id={option} key={option} value={option}>{convertTagToName(option)}</option>)
     })
 
+    if(props.options && hasFlag(props.options.type, FilterTypeEnum.DATE) && !value){
+        let dateValue;
+        if (!value && !props.defaultValue) {
+            dateValue = new Date();
+        } else if (!value) {
+            dateValue = new Date(parseInt(props.defaultValue + "000"));
+        } else {
+            dateValue = value;
+        }
+        value = dateValue;
+        setValue(dateValue);
+        updateDateFilter(dateValue);
+    }
+
     return (
         <div className="generic-filter">
             {!props.options ? <Spinner animation="border" role="status" variant="primary" /> :
@@ -93,7 +107,7 @@ function FilterElement(props: Props) {
                     <Form.Label>{camelCaseToSentenceCase(props.options.name)}</Form.Label>
                     {
                         hasFlag(props.options.type, FilterTypeEnum.DATE)
-                            ? <span><br /><DatePicker className="date-filter form-control" selected={!value && !props.defaultValue ? new Date() : !value ? new Date(parseInt(props.defaultValue + "000")) : value} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>
+                            ? <span><br /><DatePicker className="date-filter form-control" selected={value} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>
                             : hasFlag(props.options.type, FilterTypeEnum.RANGE) ?
                                 <Form.Control key={props.options.name} className="select-filter" defaultValue={props.defaultValue} value={value} onChange={updateInputFilter}>
 

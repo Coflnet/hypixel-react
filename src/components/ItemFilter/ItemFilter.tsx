@@ -27,7 +27,7 @@ function ItemFilter(props: Props) {
 
     let [itemFilter, _setItemFilter] = useState<ItemFilter>({});
     let [expanded, setExpanded] = useState(false);
-    let [isApplied, setIsApplied] = useState(false);
+    let [isApplied, _setIsApplied] = useState(false);
     let [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     let [showInfoDialog, setShowInfoDialog] = useState(false);
     let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([]);
@@ -42,9 +42,7 @@ function ItemFilter(props: Props) {
             setExpanded(true);
             Object.keys(itemFilter).forEach(name => enableFilter(name));
             setItemFilter(itemFilter);
-            setTimeout(() => {
-                onFilterApply();
-            }, 1);
+            onFilterApply();
         }
         return () => { mounted = false }
     }, []);
@@ -78,8 +76,9 @@ function ItemFilter(props: Props) {
             if (!mounted) {
                 return;
             }
-
-            setIsApplied(false);
+            if (!props.preFilled) {
+                setIsApplied(false);
+            }
             updateURLQuery(itemFilter);
             setItemFilter(itemFilter);
 
@@ -151,6 +150,12 @@ function ItemFilter(props: Props) {
         setIsApplied(false);
         updateURLQuery(itemFilter);
         setItemFilter(itemFilter);
+    }
+
+    function setIsApplied(value: boolean){
+        if(value || !props.preFilled){
+            _setIsApplied(value);
+        }
     }
 
     let filterList = selectedFilters.map(filterName => {

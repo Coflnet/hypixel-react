@@ -16,7 +16,8 @@ interface Props {
     onRangeChange?(timespan: number): void,
     item?: Item,
     disabled?: boolean,
-    disableAllTime?: boolean
+    disableAllTime?: boolean,
+    setToDefaultRangeSwitch?: boolean
 }
 
 export let getTimeSpanFromDateRange = (range: DateRange): number => {
@@ -46,7 +47,7 @@ export function ItemPriceRange(props: Props) {
     let history = useHistory();
     let [selectedDateRange, setSelectedDateRange] = useState(DEFAULT_DATE_RANGE);
 
-    if(props.disableAllTime && selectedDateRange === DateRange.ALL){
+    if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
         setSelectedDateRange(DateRange.MONTH);
         if (props.onRangeChange) {
             props.onRangeChange(getTimeSpanFromDateRange(DateRange.MONTH));
@@ -59,6 +60,14 @@ export function ItemPriceRange(props: Props) {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item])
+
+    useEffect(() => {
+        setSelectedDateRange(DEFAULT_DATE_RANGE);
+        if (props.onRangeChange) {
+            props.onRangeChange(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.setToDefaultRangeSwitch])
 
     let getButtonVariant = (range: DateRange): string => {
         return range === selectedDateRange ? "primary" : "secondary";
