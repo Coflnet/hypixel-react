@@ -130,7 +130,7 @@ function Flipper() {
                 if (flipperFilter?.minProfit && flipperFilter.minProfit >= (auction.median - auction.cost)) {
                     return false;
                 }
-                if (flipperFilter?.maxCost && flipperFilter.maxCost > auction.cost) {
+                if (flipperFilter?.maxCost && flipperFilter.maxCost < auction.cost) {
                     return false;
                 }
                 return true;

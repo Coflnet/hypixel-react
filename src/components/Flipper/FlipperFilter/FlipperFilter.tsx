@@ -43,23 +43,19 @@ function FlipperFilter(props: Props) {
     return (
         <div>
             <Form style={{ marginBottom: "5px" }} >
-                <Form.Group>
-                    <div>
-                        <Form.Label htmlFor="onlyBinCheckbox" className="flipper-filter-formfield-label only-bin-label">Only BIN-Auctions?</Form.Label>
-                        <Form.Check id="onlyBinCheckbox" onChange={onOnlyBinChange} className="flipper-filter-formfield" type="checkbox" />
-                    </div>
-                </Form.Group>
-                <Form.Group>
-                    <div>
+                <div>
+                    <Form.Group style={{width: "45%", display: "inline-block"}}>
                         <Form.Label className="flipper-filter-formfield-label">Min Profit:</Form.Label>
-                        <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" style={{ maxWidth: "300px" }} type="number" />
-                    </div>
-                </Form.Group>
-                <Form.Group>
-                    <div>
+                        <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" type="number" />
+                    </Form.Group>
+                    <Form.Group style={{ width: "45%", display: "inline-block", marginLeft: "5%" }}>
                         <Form.Label className="flipper-filter-formfield-label">Max Cost:</Form.Label>
-                        <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" style={{ maxWidth: "300px" }} type="number" />
-                    </div>
+                        <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" type="number" />
+                    </Form.Group>
+                </div>
+                <Form.Group>
+                    <Form.Label htmlFor="onlyBinCheckbox" className="flipper-filter-formfield-label only-bin-label">Only BIN-Auctions?</Form.Label>
+                    <Form.Check id="onlyBinCheckbox" onChange={onOnlyBinChange} className="flipper-filter-formfield" type="checkbox" />
                 </Form.Group>
             </Form >
         </div>
