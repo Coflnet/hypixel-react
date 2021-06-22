@@ -14,6 +14,10 @@ function ItemDetails() {
     let [item, setItem] = useState<Item>();
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [])
+
+    useEffect(() => {
         api.getItemDetails(tag).then(detailedItem => {
             api.getItemImageUrl({ tag: tag }).then(iconUrl => {
                 detailedItem.iconUrl = iconUrl;

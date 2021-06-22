@@ -63,3 +63,7 @@
 .ended-auctions {
     min-height: 220px;
 }
+
+.changelog-item {
+    margin-bottom: 15px;
+}
