@@ -397,7 +397,7 @@ function initAPI(): API {
                 resolve: (sessionId: any) => {
                     stripePromise.then((stripe) => {
                         if (stripe) {
-                            stripe.redirectToCheckout({ sessionId }).then(result => console.log(result));
+                            stripe.redirectToCheckout({ sessionId });
                             resolve();
                         }
                     })

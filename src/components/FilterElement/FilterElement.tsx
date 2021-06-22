@@ -102,7 +102,6 @@ function FilterElement(props: Props) {
 
     if (props.options && !hasFlag(props.options.type, FilterTypeEnum.DATE) && !value) {
         let normalValue;
-        console.log(props)
         if (!value && !props.defaultValue) {
             if (props.options?.options[0]) {
                 normalValue = props.options?.options[0];
