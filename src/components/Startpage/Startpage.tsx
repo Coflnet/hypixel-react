@@ -6,10 +6,11 @@ import { Link } from 'react-router-dom';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { Person as PersonIcon, Timer as TimerIcon, FiberNew as NewIcon, Fireplace as FireIcon, Announcement as AnnouncementIcon } from '@material-ui/icons';
 import moment from 'moment';
+import Tooltip from '../Tooltip/Tooltip';
 
 function Startpage() {
 
-    let [newAuctions, setNewAuctions] = useState<Auction[]>([{uuid:"",bin:false,end:new Date(),highestBid:0,item:{tag:"ASPECT_OF_THE_END",name:"Loading ..."},startingBid:0}]);
+    let [newAuctions, setNewAuctions] = useState<Auction[]>([{ uuid: "", bin: false, end: new Date(), highestBid: 0, item: { tag: "ASPECT_OF_THE_END", name: "Loading ..." }, startingBid: 0 }]);
     let [endedAuctions, setEndedAuctions] = useState<Auction[]>([]);
     let [popularSearches, setPopularSearches] = useState<PopularSearch[]>([]);
     let [newPlayers, setNewPlayers] = useState<Player[]>([]);
@@ -183,8 +184,8 @@ function Startpage() {
 
     let discordIcon = (
         <svg width="292" height="80" viewBox="0 0 292 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g clip-path="url(#clip0)">
-                <g clip-path="url(#clip1)">
+            <g clipPath="url(#clip0)">
+                <g clipPath="url(#clip1)">
                     <path d="M61.7958 16.494C57.0736 14.2846 52.0244 12.6789 46.7456 11.7646C46.0973 12.9367 45.3399 14.5132 44.8177 15.7673C39.2062 14.9234 33.6463 14.9234 28.138 15.7673C27.6159 14.5132 26.8413 12.9367 26.1872 11.7646C20.9027 12.6789 15.8477 14.2905 11.1255 16.5057C1.60078 30.8988 -0.981215 44.9344 0.309785 58.7707C6.62708 63.4883 12.7493 66.3541 18.7682 68.2294C20.2543 66.1841 21.5797 64.0099 22.7215 61.7185C20.5469 60.8922 18.4641 59.8725 16.4961 58.6887C17.0182 58.3019 17.5289 57.8975 18.0223 57.4814C30.0257 63.0957 43.0677 63.0957 54.9277 57.4814C55.4269 57.8975 55.9375 58.3019 56.4539 58.6887C54.4801 59.8783 52.3916 60.898 50.217 61.7244C51.3588 64.0099 52.6785 66.19 54.1703 68.2352C60.195 66.3599 66.3229 63.4942 72.6402 58.7707C74.155 42.7309 70.0525 28.8242 61.7958 16.494ZM24.3568 50.2615C20.7535 50.2615 17.7985 46.8976 17.7985 42.8012C17.7985 38.7048 20.6904 35.3351 24.3568 35.3351C28.0233 35.3351 30.9782 38.6989 30.9151 42.8012C30.9208 46.8976 28.0233 50.2615 24.3568 50.2615ZM48.5932 50.2615C44.9899 50.2615 42.0349 46.8976 42.0349 42.8012C42.0349 38.7048 44.9267 35.3351 48.5932 35.3351C52.2596 35.3351 55.2146 38.6989 55.1515 42.8012C55.1515 46.8976 52.2596 50.2615 48.5932 50.2615Z" fill="#5865F2" />
                     <path d="M98.0293 26.1707H113.693C117.469 26.1707 120.659 26.7743 123.276 27.9757C125.886 29.177 127.843 30.8531 129.14 32.998C130.436 35.1429 131.09 37.5984 131.09 40.3645C131.09 43.072 130.413 45.5275 129.059 47.7251C127.705 49.9286 125.645 51.6692 122.874 52.9526C120.103 54.236 116.671 54.8806 112.569 54.8806H98.0293V26.1707ZM112.408 47.5845C114.95 47.5845 116.907 46.934 118.272 45.6388C119.638 44.3378 120.321 42.568 120.321 40.3235C120.321 38.243 119.712 36.5845 118.496 35.3421C117.28 34.0997 115.438 33.4727 112.976 33.4727H108.076V47.5845H112.408Z" fill="#5865F2" />
                     <path d="M154.541 54.8456C152.372 54.2713 150.415 53.4391 148.677 52.3432V45.5335C149.991 46.5707 151.752 47.4264 153.961 48.1003C156.17 48.7684 158.305 49.1024 160.37 49.1024C161.334 49.1024 162.063 48.9735 162.556 48.7156C163.05 48.4578 163.297 48.1472 163.297 47.7897C163.297 47.3795 163.165 47.0396 162.895 46.7641C162.625 46.4887 162.103 46.2601 161.329 46.0667L156.509 44.9591C153.749 44.3028 151.792 43.3944 150.628 42.2282C149.463 41.0678 148.883 39.5441 148.883 37.6571C148.883 36.0689 149.388 34.6918 150.41 33.5138C151.425 32.3359 152.871 31.4275 154.747 30.7887C156.624 30.1441 158.815 29.8218 161.334 29.8218C163.583 29.8218 165.643 30.0679 167.52 30.5602C169.396 31.0525 170.945 31.6795 172.179 32.4472V38.8878C170.916 38.1201 169.47 37.5165 167.818 37.0593C166.171 36.6081 164.479 36.3854 162.734 36.3854C160.215 36.3854 158.959 36.8249 158.959 37.6981C158.959 38.1084 159.154 38.4131 159.544 38.6182C159.934 38.8233 160.651 39.0343 161.69 39.257L165.706 39.9954C168.329 40.4584 170.285 41.273 171.57 42.4333C172.856 43.5937 173.498 45.3108 173.498 47.5846C173.498 50.0752 172.437 52.0502 170.308 53.5153C168.179 54.9804 165.161 55.7129 161.248 55.7129C158.947 55.7071 156.71 55.4199 154.541 54.8456Z" fill="#5865F2" />
@@ -225,13 +226,26 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Free Premium Extenstion</Card.Subtitle>
+                        <Card.Subtitle>Hypixel is ONLINE again! -&gt; Free Premium Extenstion</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
                         <p>
-                            Hypixel currently conducts maintenance to its servers. Since our <Link to="/premium">premium plan</Link> isn't of much use when there are no new auctions, we are extending the subscriptions of our premium users for as long as this maintinance will last/lasted.
+                            As Hypixel is online again all our <Link to="/premium">premium</Link> users recieve 5 free additional days to their already bought premium. Should your premium not have been extended please contact us <Link to="/feedback">here.</Link>
                         </p>
                         <a href="https://blog.coflnet.com/skyblock-ah-history">Full blog article</a>
+                        <hr />
+                        <div style={{ marginTop: "20px" }}>
+                            <p><NewIcon /> Recent changes:</p>
+                            <Tooltip content={<a href="#">Click to see recently added features</a>} tooltipContent={
+                                <ul>
+                                    <li className="changelog-item">The flipper auctions now have a small "?"-Symbol to see which auctions were used to calculate the shown median price. We would appreciate feedback to remove overpriced flips.</li>
+                                    <li className="changelog-item">Clear old flips for the filter. You can now clear all loaded flips for a better use of the scrollbar</li>
+                                    <li className="changelog-item">The new starting page</li>
+                                    <li className="changelog-item">Complete rework of the item price filter. You can now search for different metadata like Rarity or Pet Level depending on the item you have currently selected</li>
+                                    <li className="changelog-item">Style improvements</li>
+                                    <li className="changelog-item">Multiple bugs fixed</li>
+                                </ul>} type="click" tooltipTitle={<span>Recent changes</span>} />
+                        </div>
                     </Card.Body>
                 </Card>
             </div>
@@ -304,7 +318,7 @@ function Startpage() {
                     </p>
                     <p>
                         The free accessible <Link to="/flipper">auction house flipper</Link> allows you to find profitable ah flips in no time.
-                        It suplements the option to browse all of the skyblock history on the web tracker. 
+                        It suplements the option to browse all of the skyblock history on the web tracker.
                         Whats more you can see what auctions were used as reference to determine if a flip is profitable.
                     </p>
                     <p>
