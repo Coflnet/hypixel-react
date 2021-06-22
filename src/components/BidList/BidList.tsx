@@ -90,6 +90,10 @@ function BidList(props: Props) {
             })
             setBids(bids);
 
+            if (bids.length < 10 && newBids.length !== 0) {
+                loadNewBids();
+            }
+
             updateListState();
         }).catch(() => {
             setAllBidsLoaded(true);
@@ -143,10 +147,10 @@ function BidList(props: Props) {
         })
     }
 
-    let bidsList = bids.map(bid => {
+    let bidsList = bids.map((bid, i) => {
         return (
-            <Link className="disable-link-style" key={bid.uuid} to={`/auction/${bid.uuid}`}>
-                <ListGroup.Item action>
+            <Link className="disable-link-style list-item-link" key={bid.uuid} to={`/auction/${bid.uuid}`}>
+                <ListGroup.Item className="list-group-item" action>
                     <h4>
                         {
                             getItemImageElement(bid)

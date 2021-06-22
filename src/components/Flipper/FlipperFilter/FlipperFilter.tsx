@@ -8,10 +8,11 @@ interface Props {
 
 function FlipperFilter(props: Props) {
 
-    let [onlyBin] = useState(false);
-    let [minProfit] = useState(0);
+    let [onlyBin, setOnlyBin] = useState(false);
+    let [minProfit, setMinProfit] = useState(0);
 
     let onOnlyBinChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setOnlyBin(event.target.checked);
         props.onChange({
             onlyBin: event.target.checked,
             minProfit: minProfit
@@ -19,7 +20,8 @@ function FlipperFilter(props: Props) {
     }
 
     
-    let onOnlyMinProfitChange = (event: ChangeEvent<HTMLInputElement>) => {
+    let onMinProfitChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setMinProfit(parseInt(event.target.value))
         props.onChange({
             onlyBin: onlyBin,
             minProfit: parseInt(event.target.value)
@@ -38,7 +40,7 @@ function FlipperFilter(props: Props) {
                 <Form.Group>
                     <div>
                         <Form.Label className="flipper-filter-formfield-label">Min Profit:</Form.Label>
-                        <Form.Control onChange={onOnlyMinProfitChange} className="flipper-filter-formfield" style={{maxWidth: "300px"}} type="number" />
+                        <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" style={{maxWidth: "300px"}} type="number" />
                     </div>
                 </Form.Group>
             </Form >

@@ -27,3 +27,9 @@
 .current {
     flex-grow: 100;
 }
+
+@media all and (min-width: 1500px) {
+    .searchBar {
+        width: 100%;
+    }
+}

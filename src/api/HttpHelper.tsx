@@ -1,19 +1,29 @@
-import { ApiRequest, HttpApi, RequestType } from "./ApiTypes.d";
+import { ApiRequest, HttpApi } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
 import { toast } from "react-toastify";
 import cacheUtils from "../utils/CacheUtils";
 import { getProperty } from "../utils/PropertiesUtils";
+import { getNextMessageId } from "../utils/MessageIdUtils";
 
 const commandEndpoint = getProperty("commandEndpoint");
 let requests: ApiRequest[] = [];
 
-function sendRequest(request: ApiRequest): Promise<void> {
+/**
+ * Sends http-Request to the backend
+ * @param request The request-Object
+ * @param cacheInvalidationGrouping A number which is appended to the url to be able to invalidate the cache
+ * @returns A emty promise (the resolve/reject Method of the request-Object is called)
+ */
+function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): Promise<void> {
+    request.mId = getNextMessageId();
     let requestString = JSON.stringify(request.data);
     let headers = { 'ConId': getOrGenerateUUid() };
     var url = `${commandEndpoint}/${request.type}/${Base64.encode(requestString)}`;
-    if (request.mId)
-        url += `/${request.mId}`;
+
+    if (cacheInvalidationGrouping) {
+        url += `/${cacheInvalidationGrouping}`;
+    }
 
     return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
         if (cacheValue) {
@@ -57,7 +67,9 @@ function sendRequest(request: ApiRequest): Promise<void> {
                 }
                 request.resolve(parsedResponse)
                 let equals = findForEqualSentRequest(request);
-                equals.forEach(equal => equal.resolve(parsedResponse));
+                equals.forEach(equal =>{
+                    equal.resolve(parsedResponse)
+                });
                 // all http answers are valid for 60 sec
                 let maxAge = 60;
                 cacheUtils.setIntoCache(request.type, Base64.decode(request.data), parsedResponse, maxAge);
@@ -71,9 +83,8 @@ function sendRequest(request: ApiRequest): Promise<void> {
 }
 
 function sendRequestLimitCache(request: ApiRequest, grouping = 1): Promise<void> {
-    // invalidate the cache every miniute
-    request.mId = Math.round(new Date().getMinutes() / grouping);
-    return sendRequest(request);
+    let group = Math.round(new Date().getMinutes() / grouping);
+    return sendRequest(request, group);
 }
 
 function removeSentRequests(toDelete: ApiRequest[]) {
@@ -94,7 +105,7 @@ function getOrGenerateUUid(): string {
 }
 function findForEqualSentRequest(request: ApiRequest) {
     return requests.filter(r => {
-        return r.type === request.type && r.data === request.data
+        return r.type === request.type && r.data === request.data && r.mId !== request.mId;
     })
 }
 

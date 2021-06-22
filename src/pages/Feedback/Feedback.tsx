@@ -8,10 +8,10 @@ function Feedback() {
     return (
         <div className="feedback-page">
             <Container>
-                <h1>
+                <h2>
                     <NavBar />
-                Feedback
-            </h1>
+                    Feedback
+                </h2>
                 <hr />
                 <div>
                     <p>Hey, we are only a small group of developers. We develop this app in our spare time and try to create a usefull application for all the Skyblock players.</p>
@@ -21,8 +21,8 @@ function Feedback() {
                     <a href="mailto:support@coflnet.com"><Button>Send feedback</Button></a>
                     <hr />
                     <h4>Contact: </h4>
-                    <a href="mailto:support@coflnet.com">support@coflnet.com</a>
-                    <a href="https://discord.gg/Qm55WEkgu6">Discord</a> 
+                    <p><a href="mailto:support@coflnet.com"><Button>support@coflnet.com</Button></a></p>
+                    <p><a href="https://discord.gg/Qm55WEkgu6"><Button>Discord</Button></a></p>
                 </div>
             </Container>
         </div >

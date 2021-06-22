@@ -25,7 +25,13 @@ export enum RequestType {
     RECENT_AUCTIONS = "recentAuctions",
     SUBSCRIBE_FLIPS = "subFlip",
     GET_FLIPS = "getFlips",
-    GET_FILTER = "getFilter"
+    GET_FILTER = "getFilter",
+    NEW_AUCTIONS = "newAuctions",
+    NEW_PLAYERS = "newPlayers",
+    NEW_ITEMS = "newItems",
+    POPULAR_SEARCHES = "popularSearches",
+    ENDED_AUCTIONS = "endedAuctions",
+    GET_FLIP_BASED_AUCTIONS = "flipBased"
 }
 
 export enum SubscriptionType {

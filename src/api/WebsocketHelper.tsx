@@ -4,9 +4,9 @@ import cacheUtils from '../utils/CacheUtils';
 import api from "./ApiHelper";
 import { toast } from "react-toastify";
 import { getProperty } from '../utils/PropertiesUtils';
+import { getNextMessageId } from "../utils/MessageIdUtils";
 
 let requests: ApiRequest[] = [];
-let requestCounter: number = 0;
 let websocket: WebSocket;
 let isConnectionIdSet: boolean = false;
 
@@ -97,7 +97,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
         }
 
         if (_isWebsocketReady(request.type)) {
-            request.mId = requestCounter++;
+            request.mId = getNextMessageId();
 
             try {
                 request.data = Base64.encode(requestString);
@@ -126,7 +126,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 function subscribe(subscription: ApiSubscription): void {
 
     if (_isWebsocketReady(subscription.type)) {
-        subscription.mId = requestCounter++;
+        subscription.mId = getNextMessageId();
 
         try {
             subscription.data = Base64.encode(subscription.data);

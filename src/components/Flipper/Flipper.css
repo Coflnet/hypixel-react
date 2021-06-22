@@ -21,6 +21,15 @@
     min-width: 200px;
 }
 
+.flipper .flip-auction-card {
+    height: 100%;
+    width: 300px;
+}
+
+.flipper .flip-auction-card p {
+    margin-bottom: 0;
+}
+
 .flipper .cards-wrapper::-webkit-scrollbar {
     width: 20px;
 }
@@ -87,4 +96,10 @@
 
 .flipper .card-header {
     min-height: 69px;
+}
+
+.ellipse {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

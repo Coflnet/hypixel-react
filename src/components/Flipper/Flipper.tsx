@@ -2,14 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/ApiHelper';
 import './Flipper.css';
 import { useForceUpdate } from '../../utils/Hooks';
-import { Button, Card, Form } from 'react-bootstrap';
+import { Button, Card, Form, Badge } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { toast } from "react-toastify";
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon } from '@material-ui/icons';
+import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon } from '@material-ui/icons';
 import Tooltip from '../Tooltip/Tooltip';
+import FlipBased from './FlipBased/FlipBased';
 
 function Flipper() {
 
@@ -134,18 +135,28 @@ function Flipper() {
             }).map((flipAuction) => {
                 return (
                     <div className="card-wrapper" key={flipAuction.uuid}>
-                        <Card className="card">
+                        <Card className="flip-auction-card">
                             {flipAuction.showLink ?
                                 <a className="disable-link-style" href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
-                                    <Card.Header>
-                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                        <span>{flipAuction.item.name}</span>
+                                    <Card.Header style={{ padding: "10px" }}>
+                                        <p>
+                                            <div className="ellipse" style={{ width: "80%", float: "left" }}>
+                                                <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                                <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                            </div>
+                                            {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
+                                        </p>
                                     </Card.Header>
                                 </a> :
                                 <Tooltip type="hover" content={
                                     <Card.Header style={{ padding: "10px" }}>
-                                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                        <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                        <p>
+                                            <div className="ellipse" style={{ width: "80%", float: "left" }}>
+                                                <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                                <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                            </div>
+                                            {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
+                                        </p>
                                     </Card.Header>}
                                     tooltipContent={<span>The link will be available in a few seconds...</span>}
                                 />
@@ -161,7 +172,14 @@ function Flipper() {
                                 </p>
                                 <p>
                                     <span className="card-label">Estimated Profit: </span><br />
-                                    <span style={{ color: "green" }}>+{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins</span>
+                                    <span style={{ color: "green" }}>
+                                        +{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins
+                                    </span>
+                                    <div style={{float: "right"}}>
+                                        <Tooltip tooltipTitle={<span>Auctions used for calculating the median price</span>} size="xl" type="click" content={<HelpIcon />}
+                                            tooltipContent={<FlipBased flip={flipAuction} />}
+                                        />
+                                    </div>
                                 </p>
                                 <hr style={{ marginTop: 0 }} />
                                 <div className="flex">
@@ -217,7 +235,7 @@ function Flipper() {
                                     </div> : ""
                             }
                             {latestAuctions.length > 0 ?
-                                <div style={{ position: "relative" }}>
+                                <div className="premium" style={{ position: "relative" }}>
                                     {mapAuctionElements(latestAuctions, true)}
                                 </div> : ""}
                         </div> : ""}
