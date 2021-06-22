@@ -235,7 +235,7 @@ function Startpage() {
                         <hr />
                         <div style={{ marginTop: "20px" }}>
                             <p>Changelog:</p>
-                            <Tooltip content={<p><NewIcon /> <a href="#">Click here to see all recent changes</a></p>} tooltipContent={
+                            <Tooltip content={<p><NewIcon /> <a href="#">Click here to open</a></p>} tooltipContent={
                                 <ul>
                                     <li className="changelog-item">The flipper auctions now have a small "?"-Symbol to see which auctions were used to calculate the shown median price. We would appreciate feedback to remove overpriced flips.</li>
                                     <li className="changelog-item">Clear old flips for the filter. You can now clear all loaded flips for a better use of the scrollbar</li>
