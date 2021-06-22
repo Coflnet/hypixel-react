@@ -86,7 +86,7 @@ function FilterElement(props: Props) {
         return (<option data-id={option} key={option} value={option}>{convertTagToName(option)}</option>)
     })
 
-    if(props.options && hasFlag(props.options.type, FilterTypeEnum.DATE) && !value){
+    if (props.options && hasFlag(props.options.type, FilterTypeEnum.DATE) && !value) {
         let dateValue;
         if (!value && !props.defaultValue) {
             dateValue = new Date();
@@ -98,6 +98,28 @@ function FilterElement(props: Props) {
         value = dateValue;
         setValue(dateValue);
         updateDateFilter(dateValue);
+    }
+
+    if (props.options && !hasFlag(props.options.type, FilterTypeEnum.DATE) && !value) {
+        let normalValue;
+        console.log(props)
+        if (!value && !props.defaultValue) {
+            if (props.options?.options[0]) {
+                normalValue = props.options?.options[0];
+            } else {
+                normalValue = 0;
+            }
+        } else if (!value) {
+            normalValue = props.defaultValue;
+        } else {
+            normalValue = value;
+        }
+        value = normalValue;
+        setValue(normalValue);
+        if(normalValue)
+        {
+            updateValue(normalValue);
+        }
     }
 
     return (

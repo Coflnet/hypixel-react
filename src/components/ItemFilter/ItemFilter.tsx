@@ -67,6 +67,9 @@ function ItemFilter(props: Props) {
         if (selectedFilters.some(n => n === filterName)) {
             return;
         }
+        if(filterName == "Enchantment") {
+            enableFilter("EnchantLvl");
+        }
 
         selectedFilters = [filterName, ...selectedFilters];
         setSelectedFilters(selectedFilters);
@@ -179,7 +182,11 @@ function ItemFilter(props: Props) {
                             <p>You can add various filters depending on the item type. After clicking 'apply' only the auctions matching your filter will be displayed.</p>
                             <hr />
                             <h4><Badge variant="danger">Caution</Badge></h4>
-                            <p>Some filter requests take quite some time to process. Thats because we have to search through millions of auctions that potentially match your filter.</p>
+                            <p>
+                                Some filter requests take quite some time to process. Thats because we have to search through millions of auctions that potentially match your filter.
+                                This can lead to no auctions being displayed at all because your browser things that our server is unavailable. 
+                                If that happens please let us know. We may implement sheduled filters where you will get an email or push notification when we computed a result for your filter.
+                            </p>
                             <p>If you are missing a filter please ask for it on our <Link href="/feedback">discord</Link></p>
                         </Modal.Body>
                     </Modal> : ""
