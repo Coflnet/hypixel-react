@@ -245,7 +245,7 @@ function Startpage() {
                                     <li className="changelog-item">Multiple bugs fixed</li>
                                 </ul>} type="click" tooltipTitle={<span>Recent changes</span>} />
                             <hr />
-                            <p>For more details about our new filter system you can visit the <a href="https://blog.coflnet.com/skyblock-ah-history">full blog article</a></p>
+                            <p>Read more about the <a href="https://blog.coflnet.com/skyblock-filter-system">new filter system</a></p>
                         </div>
                     </Card.Body>
                 </Card>
