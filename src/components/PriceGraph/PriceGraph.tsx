@@ -31,10 +31,10 @@ function PriceGraph(props: Props) {
     let [avgPrice, setAvgPrice] = useState(0);
     let [filters, setFilters] = useState([] as string[]);
     let [isFilterable, setIsFilterable] = useState(true);
-    let [itemFilter, setItemFilter] = useState<ItemFilter>();´
+    let [itemFilter, setItemFilter] = useState<ItemFilter>();
     let [isItemFilterPrefill, setIsItemFilterPrefill] = useState<boolean>(true);
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true);
-´
+
 
     let fetchspanRef = useRef(fetchspan);
     fetchspanRef.current = fetchspan;
