@@ -87,10 +87,23 @@ interface PlayerDetails {
   bids: ItemBid[];
   auctions: Auction[];
 }
+enum FilterType
+{
+    Equal = 1,
+    HIGHER = 2,
+    LOWER = 4,
+    DATE = 8,
+    NUMERICAL = 16
+}
 
 interface ItemFilter {
-  enchantment?: Enchantment;
-  reforge?: Reforge;
+  [key: string]: string
+}
+
+interface FilterOptions {
+  name: string,
+  options: string[],
+  type: FilterType
 }
 
 interface ItemPrice {
@@ -104,6 +117,7 @@ interface ItemPrice {
 interface ItemPriceData {
   filterable: boolean;
   prices: Array<ItemPrice>;
+  filters: Array<string>;
 }
 
 interface SearchResultItem {
@@ -170,6 +184,7 @@ interface API {
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
   subscribeFlips(callback: Function): void,
+  getFilter(name:string): Promise<FilterOptions>
   getNewAuctions(): Promise<Auction[]>,
   getEndedAuctions(): Promise<Auction[]>,
   getPopularSearches(): Promise<PopularSearch[]>,

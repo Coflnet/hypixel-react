@@ -7,14 +7,27 @@
     color: #fff;
 }
 
-.enchantment-filter-select-enchantment {
-    margin-right: 40px;
+.filter-element {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    width: 50%;
 }
 
-.enchantment-filter-label {
-    margin-right: 15px;
+.filter-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 
-.appliedBadge {
-    margin-left: 10px;
+.remove-filter {
+    margin-right: 10px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .filter-element {
+        width: 100%;
+    }
 }

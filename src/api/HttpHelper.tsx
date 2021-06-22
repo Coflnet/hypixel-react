@@ -47,11 +47,7 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
         requests.push(request);
         return fetch(url, { headers })
             .then(response => {
-                if (response.ok && response.body === null) {
-                    request.reject();
-                    return;
-                }
-                if (!response.ok) {
+                if (!isResponseValid(response)) {
                     request.reject();
                     return;
                 }
@@ -64,13 +60,8 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
                 }
                 return parsed;
             }).then(parsedResponse => {
-
-                if (!parsedResponse) {
-                    return;
-                }
-
-                if (parsedResponse.type === "error") {
-                    toast.error(JSON.parse(parsedResponse.data).data);
+                if (!parsedResponse || parsedResponse.type === "error") {
+                    toast.error(parsedResponse?.data);
                     request.reject();
                     return;
                 }
@@ -85,6 +76,10 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
                 removeSentRequests([...equals, request]);
             });
     })
+
+    function isResponseValid(response: Response) {
+        return response.ok && response.body;
+    }
 }
 
 function sendRequestLimitCache(request: ApiRequest, grouping = 1): Promise<void> {

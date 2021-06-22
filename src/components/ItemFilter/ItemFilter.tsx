@@ -4,13 +4,18 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap';
 import './ItemFilter.css';
 import { useLocation, useHistory } from "react-router-dom";
-import api from '../../api/ApiHelper';
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
-import {AddCircleOutline as AddIcon, Help as HelpIcon} from '@material-ui/icons';
+import FilterElement from '../FilterElement/FilterElement';
+import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
+import { Link } from '@material-ui/core';
+import api from '../../api/ApiHelper';
+import { camelCaseToSentenceCase } from '../../utils/Formatter';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
-    disabled?: boolean
+    disabled?: boolean,
+    filters?: string[],
+    preFilled: boolean
 }
 
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
@@ -18,106 +23,80 @@ let mounted = true;
 
 function ItemFilter(props: Props) {
 
-    const enchantmentSelect = useRef(null);
-    const levelSelect = useRef(null);
     const reforgeSelect = useRef(null);
 
-    let [enchantments, setEnchantments] = useState<Enchantment[]>([]);
-    let [reforges, setReforges] = useState<Reforge[]>([]);
-    let [itemFilter, setItemFilter] = useState<ItemFilter>();
+    let [itemFilter, _setItemFilter] = useState<ItemFilter>({});
     let [expanded, setExpanded] = useState(false);
-    let [isApplied, setIsApplied] = useState(false);
+    let [isApplied, _setIsApplied] = useState(false);
+    let [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     let [showInfoDialog, setShowInfoDialog] = useState(false);
+    let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([]);
 
     let history = useHistory();
     let query = new URLSearchParams(useLocation().search);
 
     useEffect(() => {
         mounted = true;
-        loadFilterItems();
         itemFilter = getItemFilterFromUrl(query);
-        if (itemFilter) {
-            setItemFilter(itemFilter);
+        if (Object.keys(itemFilter).length > 0) {
             setExpanded(true);
+            Object.keys(itemFilter).forEach(name => enableFilter(name));
+            setItemFilter(itemFilter);
+            onFilterApply();
         }
         return () => { mounted = false }
     }, []);
 
-    history.listen(() => {
-        setIsApplied(false);
-    })
+    useEffect(() => {
 
-    let loadFilterItems = () => {
-        api.getEnchantments().then(enchantments => {
+        if (props.preFilled) {
+            return;
+        }
+
+        setSelectedFilters([]);
+        setItemFilter({});
+        if (props.onFilterChange) {
+            props.onFilterChange(undefined);
+        }
+        updateURLQuery();
+        setIsApplied(false);
+    }, [JSON.stringify(props.filters)])
+
+    let enableFilter = (filterName: string) => {
+
+        if (selectedFilters.some(n => n === filterName)) {
+            return;
+        }
+        if(filterName == "Enchantment") {
+            enableFilter("EnchantLvl");
+        }
+
+        selectedFilters = [filterName, ...selectedFilters];
+        setSelectedFilters(selectedFilters);
+
+        api.getFilter(filterName).then(options => {
+
             if (!mounted) {
                 return;
             }
-            api.getReforges().then(reforges => {
-                if (!mounted) {
-                    return;
-                }
-                setEnchantments(enchantments);
-                setReforges(reforges);
-                if (!itemFilter) {
-                    setItemFilter({
-                        enchantment: {
-                            id: enchantments[0].id,
-                            level: 1,
-                            name: enchantments[0].name
-                        },
-                        reforge: {
-                            id: reforges[0].id,
-                            name: reforges[0].name
-                        }
-                    })
-                }
-            })
-        })
-    }
-
-    let onReforgeChange = (event: ChangeEvent<HTMLSelectElement>) => {
-        let selectedIndex = event.target.options.selectedIndex;
-        let newFilter: ItemFilter = {
-            enchantment: itemFilter?.enchantment,
-            reforge: {
-                id: parseInt(event.target.options[selectedIndex].getAttribute('data-id')!),
-                name: event.target.value,
+            if (!props.preFilled) {
+                setIsApplied(false);
             }
-        }
+            updateURLQuery(itemFilter);
+            setItemFilter(itemFilter);
 
-        setIsApplied(false);
-        updateURLQuery(newFilter);
-        setItemFilter(newFilter);
+            filterOptions = [options, ...filterOptions];
+            setFilterOptions(filterOptions);
+        });
     }
 
-    let onLevelChange = (newLevel: ChangeEvent) => {
-        let newFilter: ItemFilter = {
-            enchantment: {
-                id: itemFilter?.enchantment?.id || 0,
-                level: parseInt((newLevel.target as HTMLInputElement).value)
-            },
-            reforge: itemFilter?.reforge
-        };
+    let addFilter = (event: ChangeEvent<HTMLSelectElement>) => {
+        let selectedIndex = event.target.options.selectedIndex;
+        let filterName = event.target.options[selectedIndex].getAttribute('data-id')!;
 
-        setIsApplied(false);
-        updateURLQuery(newFilter);
-        setItemFilter(newFilter);
+        enableFilter(filterName);
     }
 
-    let onEnchantmentChange = (newEnchantment: ChangeEvent<HTMLSelectElement>) => {
-        let selectedIndex = newEnchantment.target.options.selectedIndex;
-        let newFilter: ItemFilter = {
-            enchantment: {
-                id: parseInt(newEnchantment.target.options[selectedIndex].getAttribute('data-id')!),
-                name: newEnchantment.target.value,
-                level: itemFilter?.enchantment?.level
-            },
-            reforge: itemFilter?.reforge
-        };
-        setIsApplied(false);
-        updateURLQuery(newFilter);
-        setItemFilter(newFilter);
-    }
 
     let onFilterApply = () => {
         if (props.onFilterChange) {
@@ -127,8 +106,10 @@ function ItemFilter(props: Props) {
     }
 
     let onFilterRemove = () => {
+        setSelectedFilters([]);
         setExpanded(false);
-        setItemFilter(undefined);
+        setItemFilter({});
+        setIsApplied(false);
         if (props.onFilterChange) {
             props.onFilterChange(undefined);
         }
@@ -138,11 +119,14 @@ function ItemFilter(props: Props) {
     let onEnable = () => {
         setExpanded(true);
         if (!itemFilter) {
-            itemFilter = {
-                enchantment: enchantments[0]
-            }
+            itemFilter = {}
             setItemFilter(itemFilter);
         }
+        updateURLQuery(itemFilter);
+    }
+
+    let setItemFilter = (itemFilter: ItemFilter) => {
+        _setItemFilter(itemFilter);
         updateURLQuery(itemFilter);
     }
 
@@ -153,25 +137,39 @@ function ItemFilter(props: Props) {
         })
     }
 
-    let isLevelSelectDisabled = () => {
-        return itemFilter && itemFilter.enchantment && itemFilter.enchantment.name ? (itemFilter.enchantment.name.toLowerCase() === "none" || itemFilter.enchantment.name.toLowerCase() === "any") : false;
+    let filterSelectList = props?.filters ? props?.filters.filter(f => !selectedFilters.includes(f)).map(filter => {
+        return (
+            <option data-id={filter} key={filter} value={filter}>{camelCaseToSentenceCase(filter)}</option>
+        )
+    }) : ""
+
+    function onFilterChange(filter?: ItemFilter) {
+        var keys = Object.keys(filter as object);
+        if (keys.length > 0) {
+            var key = keys[0];
+            itemFilter![key] = filter![key];
+        }
+
+        setIsApplied(false);
+        updateURLQuery(itemFilter);
+        setItemFilter(itemFilter);
     }
 
-    let enchantmentSelectList = enchantments.map(enchantment => {
-        return (
-            <option data-id={enchantment.id} key={enchantment.id} value={enchantment.name}>{enchantment.name}</option>
-        )
-    })
+    function setIsApplied(value: boolean){
+        if(value || !props.preFilled){
+            _setIsApplied(value);
+        }
+    }
 
-    let reforgeSelectList = reforges.map(reforge => {
-        return (
-            <option data-id={reforge.id} key={reforge.id} value={reforge.name}>{reforge.name}</option>
-        )
-    })
+    let filterList = selectedFilters.map(filterName => {
+        return <div key={filterName} className="filter-element">
+            <FilterElement onFilterChange={onFilterChange} options={filterOptions.find(f => f.name === filterName)} defaultValue={itemFilter![filterName]}></FilterElement>
+            <div className="remove-filter" onClick={() => removeFilter(filterName)}><DeleteIcon color="error" /></div></div>
+    });
 
     let infoIconElement = (
         <div>
-            <span style={{ cursor: "pointer", position: "absolute", top: "10px", right: "10px", color:"#007bff" }} onClick={() => { setShowInfoDialog(true) }}>
+            <span style={{ cursor: "pointer", position: "absolute", top: "10px", right: "10px", color: "#007bff" }} onClick={() => { setShowInfoDialog(true) }}>
                 <HelpIcon />
             </span>
             {
@@ -181,23 +179,36 @@ function ItemFilter(props: Props) {
                             <h4>Item-Filter Information</h4>
                         </Modal.Header>
                         <Modal.Body>
-                            <p>You can filter by reforge and enchantments. After applying only the auctions matching your filter will be used to update the graph</p>
+                            <p>You can add various filters depending on the item type. After clicking 'apply' only the auctions matching your filter will be displayed.</p>
                             <hr />
                             <h4><Badge variant="danger">Caution</Badge></h4>
-                            <p>Some item filter can take quite some time to process. <b>Why?</b> We have to search through millions of auctions to show you the accurate price for a filtered result.</p>
-                            <p>For normal searches we use some technical tricks to greatly improve the search time. Sadly we dont have the resources to provice this for filtered searches.</p>
+                            <p>
+                                Some filter requests take quite some time to process. Thats because we have to search through millions of auctions that potentially match your filter.
+                                This can lead to no auctions being displayed at all because your browser things that our server is unavailable. 
+                                If that happens please let us know. We may implement sheduled filters where you will get an email or push notification when we computed a result for your filter.
+                            </p>
+                            <p>If you are missing a filter please ask for it on our <Link href="/feedback">discord</Link></p>
                         </Modal.Body>
                     </Modal> : ""
             }
         </div>
     );
 
+    function removeFilter(filterName: string) {
+        if (itemFilter) {
+            delete itemFilter[filterName];
+            setItemFilter(itemFilter);
+            updateURLQuery(itemFilter);
+        }
+        setSelectedFilters(selectedFilters.filter(f => f !== filterName))
+    }
+
     return (
         <div className="enchantment-filter">
             {!expanded ?
                 <div>
                     <a href="#" onClick={() => onEnable()}>
-                        <AddIcon/>
+                        <AddIcon />
                         <span> Add Filter</span>
                     </a>
                 </div> :
@@ -206,60 +217,41 @@ function ItemFilter(props: Props) {
                         Filter
                         {isApplied ?
                             <Badge variant="success" className="appliedBadge">Applied</Badge> :
-                            <Badge variant="danger" className="appliedBadge">Not Applied</Badge>}
+                            <Badge variant="danger" className="appliedBadge">Filter is currently NOT applied</Badge>}
                         {infoIconElement}
                     </Card.Title>
                     <Card.Body>
+
                         <Form inline style={{ marginBottom: "5px" }} >
+
                             <Form.Group>
-                                {reforges.length > 0 && itemFilter && itemFilter.reforge ?
+                                {props?.filters && props.filters?.length > 0 ?
                                     <div>
-                                        <Form.Label>Reforge:</Form.Label>
-                                        <Form.Control className="reforge-filter-select-reforge" as="select" onChange={onReforgeChange} defaultValue={itemFilter.reforge.name} disabled={props.disabled} ref={reforgeSelect}>
-                                            {reforgeSelectList}
+                                        <Form.Control className="select-filter" as="select" onChange={addFilter} disabled={props.disabled} ref={reforgeSelect}>
+                                            <option>Click to add filter</option>
+                                            {filterSelectList}
                                         </Form.Control>
                                     </div> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
-                            <Form.Group>
-                                {enchantments.length > 0 && itemFilter && itemFilter.enchantment ?
-                                    <div>
-                                        <Form.Label>Enchantment:</Form.Label>
-                                        <Form.Control className="enchantment-filter-select-enchantment" as="select" onChange={onEnchantmentChange} defaultValue={itemFilter.enchantment.name} disabled={props.disabled} ref={enchantmentSelect}>
-                                            {enchantmentSelectList}
-                                        </Form.Control>
-                                    </div> :
-                                    <Spinner animation="border" role="status" variant="primary" />
-                                }
-                            </Form.Group>
-                            {!(props.disabled || isLevelSelectDisabled()) ?
-                                <Form.Group>
-                                    <Form.Label>Level:</Form.Label>
-                                    <Form.Control as="select" onChange={onLevelChange} defaultValue={itemFilter?.enchantment?.level} ref={levelSelect}>
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                        <option>6</option>
-                                        <option>7</option>
-                                        <option>8</option>
-                                        <option>9</option>
-                                        <option>10</option>
-                                    </Form.Control>
-                                </Form.Group>
-                                : ""}
+                            <div className="filter-container">
+                                {filterList}
+                            </div>
                         </Form >
                         <div>
                             <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()} disabled={props.disabled}>Apply</Button>
-                            <Button className="btn-danger" onClick={() => onFilterRemove()} disabled={props.disabled}>Remove Filter</Button>
+                            <Button className="btn-danger" onClick={() => onFilterRemove()} disabled={props.disabled}>Close</Button>
                         </div>
                     </Card.Body>
                 </Card>
             }
         </div >
     )
+
+
 }
 
 export default ItemFilter;
+
+

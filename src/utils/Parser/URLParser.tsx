@@ -1,16 +1,11 @@
-export function parseItemFilter(itemFilterBase64: string): ItemFilter | undefined {
+export function parseItemFilter(itemFilterBase64: string): ItemFilter {
     let itemFilter: any = JSON.parse(atob(itemFilterBase64));
     if (!itemFilter) {
-        return undefined;
+        return {};
     }
-    return {
-        enchantment: itemFilter.enchantment,
-        reforge: itemFilter.reforge
-    }
+    return itemFilter;
 }
-export function getItemFilterFromUrl(query: URLSearchParams): ItemFilter | undefined {
+export function getItemFilterFromUrl(query: URLSearchParams): ItemFilter {
     let itemFilterBase64 = query.get("itemFilter")
-    if (itemFilterBase64) {
-        return parseItemFilter(itemFilterBase64);
-    }
+    return itemFilterBase64 ? parseItemFilter(itemFilterBase64) : {};
 }

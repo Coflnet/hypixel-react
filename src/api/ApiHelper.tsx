@@ -16,6 +16,10 @@ function initAPI(): API {
     }, 20000);
 
     let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
+        if (!error || !error.Message) {
+            return;
+        }
+
         toast.error(error.Message);
     }
 
@@ -85,8 +89,7 @@ function initAPI(): API {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
-                reforge: itemFilter?.reforge ? itemFilter.reforge.id : undefined,
-                enchantments: itemFilter && itemFilter.enchantment !== undefined && itemFilter.enchantment.level !== undefined && itemFilter.enchantment.id ? [[itemFilter.enchantment.id, itemFilter.enchantment.level]] : undefined
+                filter: itemFilter
             };
             httpApi.sendRequest({
                 type: RequestType.ITEM_PRICES,
@@ -394,7 +397,7 @@ function initAPI(): API {
                 resolve: (sessionId: any) => {
                     stripePromise.then((stripe) => {
                         if (stripe) {
-                            stripe.redirectToCheckout({ sessionId }).then(result => console.log(result));
+                            stripe.redirectToCheckout({ sessionId });
                             resolve();
                         }
                     })
@@ -494,8 +497,7 @@ function initAPI(): API {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
-                reforge: itemFilter?.reforge ? itemFilter.reforge.id : undefined,
-                enchantments: itemFilter && itemFilter.enchantment !== undefined && itemFilter.enchantment.level !== undefined && itemFilter.enchantment.id ? [[itemFilter.enchantment.id, itemFilter.enchantment.level]] : undefined
+                filter: itemFilter
             };
             httpApi.sendLimitedCacheRequest({
                 type: RequestType.RECENT_AUCTIONS,
@@ -540,6 +542,21 @@ function initAPI(): API {
                 }
             })
         });
+    }
+
+    let getFilter = (name: string): Promise<FilterOptions> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendRequest({
+                type: RequestType.GET_FILTER,
+                data: name,
+                resolve: (data: any) => {
+                    resolve(data);
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_FILTER, error, name);
+                }
+            })
+        })
     }
 
     let getNewPlayers = (): Promise<Player[]> => {
@@ -667,6 +684,7 @@ function initAPI(): API {
         getRecentAuctions,
         getFlips,
         subscribeFlips,
+        getFilter,
         getNewPlayers,
         getNewItems,
         getPopularSearches,
