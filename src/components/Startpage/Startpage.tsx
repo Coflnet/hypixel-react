@@ -230,13 +230,12 @@ function Startpage() {
                     </Card.Header>
                     <Card.Body>
                         <p>
-                            As Hypixel is online again all our <Link to="/premium">premium</Link> users recieve 5 free additional days to their already bought premium. Should your premium not have been extended please contact us <Link to="/feedback">here.</Link>
+                            As Hypixel is online again all our <Link to="/premium">premium</Link> users received 7 free additional days to their already bought premium.
                         </p>
-                        <a href="https://blog.coflnet.com/skyblock-ah-history">Full blog article</a>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
-                            <p><NewIcon /> Recent changes:</p>
-                            <Tooltip content={<a href="#">Click to see recently added features</a>} tooltipContent={
+                            <p>Changelog:</p>
+                            <Tooltip content={<p><NewIcon /> <a href="#">Click here to see all recent changes</a></p>} tooltipContent={
                                 <ul>
                                     <li className="changelog-item">The flipper auctions now have a small "?"-Symbol to see which auctions were used to calculate the shown median price. We would appreciate feedback to remove overpriced flips.</li>
                                     <li className="changelog-item">Clear old flips for the filter. You can now clear all loaded flips for a better use of the scrollbar</li>
@@ -245,6 +244,8 @@ function Startpage() {
                                     <li className="changelog-item">Style improvements</li>
                                     <li className="changelog-item">Multiple bugs fixed</li>
                                 </ul>} type="click" tooltipTitle={<span>Recent changes</span>} />
+                            <hr />
+                            <p>For more details about our new filter system you can visit the <a href="https://blog.coflnet.com/skyblock-ah-history">full blog article</a></p>
                         </div>
                     </Card.Body>
                 </Card>

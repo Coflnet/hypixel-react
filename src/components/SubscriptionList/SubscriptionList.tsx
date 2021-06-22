@@ -6,7 +6,6 @@ import { getLoadingElement } from '../../utils/LoadingUtils';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import './SubscriptionList.css'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter';
-import NavBar from '../NavBar/NavBar';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
