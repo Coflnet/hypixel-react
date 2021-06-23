@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { createInstance, useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useLocation } from "react-router-dom";
 import CookieConsent from 'react-cookie-consent';
 import { ToastContainer } from 'react-toastify';
@@ -9,14 +9,12 @@ import { useHistory } from "react-router-dom";
 import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import cookie from 'cookie';
-import { useForceUpdate } from '../../utils/Hooks';
 
 export function MainApp(props: any) {
 
     const { trackPageView, trackEvent } = useMatomo()
     const location = useLocation();
     const history = useHistory();
-    const forceUpdate = useForceUpdate();
 
     const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -47,15 +45,6 @@ export function MainApp(props: any) {
         return false;
     }
 
-    function onAccept() {
-        (window as any).matomoTrackingInstance = createInstance({
-            urlBase: 'https://track.coflnet.com',
-            siteId: 1,
-            disabled: false
-        });
-        forceUpdate();
-    }
-
     const theme = React.useMemo(
         () =>
             createMuiTheme({
@@ -78,7 +67,6 @@ export function MainApp(props: any) {
                 buttonText="Yes, I understand"
                 declineButtonText="Decline"
                 cookieName="nonEssentialCookiesAllowed"
-                onAccept={onAccept}
                 data-nosnippet
                 style={{ paddingLeft: "40px" }}
             >
