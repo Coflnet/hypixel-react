@@ -174,7 +174,8 @@ interface API {
   getPopularSearches(): Promise<PopularSearch[]>,
   getNewItems(): Promise<Item[]>,
   getNewPlayers(): Promise<Player[]>
-  getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>
+  getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>,
+  paypalPurchase(orderId: string, days: number): Promise<any>
 }
 
 interface CacheUtils {
@@ -201,6 +202,9 @@ interface Product {
   description: string;
   price: Price;
   introductoryPrice: Price;
+  paymentProviderName: string|null;
+  /** duration in days */
+  premiumDuration: number|null
 }
 
 interface Price {
@@ -233,10 +237,10 @@ interface PaymentDetailTotalAmount {
 }
 
 interface AbstractPaymentProvider {
+  name: string;
   getProducts(): Promise<Product[]>;
   pay(product: Product): Promise<Product>;
   checkIfPaymentIsPossible(): boolean;
-  generateButton(product: Product): any
 }
 
 interface PopularSearch {

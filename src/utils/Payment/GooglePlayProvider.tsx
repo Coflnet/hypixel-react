@@ -20,6 +20,8 @@ let digitalGoodsService: any;
 
 export default function GooglePlayProvider(): AbstractPaymentProvider {
 
+    const name = 'google_play';
+
     let getProducts = (): Promise<Product[]> => {
         return new Promise((resolve, reject) => {
             if (!digitalGoodsService) {
@@ -85,12 +87,10 @@ export default function GooglePlayProvider(): AbstractPaymentProvider {
         })
     }
 
-    let generateButton = (product: Product): any => { throw 'not implemented' };
-
     return {
+        name,
         getProducts,
         pay,
-        checkIfPaymentIsPossible,
-        generateButton
+        checkIfPaymentIsPossible
     }
 }

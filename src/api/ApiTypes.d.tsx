@@ -30,7 +30,8 @@ export enum RequestType {
     NEW_ITEMS = "newItems",
     POPULAR_SEARCHES = "popularSearches",
     ENDED_AUCTIONS = "endedAuctions",
-    GET_FLIP_BASED_AUCTIONS = "flipBased"
+    GET_FLIP_BASED_AUCTIONS = "flipBased",
+    PAYPAL_PAYMENT = "paypalPurchase"
 }
 
 export enum SubscriptionType {

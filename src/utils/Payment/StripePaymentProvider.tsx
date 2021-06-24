@@ -5,6 +5,8 @@ let stripePromise: any;
 
 export default function StripePaymentProvider(): AbstractPaymentProvider {
 
+    const name = 'stripe';
+
     stripePromise = loadStripe(
         "pk_live_51I6N5ZIIRKr1p7dQn1VonQvGlnw4OtOCgO8ppw794BZme57v2tgTYdRd3bmEEmNq3KiCm90aGugMf004EwuphvJ800R2J4yJ6v"
     );
@@ -24,12 +26,10 @@ export default function StripePaymentProvider(): AbstractPaymentProvider {
 
     let checkIfPaymentIsPossible = (): boolean => true
 
-    let generateButton = (product: Product): any => { throw 'not implemented' };
-
     return {
+        name,
         getProducts,
         pay,
-        checkIfPaymentIsPossible,
-        generateButton
+        checkIfPaymentIsPossible
     }
 }

@@ -639,6 +639,25 @@ function initAPI(): API {
         });
     }
 
+    let paypalPurchase = (orderId: string, days: number): Promise<any> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.PAYPAL_PAYMENT,
+                data: {
+                    orderId,
+                    days
+                },
+                resolve: (response: any) => {
+                    resolve(response);
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.PAYPAL_PAYMENT, error);
+                    reject(error);
+                },
+            });
+        });
+    }
+
     return {
         search,
         trackSearch,
@@ -672,7 +691,8 @@ function initAPI(): API {
         getPopularSearches,
         getEndedAuctions,
         getNewAuctions,
-        getFlipBasedAuctions
+        getFlipBasedAuctions,
+        paypalPurchase
     }
 }
 
