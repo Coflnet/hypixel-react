@@ -529,7 +529,7 @@ function initAPI(): API {
         });
     }
 
-    let subscribeFlips = (callback: Function) => {
+    let subscribeFlips = (flipCallback: Function, soldCallback?: Function) => {
         return new Promise((resolve, reject) => {
             websocketHelper.subscribe({
                 type: RequestType.SUBSCRIBE_FLIPS,
@@ -538,7 +538,10 @@ function initAPI(): API {
                     if (!data) {
                         return;
                     }
-                    callback(parseFlipAuction(data));
+                    if(typeof data === 'string' && soldCallback){
+                        soldCallback(data);
+                    }
+                    flipCallback(parseFlipAuction(data));
                 }
             })
         });

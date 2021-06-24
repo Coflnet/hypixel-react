@@ -136,6 +136,7 @@ interface FlipAuction {
   isCopied: boolean,
   item: Item,
   bin: boolean,
+  sold?: boolean
 }
 
 interface FlipperFilter {
@@ -183,7 +184,7 @@ interface API {
   ): Promise<boolean>;
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
-  subscribeFlips(callback: Function): void,
+  subscribeFlips(flipCallback: Function, soldCallback: Function): void,
   getFilter(name:string): Promise<FilterOptions>
   getNewAuctions(): Promise<Auction[]>,
   getEndedAuctions(): Promise<Auction[]>,

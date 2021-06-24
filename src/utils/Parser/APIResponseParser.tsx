@@ -284,7 +284,8 @@ export function parseFlipAuction(flip): FlipAuction {
         item: {
             tag: flip.tag,
             name: flip.name
-        }
+        },
+        sold: flip.sold
     }
 }
 
