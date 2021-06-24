@@ -713,7 +713,7 @@ function initAPI(): API {
         getPopularSearches,
         getEndedAuctions,
         getNewAuctions,
-        getFlipBasedAuctions
+        getFlipBasedAuctions,
         paypalPurchase
     }
 }

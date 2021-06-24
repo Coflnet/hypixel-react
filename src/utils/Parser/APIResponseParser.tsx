@@ -298,11 +298,3 @@ export function parsePopularSearch(search): PopularSearch {
         img: search.img
     }
 }
-
-export function parsePopularSearch(search): PopularSearch {
-    return {
-        title: search.title,
-        url: search.url,
-        img: search.img
-    }
-}
