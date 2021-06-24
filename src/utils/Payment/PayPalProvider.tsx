@@ -11,12 +11,12 @@ export default function PayPalProvider(): AbstractPaymentProvider {
 			price: {
 				productId: 'premium_30',
 				currency: 'EUR',
-				value: 3.09
+				value: 3.19
 			},
 			introductoryPrice: {
 				productId: 'premium_30',
 				currency: 'EUR',
-				value: 3.09
+				value: 3.19
 			},
 			paymentProviderName: 'paypal'
 		}, {
@@ -27,12 +27,12 @@ export default function PayPalProvider(): AbstractPaymentProvider {
 			price: {
 				productId: 'premium_365',
 				currency: 'EUR',
-				value: 16.09
+				value: 16.19
 			},
 			introductoryPrice: {
 				productId: 'premium_365',
 				currency: 'EUR',
-				value: 16.09
+				value: 16.19
 			},
 			paymentProviderName: 'paypal'
 		}]));
