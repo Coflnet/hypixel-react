@@ -81,16 +81,17 @@ export function parseItemPrice(priceData: any): ItemPrice {
 export function parseItemPriceData(priceData: any): ItemPriceData {
     return {
         filterable: priceData.filterable,
-        prices: priceData.prices.map(price => {
+        prices: priceData.prices?.map(price => {
             return parseItemPrice(price);
-        })
+        }),
+        filters: priceData.filters
     }
 }
 
 export function parseItem(item: any): Item {
     return {
         tag: item.tag,
-        name: item.name,
+        name: item.altNames && item.altNames[0] && item.altNames[0].Name ? item.altNames[0].Name : item.name,
         category: item.category,
         iconUrl: item.iconUrl || item.icon,
         tier: item.tier,
@@ -285,7 +286,16 @@ export function parseFlipAuction(flip): FlipAuction {
         item: {
             tag: flip.tag,
             name: flip.name
-        }
+        },
+        sold: flip.sold
+    }
+}
+
+export function parsePopularSearch(search): PopularSearch {
+    return {
+        title: search.title,
+        url: search.url,
+        img: search.img
     }
 }
 

@@ -92,7 +92,6 @@ messaging.onBackgroundMessage(function(payload) {
     const request = indexedDB.open('keyval-store', 1);
     let db;
     if (payload.data.type != "auction") {
-        console.log("unkown notification type" + payload.data.type);
         return;
     }
 

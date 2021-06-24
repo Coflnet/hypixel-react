@@ -51,31 +51,6 @@ function Flipper() {
         });
     }
 
-    let subscribeToFlips = () => {
-        api.subscribeFlips((newFipAuction: FlipAuction) => {
-            api.getItemImageUrl(newFipAuction.item).then((url) => {
-                newFipAuction.item.iconUrl = url;
-                newFipAuction.showLink = false;
-
-                let updatedLastestAuctions = [...latestAuctions, newFipAuction];
-                setLatestAuctions(updatedLastestAuctions);
-                latestAuctions = updatedLastestAuctions;
-
-                if (autoscrollRef.current) {
-                    setTimeout(() => {
-                        onArrowRightClick();
-                    }, 0)
-                }
-
-                // reload for link-update
-                setTimeout(() => {
-                    newFipAuction.showLink = true;
-                    forceUpdate();
-                }, 5000)
-            });
-        });
-    }
-
     let copyClick = (flipAuction: FlipAuction) => {
         flipAuction.isCopied = true;
         window.navigator.clipboard.writeText("/viewauction " + flipAuction.uuid);
@@ -86,7 +61,7 @@ function Flipper() {
     let onLogin = () => {
         setIsLoggedIn(true);
         loadHasPremium();
-        subscribeToFlips();
+        api.subscribeFlips(onNewFlip, onAuctionSold);
     }
 
     let onArrowRightClick = () => {
@@ -104,6 +79,38 @@ function Flipper() {
         setAutoscroll(value);
     }
 
+    function clearFlips() {
+        setLatestAuctions([]);
+    }
+
+    function onAuctionSold(uuid: string) {
+        flipAuctions = flipAuctions.filter(flip => flip.uuid === uuid);
+        setFlipAuctions(flipAuctions);
+    }
+
+    function onNewFlip(newFipAuction: FlipAuction) {
+        api.getItemImageUrl(newFipAuction.item).then((url) => {
+            newFipAuction.item.iconUrl = url;
+            newFipAuction.showLink = false;
+
+            let updatedLastestAuctions = [...latestAuctions, newFipAuction];
+            setLatestAuctions(updatedLastestAuctions);
+            latestAuctions = updatedLastestAuctions;
+
+            if (autoscrollRef.current) {
+                setTimeout(() => {
+                    onArrowRightClick();
+                }, 0)
+            }
+
+            // reload for link-update
+            setTimeout(() => {
+                newFipAuction.showLink = true;
+                forceUpdate();
+            }, 5000)
+        });
+    }
+
     let copyIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clipboard" viewBox="0 0 16 16">
             <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
@@ -119,6 +126,21 @@ function Flipper() {
         </svg>
     );
 
+    let getFlipHeaderElement = function (flipAuction: FlipAuction): JSX.Element {
+        return (
+            <Card.Header style={{ padding: "10px" }}>
+                <p>
+                    <div className="ellipse" style={{ width: flipAuction.bin && flipAuction.sold ? "60%" : "80%", float: "left" }}>
+                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                        <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                    </div>
+                    {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
+                    {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
+                </p>
+            </Card.Header>
+        )
+    }
+
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div className="cards-wrapper">{
             auctions.filter(auction => {
@@ -131,6 +153,9 @@ function Flipper() {
                 if (flipperFilter?.minProfit && flipperFilter.minProfit >= (auction.median - auction.cost)) {
                     return false;
                 }
+                if (flipperFilter?.maxCost && flipperFilter.maxCost < auction.cost) {
+                    return false;
+                }
                 return true;
             }).map((flipAuction) => {
                 return (
@@ -138,29 +163,12 @@ function Flipper() {
                         <Card className="flip-auction-card">
                             {flipAuction.showLink ?
                                 <a className="disable-link-style" href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
-                                    <Card.Header style={{ padding: "10px" }}>
-                                        <p>
-                                            <div className="ellipse" style={{ width: "80%", float: "left" }}>
-                                                <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                                <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
-                                            </div>
-                                            {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
-                                        </p>
-                                    </Card.Header>
+                                    {getFlipHeaderElement(flipAuction)}
                                 </a> :
-                                <Tooltip type="hover" content={
-                                    <Card.Header style={{ padding: "10px" }}>
-                                        <p>
-                                            <div className="ellipse" style={{ width: "80%", float: "left" }}>
-                                                <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                                <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
-                                            </div>
-                                            {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
-                                        </p>
-                                    </Card.Header>}
-                                    tooltipContent={<span>The link will be available in a few seconds...</span>}
+                                <Tooltip type="hover" content={getFlipHeaderElement(flipAuction)}
+                                    tooltipContent={<span>The link will be aLvailable in a few seconds...</span>}
                                 />
-                            }
+                            }F
                             <Card.Body style={{ padding: "10px" }}>
                                 <p>
                                     <span className="card-label">Cost: </span><br />
@@ -175,7 +183,7 @@ function Flipper() {
                                     <span style={{ color: "green" }}>
                                         +{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins
                                     </span>
-                                    <div style={{float: "right"}}>
+                                    <div style={{ float: "right" }}>
                                         <Tooltip tooltipTitle={<span>Auctions used for calculating the median price</span>} size="xl" type="click" content={<HelpIcon />}
                                             tooltipContent={<FlipBased flip={flipAuction} />}
                                         />
@@ -222,9 +230,13 @@ function Flipper() {
                                         <Form.Check id="autoScrollCheckbox" onChange={(e) => { _setAutoScroll(e.target.checked) }} type="checkbox" />
                                     </div>
                                 </Form.Group>
-                                <Form.Group>
-                                    <Form.Label style={{ cursor: "pointer" }} onClick={onArrowRightClick}>To newest:</Form.Label>
-                                    <span style={{ cursor: "pointer" }} onClick={onArrowRightClick}> <ArrowRightIcon /></span>
+                                <Form.Group onClick={onArrowRightClick}>
+                                    <Form.Label style={{ cursor: "pointer" }}>To newest:</Form.Label>
+                                    <span style={{ cursor: "pointer" }}> <ArrowRightIcon /></span>
+                                </Form.Group>
+                                <Form.Group onClick={clearFlips}>
+                                    <Form.Label style={{ cursor: "pointer" }}>Clear flips:</Form.Label>
+                                    <span style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
                                 </Form.Group>
                             </Form>
                             <hr />

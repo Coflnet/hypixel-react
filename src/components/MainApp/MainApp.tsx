@@ -19,14 +19,8 @@ export function MainApp(props: any) {
     const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     useEffect(() => {
-        trackPageView({
-            documentTitle: document.title,
-            href: window.location.href,
-        });
         let uiStyle = window.localStorage.getItem("uiStyle");
-
         if (isTrackingAllowed() && (!uiStyle || uiStyle !== (prefersDarkMode ? 'dark' : 'light'))) {
-            console.log("UI-Style: " + uiStyle);
             window.localStorage.setItem("uiStyle", prefersDarkMode ? 'dark' : 'light')
             trackEvent({
                 category: 'uiStyle',
@@ -37,6 +31,11 @@ export function MainApp(props: any) {
         registerNotificationCallback(history);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location])
+
+    useEffect(() => {
+        trackPageView({});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [document.title]);
 
     function isTrackingAllowed() {
         let cookies = cookie.parse(document.cookie);

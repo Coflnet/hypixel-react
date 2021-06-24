@@ -87,10 +87,23 @@ interface PlayerDetails {
   bids: ItemBid[];
   auctions: Auction[];
 }
+enum FilterType
+{
+    Equal = 1,
+    HIGHER = 2,
+    LOWER = 4,
+    DATE = 8,
+    NUMERICAL = 16
+}
 
 interface ItemFilter {
-  enchantment?: Enchantment;
-  reforge?: Reforge;
+  [key: string]: string
+}
+
+interface FilterOptions {
+  name: string,
+  options: string[],
+  type: FilterType
 }
 
 interface ItemPrice {
@@ -104,6 +117,7 @@ interface ItemPrice {
 interface ItemPriceData {
   filterable: boolean;
   prices: Array<ItemPrice>;
+  filters: Array<string>;
 }
 
 interface SearchResultItem {
@@ -122,11 +136,13 @@ interface FlipAuction {
   isCopied: boolean,
   item: Item,
   bin: boolean,
+  sold?: boolean
 }
 
 interface FlipperFilter {
   onlyBin?: boolean,
-  minProfit?: number
+  minProfit?: number,
+  maxCost?: number
 }
 
 interface API {
@@ -168,13 +184,14 @@ interface API {
   ): Promise<boolean>;
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
-  subscribeFlips(callback: Function): void,
+  subscribeFlips(flipCallback: Function, soldCallback: Function): void,
+  getFilter(name:string): Promise<FilterOptions>
   getNewAuctions(): Promise<Auction[]>,
   getEndedAuctions(): Promise<Auction[]>,
   getPopularSearches(): Promise<PopularSearch[]>,
   getNewItems(): Promise<Item[]>,
   getNewPlayers(): Promise<Player[]>
-  getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>,
+  getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>
   paypalPurchase(orderId: string, days: number): Promise<any>
 }
 

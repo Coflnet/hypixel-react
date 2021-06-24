@@ -36,7 +36,7 @@ function RecentAuctions(props: Props) {
             mounted = false;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.item, props.fetchspan, props.itemFilter]);
+    }, [props.item, props.fetchspan, JSON.stringify(props.itemFilter)]);
 
     let recentAuctionList = recentAuctions.map((recentAuction) => {
         return (
@@ -67,9 +67,7 @@ function RecentAuctions(props: Props) {
         <div className="recent-auctions">
             <h3>Recent auctions</h3>
             <div className="recent-auctions-list">
-                {
-                    recentAuctionList
-                }
+                {recentAuctions.length > 0 ? recentAuctionList : <p style={{textAlign: "center"}}>No recent auctions found</p>}
             </div>
         </div >
     );

@@ -51,6 +51,32 @@ export function convertTagToName(itemTag?: string): string {
     return formatted;
 }
 
+/**
+ * Converts a camelCase string (e.g. woodenAxe) to a sentence case (e.g. Wooden axe)
+ * @param camelCase 
+ */
+export function camelCaseToSentenceCase(camelCase: string): string {
+
+
+    const exceptions = ["UId"];
+
+    if (exceptions.findIndex(a => a === camelCase) > -1) {
+        return camelCase;
+    }
+
+    var result = camelCase.replace(/([A-Z])/g, " $1");
+    var finalResult = result.split(' ');
+    var isFirstWord = true;
+    finalResult.forEach((word, i) => {
+        if (word !== "" && isFirstWord) {
+            isFirstWord = false;
+            return;
+        }
+        finalResult[i] = word.toLowerCase();
+    });
+    return finalResult.join(" ");
+}
+
 export function getStyleForTier(tier?: string): CSSProperties {
 
     const DEFAULT_COLOR = "black";

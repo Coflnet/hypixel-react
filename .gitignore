@@ -32,3 +32,5 @@ debug.log
 package-lock.json
 .vscode
 .eslintcache
+cypress/screenshots/*
+cypress/videos/*
