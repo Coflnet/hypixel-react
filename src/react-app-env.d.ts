@@ -219,9 +219,9 @@ interface Product {
   description: string;
   price: Price;
   introductoryPrice: Price;
-  paymentProviderName: string|null;
+  paymentProviderName?: string;
   /** duration in days */
-  premiumDuration: number|null
+  premiumDuration?: number
 }
 
 interface Price {

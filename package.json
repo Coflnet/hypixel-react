@@ -29,6 +29,7 @@
         "uuid": "^8.3.1"
     },
     "scripts": {
+        "open": "craco start",
         "start": "BROWSER=none craco start",
         "build": "craco build",
         "test": "craco test",

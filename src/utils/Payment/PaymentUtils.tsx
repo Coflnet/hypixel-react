@@ -31,15 +31,9 @@ export default function availablePaymentProvider(): AbstractPaymentProvider[] {
 export function groupProductsByDuration(products: Product[]): Product[][] {
     products = products.sort((a: Product, b: Product) => {
         if (!a.premiumDuration || !b.premiumDuration) {
-            return 0;
-        }
-        if (a.premiumDuration < b.premiumDuration) {
-            return -1;
-        }
-        if (a.premiumDuration > b.premiumDuration) {
             return 1;
         }
-        return 0;
+        return a.premiumDuration - b.premiumDuration
     });
 
     let res: Product[][] = [];

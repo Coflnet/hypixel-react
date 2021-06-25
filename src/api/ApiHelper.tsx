@@ -672,7 +672,7 @@ function initAPI(): API {
                     resolve(response);
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.PAYPAL_PAYMENT, error);
+                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, {orderId, days});
                     reject(error);
                 },
             });

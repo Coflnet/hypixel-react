@@ -4,8 +4,9 @@ import { getLoadingElement } from "../../utils/LoadingUtils";
 import availablePaymentProvider, { groupProductsByDuration } from "../../utils/Payment/PaymentUtils";
 import './Payment.css';
 import { v4 as generateUUID } from 'uuid';
-import PayPalProvider from "../../utils/Payment/PayPalProvider";
 import api from "../../api/ApiHelper";
+import { toast } from "react-toastify";
+import { useHistory } from "react-router-dom";
 declare var paypal: any;
 
 interface Props {
@@ -16,6 +17,7 @@ function Payment(props: Props) {
 
   let [products, setProducts] = useState<Product[][]>([]);
   let [isLoading, setIsLoading] = useState(true);
+  let history = useHistory();
 
   useEffect(() => {
     loadProducts()
@@ -23,27 +25,31 @@ function Payment(props: Props) {
   }, []);
 
   function loadProducts(): Promise<void> {
-    let products: Product[] = [];
+    let products2: Product[] = [];
     let promises: Promise<void>[] = [];
     for (let provider of availablePaymentProvider()) {
       let promise = provider.getProducts().then(loadedProducts => {
-        products.push(...loadedProducts);
+        products2.push(...loadedProducts);
       });
       promises.push(promise);
     }
     return Promise.all(promises).then(() => {
-      setProducts(groupProductsByDuration(products));
+      let newProducts = groupProductsByDuration(products2);
+      products = newProducts;
+      setProducts(products);
       setIsLoading(false);
+      setTimeout(() => loadPayPalButton(), 100);
     });
+
   }
 
-  function loadPayPalButton(products: Product[][]): void {
+  function loadPayPalButton(): void {
     products.forEach(productGroup => {
       productGroup.forEach(product => {
         if (product.paymentProviderName !== 'paypal') return;
         let el = document.querySelector('#paypal-button' + product.itemId);
         if (!el) {
-          setTimeout(() => loadPayPalButton(products), 100);
+          setTimeout(() => loadPayPalButton(), 100);
           return;
         }
         el.innerHTML = "";
@@ -61,13 +67,17 @@ function Payment(props: Props) {
             return actions.order.capture().then(function (details) {
 
               if (product.premiumDuration) {
-                api.paypalPurchase(details.id, product.premiumDuration).then(response => 
-                  window.location.href = '/success'
-                ).catch(error => 
-                  window.location.href = '/cancel'
+                api.paypalPurchase(details.id, product.premiumDuration).then(response =>
+                  history.push({
+                    pathname: "/success"
+                  })
+                ).catch(error =>
+                  history.push({
+                    pathname: "/cancel"
+                  })
                 )
               } else {
-                // has to be true, paypal always has premiumDuration
+                toast.error("An Error occoured while trying to pay with paypal");
               }
             });
           }
@@ -104,17 +114,15 @@ function Payment(props: Props) {
                     </Button>
                 }
                 {
-                  i < productGroup.length - 1 ? <hr/> : <div></div>
+                  i < productGroup.length - 1 ? <hr /> : ""
                 }
               </div>
             )
           })
-        }
+          }
         </Card.Body>
       </Card>)
   })
-
-  loadPayPalButton(products);
 
   return (
     <div>
