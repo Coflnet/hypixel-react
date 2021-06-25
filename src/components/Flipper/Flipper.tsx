@@ -166,9 +166,9 @@ function Flipper() {
                                     {getFlipHeaderElement(flipAuction)}
                                 </a> :
                                 <Tooltip type="hover" content={getFlipHeaderElement(flipAuction)}
-                                    tooltipContent={<span>The link will be aLvailable in a few seconds...</span>}
+                                    tooltipContent={<span>The link will be available in a few seconds...</span>}
                                 />
-                            }F
+                            }
                             <Card.Body style={{ padding: "10px" }}>
                                 <p>
                                     <span className="card-label">Cost: </span><br />
