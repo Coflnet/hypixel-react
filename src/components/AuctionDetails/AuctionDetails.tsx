@@ -257,7 +257,7 @@ function AuctionDetails(props: Props) {
 
     return (
         <div className="auction-details">
-            <Search currentElement={<p className="current"><Badge variant="primary">Current:</Badge> Auction Details</p>} />
+            <Search />
             {isAuctionFound ?
                 <div>
                     <p>The auction you tried to see doesn't seem to exist. Please go back.</p><br />

@@ -84,8 +84,11 @@ function Flipper() {
     }
 
     function onAuctionSold(uuid: string) {
-        flipAuctions = flipAuctions.filter(flip => flip.uuid === uuid);
-        setFlipAuctions(flipAuctions);
+        let latestAuction = latestAuctions.find(a => a.uuid === uuid);
+        if (latestAuction) {
+            latestAuction.sold = true;
+            setLatestAuctions(latestAuctions);
+        }
     }
 
     function onNewFlip(newFipAuction: FlipAuction) {
@@ -129,14 +132,12 @@ function Flipper() {
     let getFlipHeaderElement = function (flipAuction: FlipAuction): JSX.Element {
         return (
             <Card.Header style={{ padding: "10px" }}>
-                <p>
-                    <div className="ellipse" style={{ width: flipAuction.bin && flipAuction.sold ? "60%" : "80%", float: "left" }}>
-                        <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                        <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
-                    </div>
-                    {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
-                    {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
-                </p>
+                <div className="ellipse" style={{ width: flipAuction.bin && flipAuction.sold ? "60%" : "80%", float: "left" }}>
+                    <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                    <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                </div>
+                {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
+                {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
             </Card.Header>
         )
     }
@@ -178,17 +179,15 @@ function Flipper() {
                                     <span className="card-label">Median price: </span><br />
                                     <span>{numberWithThousandsSeperators(flipAuction.median)} Coins</span>
                                 </p>
-                                <p>
-                                    <span className="card-label">Estimated Profit: </span><br />
-                                    <span style={{ color: "green" }}>
-                                        +{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins
-                                    </span>
-                                    <div style={{ float: "right" }}>
-                                        <Tooltip tooltipTitle={<span>Auctions used for calculating the median price</span>} size="xl" type="click" content={<HelpIcon />}
-                                            tooltipContent={<FlipBased flip={flipAuction} />}
-                                        />
-                                    </div>
-                                </p>
+                                <span className="card-label">Estimated Profit: </span><br />
+                                <span style={{ color: "green" }}>
+                                    +{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins
+                                </span>
+                                <div style={{ float: "right" }}>
+                                    <Tooltip tooltipTitle={<span>Auctions used for calculating the median price</span>} size="xl" type="click" content={<HelpIcon />}
+                                        tooltipContent={<FlipBased flip={flipAuction} />}
+                                    />
+                                </div>
                                 <hr style={{ marginTop: 0 }} />
                                 <div className="flex">
                                     <div className="flex-max">

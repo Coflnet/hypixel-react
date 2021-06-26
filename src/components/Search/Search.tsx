@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import api from '../../api/ApiHelper';
-import { Badge, Form, ListGroup, Spinner } from 'react-bootstrap';
+import { Form, ListGroup, Spinner } from 'react-bootstrap';
 import './Search.css';
 import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
@@ -97,7 +97,7 @@ function Search(props: Props) {
         if (!props.selected || props.currentElement) {
             return props.currentElement || <div/>;
         }
-        return <p className="current"><Badge variant="primary">Current:</Badge> <img crossOrigin="anonymous" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</p>
+        return <h1 className="current"><img crossOrigin="anonymous" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</h1>
     }
 
     return (

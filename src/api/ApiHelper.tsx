@@ -538,8 +538,9 @@ function initAPI(): API {
                     if (!data) {
                         return;
                     }
-                    if(typeof data === 'string' && soldCallback){
+                    if(!data.uuid && soldCallback){
                         soldCallback(data);
+                        return;
                     }
                     flipCallback(parseFlipAuction(data));
                 }
