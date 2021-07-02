@@ -243,9 +243,11 @@ export function mapStripeProducts(products: any, prices: Price[]): Promise<Produ
                 reject(`price for product ${product.id} not found`);
             }
             return {
+                paymentProviderName: 'stripe',
                 itemId: product.id,
                 description: product.description,
                 title: product.name,
+                premiumDuration: parseInt(product.metadata.days),
                 price
             }
         }));
