@@ -80,7 +80,7 @@ function Flipper() {
     }
 
     function clearFlips() {
-        setLatestAuctions([]);
+        setLatestAuctions(() => []);
     }
 
     function onAuctionSold(uuid: string) {
@@ -96,10 +96,9 @@ function Flipper() {
             newFipAuction.item.iconUrl = url;
             newFipAuction.showLink = false;
 
-            let updatedLastestAuctions = [...latestAuctions, newFipAuction];
-            setLatestAuctions(updatedLastestAuctions);
-            latestAuctions = updatedLastestAuctions;
-
+            setLatestAuctions(flipAuctions => {
+                return [...flipAuctions, newFipAuction];
+            });
             if (autoscrollRef.current) {
                 setTimeout(() => {
                     onArrowRightClick();
