@@ -61,7 +61,7 @@ function Flipper() {
     let onLogin = () => {
         setIsLoggedIn(true);
         loadHasPremium();
-        api.subscribeFlips(onNewFlip, onAuctionSold);
+        api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
     }
 
     let onArrowRightClick = () => {
@@ -84,11 +84,13 @@ function Flipper() {
     }
 
     function onAuctionSold(uuid: string) {
-        let latestAuction = latestAuctions.find(a => a.uuid === uuid);
-        if (latestAuction) {
-            latestAuction.sold = true;
-            setLatestAuctions(latestAuctions);
-        }
+        setLatestAuctions(latestAuctions => {
+            let latestAuction = latestAuctions.find(a => a.uuid === uuid);
+            if (latestAuction) {
+                latestAuction.sold = true;
+            }
+            return latestAuctions;
+        })
     }
 
     function onNewFlip(newFipAuction: FlipAuction) {
@@ -154,6 +156,9 @@ function Flipper() {
                     return false;
                 }
                 if (flipperFilter?.maxCost && flipperFilter.maxCost < auction.cost) {
+                    return false;
+                }
+                if (flipperFilter?.onlyUnsold && auction.sold) {
                     return false;
                 }
                 return true;
