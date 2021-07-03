@@ -63,11 +63,11 @@ function FlipperFilter(props: Props) {
                 <div>
                     <Form.Group style={{ width: "45%", display: "inline-block" }}>
                         <Form.Label className="flipper-filter-formfield-label">Min Profit:</Form.Label>
-                        <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" type="number" />
+                        <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" type="number" step={5000} />
                     </Form.Group>
                     <Form.Group style={{ width: "45%", display: "inline-block", marginLeft: "5%" }}>
                         <Form.Label className="flipper-filter-formfield-label">Max Cost:</Form.Label>
-                        <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" type="number" />
+                        <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" type="number" step={20000} />
                     </Form.Group>
                 </div>
                 <Form.Group>
