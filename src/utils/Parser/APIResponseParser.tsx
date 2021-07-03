@@ -298,3 +298,12 @@ export function parsePopularSearch(search): PopularSearch {
         img: search.img
     }
 }
+
+export function parseRefInfo(refInfo): RefInfo {
+    return {
+        refId: refInfo.refId,
+        count: refInfo.count,
+        receivedTime: refInfo.receivedTime,
+        bougthPremium: refInfo.bougthPremium
+    }
+}

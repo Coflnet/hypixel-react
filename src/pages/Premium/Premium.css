@@ -1,3 +1,7 @@
 .premium-page {
     margin: 20px 0 20px 0;
 }
+
+.premium-plans>iframe.component-frame {
+    z-index: 0;
+}
