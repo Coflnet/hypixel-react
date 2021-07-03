@@ -143,6 +143,7 @@ interface FlipperFilter {
   onlyBin?: boolean,
   minProfit?: number,
   maxCost?: number
+  onlyUnsold?: boolean
 }
 
 interface API {
