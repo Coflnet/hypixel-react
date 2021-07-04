@@ -226,11 +226,17 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Hypixel is ONLINE again! -&gt; Free Premium Extenstion</Card.Subtitle>
+                        <Card.Subtitle>Auctions older than 5 days temporarly not available </Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
                         <p>
-                            As Hypixel is online again all our <Link to="/premium">premium</Link> users received 7 free additional days to their already bought premium.
+                            We are moving older auctions to another server. This will temporarly limit the following features:
+                            <ul>
+                                <li>Using a filter on more than one day</li>
+                                <li>Listing auction or bids</li>
+                            </ul>
+                            Search, everything on this page as well as the flipper should not be affected.<br/>
+                            We expect to finish the migration by 18:00 UTC 4.July
                         </p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
