@@ -226,17 +226,13 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Auctions older than 5 days temporarly not available </Card.Subtitle>
+                        <Card.Subtitle>Operations restored </Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
                         <p>
-                            We are moving older auctions to another server. This will temporarly limit the following features:
-                            <ul>
-                                <li>Using a filter on more than one day</li>
-                                <li>Listing auction or bids</li>
-                            </ul>
-                            Search, everything on this page as well as the flipper should not be affected.<br/>
-                            We expect to finish the migration by 18:00 UTC 4.July
+                            We moved auctions to another server. 
+                            This should increase performance. 
+                            All systems are operational again.
                         </p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
