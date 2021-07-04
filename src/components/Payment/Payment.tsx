@@ -7,6 +7,8 @@ import { v4 as generateUUID } from 'uuid';
 import api from "../../api/ApiHelper";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
+import Tooltip from "../Tooltip/Tooltip";
+import { Help as HelpIcon } from '@material-ui/icons';
 declare var paypal: any;
 
 interface Props {
@@ -105,10 +107,13 @@ function Payment(props: Props) {
           {productGroup.map((product, i) => {
             return (
               <div key={product.itemId}>
-                <span className="premium-price">Price: {roundToTwo(product.price.value)}</span>
+                <p className="premium-price">Price: {roundToTwo(product.price.value)}
+                  {product?.paymentProviderName === 'paypal' ? <Tooltip content={<span style={{ marginLeft: "5px" }}><HelpIcon /></span>} type="hover" tooltipContent={<p>Higher price than with credit card due to higher fees</p>} /> : ""}
+                </p>
                 {
                   product?.paymentProviderName === 'paypal' ?
-                    <div id={"paypal-button" + product.itemId}></div> :
+                    <div style={{ position: "relative", zIndex: 0 }}>
+                      <div id={"paypal-button" + product.itemId}></div></div> :
                     <Button variant="success" onClick={() => { onPay(product) }}>
                       Buy with credit card
                     </Button>

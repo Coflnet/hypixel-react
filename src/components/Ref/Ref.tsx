@@ -5,6 +5,10 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import './Ref.css';
 import { getLoadingElement } from '../../utils/LoadingUtils';
+import { Card } from 'react-bootstrap';
+import CopySymbol from '../CopySymbol/CopySymbol';
+import { getProperty } from '../../utils/PropertiesUtils';
+import { toast } from 'react-toastify';
 
 interface Props {
 }
@@ -26,6 +30,16 @@ function Ref(props: Props) {
         }
     }
 
+    function getLink() {
+        return getProperty("refLink") + "?" + refInfo?.refId;
+    }
+
+    function onCopy() {
+
+        window.navigator.clipboard.writeText(getLink());
+        toast.success(<p>Copied ref link <br /><i>{getLink()}</i></p>)
+    }
+
     return (
         <div className="ref">
             <h2>
@@ -36,7 +50,18 @@ function Ref(props: Props) {
             {!isLoggedIn ?
                 <div></div> :
                 <div>
-                    <p>Your Ref-Link: {refInfo?.refId}</p>
+                    <Card>
+                        <Card.Header>Referral-Link</Card.Header>
+                        <Card.Body>
+                            <p>Your Ref-Link: <span style={{fontStyle: "italic", color: "skyblue"}}>{getLink()}</span>
+                                <span style={{marginLeft: 15}}>
+                                    {
+                                        window.navigator && refInfo ? <CopySymbol onCopyClick={onCopy} /> : ""
+                                    }
+                                </span>
+                            </p>
+                        </Card.Body>
+                    </Card>
                 </div>}
             <div>
                 <GoogleSignIn onAfterLogin={onLogin} />

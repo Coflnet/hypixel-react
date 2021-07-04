@@ -7,7 +7,7 @@ interface Props {
 
 }
 
-function Startpage(props: Props) {
+function Ref(props: Props) {
 
     return (
         <div className="ref-page">
@@ -18,4 +18,4 @@ function Startpage(props: Props) {
     );
 }
 
-export default Startpage;
+export default Ref;

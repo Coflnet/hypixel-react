@@ -46,11 +46,11 @@ function Tooltip(props: Props) {
     )
 
     return (
-        <div className="tooltip-component">
+        <span>
             {
                 props.type === "hover" ? hoverElement : clickElement
             }
-        </div>
+        </span>
     );
 }
 
