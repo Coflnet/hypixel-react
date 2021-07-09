@@ -276,7 +276,6 @@ export function parseRecentAuction(auction): RecentAuction {
 
 export function parseFlipAuction(flip): FlipAuction {
     return {
-        isCopied: false,
         showLink: true,
         median: flip.median,
         cost: flip.cost,
