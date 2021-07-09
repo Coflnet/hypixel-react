@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Container } from 'react-bootstrap';
 import NavBar from '../../components/NavBar/NavBar';
 import './Feedback.css';
 
 function Feedback() {
+
+    useEffect(() => {
+        document.title = "Feedback";
+    })
 
     return (
         <div className="feedback-page">

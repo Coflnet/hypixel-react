@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, Container } from 'react-bootstrap';
 import NavBar from '../../components/NavBar/NavBar';
 import './About.css';
 
 function ItemDetails() {
+
+    useEffect(() => {
+        document.title = "About";
+    })
 
     return (
         <div className="about-page">
