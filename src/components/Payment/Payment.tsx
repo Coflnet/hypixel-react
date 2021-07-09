@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
 import Tooltip from "../Tooltip/Tooltip";
 import { Help as HelpIcon } from '@material-ui/icons';
+
 declare var paypal: any;
 
 interface Props {
