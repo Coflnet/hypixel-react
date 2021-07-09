@@ -7,6 +7,9 @@ import { v4 as generateUUID } from 'uuid';
 import api from "../../api/ApiHelper";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
+import Tooltip from "../Tooltip/Tooltip";
+import { Help as HelpIcon } from '@material-ui/icons';
+
 declare var paypal: any;
 
 interface Props {
@@ -20,9 +23,22 @@ function Payment(props: Props) {
   let history = useHistory();
 
   useEffect(() => {
-    loadProducts()
+    loadProducts();
+    insertPaypalSDK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function insertPaypalSDK() {
+    let id = "paypal-skd-script";
+    if (!document.getElementById(id)) {
+      let script = document.createElement("script")
+      script.type = "text/javascript";
+      script.id = id;
+      script.async = true;
+      script.src = "https://www.paypal.com/sdk/js?client-id=Aak_J-tnckfr6kBQPj0GrMoOpbcG6HTrzx5svF8gGcH5AH2XwbwIVIdK8In05-38TPHofJZE2u4dRWSj&locale=en_US&disable-funding=credit,card,giropay,sofort&currency=EUR";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    }
+  }
 
   function loadProducts(): Promise<void> {
     let products2: Product[] = [];
@@ -106,9 +122,14 @@ function Payment(props: Props) {
             return (
               <div key={product.itemId}>
                 <span className="premium-price">Price: {roundToTwo(product.price.value)}</span>
+                <p className="premium-price">Price: {roundToTwo(product.price.value)}
+                  {product?.paymentProviderName === 'paypal' ? <Tooltip content={<span style={{ marginLeft: "5px" }}><HelpIcon /></span>} type="hover" tooltipContent={<p>Higher price than with credit card due to higher fees</p>} /> : ""}
+                </p>
                 {
                   product?.paymentProviderName === 'paypal' ?
-                    <div id={"paypal-button" + product.itemId}></div> :
+                    <div style={{ position: "relative", zIndex: 0 }}>
+                      <div id={"paypal-button" + product.itemId}></div>
+                    </div> :
                     <Button variant="success" onClick={() => { onPay(product) }}>
                       Buy with credit card
                     </Button>

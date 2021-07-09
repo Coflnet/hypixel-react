@@ -1,3 +1,4 @@
+import { useMatomo } from '@datapunt/matomo-tracker-react';
 import React, { useEffect, useState } from 'react';
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import { useHistory } from "react-router-dom";
@@ -44,6 +45,8 @@ export let getTimeSpanFromDateRange = (range: DateRange): number => {
 
 export function ItemPriceRange(props: Props) {
 
+    const { trackEvent } = useMatomo()
+
     let history = useHistory();
     let [selectedDateRange, setSelectedDateRange] = useState(DEFAULT_DATE_RANGE);
 
@@ -87,6 +90,14 @@ export function ItemPriceRange(props: Props) {
         }
     }
 
+    let onRangeChangeClick = (newRange) => {
+        onRangeChange(newRange);
+        trackEvent({
+            category: 'changeItemPriceRange',
+            action: newRange,
+        })
+    }
+
     /**
      * While using the "disabled" prop, the focus state of the ToggleButtons is not removed after changing to another button
      * Here are all wrong focuses cleard
@@ -103,7 +114,7 @@ export function ItemPriceRange(props: Props) {
     }
 
     return (
-        <ToggleButtonGroup className="item-price-range" type="radio" name="options" value={selectedDateRange} onChange={onRangeChange}>
+        <ToggleButtonGroup className="item-price-range" type="radio" name="options" value={selectedDateRange} onChange={onRangeChangeClick}>
             <ToggleButton className="price-range-button" value={DateRange.DAY} variant={getButtonVariant(DateRange.DAY)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">1 Day</ToggleButton>
             <ToggleButton className="price-range-button" value={DateRange.WEEK} variant={getButtonVariant(DateRange.WEEK)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">1 Week</ToggleButton>
             <ToggleButton className="price-range-button" value={DateRange.MONTH} variant={getButtonVariant(DateRange.MONTH)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">1 Month</ToggleButton>

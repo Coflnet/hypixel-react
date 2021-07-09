@@ -26,3 +26,7 @@
 .premium-plan-card {
     margin-bottom: 15px;
 }
+
+.premium-price {
+    font-size: larger;
+}
