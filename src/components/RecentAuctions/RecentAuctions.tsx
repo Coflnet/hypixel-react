@@ -5,6 +5,7 @@ import './RecentAuctions.css';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import { getLoadingElement } from '../../utils/LoadingUtils';
 interface Props {
     item: Item,
     fetchspan: number,
@@ -17,18 +18,21 @@ let mounted = true;
 function RecentAuctions(props: Props) {
 
     let [recentAuctions, setRecentAuctions] = useState<RecentAuction[]>([]);
+    let [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         mounted = true;
     })
 
     useEffect(() => {
+        setIsLoading(true);
         api.getRecentAuctions(props.item.tag, props.fetchspan, props.itemFilter).then(recentAuctions => {
 
             if (!mounted) {
                 return;
             }
 
+            setIsLoading(false);
             setRecentAuctions(recentAuctions);
         })
 
@@ -49,7 +53,7 @@ function RecentAuctions(props: Props) {
                             </div>
                             <div>
                                 {numberWithThousandsSeperators(recentAuction.price)} Coins
-                        </div>
+                            </div>
                         </Card.Header>
                         <Card.Body style={{ padding: "10px" }}>
                             <img style={{ marginRight: "15px" }} crossOrigin="anonymous" src={recentAuction.seller.iconUrl} alt="" height="24" width="24" loading="lazy" />
@@ -67,7 +71,11 @@ function RecentAuctions(props: Props) {
         <div className="recent-auctions">
             <h3>Recent auctions</h3>
             <div className="recent-auctions-list">
-                {recentAuctions.length > 0 ? recentAuctionList : <p style={{textAlign: "center"}}>No recent auctions found</p>}
+                {isLoading ?
+                    getLoadingElement() :
+                    recentAuctions.length > 0 ?
+                        recentAuctionList :
+                        <p style={{ textAlign: "center" }}>No recent auctions found</p>}
             </div>
         </div >
     );
