@@ -131,7 +131,7 @@ export function parseSearchResultItem(item: any): SearchResultItem {
     return {
         dataItem: {
             name: item.name,
-            iconUrl: item.img ? "data:image/png;base64," + item.img : (item.type === "item" ? item.iconUrl : item.iconUrl + "?size=32"),
+            iconUrl: item.img ? "data:image/png;base64," + item.img : (item.type === "item" ? item.iconUrl : item.iconUrl + "?size=8"),
             uuid: item.id
         },
         type: item.type,
@@ -149,7 +149,7 @@ export function parsePlayer(player: any): Player {
     return {
         name: player.name,
         uuid: player.uuid,
-        iconUrl: player.iconUrl ? player.iconUrl + "?size=64" : "https://crafatar.com/avatars/" + player.uuid + "?size=64"
+        iconUrl: player.iconUrl ? player.iconUrl + "?size=8" : "https://crafatar.com/avatars/" + player.uuid + "?size=8"
     }
 }
 

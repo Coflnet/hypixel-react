@@ -125,7 +125,7 @@ function Startpage() {
                         <Card className="card">
                             <Card.Header style={{ height: "100%" }}>
                                 <div style={{ float: "left" }}>
-                                    <img crossOrigin="anonymous" src={search.img} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                    <img crossOrigin="anonymous" className="player-head-icon" src={search.url.includes("/player") ? search.img + '?size=8' : search.img} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                 </div>
                                 <Card.Title>{search.title}</Card.Title>
                             </Card.Header>
@@ -151,7 +151,7 @@ function Startpage() {
                         <Card className="card">
                             <Card.Header style={{ padding: "10px" }}>
                                 <div style={{ float: "left" }}>
-                                    <img crossOrigin="anonymous" src={newPlayer.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                    <img crossOrigin="anonymous" className="player-head-icon" src={newPlayer.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                 </div>
                                 {newPlayer.name}
                             </Card.Header>

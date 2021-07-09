@@ -20,9 +20,22 @@ function Payment(props: Props) {
   let history = useHistory();
 
   useEffect(() => {
-    loadProducts()
+    loadProducts();
+    insertPaypalSDK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function insertPaypalSDK() {
+    let id = "paypal-skd-script";
+    if (!document.getElementById(id)) {
+      let script = document.createElement("script")
+      script.type = "text/javascript";
+      script.id = id;
+      script.async = true;
+      script.src = "https://www.paypal.com/sdk/js?client-id=Aak_J-tnckfr6kBQPj0GrMoOpbcG6HTrzx5svF8gGcH5AH2XwbwIVIdK8In05-38TPHofJZE2u4dRWSj&locale=en_US&disable-funding=credit,card,giropay,sofort&currency=EUR";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    }
+  }
 
   function loadProducts(): Promise<void> {
     let products2: Product[] = [];
