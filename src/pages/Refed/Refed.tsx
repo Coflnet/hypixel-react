@@ -27,6 +27,8 @@ function Refed() {
                         <hr />
                         <p>To get access to the free premium day you have to login with google:</p>
                         <GoogleSignIn onAfterLogin={onAfterLogin} />
+                        <p>We use google accounts because they are more secure than requiring a separate login. We use your google Id and email in compliance with our <a href="https://coflnet.com/privacy">privacy policy</a> (i.e. to know what settings you made and contact you in case we need to)</p>
+                        
                         <Link to="/"><Button>Go to main page</Button></Link>
                     </Card.Body>
                 </Card>
