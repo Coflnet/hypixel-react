@@ -133,7 +133,6 @@ interface FlipAuction {
   cost: number,
   volume: number,
   showLink: boolean,
-  isCopied: boolean,
   item: Item,
   bin: boolean,
   sold?: boolean
