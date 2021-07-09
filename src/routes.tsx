@@ -53,7 +53,6 @@ setTimeout(() => {
   Flipper.preload();
   Success.preload();
   Ref.preload();
-  Refed.preload();
 }, 2000);
 
 const matomoTrackingInstance = createInstance({

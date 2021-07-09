@@ -1,7 +1,6 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import RefComponent from '../../components/Ref/Ref'
-import './Ref.css'
 
 interface Props {
 

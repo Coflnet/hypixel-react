@@ -271,5 +271,6 @@ interface RefInfo {
   refId: string,
   count: number,
   receivedTime: number,
+  receivedHours: number,
   bougthPremium: number
 }
