@@ -3,6 +3,7 @@ import { GoogleLogin } from "react-google-login";
 import { toast } from "react-toastify";
 import api from "../../api/ApiHelper";
 import { refreshTokenSetup } from "../../utils/GoogleUtils";
+import { useHistory } from "react-router-dom";
 
 interface Props {
     onAfterLogin(): void
@@ -11,6 +12,7 @@ interface Props {
 function GoogleSignIn(props: Props) {
 
     let [googleId, setGoogleId] = useState(localStorage.getItem("googleId"));
+    let history = useHistory();
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -24,7 +26,13 @@ function GoogleSignIn(props: Props) {
             let refId = (window as any).refId;
             if (refId) {
                 api.setRef(refId).then(() => {
-                    toast.success("You were sucessfully logged in. You should now have received your free 1 day premium.")
+                    toast.success("You received one day of premium for free.", {
+                        onClick: () => {
+                            history.push({
+                                pathname: "/premium"
+                            })
+                        }
+                    });
                 });
             }
             refreshTokenSetup(response);
