@@ -97,7 +97,7 @@ function Search(props: Props) {
         if (!props.selected || props.currentElement) {
             return props.currentElement || <div/>;
         }
-        return <h1 className="current"><img crossOrigin="anonymous" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</h1>
+        return <h1 className="current"><img crossOrigin="anonymous" className="player-head-icon" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</h1>
     }
 
     return (
@@ -118,7 +118,7 @@ function Search(props: Props) {
                                 results.map((result, i) => (
                                     <ListGroup.Item key={result.id} action onClick={(e: any) => { onItemClick(result) }} style={i === results.length - 1 ? { marginBottom: "10px" } : {}} >
                                         {result.dataItem.iconUrl ?
-                                            <img className="search-result-icon" crossOrigin="anonymous" width={32} height={32} src={result.dataItem.iconUrl} alt="" loading="lazy" /> :
+                                            <img className="search-result-icon player-head-icon" crossOrigin="anonymous" width={32} height={32} src={result.dataItem.iconUrl} alt="" loading="lazy" /> :
                                             <Spinner animation="border" role="status" variant="primary" />
                                         }
                                         {result.dataItem.name}
