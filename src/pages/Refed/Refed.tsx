@@ -23,7 +23,7 @@ function Refed() {
                     <Card.Body>
                         <p>You were invited to use this application because someone thought it would be interesting and helpful to you.</p>
                         <p>We hope you will enjoy our service.</p>
-                        <p>As a welcome gift you can received 1 day of premium to test out our premium features. You can check out all the features and your remaining time <Link to="/premium">here</Link>.</p>
+                        <p>As a welcome gift you will receive 24 hours of free premium to try all features. You can find a list of them as well as your remaining time on the <Link to="/premium">premium page</Link>.</p>
                         <hr />
                         <p>To get access to the free premium day you have to login with google:</p>
                         <GoogleSignIn onAfterLogin={onAfterLogin} />
