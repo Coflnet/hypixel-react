@@ -91,11 +91,11 @@ export function ItemPriceRange(props: Props) {
     }
 
     let onRangeChangeClick = (newRange) => {
+        onRangeChange(newRange);
         trackEvent({
             category: 'changeItemPriceRange',
             action: newRange,
         })
-        onRangeChange(newRange);
     }
 
     /**
