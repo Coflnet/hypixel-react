@@ -131,7 +131,7 @@ export function parseSearchResultItem(item: any): SearchResultItem {
     return {
         dataItem: {
             name: item.name,
-            iconUrl: item.type === "item" ? item.iconUrl : item.iconUrl + "?size=8",
+            iconUrl: item.img ? "data:image/png;base64," + item.img : (item.type === "item" ? item.iconUrl : item.iconUrl + "?size=8"),
             uuid: item.id
         },
         type: item.type,
