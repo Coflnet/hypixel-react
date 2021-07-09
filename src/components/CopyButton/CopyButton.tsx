@@ -49,7 +49,7 @@ export function CopyButton(props: Props) {
     return (
         <div>{window.navigator.clipboard ?
             <div className={props.buttonWrapperClass}>
-                <Button variant={props.buttonVariant || "secondary"} onClick={() => { copyClick() }}>{isCopied ? copiedIcon : copyIcon}</Button>
+                <Button aria-label="copy to clipboard" variant={props.buttonVariant || "secondary"} onClick={() => { copyClick() }}>{isCopied ? copiedIcon : copyIcon}</Button>
             </div> : ""}
         </div>
     )
