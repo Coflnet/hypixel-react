@@ -271,7 +271,9 @@ function AuctionDetails(props: Props) {
                             </Card.Body>
                         </Card>
                     </div>
-                    <CopyButton copyValue={"/viewauction " + props.auctionUUID} successMessage={<p>Copied ingame link <br /><i>/viewauction {props.auctionUUID}</i></p>} />
+                    <div className="fixed-bottom">
+                        <CopyButton buttonWrapperClass="btn-bottom" buttonVariant="primary" copyValue={"/viewauction " + props.auctionUUID} successMessage={<p>Copied ingame link <br /><i>/viewauction {props.auctionUUID}</i></p>} />
+                    </div>
                 </div>
             }
         </div>
