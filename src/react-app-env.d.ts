@@ -194,7 +194,7 @@ interface API {
   getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>,
   paypalPurchase(orderId: string, days: number): Promise<any>,
   getRefInfo(): Promise<RefInfo>,
-  setRefInfo(): Promise<void>
+  setRef(refId: string): Promise<void>
 }
 
 interface CacheUtils {

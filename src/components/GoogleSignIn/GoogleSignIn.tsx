@@ -17,9 +17,16 @@ function GoogleSignIn(props: Props) {
     }, []);
 
     const onLoginSucces = (response: any) => {
+
         localStorage.setItem("googleId", response.tokenId);
         setGoogleId(response.tokenId);
         api.setGoogle(response.tokenId).then(() => {
+            let refId = (window as any).refId;
+            if (refId) {
+                api.setRef(refId).then(() => {
+                    toast.success("You were sucessfully logged in. You should now have received your free 1 day premium.")
+                });
+            }
             refreshTokenSetup(response);
             props.onAfterLogin();
         }).catch(() => {

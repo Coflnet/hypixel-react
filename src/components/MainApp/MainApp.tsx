@@ -28,8 +28,16 @@ export function MainApp(props: any) {
             })
         }
 
+        let refId = new URLSearchParams(window.location.search).get("refId");
+        if (refId) {
+            (window as any).refId = refId;
+        }
+
         registerNotificationCallback(history);
         // eslint-disable-next-line react-hooks/exhaustive-deps
+
+
+
     }, [location])
 
     useEffect(() => {

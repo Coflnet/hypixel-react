@@ -697,13 +697,13 @@ function initAPI(): API {
         });
     }
 
-    let setRefInfo = (): Promise<void> => {
+    let setRef = (refId: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.SET_REF,
-                data: "",
-                resolve: (response: any) => {
-
+                data: refId,
+                resolve: () => {
+                    resolve();
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_REF, error, "");
@@ -750,7 +750,7 @@ function initAPI(): API {
         getFlipBasedAuctions,
         paypalPurchase,
         getRefInfo,
-        setRefInfo
+        setRef
     }
 }
 

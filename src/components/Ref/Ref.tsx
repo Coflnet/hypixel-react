@@ -31,7 +31,7 @@ function Ref(props: Props) {
     }
 
     function getLink() {
-        return getProperty("refLink") + "?" + refInfo?.refId;
+        return getProperty("refLink") + "?refId=" + refInfo?.refId;
     }
 
     function onCopy() {
@@ -60,12 +60,15 @@ function Ref(props: Props) {
                                     }
                                 </span>
                             </p>
+                            <hr/>
+                            <p>Share your Ref-Link to people who might be interested in our application. If the invited person logs in with goolge you and the invited person get <b>1 free day of premium</b>.</p>
+                            <p>The link above gets to a welcome page for invited users. If you want to share another page on our website and still profit from the Refferal-Program you can add <b style={{whiteSpace: "nowrap"}}>?refId={refInfo?.refId}</b> to the link</p>
                         </Card.Body>
                     </Card>
                 </div>}
             <div>
-                <GoogleSignIn onAfterLogin={onLogin} />
                 {!isLoggedIn ? <p>To use the referral program please login with Google</p> : ""}
+                <GoogleSignIn onAfterLogin={onLogin} />
                 {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
             </div>
 
