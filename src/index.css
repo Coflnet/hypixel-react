@@ -39,3 +39,8 @@ a {
 img {
     color: #303030
 }
+
+.player-head-icon {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+}
