@@ -23,8 +23,8 @@
     margin-right: 10px;
 }
 
-#paypal-button-container {
-    z-index: 0 !important;
+.premium-plan-card {
+    margin-bottom: 15px;
 }
 
 .premium-price {

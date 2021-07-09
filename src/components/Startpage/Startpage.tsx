@@ -125,7 +125,7 @@ function Startpage() {
                         <Card className="card">
                             <Card.Header style={{ height: "100%" }}>
                                 <div style={{ float: "left" }}>
-                                    <img crossOrigin="anonymous" src={search.img} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                    <img crossOrigin="anonymous" className="player-head-icon" src={search.url.includes("/player") ? search.img + '?size=8' : search.img} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                 </div>
                                 <Card.Title>{search.title}</Card.Title>
                             </Card.Header>
@@ -151,7 +151,7 @@ function Startpage() {
                         <Card className="card">
                             <Card.Header style={{ padding: "10px" }}>
                                 <div style={{ float: "left" }}>
-                                    <img crossOrigin="anonymous" src={newPlayer.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                    <img crossOrigin="anonymous" className="player-head-icon" src={newPlayer.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                 </div>
                                 {newPlayer.name}
                             </Card.Header>
@@ -226,11 +226,13 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Hypixel is ONLINE again! -&gt; Free Premium Extenstion</Card.Subtitle>
+                        <Card.Subtitle>Operations restored </Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
                         <p>
-                            As Hypixel is online again all our <Link to="/premium">premium</Link> users received 7 free additional days to their already bought premium.
+                            We moved auctions to another server. 
+                            This should increase performance. 
+                            All systems are operational again.
                         </p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>

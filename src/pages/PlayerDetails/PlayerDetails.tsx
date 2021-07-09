@@ -7,6 +7,7 @@ import { Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import BidList from '../../components/BidList/BidList';
 import api from '../../api/ApiHelper';
 import { parsePlayer } from '../../utils/Parser/APIResponseParser';
+import { useSwipe } from '../../utils/Hooks';
 
 enum DetailType {
     AUCTIONS = "auctions",
@@ -21,6 +22,14 @@ function PlayerDetails() {
     let { uuid } = useParams();
     let [detailType, setDetailType_] = useState<DetailType>(prevDetailType || DetailType.AUCTIONS);
     let [selectedPlayer, setSelectedPlayer] = useState<Player>();
+    let removeSwipeListeners = useSwipe(undefined, onSwipeRight, undefined, onSwipeLeft);
+
+    useEffect(() => {
+        return () => {
+            removeSwipeListeners();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         api.getPlayerName(uuid).then(name => {
@@ -28,8 +37,16 @@ function PlayerDetails() {
                 uuid: uuid,
                 name: name
             }));
-        })
+        });
     }, [uuid]);
+
+    function onSwipeRight() {
+        setDetailType(DetailType.AUCTIONS);
+    }
+
+    function onSwipeLeft() {
+        setDetailType(DetailType.BIDS);
+    }
 
     let onDetailTypeChange = (newType: DetailType) => {
         setDetailType(newType);
