@@ -50,9 +50,9 @@ function Ref(props: Props) {
                                     <CopyButton copyValue={getLink()} successMessage={<p>Copied ref link <br /><i>{getLink()}</i></p>} />
                                 </span>
                             </div>
-                            <hr />
-                            <p>Share your Ref-Link to people who might be interested in our application. If the invited person logs in with goolge you and the invited person get <b>1 free day of premium</b>.</p>
-                            <p>The link above gets to a welcome page for invited users. If you want to share another page on our website and still profit from the Refferal-Program you can add <b style={{ whiteSpace: "nowrap" }}>?refId={refInfo?.refId}</b> to the link</p>
+                            <hr/>
+                            <p>Share your Ref-Link with people which might find skyblock ah history useful. If the invited person logs in with google you and the invited person both get <b>1 free day of premium</b>.</p>
+                            <p>The default referral page contains some facts about this site. You are also able to share another page and still get the Referral-Bonus. All you have to do is adding <b style={{whiteSpace: "nowrap"}}>?refId={refInfo?.refId}</b> to any link</p>
                         </Card.Body>
                     </Card>
                     <Card>
