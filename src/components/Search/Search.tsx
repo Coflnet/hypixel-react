@@ -102,7 +102,7 @@ function Search(props: Props) {
 
     return (
         <div className="search">
-            <Form>
+            <Form autoComplete="off">
                 <Form.Group>
                     <NavBar />
                     <Form.Control type="text" placeholder="Search player/item" id="search-bar" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
