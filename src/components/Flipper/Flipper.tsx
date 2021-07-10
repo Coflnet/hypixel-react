@@ -100,7 +100,6 @@ function Flipper() {
             setEnabledScroll(false);
             return [];
         });
-        console.log("cleared");
     }
 
     function onAuctionSold(uuid: string) {

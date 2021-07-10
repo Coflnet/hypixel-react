@@ -74,11 +74,11 @@ function FlipperFilter(props: Props) {
     const numberFilters = <div>
         <Form.Group style={{ width: "45%", display: "inline-block" }}>
             <Form.Label className="flipper-filter-formfield-label">Min Profit:</Form.Label>
-            <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" type="number" step={5000} />
+            <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" type="number" step={5000} disabled={!props.isLoggedIn} />
         </Form.Group>
         <Form.Group style={{ width: "45%", display: "inline-block", marginLeft: "5%" }}>
             <Form.Label className="flipper-filter-formfield-label">Max Cost:</Form.Label>
-            <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" type="number" step={20000} />
+            <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" type="number" step={20000} disabled={!props.isLoggedIn}/>
         </Form.Group>
     </div>;
 
