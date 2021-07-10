@@ -1,10 +1,8 @@
 import React from "react";
 import { Button, Container, Card } from "react-bootstrap";
 import { Link } from 'react-router-dom';
-import { toast } from "react-toastify";
 import GoogleSignIn from "../../components/GoogleSignIn/GoogleSignIn";
 import Search from "../../components/Search/Search";
-import './Refed.css';
 
 function Refed() {
 
