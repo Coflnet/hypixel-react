@@ -3,7 +3,7 @@ import { ProSidebar, Menu, MenuItem, SidebarHeader } from 'react-pro-sidebar';
 import 'react-pro-sidebar/dist/css/styles.css';
 import './NavBar.css';
 import { Link } from 'react-router-dom';
-import { NotificationsOutlined as NotificationIcon, Home as HomeIcon, Storefront as StorefrontIcon, AccountBalance as AccountBalanceIcon, Policy as PolicyIcon, Chat as ChatIcon, Menu as MenuIcon, Headset as HeadsetIcon, ExploreOutlined as ExploreIcon } from '@material-ui/icons';
+import { ShareOutlined as ShareIcon, NotificationsOutlined as NotificationIcon, Home as HomeIcon, Storefront as StorefrontIcon, AccountBalance as AccountBalanceIcon, Policy as PolicyIcon, Chat as ChatIcon, Menu as MenuIcon, Headset as HeadsetIcon, ExploreOutlined as ExploreIcon } from '@material-ui/icons';
 
 function NavBar() {
 
@@ -104,6 +104,7 @@ function NavBar() {
                         <MenuItem icon={<StorefrontIcon />}><Link to="/flipper">Item-Flipper</Link> </MenuItem>
                         <MenuItem icon={<NotificationIcon />}><Link to="/subscriptions" >Subscriptions</Link></MenuItem>
                         <MenuItem icon={<AccountBalanceIcon />}><Link to="/premium" >Premium</Link></MenuItem>
+                        <MenuItem icon={<ShareIcon />}><Link to="/ref" >Referral</Link></MenuItem>
                         <MenuItem icon={<PolicyIcon />}><Link to="/about" >Links / Legal</Link></MenuItem>
                         <MenuItem icon={<ChatIcon />}><Link to="/feedback" >Feedback</Link></MenuItem>
                         <MenuItem icon={<HeadsetIcon />}><a href="https://discord.gg/Qm55WEkgu6"><div style={{ color: "#7289da" }}>Discord</div></a></MenuItem>
