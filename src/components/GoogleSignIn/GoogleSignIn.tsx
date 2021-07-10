@@ -19,7 +19,6 @@ function GoogleSignIn(props: Props) {
     }, []);
 
     const onLoginSucces = (response: any) => {
-
         localStorage.setItem("googleId", response.tokenId);
         setGoogleId(response.tokenId);
         api.setGoogle(response.tokenId).then(() => {
