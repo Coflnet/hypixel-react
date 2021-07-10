@@ -20,6 +20,7 @@ module.exports = {
                         /^collapse.*/,
                         /^react-datepicker.*/,
                         /^container.*/,
+                        /^pro-*/,
                         'btn',
                         'active',
                         'body',
