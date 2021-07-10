@@ -13,13 +13,6 @@
     width: calc(100% - 48px);
 }
 
-.infoIcon {
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    margin-right: 12px;
-}
-
 .bar {
     display: flex;
 }

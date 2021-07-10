@@ -1,31 +1,17 @@
-.nav-bar {
-    font-size: small;
+.nav-closing {
+    left: -270px;
+    transition: all 0.5s;
 }
 
-@media all and (min-width: 1500px) {
-    .infoIcon {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        display: block;
-    }
+.nav-open {
+    left: 0px !important;
+    transition: left 0.5s;
 }
 
-.nav-bar a {
-    text-decoration: none !important;
-    color: #fff;
-}
-
-.link-item-div {
-    height: max-content;
-    width: max-content;
-    margin-left: 20px;
-}
-
-.navbar-icon {
-    margin-right: 10px;
-}
-
-.nav-bar ul {
-    padding-inline-start: 0;
+#hamburger-icon {
+    display: inline;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    margin-right: 12px;
 }
