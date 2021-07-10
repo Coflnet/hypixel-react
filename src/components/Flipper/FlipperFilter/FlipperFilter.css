@@ -6,3 +6,8 @@
     float: left;
     margin-right: 15px;
 }
+
+.premium-filters {
+    width: 50%;
+    min-width: 300px;
+}
