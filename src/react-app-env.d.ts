@@ -87,13 +87,12 @@ interface PlayerDetails {
   bids: ItemBid[];
   auctions: Auction[];
 }
-enum FilterType
-{
-    Equal = 1,
-    HIGHER = 2,
-    LOWER = 4,
-    DATE = 8,
-    NUMERICAL = 16
+enum FilterType {
+  Equal = 1,
+  HIGHER = 2,
+  LOWER = 4,
+  DATE = 8,
+  NUMERICAL = 16
 }
 
 interface ItemFilter {
@@ -185,14 +184,16 @@ interface API {
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
   subscribeFlips(flipCallback: Function, soldCallback: Function): void,
-  getFilter(name:string): Promise<FilterOptions>
+  getFilter(name: string): Promise<FilterOptions>
   getNewAuctions(): Promise<Auction[]>,
   getEndedAuctions(): Promise<Auction[]>,
   getPopularSearches(): Promise<PopularSearch[]>,
   getNewItems(): Promise<Item[]>,
   getNewPlayers(): Promise<Player[]>
   getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>,
-  paypalPurchase(orderId: string, days: number): Promise<any>
+  paypalPurchase(orderId: string, days: number): Promise<any>,
+  getRefInfo(): Promise<RefInfo>,
+  setRef(refId: string): Promise<void>
 }
 
 interface CacheUtils {
@@ -264,4 +265,12 @@ interface PopularSearch {
   title: string,
   url: string,
   img: string
+}
+
+interface RefInfo {
+  refId: string,
+  count: number,
+  receivedTime: number,
+  receivedHours: number,
+  bougthPremium: number
 }

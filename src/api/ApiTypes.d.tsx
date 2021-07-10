@@ -32,7 +32,9 @@ export enum RequestType {
     POPULAR_SEARCHES = "popularSearches",
     ENDED_AUCTIONS = "endedAuctions",
     GET_FLIP_BASED_AUCTIONS = "flipBased",
-    PAYPAL_PAYMENT = "paypalPurchase"
+    PAYPAL_PAYMENT = "paypalPurchase",
+    GET_REF_INFO = "getRefInfo",
+    SET_REF = "setRef"
 }
 
 export enum SubscriptionType {
