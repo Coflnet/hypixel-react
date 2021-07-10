@@ -37,6 +37,7 @@ function PlayerDetails() {
                 uuid: uuid,
                 name: name
             }));
+            document.title = `Auctions and bids from ${name} in the hypixel skyblock ah`
         });
     }, [uuid]);
 

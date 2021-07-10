@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Container, Card } from "react-bootstrap";
 import { Link } from 'react-router-dom';
 import Search from "../../components/Search/Search";
 import './PaymentSuccess.css';
 
 function Success() {
+
+    useEffect(() => {
+        document.title = "Payment successful";
+    })
+
     return (
         <div className="payment-success">
             <Container>
