@@ -40,6 +40,11 @@ img {
     color: #303030
 }
 
+.btn-bottom {
+    float: right;
+    margin-left: 10px;
+}
+
 .player-head-icon {
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
