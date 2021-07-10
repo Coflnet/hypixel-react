@@ -61,7 +61,7 @@ function Ref(props: Props) {
                             <p><span className="label">Ref-Id:</span> <b>{refInfo?.refId}</b></p>
                             <p><span className="label">Number of invited users (only after login):</span><b>{refInfo?.count}</b></p>
                             <p><span className="label">Recieved Premium in hours:</span> <b>{refInfo?.receivedHours}</b></p>
-                            <p><span className="label">Users that bought premium:</span> <b>{refInfo?.bougthPremium}</b></p>
+                            <p><span className="label">Referred premium users:</span> <b>{refInfo?.bougthPremium}</b></p>
                         </Card.Body>
                     </Card>
                 </div>}
