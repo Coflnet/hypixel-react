@@ -4,13 +4,32 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import './NavBar.css';
 import { Link } from 'react-router-dom';
 import { ShareOutlined as ShareIcon, NotificationsOutlined as NotificationIcon, Home as HomeIcon, Storefront as StorefrontIcon, AccountBalance as AccountBalanceIcon, Policy as PolicyIcon, Chat as ChatIcon, Menu as MenuIcon, Headset as HeadsetIcon, ExploreOutlined as ExploreIcon } from '@material-ui/icons';
+import { useForceUpdate } from '../../utils/Hooks';
+
+let resizePromise: NodeJS.Timeout | null = null;
 
 function NavBar() {
 
     let [isWideOpen, setIsWideOpen] = useState(false);
     let [isHovering, setIsHovering] = useState(false);
+    let forceUpdate = useForceUpdate();
 
     let isSmall = document.body.clientWidth < 1500;
+
+    window.addEventListener("resize", function (event) {
+        if (resizePromise) {
+            return;
+        }
+        resizePromise = setTimeout(() => {
+            setIsWideOpen(false);
+            forceUpdate();
+            resizePromise = null;
+            let el = document.getElementById('pro-sidebar');
+            if (el) {
+                el.style.left = "0px";
+            }
+        }, 500)
+    })
 
     useEffect(() => {
         if (isWideOpen) {
@@ -70,10 +89,12 @@ function NavBar() {
         if (isSmall && !isWideOpen) {
             let el = document.getElementById('pro-sidebar');
             if (el) {
-                el!.hidden = false;
+                el.hidden = false;
                 el.style.left = "-270px";
                 setTimeout(() => {
-                    el?.classList.add('nav-open');
+                    if(el){
+                        el.classList.add('nav-open');
+                    }
                 });
                 setTimeout(() => {
                     setIsWideOpen(true);
