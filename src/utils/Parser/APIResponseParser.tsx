@@ -276,7 +276,6 @@ export function parseRecentAuction(auction): RecentAuction {
 
 export function parseFlipAuction(flip): FlipAuction {
     return {
-        isCopied: false,
         showLink: true,
         median: flip.median,
         cost: flip.cost,
@@ -296,5 +295,15 @@ export function parsePopularSearch(search): PopularSearch {
         title: search.title,
         url: search.url,
         img: search.img
+    }
+}
+
+export function parseRefInfo(refInfo): RefInfo {
+    return {
+        refId: refInfo.refId,
+        count: refInfo.count,
+        receivedHours: refInfo.receivedHours,
+        receivedTime: refInfo.receivedTime,
+        bougthPremium: refInfo.bougthPremium
     }
 }

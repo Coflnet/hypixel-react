@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -538,7 +538,7 @@ function initAPI(): API {
                     if (!data) {
                         return;
                     }
-                    if(!data.uuid && soldCallback){
+                    if (!data.uuid && soldCallback) {
                         soldCallback(data);
                         return;
                     }
@@ -663,8 +663,8 @@ function initAPI(): API {
 
     let paypalPurchase = (orderId: string, days: number): Promise<any> => {
         let requestData = {
-                    orderId,
-                    days
+            orderId,
+            days
         };
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
@@ -678,6 +678,38 @@ function initAPI(): API {
                     reject(error);
                 },
             });
+        });
+    }
+
+    let getRefInfo = (): Promise<RefInfo> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_REF_INFO,
+                data: "",
+                resolve: (response: any) => {
+                    resolve(parseRefInfo(response));
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_REF_INFO, error, "");
+                    reject(error);
+                }
+            })
+        });
+    }
+
+    let setRef = (refId: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.SET_REF,
+                data: refId,
+                resolve: () => {
+                    resolve();
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.SET_REF, error, "");
+                    reject(error);
+                }
+            })
         });
     }
 
@@ -716,7 +748,9 @@ function initAPI(): API {
         getEndedAuctions,
         getNewAuctions,
         getFlipBasedAuctions,
-        paypalPurchase
+        paypalPurchase,
+        getRefInfo,
+        setRef
     }
 }
 
