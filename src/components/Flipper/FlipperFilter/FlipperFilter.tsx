@@ -12,12 +12,12 @@ interface Props {
 function FlipperFilter(props: Props) {
 
     let [onlyBin, setOnlyBin] = useState(false);
-    let [onlyUnsold, setOnlyUnsold] = useState(true);
+    let [onlyUnsold, setOnlyUnsold] = useState(false);
     let [minProfit, setMinProfit] = useState(0);
     let [maxCost, setMaxCost] = useState<number>();
 
     useEffect(() => {
-        setOnlyUnsold(props.isPremium == null ? false : props.isPremium);
+        updateOnlyUnsold(props.isPremium == null ? false : props.isPremium);
         props.onChange(getCurrentFilter());
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -39,10 +39,8 @@ function FlipperFilter(props: Props) {
     }
 
     let onOnlyUnsoldChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setOnlyUnsold(event.target.checked);
-        let filter = getCurrentFilter();
-        filter.onlyUnsold = event.target.checked;
-        props.onChange(filter);
+        let isActive = event.target.checked;
+        updateOnlyUnsold(isActive);
     }
 
     let onMinProfitChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -62,13 +60,13 @@ function FlipperFilter(props: Props) {
     }
 
     const binFilter = <Form.Group>
-        <Form.Label htmlFor="onlyBinCheckbox" className="flipper-filter-formfield-label only-bin-label">Only BIN-Auctions?</Form.Label>
+        <Form.Label htmlFor="onlyBinCheckbox" className="flipper-filter-formfield-label only-bin-label">Only BIN-Auctions</Form.Label>
         <Form.Check id="onlyBinCheckbox" onChange={onOnlyBinChange} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium} />
 
     </Form.Group>;
     const soldFilter = <Form.Group>
-        <Form.Label htmlFor="onlyUnsoldCheckbox" className="flipper-filter-formfield-label only-bin-label">Only running Auctions?</Form.Label>
-        <Form.Check id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={props.isPremium} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium}/>
+        <Form.Label htmlFor="onlyUnsoldCheckbox" className="flipper-filter-formfield-label only-bin-label">Hide SOLD Auctions</Form.Label>
+        <Form.Check id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={props.isPremium} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium} />
     </Form.Group>;
 
     const numberFilters = <div>
@@ -78,9 +76,17 @@ function FlipperFilter(props: Props) {
         </Form.Group>
         <Form.Group style={{ width: "45%", display: "inline-block", marginLeft: "5%" }}>
             <Form.Label className="flipper-filter-formfield-label">Max Cost:</Form.Label>
-            <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" type="number" step={20000} disabled={!props.isLoggedIn}/>
+            <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" type="number" step={20000} disabled={!props.isLoggedIn} />
         </Form.Group>
     </div>;
+
+
+    function updateOnlyUnsold(isActive: boolean) {
+        setOnlyUnsold(isActive);
+        let filter = getCurrentFilter();
+        filter.onlyUnsold = isActive;
+        props.onChange(filter);
+    }
 
     return (
         <div>
@@ -91,21 +97,22 @@ function FlipperFilter(props: Props) {
                     /> : numberFilters}
 
                 <div className="premium-filters">
-                {!props.isPremium ?
-                    <Tooltip type="hover" content={binFilter}
-                        tooltipContent={<span>This is a premium feature</span>}
-                    /> : binFilter}
-                
-                {!props.isPremium ?
-                    <Tooltip type="hover" content={soldFilter}
-                        tooltipContent={<span>This is a premium filter</span>}
-                    /> : soldFilter }
+                    {!props.isPremium ?
+                        <Tooltip type="hover" content={binFilter}
+                            tooltipContent={<span>This is a premium feature</span>}
+                        /> : binFilter}
+
+                    {!props.isPremium ?
+                        <Tooltip type="hover" content={soldFilter}
+                            tooltipContent={<span>This is a premium filter</span>}
+                        /> : soldFilter}
                 </div>
-                
+
 
             </Form >
         </div>
     );
+
 }
 
 export default FlipperFilter;
