@@ -10,7 +10,7 @@ function NavBar() {
     let [isWideOpen, setIsWideOpen] = useState(false);
     let [isHovering, setIsHovering] = useState(false);
 
-    let isSmall = document.body.clientWidth < 1400;
+    let isSmall = document.body.clientWidth < 1500;
 
     useEffect(() => {
         if (isWideOpen) {
