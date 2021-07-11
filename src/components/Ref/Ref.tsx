@@ -7,6 +7,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils';
 import { Card } from 'react-bootstrap';
 import { getProperty } from '../../utils/PropertiesUtils';
 import { CopyButton } from '../CopyButton/CopyButton';
+import './Ref.css';
 
 interface Props {
 }
@@ -58,7 +59,7 @@ function Ref(props: Props) {
                     <Card>
                         <Card.Header>Information</Card.Header>
                         <Card.Body>
-                            <p><span className="label">Ref-Id:</span> <b>{refInfo?.refId}</b></p>
+                            <p><span className="label">Your Ref-Id:</span> <b>{refInfo?.refId}</b></p>
                             <p><span className="label">Number of invited users (only after login):</span><b>{refInfo?.count}</b></p>
                             <p><span className="label">Recieved Premium in hours:</span> <b>{refInfo?.receivedHours}</b></p>
                             <p><span className="label">Referred premium users:</span> <b>{refInfo?.bougthPremium}</b></p>

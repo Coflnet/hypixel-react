@@ -1,0 +1,10 @@
+.ref .label {
+    width: 100%;
+    float: left;
+}
+
+@media all and (min-width: 1400px) {
+    .ref .label {
+        width: 30%;
+    }
+}
