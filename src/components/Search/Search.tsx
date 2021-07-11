@@ -92,13 +92,14 @@ function Search(props: Props) {
 
     let getSelectedElement = (): JSX.Element => {
         if (!props.selected || props.currentElement) {
-            return props.currentElement || <div/>;
+            return props.currentElement || <div />;
         }
         return <h1 className="current"><img crossOrigin="anonymous" className="player-head-icon" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</h1>
     }
 
     return (
         <div className="search">
+
             <Form autoComplete="off">
                 <Form.Group>
                     <NavBar />
