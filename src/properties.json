@@ -1,5 +1,0 @@
-{
-    "commandEndpoint": "https://sky.coflnet.com/command",
-    "websocketEndpoint": "wss://skyblock-backend.coflnet.com/skyblock",
-    "refLink": "https://sky.coflnet.com/refed"
-}

@@ -25,9 +25,6 @@ function Search(props: Props) {
     useEffect(() => {
         setSearchText("");
         setResults([]);
-        if (props.selected && props.selected.name) {
-            document.title = props.selected.name;
-        }
     }, [props.selected])
 
     let search = () => {

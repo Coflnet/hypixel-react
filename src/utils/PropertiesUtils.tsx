@@ -1,4 +1,4 @@
-import properties from '../properties.json';
+import properties from '../properties';
 
 export function getProperty(propertyName: string) {
 
