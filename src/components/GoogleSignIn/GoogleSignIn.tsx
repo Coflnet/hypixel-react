@@ -45,21 +45,20 @@ function GoogleSignIn(props: Props) {
         });
     };
 
-    const onLoginFail = (response : {error:string,details:string}) => {
-        switch(response.error)
-        {
+    const onLoginFail = (response: { error: string, details: string }) => {
+        switch (response.error) {
             case 'access_denied':
             case 'popup_closed_by_user':
                 toast.warn("You canceled the login");
                 break;
             case 'idpiframe_initialization_failed':
-                toast.error("Cookies for accounts.google.com have to be enabled to login",{autoClose:20000});
-                toast.success("Common fix: if there is an eye icon with a line through in your url bar, click it",{delay:5000,autoClose:20000});
+                toast.error("Cookies for accounts.google.com have to be enabled to login", { autoClose: 20000 });
+                toast.success("Common fix: if there is an eye icon with a line through in your url bar, click it", { delay: 1000, autoClose: 20000 });
                 break;
         }
         trackEvent({
             category: 'login',
-            action: 'error/'+response.error
+            action: 'error/' + response.error
         })
     }
 
