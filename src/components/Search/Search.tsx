@@ -73,7 +73,8 @@ function Search(props: Props) {
     let onItemClick = (item: SearchResultItem) => {
         api.trackSearch(item.id, item.type);
         history.push({
-            pathname: item.route
+            pathname: item.route,
+            search: item.getParams
         })
     }
 

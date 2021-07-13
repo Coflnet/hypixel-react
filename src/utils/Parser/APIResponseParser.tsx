@@ -128,6 +128,19 @@ export function parseReforge(reforge: any): Reforge {
 }
 
 export function parseSearchResultItem(item: any): SearchResultItem {
+
+    let _getRoute = (): string => {
+        switch (item.type) {
+            case "filter":
+                return "/item/" + item.id.split("?")[0];
+            case "item":
+                return "/item/" + item.id;
+            case "player":
+                return "/player/" + item.id;
+        }
+        return "";
+    }
+
     return {
         dataItem: {
             name: item.name,
@@ -135,7 +148,8 @@ export function parseSearchResultItem(item: any): SearchResultItem {
             uuid: item.id
         },
         type: item.type,
-        route: item.type === "item" ? "/item/" + item.id : "/player/" + item.id,
+        route: _getRoute(),
+        getParams: item.type === 'filter' ? '?' + item.id.split('?')[1] + "&apply=true" : "",
         id: item.id
     }
 }
