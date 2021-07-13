@@ -33,19 +33,28 @@ function ItemFilter(props: Props) {
     let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([]);
 
     let history = useHistory();
-    let query = new URLSearchParams(useLocation().search);
 
     useEffect(() => {
         mounted = true;
-        itemFilter = getItemFilterFromUrl(query);
+        initFilter();
+        return () => { mounted = false }
+    }, []);
+
+    /**
+     * Handles filter changes in the url which should be instant applied (searching enchantments)
+     */
+    useEffect(() => {
+        let urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('apply') !== "true"){
+            return;
+        }
+        itemFilter = getItemFilterFromUrl(urlParams)
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true);
             Object.keys(itemFilter).forEach(name => enableFilter(name));
             setItemFilter(itemFilter);
-            onFilterApply();
         }
-        return () => { mounted = false }
-    }, []);
+    }, [window.location.search])
 
     useEffect(() => {
 
@@ -62,12 +71,22 @@ function ItemFilter(props: Props) {
         setIsApplied(false);
     }, [JSON.stringify(props.filters)])
 
+    function initFilter() {
+        itemFilter = getItemFilterFromUrl(new URLSearchParams(window.location.search))
+        if (Object.keys(itemFilter).length > 0) {
+            setExpanded(true);
+            Object.keys(itemFilter).forEach(name => enableFilter(name));
+            setItemFilter(itemFilter);
+            onFilterApply();
+        }
+    }
+
     let enableFilter = (filterName: string) => {
 
         if (selectedFilters.some(n => n === filterName)) {
             return;
         }
-        if(filterName == "Enchantment") {
+        if (filterName == "Enchantment") {
             enableFilter("EnchantLvl");
         }
 
@@ -155,8 +174,8 @@ function ItemFilter(props: Props) {
         setItemFilter(itemFilter);
     }
 
-    function setIsApplied(value: boolean){
-        if(value || !props.preFilled){
+    function setIsApplied(value: boolean) {
+        if (value || !props.preFilled) {
             _setIsApplied(value);
         }
     }
@@ -184,7 +203,7 @@ function ItemFilter(props: Props) {
                             <h4><Badge variant="danger">Caution</Badge></h4>
                             <p>
                                 Some filter requests take quite some time to process. Thats because we have to search through millions of auctions that potentially match your filter.
-                                This can lead to no auctions being displayed at all because your browser things that our server is unavailable. 
+                                This can lead to no auctions being displayed at all because your browser things that our server is unavailable.
                                 If that happens please let us know. We may implement sheduled filters where you will get an email or push notification when we computed a result for your filter.
                             </p>
                             <p>If you are missing a filter please ask for it on our <Link href="/feedback">discord</Link></p>

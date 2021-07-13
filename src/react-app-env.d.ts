@@ -123,6 +123,7 @@ interface SearchResultItem {
   dataItem: Player | Item;
   type: string;
   route: string;
+  getParams?: string;
   id: string;
 }
 
