@@ -18,7 +18,6 @@ function Search(props: Props) {
 
     let [searchText, setSearchText] = useState("");
     let [results, setResults] = useState<SearchResultItem[]>([]);
-    let [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout>();
     let [isLoading, setIsLoading] = useState(false);
     let [noResultsFound, setNoResultsFound] = useState(false);
 
@@ -29,7 +28,9 @@ function Search(props: Props) {
 
     let search = () => {
         // only display loading animation if there is no answer for 500ms
-        let sheduledLoading = setTimeout(() => setIsLoading(true), 500);
+        let sheduledLoading = setTimeout(() => {
+            setIsLoading(true);
+        }, 500);
         let searchFor = searchText;
         api.search(searchFor).then(searchResults => {
             clearTimeout(sheduledLoading);
@@ -47,20 +48,15 @@ function Search(props: Props) {
         let newSearchText: string = (e.target as HTMLInputElement).value;
         searchText = newSearchText;
         setSearchText(newSearchText);
-        setNoResultsFound(false);
-        if (searchDebounce) {
-            clearTimeout(searchDebounce);
-        }
-        // there is a search response for "", it contains the most popular overall
+
         if (newSearchText === "") {
             setResults([]);
             setIsLoading(false);
             return;
         }
-        let timeout = setTimeout(() => {
-            search();
-        }, 0);
-        setSearchDebounce(timeout);
+
+        setNoResultsFound(false);
+        search();
     }
 
     let onKeyPress = (e: KeyboardEvent) => {
