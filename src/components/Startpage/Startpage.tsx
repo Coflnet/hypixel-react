@@ -22,6 +22,8 @@ function Startpage() {
         loadEndedAuctions();
         loadNewPlayers();
         loadNewItems();
+
+        attachScrollEvent('cards-wrapper');
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -107,6 +109,19 @@ function Startpage() {
                 </Link>
             </div>
         )
+    }
+
+    function attachScrollEvent(className: string) {
+        let scrollContainers = document.getElementsByClassName(className);
+        for (var i = 0; i < scrollContainers.length; i++) {
+            let container = scrollContainers.item(i);
+            if(container){
+                container.addEventListener("wheel", (evt) => {
+                    evt.preventDefault();
+                    container!.scrollLeft += (evt as WheelEvent).deltaY;
+                });
+            }
+        }
     }
 
     let newAuctionsElement = (
@@ -230,8 +245,8 @@ function Startpage() {
                     </Card.Header>
                     <Card.Body>
                         <p>
-                            We moved auctions to another server. 
-                            This should increase performance. 
+                            We moved auctions to another server.
+                            This should increase performance.
                             All systems are operational again.
                         </p>
                         <hr />

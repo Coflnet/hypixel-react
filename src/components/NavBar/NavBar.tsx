@@ -107,10 +107,11 @@ function NavBar() {
 
     let style = {
         position: "absolute",
-        height: "100%",
+        bottom: 0,
         zIndex: 100,
         left: 0,
-        top: 0
+        top: 0,
+        minHeight: "100vh"
     } as React.CSSProperties
 
     return (
