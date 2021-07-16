@@ -10,6 +10,7 @@ import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } f
 import { Link } from '@material-ui/core';
 import api from '../../api/ApiHelper';
 import { camelCaseToSentenceCase } from '../../utils/Formatter';
+import { useForceUpdate } from '../../utils/Hooks';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
@@ -45,14 +46,23 @@ function ItemFilter(props: Props) {
      */
     useEffect(() => {
         let urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get('apply') !== "true"){
+        if (urlParams.get('apply') !== "true") {
             return;
         }
         itemFilter = getItemFilterFromUrl(urlParams)
         if (Object.keys(itemFilter).length > 0) {
-            setExpanded(true);
-            Object.keys(itemFilter).forEach(name => enableFilter(name));
+
             setItemFilter(itemFilter);
+            setSelectedFilters([]);
+            selectedFilters = [];
+
+            setTimeout(() => {
+                setExpanded(true);
+                Object.keys(itemFilter).forEach(name => enableFilter(name));
+                setTimeout(() => {
+                    onFilterApply();
+                }, 200);
+            })
         }
     }, [window.location.search])
 
