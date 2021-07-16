@@ -3,7 +3,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap';
 import './ItemFilter.css';
-import { useLocation, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
 import FilterElement from '../FilterElement/FilterElement';
 import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
@@ -45,14 +45,23 @@ function ItemFilter(props: Props) {
      */
     useEffect(() => {
         let urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get('apply') !== "true"){
+        if (urlParams.get('apply') !== "true") {
             return;
         }
         itemFilter = getItemFilterFromUrl(urlParams)
         if (Object.keys(itemFilter).length > 0) {
-            setExpanded(true);
-            Object.keys(itemFilter).forEach(name => enableFilter(name));
+
             setItemFilter(itemFilter);
+            setSelectedFilters([]);
+            selectedFilters = [];
+
+            setTimeout(() => {
+                setExpanded(true);
+                Object.keys(itemFilter).forEach(name => enableFilter(name));
+                setTimeout(() => {
+                    onFilterApply();
+                }, 200);
+            })
         }
     }, [window.location.search])
 

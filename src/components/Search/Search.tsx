@@ -68,6 +68,10 @@ function Search(props: Props) {
 
     let onItemClick = (item: SearchResultItem) => {
         api.trackSearch(item.id, item.type);
+        if (item.getParams && window.location.search !== item.getParams) {
+            setSearchText("");
+            setResults([]);
+        }
         history.push({
             pathname: item.route,
             search: item.getParams
