@@ -3,14 +3,13 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap';
 import './ItemFilter.css';
-import { useLocation, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
 import FilterElement from '../FilterElement/FilterElement';
 import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
 import api from '../../api/ApiHelper';
 import { camelCaseToSentenceCase } from '../../utils/Formatter';
-import { useForceUpdate } from '../../utils/Hooks';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
