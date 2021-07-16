@@ -48,7 +48,7 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
         return fetch(url, { headers })
             .then(response => {
                 if (!isResponseValid(response)) {
-                    request.reject();
+                    request.reject(response);
                     return;
                 }
 
@@ -60,9 +60,8 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
                 }
                 return parsed;
             }).then(parsedResponse => {
-                if (!parsedResponse || parsedResponse.type === "error") {
-                    toast.error(parsedResponse?.data);
-                    request.reject();
+                if (!parsedResponse || parsedResponse.Slug === "error") {
+                    request.reject(parsedResponse);
                     return;
                 }
                 request.resolve(parsedResponse)

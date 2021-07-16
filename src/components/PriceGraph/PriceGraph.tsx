@@ -130,7 +130,9 @@ function PriceGraph(props: Props) {
     let onFilterChange = (filter: ItemFilter) => {
         setItemFilter(filter);
         setDefaultRangeSwitch(!defaultRangeSwitch);
-        updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
+        setTimeout(() => {
+            updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
+        }, 100)
     }
 
     let graphOverlayElement = (
