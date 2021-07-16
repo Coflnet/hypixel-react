@@ -29,17 +29,14 @@ function Search(props: Props) {
     let search = () => {
         // only display loading animation if there is no answer for 500ms
         let sheduledLoading = setTimeout(() => {
-            console.log("set loading")
             setIsLoading(true);
         }, 500);
         let searchFor = searchText;
         api.search(searchFor).then(searchResults => {
-            console.log("serach result found (" + searchFor +")");
             clearTimeout(sheduledLoading);
 
             // has the searchtext changed?
             if (searchFor === (document.getElementById('search-bar') as HTMLInputElement).value) {
-                console.log("show results")
                 setNoResultsFound(searchResults.length === 0);
                 setResults(searchResults);
                 setIsLoading(false);
