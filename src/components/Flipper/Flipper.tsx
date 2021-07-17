@@ -17,7 +17,6 @@ import { getProperty } from '../../utils/PropertiesUtils';
 function Flipper() {
 
     let [latestAuctions, setLatestAuctions] = useState<FlipAuction[]>([]);
-    let [flipAuctions, setFlipAuctions] = useState<FlipAuction[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>();
     let [autoscroll, setAutoscroll] = useState(false);
@@ -30,23 +29,10 @@ function Flipper() {
 
     const flipLookup = {};
 
-    let forceUpdate = useForceUpdate();
-
     useEffect(() => {
         _setAutoScroll(true);
-        api.getFlips().then(flips => {
-
-            flips.forEach(flip => {
-                api.getItemImageUrl(flip.item).then(url => {
-                    flip.item.iconUrl = url;
-                    setFlipAuctions(flips);
-                    forceUpdate();
-                });
-            })
-            api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
-            setFlipAuctions(flips);
-            attachScrollEvent();
-        });
+        api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
+        attachScrollEvent();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -125,10 +111,13 @@ function Flipper() {
 
         api.getItemImageUrl(newFipAuction.item).then((url) => {
             newFipAuction.item.iconUrl = url;
-            newFipAuction.showLink = false;
+            newFipAuction.showLink = true;
 
-            setLatestAuctions(flipAuctions => {
-                return [...flipAuctions, newFipAuction];
+            setLatestAuctions(latestAuctions => {
+                if (latestAuctions.length > 1000) {
+                    latestAuctions.shift();
+                }
+                return [...latestAuctions, newFipAuction];
             });
             if (autoscrollRef.current) {
                 let element = document.getElementById("flip-container");
@@ -137,12 +126,6 @@ function Flipper() {
                     attachScrollEvent(element);
                 }
             }
-
-            // reload for link-update
-            setTimeout(() => {
-                newFipAuction.showLink = true;
-                forceUpdate();
-            }, 5000)
         });
     }
 
@@ -161,24 +144,22 @@ function Flipper() {
 
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div id="flip-container" className="cards-wrapper">{
-            auctions.filter(auction => {
+            auctions.map((flipAuction) => {
                 if (!isLatest) {
-                    return true;
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.onlyBin && !auction.bin) {
-                    return false;
+                if (flipperFilter?.onlyBin && !flipAuction.bin) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.minProfit && flipperFilter.minProfit >= (auction.median - auction.cost)) {
-                    return false;
+                if (flipperFilter?.minProfit && flipperFilter.minProfit >= (flipAuction.median - flipAuction.cost)) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.maxCost && flipperFilter.maxCost < auction.cost) {
-                    return false;
+                if (flipperFilter?.maxCost && flipperFilter.maxCost < flipAuction.cost) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.onlyUnsold && auction.sold) {
-                    return false;
+                if (flipperFilter?.onlyUnsold && flipAuction.sold) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                return true;
-            }).map((flipAuction) => {
                 return (
                     <div className="card-wrapper" key={flipAuction.uuid}>
                         <Card className="flip-auction-card">
