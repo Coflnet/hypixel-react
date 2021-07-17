@@ -107,10 +107,11 @@ function NavBar() {
 
     let style = {
         position: "absolute",
-        height: "100%",
+        bottom: 0,
         zIndex: 100,
         left: 0,
-        top: 0
+        top: 0,
+        minHeight: "100vh"
     } as React.CSSProperties
 
     return (
@@ -128,7 +129,7 @@ function NavBar() {
                         <MenuItem icon={<ShareIcon />}><Link to="/ref" >Referral</Link></MenuItem>
                         <MenuItem icon={<PolicyIcon />}><Link to="/about" >Links / Legal</Link></MenuItem>
                         <MenuItem icon={<ChatIcon />}><Link to="/feedback" >Feedback</Link></MenuItem>
-                        <MenuItem icon={<HeadsetIcon />}><a href="https://discord.gg/Qm55WEkgu6"><div style={{ color: "#7289da" }}>Discord</div></a></MenuItem>
+                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24px"></img>}><a href="https://discord.gg/Qm55WEkgu6"><div style={{ color: "#7289da" }}>Discord</div></a></MenuItem>
                     </Menu>
                 </ProSidebar>
             </aside>
