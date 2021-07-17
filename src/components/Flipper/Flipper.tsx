@@ -232,9 +232,11 @@ function Flipper() {
                                 <Form.Label style={{ cursor: "pointer" }}>To newest:</Form.Label>
                                 <span style={{ cursor: "pointer" }}> <ArrowRightIcon /></span>
                             </Form.Group>
-                            <Form.Group onClick={clearFlips}>
-                                <Form.Label style={{ cursor: "pointer" }}>Clear flips:</Form.Label>
-                                <span style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
+                            <Form.Group>
+                                <span onClick={clearFlips}>
+                                    <Form.Label style={{ cursor: "pointer" }}>Clear flips:</Form.Label>
+                                    <span style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
+                                </span>
                             </Form.Group>
                         </Form>
                         <hr />
