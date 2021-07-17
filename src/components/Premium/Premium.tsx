@@ -21,7 +21,6 @@ function Premium() {
     let [showFeatureDialog, setShowFeatureDialog] = useState(false);
     let [hasPremium, setHasPremium] = useState<boolean>();
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>();
-    let [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (!wasAlreadyLoggedInGoogle && !isLoggedIn) {
@@ -34,12 +33,11 @@ function Premium() {
         let googleId = localStorage.getItem('googleId');
         return api.hasPremium(googleId!).then((hasPremiumUntil) => {
             let hasPremium = false;
-            if (hasPremiumUntil !== undefined && hasPremiumUntil.getTime() > new Date().getTime()) {
+            if(hasPremiumUntil !== undefined && hasPremiumUntil.getTime() > new Date().getTime()){
                 hasPremium = true;
             }
             setHasPremium(hasPremium);
             setHasPremiumUntil(hasPremiumUntil)
-            setIsLoading(false);
         });
     }
 
@@ -47,7 +45,6 @@ function Premium() {
     function onLogin() {
         let googleId = localStorage.getItem('googleId');
         if (googleId) {
-            setIsLoading(true);
             setIsLoggedIn(true);
             loadHasPremiumUntil();
         }
@@ -87,7 +84,7 @@ function Premium() {
                 Premium
             </h2>
             <hr />
-            {isLoading ? getLoadingElement() : hasPremium === undefined ? "" :
+            {hasPremium === undefined ? "" :
                 hasPremium
                     ? <p style={{ color: "#00bc8c" }}>You have a premium account. Thank you for your support.</p>
                     : <p style={{ color: "red" }}>You do no have a premium account</p>
@@ -108,7 +105,7 @@ function Premium() {
             <Card className="premium-card">
                 {hasPremium
                     ? <p>Thank you for your support. You have a Premium account. By buying another Premium-Plan you can extend your premium-time.
-                        You can use the following premium-features:
+                    You can use the following premium-features:
                     </p>
                     : <p>Buy Premium to support us and get access to these exclusive features:</p>}
                 <span style={{ cursor: "pointer", width: "fit-content", fontWeight: "bold", fontSize: "x-large" }} onClick={() => { setShowFeatureDialog(true) }}><LinkIcon /> Show features</span>
