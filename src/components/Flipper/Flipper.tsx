@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/ApiHelper';
 import './Flipper.css';
-import { useForceUpdate } from '../../utils/Hooks';
 import { Card, Form, Badge } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
@@ -11,8 +10,11 @@ import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon }
 import Tooltip from '../Tooltip/Tooltip';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
+import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { Link } from 'react-router-dom';
 import { getProperty } from '../../utils/PropertiesUtils';
+
+let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
 function Flipper() {
 
@@ -22,6 +24,7 @@ function Flipper() {
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
+    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle);
     let [refInfo, setRefInfo] = useState<RefInfo>();
 
     const autoscrollRef = useRef(autoscroll);
@@ -44,11 +47,13 @@ function Flipper() {
                 // subscribe to the premium flips
                 api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
             }
+            setIsLoading(false);
         });
     }
 
     let onLogin = () => {
         setIsLoggedIn(true);
+        setIsLoading(true);
         loadHasPremium();
         api.getRefInfo().then(refInfo => {
             setRefInfo(refInfo);
@@ -212,16 +217,18 @@ function Flipper() {
             <Card className="card">
                 <Card.Header>
                     <Card.Title>
-                        {!isLoggedIn ?
+                        {isLoading ? getLoadingElement() : !isLoggedIn ?
                             <div>
                                 <h2>Free auction house flipper preview - hypixel skyblock ah history</h2>
-                                You need to be logged and have Premium to have all features unlocked.<br/><br/>
-                                <GoogleSignIn onAfterLogin={onLogin} /></div> :
+                                You need to be logged and have Premium to have all features unlocked.
+                            </div> :
                             hasPremium ? "You have premium and receive profitable auctions in real time." : <span>
 
                                 These auctions are delayed by 5 min. Please purchase <a target="_blank" rel="noreferrer" href="/premium">premium</a> if you want real time flips.
                             </span>
                         }
+                        <br/><br/>
+                        <GoogleSignIn onAfterLogin={onLogin} />
                     </Card.Title>
                 </Card.Header>
                 <Card.Body>
