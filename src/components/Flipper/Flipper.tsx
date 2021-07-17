@@ -11,6 +11,9 @@ import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon }
 import Tooltip from '../Tooltip/Tooltip';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
+import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
+
+let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
 function Flipper() {
 
@@ -21,6 +24,7 @@ function Flipper() {
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
+    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedIn);
 
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
@@ -56,11 +60,13 @@ function Flipper() {
                 // subscribe to the premium flips
                 api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
             }
+            setIsLoading(false);
         });
     }
 
     let onLogin = () => {
         setIsLoggedIn(true);
+        setIsLoading(true);
         loadHasPremium();
     }
 
@@ -114,7 +120,7 @@ function Flipper() {
 
     function onNewFlip(newFipAuction: FlipAuction) {
 
-        if(flipLookup[newFipAuction.uuid])
+        if (flipLookup[newFipAuction.uuid])
             return;
         flipLookup[newFipAuction.uuid] = newFipAuction;
 
@@ -226,16 +232,17 @@ function Flipper() {
             <Card className="card">
                 <Card.Header>
                     <Card.Title>
-                        {!isLoggedIn ?
-                            <div> 
-                            <h2>Free auction house flipper preview - hypixel skyblock ah history</h2>
-                            You need to be logged and have Premium to have all features unlocked. 
-                            <GoogleSignIn onAfterLogin={onLogin} /></div> :
+                        {isLoading ? getLoadingElement() : !isLoggedIn ?
+                            <div>
+                                <h2>Free auction house flipper preview - hypixel skyblock ah history</h2>
+                                You need to be logged and have Premium to have all features unlocked.
+                            </div> :
                             hasPremium ? "You have premium and receive profitable auctions in real time." : <span>
 
                                 These auctions are delayed by 5 min. Please purchase <a target="_blank" rel="noreferrer" href="/premium">premium</a> if you want real time flips.
                             </span>
                         }
+                        <GoogleSignIn onAfterLogin={onLogin} />
                     </Card.Title>
                 </Card.Header>
                 <Card.Body>
@@ -274,8 +281,8 @@ function Flipper() {
                     This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a>.
                     <hr />
                     {isLoggedIn ? "" : <span>These are flipps that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit.
-                    Keep in mind that these are delayed to protect our paying supporters.
-                    If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a></span>}
+                        Keep in mind that these are delayed to protect our paying supporters.
+                        If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a></span>}
                 </Card.Footer>
             </Card>
 
@@ -289,13 +296,13 @@ function Flipper() {
                     <p>New flipps are found by comparing every new auction with the sell price of already finished auctions of the same item with the same or similar modifiers (e.g. enchantments). </p>
                     <h3>What auctions are new auctions comapred with</h3>
                     <p>Reference auctions depend on the induvidual item, its modifiers and how often it is sold.
-                    The algorythim to determine which auctions can be used as refernce is changing frquently.
-                            <br/>
+                        The algorythim to determine which auctions can be used as refernce is changing frquently.
+                        <br />
                         You can see the auctions used as reference by clicking on the (?) next to <code>Estimaded Profit</code></p>
                     <h3>How reliable is the flipper</h3>
                     <p>Statistically very reliable. Still some flips might not sell as fast as others or at all. If you encounter a flip that can't be sold please post a link to it in the skyblock channel on our discord so we can improve the flipper further.</p>
                     <h3>What can the free version do</h3>
-                    <p>The free version of the auction flipper can be used if you just got started with ah flipping. It displays flipps with a delay and has some features deactivated. 
+                    <p>The free version of the auction flipper can be used if you just got started with ah flipping. It displays flipps with a delay and has some features deactivated.
                         Other than that there are no limitations. <b>No cap on profit</b>, no need to do anything. (although we would appreciate if you support us either with feedback or money)
                         The more users we have the more feedback we can get and the better the flips can become.</p>
                     <h3>What do I get if I buy premium</h3>
