@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/ApiHelper';
 import './Flipper.css';
-import { useForceUpdate } from '../../utils/Hooks';
 import { Card, Form, Badge } from 'react-bootstrap';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
@@ -12,6 +11,8 @@ import Tooltip from '../Tooltip/Tooltip';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
+import { Link } from 'react-router-dom';
+import { getProperty } from '../../utils/PropertiesUtils';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -23,7 +24,8 @@ function Flipper() {
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
-    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedIn);
+    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle);
+    let [refInfo, setRefInfo] = useState<RefInfo>();
 
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
@@ -53,6 +55,9 @@ function Flipper() {
         setIsLoggedIn(true);
         setIsLoading(true);
         loadHasPremium();
+        api.getRefInfo().then(refInfo => {
+            setRefInfo(refInfo);
+        })
     }
 
     let onArrowRightClick = () => {
@@ -222,6 +227,7 @@ function Flipper() {
                                 These auctions are delayed by 5 min. Please purchase <a target="_blank" rel="noreferrer" href="/premium">premium</a> if you want real time flips.
                             </span>
                         }
+                        <br/><br/>
                         <GoogleSignIn onAfterLogin={onLogin} />
                     </Card.Title>
                 </Card.Header>
@@ -239,9 +245,11 @@ function Flipper() {
                                 <Form.Label style={{ cursor: "pointer" }}>To newest:</Form.Label>
                                 <span style={{ cursor: "pointer" }}> <ArrowRightIcon /></span>
                             </Form.Group>
-                            <Form.Group onClick={clearFlips}>
-                                <Form.Label style={{ cursor: "pointer" }}>Clear flips:</Form.Label>
-                                <span style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
+                            <Form.Group>
+                                <span onClick={clearFlips}>
+                                    <Form.Label style={{ cursor: "pointer" }}>Clear flips:</Form.Label>
+                                    <span style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
+                                </span>
                             </Form.Group>
                         </Form>
                         <hr />
@@ -265,6 +273,22 @@ function Flipper() {
                         If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a></span>}
                 </Card.Footer>
             </Card>
+
+            {isLoggedIn && refInfo ?
+                <div>
+                    <hr />
+
+                    <Card className="card">
+                        <Card.Header>
+                            <Card.Title>How to get premium for free</Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.<br />
+                            Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{getProperty("refLink") + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={getProperty("refLink") + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} />
+                        </Card.Body>
+                    </Card>
+                </div> : ""
+            }
 
             <hr />
             <Card>
