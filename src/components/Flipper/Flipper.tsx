@@ -11,6 +11,7 @@ import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon }
 import Tooltip from '../Tooltip/Tooltip';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
+import AuctionDetails from '../AuctionDetails/AuctionDetails';
 
 function Flipper() {
 
@@ -21,6 +22,7 @@ function Flipper() {
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
+    let [selectedAuctionUUID, setSelectedAuctionUUID] = useState("");
 
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
@@ -114,7 +116,7 @@ function Flipper() {
 
     function onNewFlip(newFipAuction: FlipAuction) {
 
-        if(flipLookup[newFipAuction.uuid])
+        if (flipLookup[newFipAuction.uuid])
             return;
         flipLookup[newFipAuction.uuid] = newFipAuction;
 
@@ -141,19 +143,6 @@ function Flipper() {
         });
     }
 
-    let getFlipHeaderElement = function (flipAuction: FlipAuction): JSX.Element {
-        return (
-            <Card.Header style={{ padding: "10px" }}>
-                <div className="ellipse" style={{ width: flipAuction.bin && flipAuction.sold ? "60%" : "80%", float: "left" }}>
-                    <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                    <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
-                </div>
-                {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
-                {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
-            </Card.Header>
-        )
-    }
-
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div id="flip-container" className="cards-wrapper">{
             auctions.filter(auction => {
@@ -176,15 +165,15 @@ function Flipper() {
             }).map((flipAuction) => {
                 return (
                     <div className="card-wrapper" key={flipAuction.uuid}>
-                        <Card className="flip-auction-card">
-                            {flipAuction.showLink ?
-                                <a className="disable-link-style" href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
-                                    {getFlipHeaderElement(flipAuction)}
-                                </a> :
-                                <Tooltip type="hover" content={getFlipHeaderElement(flipAuction)}
-                                    tooltipContent={<span>The link will be available in a few seconds...</span>}
-                                />
-                            }
+                        <Card className="flip-auction-card" style={{ cursor: "pointer" }} onClick={() => { setSelectedAuctionUUID(flipAuction.uuid) }}>
+                            <Card.Header style={{ padding: "10px" }}>
+                                <div className="ellipse" style={{ width: flipAuction.bin && flipAuction.sold ? "60%" : "80%", float: "left" }}>
+                                    <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                    <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                </div>
+                                {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
+                                {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
+                            </Card.Header>
                             <Card.Body style={{ padding: "10px" }}>
                                 <p>
                                     <span className="card-label">Cost: </span><br />
@@ -227,10 +216,10 @@ function Flipper() {
                 <Card.Header>
                     <Card.Title>
                         {!isLoggedIn ?
-                            <div> 
-                            <h2>Free auction house flipper preview - hypixel skyblock ah history</h2>
-                            You need to be logged and have Premium to have all features unlocked. 
-                            <GoogleSignIn onAfterLogin={onLogin} /></div> :
+                            <div>
+                                <h2>Free auction house flipper preview - hypixel skyblock ah history</h2>
+                                You need to be logged and have Premium to have all features unlocked.
+                                <GoogleSignIn onAfterLogin={onLogin} /></div> :
                             hasPremium ? "You have premium and receive profitable auctions in real time." : <span>
 
                                 These auctions are delayed by 5 min. Please purchase <a target="_blank" rel="noreferrer" href="/premium">premium</a> if you want real time flips.
@@ -274,10 +263,25 @@ function Flipper() {
                     This flipper is work in progress (proof of concept/open alpha). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a>.
                     <hr />
                     {isLoggedIn ? "" : <span>These are flipps that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit.
-                    Keep in mind that these are delayed to protect our paying supporters.
-                    If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a></span>}
+                        Keep in mind that these are delayed to protect our paying supporters.
+                        If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a></span>}
                 </Card.Footer>
             </Card>
+
+            {
+                selectedAuctionUUID ?
+                    <div>
+                        <hr />
+                        <Card>
+                            <Card.Header>
+                                <Card.Title>Auction-Details</Card.Title>
+                            </Card.Header>
+                            <Card.Body>
+                                <AuctionDetails auctionUUID={selectedAuctionUUID} />
+                            </Card.Body>
+                        </Card>
+                    </div> : ""
+            }
 
             <hr />
             <Card>
@@ -289,13 +293,13 @@ function Flipper() {
                     <p>New flipps are found by comparing every new auction with the sell price of already finished auctions of the same item with the same or similar modifiers (e.g. enchantments). </p>
                     <h3>What auctions are new auctions comapred with</h3>
                     <p>Reference auctions depend on the induvidual item, its modifiers and how often it is sold.
-                    The algorythim to determine which auctions can be used as refernce is changing frquently.
-                            <br/>
+                        The algorythim to determine which auctions can be used as refernce is changing frquently.
+                        <br />
                         You can see the auctions used as reference by clicking on the (?) next to <code>Estimaded Profit</code></p>
                     <h3>How reliable is the flipper</h3>
                     <p>Statistically very reliable. Still some flips might not sell as fast as others or at all. If you encounter a flip that can't be sold please post a link to it in the skyblock channel on our discord so we can improve the flipper further.</p>
                     <h3>What can the free version do</h3>
-                    <p>The free version of the auction flipper can be used if you just got started with ah flipping. It displays flipps with a delay and has some features deactivated. 
+                    <p>The free version of the auction flipper can be used if you just got started with ah flipping. It displays flipps with a delay and has some features deactivated.
                         Other than that there are no limitations. <b>No cap on profit</b>, no need to do anything. (although we would appreciate if you support us either with feedback or money)
                         The more users we have the more feedback we can get and the better the flips can become.</p>
                     <h3>What do I get if I buy premium</h3>

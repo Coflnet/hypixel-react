@@ -6,7 +6,6 @@ import './AuctionDetails.css';
 import { Badge, Button, Card, Collapse, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getStyleForTier, numberWithThousandsSeperators, convertTagToName } from '../../utils/Formatter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import Search from '../Search/Search';
 import { useForceUpdate } from '../../utils/Hooks';
 import moment from 'moment';
 import { v4 as generateUUID } from 'uuid';
@@ -235,7 +234,6 @@ function AuctionDetails(props: Props) {
 
     return (
         <div className="auction-details">
-            <Search />
             {isAuctionFound ?
                 <div>
                     <p>The auction you tried to see doesn't seem to exist. Please go back.</p><br />
