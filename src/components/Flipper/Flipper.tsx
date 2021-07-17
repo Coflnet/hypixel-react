@@ -11,6 +11,8 @@ import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon }
 import Tooltip from '../Tooltip/Tooltip';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
+import { Link } from 'react-router-dom';
+import { getProperty } from '../../utils/PropertiesUtils';
 
 function Flipper() {
 
@@ -20,6 +22,7 @@ function Flipper() {
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
+    let [refInfo, setRefInfo] = useState<RefInfo>();
 
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
@@ -47,6 +50,9 @@ function Flipper() {
     let onLogin = () => {
         setIsLoggedIn(true);
         loadHasPremium();
+        api.getRefInfo().then(refInfo => {
+            setRefInfo(refInfo);
+        })
     }
 
     let onArrowRightClick = () => {
@@ -209,7 +215,7 @@ function Flipper() {
                         {!isLoggedIn ?
                             <div>
                                 <h2>Free auction house flipper preview - hypixel skyblock ah history</h2>
-                                You need to be logged and have Premium to have all features unlocked.
+                                You need to be logged and have Premium to have all features unlocked.<br/><br/>
                                 <GoogleSignIn onAfterLogin={onLogin} /></div> :
                             hasPremium ? "You have premium and receive profitable auctions in real time." : <span>
 
@@ -260,6 +266,22 @@ function Flipper() {
                         If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a></span>}
                 </Card.Footer>
             </Card>
+
+            {isLoggedIn && refInfo ?
+                <div>
+                    <hr />
+
+                    <Card className="card">
+                        <Card.Header>
+                            <Card.Title>How to get premium for free</Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.<br />
+                            Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{getProperty("refLink") + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={getProperty("refLink") + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} />
+                        </Card.Body>
+                    </Card>
+                </div> : ""
+            }
 
             <hr />
             <Card>
