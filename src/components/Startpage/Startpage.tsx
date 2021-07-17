@@ -7,8 +7,11 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { Person as PersonIcon, Timer as TimerIcon, FiberNew as NewIcon, Fireplace as FireIcon, Announcement as AnnouncementIcon } from '@material-ui/icons';
 import moment from 'moment';
 import Tooltip from '../Tooltip/Tooltip';
+import { useMatomo } from '@datapunt/matomo-tracker-react';
 
 function Startpage() {
+
+    let { trackEvent } = useMatomo();
 
     let [newAuctions, setNewAuctions] = useState<Auction[]>([{ uuid: "", bin: false, end: new Date(), highestBid: 0, item: { tag: "ASPECT_OF_THE_END", name: "Loading ..." }, startingBid: 0 }]);
     let [endedAuctions, setEndedAuctions] = useState<Auction[]>([]);
@@ -109,6 +112,13 @@ function Startpage() {
         )
     }
 
+    function onRecentChangesClick(){
+        trackEvent({
+            category: 'recentChanges',
+            action: 'recentChangesClicked'
+        })
+    }
+
     let newAuctionsElement = (
         <div className="cards-wrapper new-auctions">{
             newAuctions.map(getAuctionElement)
@@ -194,11 +204,12 @@ function Startpage() {
                     <Card.Body>
                         <p>
                             The Hypixel API is currently offline. So there wont be any new auctions or flips until its back up again.
+                            Here you can check if its online again: <a href="https://api.hypixel.net/skyblock/auctions">https://api.hypixel.net/skyblock/auctions</a>
                         </p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
                             <p>Recent changes:</p>
-                            <Tooltip content={<p><NewIcon /> <a href="#">Click here to open</a></p>} tooltipContent={
+                            <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <a href="#">Click here to open</a></p>} tooltipContent={
                                 <ul>
                                     <li className="changelog-item">New reworked sidebar</li>
                                     <li className="changelog-item">Improved non-premium flipper (still delayed by a few minutes)</li>
