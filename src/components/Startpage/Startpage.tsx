@@ -114,7 +114,7 @@ function Startpage() {
         )
     }
 
-    function onRecentChangesClick(){
+    function onRecentChangesClick() {
         trackEvent({
             category: 'recentChanges',
             action: 'recentChangesClicked'
@@ -125,7 +125,7 @@ function Startpage() {
         let scrollContainers = document.getElementsByClassName(className);
         for (var i = 0; i < scrollContainers.length; i++) {
             let container = scrollContainers.item(i);
-            if(container){
+            if (container) {
                 container.addEventListener("wheel", (evt) => {
                     evt.preventDefault();
                     container!.scrollLeft += (evt as WheelEvent).deltaY;
@@ -214,26 +214,27 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Hypixel API is offline</Card.Subtitle>
+                        <Card.Subtitle>Flipper Update and Ref-Program</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
                         <p>
-                            The Hypixel API is currently offline. So there wont be any new auctions or flips until its back up again.
-                            Here you can check if its online again: <a href="https://api.hypixel.net/skyblock/auctions">https://api.hypixel.net/skyblock/auctions</a>
+                            The Flipper is now available for free. Premium users still get the advantage of live flips (5 minute delay for free users) and easy access to the filters.
+                        </p>
+                        <p>
+                            Furthermore we are happy to introduce the <b>Referral-Program</b>. You can now get <b>free premium</b> for inviting other people to our site.
                         </p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
-                            <p>Recent changes:</p>
+                            <p>Recent changes (last change: 17.06.2021):</p>
                             <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <a href="#">Click here to open</a></p>} tooltipContent={
                                 <ul>
                                     <li className="changelog-item">New reworked sidebar</li>
                                     <li className="changelog-item">Improved non-premium flipper (still delayed by a few minutes)</li>
                                     <li className="changelog-item">Implementation of the <Link to="/ref">Refferal-System</Link></li>
                                     <li className="changelog-item">You can now find enchantments directly in the searchbar</li>
+                                    <li className="changelog-item">Easy scrolling in horizontal lists</li>
                                     <li className="changelog-item">Multiple bugs fixed</li>
                                 </ul>} type="click" tooltipTitle={<span>Recent changes</span>} />
-                            <hr />
-                            <p>Read more about the <a href="https://blog.coflnet.com/skyblock-filter-system">new filter system</a></p>
                         </div>
                     </Card.Body>
                 </Card>
