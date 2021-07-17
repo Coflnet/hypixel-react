@@ -26,6 +26,9 @@ function initWebsocket(): void {
         // set the connection id first 
         api.setConnectionId().then(() => {
             isConnectionIdSet = true;
+            apiSubscriptions.forEach(subscription => {
+                subscribe(subscription, true);
+            })
         })
     }
 
@@ -51,8 +54,8 @@ function initWebsocket(): void {
         let parsedResponse = response.data;
         try {
             parsedResponse = JSON.parse(response.data);
-        }catch (e) {}
-        
+        } catch (e) { }
+
         if (response.type === "error")
             toast.error(parsedResponse);
         else
@@ -127,17 +130,18 @@ function sendRequest(request: ApiRequest): Promise<void> {
     })
 }
 
-function subscribe(subscription: ApiSubscription): void {
+function subscribe(subscription: ApiSubscription, resub?: boolean): void {
 
     if (_isWebsocketReady(subscription.type)) {
         subscription.mId = getNextMessageId();
-
-        try {
-            subscription.data = Base64.encode(subscription.data);
-        } catch (error) {
-            throw new Error("couldnt btoa this data: " + subscription.data);
+        if (!resub) {
+            try {
+                subscription.data = Base64.encode(subscription.data);
+            } catch (error) {
+                throw new Error("couldnt btoa this data: " + subscription.data);
+            }
+            apiSubscriptions.push(subscription);
         }
-        apiSubscriptions.push(subscription);
         websocket.send(JSON.stringify(subscription))
 
     } else {

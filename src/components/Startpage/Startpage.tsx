@@ -25,6 +25,8 @@ function Startpage() {
         loadEndedAuctions();
         loadNewPlayers();
         loadNewItems();
+
+        attachScrollEvent('cards-wrapper');
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -117,6 +119,19 @@ function Startpage() {
             category: 'recentChanges',
             action: 'recentChangesClicked'
         })
+    }
+
+    function attachScrollEvent(className: string) {
+        let scrollContainers = document.getElementsByClassName(className);
+        for (var i = 0; i < scrollContainers.length; i++) {
+            let container = scrollContainers.item(i);
+            if(container){
+                container.addEventListener("wheel", (evt) => {
+                    evt.preventDefault();
+                    container!.scrollLeft += (evt as WheelEvent).deltaY;
+                });
+            }
+        }
     }
 
     let newAuctionsElement = (
