@@ -227,7 +227,7 @@ function Flipper() {
                                 These auctions are delayed by 5 min. Please purchase <a target="_blank" rel="noreferrer" href="/premium">premium</a> if you want real time flips.
                             </span>
                         }
-                        <br/><br/>
+                        <br/>
                         <GoogleSignIn onAfterLogin={onLogin} />
                     </Card.Title>
                 </Card.Header>
