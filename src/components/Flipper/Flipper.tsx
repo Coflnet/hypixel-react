@@ -10,6 +10,7 @@ import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon }
 import Tooltip from '../Tooltip/Tooltip';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
+import AuctionDetails from '../AuctionDetails/AuctionDetails';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { Link } from 'react-router-dom';
 import { getProperty } from '../../utils/PropertiesUtils';
@@ -24,6 +25,7 @@ function Flipper() {
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
+    let [selectedAuctionUUID, setSelectedAuctionUUID] = useState("");
     let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle);
     let [refInfo, setRefInfo] = useState<RefInfo>();
 
@@ -134,19 +136,6 @@ function Flipper() {
         });
     }
 
-    let getFlipHeaderElement = function (flipAuction: FlipAuction): JSX.Element {
-        return (
-            <Card.Header style={{ padding: "10px" }}>
-                <div className="ellipse" style={{ width: flipAuction.bin && flipAuction.sold ? "60%" : "80%", float: "left" }}>
-                    <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                    <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
-                </div>
-                {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
-                {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
-            </Card.Header>
-        )
-    }
-
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div id="flip-container" className="cards-wrapper">{
             auctions.map((flipAuction) => {
@@ -167,15 +156,15 @@ function Flipper() {
                 }
                 return (
                     <div className="card-wrapper" key={flipAuction.uuid}>
-                        <Card className="flip-auction-card">
-                            {flipAuction.showLink ?
-                                <a className="disable-link-style" href={"/auction/" + flipAuction.uuid} target="_blank" rel="noreferrer">
-                                    {getFlipHeaderElement(flipAuction)}
-                                </a> :
-                                <Tooltip type="hover" content={getFlipHeaderElement(flipAuction)}
-                                    tooltipContent={<span>The link will be available in a few seconds...</span>}
-                                />
-                            }
+                        <Card className="flip-auction-card" style={{ cursor: "pointer" }} onClick={() => { setSelectedAuctionUUID(flipAuction.uuid) }}>
+                            <Card.Header style={{ padding: "10px" }}>
+                                <div className="ellipse" style={{ width: flipAuction.bin && flipAuction.sold ? "60%" : "80%", float: "left" }}>
+                                    <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                    <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                </div>
+                                {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
+                                {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
+                            </Card.Header>
                             <Card.Body style={{ padding: "10px" }}>
                                 <p>
                                     <span className="card-label">Cost: </span><br />
@@ -273,6 +262,21 @@ function Flipper() {
                         If you want more recent flipps purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a></span>}
                 </Card.Footer>
             </Card>
+
+            {
+                selectedAuctionUUID ?
+                    <div>
+                        <hr />
+                        <Card>
+                            <Card.Header>
+                                <Card.Title>Auction-Details</Card.Title>
+                            </Card.Header>
+                            <Card.Body>
+                                <AuctionDetails auctionUUID={selectedAuctionUUID} retryCounter={5} />
+                            </Card.Body>
+                        </Card>
+                    </div> : ""
+            }
 
             {isLoggedIn && refInfo ?
                 <div>

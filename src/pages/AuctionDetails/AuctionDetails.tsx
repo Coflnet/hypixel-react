@@ -4,6 +4,7 @@ import './AuctionDetails.css';
 import { useParams } from "react-router-dom";
 import { useForceUpdate } from '../../utils/Hooks';
 import { Container } from 'react-bootstrap';
+import Search from '../../components/Search/Search';
 
 function AuctionDetailsPage() {
 
@@ -18,6 +19,7 @@ function AuctionDetailsPage() {
     return (
         <div className="auction-details-page">
             <Container>
+                <Search />
                 <AuctionDetails auctionUUID={auctionUUID} />
             </Container>
         </div >

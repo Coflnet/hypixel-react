@@ -6,7 +6,6 @@ import './AuctionDetails.css';
 import { Badge, Button, Card, Collapse, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getStyleForTier, numberWithThousandsSeperators, convertTagToName } from '../../utils/Formatter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import Search from '../Search/Search';
 import { useForceUpdate } from '../../utils/Hooks';
 import moment from 'moment';
 import { v4 as generateUUID } from 'uuid';
@@ -14,9 +13,11 @@ import { Link } from 'react-router-dom';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import { ArrowDropDown as ArrowDownIcon, ArrowDropUp as ArrowUpIcon } from '@material-ui/icons'
 import { CopyButton } from '../CopyButton/CopyButton';
+import { toast } from 'react-toastify';
 
 interface Props {
-    auctionUUID: string
+    auctionUUID: string,
+    retryCounter?: number
 }
 
 function AuctionDetails(props: Props) {
@@ -36,7 +37,9 @@ function AuctionDetails(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.auctionUUID]);
 
+    let tryNumber = 1;
     let loadAuctionDetails = () => {
+
         api.getAuctionDetails(props.auctionUUID).then(auctionDetails => {
             auctionDetails.bids.sort((a, b) => b.amount - a.amount)
             setAuctionDetails(auctionDetails);
@@ -66,8 +69,16 @@ function AuctionDetails(props: Props) {
                 setDocumentTitle(auctionDetails);
                 forceUpdate();
             })
-        }).catch(() => {
-            setIsNoAuctionFound(true);
+        }).catch((error) => {
+            if (tryNumber < (props.retryCounter || 0)) {
+                tryNumber++;
+                setTimeout(() => {
+                    loadAuctionDetails();
+                }, 2000)
+            } else {
+                setIsNoAuctionFound(true);
+                toast.error(error.Message);
+            }
         })
     }
 
@@ -235,7 +246,6 @@ function AuctionDetails(props: Props) {
 
     return (
         <div className="auction-details">
-            <Search />
             {isAuctionFound ?
                 <div>
                     <p>The auction you tried to see doesn't seem to exist. Please go back.</p><br />
