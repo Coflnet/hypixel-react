@@ -277,7 +277,7 @@ function Flipper() {
                                 <Card.Title>Auction-Details</Card.Title>
                             </Card.Header>
                             <Card.Body>
-                                <AuctionDetails auctionUUID={selectedAuctionUUID} />
+                                <AuctionDetails auctionUUID={selectedAuctionUUID} retryCounter={5} />
                             </Card.Body>
                         </Card>
                     </div> : ""

@@ -241,8 +241,7 @@ function initAPI(): API {
                     resolve(parseAuctionDetails(auctionDetails));
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.AUCTION_DETAILS, error, auctionUUID);
-                    reject();
+                    reject(error);
                 }
             }, 2)
         })

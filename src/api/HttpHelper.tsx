@@ -73,6 +73,13 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
                 let maxAge = 60;
                 cacheUtils.setIntoCache(request.type, Base64.decode(request.data), parsedResponse, maxAge);
                 removeSentRequests([...equals, request]);
+            }).finally(() => {
+                // when there are still matching request remove them
+                let equals = findForEqualSentRequest(request);
+                equals.forEach(equal =>{
+                    equal.reject()
+                });
+                removeSentRequests([...equals, request]);
             });
     })
 
