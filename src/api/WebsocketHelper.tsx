@@ -94,8 +94,9 @@ function initWebsocket(): void {
 }
 
 function sendRequest(request: ApiRequest): Promise<void> {
-    if (!websocket)
+    if (!websocket) {
         initWebsocket();
+    }
     let requestString = JSON.stringify(request.data);
     return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
         if (cacheValue) {
@@ -131,7 +132,9 @@ function sendRequest(request: ApiRequest): Promise<void> {
 }
 
 function subscribe(subscription: ApiSubscription, resub?: boolean): void {
-
+    if (!websocket) {
+        initWebsocket();
+    }
     if (_isWebsocketReady(subscription.type)) {
         subscription.mId = getNextMessageId();
         if (!resub) {
