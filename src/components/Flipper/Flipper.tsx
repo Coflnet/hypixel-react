@@ -99,6 +99,10 @@ function Flipper() {
 
     function onNewFlip(newFipAuction: FlipAuction) {
 
+        if ((window as any).stopLoading) {
+            return;
+        }
+
         if (flipLookup[newFipAuction.uuid])
             return;
         flipLookup[newFipAuction.uuid] = newFipAuction;
@@ -138,24 +142,22 @@ function Flipper() {
 
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div id="flip-container" className="cards-wrapper">{
-            auctions.filter(auction => {
+            auctions.map((flipAuction) => {
                 if (!isLatest) {
-                    return true;
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.onlyBin && !auction.bin) {
-                    return false;
+                if (flipperFilter?.onlyBin && !flipAuction.bin) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.minProfit && flipperFilter.minProfit >= (auction.median - auction.cost)) {
-                    return false;
+                if (flipperFilter?.minProfit && flipperFilter.minProfit >= (flipAuction.median - flipAuction.cost)) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.maxCost && flipperFilter.maxCost < auction.cost) {
-                    return false;
+                if (flipperFilter?.maxCost && flipperFilter.maxCost < flipAuction.cost) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.onlyUnsold && auction.sold) {
-                    return false;
+                if (flipperFilter?.onlyUnsold && flipAuction.sold) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                return true;
-            }).map((flipAuction) => {
                 return (
                     <div className="card-wrapper" key={flipAuction.uuid}>
                         <Card className="flip-auction-card">
