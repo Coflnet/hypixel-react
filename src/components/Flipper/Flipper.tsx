@@ -111,7 +111,6 @@ function Flipper() {
                 if (latestAuctions.length > 1000) {
                     latestAuctions.shift();
                 }
-                console.log(latestAuctions.length)
                 return [...latestAuctions, newFipAuction];
             });
             if (autoscrollRef.current) {
