@@ -204,7 +204,7 @@ function Flipper() {
                         {!isLoggedIn ?
                             <div>
                                 <h2>Free auction house flipper preview - hypixel skyblock ah history</h2>
-                                You need to be logged and have Premium to have all features unlocked.
+                                You need to be logged and have Premium to have all features unlocked. <br/><br/>
                                 <GoogleSignIn onAfterLogin={onLogin} /></div> :
                             hasPremium ? "You have premium and receive profitable auctions in real time." : <span>
 
