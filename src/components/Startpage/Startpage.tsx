@@ -209,7 +209,12 @@ function Startpage() {
 
     return (
         <div className="startpage">
-
+            <div style={{ textAlign: "center" }}>
+                <hr />
+                <h1>Skyblock AH history</h1>
+                <p style={{ fontSize: "larger" }}>Browse through 250 million auctions, over two million players and the bazaar of hypixel skyblock</p>
+                <hr />
+            </div>
             <div className="startpage-list-element-wrapper">
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
@@ -218,10 +223,10 @@ function Startpage() {
                     </Card.Header>
                     <Card.Body>
                         <p>
-                            The Flipper is now available for free. Premium users still get the advantage of live flips (5 minute delay for free users) and easy access to the filters.
+                            The <Link to="/flipper">Flipper</Link>  is now available to everybody for free. Premium users still get the advantage of live flips (5 minute delay for free users) and easy access to the filters.
                         </p>
                         <p>
-                            Furthermore we are happy to introduce the <b>Referral-Program</b>. You can now get <b>free premium</b> for inviting other people to our site.
+                            Furthermore we are happy to introduce the <Link to="/ref"><b>Referral-Program</b></Link>. You can now get <b>free premium</b> for inviting other people to our site.
                         </p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
