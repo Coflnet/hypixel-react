@@ -14,7 +14,8 @@ interface Props {
     content: JSX.Element,
     tooltipContent: JSX.Element,
     tooltipTitle?: JSX.Element,
-    size?: "sm" | "lg" | "xl"
+    size?: "sm" | "lg" | "xl",
+    onClick?: Function
 }
 
 function Tooltip(props: Props) {
@@ -29,9 +30,16 @@ function Tooltip(props: Props) {
         </OverlayTrigger>
     );
 
+    function onClick() {
+        setShowDialog(true)
+        if (props.onClick) {
+            props.onClick();
+        }
+    }
+
     let clickElement = (
         <div>
-            <div style={{ cursor: "pointer" }} onClick={() => { setShowDialog(true) }}>
+            <div style={{ cursor: "pointer" }} onClick={onClick}>
                 {props.content}
             </div>
             <Modal size={props.size || "lg"} show={showDialog} onHide={() => { setShowDialog(false) }}>

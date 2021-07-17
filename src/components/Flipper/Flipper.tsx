@@ -12,41 +12,29 @@ import Tooltip from '../Tooltip/Tooltip';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
 import AuctionDetails from '../AuctionDetails/AuctionDetails';
+import { Link } from 'react-router-dom';
+import { getProperty } from '../../utils/PropertiesUtils';
 
 function Flipper() {
 
     let [latestAuctions, setLatestAuctions] = useState<FlipAuction[]>([]);
-    let [flipAuctions, setFlipAuctions] = useState<FlipAuction[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>();
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
     let [selectedAuctionUUID, setSelectedAuctionUUID] = useState("");
+    let [refInfo, setRefInfo] = useState<RefInfo>();
 
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
 
     const flipLookup = {};
 
-    let forceUpdate = useForceUpdate();
-
     useEffect(() => {
         _setAutoScroll(true);
-        api.getFlips().then(flips => {
-
-            flips.forEach(flip => {
-                api.getItemImageUrl(flip.item).then(url => {
-                    flip.item.iconUrl = url;
-                    setFlipAuctions(flips);
-                    forceUpdate();
-                });
-            })
-
-            api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
-            setFlipAuctions(flips);
-            attachScrollEvent();
-        });
+        api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
+        attachScrollEvent();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -64,6 +52,9 @@ function Flipper() {
     let onLogin = () => {
         setIsLoggedIn(true);
         loadHasPremium();
+        api.getRefInfo().then(refInfo => {
+            setRefInfo(refInfo);
+        })
     }
 
     let onArrowRightClick = () => {
@@ -122,10 +113,13 @@ function Flipper() {
 
         api.getItemImageUrl(newFipAuction.item).then((url) => {
             newFipAuction.item.iconUrl = url;
-            newFipAuction.showLink = false;
+            newFipAuction.showLink = true;
 
-            setLatestAuctions(flipAuctions => {
-                return [...flipAuctions, newFipAuction];
+            setLatestAuctions(latestAuctions => {
+                if (latestAuctions.length > 1000) {
+                    latestAuctions.shift();
+                }
+                return [...latestAuctions, newFipAuction];
             });
             if (autoscrollRef.current) {
                 let element = document.getElementById("flip-container");
@@ -134,35 +128,27 @@ function Flipper() {
                     attachScrollEvent(element);
                 }
             }
-
-            // reload for link-update
-            setTimeout(() => {
-                newFipAuction.showLink = true;
-                forceUpdate();
-            }, 5000)
         });
     }
 
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div id="flip-container" className="cards-wrapper">{
-            auctions.filter(auction => {
+            auctions.map((flipAuction) => {
                 if (!isLatest) {
-                    return true;
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.onlyBin && !auction.bin) {
-                    return false;
+                if (flipperFilter?.onlyBin && !flipAuction.bin) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.minProfit && flipperFilter.minProfit >= (auction.median - auction.cost)) {
-                    return false;
+                if (flipperFilter?.minProfit && flipperFilter.minProfit >= (flipAuction.median - flipAuction.cost)) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.maxCost && flipperFilter.maxCost < auction.cost) {
-                    return false;
+                if (flipperFilter?.maxCost && flipperFilter.maxCost < flipAuction.cost) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                if (flipperFilter?.onlyUnsold && auction.sold) {
-                    return false;
+                if (flipperFilter?.onlyUnsold && flipAuction.sold) {
+                    return <div key={flipAuction.uuid} />;
                 }
-                return true;
-            }).map((flipAuction) => {
                 return (
                     <div className="card-wrapper" key={flipAuction.uuid}>
                         <Card className="flip-auction-card" style={{ cursor: "pointer" }} onClick={() => { setSelectedAuctionUUID(flipAuction.uuid) }}>
@@ -241,9 +227,11 @@ function Flipper() {
                                 <Form.Label style={{ cursor: "pointer" }}>To newest:</Form.Label>
                                 <span style={{ cursor: "pointer" }}> <ArrowRightIcon /></span>
                             </Form.Group>
-                            <Form.Group onClick={clearFlips}>
-                                <Form.Label style={{ cursor: "pointer" }}>Clear flips:</Form.Label>
-                                <span style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
+                            <Form.Group>
+                                <span onClick={clearFlips}>
+                                    <Form.Label style={{ cursor: "pointer" }}>Clear flips:</Form.Label>
+                                    <span style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
+                                </span>
                             </Form.Group>
                         </Form>
                         <hr />
@@ -281,6 +269,22 @@ function Flipper() {
                             </Card.Body>
                         </Card>
                     </div> : ""
+            }
+
+            {isLoggedIn && refInfo ?
+                <div>
+                    <hr />
+
+                    <Card className="card">
+                        <Card.Header>
+                            <Card.Title>How to get premium for free</Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.<br />
+                            Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{getProperty("refLink") + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={getProperty("refLink") + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} />
+                        </Card.Body>
+                    </Card>
+                </div> : ""
             }
 
             <hr />
