@@ -253,8 +253,10 @@ function Flipper() {
                                 <span style={{ cursor: "pointer" }}> <ArrowRightIcon /></span>
                             </Form.Group>
                             <Form.Group>
-                                <Form.Label>Clear flips:</Form.Label>
-                                <span onClick={clearFlips} style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
+                                <span onClick={clearFlips}>
+                                    <Form.Label style={{ cursor: "pointer" }}>Clear flips:</Form.Label>
+                                    <span style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
+                                </span>
                             </Form.Group>
                         </Form>
                         <hr />
