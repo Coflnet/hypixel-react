@@ -62,7 +62,7 @@ function FlipBased(props: Props) {
         <div className="flip-based">
             {isLoading
                 ? getLoadingElement() :
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "stretch" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "stretch" }}>
                     {auctionsElement}
                 </div>}
         </div>
