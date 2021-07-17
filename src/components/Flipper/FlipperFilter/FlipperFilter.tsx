@@ -10,8 +10,11 @@ interface Props {
     isPremium?: boolean
 }
 
-let FREE_PREMIUM_FILTER_TIME = new Date(new Date().getTime() + (1000 * 60 * 5));
-let FREE_LOGIN_FILTER_TIME = new Date(new Date().getTime() + (1000 * 60 * 6));
+let FREE_PREMIUM_SPAN = 1000 * 60 * 6;
+let FREE_LOGIN_SPAN = 1000 * 60 * 5;
+
+let FREE_PREMIUM_FILTER_TIME = new Date(new Date().getTime() + FREE_PREMIUM_SPAN);
+let FREE_LOGIN_FILTER_TIME = new Date(new Date().getTime() + FREE_LOGIN_SPAN);
 
 function FlipperFilter(props: Props) {
 
@@ -25,6 +28,14 @@ function FlipperFilter(props: Props) {
     useEffect(() => {
         updateOnlyUnsold(props.isPremium == null ? false : props.isPremium);
         props.onChange(getCurrentFilter());
+
+        setTimeout(() => {
+            setFreePremiumFilters(true);
+        }, FREE_PREMIUM_SPAN)
+        setTimeout(() => {
+            setFreeLoginFilters(true);
+        }, FREE_LOGIN_SPAN)
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -72,41 +83,33 @@ function FlipperFilter(props: Props) {
         props.onChange(filter);
     }
 
-    function onFreePremium() {
-        setFreePremiumFilters(true);
-    }
-
-    function onFreeLogin() {
-        setFreeLoginFilters(true);
-    }
-
     const countdownRenderer = ({ minutes, seconds }) => (
         <span>
             {zeroPad(minutes)}:{zeroPad(seconds)}
         </span>
     );
 
-    const nonPremiumTooltip = <span>This is a premium feature.<br />(to use for free wait  <Countdown onComplete={() => onFreePremium()} renderer={countdownRenderer} date={FREE_PREMIUM_FILTER_TIME} />)</span>;
-    const nonLoggedInTooltip = <span>Login to use these filters.<br />(or wait  <Countdown onComplete={() => onFreeLogin()} renderer={countdownRenderer} date={FREE_LOGIN_FILTER_TIME} />)</span>;
+    const nonPremiumTooltip = <span>This is a premium feature.<br />(to use for free wait  <Countdown renderer={countdownRenderer} date={FREE_PREMIUM_FILTER_TIME} />)</span>;
+    const nonLoggedInTooltip = <span>Login to use these filters.<br />(or wait  <Countdown renderer={countdownRenderer} date={FREE_LOGIN_FILTER_TIME} />)</span>;
 
     const binFilter = <Form.Group>
         <Form.Label htmlFor="onlyBinCheckbox" className="flipper-filter-formfield-label only-bin-label">Only BIN-Auctions</Form.Label>
-        <Form.Check id="onlyBinCheckbox" onChange={onOnlyBinChange} className="flipper-filter-formfield" type="checkbox" disabled={!props.isLoggedIn && !freeLoginFilters} />
+        <Form.Check id="onlyBinCheckbox" onChange={onOnlyBinChange} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
 
     </Form.Group>;
     const soldFilter = <Form.Group>
         <Form.Label htmlFor="onlyUnsoldCheckbox" className="flipper-filter-formfield-label only-bin-label">Hide SOLD Auctions</Form.Label>
-        <Form.Check id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={props.isPremium} className="flipper-filter-formfield" type="checkbox" disabled={!props.isLoggedIn && !freeLoginFilters} />
+        <Form.Check id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={props.isPremium} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
     </Form.Group>;
 
     const numberFilters = <div>
         <Form.Group style={{ width: "45%", display: "inline-block" }}>
             <Form.Label className="flipper-filter-formfield-label">Min Profit:</Form.Label>
-            <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" type="number" step={5000} disabled={!props.isPremium && !freePremiumFilters} />
+            <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" type="number" step={5000} disabled={!props.isLoggedIn && !freeLoginFilters} />
         </Form.Group>
         <Form.Group style={{ width: "45%", display: "inline-block", marginLeft: "5%" }}>
             <Form.Label className="flipper-filter-formfield-label">Max Cost:</Form.Label>
-            <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" type="number" step={20000} disabled={!props.isPremium && !freePremiumFilters} />
+            <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" type="number" step={20000} disabled={!props.isLoggedIn && !freeLoginFilters} />
         </Form.Group>
     </div>;
 
