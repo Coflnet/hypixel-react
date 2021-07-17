@@ -99,10 +99,6 @@ function Flipper() {
 
     function onNewFlip(newFipAuction: FlipAuction) {
 
-        if ((window as any).stopLoading) {
-            return;
-        }
-
         if (flipLookup[newFipAuction.uuid])
             return;
         flipLookup[newFipAuction.uuid] = newFipAuction;
