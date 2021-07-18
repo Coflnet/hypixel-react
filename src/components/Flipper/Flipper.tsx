@@ -288,7 +288,7 @@ function Flipper() {
                         </Card.Header>
                         <Card.Body>
                             Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.<br />
-                            Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{getProperty("refLink") + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={getProperty("refLink") + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} />
+                            Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} />
                         </Card.Body>
                     </Card>
                 </div> : ""

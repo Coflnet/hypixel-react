@@ -7,6 +7,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils';
 import { Card } from 'react-bootstrap';
 import { getProperty } from '../../utils/PropertiesUtils';
 import { CopyButton } from '../CopyButton/CopyButton';
+import { Link } from 'react-router-dom';
 import './Ref.css';
 
 interface Props {
@@ -51,9 +52,21 @@ function Ref(props: Props) {
                                     <CopyButton copyValue={getLink()} successMessage={<p>Copied ref link <br /><i>{getLink()}</i></p>} />
                                 </span>
                             </div>
-                            <hr/>
+                            <hr />
+                            <h3>Advandtages</h3>
+                            <ul>
+                                <li>Get a day of premium for every user that logs in</li>
+                                <li>People you invite get a day of premium as well</li>
+                                <li>Get 10% of the premium time invited users purchase</li>
+                            </ul>
                             <p>Share your Ref-Link with people which might find skyblock ah history useful. If the invited person logs in with google you and the invited person both get <b>1 free day of premium</b>.</p>
-                            <p>The default referral page contains some facts about this site. You are also able to share another page and still get the Referral-Bonus. All you have to do is adding <b style={{whiteSpace: "nowrap"}}>?refId={refInfo?.refId}</b> to any link</p>
+                            <p>The default referral page contains some facts about this site. You are also able to share another page and still get the Referral-Bonus. All you have to do is adding <b style={{ whiteSpace: "nowrap" }}>?refId={refInfo?.refId}</b> to any link. For example</p>
+                            <ul>
+                                {linkExample("https://sky.coflnet.com/item/JERRY_STAFF")}
+                                {linkExample("https://sky.coflnet.com/player/b876ec32e396476ba1158438d83c67d4")}
+                                {linkExample("https://sky.coflnet.com/auction/6e4fbece3ece4dc4a4d2af46edbbb7db")}
+                                {linkExample("https://sky.coflnet.com/flipper")}
+                            </ul>
                         </Card.Body>
                     </Card>
                     <Card>
@@ -74,6 +87,12 @@ function Ref(props: Props) {
 
         </div>
     )
-}
 
+    function linkExample(link: string) {
+        let full = link + "?refId=" + refInfo?.refId;
+        return <li><Link to={full}>{full}</Link> 
+            <CopyButton copyValue={full} successMessage={<span>copied Link</span>}/></li>;
+    }
+}
+//
 export default Ref;
