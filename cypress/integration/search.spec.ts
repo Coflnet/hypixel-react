@@ -2,11 +2,11 @@ describe('search', () => {
 
     // basic search bar
     it('check search bar', () => {
-        cy.visit('localhost:3000')
+        cy.visit('https://sky-preview.coflnet.com')
         cy.get('input.searchBar', {
             timeout: 15000
         }).type('Diamond')
-        cy.get('div.item-details')
+        cy.get('div.list-group')
             .should('contain', 'Diamond')
         cy.get('img.search-result-icon')
             .first()
