@@ -135,7 +135,9 @@ interface FlipAuction {
   showLink: boolean,
   item: Item,
   bin: boolean,
-  sold?: boolean
+  sold?: boolean,
+  sellerName: string,
+  lowestBin: number
 }
 
 interface FlipperFilter {
