@@ -13,7 +13,6 @@ import { CopyButton } from '../CopyButton/CopyButton';
 import AuctionDetails from '../AuctionDetails/AuctionDetails';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { Link } from 'react-router-dom';
-import { getProperty } from '../../utils/PropertiesUtils';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -168,22 +167,37 @@ function Flipper() {
                             <Card.Body style={{ padding: "10px" }}>
                                 <p>
                                     <span className="card-label">Cost: </span><br />
-                                    <span style={{ color: "red" }}>{numberWithThousandsSeperators(flipAuction.cost)} Coins</span>
+                                    <b style={{ color: "red" }}>{numberWithThousandsSeperators(flipAuction.cost)} Coins</b>
                                 </p>
                                 <p>
                                     <span className="card-label">Median price: </span><br />
-                                    <span>{numberWithThousandsSeperators(flipAuction.median)} Coins</span>
+                                    <b>{numberWithThousandsSeperators(flipAuction.median)} Coins</b>
                                 </p>
-                                <span className="card-label">Estimated Profit: </span><br />
-                                <span style={{ color: "green" }}>
-                                    +{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins
-                                </span>
-                                <div style={{ float: "right" }}>
-                                    <Tooltip tooltipTitle={<span>Auctions used for calculating the median price</span>} size="xl" type="click" content={<HelpIcon />}
-                                        tooltipContent={<FlipBased flip={flipAuction} />}
-                                    />
-                                </div>
-                                <hr style={{ marginTop: 0 }} />
+                                <p>
+                                    <span className="card-label">Estimated Profit: </span><br />
+                                    <b style={{ color: "lime" }}>
+                                        +{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins
+                                    </b>
+                                    <div style={{ float: "right" }}>
+                                        <Tooltip tooltipTitle={<span>Auctions used for calculating the median price</span>} size="xl" type="click" content={<HelpIcon />}
+                                            tooltipContent={<FlipBased flip={flipAuction} />}
+                                        />
+                                    </div>
+                                </p>
+                                <hr />
+                                <p>
+                                    <span className="card-label">Lowest BIN: </span><br />
+                                    <b>
+                                        {numberWithThousandsSeperators(flipAuction.lowestBin)} Coins
+                                    </b>
+                                </p>
+                                <p>
+                                    <span className="card-label">Seller: </span><br />
+                                    <b>
+                                        {flipAuction.sellerName}
+                                    </b>
+                                </p>
+                                <hr />
                                 <div className="flex">
                                     <div className="flex-max">
                                         <span className="card-label">Volume: </span>
@@ -216,7 +230,7 @@ function Flipper() {
                                 These auctions are delayed by 5 min. Please purchase <a target="_blank" rel="noreferrer" href="/premium">premium</a> if you want real time flips.
                             </span>
                         }
-                        <br/>
+                        <br />
                         <GoogleSignIn onAfterLogin={onLogin} />
                     </Card.Title>
                 </Card.Header>
