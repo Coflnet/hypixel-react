@@ -14,7 +14,8 @@ import { camelCaseToSentenceCase } from '../../utils/Formatter';
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
     disabled?: boolean,
-    filters?: string[]
+    filters?: string[],
+    isPrefill?: boolean
 }
 
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
@@ -39,7 +40,9 @@ function ItemFilter(props: Props) {
     }, []);
 
     useEffect(() => {
-
+        if (props.isPrefill) {
+            return;
+        }
         setSelectedFilters([]);
         setItemFilter({});
         onFilterChange({});
@@ -93,6 +96,16 @@ function ItemFilter(props: Props) {
         onFilterChange({});
     }
 
+    function removeFilter(filterName: string) {
+        if (itemFilter) {
+            delete itemFilter[filterName];
+            setItemFilter(itemFilter);
+            updateURLQuery(itemFilter);
+            onFilterChange(itemFilter);
+        }
+        setSelectedFilters(selectedFilters.filter(f => f !== filterName))
+    }
+
     let onEnable = () => {
         setExpanded(true);
         if (!itemFilter) {
@@ -114,30 +127,44 @@ function ItemFilter(props: Props) {
         })
     }
 
+    function onFilterChange(filter?: ItemFilter) {
+        setItemFilter(filter!);
+        if (props.onFilterChange) {
+            props.onFilterChange(filter);
+        }
+    }
+
+    function onFilterElementChange(filter?: ItemFilter) {
+        let newFilter = itemFilter;
+        var keys = Object.keys(filter as object);
+        if (keys.length > 0) {
+            var key = keys[0];
+            newFilter![key] = filter![key];
+        }
+        onFilterChange(newFilter);
+    }
+
+    let filterList = selectedFilters.map(filterName => {
+        let options = filterOptions.find(f => f.name === filterName);
+        let defaultValue: any = 0;
+        if (options && options.options[0]) {
+            defaultValue = options.options[0];
+        }
+        return (
+            <div key={filterName} className="filter-element">
+                <FilterElement onFilterChange={onFilterElementChange} options={options} defaultValue={defaultValue} />
+                <div style={{height: "100%", position: "relative"}} className="remove-filter" onClick={() => removeFilter(filterName)}>
+                    <DeleteIcon style={{marginLeft: "5px", top: "45px", position: "absolute"}} color="error" />
+                </div>
+            </div>
+        )
+    });
+
     let filterSelectList = props?.filters ? props?.filters.filter(f => !selectedFilters.includes(f)).map(filter => {
         return (
             <option data-id={filter} key={filter} value={filter}>{camelCaseToSentenceCase(filter)}</option>
         )
     }) : ""
-
-    function onFilterChange(filter?: ItemFilter) {
-        var keys = Object.keys(filter as object);
-        if (keys.length > 0) {
-            var key = keys[0];
-            itemFilter![key] = filter![key];
-        }
-        updateURLQuery(itemFilter);
-        setItemFilter(itemFilter);
-        if (props.onFilterChange) {
-            props.onFilterChange(itemFilter);
-        }
-    }
-
-    let filterList = selectedFilters.map(filterName => {
-        return <div key={filterName} className="filter-element">
-            <FilterElement onFilterChange={onFilterChange} options={filterOptions.find(f => f.name === filterName)} defaultValue={itemFilter![filterName]}></FilterElement>
-            <div className="remove-filter" onClick={() => removeFilter(filterName)}><DeleteIcon color="error" /></div></div>
-    });
 
     let infoIconElement = (
         <div>
@@ -165,15 +192,6 @@ function ItemFilter(props: Props) {
             }
         </div>
     );
-
-    function removeFilter(filterName: string) {
-        if (itemFilter) {
-            delete itemFilter[filterName];
-            setItemFilter(itemFilter);
-            updateURLQuery(itemFilter);
-        }
-        setSelectedFilters(selectedFilters.filter(f => f !== filterName))
-    }
 
     return (
         <div className="enchantment-filter">

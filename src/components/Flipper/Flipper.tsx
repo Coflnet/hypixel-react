@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/ApiHelper';
 import './Flipper.css';
 import { Card, Form, Badge } from 'react-bootstrap';
-import { numberWithThousandsSeperators } from '../../utils/Formatter';
+import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
@@ -13,7 +13,6 @@ import { CopyButton } from '../CopyButton/CopyButton';
 import AuctionDetails from '../AuctionDetails/AuctionDetails';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { Link } from 'react-router-dom';
-import { getProperty } from '../../utils/PropertiesUtils';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -160,7 +159,7 @@ function Flipper() {
                             <Card.Header style={{ padding: "10px" }}>
                                 <div className="ellipse" style={{ width: flipAuction.bin && flipAuction.sold ? "60%" : "80%", float: "left" }}>
                                     <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                    <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                    <span style={getStyleForTier(flipAuction.item.tier)}>{flipAuction.item.name}</span>
                                 </div>
                                 {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
                                 {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}

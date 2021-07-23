@@ -12,6 +12,8 @@ interface Props {
     filter?: ItemFilter
 }
 
+let currentLoad;
+
 function ActiveAuctions(props: Props) {
 
     let [activeAuctions, setActiveAuctions] = useState<RecentAuction[]>([]);
@@ -24,9 +26,20 @@ function ActiveAuctions(props: Props) {
 
     function loadActiveAuctions(item: Item, filter?: ItemFilter) {
         setIsLoading(true);
+        var filterString = JSON.stringify({
+            item,
+            filter
+        });
+        currentLoad = filterString;
         api.getActiveAuctions(item, filter).then(auctions => {
+            if (currentLoad !== filterString) {
+                return;
+            }
             setIsLoading(false);
             setActiveAuctions(auctions);
+        }).catch(() => {
+            setIsLoading(false);
+            setActiveAuctions([]);
         })
     }
 
@@ -59,7 +72,7 @@ function ActiveAuctions(props: Props) {
         <div className="recent-auctions">
             <div className="recent-auctions-list">
                 {isLoading ?
-                    getLoadingElement() :
+                    <div style={{marginTop: "20px"}}>{getLoadingElement()}</div> :
                     activeAuctions.length > 0 ?
                         recentAuctionList :
                         <p style={{ textAlign: "center" }}>No recent auctions found</p>}

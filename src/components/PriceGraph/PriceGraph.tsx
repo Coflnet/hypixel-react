@@ -31,7 +31,6 @@ function PriceGraph(props: Props) {
     let [noDataFound, setNoDataFound] = useState(false);
     let [avgPrice, setAvgPrice] = useState(0);
     let [filters, setFilters] = useState([] as string[]);
-    let [isFilterable, setIsFilterable] = useState(true);
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
     let [isItemFilterPrefill, setIsItemFilterPrefill] = useState<boolean>(true);
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true);
@@ -100,7 +99,6 @@ function PriceGraph(props: Props) {
             });
 
             priceChart.update();
-            setIsFilterable(result.filterable);
             setFilters(result.filters);
             setAvgPrice(Math.round(priceSum / result.prices.length))
             setPriceChart(priceChart);
@@ -108,11 +106,10 @@ function PriceGraph(props: Props) {
             setIsLoading(false);
             setTimeout(() => {
                 setIsItemFilterPrefill(false);
-            });
+            }, 100);
         }).catch(() => {
             setIsLoading(false);
             setNoDataFound(true);
-            setIsFilterable(false);
             setAvgPrice(0);
         });
     };
@@ -154,7 +151,7 @@ function PriceGraph(props: Props) {
     return (
         <div className="price-graph">
 
-            {isFilterable ? <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} /> : ""}
+            <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} isPrefill={isItemFilterPrefill} />
             <ItemPriceRange setToDefaultRangeSwitch={defaultRangeSwitch} onRangeChange={onRangeChange} disabled={isLoading} disableAllTime={itemFilter !== undefined} item={props.item} />
 
             <div style={fetchspan <= 0 ? { display: "none" } : {}}>

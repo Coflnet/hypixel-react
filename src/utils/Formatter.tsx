@@ -86,10 +86,10 @@ export function getStyleForTier(tier?: string): CSSProperties {
         RARE = "#5555ff",
         EPIC = "#aa00aa",
         LEGENDARY = "#ffaa00",
-        MYTHIC = "#ff55ff",
-        SUPREME = "#AA0000",
         SPECIAL = "#FF5555",
-        VERY_SPECIAL = "#FF5555"
+        VERY_SPECIAL = "#FF5555",
+        MYTHIC = "#ff55ff",
+        SUPREME = "#AA0000"
     }
 
 

@@ -47,15 +47,16 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
         requests.push(request);
         return fetch(url, { headers })
             .then(response => {
-                if (!isResponseValid(response)) {
-                    request.reject(response);
-                    return;
-                }
-
                 let parsed;
                 try {
                     parsed = response.json();
                 } catch (error) {
+                    request.reject({ Message: "Unnown error" });
+                }
+                if (!isResponseValid(response)) {
+                    parsed.then((parsedResponse) => {
+                        request.reject(parsedResponse);
+                    })
                     return;
                 }
                 return parsed;
@@ -66,7 +67,7 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
                 }
                 request.resolve(parsedResponse)
                 let equals = findForEqualSentRequest(request);
-                equals.forEach(equal =>{
+                equals.forEach(equal => {
                     equal.resolve(parsedResponse)
                 });
                 // all http answers are valid for 60 sec
@@ -76,7 +77,7 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
             }).finally(() => {
                 // when there are still matching request remove them
                 let equals = findForEqualSentRequest(request);
-                equals.forEach(equal =>{
+                equals.forEach(equal => {
                     equal.reject()
                 });
                 removeSentRequests([...equals, request]);

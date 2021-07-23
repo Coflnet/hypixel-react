@@ -20,11 +20,13 @@ export enum FilterTypeEnum {
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
     options?: FilterOptions,
-    defaultValue?: any
+    defaultValue: any
 }
 
 function FilterElement(props: Props) {
     let [value, _setValue] = useState<any>();
+    let [isValid, setIsValid] = useState(true);
+    let [errorText, setErrorText] = useState("");
 
     /**
      * Checks an FilterType if a flag is present
@@ -47,6 +49,11 @@ function FilterElement(props: Props) {
             let date = Date.parse(newValue);
             if (!isNaN(date)) {
                 return date;
+            }
+            return newValue;
+        } else if (props.options && hasFlag(props.options.type, FilterTypeEnum.DATE)) {
+            if (!newValue) {
+                return 1;
             }
             return newValue;
         } else {
@@ -72,6 +79,11 @@ function FilterElement(props: Props) {
     }
 
     function updateValue(value: string) {
+
+        if (!validate(value)) {
+            return;
+        }
+
         let newFilter = {};
         newFilter[props.options!.name] = value;
 
@@ -86,39 +98,24 @@ function FilterElement(props: Props) {
         return (<option data-id={option} key={option} value={option}>{convertTagToName(option)}</option>)
     })
 
-    if (props.options && hasFlag(props.options.type, FilterTypeEnum.DATE) && !value) {
-        let dateValue;
-        if (!value && !props.defaultValue) {
-            dateValue = new Date();
-        } else if (!value) {
-            dateValue = new Date(parseInt(props.defaultValue + "000"));
-        } else {
-            dateValue = value;
+    function validate(value?: any) {
+        if (!value) {
+            setErrorText("Please fill the filter or remove it")
+            setIsValid(false);
+            return false;
         }
-        value = dateValue;
-        setValue(dateValue);
-        updateDateFilter(dateValue);
-    }
-
-    if (props.options && !hasFlag(props.options.type, FilterTypeEnum.DATE) && !value) {
-        let normalValue;
-        if (!value && !props.defaultValue) {
-            if (props.options?.options[0]) {
-                normalValue = props.options?.options[0];
-            } else {
-                normalValue = 0;
+        if (props.options && hasFlag(props.options.type, FilterTypeEnum.NUMERICAL)) {
+            let v = parseInt(value);
+            let lowEnd = parseInt(props.options.options[0]);
+            let highEnd = parseInt(props.options.options[1]);
+            if (v < lowEnd || v > highEnd) {
+                setErrorText("Please choose a value between " + lowEnd + " and " + highEnd);
+                setIsValid(false);
+                return false;
             }
-        } else if (!value) {
-            normalValue = props.defaultValue;
-        } else {
-            normalValue = value;
         }
-        value = normalValue;
-        setValue(normalValue);
-        if(normalValue)
-        {
-            updateValue(normalValue);
-        }
+        setIsValid(true);
+        return true;
     }
 
     return (
@@ -130,12 +127,20 @@ function FilterElement(props: Props) {
                         hasFlag(props.options.type, FilterTypeEnum.DATE)
                             ? <span><br /><DatePicker className="date-filter form-control" selected={value} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>
                             : hasFlag(props.options.type, FilterTypeEnum.RANGE) ?
-                                <Form.Control key={props.options.name} className="select-filter" defaultValue={props.defaultValue} value={value} onChange={updateInputFilter}>
+                                <Form.Control isInvalid={!isValid} key={props.options.name} className="select-filter" defaultValue={props.defaultValue} value={value} onChange={updateInputFilter}>
 
                                 </Form.Control>
-                                : <Form.Control className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
+                                : <Form.Control isInvalid={!isValid} className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
                                     {selectOptions}
                                 </Form.Control>
+                    }
+                    {
+                        !isValid ?
+                            <div>
+                                <Form.Control.Feedback type="invalid">
+                                    <span style={{color: "red"}}>{errorText}</span>
+                                </Form.Control.Feedback>
+                            </div> : ""
                     }
                 </div>
             }
