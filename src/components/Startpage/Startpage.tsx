@@ -231,7 +231,7 @@ function Startpage() {
                         <hr />
                         <div style={{ marginTop: "20px" }}>
                             <p>Recent changes (last change: 17.06.2021):</p>
-                            <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <a href="#">Click here to open</a></p>} tooltipContent={
+                            <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <span style={{color: "#007bff", cursor: "pointer"}}>Click here to open</span></p>} tooltipContent={
                                 <ul>
                                     <li className="changelog-item">New reworked sidebar</li>
                                     <li className="changelog-item">Improved non-premium flipper (still delayed by a few minutes)</li>

@@ -62,7 +62,7 @@ function ItemFilter(props: Props) {
         if (selectedFilters.some(n => n === filterName)) {
             return;
         }
-        if (filterName == "Enchantment") {
+        if (filterName === "Enchantment") {
             enableFilter("EnchantLvl");
         }
 

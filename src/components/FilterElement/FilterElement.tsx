@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Form, Spinner } from 'react-bootstrap';
 import "react-datepicker/dist/react-datepicker.css";
 import './FilterElement.css';

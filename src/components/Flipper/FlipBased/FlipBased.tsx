@@ -25,7 +25,7 @@ function FlipBased(props: Props) {
             setAuctions(auctions.sort((a, b) => b.highestBid - a.highestBid));
             setIsLoading(false);
         })
-    }, [])
+    }, [props.flip.uuid])
 
     useEffect(() => {
         forceUpdate();

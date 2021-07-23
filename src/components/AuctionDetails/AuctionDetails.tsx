@@ -125,26 +125,27 @@ function AuctionDetails(props: Props) {
                     </span>
                 </h1>
                 </Link>
-                <div className="center">
+                <div className="auction-detail-card-head-subtext">
                     <OverlayTrigger
                         overlay={<Tooltip id={generateUUID()}>
                             {getTimeToolTipString()}
                         </Tooltip>}>
                         {
                             isRunning(auctionDetails) ?
-                                <span className="center-child">
+                                <span>
                                     End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : "-"}
                                 </span> :
-                                <span className="center-child">
+                                <span>
                                     Auction ended {auctionDetails.auction.bin && auctionDetails.bids.length > 0 ? moment(auctionDetails.bids[0].timestamp).fromNow() : moment(auctionDetails.auction.end).fromNow()}
                                 </span>
                         }
                     </OverlayTrigger>
-                    <div className="center-child">
-                        {isRunning(auctionDetails) ?
-                            <SubscribeButton type="auction" topic={props.auctionUUID} />
-                            : ""}
-                    </div>
+                    {isRunning(auctionDetails) ?
+                        <div>
+                            <SubscribeButton type="auction" topic={props.auctionUUID} hideText={document.body.clientWidth <= 480} />
+                        </div>
+                        : ""}
+                    <CopyButton buttonVariant="primary" copyValue={"/viewauction " + props.auctionUUID} successMessage={<p>Copied ingame link <br /><i>/viewauction {props.auctionUUID}</i></p>} />
                 </div>
             </Card.Header>
             <Card.Body>
@@ -184,7 +185,7 @@ function AuctionDetails(props: Props) {
                         {auctionDetails && auctionDetails!.enchantments.length > 0 ?
                             (<ul className="enchantment-list">
                                 {auctionDetails?.enchantments.map(enchantment => {
-                                    return <li key={"enchantment-" + enchantment.id}>{enchantment.name} {enchantment.level}</li>
+                                    return enchantment.id ? <li key={"enchantment-" + enchantment.id}>{enchantment.name} {enchantment.level}</li> : ""
                                 })}
                             </ul>) :
                             <p>None</p>}
@@ -280,9 +281,6 @@ function AuctionDetails(props: Props) {
                                 </ListGroup>
                             </Card.Body>
                         </Card>
-                    </div>
-                    <div className="fixed-bottom">
-                        <CopyButton buttonWrapperClass="btn-bottom" buttonVariant="primary" copyValue={"/viewauction " + props.auctionUUID} successMessage={<p>Copied ingame link <br /><i>/viewauction {props.auctionUUID}</i></p>} />
                     </div>
                 </div>
             }

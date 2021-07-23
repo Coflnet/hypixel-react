@@ -1,7 +1,6 @@
 import { ApiRequest, HttpApi } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
-import { toast } from "react-toastify";
 import cacheUtils from "../utils/CacheUtils";
 import { getProperty } from "../utils/PropertiesUtils";
 import { getNextMessageId } from "../utils/MessageIdUtils";
@@ -61,7 +60,7 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
                 }
                 return parsed;
             }).then(parsedResponse => {
-                if (!parsedResponse || parsedResponse.Slug === "error") {
+                if (!parsedResponse || parsedResponse.Slug !== undefined) {
                     request.reject(parsedResponse);
                     return;
                 }

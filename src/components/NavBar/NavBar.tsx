@@ -3,7 +3,7 @@ import { ProSidebar, Menu, MenuItem, SidebarHeader } from 'react-pro-sidebar';
 import 'react-pro-sidebar/dist/css/styles.css';
 import './NavBar.css';
 import { Link } from 'react-router-dom';
-import { ShareOutlined as ShareIcon, NotificationsOutlined as NotificationIcon, Home as HomeIcon, Storefront as StorefrontIcon, AccountBalance as AccountBalanceIcon, Policy as PolicyIcon, Chat as ChatIcon, Menu as MenuIcon, Headset as HeadsetIcon, ExploreOutlined as ExploreIcon } from '@material-ui/icons';
+import { ShareOutlined as ShareIcon, NotificationsOutlined as NotificationIcon, Home as HomeIcon, Storefront as StorefrontIcon, AccountBalance as AccountBalanceIcon, Policy as PolicyIcon, Chat as ChatIcon, Menu as MenuIcon, ExploreOutlined as ExploreIcon } from '@material-ui/icons';
 import { useForceUpdate } from '../../utils/Hooks';
 
 let resizePromise: NodeJS.Timeout | null = null;
@@ -37,6 +37,7 @@ function NavBar() {
         } else {
             document.removeEventListener('click', outsideClickHandler, true);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isWideOpen])
 
     function outsideClickHandler(evt) {
@@ -45,7 +46,7 @@ function NavBar() {
         let targetEl = evt.target;
 
         do {
-            if (targetEl == flyoutEl || targetEl == hamburgerEl) {
+            if (targetEl === flyoutEl || targetEl === hamburgerEl) {
                 return;
             }
             targetEl = (targetEl as any).parentNode;
@@ -92,7 +93,7 @@ function NavBar() {
                 el.hidden = false;
                 el.style.left = "-270px";
                 setTimeout(() => {
-                    if(el){
+                    if (el) {
                         el.classList.add('nav-open');
                     }
                 });
