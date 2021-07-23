@@ -34,7 +34,8 @@ export enum RequestType {
     GET_FLIP_BASED_AUCTIONS = "flipBased",
     PAYPAL_PAYMENT = "paypalPurchase",
     GET_REF_INFO = "getRefInfo",
-    SET_REF = "setRef"
+    SET_REF = "setRef",
+    ACTIVE_AUCTIONS = "activeAuctions"
 }
 
 export enum SubscriptionType {

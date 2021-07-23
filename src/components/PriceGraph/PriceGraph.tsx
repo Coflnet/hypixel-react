@@ -13,6 +13,7 @@ import ItemFilter from '../ItemFilter/ItemFilter';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import RecentAuctions from '../RecentAuctions/RecentAuctions';
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
+import ActiveAuctions from '../ActiveAuctions/ActiveAuctions';
 
 interface Props {
     item: Item
@@ -122,7 +123,7 @@ function PriceGraph(props: Props) {
 
     let onRangeChange = (timespan: number) => {
         setFetchspan(timespan);
-        if (priceChart) {
+        if (priceChart && timespan > 0) {
             updateChart(priceChart!, timespan, itemFilter);
         }
     }
@@ -131,7 +132,9 @@ function PriceGraph(props: Props) {
         setItemFilter(filter);
         setDefaultRangeSwitch(!defaultRangeSwitch);
         setTimeout(() => {
-            updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
+            if (fetchspanRef.current > 0) {
+                updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
+            }
         }, 100)
     }
 
@@ -151,20 +154,25 @@ function PriceGraph(props: Props) {
     return (
         <div className="price-graph">
 
-            {isFilterable ? <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} preFilled={isItemFilterPrefill} /> : ""}
+            {isFilterable ? <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} /> : ""}
             <ItemPriceRange setToDefaultRangeSwitch={defaultRangeSwitch} onRangeChange={onRangeChange} disabled={isLoading} disableAllTime={itemFilter !== undefined} item={props.item} />
 
-            <div className="graph-canvas-container">
-                {graphOverlayElement}
-                <canvas ref={priceChartCanvas} />
+            <div style={fetchspan <= 0 ? { display: "none" } : {}}>
+                <div className="graph-canvas-container">
+                    {graphOverlayElement}
+                    <canvas ref={priceChartCanvas} />
+                </div>
+                <div className="additional-infos">
+                    <span className="avg-price"><b>Avg Price:</b> {isLoading ? "-" : numberWithThousandsSeperators(avgPrice) + " Coins"}</span>
+                    <div style={{ float: "left" }} className="additional-infos-button"><SubscribeButton type="item" topic={props.item.tag} /></div>
+                    <div style={{ float: "right" }}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
+                </div>
+                <hr />
+                {props.item?.bazaar || fetchspan <= 0 ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />}
             </div>
-            <div className="additional-infos">
-                <span className="avg-price"><b>Avg Price:</b> {isLoading ? "-" : numberWithThousandsSeperators(avgPrice) + " Coins"}</span>
-                <div style={{float: "left"}} className="additional-infos-button"><SubscribeButton type="item" topic={props.item.tag} /></div>
-                <div style={{float: "right"}}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
+            <div style={fetchspan > 0 ? { display: "none" } : {}}>
+                <ActiveAuctions item={props.item} filter={itemFilter} />
             </div>
-            <hr />
-            {props.item?.bazaar ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />}
         </div >
     );
 }

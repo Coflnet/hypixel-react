@@ -14,8 +14,7 @@ import { camelCaseToSentenceCase } from '../../utils/Formatter';
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
     disabled?: boolean,
-    filters?: string[],
-    preFilled: boolean
+    filters?: string[]
 }
 
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
@@ -27,7 +26,6 @@ function ItemFilter(props: Props) {
 
     let [itemFilter, _setItemFilter] = useState<ItemFilter>({});
     let [expanded, setExpanded] = useState(false);
-    let [isApplied, _setIsApplied] = useState(false);
     let [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     let [showInfoDialog, setShowInfoDialog] = useState(false);
     let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([]);
@@ -40,44 +38,11 @@ function ItemFilter(props: Props) {
         return () => { mounted = false }
     }, []);
 
-    /**
-     * Handles filter changes in the url which should be instant applied (searching enchantments)
-     */
     useEffect(() => {
-        let urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('apply') !== "true") {
-            return;
-        }
-        itemFilter = getItemFilterFromUrl(urlParams)
-        if (Object.keys(itemFilter).length > 0) {
-
-            setItemFilter(itemFilter);
-            setSelectedFilters([]);
-            selectedFilters = [];
-
-            setTimeout(() => {
-                setExpanded(true);
-                Object.keys(itemFilter).forEach(name => enableFilter(name));
-                setTimeout(() => {
-                    onFilterApply();
-                }, 200);
-            })
-        }
-    }, [window.location.search])
-
-    useEffect(() => {
-
-        if (props.preFilled) {
-            return;
-        }
 
         setSelectedFilters([]);
         setItemFilter({});
-        if (props.onFilterChange) {
-            props.onFilterChange(undefined);
-        }
-        updateURLQuery();
-        setIsApplied(false);
+        onFilterChange({});
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
@@ -86,7 +51,6 @@ function ItemFilter(props: Props) {
             setExpanded(true);
             Object.keys(itemFilter).forEach(name => enableFilter(name));
             setItemFilter(itemFilter);
-            onFilterApply();
         }
     }
 
@@ -107,9 +71,6 @@ function ItemFilter(props: Props) {
             if (!mounted) {
                 return;
             }
-            if (!props.preFilled) {
-                setIsApplied(false);
-            }
             updateURLQuery(itemFilter);
             setItemFilter(itemFilter);
 
@@ -125,23 +86,11 @@ function ItemFilter(props: Props) {
         enableFilter(filterName);
     }
 
-
-    let onFilterApply = () => {
-        if (props.onFilterChange) {
-            props.onFilterChange(itemFilter);
-        }
-        setIsApplied(true);
-    }
-
     let onFilterRemove = () => {
         setSelectedFilters([]);
         setExpanded(false);
         setItemFilter({});
-        setIsApplied(false);
-        if (props.onFilterChange) {
-            props.onFilterChange(undefined);
-        }
-        updateURLQuery();
+        onFilterChange({});
     }
 
     let onEnable = () => {
@@ -177,15 +126,10 @@ function ItemFilter(props: Props) {
             var key = keys[0];
             itemFilter![key] = filter![key];
         }
-
-        setIsApplied(false);
         updateURLQuery(itemFilter);
         setItemFilter(itemFilter);
-    }
-
-    function setIsApplied(value: boolean) {
-        if (value || !props.preFilled) {
-            _setIsApplied(value);
+        if (props.onFilterChange) {
+            props.onFilterChange(itemFilter);
         }
     }
 
@@ -243,9 +187,6 @@ function ItemFilter(props: Props) {
                 <Card>
                     <Card.Title style={{ margin: "10px" }}>
                         Filter
-                        {isApplied ?
-                            <Badge variant="success" className="appliedBadge">Applied</Badge> :
-                            <Badge variant="danger" className="appliedBadge">Filter is currently NOT applied</Badge>}
                         {infoIconElement}
                     </Card.Title>
                     <Card.Body>
@@ -268,7 +209,6 @@ function ItemFilter(props: Props) {
                             </div>
                         </Form >
                         <div>
-                            <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()} disabled={props.disabled}>Apply</Button>
                             <Button className="btn-danger" onClick={() => onFilterRemove()} disabled={props.disabled}>Close</Button>
                         </div>
                     </Card.Body>

@@ -5,6 +5,7 @@ import { useHistory } from "react-router-dom";
 import './ItemPriceRange.css';
 
 export enum DateRange {
+    ACTIVE = "active",
     DAY = "day",
     MONTH = "month",
     WEEK = "week",
@@ -25,6 +26,9 @@ export let getTimeSpanFromDateRange = (range: DateRange): number => {
     let timespan: number = -1;
     let currDate: Date = new Date();
     switch (range) {
+        case DateRange.ACTIVE:
+            timespan = -1;
+            break;
         case DateRange.DAY:
             timespan = currDate.setUTCDate(currDate.getUTCDate() - 1);
             break;
@@ -65,9 +69,10 @@ export function ItemPriceRange(props: Props) {
     }, [props.item])
 
     useEffect(() => {
-        setSelectedDateRange(DEFAULT_DATE_RANGE);
+        let setTo = selectedDateRange === DateRange.ACTIVE ? DateRange.ACTIVE : DEFAULT_DATE_RANGE;
+        setSelectedDateRange(setTo);
         if (props.onRangeChange) {
-            props.onRangeChange(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE));
+            props.onRangeChange(getTimeSpanFromDateRange(setTo));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.setToDefaultRangeSwitch])
@@ -115,6 +120,7 @@ export function ItemPriceRange(props: Props) {
 
     return (
         <ToggleButtonGroup className="item-price-range" type="radio" name="options" value={selectedDateRange} onChange={onRangeChangeClick}>
+            <ToggleButton className="price-range-button" value={DateRange.ACTIVE} variant={getButtonVariant(DateRange.ACTIVE)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">Active</ToggleButton>
             <ToggleButton className="price-range-button" value={DateRange.DAY} variant={getButtonVariant(DateRange.DAY)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">1 Day</ToggleButton>
             <ToggleButton className="price-range-button" value={DateRange.WEEK} variant={getButtonVariant(DateRange.WEEK)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">1 Week</ToggleButton>
             <ToggleButton className="price-range-button" value={DateRange.MONTH} variant={getButtonVariant(DateRange.MONTH)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">1 Month</ToggleButton>
