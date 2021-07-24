@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Form, Spinner } from 'react-bootstrap';
 import "react-datepicker/dist/react-datepicker.css";
 import './FilterElement.css';
@@ -27,6 +27,12 @@ function FilterElement(props: Props) {
     let [value, _setValue] = useState<any>();
     let [isValid, setIsValid] = useState(true);
     let [errorText, setErrorText] = useState("");
+
+    useEffect(() => {
+        setTimeout(() => {
+                updateValue(props.defaultValue);
+        }, 500);
+    }, [])
 
     /**
      * Checks an FilterType if a flag is present
@@ -99,7 +105,7 @@ function FilterElement(props: Props) {
     })
 
     function validate(value?: any) {
-        if (!value) {
+        if (!value && value !== 0) {
             setErrorText("Please fill the filter or remove it")
             setIsValid(false);
             return false;
@@ -138,7 +144,7 @@ function FilterElement(props: Props) {
                         !isValid ?
                             <div>
                                 <Form.Control.Feedback type="invalid">
-                                    <span style={{color: "red"}}>{errorText}</span>
+                                    <span style={{ color: "red" }}>{errorText}</span>
                                 </Form.Control.Feedback>
                             </div> : ""
                     }

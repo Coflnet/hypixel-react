@@ -6,7 +6,7 @@ import './ItemFilter.css';
 import { useHistory } from "react-router-dom";
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
 import FilterElement from '../FilterElement/FilterElement';
-import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
+import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon, RestaurantRounded } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
 import api from '../../api/ApiHelper';
 import { camelCaseToSentenceCase } from '../../utils/Formatter';
@@ -142,6 +142,11 @@ function ItemFilter(props: Props) {
             var key = keys[0];
             newFilter![key] = filter![key];
         }
+
+        if ((newFilter.EnchantLvl || newFilter.Enchantment) && !(newFilter.EnchantLvl && newFilter.Enchantment)) {
+            return;
+        }
+
         onFilterChange(newFilter);
     }
 
@@ -150,6 +155,9 @@ function ItemFilter(props: Props) {
         let defaultValue: any = 0;
         if (options && options.options[0]) {
             defaultValue = options.options[0];
+        }
+        if (!options) {
+            return "";
         }
         return (
             <div key={filterName} className="filter-element">
