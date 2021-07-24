@@ -29,9 +29,12 @@ function FilterElement(props: Props) {
     let [errorText, setErrorText] = useState("");
 
     useEffect(() => {
-        setTimeout(() => {
-                updateValue(props.defaultValue);
-        }, 500);
+        if (value) {
+            return;
+        }
+        let parsedDefaultValue = parseValue(props.defaultValue);
+        updateValue(parsedDefaultValue);
+        setValue(parsedDefaultValue);
     }, [])
 
     /**
@@ -47,17 +50,17 @@ function FilterElement(props: Props) {
     function parseValue(newValue?: any) {
         if (props.options && hasFlag(props.options.type, FilterTypeEnum.DATE)) {
             if (!newValue) {
-                return new Date();
+                return new Date().getTime() / 1000;
             }
             if (!isNaN(newValue)) {
-                return new Date(newValue);
+                return newValue;
             }
-            let date = Date.parse(newValue);
+            let date = Date.parse(newValue) / 1000;
             if (!isNaN(date)) {
                 return date;
             }
             return newValue;
-        } else if (props.options && hasFlag(props.options.type, FilterTypeEnum.DATE)) {
+        } else if (props.options && hasFlag(props.options.type, FilterTypeEnum.NUMERICAL)) {
             if (!newValue) {
                 return 1;
             }
@@ -80,7 +83,7 @@ function FilterElement(props: Props) {
     }
 
     function updateDateFilter(date: Date) {
-        setValue(date);
+        setValue(date.getTime() / 1000);
         updateValue(Math.round(date.getTime() / 1000).toString());
     }
 
@@ -91,7 +94,7 @@ function FilterElement(props: Props) {
         }
 
         let newFilter = {};
-        newFilter[props.options!.name] = value;
+        newFilter[props.options!.name] = value.toString();
 
         props.onFilterChange!(newFilter);
     }
@@ -131,7 +134,7 @@ function FilterElement(props: Props) {
                     <Form.Label>{camelCaseToSentenceCase(props.options.name)}</Form.Label>
                     {
                         hasFlag(props.options.type, FilterTypeEnum.DATE)
-                            ? <span><br /><DatePicker className="date-filter form-control" selected={value} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>
+                            ? <span><br /><DatePicker className="date-filter form-control" selected={value ? new Date(value * 1000) : new Date()} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>
                             : hasFlag(props.options.type, FilterTypeEnum.RANGE) ?
                                 <Form.Control isInvalid={!isValid} key={props.options.name} className="select-filter" defaultValue={props.defaultValue} value={value} onChange={updateInputFilter}>
 

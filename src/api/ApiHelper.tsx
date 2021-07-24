@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -715,6 +715,23 @@ function initAPI(): API {
         })
     }
 
+    let filterFor = (item: Item): Promise<FilterOptions[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.FILTER_FOR,
+                data: item.tag,
+                resolve: function (data) {
+                    resolve(data.map(a => parseFilterOption(a)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, item.tag);
+                    reject();
+                }
+            }, 1);
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -753,7 +770,8 @@ function initAPI(): API {
         paypalPurchase,
         getRefInfo,
         setRef,
-        getActiveAuctions
+        getActiveAuctions,
+        filterFor
     }
 }
 

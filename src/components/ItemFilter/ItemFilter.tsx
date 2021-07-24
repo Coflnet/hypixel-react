@@ -162,6 +162,9 @@ function ItemFilter(props: Props) {
         if (!options) {
             return "";
         }
+        if (itemFilter[filterName]) {
+            defaultValue = itemFilter[filterName];
+        }
         return (
             <div key={filterName} className="filter-element">
                 <FilterElement onFilterChange={onFilterElementChange} options={options} defaultValue={defaultValue} />

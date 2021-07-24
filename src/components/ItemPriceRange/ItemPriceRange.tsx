@@ -76,8 +76,6 @@ export function ItemPriceRange(props: Props) {
     }, [])
 
     useEffect(() => {
-        console.log("item render")
-        console.log(props.item)
         if (props.item !== undefined) {
             setSelectedDateRange(DEFAULT_DATE_RANGE);
         }

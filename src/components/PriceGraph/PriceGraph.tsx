@@ -41,7 +41,8 @@ function PriceGraph(props: Props) {
 
     useEffect(() => {
         mounted = true;
-    })
+        loadFilters();
+    }, [])
 
     useEffect(() => {
         fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
@@ -98,7 +99,6 @@ function PriceGraph(props: Props) {
             });
 
             priceChart.update();
-            setFilters(result.filters);
             setAvgPrice(Math.round(priceSum / result.prices.length))
             setPriceChart(priceChart);
             setNoDataFound(result.prices.length === 0)
@@ -132,6 +132,12 @@ function PriceGraph(props: Props) {
                 updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
             }
         }, 100)
+    }
+
+    function loadFilters() {
+        api.filterFor(props.item).then(filters => {
+            setFilters(filters.map(f => f.name));
+        });
     }
 
     let graphOverlayElement = (

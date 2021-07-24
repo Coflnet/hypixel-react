@@ -35,7 +35,8 @@ export enum RequestType {
     PAYPAL_PAYMENT = "paypalPurchase",
     GET_REF_INFO = "getRefInfo",
     SET_REF = "setRef",
-    ACTIVE_AUCTIONS = "activeAuctions"
+    ACTIVE_AUCTIONS = "activeAuctions",
+    FILTER_FOR = "filterFor"
 }
 
 export enum SubscriptionType {

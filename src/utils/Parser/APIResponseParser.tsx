@@ -324,3 +324,11 @@ export function parseRefInfo(refInfo): RefInfo {
         bougthPremium: refInfo.bougthPremium
     }
 }
+
+export function parseFilterOption(filterOption): FilterOptions {
+    return {
+        name: filterOption.name,
+        options: filterOption.options,
+        type: filterOption.type
+    }
+}

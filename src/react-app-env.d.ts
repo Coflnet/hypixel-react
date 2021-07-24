@@ -197,7 +197,8 @@ interface API {
   paypalPurchase(orderId: string, days: number): Promise<any>,
   getRefInfo(): Promise<RefInfo>,
   setRef(refId: string): Promise<void>,
-  getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>
+  getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>,
+  filterFor(item: Item): Promise<FilterOptions[]>
 }
 
 interface CacheUtils {
