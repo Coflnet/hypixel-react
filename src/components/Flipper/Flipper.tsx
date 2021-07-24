@@ -89,7 +89,6 @@ function Flipper() {
             setEnabledScroll(true);
             enabledScroll = true;
         }
-
     }
 
     function clearFlips() {

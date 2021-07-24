@@ -692,12 +692,13 @@ function initAPI(): API {
         });
     }
 
-    let getActiveAuctions = (item: Item, filter?: ItemFilter): Promise<RecentAuction[]> => {
+    let getActiveAuctions = (item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
 
             let requestData = {
                 name: item.tag,
-                filter: filter
+                filter: filter,
+                order: isNaN(order) ? undefined : order
             };
 
             httpApi.sendLimitedCacheRequest({

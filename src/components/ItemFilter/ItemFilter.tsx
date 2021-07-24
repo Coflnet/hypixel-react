@@ -153,8 +153,8 @@ function ItemFilter(props: Props) {
         return (
             <div key={filterName} className="filter-element">
                 <FilterElement onFilterChange={onFilterElementChange} options={options} defaultValue={defaultValue} />
-                <div style={{height: "100%", position: "relative"}} className="remove-filter" onClick={() => removeFilter(filterName)}>
-                    <DeleteIcon style={{marginLeft: "5px", top: "45px", position: "absolute"}} color="error" />
+                <div style={{ height: "100%", position: "relative" }} className="remove-filter" onClick={() => removeFilter(filterName)}>
+                    <DeleteIcon style={{ top: "50px", position: "absolute" }} color="error" />
                 </div>
             </div>
         )
