@@ -1,7 +1,6 @@
 import { ApiRequest, HttpApi } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
-import { toast } from "react-toastify";
 import cacheUtils from "../utils/CacheUtils";
 import { getProperty } from "../utils/PropertiesUtils";
 import { getNextMessageId } from "../utils/MessageIdUtils";
@@ -47,26 +46,27 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
         requests.push(request);
         return fetch(url, { headers })
             .then(response => {
-                if (!isResponseValid(response)) {
-                    request.reject(response);
-                    return;
-                }
-
                 let parsed;
                 try {
                     parsed = response.json();
                 } catch (error) {
+                    request.reject({ Message: "Unnown error" });
+                }
+                if (!isResponseValid(response)) {
+                    parsed.then((parsedResponse) => {
+                        request.reject(parsedResponse);
+                    })
                     return;
                 }
                 return parsed;
             }).then(parsedResponse => {
-                if (!parsedResponse || parsedResponse.Slug === "error") {
+                if (!parsedResponse || parsedResponse.Slug !== undefined) {
                     request.reject(parsedResponse);
                     return;
                 }
                 request.resolve(parsedResponse)
                 let equals = findForEqualSentRequest(request);
-                equals.forEach(equal =>{
+                equals.forEach(equal => {
                     equal.resolve(parsedResponse)
                 });
                 // all http answers are valid for 60 sec
@@ -76,7 +76,7 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
             }).finally(() => {
                 // when there are still matching request remove them
                 let equals = findForEqualSentRequest(request);
-                equals.forEach(equal =>{
+                equals.forEach(equal => {
                     equal.reject()
                 });
                 removeSentRequests([...equals, request]);

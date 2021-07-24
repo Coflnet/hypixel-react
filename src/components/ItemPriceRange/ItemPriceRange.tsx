@@ -2,20 +2,22 @@ import { useMatomo } from '@datapunt/matomo-tracker-react';
 import React, { useEffect, useState } from 'react';
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import { useHistory } from "react-router-dom";
+import { getURLSearchParam, setURLSearchParam } from '../../utils/Parser/URLParser';
 import './ItemPriceRange.css';
 
 export enum DateRange {
+    ACTIVE = "active",
     DAY = "day",
     MONTH = "month",
     WEEK = "week",
     ALL = "ALL"
 }
 
-export const DEFAULT_DATE_RANGE = DateRange.DAY;
+export let DEFAULT_DATE_RANGE = DateRange.DAY;
 
 interface Props {
     onRangeChange?(timespan: number): void,
-    item?: Item,
+    item: Item,
     disabled?: boolean,
     disableAllTime?: boolean,
     setToDefaultRangeSwitch?: boolean
@@ -25,6 +27,9 @@ export let getTimeSpanFromDateRange = (range: DateRange): number => {
     let timespan: number = -1;
     let currDate: Date = new Date();
     switch (range) {
+        case DateRange.ACTIVE:
+            timespan = -1;
+            break;
         case DateRange.DAY:
             timespan = currDate.setUTCDate(currDate.getUTCDate() - 1);
             break;
@@ -58,17 +63,28 @@ export function ItemPriceRange(props: Props) {
     }
 
     useEffect(() => {
+        let range = getURLSearchParam('range');
+        if (!range) {
+            return;
+        }
+        DEFAULT_DATE_RANGE = (range as DateRange);
+
+        setTimeout(() => {
+            setSelectedDateRange((range as DateRange));
+            DEFAULT_DATE_RANGE = DateRange.DAY;
+        }, 500)
+    }, [])
+
+    useEffect(() => {
         if (props.item !== undefined) {
             setSelectedDateRange(DEFAULT_DATE_RANGE);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.item])
+    }, [props.item.tag])
 
     useEffect(() => {
-        setSelectedDateRange(DEFAULT_DATE_RANGE);
-        if (props.onRangeChange) {
-            props.onRangeChange(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE));
-        }
+        let setTo = selectedDateRange === DateRange.ACTIVE ? DateRange.ACTIVE : DEFAULT_DATE_RANGE;
+        onRangeChange(setTo);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.setToDefaultRangeSwitch])
 
@@ -78,11 +94,11 @@ export function ItemPriceRange(props: Props) {
 
     let onRangeChange = (newRange: DateRange) => {
 
-        // Triggers the unapply of the ItemFilter
-        history.push({
+        let searchString = setURLSearchParam("range", newRange);
+        history.replace({
             pathname: history.location.pathname,
-            search: history.location.search
-        });
+            search: searchString
+        })
 
         setSelectedDateRange(newRange);
         if (props.onRangeChange) {
@@ -115,6 +131,7 @@ export function ItemPriceRange(props: Props) {
 
     return (
         <ToggleButtonGroup className="item-price-range" type="radio" name="options" value={selectedDateRange} onChange={onRangeChangeClick}>
+            <ToggleButton className="price-range-button" value={DateRange.ACTIVE} variant={getButtonVariant(DateRange.ACTIVE)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">Active</ToggleButton>
             <ToggleButton className="price-range-button" value={DateRange.DAY} variant={getButtonVariant(DateRange.DAY)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">1 Day</ToggleButton>
             <ToggleButton className="price-range-button" value={DateRange.WEEK} variant={getButtonVariant(DateRange.WEEK)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">1 Week</ToggleButton>
             <ToggleButton className="price-range-button" value={DateRange.MONTH} variant={getButtonVariant(DateRange.MONTH)} disabled={props.disabled} onChange={removeWrongFocus} size="sm">1 Month</ToggleButton>

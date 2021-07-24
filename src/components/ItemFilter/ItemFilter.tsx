@@ -4,7 +4,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap';
 import './ItemFilter.css';
 import { useHistory } from "react-router-dom";
-import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
+import { getItemFilterFromUrl, setURLSearchParam } from '../../utils/Parser/URLParser';
 import FilterElement from '../FilterElement/FilterElement';
 import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
@@ -15,7 +15,7 @@ interface Props {
     onFilterChange?(filter?: ItemFilter): void,
     disabled?: boolean,
     filters?: string[],
-    preFilled: boolean
+    isPrefill?: boolean
 }
 
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
@@ -27,7 +27,6 @@ function ItemFilter(props: Props) {
 
     let [itemFilter, _setItemFilter] = useState<ItemFilter>({});
     let [expanded, setExpanded] = useState(false);
-    let [isApplied, _setIsApplied] = useState(false);
     let [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     let [showInfoDialog, setShowInfoDialog] = useState(false);
     let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([]);
@@ -40,53 +39,21 @@ function ItemFilter(props: Props) {
         return () => { mounted = false }
     }, []);
 
-    /**
-     * Handles filter changes in the url which should be instant applied (searching enchantments)
-     */
     useEffect(() => {
-        let urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('apply') !== "true") {
+        if (props.isPrefill) {
             return;
         }
-        itemFilter = getItemFilterFromUrl(urlParams)
-        if (Object.keys(itemFilter).length > 0) {
-
-            setItemFilter(itemFilter);
-            setSelectedFilters([]);
-            selectedFilters = [];
-
-            setTimeout(() => {
-                setExpanded(true);
-                Object.keys(itemFilter).forEach(name => enableFilter(name));
-                setTimeout(() => {
-                    onFilterApply();
-                }, 200);
-            })
-        }
-    }, [window.location.search])
-
-    useEffect(() => {
-
-        if (props.preFilled) {
-            return;
-        }
-
         setSelectedFilters([]);
         setItemFilter({});
-        if (props.onFilterChange) {
-            props.onFilterChange(undefined);
-        }
-        updateURLQuery();
-        setIsApplied(false);
+        onFilterChange({});
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
-        itemFilter = getItemFilterFromUrl(new URLSearchParams(window.location.search))
+        itemFilter = getItemFilterFromUrl()
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true);
             Object.keys(itemFilter).forEach(name => enableFilter(name));
             setItemFilter(itemFilter);
-            onFilterApply();
         }
     }
 
@@ -95,7 +62,7 @@ function ItemFilter(props: Props) {
         if (selectedFilters.some(n => n === filterName)) {
             return;
         }
-        if (filterName == "Enchantment") {
+        if (filterName === "Enchantment") {
             enableFilter("EnchantLvl");
         }
 
@@ -106,9 +73,6 @@ function ItemFilter(props: Props) {
 
             if (!mounted) {
                 return;
-            }
-            if (!props.preFilled) {
-                setIsApplied(false);
             }
             updateURLQuery(itemFilter);
             setItemFilter(itemFilter);
@@ -125,23 +89,21 @@ function ItemFilter(props: Props) {
         enableFilter(filterName);
     }
 
-
-    let onFilterApply = () => {
-        if (props.onFilterChange) {
-            props.onFilterChange(itemFilter);
-        }
-        setIsApplied(true);
-    }
-
     let onFilterRemove = () => {
         setSelectedFilters([]);
         setExpanded(false);
         setItemFilter({});
-        setIsApplied(false);
-        if (props.onFilterChange) {
-            props.onFilterChange(undefined);
+        onFilterChange({});
+    }
+
+    function removeFilter(filterName: string) {
+        if (itemFilter) {
+            delete itemFilter[filterName];
+            setItemFilter(itemFilter);
+            updateURLQuery(itemFilter);
+            onFilterChange(itemFilter);
         }
-        updateURLQuery();
+        setSelectedFilters(selectedFilters.filter(f => f !== filterName))
     }
 
     let onEnable = () => {
@@ -159,41 +121,65 @@ function ItemFilter(props: Props) {
     }
 
     let updateURLQuery = (filter?: ItemFilter) => {
+        let filterString = filter && JSON.stringify(filter) === "{}" ? undefined : btoa(JSON.stringify(filter));
+
+        let searchString = filterString ? setURLSearchParam("itemFilter", filterString) : window.location.search;
+
         history.replace({
             pathname: history.location.pathname,
-            search: filter ? '?itemFilter=' + btoa(JSON.stringify(filter)) : ''
+            search: searchString
         })
     }
+
+    function onFilterChange(filter?: ItemFilter) {
+        setItemFilter(filter!);
+        if (props.onFilterChange) {
+            props.onFilterChange(filter);
+        }
+    }
+
+    function onFilterElementChange(filter?: ItemFilter) {
+        let newFilter = itemFilter;
+        var keys = Object.keys(filter as object);
+        if (keys.length > 0) {
+            var key = keys[0];
+            newFilter![key] = filter![key];
+        }
+
+        if ((newFilter.EnchantLvl || newFilter.Enchantment) && !(newFilter.EnchantLvl && newFilter.Enchantment)) {
+            return;
+        }
+
+        onFilterChange(newFilter);
+    }
+
+    let filterList = selectedFilters.map(filterName => {
+        let options = filterOptions.find(f => f.name === filterName);
+        let defaultValue: any = 0;
+        if (options && options.options[0]) {
+            defaultValue = options.options[0];
+        }
+        if (!options) {
+            return "";
+        }
+        if (itemFilter[filterName]) {
+            defaultValue = itemFilter[filterName];
+        }
+        return (
+            <div key={filterName} className="filter-element">
+                <FilterElement onFilterChange={onFilterElementChange} options={options} defaultValue={defaultValue} />
+                <div style={{ height: "100%", position: "relative" }} className="remove-filter" onClick={() => removeFilter(filterName)}>
+                    <DeleteIcon style={{ top: "50px", position: "absolute" }} color="error" />
+                </div>
+            </div>
+        )
+    });
 
     let filterSelectList = props?.filters ? props?.filters.filter(f => !selectedFilters.includes(f)).map(filter => {
         return (
             <option data-id={filter} key={filter} value={filter}>{camelCaseToSentenceCase(filter)}</option>
         )
     }) : ""
-
-    function onFilterChange(filter?: ItemFilter) {
-        var keys = Object.keys(filter as object);
-        if (keys.length > 0) {
-            var key = keys[0];
-            itemFilter![key] = filter![key];
-        }
-
-        setIsApplied(false);
-        updateURLQuery(itemFilter);
-        setItemFilter(itemFilter);
-    }
-
-    function setIsApplied(value: boolean) {
-        if (value || !props.preFilled) {
-            _setIsApplied(value);
-        }
-    }
-
-    let filterList = selectedFilters.map(filterName => {
-        return <div key={filterName} className="filter-element">
-            <FilterElement onFilterChange={onFilterChange} options={filterOptions.find(f => f.name === filterName)} defaultValue={itemFilter![filterName]}></FilterElement>
-            <div className="remove-filter" onClick={() => removeFilter(filterName)}><DeleteIcon color="error" /></div></div>
-    });
 
     let infoIconElement = (
         <div>
@@ -222,15 +208,6 @@ function ItemFilter(props: Props) {
         </div>
     );
 
-    function removeFilter(filterName: string) {
-        if (itemFilter) {
-            delete itemFilter[filterName];
-            setItemFilter(itemFilter);
-            updateURLQuery(itemFilter);
-        }
-        setSelectedFilters(selectedFilters.filter(f => f !== filterName))
-    }
-
     return (
         <div className="enchantment-filter">
             {!expanded ?
@@ -243,9 +220,6 @@ function ItemFilter(props: Props) {
                 <Card>
                     <Card.Title style={{ margin: "10px" }}>
                         Filter
-                        {isApplied ?
-                            <Badge variant="success" className="appliedBadge">Applied</Badge> :
-                            <Badge variant="danger" className="appliedBadge">Filter is currently NOT applied</Badge>}
                         {infoIconElement}
                     </Card.Title>
                     <Card.Body>
@@ -268,7 +242,6 @@ function ItemFilter(props: Props) {
                             </div>
                         </Form >
                         <div>
-                            <Button className="btn-success" style={{ marginRight: "5px" }} onClick={() => onFilterApply()} disabled={props.disabled}>Apply</Button>
                             <Button className="btn-danger" onClick={() => onFilterRemove()} disabled={props.disabled}>Close</Button>
                         </div>
                     </Card.Body>

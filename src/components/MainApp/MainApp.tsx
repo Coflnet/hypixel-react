@@ -9,6 +9,7 @@ import { useHistory } from "react-router-dom";
 import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import cookie from 'cookie';
+import { getURLSearchParam } from '../../utils/Parser/URLParser';
 
 export function MainApp(props: any) {
 
@@ -28,7 +29,7 @@ export function MainApp(props: any) {
             })
         }
 
-        let refId = new URLSearchParams(window.location.search).get("refId");
+        let refId = getURLSearchParam("refId");
         if (refId) {
             (window as any).refId = refId;
         }

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/ApiHelper';
 import './Flipper.css';
 import { Card, Form, Badge } from 'react-bootstrap';
-import { numberWithThousandsSeperators } from '../../utils/Formatter';
+import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
@@ -96,7 +96,6 @@ function Flipper() {
             setEnabledScroll(true);
             enabledScroll = true;
         }
-
     }
 
     function clearFlips() {
@@ -142,6 +141,10 @@ function Flipper() {
         });
     }
 
+    function getLowestBinLink(itemTag: string) {
+        return '/item/' + itemTag + '?range=active&itemFilter=eyJCaW4iOiJ0cnVlIn0%3D';
+    }
+
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div id="flip-container" className="cards-wrapper">{
             auctions.map((flipAuction) => {
@@ -166,7 +169,7 @@ function Flipper() {
                             <Card.Header style={{ padding: "10px" }}>
                                 <div className="ellipse" style={{ width: flipAuction.bin && flipAuction.sold ? "60%" : "80%", float: "left" }}>
                                     <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                    <span style={{ color: "lightgrey" }}>{flipAuction.item.name}</span>
+                                    <span style={getStyleForTier(flipAuction.item.tier)}>{flipAuction.item.name}</span>
                                 </div>
                                 {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
                                 {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
@@ -194,9 +197,9 @@ function Flipper() {
                                 <hr />
                                 <p>
                                     <span className="card-label">Lowest BIN: </span><br />
-                                    <b>
+                                    <a rel="noreferrer" target="_blank" href={getLowestBinLink(flipAuction.item.tag)}>
                                         {numberWithThousandsSeperators(flipAuction.lowestBin)} Coins
-                                    </b>
+                                    </a>
                                 </p>
                                 <p>
                                     <span className="card-label">Seller: </span><br />

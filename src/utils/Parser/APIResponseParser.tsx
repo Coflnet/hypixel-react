@@ -298,7 +298,8 @@ export function parseFlipAuction(flip): FlipAuction {
         bin: flip.bin,
         item: {
             tag: flip.tag,
-            name: flip.name
+            name: flip.name,
+            tier: flip.tier
         },
         sold: flip.sold,
         sellerName: flip.sellerName,
@@ -321,5 +322,13 @@ export function parseRefInfo(refInfo): RefInfo {
         receivedHours: refInfo.receivedHours,
         receivedTime: refInfo.receivedTime,
         bougthPremium: refInfo.bougthPremium
+    }
+}
+
+export function parseFilterOption(filterOption): FilterOptions {
+    return {
+        name: filterOption.name,
+        options: filterOption.options,
+        type: filterOption.type
     }
 }

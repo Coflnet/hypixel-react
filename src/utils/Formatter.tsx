@@ -77,26 +77,40 @@ export function camelCaseToSentenceCase(camelCase: string): string {
     return finalResult.join(" ");
 }
 
-export function getStyleForTier(tier?: string): CSSProperties {
+export function getStyleForTier(tier?: string | number): CSSProperties {
 
-    const DEFAULT_COLOR = "black";
-    enum TIER_COLORS {
-        COMMON = "black",
-        UNCOMMON = "#55ff55",
-        RARE = "#5555ff",
-        EPIC = "#aa00aa",
-        LEGENDARY = "#ffaa00",
-        MYTHIC = "#ff55ff",
-        SUPREME = "#AA0000",
-        SPECIAL = "#FF5555",
-        VERY_SPECIAL = "#FF5555"
+    interface TierColour {
+        colourCode: string,
+        type: string
     }
 
+    let tierColors : TierColour[] = [
+        { type: "COMMON", colourCode: "black" },
+        { type: "UNCOMMON", colourCode: "#55ff55" },
+        { type: "RARE", colourCode: "#5555ff" },
+        { type: "EPIC", colourCode: "#aa00aa" },
+        { type: "LEGENDARY", colourCode: "#ffaa00" },
+        { type: "SPECIAL", colourCode: "#FF5555" },
+        { type: "VERY_SPECIAL", colourCode: "#FF5555" },
+        { type: "MYTHIC", colourCode: "#ff55ff" },
+        { type: "SUPREME", colourCode: "#AA0000" }]
 
-    let color = !tier ? DEFAULT_COLOR : (TIER_COLORS[tier.toUpperCase()] || DEFAULT_COLOR);
+
+    let color: TierColour | undefined;
+
+    if (tier) {
+        //!tier ? DEFAULT_COLOR : (TIER_COLORS[tier.toString().toUpperCase()] || 
+        if(!isNaN(Number(tier))){
+            color = tierColors[tier]
+        } else {
+            color = tierColors.find(color => {
+                return color.type === tier.toString().toUpperCase();
+            })
+        }
+    }
 
     return {
-        color: color,
+        color: color ? color.colourCode : tierColors[0].colourCode,
         fontFamily: "monospace",
         fontWeight: "bold"
     }

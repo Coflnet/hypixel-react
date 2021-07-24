@@ -13,7 +13,8 @@ import { NotificationsOutlined as NotificationIcon } from '@material-ui/icons';
 
 interface Props {
     topic: string
-    type: "player" | "item" | "auction"
+    type: "player" | "item" | "auction",
+    hideText?: boolean
 }
 
 function SubscribeButton(props: Props) {
@@ -171,7 +172,7 @@ function SubscribeButton(props: Props) {
     return (
         <div className="subscribe-button">
             {dialog}
-            <Button style={{width: "max-content"}} onClick={openDialog}><NotificationIcon /> Subscribe</Button>
+            <Button style={{ width: "max-content" }} onClick={openDialog}><NotificationIcon /> {props.hideText ? "" : " Subscribe"}</Button>
         </div >
     );
 }

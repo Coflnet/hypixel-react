@@ -13,6 +13,7 @@ import ItemFilter from '../ItemFilter/ItemFilter';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import RecentAuctions from '../RecentAuctions/RecentAuctions';
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
+import ActiveAuctions from '../ActiveAuctions/ActiveAuctions';
 
 interface Props {
     item: Item
@@ -30,7 +31,6 @@ function PriceGraph(props: Props) {
     let [noDataFound, setNoDataFound] = useState(false);
     let [avgPrice, setAvgPrice] = useState(0);
     let [filters, setFilters] = useState([] as string[]);
-    let [isFilterable, setIsFilterable] = useState(true);
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
     let [isItemFilterPrefill, setIsItemFilterPrefill] = useState<boolean>(true);
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true);
@@ -38,17 +38,17 @@ function PriceGraph(props: Props) {
 
     let fetchspanRef = useRef(fetchspan);
     fetchspanRef.current = fetchspan;
-    let query = new URLSearchParams(useLocation().search);
 
     useEffect(() => {
         mounted = true;
-    })
+        loadFilters();
+    }, [])
 
     useEffect(() => {
         fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
         setFetchspan(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE))
         if (priceChartCanvas && priceChartCanvas.current) {
-            if (Object.keys(getItemFilterFromUrl(query)).length === 0) {
+            if (Object.keys(getItemFilterFromUrl()).length === 0) {
                 setIsItemFilterPrefill(false);
                 let chart = priceChart || createChart(priceConfig);
                 priceChart = chart;
@@ -99,19 +99,16 @@ function PriceGraph(props: Props) {
             });
 
             priceChart.update();
-            setIsFilterable(result.filterable);
-            setFilters(result.filters);
             setAvgPrice(Math.round(priceSum / result.prices.length))
             setPriceChart(priceChart);
             setNoDataFound(result.prices.length === 0)
             setIsLoading(false);
             setTimeout(() => {
                 setIsItemFilterPrefill(false);
-            });
+            }, 100);
         }).catch(() => {
             setIsLoading(false);
             setNoDataFound(true);
-            setIsFilterable(false);
             setAvgPrice(0);
         });
     };
@@ -122,7 +119,7 @@ function PriceGraph(props: Props) {
 
     let onRangeChange = (timespan: number) => {
         setFetchspan(timespan);
-        if (priceChart) {
+        if (priceChart && timespan > 0) {
             updateChart(priceChart!, timespan, itemFilter);
         }
     }
@@ -131,8 +128,16 @@ function PriceGraph(props: Props) {
         setItemFilter(filter);
         setDefaultRangeSwitch(!defaultRangeSwitch);
         setTimeout(() => {
-            updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
+            if (fetchspanRef.current > 0) {
+                updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
+            }
         }, 100)
+    }
+
+    function loadFilters() {
+        api.filterFor(props.item).then(filters => {
+            setFilters(filters.map(f => f.name));
+        });
     }
 
     let graphOverlayElement = (
@@ -151,20 +156,25 @@ function PriceGraph(props: Props) {
     return (
         <div className="price-graph">
 
-            {isFilterable ? <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} preFilled={isItemFilterPrefill} /> : ""}
-            <ItemPriceRange setToDefaultRangeSwitch={defaultRangeSwitch} onRangeChange={onRangeChange} disabled={isLoading} disableAllTime={itemFilter !== undefined} item={props.item} />
+            <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} isPrefill={isItemFilterPrefill} />
+            <ItemPriceRange setToDefaultRangeSwitch={defaultRangeSwitch} onRangeChange={onRangeChange} disabled={isLoading} disableAllTime={itemFilter && JSON.stringify(itemFilter) !== "{}"} item={props.item} />
 
-            <div className="graph-canvas-container">
-                {graphOverlayElement}
-                <canvas ref={priceChartCanvas} />
+            <div style={fetchspan <= 0 ? { display: "none" } : {}}>
+                <div className="graph-canvas-container">
+                    {graphOverlayElement}
+                    <canvas ref={priceChartCanvas} />
+                </div>
+                <div className="additional-infos">
+                    <span className="avg-price"><b>Avg Price:</b> {isLoading ? "-" : numberWithThousandsSeperators(avgPrice) + " Coins"}</span>
+                    <div style={{ float: "left" }} className="additional-infos-button"><SubscribeButton type="item" topic={props.item.tag} /></div>
+                    <div style={{ float: "right" }}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
+                </div>
+                <hr />
+                {props.item?.bazaar || fetchspan <= 0 ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />}
             </div>
-            <div className="additional-infos">
-                <span className="avg-price"><b>Avg Price:</b> {isLoading ? "-" : numberWithThousandsSeperators(avgPrice) + " Coins"}</span>
-                <div style={{float: "left"}} className="additional-infos-button"><SubscribeButton type="item" topic={props.item.tag} /></div>
-                <div style={{float: "right"}}><ShareButton title={"Prices for " + props.item.name} text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock" /></div>
+            <div style={fetchspan > 0 ? { display: "none" } : {}}>
+                <ActiveAuctions item={props.item} filter={itemFilter} />
             </div>
-            <hr />
-            {props.item?.bazaar ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />}
         </div >
     );
 }

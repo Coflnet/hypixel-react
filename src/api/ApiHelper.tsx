@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -44,27 +44,7 @@ function initAPI(): API {
     let getItemImageUrl = (item: Item): Promise<string> => {
 
         return new Promise((resolve, reject) => {
-            if (item.tag !== null) {
-                let prefixes = ["PET", "POTION", "RUNE"];
-                let isSimple = true;
-                prefixes.forEach(p => {
-                    if (!item.tag || item.tag?.startsWith(p))
-                        isSimple = false;
-                });
-                // resolve early
-                if (isSimple)
-                    resolve("https://sky.lea.moe/item/" + item.tag)
-            }
-
-            return getItemDetails(item.tag || item.name!).then(itemDetails => {
-                if (!itemDetails.iconUrl) {
-                    resolve("https://sky.lea.moe/item/" + itemDetails.tag)
-                } else {
-                    resolve(itemDetails.iconUrl || "")
-                }
-            }).catch(() => {
-                reject();
-            });
+            resolve('https://sky.coflnet.com/static/icon/' + item.tag);
         });
     }
 
@@ -712,6 +692,46 @@ function initAPI(): API {
         });
     }
 
+    let getActiveAuctions = (item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]> => {
+        return new Promise((resolve, reject) => {
+
+            let requestData = {
+                name: item.tag,
+                filter: filter,
+                order: isNaN(order) ? undefined : order
+            };
+
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.ACTIVE_AUCTIONS,
+                data: requestData,
+                resolve: function (data) {
+                    resolve(data.map(a => parseRecentAuction(a)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, requestData);
+                    reject();
+                }
+            }, 1);
+        })
+    }
+
+    let filterFor = (item: Item): Promise<FilterOptions[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.FILTER_FOR,
+                data: item.tag,
+                resolve: function (data) {
+                    resolve(data.map(a => parseFilterOption(a)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, item.tag);
+                    reject();
+                }
+            }, 1);
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -749,7 +769,9 @@ function initAPI(): API {
         getFlipBasedAuctions,
         paypalPurchase,
         getRefInfo,
-        setRef
+        setRef,
+        getActiveAuctions,
+        filterFor
     }
 }
 

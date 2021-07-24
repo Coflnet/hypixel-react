@@ -94,10 +94,6 @@
     flex-direction: column;
 }
 
-.flipper .card-header {
-    min-height: 69px;
-}
-
 .ellipse {
     white-space: nowrap;
     overflow: hidden;
