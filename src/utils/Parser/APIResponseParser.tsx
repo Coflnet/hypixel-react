@@ -301,7 +301,9 @@ export function parseFlipAuction(flip): FlipAuction {
             name: flip.name,
             tier: flip.tier
         },
-        sold: flip.sold
+        sold: flip.sold,
+        sellerName: flip.sellerName,
+        lowestBin: flip.lowestBin
     }
 }
 

@@ -12,6 +12,8 @@ import api from "../../api/ApiHelper";
 import moment from 'moment';
 import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
+import { GoogleLogout } from 'react-google-login';
+import { toast } from "react-toastify";
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -69,6 +71,14 @@ function Premium() {
         setShowFeatureDialog(false);
     }
 
+    function onLogout() {
+        setIsLoggedIn(false);
+        setHasPremium(false);
+        localStorage.removeItem("googleId");
+        wasAlreadyLoggedInGoogle = false;
+        toast.warn("Successfully logged out");
+    }
+
     let featureDialog = (
         <Modal show={showFeatureDialog} onHide={closeFeatureDialog}>
             <Modal.Header closeButton>
@@ -95,7 +105,16 @@ function Premium() {
             {
                 hasPremium ?
                     <div>
-                        <p>Account: {getAccountString()}</p>
+                        <p>
+                            Account: {getAccountString()}
+                            <span style={{ marginLeft: "20px" }}>
+                                <GoogleLogout
+                                    clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
+                                    buttonText="Logout"
+                                    onLogoutSuccess={onLogout}
+                                />
+                            </span>
+                        </p>
                         <OverlayTrigger
                             overlay={<Tooltip id={generateUUID()}>
                                 <span>{hasPremiumUntil?.toDateString()}</span>
