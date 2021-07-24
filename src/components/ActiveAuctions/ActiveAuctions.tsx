@@ -15,8 +15,8 @@ interface Props {
 }
 
 const ORDERS = [
-    { label: "Highest price", value: 1 },
     { label: "Lowest price", value: 2 },
+    { label: "Highest price", value: 1 },
     { label: "Ending soon", value: 4 }
 ];
 
@@ -26,7 +26,7 @@ function ActiveAuctions(props: Props) {
 
     let [activeAuctions, setActiveAuctions] = useState<RecentAuction[]>([]);
     let [isLoading, setIsLoading] = useState(true);
-    let [order, setOrder] = useState<number>(1);
+    let [order, setOrder] = useState<number>(ORDERS[0].value);
 
     useEffect(() => {
         loadActiveAuctions(props.item, order, props.filter);
@@ -67,7 +67,7 @@ function ActiveAuctions(props: Props) {
                         <Card.Header style={{ padding: "10px" }}>
                             <div style={{ display: 'flex', alignContent: "center", justifyContent: "space-between" }}>
                                 <img crossOrigin="anonymous" className="player-head-icon" src={props.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                <span style={{padding: "2px", textAlign: "center"}}>{numberWithThousandsSeperators(activeAuction.price)} Coins</span>
+                                <span style={{ padding: "2px", textAlign: "center" }}>{numberWithThousandsSeperators(activeAuction.price)} Coins</span>
                                 <div onClick={e => e.preventDefault()}>
                                     <CopyButton buttonVariant="primary" copyValue={"/viewauction " + activeAuction.uuid} successMessage={<p>Copied ingame link <br /><i>/viewauction {activeAuction.uuid}</i></p>} />
                                 </div>
@@ -94,7 +94,6 @@ function ActiveAuctions(props: Props) {
             <div className="active-auctions-list">
                 <div style={{ margin: "20px" }}>
                     <Form.Control as="select" onChange={onOrderChange}>
-                        <option>Click to set order</option>
                         {orderListElement}
                     </Form.Control>
                 </div>

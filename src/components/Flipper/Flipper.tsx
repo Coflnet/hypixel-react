@@ -197,9 +197,9 @@ function Flipper() {
                                 <hr />
                                 <p>
                                     <span className="card-label">Lowest BIN: </span><br />
-                                    <Link to={getLowestBinLink(flipAuction.item.tag)}>
+                                    <a rel="noreferrer" target="_blank" href={getLowestBinLink(flipAuction.item.tag)}>
                                         {numberWithThousandsSeperators(flipAuction.lowestBin)} Coins
-                                    </Link>
+                                    </a>
                                 </p>
                                 <p>
                                     <span className="card-label">Seller: </span><br />
