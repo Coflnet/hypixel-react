@@ -141,6 +141,10 @@ function Flipper() {
         });
     }
 
+    function getLowestBinLink(itemTag: string) {
+        return '/item/' + itemTag + '?range=active&itemFilter=eyJCaW4iOiJ0cnVlIn0%3D';
+    }
+
     let mapAuctionElements = (auctions: FlipAuction[], isLatest: boolean) => {
         return <div id="flip-container" className="cards-wrapper">{
             auctions.map((flipAuction) => {
@@ -193,9 +197,9 @@ function Flipper() {
                                 <hr />
                                 <p>
                                     <span className="card-label">Lowest BIN: </span><br />
-                                    <b>
+                                    <Link to={getLowestBinLink(flipAuction.item.tag)}>
                                         {numberWithThousandsSeperators(flipAuction.lowestBin)} Coins
-                                    </b>
+                                    </Link>
                                 </p>
                                 <p>
                                     <span className="card-label">Seller: </span><br />

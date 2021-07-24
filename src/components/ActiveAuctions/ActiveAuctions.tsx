@@ -7,6 +7,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { Link } from 'react-router-dom';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import { CopyButton } from '../CopyButton/CopyButton';
+import './ActiveAuctions.css';
 
 interface Props {
     item: Item,
@@ -66,7 +67,7 @@ function ActiveAuctions(props: Props) {
                         <Card.Header style={{ padding: "10px" }}>
                             <div style={{ display: 'flex', alignContent: "center", justifyContent: "space-between" }}>
                                 <img crossOrigin="anonymous" className="player-head-icon" src={props.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                {numberWithThousandsSeperators(activeAuction.price)} Coins
+                                <span style={{padding: "2px", textAlign: "center"}}>{numberWithThousandsSeperators(activeAuction.price)} Coins</span>
                                 <div onClick={e => e.preventDefault()}>
                                     <CopyButton buttonVariant="primary" copyValue={"/viewauction " + activeAuction.uuid} successMessage={<p>Copied ingame link <br /><i>/viewauction {activeAuction.uuid}</i></p>} />
                                 </div>
@@ -89,10 +90,10 @@ function ActiveAuctions(props: Props) {
     });
 
     return (
-        <div className="recent-auctions">
-            <div className="recent-auctions-list">
+        <div className="active-auctions">
+            <div className="active-auctions-list">
                 <div style={{ margin: "20px" }}>
-                    <Form.Control as="select" value={order} onChange={onOrderChange}>
+                    <Form.Control as="select" onChange={onOrderChange}>
                         <option>Click to set order</option>
                         {orderListElement}
                     </Form.Control>
