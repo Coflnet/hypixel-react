@@ -11,7 +11,7 @@ interface Props {
     isPremium?: boolean
 }
 
-let FREE_PREMIUM_SPAN = 1000 * 60 * 0.1;
+let FREE_PREMIUM_SPAN = 1000 * 60 * 5;
 let FREE_LOGIN_SPAN = 1000 * 60 * 6;
 
 let FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN;
