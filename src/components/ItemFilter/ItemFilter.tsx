@@ -6,7 +6,7 @@ import './ItemFilter.css';
 import { useHistory } from "react-router-dom";
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
 import FilterElement from '../FilterElement/FilterElement';
-import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon, RestaurantRounded } from '@material-ui/icons';
+import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
 import api from '../../api/ApiHelper';
 import { camelCaseToSentenceCase } from '../../utils/Formatter';
