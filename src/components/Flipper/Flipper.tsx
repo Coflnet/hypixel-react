@@ -84,7 +84,14 @@ function Flipper() {
         if (scrollContainer) {
             scrollContainer.addEventListener("wheel", (evt) => {
                 evt.preventDefault();
-                scrollContainer!.scrollLeft += evt.deltaY;
+                let scrollAmount = 0;
+                var slideTimer = setInterval(() => {
+                    scrollContainer!.scrollLeft += (evt as WheelEvent).deltaY / 10;
+                    scrollAmount += Math.abs((evt as WheelEvent).deltaY) / 10;
+                    if (scrollAmount >= Math.abs((evt as WheelEvent).deltaY)) {
+                        clearInterval(slideTimer);
+                    }
+                }, 25);
             });
             setEnabledScroll(true);
             enabledScroll = true;
