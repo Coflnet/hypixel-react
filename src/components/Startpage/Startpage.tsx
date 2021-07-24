@@ -226,20 +226,24 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Flipper Update and Ref-Program</Card.Subtitle>
+                        <Card.Subtitle>Active auctions</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
                         <p>
-                            The <Link to="/flipper">Flipper</Link>  is now available to everybody for free. Premium users still get the advantage of live flips (5 minute delay for free users) and easy access to the filters.
+                            You can now also see, filter and browse active auctions for any item in the ah. <br />
+                            If you find yourself missing a filter please ask for it on our discord.
                         </p>
                         <p>
-                            Furthermore we are happy to introduce the <Link to="/ref"><b>Referral-Program</b></Link>. You can now get <b>free premium</b> for inviting other people to our site.
+                            The flipper displays the rarity of items as well as the seller and the lowest bin by item type.
                         </p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
-                            <p>Recent changes (last change: 17.06.2021):</p>
+                            <p>Recent changes (last change: 25.07.2021):</p>
                             <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <span style={{ color: "#007bff", cursor: "pointer" }}>Click here to open</span></p>} tooltipContent={
                                 <ul>
+                                    <li className="changelog-item">Active auctions</li>
+                                    <li className="changelog-item">Filter improvements</li>
+                                    <li className="changelog-item">Flipper flip rework</li>
                                     <li className="changelog-item">New reworked sidebar</li>
                                     <li className="changelog-item">Improved non-premium flipper (still delayed by a few minutes)</li>
                                     <li className="changelog-item">Implementation of the <Link to="/ref">Refferal-System</Link></li>
