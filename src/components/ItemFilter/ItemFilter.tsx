@@ -121,9 +121,10 @@ function ItemFilter(props: Props) {
     }
 
     let updateURLQuery = (filter?: ItemFilter) => {
+        let filterString = filter && JSON.stringify(filter) === "{}" ? undefined : '?itemFilter=' + btoa(JSON.stringify(filter));
         history.replace({
             pathname: history.location.pathname,
-            search: filter ? '?itemFilter=' + btoa(JSON.stringify(filter)) : ''
+            search: filterString
         })
     }
 
