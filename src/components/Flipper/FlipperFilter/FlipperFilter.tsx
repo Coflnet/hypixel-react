@@ -3,6 +3,7 @@ import { Form } from 'react-bootstrap';
 import './FlipperFilter.css';
 import Tooltip from '../../Tooltip/Tooltip';
 import Countdown, { zeroPad } from 'react-countdown';
+import { v4 as generateUUID } from 'uuid';
 
 interface Props {
     onChange(filter: FlipperFilter),
@@ -10,11 +11,11 @@ interface Props {
     isPremium?: boolean
 }
 
-let FREE_PREMIUM_SPAN = 1000 * 60 * 5;
+let FREE_PREMIUM_SPAN = 1000 * 60 * 0.1;
 let FREE_LOGIN_SPAN = 1000 * 60 * 6;
 
-let FREE_PREMIUM_FILTER_TIME = new Date(new Date().getTime() + FREE_PREMIUM_SPAN);
-let FREE_LOGIN_FILTER_TIME = new Date(new Date().getTime() + FREE_LOGIN_SPAN);
+let FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN;
+let FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN;
 
 function FlipperFilter(props: Props) {
 
@@ -24,18 +25,20 @@ function FlipperFilter(props: Props) {
     let [maxCost, setMaxCost] = useState<number>();
     let [freePremiumFilters, setFreePremiumFilters] = useState(false);
     let [freeLoginFilters, setFreeLoginFilters] = useState(false);
+    let [uuids, setUUIDs] = useState<string[]>([]);
 
     useEffect(() => {
+
+        let newUuids: string[] = [];
+        for (let index = 0; index < 10; index++) {
+            newUuids.push(generateUUID())
+        }
+        setUUIDs(newUuids);
+
         updateOnlyUnsold(props.isPremium == null ? false : props.isPremium);
         props.onChange(getCurrentFilter());
-
-        setTimeout(() => {
-            setFreePremiumFilters(true);
-        }, FREE_PREMIUM_SPAN)
-        setTimeout(() => {
-            setFreeLoginFilters(true);
-        }, FREE_LOGIN_SPAN)
-
+        FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN;
+        FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -83,14 +86,22 @@ function FlipperFilter(props: Props) {
         props.onChange(filter);
     }
 
+    function onFreePremiumComplete() {
+        setFreePremiumFilters(true)
+    }
+
+    function onFreeLoginComplete() {
+        setFreeLoginFilters(true);
+    }
+
     const countdownRenderer = ({ minutes, seconds }) => (
         <span>
             {zeroPad(minutes)}:{zeroPad(seconds)}
         </span>
     );
 
-    const nonPremiumTooltip = <span>This is a premium feature.<br />(to use for free wait  <Countdown renderer={countdownRenderer} date={FREE_PREMIUM_FILTER_TIME} />)</span>;
-    const nonLoggedInTooltip = <span>Login to use these filters.<br />(or wait  <Countdown renderer={countdownRenderer} date={FREE_LOGIN_FILTER_TIME} />)</span>;
+    const nonPremiumTooltip = <span key="nonPremiumTooltip">This is a premium feature.<br />(to use for free wait  <Countdown key={uuids[0]} date={FREE_PREMIUM_FILTER_TIME} renderer={countdownRenderer} />)</span>;
+    const nonLoggedInTooltip = <span key="nonLoggedInTooltip">Login to use these filters.<br />(or wait  <Countdown key={uuids[1]} date={FREE_LOGIN_FILTER_TIME} renderer={countdownRenderer} />)</span>;
 
     const binFilter = <Form.Group>
         <Form.Label htmlFor="onlyBinCheckbox" className="flipper-filter-formfield-label only-bin-label">Only BIN-Auctions</Form.Label>
@@ -132,6 +143,10 @@ function FlipperFilter(props: Props) {
                         /> : soldFilter}
                 </div>
 
+                <div style={{visibility: "hidden", height: 0}}>
+                    <Countdown key={uuids[2]} onComplete={onFreePremiumComplete} date={FREE_PREMIUM_FILTER_TIME} />
+                    <Countdown key={uuids[3]} onComplete={onFreeLoginComplete} date={FREE_LOGIN_FILTER_TIME} />
+                </div>
 
             </Form >
         </div>
