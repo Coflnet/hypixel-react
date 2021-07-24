@@ -2,6 +2,7 @@ import { useMatomo } from '@datapunt/matomo-tracker-react';
 import React, { useEffect, useState } from 'react';
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import { useHistory } from "react-router-dom";
+import { getURLSearchParam, setURLSearchParam } from '../../utils/Parser/URLParser';
 import './ItemPriceRange.css';
 
 export enum DateRange {
@@ -12,11 +13,11 @@ export enum DateRange {
     ALL = "ALL"
 }
 
-export const DEFAULT_DATE_RANGE = DateRange.DAY;
+export let DEFAULT_DATE_RANGE = DateRange.DAY;
 
 interface Props {
     onRangeChange?(timespan: number): void,
-    item?: Item,
+    item: Item,
     disabled?: boolean,
     disableAllTime?: boolean,
     setToDefaultRangeSwitch?: boolean
@@ -62,18 +63,30 @@ export function ItemPriceRange(props: Props) {
     }
 
     useEffect(() => {
+        let range = getURLSearchParam('range');
+        if (!range) {
+            return;
+        }
+        DEFAULT_DATE_RANGE = (range as DateRange);
+
+        setTimeout(() => {
+            setSelectedDateRange((range as DateRange));
+            DEFAULT_DATE_RANGE = DateRange.DAY;
+        }, 500)
+    }, [])
+
+    useEffect(() => {
+        console.log("item render")
+        console.log(props.item)
         if (props.item !== undefined) {
             setSelectedDateRange(DEFAULT_DATE_RANGE);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.item])
+    }, [props.item.tag])
 
     useEffect(() => {
         let setTo = selectedDateRange === DateRange.ACTIVE ? DateRange.ACTIVE : DEFAULT_DATE_RANGE;
-        setSelectedDateRange(setTo);
-        if (props.onRangeChange) {
-            props.onRangeChange(getTimeSpanFromDateRange(setTo));
-        }
+        onRangeChange(setTo);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.setToDefaultRangeSwitch])
 
@@ -83,11 +96,11 @@ export function ItemPriceRange(props: Props) {
 
     let onRangeChange = (newRange: DateRange) => {
 
-        // Triggers the unapply of the ItemFilter
-        history.push({
+        let searchString = setURLSearchParam("range", newRange);
+        history.replace({
             pathname: history.location.pathname,
-            search: history.location.search
-        });
+            search: searchString
+        })
 
         setSelectedDateRange(newRange);
         if (props.onRangeChange) {

@@ -6,6 +6,7 @@ import api from '../../api/ApiHelper';
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import { Link } from 'react-router-dom';
 import { getLoadingElement } from '../../utils/LoadingUtils';
+import { CopyButton } from '../CopyButton/CopyButton';
 
 interface Props {
     item: Item,
@@ -60,24 +61,25 @@ function ActiveAuctions(props: Props) {
     let activeAuctionList = activeAuctions.map((activeAuction) => {
         return (
             <div className="cardWrapper" key={activeAuction.uuid}>
-                <Link className="disable-link-style" to={`/auction/${activeAuction.uuid}`}>
-                    <Card className="card">
+                <Card className="card">
+                    <Link className="disable-link-style" to={`/auction/${activeAuction.uuid}`}>
                         <Card.Header style={{ padding: "10px" }}>
-                            <div style={{ float: "left" }}>
+                            <div style={{ display: 'flex', alignContent: "center", justifyContent: "space-between" }}>
                                 <img crossOrigin="anonymous" className="player-head-icon" src={props.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                            </div>
-                            <div>
                                 {numberWithThousandsSeperators(activeAuction.price)} Coins
+                                <div onClick={e => e.preventDefault()}>
+                                    <CopyButton buttonVariant="primary" copyValue={"/viewauction " + activeAuction.uuid} successMessage={<p>Copied ingame link <br /><i>/viewauction {activeAuction.uuid}</i></p>} />
+                                </div>
                             </div>
                         </Card.Header>
-                        <Card.Body style={{ padding: "10px" }}>
-                            <img style={{ marginRight: "15px" }} crossOrigin="anonymous" className="player-head-icon" src={activeAuction.seller.iconUrl} alt="" height="24" width="24" loading="lazy" />
-                            <span>{activeAuction.playerName}</span>
-                            <hr />
-                            <p>{'ends ' + moment(activeAuction.end).fromNow()}</p>
-                        </Card.Body>
-                    </Card>
-                </Link>
+                    </Link>
+                    <Card.Body style={{ padding: "10px" }}>
+                        <img style={{ marginRight: "15px" }} crossOrigin="anonymous" className="player-head-icon" src={activeAuction.seller.iconUrl} alt="" height="24" width="24" loading="lazy" />
+                        <span>{activeAuction.playerName}</span>
+                        <hr />
+                        <p>{'ends ' + moment(activeAuction.end).fromNow()}</p>
+                    </Card.Body>
+                </Card>
             </div>
         )
     });

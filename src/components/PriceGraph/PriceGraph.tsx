@@ -38,7 +38,6 @@ function PriceGraph(props: Props) {
 
     let fetchspanRef = useRef(fetchspan);
     fetchspanRef.current = fetchspan;
-    let query = new URLSearchParams(useLocation().search);
 
     useEffect(() => {
         mounted = true;
@@ -48,7 +47,7 @@ function PriceGraph(props: Props) {
         fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
         setFetchspan(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE))
         if (priceChartCanvas && priceChartCanvas.current) {
-            if (Object.keys(getItemFilterFromUrl(query)).length === 0) {
+            if (Object.keys(getItemFilterFromUrl()).length === 0) {
                 setIsItemFilterPrefill(false);
                 let chart = priceChart || createChart(priceConfig);
                 priceChart = chart;

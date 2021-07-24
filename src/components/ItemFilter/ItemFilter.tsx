@@ -4,7 +4,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap';
 import './ItemFilter.css';
 import { useHistory } from "react-router-dom";
-import { getItemFilterFromUrl } from '../../utils/Parser/URLParser';
+import { getItemFilterFromUrl, setURLSearchParam } from '../../utils/Parser/URLParser';
 import FilterElement from '../FilterElement/FilterElement';
 import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
@@ -49,7 +49,7 @@ function ItemFilter(props: Props) {
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
-        itemFilter = getItemFilterFromUrl(new URLSearchParams(window.location.search))
+        itemFilter = getItemFilterFromUrl()
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true);
             Object.keys(itemFilter).forEach(name => enableFilter(name));
@@ -121,10 +121,13 @@ function ItemFilter(props: Props) {
     }
 
     let updateURLQuery = (filter?: ItemFilter) => {
-        let filterString = filter && JSON.stringify(filter) === "{}" ? undefined : '?itemFilter=' + btoa(JSON.stringify(filter));
+        let filterString = filter && JSON.stringify(filter) === "{}" ? undefined : btoa(JSON.stringify(filter));
+
+        let searchString = filterString ? setURLSearchParam("itemFilter", filterString) : window.location.search;
+
         history.replace({
             pathname: history.location.pathname,
-            search: filterString
+            search: searchString
         })
     }
 

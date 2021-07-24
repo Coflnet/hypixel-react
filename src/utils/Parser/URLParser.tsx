@@ -5,7 +5,17 @@ export function parseItemFilter(itemFilterBase64: string): ItemFilter {
     }
     return itemFilter;
 }
-export function getItemFilterFromUrl(query: URLSearchParams): ItemFilter {
-    let itemFilterBase64 = query.get("itemFilter")
+export function getItemFilterFromUrl(): ItemFilter {
+    let itemFilterBase64 = getURLSearchParam("itemFilter");
     return itemFilterBase64 ? parseItemFilter(itemFilterBase64) : {};
+}
+export function setURLSearchParam(key: string, value: string): string {
+    let searchParams = new URLSearchParams(window.location.search);
+    searchParams.set(key, value);
+    return searchParams.toString()
+}
+
+export function getURLSearchParam(key: string): string | null {
+    let searchParams = new URLSearchParams(window.location.search);
+    return searchParams.get(key);
 }
