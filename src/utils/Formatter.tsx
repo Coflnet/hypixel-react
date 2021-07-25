@@ -85,6 +85,7 @@ export function getStyleForTier(tier?: string | number): CSSProperties {
     }
 
     let tierColors : TierColour[] = [
+        { type: "UNKOWN", colourCode: "black" },
         { type: "COMMON", colourCode: "black" },
         { type: "UNCOMMON", colourCode: "#55ff55" },
         { type: "RARE", colourCode: "#5555ff" },
