@@ -8,20 +8,22 @@ import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
 import { useHistory } from "react-router-dom";
 import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
-import cookie from 'cookie';
 import { getURLSearchParam } from '../../utils/Parser/URLParser';
 
 export function MainApp(props: any) {
 
-    const { trackPageView, trackEvent } = useMatomo()
+    const { trackPageView, trackEvent, pushInstruction } = useMatomo()
     const location = useLocation();
     const history = useHistory();
 
     const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     useEffect(() => {
+
+        pushInstruction("requireConsent");
+
         let uiStyle = window.localStorage.getItem("uiStyle");
-        if (isTrackingAllowed() && (!uiStyle || uiStyle !== (prefersDarkMode ? 'dark' : 'light'))) {
+        if ((!uiStyle || uiStyle !== (prefersDarkMode ? 'dark' : 'light'))) {
             window.localStorage.setItem("uiStyle", prefersDarkMode ? 'dark' : 'light')
             trackEvent({
                 category: 'uiStyle',
@@ -43,14 +45,6 @@ export function MainApp(props: any) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [document.title]);
 
-    function isTrackingAllowed() {
-        let cookies = cookie.parse(document.cookie);
-        if (cookies.nonEssentialCookiesAllowed !== undefined) {
-            return cookies.nonEssentialCookiesAllowed === "true";
-        }
-        return false;
-    }
-
     const theme = React.useMemo(
         () =>
             createMuiTheme({
@@ -60,6 +54,11 @@ export function MainApp(props: any) {
             }),
         [],
     );
+
+    function setTrackingAllowed() {
+        pushInstruction("rememberConsentGiven");
+        trackPageView({});
+    }
 
     return (
         <ThemeProvider theme={theme}>
@@ -75,6 +74,7 @@ export function MainApp(props: any) {
                 cookieName="nonEssentialCookiesAllowed"
                 data-nosnippet
                 style={{ paddingLeft: "40px" }}
+                onAccept={() => { setTrackingAllowed() }}
             >
                 <span data-nosnippet>
                     <p style={{ margin: "0px" }}>We use cookies for analytics. <a href="https://coflnet.com/privacy"> privacy policy </a></p>
