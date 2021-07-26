@@ -40,8 +40,10 @@ function PriceGraph(props: Props) {
     fetchspanRef.current = fetchspan;
 
     useEffect(() => {
-        mounted = true;
         loadFilters();
+        return () => {
+            mounted = false;
+        };
     }, [])
 
     useEffect(() => {
@@ -59,10 +61,6 @@ function PriceGraph(props: Props) {
             }
 
         }
-
-        return () => {
-            mounted = false;
-        };
 
     }, [props.item.tag])
 
