@@ -57,17 +57,8 @@ setTimeout(() => {
 
 const matomoTrackingInstance = createInstance({
   urlBase: 'https://track.coflnet.com',
-  siteId: 1,
-  disabled: !isTrackingAllowed()
+  siteId: 1
 });
-
-function isTrackingAllowed() {
-  let cookies = cookie.parse(document.cookie);
-  if (cookies.nonEssentialCookiesAllowed !== undefined) {
-    return cookies.nonEssentialCookiesAllowed === "true";
-  }
-  return false;
-}
 
 /**
  * All routes go here.
