@@ -65,6 +65,13 @@ function PriceGraph(props: Props) {
     }, [props.item.tag])
 
     let updateChart = (priceChart: Chart, fetchspan: number, itemFilter?: ItemFilter) => {
+
+        // active auction is selected
+        // no need to get new price data
+        if (fetchspan <= 0) {
+            return;
+        }
+
         setIsLoading(true);
         priceChart.data.labels = [];
         priceChart.data.datasets![0].data = [];
@@ -170,9 +177,11 @@ function PriceGraph(props: Props) {
                 <hr />
                 {props.item?.bazaar || fetchspan <= 0 ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />}
             </div>
-            <div style={fetchspan > 0 ? { display: "none" } : {}}>
-                <ActiveAuctions item={props.item} filter={itemFilter} />
-            </div>
+            {
+                fetchspan <= 0 ?
+                    <ActiveAuctions item={props.item} filter={itemFilter} /> :
+                    ""
+            }
         </div >
     );
 }
