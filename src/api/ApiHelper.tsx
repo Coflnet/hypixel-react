@@ -732,6 +732,23 @@ function initAPI(): API {
         })
     }
 
+    let connectMinecraftAccount = (playerUUID: string) => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.CONNECT_MINECRAFT_ACCOUNT,
+                data: playerUUID,
+                resolve: function (data) {
+                    resolve(data.map(a => parseFilterOption(a)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, playerUUID);
+                    reject();
+                }
+            }, 1);
+        })
+    }
+
     return {
         search,
         trackSearch,
