@@ -16,10 +16,6 @@ function GoogleSignIn(props: Props) {
     let history = useHistory();
     let { trackEvent } = useMatomo();
 
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     const onLoginSucces = (response: any) => {
         localStorage.setItem("googleId", response.tokenId);
         setGoogleId(response.tokenId);
