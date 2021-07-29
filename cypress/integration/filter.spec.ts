@@ -40,8 +40,7 @@ describe('filter', () => {
             timeout: 12000
         }).parent().should("be.enabled").wait(100).should("be.enabled",{timeout:10000}).select('Pet level')
         cy.wait(1000)
-        // this doesn't work, tracked by https://github.com/Coflnet/hypixel-react/issues/294
-        //cy.get('.generic-filter').children().children('input').clear().type("1")
+        cy.get('.generic-filter').children().children('input').clear().type("1")
         cy.contains('Apply').click()
         // trigger a reload to test the url apply as well
         cy.reload()
