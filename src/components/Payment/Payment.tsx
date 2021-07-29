@@ -152,7 +152,7 @@ function Payment(props: Props) {
           getLoadingElement() :
           (
             <div className="premium-plans">
-              <h3>Premium-Plans</h3>
+              <h2>Premium-Plans</h2>
               {planList}
             </div>
           )

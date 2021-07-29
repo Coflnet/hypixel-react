@@ -5,9 +5,11 @@ import api from "../../api/ApiHelper";
 import { refreshTokenSetup } from "../../utils/GoogleUtils";
 import { useHistory } from "react-router-dom";
 import { useMatomo } from "@datapunt/matomo-tracker-react";
+import { useForceUpdate } from "../../utils/Hooks";
 
 interface Props {
-    onAfterLogin(): void
+    onAfterLogin(): void,
+    rerenderFlip?: boolean
 }
 
 function GoogleSignIn(props: Props) {
@@ -15,10 +17,13 @@ function GoogleSignIn(props: Props) {
     let [googleId, setGoogleId] = useState(localStorage.getItem("googleId"));
     let history = useHistory();
     let { trackEvent } = useMatomo();
+    let forceUpdate = useForceUpdate();
 
     useEffect(() => {
+        setGoogleId(localStorage.getItem("googleId"));
+        forceUpdate();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [props.rerenderFlip]);
 
     const onLoginSucces = (response: any) => {
         localStorage.setItem("googleId", response.tokenId);
