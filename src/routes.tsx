@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react';
 import { Route, Switch } from "react-router-dom";
 import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react'
-import cookie from 'cookie';
 import { MainApp } from './components/MainApp/MainApp';
 import { getInitialLoadingElement } from './utils/LoadingUtils';
 
