@@ -1,13 +1,34 @@
-import React, { useEffect } from 'react';
-import { Card, Container } from 'react-bootstrap';
+import React, { ChangeEvent, useEffect } from 'react';
+import { Card, Container, Form } from 'react-bootstrap';
 import NavBar from '../../components/NavBar/NavBar';
 import './About.css';
+import Cookies from 'js-cookie'
+
+import { useMatomo } from '@datapunt/matomo-tracker-react'
 
 function ItemDetails() {
+
+    const { pushInstruction } = useMatomo()
 
     useEffect(() => {
         document.title = "About";
     })
+
+    function setTrackingAllowed(event: ChangeEvent<HTMLInputElement>) {
+        let val = event.target.checked;
+        if(val){
+            pushInstruction("rememberConsentGiven");
+            Cookies.set('nonEssentialCookiesAllowed', "true");
+        }else{
+            pushInstruction("forgetConsentGiven");
+            Cookies.set('nonEssentialCookiesAllowed', false);
+        }
+    }
+
+    function isTrackingAllowed() {
+        let cookie = Cookies.get('nonEssentialCookiesAllowed');
+        return cookie === "true"
+    }
 
     return (
         <div className="about-page">
@@ -26,6 +47,8 @@ function ItemDetails() {
                     <p><a href="https://coflnet.com/legal">Terms of use</a></p>
                     <p><a href="https://coflnet.com/privacy">Privacy</a></p>
                     <p><a href="https://coflnet.com/impressum">Imprint</a></p>
+                    <hr/>
+                    <p><label>Allow cookies for tracking: </label><Form.Check style={{display: "inline", marginLeft: "15px"}} onChange={setTrackingAllowed} defaultChecked={isTrackingAllowed()} type="checkbox" /></p>
                 </Card>
             </Container>
         </div >
