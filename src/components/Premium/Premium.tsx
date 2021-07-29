@@ -93,10 +93,15 @@ function Premium() {
             }
             {
                 isLoggedIn && !hasPremium ?
-                    <p>I want Premium! Get me <a href="#buyPremium">there</a>.</p> :
+                    <p><a href="#buyPremium">I want Premium!</a></p> :
                     ""
             }
             <hr />
+            {
+                isLoggedIn ? <p>
+                    Account: {getAccountString()}
+                </p> : ""
+            }
             {
                 hasPremium ?
                     <div>
