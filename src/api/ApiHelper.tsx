@@ -66,6 +66,11 @@ function initAPI(): API {
 
     let getItemPrices = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<ItemPriceData> => {
         return new Promise((resolve, reject) => {
+
+            if(!itemFilter || Object.keys(itemFilter).length === 0){
+                itemFilter = undefined;
+            }
+
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
