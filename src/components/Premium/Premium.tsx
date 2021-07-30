@@ -20,10 +20,10 @@ let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 function Premium() {
 
     let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [showFeatureDialog, setShowFeatureDialog] = useState(false);
     let [hasPremium, setHasPremium] = useState<boolean>();
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>();
     let [isLoading, setIsLoading] = useState(false);
+    let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false);
 
     useEffect(() => {
         if (!wasAlreadyLoggedInGoogle && !isLoggedIn) {
@@ -67,28 +67,14 @@ function Premium() {
         return "";
     }
 
-    function closeFeatureDialog() {
-        setShowFeatureDialog(false);
-    }
-
     function onLogout() {
         setIsLoggedIn(false);
         setHasPremium(false);
         localStorage.removeItem("googleId");
         wasAlreadyLoggedInGoogle = false;
+        setRerenderGoogleSignIn(!rerenderGoogleSignIn);
         toast.warn("Successfully logged out");
     }
-
-    let featureDialog = (
-        <Modal show={showFeatureDialog} onHide={closeFeatureDialog}>
-            <Modal.Header closeButton>
-                <Modal.Title>Features</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <PremiumFeatures />
-            </Modal.Body>
-        </Modal>
-    );
 
     return (
         <div className="premium">
@@ -97,23 +83,30 @@ function Premium() {
                 Premium
             </h2>
             <hr />
-            {isLoading ? getLoadingElement() : hasPremium === undefined ? "" :
-                hasPremium
-                    ? <p style={{ color: "#00bc8c" }}>You have a premium account. Thank you for your support.</p>
-                    : <p style={{ color: "red" }}>You do no have a premium account</p>
+            {
+                isLoading ? getLoadingElement() : hasPremium === undefined ? "" :
+                    hasPremium
+                        ? <p style={{ color: "#00bc8c" }}>You have a premium account. Thank you for your support.</p>
+                        : <div>
+                            <p style={{ color: "red", margin: 0 }}>You do no have a premium account</p>
+                        </div>
+            }
+            {
+                isLoggedIn && !hasPremium ?
+                    <p><a href="#buyPremium">I want Premium!</a></p> :
+                    ""
+            }
+            <hr />
+            {
+                isLoggedIn ? <p>
+                    Account: {getAccountString()}
+                </p> : ""
             }
             {
                 hasPremium ?
                     <div>
                         <p>
                             Account: {getAccountString()}
-                            <span style={{ marginLeft: "20px" }}>
-                                <GoogleLogout
-                                    clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                                    buttonText="Logout"
-                                    onLogoutSuccess={onLogout}
-                                />
-                            </span>
                         </p>
                         <OverlayTrigger
                             overlay={<Tooltip id={generateUUID()}>
@@ -123,22 +116,45 @@ function Premium() {
                         </OverlayTrigger>
                     </div> : ""
             }
+            {
+                isLoggedIn ?
+                    <div style={{ marginTop: "20px" }}>
+                        <GoogleLogout
+                            clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
+                            buttonText="Logout"
+                            onLogoutSuccess={onLogout}
+                        />
+                    </div> : ""
+            }
+            {
+                !wasAlreadyLoggedInGoogle && !isLoggedIn ?
+                    <p>To use premium please login with Google</p> :
+                    ""
+            }
+            <GoogleSignIn onAfterLogin={onLogin} rerenderFlip={rerenderGoogleSignIn} />
+            {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
             <hr />
             <Card className="premium-card">
-                {hasPremium
-                    ? <p>Thank you for your support. You have a Premium account. By buying another Premium-Plan you can extend your premium-time.
-                        You can use the following premium-features:
-                    </p>
-                    : <p>Buy Premium to support us and get access to these exclusive features:</p>}
-                <span style={{ cursor: "pointer", width: "fit-content", fontWeight: "bold", fontSize: "x-large" }} onClick={() => { setShowFeatureDialog(true) }}><LinkIcon /> Show features</span>
+                <Card.Header>
+                    <Card.Title>
+                        Features
+                    </Card.Title>
+                    <Card.Subtitle>
+                        {hasPremium
+                            ? <p>Thank you for your support. You have a Premium account. By buying another Premium-Plan you can extend your premium-time.
+                                You can use the following premium-features:
+                            </p>
+                            : <p>Log in and buy Premium to support us and get access to these features</p>}
+                    </Card.Subtitle>
+                </Card.Header>
+                <div style={{ padding: "15px" }}>
+                    <PremiumFeatures />
+                </div>
             </Card>
-            <div>
-                {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use premium please login with Google</p> : ""}
-                <GoogleSignIn onAfterLogin={onLogin} />
+            <hr />
+            <div id="buyPremium">
                 {isLoggedIn ? <Payment hasPremium={hasPremium || false} /> : ""}
-                {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
             </div>
-            {featureDialog}
         </div>
     )
 }
