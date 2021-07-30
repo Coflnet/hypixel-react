@@ -4,7 +4,6 @@ import './PriceGraph.css';
 import Chart, { ChartConfiguration } from 'chart.js';
 import api from '../../api/ApiHelper';
 import priceConfig from './PriceGraphConfig'
-import { useLocation } from "react-router-dom";
 import { DEFAULT_DATE_RANGE, getTimeSpanFromDateRange, ItemPriceRange } from '../ItemPriceRange/ItemPriceRange';
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
@@ -40,11 +39,14 @@ function PriceGraph(props: Props) {
     fetchspanRef.current = fetchspan;
 
     useEffect(() => {
-        loadFilters();
         return () => {
             mounted = false;
         };
     }, [])
+
+    useEffect(() => {
+        loadFilters();
+    }, [props.item.tag])
 
     useEffect(() => {
         fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
