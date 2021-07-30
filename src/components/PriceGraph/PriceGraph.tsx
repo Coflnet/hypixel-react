@@ -18,6 +18,8 @@ interface Props {
     item: Item
 }
 
+let currentLoadingString;
+
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true;
 
@@ -81,9 +83,19 @@ function PriceGraph(props: Props) {
         priceChart.update();
         setPriceChart(priceChart);
 
+        currentLoadingString = JSON.stringify({
+            tag: props.item.tag,
+            fetchspan,
+            itemFilter
+        });
+
         api.getItemPrices(props.item.tag, fetchspan, itemFilter).then((result) => {
 
-            if (!mounted) {
+            if (!mounted || currentLoadingString !== JSON.stringify({
+                tag: props.item.tag,
+                fetchspan,
+                itemFilter
+            })) {
                 return;
             }
 
@@ -165,7 +177,7 @@ function PriceGraph(props: Props) {
         <div className="price-graph">
 
             <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} isPrefill={isItemFilterPrefill} />
-            <ItemPriceRange setToDefaultRangeSwitch={defaultRangeSwitch} onRangeChange={onRangeChange} disabled={isLoading} disableAllTime={itemFilter && JSON.stringify(itemFilter) !== "{}"} item={props.item} />
+            <ItemPriceRange setToDefaultRangeSwitch={defaultRangeSwitch} onRangeChange={onRangeChange} disableAllTime={itemFilter && JSON.stringify(itemFilter) !== "{}"} item={props.item} />
 
             <div style={fetchspan <= 0 ? { display: "none" } : {}}>
                 <div className="graph-canvas-container">
