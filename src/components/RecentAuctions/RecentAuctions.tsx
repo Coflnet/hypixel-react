@@ -12,6 +12,8 @@ interface Props {
     itemFilter?: ItemFilter
 }
 
+let currentLoadingString;
+
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true;
 
@@ -26,9 +28,20 @@ function RecentAuctions(props: Props) {
 
     useEffect(() => {
         setIsLoading(true);
+
+        currentLoadingString = JSON.stringify({
+            tag: props.item.tag,
+            fetchspan: props.fetchspan,
+            itemFilter: props.itemFilter
+        });
+
         api.getRecentAuctions(props.item.tag, props.fetchspan, props.itemFilter).then(recentAuctions => {
 
-            if (!mounted) {
+            if (!mounted || currentLoadingString !== JSON.stringify({
+                tag: props.item.tag,
+                fetchspan: props.fetchspan,
+                itemFilter: props.itemFilter
+            })) {
                 return;
             }
 
