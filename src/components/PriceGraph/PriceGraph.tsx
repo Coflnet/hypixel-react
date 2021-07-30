@@ -71,6 +71,7 @@ function PriceGraph(props: Props) {
         // active auction is selected
         // no need to get new price data
         if (fetchspan <= 0) {
+            setIsLoading(false);
             return;
         }
 
