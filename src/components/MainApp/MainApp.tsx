@@ -9,7 +9,7 @@ import { useHistory } from "react-router-dom";
 import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import { getURLSearchParam } from '../../utils/Parser/URLParser';
-import cookie from 'cookie';
+import Cookies from 'js-cookie';
 
 export function MainApp(props: any) {
 
@@ -24,8 +24,8 @@ export function MainApp(props: any) {
         pushInstruction("requireConsent");
 
         // check for tracking of old users
-        let cookies = cookie.parse(document.cookie);
-        if (cookies.nonEssentialCookiesAllowed === "true") {
+        let cookie = Cookies.get('nonEssentialCookiesAllowed');
+        if (cookie === "true") {
             pushInstruction("rememberConsentGiven");
         }
 
