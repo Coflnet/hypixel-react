@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Card, Container } from 'react-bootstrap';
-import NavBar from '../../components/NavBar/NavBar';
 import Search from '../../components/Search/Search';
 import { Link } from 'react-router-dom';
 import './ApiInfo.css';
@@ -14,7 +13,6 @@ function ApiInfo() {
     return (
         <div className="api-info-page">
             <Container>
-                <NavBar />
                 <Search />
                 <hr />
                 <Card className="api-info-card">
