@@ -325,7 +325,7 @@ function Flipper() {
                 </Card.Header>
                 <Card.Body>
                     <h3>How are profitable flips found?</h3>
-                    <p>	New flips are found by comparing every new auction with the sell price of already finished auctions of the same item with the same or similar modifiers (e.g. enchantments).</p>
+                    <p>New flips are found by comparing every new auction with the sell price of already finished auctions of the same item with the same or similar modifiers (e.g. enchantments).</p>
                     <h3>What auctions are new auctions compared with?</h3>
                     <p>Reference auctions depend on the individual item, its modifiers, and how often it is sold. 
                         The algorithm to determine which auctions can be used as reference is changing frequently.
