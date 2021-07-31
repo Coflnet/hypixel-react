@@ -266,19 +266,6 @@ function AuctionDetails(props: Props) {
                             {auctionCardContent}
                         </Card>
                         <Card className="auction-card">
-                            <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
-                                <h2>
-                                    Item-Details
-                                    <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? <ArrowDownIcon /> : <ArrowUpIcon />}</span>
-                                </h2>
-                            </Card.Header>
-                            <Collapse in={!isItemDetailsCollapse}>
-                                <Card.Body>
-                                    {itemDetailsCardContent}
-                                </Card.Body>
-                            </Collapse>
-                        </Card>
-                        <Card className="auction-card">
                             <Card.Header>
                                 <h2>Bids</h2>
                                 {auctionDetails ? <h6>Starting bid:  {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ""}
