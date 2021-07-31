@@ -38,10 +38,10 @@ function Tooltip(props: Props) {
     }
 
     let clickElement = (
-        <div>
-            <div style={{ cursor: "pointer" }} onClick={onClick}>
+        <span>
+            <span style={{ cursor: "pointer" }} onClick={onClick}>
                 {props.content}
-            </div>
+            </span>
             <Modal size={props.size || "lg"} show={showDialog} onHide={() => { setShowDialog(false) }}>
                 <Modal.Header closeButton>
                     <Modal.Title>{props.tooltipTitle}</Modal.Title>
@@ -50,7 +50,7 @@ function Tooltip(props: Props) {
                     {props.tooltipContent}
                 </Modal.Body>
             </Modal>
-        </div>
+        </span>
     )
 
     return (

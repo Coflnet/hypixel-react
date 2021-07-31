@@ -16,6 +16,17 @@ import { Link } from 'react-router-dom';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
+// Not a state
+// Update should not trigger a rerender for performance reasons
+let missedInfo: FreeFlipperMissInformation = {
+    estimatedProfitCopiedAuctions: 0,
+    missedEstimatedProfit: 0,
+    missedFlipsCount: 0,
+    totalFlips: 0
+}
+
+let mounted = true;
+
 function Flipper() {
 
     let [latestAuctions, setLatestAuctions] = useState<FlipAuction[]>([]);
@@ -34,9 +45,14 @@ function Flipper() {
     const flipLookup = {};
 
     useEffect(() => {
+        mounted = true;
         _setAutoScroll(true);
         api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
         attachScrollEvent();
+
+        return () => {
+            mounted = false;
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -106,6 +122,9 @@ function Flipper() {
     }
 
     function onAuctionSold(uuid: string) {
+        if (!mounted) {
+            return;
+        }
         setLatestAuctions(latestAuctions => {
             let latestAuction = latestAuctions.find(a => a.uuid === uuid);
             if (latestAuction) {
@@ -117,8 +136,9 @@ function Flipper() {
 
     function onNewFlip(newFipAuction: FlipAuction) {
 
-        if (flipLookup[newFipAuction.uuid])
+        if (flipLookup[newFipAuction.uuid] || !mounted) {
             return;
+        }
         flipLookup[newFipAuction.uuid] = newFipAuction;
 
         api.getItemImageUrl(newFipAuction.item).then((url) => {
@@ -131,6 +151,14 @@ function Flipper() {
                 }
                 return [...latestAuctions, newFipAuction];
             });
+
+            missedInfo = {
+                estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
+                missedEstimatedProfit: newFipAuction.sold ? missedInfo.missedEstimatedProfit + (newFipAuction.median - newFipAuction.cost) : missedInfo.missedEstimatedProfit,
+                missedFlipsCount: newFipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
+                totalFlips: missedInfo.totalFlips + 1
+            }
+
             if (autoscrollRef.current) {
                 let element = document.getElementById("flip-container");
                 if (element) {
@@ -139,6 +167,11 @@ function Flipper() {
                 }
             }
         });
+    }
+
+    function onCopyFlip(flip: FlipAuction) {
+        let currentMissedInfo = missedInfo;
+        currentMissedInfo.estimatedProfitCopiedAuctions += flip.median - flip.cost;
     }
 
     function getLowestBinLink(itemTag: string) {
@@ -188,11 +221,11 @@ function Flipper() {
                                     <b style={{ color: "lime" }}>
                                         +{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins
                                     </b>
-                                    <div style={{ float: "right" }}>
+                                    <span style={{ float: "right" }}>
                                         <Tooltip tooltipTitle={<span>Auctions used for calculating the median price</span>} size="xl" type="click" content={<HelpIcon />}
                                             tooltipContent={<FlipBased flip={flipAuction} />}
                                         />
-                                    </div>
+                                    </span>
                                 </p>
                                 <hr />
                                 <p>
@@ -213,7 +246,7 @@ function Flipper() {
                                         <span className="card-label">Volume: </span>
                                         {flipAuction.volume > 59 ? ">60" : "~" + Math.round(flipAuction.volume * 10) / 10} per day
                                     </div>
-                                    <CopyButton buttonWrapperClass="flip-auction-copy-button" successMessage={<p>Copied ingame link <br /><i>/viewauction {flipAuction.uuid}</i></p>} copyValue={"/viewauction " + flipAuction.uuid} />
+                                    <CopyButton onCopy={() => { onCopyFlip(flipAuction) }} buttonWrapperClass="flip-auction-copy-button" successMessage={<p>Copied ingame link <br /><i>/viewauction {flipAuction.uuid}</i></p>} copyValue={"/viewauction " + flipAuction.uuid} />
                                 </div>
                             </Card.Body>
                         </Card>
@@ -236,13 +269,38 @@ function Flipper() {
                                 You need to be logged and have Premium to have all features unlocked.
                             </div> :
                             hasPremium ? "You have premium and receive profitable auctions in real time." : <span>
-
                                 These auctions are delayed by 5 min. Please purchase <a target="_blank" rel="noreferrer" href="/premium">premium</a> if you want real time flips.
                             </span>
                         }
                         <br />
                         <GoogleSignIn onAfterLogin={onLogin} />
                     </Card.Title>
+                    {
+                        !isLoading && !hasPremium ?
+                            <Card.Subtitle>
+                                <hr />
+                                <div style={{ display: "flex", alignContent: "center", justifyContent: "space-around" }}>
+                                    <fieldset>
+                                        <legend>You got:</legend>
+                                        <ul>
+                                            <li>Total found flips: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
+                                            <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                        </ul>
+                                    </fieldset>
+                                    <fieldset>
+                                        <legend>You dont have Premium?</legend>
+                                        <ul>
+                                            <li>
+                                                <span style={{marginRight: "10px"}}>Missed Profit: {numberWithThousandsSeperators(missedInfo.missedEstimatedProfit)} Coins</span>
+                                                <Tooltip type="hover" content={<HelpIcon />}
+                                                    tooltipContent={<span>The premium flipper is not delayed. Therefor you get access to the most profitable flips. Currently really good flips are already sold.</span>} />
+                                            </li>
+                                            <li>Missed Flips: {numberWithThousandsSeperators(missedInfo.missedFlipsCount)}</li>
+                                        </ul>
+                                    </fieldset>
+                                </div>
+                            </Card.Subtitle> : ""
+                    }
                 </Card.Header>
                 <Card.Body>
                     <div>
