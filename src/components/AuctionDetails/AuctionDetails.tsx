@@ -25,7 +25,6 @@ function AuctionDetails(props: Props) {
     let [isAuctionFound, setIsNoAuctionFound] = useState(false);
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails>();
     let [isItemDetailsCollapse, setIsItemDetailsCollapse] = useState(true);
-    let [showNbtData, setShowNbtData] = useState(false);
     let forceUpdate = useForceUpdate();
 
     useEffect(() => {
@@ -107,6 +106,45 @@ function AuctionDetails(props: Props) {
         forceUpdate();
     }
 
+    function getNBTElement() {
+        return (<div>
+            {
+                Object.keys(auctionDetails?.nbtData).map(key => {
+                    let isSubObject = typeof auctionDetails?.nbtData[key] === 'object';
+                    let currentNBT = auctionDetails?.nbtData[key];
+                    return (<div>
+                        <p>
+                            <span className={isSubObject && Object.keys(auctionDetails?.nbtData[key]).length > 0 ? "labelForList" : "label"}>
+                                <Badge variant={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
+                            </span>
+                            {isSubObject ? getNBTListElement(currentNBT) : formatNBTValue(currentNBT)}
+                        </p>
+                    </div>)
+                })
+            }
+        </div >)
+    }
+
+    function formatNBTValue(value: any) {
+        if (Number.isInteger(value)) {
+            return numberWithThousandsSeperators(value);
+        }
+        return value.toString();
+    }
+
+    function getNBTListElement(nbtSubObject: any) {
+        let keys = Object.keys(nbtSubObject);
+        return (<div style={{ overflow: "auto" }}>
+            {keys && keys!.length > 0 ?
+                (<ul className="list">
+                    {keys.map(key => {
+                        return <li>{convertTagToName(key) + " " + nbtSubObject[key]}</li>
+                    })}
+                </ul>) :
+                <p>None</p>}
+        </div>)
+    }
+
     const labelBadgeVariant = "primary";
     const binBadgeVariant = "success";
     const countBadgeVariant = "dark";
@@ -177,55 +215,25 @@ function AuctionDetails(props: Props) {
                     </p>
                 </Link>
 
-                <div>
+                <div style={{ overflow: "auto" }}>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? "labelForList" : "label"}>
                         <Badge variant={labelBadgeVariant}>Enchantments:</Badge>
                     </span>
-                    <div>
-                        {auctionDetails && auctionDetails!.enchantments.length > 0 ?
-                            (<ul className="enchantment-list">
-                                {auctionDetails?.enchantments.map(enchantment => {
-                                    return enchantment.name ? <li key={"enchantment-" + enchantment.name}>{enchantment.name} {enchantment.level}</li> : ""
-                                })}
-                            </ul>) :
-                            <p>None</p>}
-                    </div>
+                    {auctionDetails && auctionDetails!.enchantments.length > 0 ?
+                        (<ul className="list">
+                            {auctionDetails?.enchantments.map(enchantment => {
+                                return enchantment.name ? <li key={"enchantment-" + enchantment.name}>{enchantment.name} {enchantment.level}</li> : ""
+                            })}
+                        </ul>) :
+                        <p>None</p>}
+                </div>
+                <div>
+                    {
+                        getNBTElement()
+                    }
                 </div>
             </Card.Body>
         </div >
-    );
-
-    let itemDetailsCardContent = (auctionDetails === undefined ? getLoadingElement() :
-        <div>
-            <p>
-                <span className="label">
-                    <Badge variant={labelBadgeVariant}>Tier:</Badge>
-                </span>
-                <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.tier}</span>
-            </p>
-            <p>
-                <span className="label">
-                    <Badge variant={labelBadgeVariant}>Category:</Badge>
-                </span> {convertTagToName(auctionDetails?.auction.item.category)}
-            </p>
-            {auctionDetails.nbtData ? <p>
-                <span className="label">
-                    <Badge variant={labelBadgeVariant}>NBT-Data:</Badge>
-                </span>
-                {showNbtData ?
-                    <span>{JSON.stringify(auctionDetails.nbtData)}</span> :
-                    <a href="#" onClick={() => { setShowNbtData(true) }}>Click to show</a>
-                }
-            </p> : ""
-            }
-            {auctionDetails.auction.item.description ? <p>
-                <span className="label">
-                    <Badge variant={labelBadgeVariant}>Sample description:</Badge>
-                </span>
-                <span style={{ float: "left" }} ref={(node) => { if (auctionDetails?.auction.item.description && node) { node.innerHTML = ""; node.append((auctionDetails.auction.item.description as any).replaceColorCodes()) } }}></span>
-            </p> : ""
-            }
-        </div>
     );
 
     let bidList = auctionDetails?.bids.length === 0 ? <p>No bids</p> :
