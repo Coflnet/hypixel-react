@@ -1,21 +1,21 @@
-.bid-list>.bid-item-image {
+.player-details-list>.bid-item-image {
     margin-right: 15px;
 }
 
-.bid-list>.bid-list {
+.player-details-list>.bid-list {
     width: 96%;
     margin-left: auto;
     margin-right: auto
 }
 
-.bid-list>.loadingBanner {
+.player-details-list>.loadingBanner {
     width: 50%;
     margin-left: auto;
     margin-right: auto;
     margin-top: 5vh;
 }
 
-.bid-list>.noAuctionFound {
+.player-details-list>.noAuctionFound {
     margin-right: auto;
     margin-left: auto;
     width: max-content;
@@ -23,19 +23,19 @@
     margin-top: 5vh;
 }
 
-.bid-list>.upButton {
+.player-details-list>.upButton {
     position: fixed;
     right: 20px;
     bottom: 20px;
 }
 
-.bid-list>.subscribe-button {
+.player-details-list>.subscribe-button {
     position: fixed;
     bottom: 20px;
     right: calc(20px + 45px + 20px);
 }
 
-.bid-list>.fixed-bottom {
+.player-details-list>.fixed-bottom {
     z-index: 10;
     position: fixed;
     bottom: 20px;
@@ -43,19 +43,25 @@
     width: 100%;
 }
 
-.bid-list>.fixed-bottom>.btn-bottom {
+.player-details-list>.fixed-bottom>.btn-bottom {
     float: right;
     margin-left: 10px;
 }
 
+.player-details-list .list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.player-details-list .list-group-item {
+    border-radius: 20px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
 @media all and (min-width: 1200px) {
-    .bid-list .list-group-item {
+    .player-details-list .list-group-item {
         width: 49%;
-        margin-bottom: 15px;
-        display: inline-block;
-        border-radius: 20px;
-    }
-    .bid-list .list-item-link:nth-child(2n) .list-group-item {
-        margin-left: 2%;
     }
 }

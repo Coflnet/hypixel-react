@@ -110,63 +110,61 @@ function SubscribeButton(props: Props) {
     }
 
     let dialog = (
-        <div className="subscribe-dialog">
-            <Modal show={showDialog} onHide={closeDialog}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Create a Notification</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {isLoggedIn ?
-                        <div>
+        <Modal show={showDialog} onHide={closeDialog} className="subscribe-dialog">
+            <Modal.Header closeButton>
+                <Modal.Title>Create a Notification</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                {isLoggedIn ?
+                    <div>
+                        {props.type === "item" ?
+                            <InputGroup className="price-input">
+                                <InputGroup.Prepend>
+                                    <InputGroup.Text id="inputGroup-sizing-sm">Item price</InputGroup.Text>
+                                </InputGroup.Prepend>
+                                <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm" type="number" onChange={(e) => setPrice(e.target.value)} />
+                            </InputGroup>
+                            : ""}
+                        <h5>Notify me ... </h5>
+                        <div className="item-forms">
                             {props.type === "item" ?
-                                <InputGroup className="price-input">
-                                    <InputGroup.Prepend>
-                                        <InputGroup.Text id="inputGroup-sizing-sm">Item price</InputGroup.Text>
-                                    </InputGroup.Prepend>
-                                    <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm" type="number" onChange={(e) => setPrice(e.target.value)} />
-                                </InputGroup>
+                                <div>
+                                    <div className="input-data">
+                                        <input type="radio" id="priceAboveCheckbox" defaultChecked={isPriceAbove} name="priceState" onChange={(e) => setIsPriceAbove(true)} />
+                                        <label htmlFor="priceAboveCheckbox">if the price is above the selected value</label>
+                                    </div>
+                                    <div className="input-data">
+                                        <input type="radio" id="priceBelowCheckbox" name="priceState" defaultChecked={!isPriceAbove} onChange={(e) => setIsPriceAbove(false)} />
+                                        <label htmlFor="priceBelowCheckbox">if the price is below the selected value</label>
+                                    </div>
+                                    <div className="input-data">
+                                        <input type="checkbox" id="onlyIstantBuy" defaultChecked={onlyInstantBuy} onClick={(e) => { setOnlyInstantBuy((e.target as HTMLInputElement).checked) }} />
+                                        <label htmlFor="onlyIstantBuy">only for instant buy</label>
+                                    </div>
+                                </div>
                                 : ""}
-                            <h5>Notify me ... </h5>
-                            <div className="item-forms">
-                                {props.type === "item" ?
-                                    <div>
-                                        <div className="input-data">
-                                            <input type="radio" id="priceAboveCheckbox" defaultChecked={isPriceAbove} name="priceState" onChange={(e) => setIsPriceAbove(true)} />
-                                            <label htmlFor="priceAboveCheckbox">if the price is above the selected value</label>
-                                        </div>
-                                        <div className="input-data">
-                                            <input type="radio" id="priceBelowCheckbox" name="priceState" defaultChecked={!isPriceAbove} onChange={(e) => setIsPriceAbove(false)} />
-                                            <label htmlFor="priceBelowCheckbox">if the price is below the selected value</label>
-                                        </div>
-                                        <div className="input-data">
-                                            <input type="checkbox" id="onlyIstantBuy" defaultChecked={onlyInstantBuy} onClick={(e) => { setOnlyInstantBuy((e.target as HTMLInputElement).checked) }} />
-                                            <label htmlFor="onlyIstantBuy">only for instant buy</label>
-                                        </div>
+                        </div>
+                        <div className="player-forms">
+                            {props.type === "player" ?
+                                <div>
+                                    <div className="input-data">
+                                        <input type="checkbox" id="outbidCheckbox" defaultChecked={gotOutbid} onChange={(e) => setGotOutbid((e.target as HTMLInputElement).checked)} />
+                                        <label htmlFor="outbidCheckbox">if player gets outbid</label>
                                     </div>
-                                    : ""}
-                            </div>
-                            <div className="player-forms">
-                                {props.type === "player" ?
-                                    <div>
-                                        <div className="input-data">
-                                            <input type="checkbox" id="outbidCheckbox" defaultChecked={gotOutbid} onChange={(e) => setGotOutbid((e.target as HTMLInputElement).checked)} />
-                                            <label htmlFor="outbidCheckbox">if player gets outbid</label>
-                                        </div>
-                                        <div className="input-data">
-                                            <input type="checkbox" id="isSoldCheckbox" defaultChecked={isSold} onChange={(e) => setIsSold((e.target as HTMLInputElement).checked)} />
-                                            <label htmlFor="isSoldCheckbox">if an auction of the player has ended</label>
-                                        </div>
+                                    <div className="input-data">
+                                        <input type="checkbox" id="isSoldCheckbox" defaultChecked={isSold} onChange={(e) => setIsSold((e.target as HTMLInputElement).checked)} />
+                                        <label htmlFor="isSoldCheckbox">if an auction of the player has ended</label>
                                     </div>
-                                    : ""}
-                            </div>
-                            <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">Notify me</Button>
-                        </div> :
-                        <p>To use subscriptions, please login with Google: </p>
-                    }
-                    <GoogleSignIn onAfterLogin={onLogin} />
-                </Modal.Body>
-            </Modal>
-        </div>
+                                </div>
+                                : ""}
+                        </div>
+                        <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">Notify me</Button>
+                    </div> :
+                    <p>To use subscriptions, please login with Google: </p>
+                }
+                <GoogleSignIn onAfterLogin={onLogin} />
+            </Modal.Body>
+        </Modal>
     );
 
     return (
