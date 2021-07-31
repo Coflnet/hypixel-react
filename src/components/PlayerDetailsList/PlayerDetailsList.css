@@ -56,6 +56,12 @@
 
 .player-details-list .list-group-item {
     border-radius: 20px;
-    width: 49%;
+    width: 100%;
     margin-bottom: 15px;
+}
+
+@media all and (min-width: 1200px) {
+    .player-details-list .list-group-item {
+        width: 49%;
+    }
 }
