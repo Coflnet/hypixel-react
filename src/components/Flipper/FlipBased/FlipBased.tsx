@@ -46,7 +46,7 @@ function FlipBased(props: Props) {
                         <Card.Body>
                             <div>
                                 <ul>
-                                    <li>Ends {moment(auction.end).fromNow()}</li>
+                                    <li>Ended {moment(auction.end).fromNow()}</li>
                                     <li>{numberWithThousandsSeperators(auction.highestBid || auction.startingBid)} Coins</li>
                                     {auction.bin ? <li><Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge></li> : ""}
                                 </ul>
