@@ -16,7 +16,7 @@
     background-color: #272b30;
 }
 
-.flipper .card {
+.flipper .flip-container .card {
     height: 100%;
     min-width: 200px;
 }
@@ -101,18 +101,29 @@
 }
 
 .flipper fieldset {
-    border-width: 2px;
-    border-style: groove;
-    border-color: threedface;
-    border-image: initial;
+    background-color: #444;
+    border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+    padding: 5px;
 }
 
-.flipper legend {
-    float: none;
-    margin: 0;
-    display: block;
-    width: auto;
-    font-size: large;
-    padding-inline-end: 2px;
-    padding-inline-start: 2px;
+.flipper .flipper-summary-card {
+    max-width: 30%;
+}
+
+.flipper .flipper-summary-wrapper {
+    display: flex;
+    align-content: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+}
+
+@media (max-width: 768px) {
+    .flipper .flipper-summary-card {
+        max-width: 100%;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    .flipper .flipper-summary-wrapper {
+        flex-wrap: wrap;
+    }
 }

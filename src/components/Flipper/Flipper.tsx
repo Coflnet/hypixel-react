@@ -340,48 +340,53 @@ function Flipper() {
                         <hr />
                         <Card>
                             <Card.Header>
-                                <Card.Title>Missed profit</Card.Title>
+                                <Card.Title>Flipper summary</Card.Title>
                             </Card.Header>
                             <Card.Body>
-                                <div style={{ display: "flex", alignContent: "center", justifyContent: "space-around" }}>
-                                    <fieldset>
-                                        <legend>You got:</legend>
-                                        <ul>
-                                            <li>Total found flips: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
-                                            <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
-                                        </ul>
-                                    </fieldset>
-                                    <fieldset>
-                                        <legend>You dont have Premium?</legend>
-                                        <ul>
-                                            <li>
-                                                <span style={{ marginRight: "10px" }}>Missed Profit: {numberWithThousandsSeperators(missedInfo.missedEstimatedProfit)} Coins</span>
-                                                <Tooltip type="hover" content={<HelpIcon />}
-                                                    tooltipContent={<span>The premium flipper is not delayed. Therefor you would get access to the most profitable flips and not miss out on this amount of profit.</span>} />
-                                            </li>
-                                            <li>Missed Flips: {numberWithThousandsSeperators(missedInfo.missedFlipsCount)}</li>
-                                        </ul>
-                                    </fieldset>
+                                <div className="flipper-summary-wrapper">
+                                    <Card className="flipper-summary-card">
+                                        <Card.Header>
+                                            <Card.Title>
+                                                You got:
+                                            </Card.Title>
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <ul>
+                                                <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
+                                                <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                            </ul>
+                                        </Card.Body>
+                                    </Card>
+                                    <Card className="flipper-summary-card">
+                                        <Card.Header>
+                                            <Card.Title>
+                                                You don't have Premium?
+                                            </Card.Title>
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <ul>
+                                                <li>
+                                                    <span style={{ marginRight: "10px" }}>Missed Profit: {numberWithThousandsSeperators(missedInfo.missedEstimatedProfit)} Coins</span>
+                                                    <Tooltip type="hover" content={<HelpIcon />}
+                                                        tooltipContent={<span>This is the sum of the field 'Estimated profit' of the flips that were already sold when you received them. It represents the extra coins you could earn if you purchased our premium plan</span>} />
+                                                </li>
+                                                <li>Missed Flips: {numberWithThousandsSeperators(missedInfo.missedFlipsCount)}</li>
+                                            </ul>
+                                        </Card.Body>
+                                    </Card>
+                                    <Card className="flipper-summary-card">
+                                        <Card.Header>
+                                            <Card.Title>How to get premium for free</Card.Title>
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <p>Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.</p>
+                                            <p>Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} /></p>
+                                        </Card.Body>
+                                    </Card>
                                 </div>
                             </Card.Body>
                         </Card>
                     </div> : ""
-            }
-
-            {isLoggedIn && refInfo ?
-                <div>
-                    <hr />
-
-                    <Card className="card">
-                        <Card.Header>
-                            <Card.Title>How to get premium for free</Card.Title>
-                        </Card.Header>
-                        <Card.Body>
-                            Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.<br />
-                            Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} />
-                        </Card.Body>
-                    </Card>
-                </div> : ""
             }
 
             <hr />
