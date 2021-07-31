@@ -1,4 +1,4 @@
-FROM node:alpine as frontend
+FROM node:16-alpine3.11 as frontend
 
 WORKDIR /build
 COPY package*.json .
