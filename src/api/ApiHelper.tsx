@@ -732,14 +732,14 @@ function initAPI(): API {
         })
     }
 
-    let connectMinecraftAccount = (playerUUID: string) => {
+    let connectMinecraftAccount = (playerUUID: string): Promise<number> => {
         return new Promise((resolve, reject) => {
 
             httpApi.sendLimitedCacheRequest({
                 type: RequestType.CONNECT_MINECRAFT_ACCOUNT,
                 data: playerUUID,
                 resolve: function (data) {
-                    resolve(data.map(a => parseFilterOption(a)));
+                    resolve(data.bid);
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, playerUUID);
@@ -788,7 +788,8 @@ function initAPI(): API {
         getRefInfo,
         setRef,
         getActiveAuctions,
-        filterFor
+        filterFor,
+        connectMinecraftAccount
     }
 }
 

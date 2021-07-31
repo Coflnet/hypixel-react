@@ -8,6 +8,8 @@ import BidList from '../../components/BidList/BidList';
 import api from '../../api/ApiHelper';
 import { parsePlayer } from '../../utils/Parser/APIResponseParser';
 import { useSwipe } from '../../utils/Hooks';
+import Tooltip from '../../components/Tooltip/Tooltip';
+import ClaimAccount from './ClaimAccount/ClaimAccount';
 
 enum DetailType {
     AUCTIONS = "auctions",
@@ -65,7 +67,14 @@ function PlayerDetails() {
     return (
         <div className="player-details">
             <Container>
-                <Search selected={selectedPlayer} />
+                <Search selected={selectedPlayer}
+                    currentElement={
+                        <h1 className="current">
+                            <img crossOrigin="anonymous" className="player-head-icon" src={selectedPlayer?.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />
+                            <span>{selectedPlayer?.name}</span>
+                            <span style={{ marginLeft: "25px" }}><Tooltip type="click" content={<span style={{ color: "#007bff", cursor: "pointer" }}>You? Claim account.</span>} tooltipContent={<ClaimAccount playerUUID={uuid} />} size="xl" tooltipTitle={<span>Claim Minecraft account</span>} /></span>
+                        </h1>
+                    } />
                 <ToggleButtonGroup className="player-details-type" type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
                     <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">Auctions</ToggleButton>
                     <ToggleButton value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">Bids</ToggleButton>

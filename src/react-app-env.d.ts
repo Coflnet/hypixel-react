@@ -198,7 +198,8 @@ interface API {
   getRefInfo(): Promise<RefInfo>,
   setRef(refId: string): Promise<void>,
   getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>,
-  filterFor(item: Item): Promise<FilterOptions[]>
+  filterFor(item: Item): Promise<FilterOptions[]>,
+  connectMinecraftAccount(playerUUID: string): Promise<number>
 }
 
 interface CacheUtils {
