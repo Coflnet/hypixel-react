@@ -357,7 +357,7 @@ function Flipper() {
                                             <li>
                                                 <span style={{ marginRight: "10px" }}>Missed Profit: {numberWithThousandsSeperators(missedInfo.missedEstimatedProfit)} Coins</span>
                                                 <Tooltip type="hover" content={<HelpIcon />}
-                                                    tooltipContent={<span>The premium flipper is not delayed. Therefor you get access to the most profitable flips. Currently really good flips are already sold.</span>} />
+                                                    tooltipContent={<span>The premium flipper is not delayed. Therefor you would get access to the most profitable flips and not miss out on this amount of profit.</span>} />
                                             </li>
                                             <li>Missed Flips: {numberWithThousandsSeperators(missedInfo.missedFlipsCount)}</li>
                                         </ul>
