@@ -99,3 +99,20 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.flipper fieldset {
+    border-width: 2px;
+    border-style: groove;
+    border-color: threedface;
+    border-image: initial;
+}
+
+.flipper legend {
+    float: none;
+    margin: 0;
+    display: block;
+    width: auto;
+    font-size: large;
+    padding-inline-end: 2px;
+    padding-inline-start: 2px;
+}

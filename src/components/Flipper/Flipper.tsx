@@ -275,32 +275,6 @@ function Flipper() {
                         <br />
                         <GoogleSignIn onAfterLogin={onLogin} />
                     </Card.Title>
-                    {
-                        !isLoading && !hasPremium ?
-                            <Card.Subtitle>
-                                <hr />
-                                <div style={{ display: "flex", alignContent: "center", justifyContent: "space-around" }}>
-                                    <fieldset>
-                                        <legend>You got:</legend>
-                                        <ul>
-                                            <li>Total found flips: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
-                                            <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
-                                        </ul>
-                                    </fieldset>
-                                    <fieldset>
-                                        <legend>You dont have Premium?</legend>
-                                        <ul>
-                                            <li>
-                                                <span style={{marginRight: "10px"}}>Missed Profit: {numberWithThousandsSeperators(missedInfo.missedEstimatedProfit)} Coins</span>
-                                                <Tooltip type="hover" content={<HelpIcon />}
-                                                    tooltipContent={<span>The premium flipper is not delayed. Therefor you get access to the most profitable flips. Currently really good flips are already sold.</span>} />
-                                            </li>
-                                            <li>Missed Flips: {numberWithThousandsSeperators(missedInfo.missedFlipsCount)}</li>
-                                        </ul>
-                                    </fieldset>
-                                </div>
-                            </Card.Subtitle> : ""
-                    }
                 </Card.Header>
                 <Card.Body>
                     <div>
@@ -349,12 +323,46 @@ function Flipper() {
                 selectedAuctionUUID ?
                     <div>
                         <hr />
-                        <Card>
+                        <Card className="card">
                             <Card.Header>
                                 <Card.Title>Auction-Details</Card.Title>
                             </Card.Header>
                             <Card.Body>
                                 <AuctionDetails auctionUUID={selectedAuctionUUID} retryCounter={5} />
+                            </Card.Body>
+                        </Card>
+                    </div> : ""
+            }
+
+            {
+                !isLoading && !hasPremium ?
+                    <div>
+                        <hr />
+                        <Card>
+                            <Card.Header>
+                                <Card.Title>Missed profit</Card.Title>
+                            </Card.Header>
+                            <Card.Body>
+                                <div style={{ display: "flex", alignContent: "center", justifyContent: "space-around" }}>
+                                    <fieldset>
+                                        <legend>You got:</legend>
+                                        <ul>
+                                            <li>Total found flips: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
+                                            <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                        </ul>
+                                    </fieldset>
+                                    <fieldset>
+                                        <legend>You dont have Premium?</legend>
+                                        <ul>
+                                            <li>
+                                                <span style={{ marginRight: "10px" }}>Missed Profit: {numberWithThousandsSeperators(missedInfo.missedEstimatedProfit)} Coins</span>
+                                                <Tooltip type="hover" content={<HelpIcon />}
+                                                    tooltipContent={<span>The premium flipper is not delayed. Therefor you get access to the most profitable flips. Currently really good flips are already sold.</span>} />
+                                            </li>
+                                            <li>Missed Flips: {numberWithThousandsSeperators(missedInfo.missedFlipsCount)}</li>
+                                        </ul>
+                                    </fieldset>
+                                </div>
                             </Card.Body>
                         </Card>
                     </div> : ""
