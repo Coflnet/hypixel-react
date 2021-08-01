@@ -10,7 +10,6 @@ describe('filter', () => {
         }).parent().should("be.enabled").wait(100).should("be.enabled").select('Reforge')
         cy.wait(1000)
         cy.get('.generic-filter').children().children('select').select("Itchy")
-        cy.contains('Apply').click()
         // no sword matches Demonic
         cy.contains('0 Coins');
         cy.contains('No data found');
@@ -26,7 +25,6 @@ describe('filter', () => {
         cy.get('.generic-filter').children().children('select').select("Sharp")
         let oldPrice = cy.contains('Avg Price:').parent();
 
-        cy.contains('Apply').click()
         cy.wait(2000)
         cy.contains('Avg Price:').parent().should('not.equal', oldPrice);
         cy.get('.recent-auctions-list').children().first().click()
@@ -42,7 +40,6 @@ describe('filter', () => {
         cy.wait(1000)
         // this doesn't work, tracked by https://github.com/Coflnet/hypixel-react/issues/294
         //cy.get('.generic-filter').children().children('input').clear().type("1")
-        cy.contains('Apply').click()
         // trigger a reload to test the url apply as well
         cy.reload()
         cy.wait(4000)
