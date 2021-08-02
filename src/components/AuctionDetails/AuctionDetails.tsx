@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
-import { Badge, Button, Card, Collapse, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Badge, Button, Card, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getStyleForTier, numberWithThousandsSeperators, convertTagToName } from '../../utils/Formatter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import { useForceUpdate } from '../../utils/Hooks';
@@ -11,7 +11,6 @@ import moment from 'moment';
 import { v4 as generateUUID } from 'uuid';
 import { Link } from 'react-router-dom';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
-import { ArrowDropDown as ArrowDownIcon, ArrowDropUp as ArrowUpIcon } from '@material-ui/icons'
 import { CopyButton } from '../CopyButton/CopyButton';
 import { toast } from 'react-toastify';
 
@@ -24,12 +23,7 @@ function AuctionDetails(props: Props) {
 
     let [isAuctionFound, setIsNoAuctionFound] = useState(false);
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails>();
-    let [isItemDetailsCollapse, setIsItemDetailsCollapse] = useState(true);
     let forceUpdate = useForceUpdate();
-
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
 
     useEffect(() => {
         loadAuctionDetails();
