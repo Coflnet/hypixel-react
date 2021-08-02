@@ -137,7 +137,8 @@ interface FlipAuction {
   bin: boolean,
   sold?: boolean,
   sellerName: string,
-  lowestBin: number
+  lowestBin: number,
+  isCopied?: boolean
 }
 
 interface FlipperFilter {
@@ -162,7 +163,7 @@ interface API {
   getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>;
   getEnchantments(): Promise<Enchantment[]>;
   getReforges(): Promise<Reforge[]>;
-  getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>;
+  getAuctionDetails(auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails>;
   getPlayerName(uuid: string): Promise<string>;
   setConnectionId(): Promise<void>;
   getVersion(): Promise<string>;

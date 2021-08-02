@@ -12,9 +12,9 @@ function NotFound() {
     return (
         <div className="not-found">
             <Container>
-                <h1>Ops, seems something went wrong</h1>
+                <h1>Oops, seems something went wrong</h1>
                 <p>There is nothing to see here.</p>
-                <Link to="/"><Button>Get back</Button></Link>
+                <Link to="/"><Button>Go back</Button></Link>
             </Container>
         </div >
     );

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import './FlipperFilter.css';
 import Tooltip from '../../Tooltip/Tooltip';
@@ -20,12 +20,14 @@ let FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN;
 function FlipperFilter(props: Props) {
 
     let [onlyBin, setOnlyBin] = useState(false);
-    let [onlyUnsold, setOnlyUnsold] = useState(false);
+    let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium);
     let [minProfit, setMinProfit] = useState(0);
     let [maxCost, setMaxCost] = useState<number>();
     let [freePremiumFilters, setFreePremiumFilters] = useState(false);
     let [freeLoginFilters, setFreeLoginFilters] = useState(false);
     let [uuids, setUUIDs] = useState<string[]>([]);
+
+    let onlyUnsoldRef = useRef(null);
 
     useEffect(() => {
 
@@ -41,6 +43,15 @@ function FlipperFilter(props: Props) {
         FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(() => {
+        if (onlyUnsoldRef.current) {
+            let checked = (onlyUnsoldRef.current! as HTMLInputElement).checked;
+            setOnlyUnsold(checked);
+            onlyUnsold = checked; 
+            props.onChange(getCurrentFilter());
+        }
+    }, [props.isPremium])
 
     let getCurrentFilter = (): FlipperFilter => {
         return {
@@ -110,7 +121,7 @@ function FlipperFilter(props: Props) {
     </Form.Group>;
     const soldFilter = <Form.Group>
         <Form.Label htmlFor="onlyUnsoldCheckbox" className="flipper-filter-formfield-label only-bin-label">Hide SOLD Auctions</Form.Label>
-        <Form.Check id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={props.isPremium} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
+        <Form.Check ref={onlyUnsoldRef} id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={props.isPremium} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
     </Form.Group>;
 
     const numberFilters = <div>
@@ -143,7 +154,7 @@ function FlipperFilter(props: Props) {
                         /> : soldFilter}
                 </div>
 
-                <div style={{visibility: "hidden", height: 0}}>
+                <div style={{ visibility: "hidden", height: 0 }}>
                     <Countdown key={uuids[2]} onComplete={onFreePremiumComplete} date={FREE_PREMIUM_FILTER_TIME} />
                     <Countdown key={uuids[3]} onComplete={onFreeLoginComplete} date={FREE_LOGIN_FILTER_TIME} />
                 </div>
