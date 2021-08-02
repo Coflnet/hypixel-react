@@ -335,7 +335,7 @@ function Flipper() {
             }
 
             {
-                !isLoading && isLoggedIn && hasPremium ?
+                !isLoading && isLoggedIn && !hasPremium ?
                     <div>
                         <hr />
                         <Card>
