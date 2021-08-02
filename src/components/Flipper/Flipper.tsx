@@ -335,7 +335,7 @@ function Flipper() {
             }
 
             {
-                !isLoading && isLoggedIn && !hasPremium ?
+                !isLoading && isLoggedIn && hasPremium ?
                     <div>
                         <hr />
                         <Card>
@@ -374,7 +374,7 @@ function Flipper() {
                                             </ul>
                                         </Card.Body>
                                     </Card>
-                                    <Card className="flipper-summary-card">
+                                    <Card style={{flexGrow: 2}} className="flipper-summary-card">
                                         <Card.Header>
                                             <Card.Title>How to get premium for free</Card.Title>
                                         </Card.Header>
