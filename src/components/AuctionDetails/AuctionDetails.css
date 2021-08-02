@@ -46,7 +46,7 @@
     width: calc(30vw - 20px);
 }
 
-.enchantment-list {
+.auction-details .list {
     float: left;
 }
 

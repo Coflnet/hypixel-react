@@ -12,6 +12,10 @@ function AuctionDetailsPage() {
     let forceUpdate = useForceUpdate();
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         forceUpdate();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [auctionUUID])
