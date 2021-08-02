@@ -404,22 +404,6 @@ function Flipper() {
                         </Card>
                     </div> : ""
             }
-            {
-                isLoggedIn && refInfo ?
-                    <div>
-                        <hr />
-
-                        <Card>
-                            <Card.Header>
-                                <Card.Title>How to get premium for free</Card.Title>
-                            </Card.Header>
-                            <Card.Body>
-                                Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.<br />
-                                Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} />
-                            </Card.Body>
-                        </Card>
-                    </div> : ""
-            }
 
             {
                 !isLoading && isLoggedIn && !hasPremium ?
