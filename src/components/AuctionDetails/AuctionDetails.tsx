@@ -40,7 +40,7 @@ function AuctionDetails(props: Props) {
     let tryNumber = 1;
     let loadAuctionDetails = () => {
 
-        api.getAuctionDetails(props.auctionUUID).then(auctionDetails => {
+        api.getAuctionDetails(props.auctionUUID, tryNumber).then(auctionDetails => {
             auctionDetails.bids.sort((a, b) => b.amount - a.amount)
             setAuctionDetails(auctionDetails);
             api.getItemImageUrl(auctionDetails.auction.item).then(url => {

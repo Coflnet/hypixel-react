@@ -5,14 +5,7 @@
     /* Set full-width to expand the whole page */
 }
 
-.flipper .cards-wrapper {
-    display: flex;
-    overflow-x: scroll;
-    align-items: stretch;
-    flex-wrap: nowrap;
-}
-
-.cards-wrapper::-webkit-scrollbar {
+.flipper-scroll-list::-webkit-scrollbar {
     background-color: #272b30;
 }
 
@@ -30,21 +23,21 @@
     margin-bottom: 0;
 }
 
-.flipper .cards-wrapper::-webkit-scrollbar {
+.flipper .flipper-scroll-list::-webkit-scrollbar {
     width: 20px;
 }
 
-.flipper .cards-wrapper::-webkit-scrollbar-track {
+.flipper .flipper-scroll-list::-webkit-scrollbar-track {
     box-shadow: inset 0 0 5px grey;
     border-radius: 10px;
 }
 
-.flipper .cards-wrapper::-webkit-scrollbar-thumb {
+.flipper .flipper-scroll-list::-webkit-scrollbar-thumb {
     background: #3a3f44;
     border-radius: 10px;
 }
 
-.flipper .cards-wrapper::-webkit-scrollbar-thumb:hover {
+.flipper .flipper-scroll-list::-webkit-scrollbar-thumb:hover {
     background: #7a8288;
 }
 
