@@ -104,14 +104,13 @@ function AuctionDetails(props: Props) {
         return (<div>
             {
                 Object.keys(auctionDetails?.nbtData).map(key => {
-                    let isSubObject = typeof auctionDetails?.nbtData[key] === 'object';
                     let currentNBT = auctionDetails?.nbtData[key];
-                    return (<div>
+                    return (<div key={key}>
                         <p>
-                            <span className={isSubObject && Object.keys(auctionDetails?.nbtData[key]).length > 0 ? "labelForList" : "label"}>
+                            <span className="label">
                                 <Badge variant={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
                             </span>
-                            {isSubObject ? getNBTListElement(currentNBT) : formatNBTValue(currentNBT)}
+                            {formatNBTValue(key, currentNBT)}
                         </p>
                     </div>)
                 })
@@ -119,24 +118,51 @@ function AuctionDetails(props: Props) {
         </div >)
     }
 
-    function formatNBTValue(value: any) {
-        if (Number.isInteger(value)) {
+    function formatNBTValue(key: string, value: any) {
+        let tagNbt = [
+            "heldItem",
+            "personal_compact_0",
+            "personal_compact_1",
+            "personal_compact_2",
+            "personal_compact_3",
+            "personal_compact_4",
+            "personal_compact_5",
+            "personal_compact_6",
+            "personal_compact_7",
+            "personal_compact_8",
+            "personal_compact_9",
+            "personal_compact_10",
+            "personal_compact_11",
+            "personal_compactor_0",
+            "personal_compactor_1",
+            "personal_compactor_2",
+            "personal_compactor_3",
+            "personal_compactor_4",
+            "personal_compactor_5",
+            "personal_compactor_6",
+            "personal_deletor_0",
+            "personal_deletor_1",
+            "personal_deletor_2",
+            "personal_deletor_3",
+            "personal_deletor_4",
+            "personal_deletor_5",
+            "personal_deletor_6",
+            "personal_deletor_7",
+            "personal_deletor_8",
+            "personal_deletor_9",
+            "last_potion_ingredient",
+            "power_ability_scroll",
+            "skin"];
+
+        if (!isNaN(value) && Number.isInteger(parseInt(value, 10))) {
             return numberWithThousandsSeperators(value);
         }
-        return value.toString();
-    }
 
-    function getNBTListElement(nbtSubObject: any) {
-        let keys = Object.keys(nbtSubObject);
-        return (<div style={{ overflow: "auto" }}>
-            {keys && keys!.length > 0 ?
-                (<ul className="list">
-                    {keys.map(key => {
-                        return <li>{convertTagToName(key) + " " + nbtSubObject[key]}</li>
-                    })}
-                </ul>) :
-                <p>None</p>}
-        </div>)
+        let index = tagNbt.findIndex(tag => tag === key);
+        if (index !== -1) {
+            return <Link to={"/item/" + value}>{convertTagToName(value)}</Link>;
+        }
+        return value.toString();
     }
 
     const labelBadgeVariant = "primary";
