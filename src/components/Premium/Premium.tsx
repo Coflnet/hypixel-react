@@ -105,9 +105,6 @@ function Premium() {
             {
                 hasPremium ?
                     <div>
-                        <p>
-                            Account: {getAccountString()}
-                        </p>
                         <OverlayTrigger
                             overlay={<Tooltip id={generateUUID()}>
                                 <span>{hasPremiumUntil?.toDateString()}</span>
