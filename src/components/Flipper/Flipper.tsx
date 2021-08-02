@@ -360,7 +360,7 @@ function Flipper() {
                                     <Card className="flipper-summary-card">
                                         <Card.Header>
                                             <Card.Title>
-                                                You don't have Premium?
+                                                You don't have Premium
                                             </Card.Title>
                                         </Card.Header>
                                         <Card.Body>
