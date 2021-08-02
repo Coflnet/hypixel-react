@@ -22,6 +22,15 @@ interface Flips {
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
+// Not a state
+// Update should not trigger a rerender for performance reasons
+let missedInfo: FreeFlipperMissInformation = {
+    estimatedProfitCopiedAuctions: 0,
+    missedEstimatedProfit: 0,
+    missedFlipsCount: 0,
+    totalFlips: 0
+}
+
 let mounted = true;
 
 function Flipper() {
@@ -161,6 +170,13 @@ function Flipper() {
                 }
             });
 
+            missedInfo = {
+                estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
+                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + (newFlipAuction.median - newFlipAuction.cost) : missedInfo.missedEstimatedProfit,
+                missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
+                totalFlips: missedInfo.totalFlips + 1
+            }
+
             if (autoscrollRef.current) {
                 let element = document.getElementsByClassName('flipper-scroll-list').length > 0 ? document.getElementsByClassName('flipper-scroll-list').item(0) : null;
                 if (element) {
@@ -191,6 +207,13 @@ function Flipper() {
                 }
             })
         })
+    }
+
+    function onCopyFlip(flip: FlipAuction) {
+        let currentMissedInfo = missedInfo;
+        currentMissedInfo.estimatedProfitCopiedAuctions += flip.median - flip.cost;
+        flip.isCopied = true;
+        setFlips(flips)
     }
 
     function getLowestBinLink(itemTag: string) {
@@ -275,7 +298,7 @@ function Flipper() {
                                 <span className="card-label">Volume: </span>
                                 {flipAuction.volume > 59 ? ">60" : "~" + Math.round(flipAuction.volume * 10) / 10} per day
                             </div>
-                            <CopyButton forceIsCopied={flipAuction.isCopied} onCopy={() => { flipAuction.isCopied = true; setFlips(flips) }} buttonWrapperClass="flip-auction-copy-button" successMessage={<p>Copied ingame link <br /><i>/viewauction {flipAuction.uuid}</i></p>} copyValue={"/viewauction " + flipAuction.uuid} />
+                            <CopyButton forceIsCopied={flipAuction.isCopied} onCopy={() => { onCopyFlip(flipAuction) }} buttonWrapperClass="flip-auction-copy-button" successMessage={<p>Copied ingame link <br /><i>/viewauction {flipAuction.uuid}</i></p>} copyValue={"/viewauction " + flipAuction.uuid} />
                         </div>
                     </Card.Body>
                 </Card>
@@ -371,7 +394,7 @@ function Flipper() {
                 selectedAuctionUUID ?
                     <div>
                         <hr />
-                        <Card>
+                        <Card className="card">
                             <Card.Header>
                                 <Card.Title>Auction-Details</Card.Title>
                             </Card.Header>
@@ -381,20 +404,76 @@ function Flipper() {
                         </Card>
                     </div> : ""
             }
-            {isLoggedIn && refInfo ?
-                <div>
-                    <hr />
+            {
+                isLoggedIn && refInfo ?
+                    <div>
+                        <hr />
 
-                    <Card>
-                        <Card.Header>
-                            <Card.Title>How to get premium for free</Card.Title>
-                        </Card.Header>
-                        <Card.Body>
-                            Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.<br />
-                            Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} />
-                        </Card.Body>
-                    </Card>
-                </div> : ""
+                        <Card>
+                            <Card.Header>
+                                <Card.Title>How to get premium for free</Card.Title>
+                            </Card.Header>
+                            <Card.Body>
+                                Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.<br />
+                                Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} />
+                            </Card.Body>
+                        </Card>
+                    </div> : ""
+            }
+
+            {
+                !isLoading && isLoggedIn && hasPremium ?
+                    <div>
+                        <hr />
+                        <Card>
+                            <Card.Header>
+                                <Card.Title>Flipper summary</Card.Title>
+                            </Card.Header>
+                            <Card.Body>
+                                <div className="flipper-summary-wrapper">
+                                    <Card className="flipper-summary-card">
+                                        <Card.Header>
+                                            <Card.Title>
+                                                You got:
+                                            </Card.Title>
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <ul>
+                                                <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
+                                                <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                            </ul>
+                                        </Card.Body>
+                                    </Card>
+                                    <Card className="flipper-summary-card">
+                                        <Card.Header>
+                                            <Card.Title>
+                                                You don't have Premium
+                                            </Card.Title>
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <ul>
+                                                <li>
+                                                    <span style={{ marginRight: "10px" }}>Missed Profit: {numberWithThousandsSeperators(missedInfo.missedEstimatedProfit)} Coins</span>
+                                                    <Tooltip type="hover" content={<HelpIcon />}
+                                                        tooltipContent={<span>This is the sum of the field 'Estimated profit' of the flips that were already sold when you received them. It represents the extra coins you could earn if you purchased our premium plan</span>} />
+                                                </li>
+                                                <li>Missed Flips: {numberWithThousandsSeperators(missedInfo.missedFlipsCount)}</li>
+                                            </ul>
+                                        </Card.Body>
+                                    </Card>
+                                    <Card style={{ flexGrow: 2 }} className="flipper-summary-card">
+                                        <Card.Header>
+                                            <Card.Title>How to get premium for free</Card.Title>
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <p>Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.</p>
+                                            <p>Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} /></p>
+                                        </Card.Body>
+                                    </Card>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </div> : ""
             }
 
             <hr />

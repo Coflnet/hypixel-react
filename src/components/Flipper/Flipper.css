@@ -9,7 +9,7 @@
     background-color: #272b30;
 }
 
-.flipper .card {
+.flipper .flip-container .card {
     height: 100%;
     min-width: 200px;
 }
@@ -91,4 +91,35 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.flipper fieldset {
+    background-color: #444;
+    border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+    padding: 5px;
+}
+
+.flipper .flipper-summary-card {
+    flex-grow: 1;
+    margin: 0 5px 0 5px;
+    min-width: 300px;
+}
+
+.flipper .flipper-summary-wrapper {
+    display: flex;
+    align-content: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+}
+
+@media (max-width: 1200px) {
+    .flipper .flipper-summary-card {
+        max-width: 100%;
+        width: 100%;
+        margin-bottom: 15px;
+        min-width: 100%;
+    }
+    .flipper .flipper-summary-wrapper {
+        flex-wrap: wrap;
+    }
 }

@@ -280,3 +280,10 @@ interface RefInfo {
   receivedHours: number,
   bougthPremium: number
 }
+
+interface FreeFlipperMissInformation {
+  totalFlips: number,
+  missedFlipsCount: number,
+  missedEstimatedProfit: number,
+  estimatedProfitCopiedAuctions: number
+}
