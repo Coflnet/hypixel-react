@@ -108,7 +108,8 @@
 
 .flipper .flipper-summary-card {
     flex-grow: 1;
-    margin: 0 20px 0 20px;
+    margin: 0 5px 0 5px;
+    min-width: 300px;
 }
 
 .flipper .flipper-summary-wrapper {
@@ -118,11 +119,12 @@
     flex-wrap: nowrap;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
     .flipper .flipper-summary-card {
         max-width: 100%;
         width: 100%;
         margin-bottom: 15px;
+        min-width: 100%;
     }
     .flipper .flipper-summary-wrapper {
         flex-wrap: wrap;
