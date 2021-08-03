@@ -18,6 +18,11 @@ interface Props {
     isPrefill?: boolean
 }
 
+const groupedFilter = [
+    ["Enchantment", "EnchantLvl"],
+    ["SecondEnchantment", "SecondEnchantLvl"]
+];
+
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true;
 
@@ -52,8 +57,29 @@ function ItemFilter(props: Props) {
         itemFilter = getItemFilterFromUrl()
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true);
-            Object.keys(itemFilter).forEach(name => enableFilter(name));
+            Object.keys(itemFilter).forEach(name => {
+                enableFilter(name);
+                enableGroupedFilter(name);
+            });
             setItemFilter(itemFilter);
+        }
+    }
+
+    function enableGroupedFilter(filterName) {
+        let index = groupedFilter.findIndex(group => {
+            let groupIndex = group.findIndex(element => {
+                return filterName === element;
+            })
+            return groupIndex !== -1
+        })
+
+        if (index !== -1) {
+            let groupToEnable = groupedFilter[index];
+            groupToEnable.forEach(filter => {
+                if (filter !== filterName) {
+                    enableFilter(filter);
+                }
+            })
         }
     }
 
@@ -61,9 +87,6 @@ function ItemFilter(props: Props) {
 
         if (selectedFilters.some(n => n === filterName)) {
             return;
-        }
-        if (filterName === "Enchantment") {
-            enableFilter("EnchantLvl");
         }
 
         selectedFilters = [filterName, ...selectedFilters];
@@ -87,6 +110,7 @@ function ItemFilter(props: Props) {
         let filterName = event.target.options[selectedIndex].getAttribute('data-id')!;
 
         enableFilter(filterName);
+        enableGroupedFilter(filterName);
     }
 
     let onFilterRemove = () => {
