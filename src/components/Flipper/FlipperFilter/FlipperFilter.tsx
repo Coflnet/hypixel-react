@@ -22,6 +22,7 @@ function FlipperFilter(props: Props) {
     let [onlyBin, setOnlyBin] = useState(false);
     let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium);
     let [minProfit, setMinProfit] = useState(0);
+    let [minVolume, setMinVolume] = useState(0);
     let [maxCost, setMaxCost] = useState<number>();
     let [freePremiumFilters, setFreePremiumFilters] = useState(false);
     let [freeLoginFilters, setFreeLoginFilters] = useState(false);
@@ -48,7 +49,7 @@ function FlipperFilter(props: Props) {
         if (onlyUnsoldRef.current) {
             let checked = (onlyUnsoldRef.current! as HTMLInputElement).checked;
             setOnlyUnsold(checked);
-            onlyUnsold = checked; 
+            onlyUnsold = checked;
             props.onChange(getCurrentFilter());
         }
     }, [props.isPremium])
@@ -58,23 +59,24 @@ function FlipperFilter(props: Props) {
             onlyBin: onlyBin,
             minProfit: minProfit,
             maxCost: maxCost,
-            onlyUnsold: onlyUnsold
+            onlyUnsold: onlyUnsold,
+            minVolume: minVolume
         }
     }
 
-    let onOnlyBinChange = (event: ChangeEvent<HTMLInputElement>) => {
+    function onOnlyBinChange(event: ChangeEvent<HTMLInputElement>) {
         setOnlyBin(event.target.checked);
         let filter = getCurrentFilter();
         filter.onlyBin = event.target.checked;
         props.onChange(filter);
     }
 
-    let onOnlyUnsoldChange = (event: ChangeEvent<HTMLInputElement>) => {
+    function onOnlyUnsoldChange(event: ChangeEvent<HTMLInputElement>) {
         let isActive = event.target.checked;
         updateOnlyUnsold(isActive);
     }
 
-    let onMinProfitChange = (event: ChangeEvent<HTMLInputElement>) => {
+    function onMinProfitChange(event: ChangeEvent<HTMLInputElement>) {
         let val = parseInt(event.target.value);
         setMinProfit(val)
         let filter = getCurrentFilter();
@@ -82,7 +84,7 @@ function FlipperFilter(props: Props) {
         props.onChange(filter);
     }
 
-    let onMaxCostChange = (event: ChangeEvent<HTMLInputElement>) => {
+    function onMaxCostChange(event: ChangeEvent<HTMLInputElement>) {
         let val = parseInt(event.target.value);
         setMaxCost(val)
         let filter = getCurrentFilter();
@@ -94,6 +96,14 @@ function FlipperFilter(props: Props) {
         setOnlyUnsold(isActive);
         let filter = getCurrentFilter();
         filter.onlyUnsold = isActive;
+        props.onChange(filter);
+    }
+
+    function onMinVolumeChange(event: ChangeEvent<HTMLInputElement>) {
+        let val = parseInt(event.target.value);
+        setMinVolume(val)
+        let filter = getCurrentFilter();
+        filter.minVolume = val;
         props.onChange(filter);
     }
 
@@ -124,13 +134,17 @@ function FlipperFilter(props: Props) {
         <Form.Check ref={onlyUnsoldRef} id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={props.isPremium} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
     </Form.Group>;
 
-    const numberFilters = <div>
-        <Form.Group style={{ width: "45%", display: "inline-block" }}>
-            <Form.Label className="flipper-filter-formfield-label">Min Profit:</Form.Label>
+    const numberFilters = <div style={{ display: "flex", alignContent: "center", justifyContent: "flex-start" }}>
+        <Form.Group className="filterTextfield">
+            <Form.Label className="flipper-filter-formfield-label">Min. Profit:</Form.Label>
             <Form.Control onChange={onMinProfitChange} className="flipper-filter-formfield" type="number" step={5000} disabled={!props.isLoggedIn && !freeLoginFilters} />
         </Form.Group>
-        <Form.Group style={{ width: "45%", display: "inline-block", marginLeft: "5%" }}>
-            <Form.Label className="flipper-filter-formfield-label">Max Cost:</Form.Label>
+        <Form.Group className="filterTextfield">
+            <Form.Label className="flipper-filter-formfield-label">Min. Volume:</Form.Label>
+            <Form.Control onChange={onMinVolumeChange} className="flipper-filter-formfield" type="number" max={60} disabled={!props.isLoggedIn && !freeLoginFilters} />
+        </Form.Group>
+        <Form.Group className="filterTextfield">
+            <Form.Label className="flipper-filter-formfield-label">Max. Cost:</Form.Label>
             <Form.Control onChange={onMaxCostChange} className="flipper-filter-formfield" type="number" step={20000} disabled={!props.isLoggedIn && !freeLoginFilters} />
         </Form.Group>
     </div>;

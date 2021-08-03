@@ -6,7 +6,7 @@ import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Form
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon } from '@material-ui/icons';
+import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, Settings as SettingsIcon } from '@material-ui/icons';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
 import AuctionDetails from '../AuctionDetails/AuctionDetails';
@@ -246,6 +246,9 @@ function Flipper() {
         if (filter?.onlyUnsold === true && flipAuction.sold) {
             return false;
         }
+        if (filter?.minVolume !== undefined && filter?.minVolume >= flipAuction.volume) {
+            return false;
+        }
         return true;
     }
 
@@ -338,28 +341,31 @@ function Flipper() {
                 <Card.Body>
                     <div id="flipper-card-body">
                         <FlipperFilter onChange={onFilterChange} isLoggedIn={isLoggedIn} isPremium={hasPremium} />
-                        <Form inline >
+                        <hr />
+                        <Form inline style={{ justifyContent: "space-evenly" }}>
                             <Form.Group>
-                                <div>
-                                    <Form.Label htmlFor="autoScrollCheckbox" style={{ float: "left", marginRight: "10px" }}>Auto-Scroll?</Form.Label>
-                                    <Form.Check id="autoScrollCheckbox" checked={autoscroll} onChange={(e) => { _setAutoScroll(e.target.checked) }} type="checkbox" />
+                                <Form.Label htmlFor="autoScrollCheckbox" style={{ marginRight: "10px" }}>Auto-Scroll?</Form.Label>
+                                <Form.Check inline id="autoScrollCheckbox" checked={autoscroll} onChange={(e) => { _setAutoScroll(e.target.checked) }} type="checkbox" />
+                            </Form.Group>
+                            <Form.Group>
+                                <div style={{ display: "contents", cursor: "pointer", marginRight: "10px" }} onClick={clearFlips}>
+                                    <Form.Label>Clear flips!</Form.Label>
+                                    <DeleteIcon color="error" />
                                 </div>
                             </Form.Group>
                             <Form.Group onClick={onArrowRightClick}>
-                                <Form.Label style={{ cursor: "pointer" }}>To newest:</Form.Label>
+                                <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>Change flip style</Form.Label>
+                                <span style={{ cursor: "pointer" }}> <SettingsIcon /></span>
+                            </Form.Group>
+                            {
+                                hasPremium ?
+                                    <span>The flipper is stuck <Tooltip type="hover" content={<HelpIcon />} tooltipContent={<span>We get new auctions every 60 sec. from Hypixel. So you may have to wait a bit for a new ones to be found.</span>} /></span> : ""
+                            }
+                            <Form.Group onClick={onArrowRightClick}>
+                                <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>To newest flip</Form.Label>
                                 <span style={{ cursor: "pointer" }}> <ArrowRightIcon /></span>
                             </Form.Group>
-                            <Form.Group>
-                                <span onClick={clearFlips}>
-                                    <Form.Label style={{ cursor: "pointer" }}>Clear flips:</Form.Label>
-                                    <span style={{ cursor: "pointer" }}><DeleteIcon color="error" /></span>
-                                </span>
-                            </Form.Group>
-                            {hasPremium ?
-                                <p>The flipper is stuck <Tooltip type="hover" content={<HelpIcon />} tooltipContent={<span>We get new auctions every 60 sec. from Hypixel. So you may have to wait a bit for a new ones to be found.</span>} /></p> : ""
-                            }
                         </Form>
-                        <hr />
                         {
                             flips.filtered.length === 0 ?
                                 <div>

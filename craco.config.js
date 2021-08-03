@@ -21,6 +21,7 @@ module.exports = {
                         /^react-datepicker.*/,
                         /^container.*/,
                         /^pro-*/,
+                        /^form-*/,
                         'btn',
                         'active',
                         'body',
