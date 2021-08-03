@@ -158,12 +158,13 @@ function Flipper() {
         flipLookup[newFlipAuction.uuid] = newFlipAuction;
 
         api.getItemImageUrl(newFlipAuction.item).then((url) => {
+
+            let isValid = isValidForFilter(newFlipAuction);
+
             newFlipAuction.item.iconUrl = url;
             newFlipAuction.showLink = true;
 
             setFlips(flips => {
-                let isValid = isValidForFilter(newFlipAuction);
-
                 return {
                     all: [...flips.all, newFlipAuction],
                     filtered: isValid ? [...flips.filtered, newFlipAuction] : flips.filtered
@@ -177,7 +178,7 @@ function Flipper() {
                 totalFlips: missedInfo.totalFlips + 1
             }
 
-            if (autoscrollRef.current) {
+            if (autoscrollRef.current && isValid) {
                 let element = document.getElementsByClassName('flipper-scroll-list').length > 0 ? document.getElementsByClassName('flipper-scroll-list').item(0) : null;
                 if (element) {
                     element.scrollBy({ left: 16000, behavior: 'smooth' })
