@@ -60,6 +60,10 @@ function Payment(props: Props) {
   }
 
   function loadPayPalButton(): void {
+    if (!paypal) {
+      setTimeout(() => loadPayPalButton(), 100);
+      return;
+    }
     products.forEach(productGroup => {
       productGroup.forEach(product => {
         if (product.paymentProviderName !== 'paypal') return;
@@ -121,7 +125,6 @@ function Payment(props: Props) {
           {productGroup.map((product, i) => {
             return (
               <div key={product.itemId}>
-                <span className="premium-price">Price: {roundToTwo(product.price.value)}</span>
                 <p className="premium-price">Price: {roundToTwo(product.price.value)}
                   {product?.paymentProviderName === 'paypal' ? <Tooltip content={<span style={{ marginLeft: "5px" }}><HelpIcon /></span>} type="hover" tooltipContent={<p>Higher price than with credit card due to higher fees</p>} /> : ""}
                 </p>

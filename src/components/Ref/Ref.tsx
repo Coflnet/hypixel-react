@@ -64,8 +64,8 @@ function Ref(props: Props) {
                             <ul>
                                 {linkExample("https://sky.coflnet.com/item/JERRY_STAFF")}
                                 {linkExample("https://sky.coflnet.com/player/b876ec32e396476ba1158438d83c67d4")}
-                                {linkExample("https://sky.coflnet.com/auction/6e4fbece3ece4dc4a4d2af46edbbb7db")}
                                 {linkExample("https://sky.coflnet.com/flipper")}
+                                {linkExample("https://sky.coflnet.com/auction/6e4fbece3ece4dc4a4d2af46edbbb7db")}
                             </ul>
                         </Card.Body>
                     </Card>
@@ -90,8 +90,8 @@ function Ref(props: Props) {
 
     function linkExample(link: string) {
         let full = link + "?refId=" + refInfo?.refId;
-        return <li><Link to={full}>{full}</Link> 
-            <CopyButton copyValue={full} successMessage={<span>copied Link</span>}/></li>;
+        return <li><Link to={full}>{full}</Link>
+            <CopyButton buttonWrapperClass="copy-button" copyValue={full} successMessage={<span>copied Link</span>} /></li>;
     }
 }
 //
