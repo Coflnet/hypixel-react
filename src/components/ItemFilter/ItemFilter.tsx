@@ -59,13 +59,16 @@ function ItemFilter(props: Props) {
             setExpanded(true);
             Object.keys(itemFilter).forEach(name => {
                 enableFilter(name);
-                enableGroupedFilter(name);
+                getGroupedFilter(name).forEach(filter => enableFilter(filter));
             });
             setItemFilter(itemFilter);
         }
     }
 
-    function enableGroupedFilter(filterName) {
+    function getGroupedFilter(filterName: string): string[] {
+
+        let result: string[] = [];
+
         let index = groupedFilter.findIndex(group => {
             let groupIndex = group.findIndex(element => {
                 return filterName === element;
@@ -77,10 +80,12 @@ function ItemFilter(props: Props) {
             let groupToEnable = groupedFilter[index];
             groupToEnable.forEach(filter => {
                 if (filter !== filterName) {
-                    enableFilter(filter);
+                    result.push(filter);
                 }
             })
         }
+
+        return result;
     }
 
     let enableFilter = (filterName: string) => {
@@ -110,14 +115,19 @@ function ItemFilter(props: Props) {
         let filterName = event.target.options[selectedIndex].getAttribute('data-id')!;
 
         enableFilter(filterName);
-        enableGroupedFilter(filterName);
+        getGroupedFilter(filterName).forEach(filter => enableFilter(filter));
     }
 
-    let onFilterRemove = () => {
+    let onFilterClose = () => {
         setSelectedFilters([]);
         setExpanded(false);
         setItemFilter({});
         onFilterChange({});
+    }
+
+    function onFilterRemoveClick(filterName: string) {
+        removeFilter(filterName);
+        getGroupedFilter(filterName).forEach(filter => removeFilter(filter));
     }
 
     function removeFilter(filterName: string) {
@@ -127,7 +137,9 @@ function ItemFilter(props: Props) {
             updateURLQuery(itemFilter);
             onFilterChange(itemFilter);
         }
-        setSelectedFilters(selectedFilters.filter(f => f !== filterName))
+        let newSelectedFilters = selectedFilters.filter(f => f !== filterName);
+        selectedFilters = newSelectedFilters;
+        setSelectedFilters(newSelectedFilters);
     }
 
     let onEnable = () => {
@@ -147,7 +159,7 @@ function ItemFilter(props: Props) {
     let updateURLQuery = (filter?: ItemFilter) => {
         let filterString = filter && JSON.stringify(filter) === "{}" ? undefined : btoa(JSON.stringify(filter));
 
-        let searchString = filterString ? setURLSearchParam("itemFilter", filterString) : window.location.search;
+        let searchString = setURLSearchParam("itemFilter", filterString || "");
 
         history.replace({
             pathname: history.location.pathname,
@@ -155,11 +167,37 @@ function ItemFilter(props: Props) {
         })
     }
 
-    function onFilterChange(filter?: ItemFilter) {
+    function onFilterChange(filter: ItemFilter) {
+
+        let valid = true;
+        Object.keys(filter).forEach(key => {
+            if (!checkForValidGroupedFilter(key, filter)) {
+                valid = false;
+                return;
+            }
+        })
+
+        if (!valid) {
+            return;
+        }
+
         setItemFilter(filter!);
         if (props.onFilterChange) {
             props.onFilterChange(filter);
         }
+    }
+
+    function checkForValidGroupedFilter(filterName: string, filter: ItemFilter): boolean {
+        let groupFilters = getGroupedFilter(filterName);
+
+        let invalid = false;
+        groupFilters.forEach(name => {
+            if (filter[name] === undefined || filter[name] === null) {
+                invalid = true;
+            }
+        })
+
+        return !invalid;
     }
 
     function onFilterElementChange(filter?: ItemFilter) {
@@ -192,7 +230,7 @@ function ItemFilter(props: Props) {
         return (
             <div key={filterName} className="filter-element">
                 <FilterElement onFilterChange={onFilterElementChange} options={options} defaultValue={defaultValue} />
-                <div style={{ height: "100%", position: "relative" }} className="remove-filter" onClick={() => removeFilter(filterName)}>
+                <div style={{ height: "100%", position: "relative" }} className="remove-filter" onClick={() => onFilterRemoveClick(filterName)}>
                     <DeleteIcon style={{ top: "50px", position: "absolute" }} color="error" />
                 </div>
             </div>
@@ -266,7 +304,7 @@ function ItemFilter(props: Props) {
                             </div>
                         </Form >
                         <div>
-                            <Button className="btn-danger" onClick={() => onFilterRemove()} disabled={props.disabled}>Close</Button>
+                            <Button className="btn-danger" onClick={() => onFilterClose()} disabled={props.disabled}>Close</Button>
                         </div>
                     </Card.Body>
                 </Card>

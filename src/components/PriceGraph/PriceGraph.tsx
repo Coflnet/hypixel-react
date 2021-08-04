@@ -147,11 +147,9 @@ function PriceGraph(props: Props) {
     let onFilterChange = (filter: ItemFilter) => {
         setItemFilter(filter);
         setDefaultRangeSwitch(!defaultRangeSwitch);
-        setTimeout(() => {
-            if (fetchspanRef.current > 0) {
-                updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
-            }
-        }, 100)
+        if (fetchspanRef.current > 0) {
+            updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
+        }
     }
 
     function loadFilters() {
