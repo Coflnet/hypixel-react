@@ -112,6 +112,10 @@
     flex-wrap: nowrap;
 }
 
+.flipper .form-check-input {
+    margin-left: 0;
+}
+
 @media (max-width: 1200px) {
     .flipper .flipper-summary-card {
         max-width: 100%;
