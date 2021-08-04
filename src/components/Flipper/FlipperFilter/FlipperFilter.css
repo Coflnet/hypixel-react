@@ -4,10 +4,11 @@
 
 .only-bin-label {
     float: left;
-    margin-right: 15px;
+    min-width: 170px;
 }
 
-.premium-filters {
-    width: 50%;
-    min-width: 300px;
+.filterTextfield {
+    width: 33%;
+    padding-left: 10px;
+    padding-right: 10px;
 }

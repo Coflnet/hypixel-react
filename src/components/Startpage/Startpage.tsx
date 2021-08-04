@@ -88,6 +88,11 @@ function Startpage() {
         })
     }
 
+    function getEndString(end: Date) {
+        let momentDate = moment(end);
+        return end.getTime() < new Date().getTime() ? "Ended " + momentDate.fromNow() : "Ends " + momentDate.fromNow()
+    }
+
     function getAuctionElement(auction: Auction) {
         return (
             <div className="card-wrapper" key={auction.uuid}>
@@ -102,7 +107,7 @@ function Startpage() {
                         <Card.Body>
                             <div>
                                 <ul>
-                                    <li>Ends {moment(auction.end).fromNow()}</li>
+                                    <li>{getEndString(auction.end)}</li>
                                     <li>{numberWithThousandsSeperators(auction.highestBid || auction.startingBid)} Coins</li>
                                     {auction.bin ? <li><Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge></li> : ""}
                                 </ul>
