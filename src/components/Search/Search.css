@@ -8,11 +8,6 @@
     margin-right: 20px;
 }
 
-.searchBar {
-    display: inline;
-    width: calc(100% - 48px);
-}
-
 .bar {
     display: flex;
 }
@@ -20,4 +15,16 @@
 .current {
     flex-grow: 100;
     font-size: 1rem;
+}
+
+.form-control {
+    background-color: #303030;
+    color: white;
+}
+
+.form-control:focus {
+    background-color: #303030;
+    color: white;
+    border-color: #222;
+    box-shadow: none;
 }
