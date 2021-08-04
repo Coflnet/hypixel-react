@@ -4,7 +4,7 @@
     margin-top: 20px;
 }
 
-.search-result-icon {
+.search .search-result-icon {
     margin-right: 20px;
 }
 
@@ -12,17 +12,17 @@
     display: flex;
 }
 
-.current {
+.search .current {
     flex-grow: 100;
     font-size: 1rem;
 }
 
-.form-control {
+.search .form-control {
     background-color: #303030;
     color: white;
 }
 
-.form-control:focus {
+.search .form-control:focus {
     background-color: #303030;
     color: white;
     border-color: #222;
