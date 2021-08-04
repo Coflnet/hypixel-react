@@ -246,8 +246,8 @@ function Flipper() {
         if (filter?.onlyUnsold === true && flipAuction.sold) {
             return false;
         }
-        if (filter?.minVolume !== undefined && filter?.minVolume >= flipAuction.volume) {
-            return false;
+        if (filter?.minVolume !== undefined) {
+            return filter?.minVolume >= 0 ? filter?.minVolume <= flipAuction.volume : Math.abs(filter?.minVolume) >= flipAuction.volume;
         }
         return true;
     }
@@ -352,10 +352,6 @@ function Flipper() {
                                     <Form.Label>Clear flips!</Form.Label>
                                     <DeleteIcon color="error" />
                                 </div>
-                            </Form.Group>
-                            <Form.Group onClick={onArrowRightClick}>
-                                <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>Change flip style</Form.Label>
-                                <span style={{ cursor: "pointer" }}> <SettingsIcon /></span>
                             </Form.Group>
                             {
                                 hasPremium ?
