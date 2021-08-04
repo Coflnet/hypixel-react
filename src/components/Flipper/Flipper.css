@@ -127,3 +127,13 @@
         flex-wrap: wrap;
     }
 }
+
+.flipper .flipper-settings-form {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.flipper .flipper-settings-form .form-group {
+    margin-bottom: 0;
+}

@@ -343,10 +343,10 @@ function Flipper() {
                     <div id="flipper-card-body">
                         <FlipperFilter onChange={onFilterChange} isLoggedIn={isLoggedIn} isPremium={hasPremium} />
                         <hr />
-                        <Form inline style={{ justifyContent: "space-evenly" }}>
+                        <Form className="flipper-settings-form">
                             <Form.Group>
                                 <Form.Label htmlFor="autoScrollCheckbox" style={{ marginRight: "10px" }}>Auto-Scroll?</Form.Label>
-                                <Form.Check inline id="autoScrollCheckbox" checked={autoscroll} onChange={(e) => { _setAutoScroll(e.target.checked) }} type="checkbox" />
+                                <Form.Check style={{ display: "inline" }} id="autoScrollCheckbox" checked={autoscroll} onChange={(e) => { _setAutoScroll(e.target.checked) }} type="checkbox" />
                             </Form.Group>
                             <Form.Group>
                                 <div style={{ display: "contents", cursor: "pointer", marginRight: "10px" }} onClick={clearFlips}>
@@ -363,6 +363,7 @@ function Flipper() {
                                 <span style={{ cursor: "pointer" }}> <ArrowRightIcon /></span>
                             </Form.Group>
                         </Form>
+                        <hr />
                         {
                             flips.filtered.length === 0 ?
                                 <div>
