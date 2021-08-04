@@ -250,14 +250,20 @@ function Flipper() {
     }
 
     let getFlipElement = (flipAuction: FlipAuction, style) => {
+
+        let stars = flipAuction.item.name?.match(/✪+/gm);
+        let itemName = stars && flipAuction.item.name ? flipAuction.item.name.split(stars[0])[0] : flipAuction.item.name;
+
+
         return (
             <div className="card-wrapper" key={flipAuction.uuid} style={style}>
                 <Card className="flip-auction-card" style={{ cursor: "pointer" }} onClick={() => { setSelectedAuctionUUID(flipAuction.uuid) }}>
-                    <Card.Header style={{ padding: "10px" }}>
-                        <div className="ellipse" style={{ width: flipAuction.bin && flipAuction.sold ? "60%" : "80%", float: "left" }}>
+                    <Card.Header style={{ padding: "10px", display: "flex", justifyContent: "space-between" }}>
+                        <div className="ellipse">
                             <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                            <span style={getStyleForTier(flipAuction.item.tier)}>{flipAuction.item.name}</span>
+                            <span style={getStyleForTier(flipAuction.item.tier)}>{itemName}</span>
                         </div>
+                        <span style={getStyleForTier(flipAuction.item.tier)}>{stars ? stars[0] : ""}</span>
                         {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
                         {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
                     </Card.Header>
