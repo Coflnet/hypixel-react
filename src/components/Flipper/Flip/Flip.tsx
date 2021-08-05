@@ -69,14 +69,18 @@ function Flip(props: Props) {
         return settings;
     }
 
+    let stars = props.flip.item.name?.match(/✪+/gm);
+    let itemName = stars && props.flip.item.name ? props.flip.item.name.split(stars[0])[0] : props.flip.item.name;
+
     return (
         <div className="flip" key={props.flip.uuid} style={props.style}>
             <Card className="flip-auction-card" style={{ cursor: "pointer" }} onClick={onCardClick}>
-                <Card.Header style={{ padding: "10px" }}>
-                    <div className="ellipse" style={{ width: props.flip.bin && props.flip.sold ? "60%" : "80%", float: "left" }}>
+                <Card.Header style={{ padding: "10px", display: "flex", justifyContent: "space-between" }}>
+                    <div className="ellipse">
                         <img crossOrigin="anonymous" src={props.flip.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                        <span style={getStyleForTier(props.flip.item.tier)}>{props.flip.item.name}</span>
+                        <span style={getStyleForTier(props.flip.item.tier)}>{itemName}</span>
                     </div>
+                    <span style={getStyleForTier(props.flip.item.tier)}>{stars ? stars[0] : ""}</span>
                     {props.flip.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
                     {props.flip.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
                 </Card.Header>

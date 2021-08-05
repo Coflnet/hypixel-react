@@ -308,10 +308,10 @@ function Flipper() {
                     <div id="flipper-card-body">
                         <FlipperFilter onChange={onFilterChange} isLoggedIn={isLoggedIn} isPremium={hasPremium} />
                         <hr />
-                        <Form inline style={{ justifyContent: "space-evenly" }}>
+                        <Form className="flipper-settings-form">
                             <Form.Group>
                                 <Form.Label htmlFor="autoScrollCheckbox" style={{ marginRight: "10px" }}>Auto-Scroll?</Form.Label>
-                                <Form.Check inline id="autoScrollCheckbox" checked={autoscroll} onChange={(e) => { _setAutoScroll(e.target.checked) }} type="checkbox" />
+                                <Form.Check style={{ display: "inline" }} id="autoScrollCheckbox" checked={autoscroll} onChange={(e) => { _setAutoScroll(e.target.checked) }} type="checkbox" />
                             </Form.Group>
                             <Form.Group>
                                 <div style={{ display: "contents", cursor: "pointer", marginRight: "10px" }} onClick={clearFlips}>
@@ -332,6 +332,7 @@ function Flipper() {
                                 <span style={{ cursor: "pointer" }}> <ArrowRightIcon /></span>
                             </Form.Group>
                         </Form>
+                        <hr />
                         {
                             flips.filtered.length === 0 ?
                                 <div>
@@ -356,7 +357,7 @@ function Flipper() {
                     </div>
                 </Card.Body>
                 <Card.Footer>
-                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a>.
+                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
                     <hr />
                     {isLoggedIn ? "" : <span>These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit.
                         Keep in mind that these are delayed to protect our paying supporters.
@@ -472,7 +473,7 @@ function Flipper() {
                     <p>The lowest bin gives you an indication how much this item type is worth. It displays the lowest price for a given item type and ignores modifiers. You can click it.</p>
                     <h3>Should I flip an item with low volume?</h3>
                     <p>If you have to ask this question, the answer probably no. Low volume items require some user expertise to determine if the item actually is a good flip or not. However since its sold so infrequently it may be a niche item that has a higher profit margin.</p>
-                    <h3>I have another question/ Bug report</h3> Ask via <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a> or <a target="_blank" href="/feedback" rel="noreferrer">feedback site</a>
+                    <h3>I have another question/ Bug report</h3> Ask via <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a> or <a target="_blank" href="/feedback" rel="noreferrer">feedback site</a>
                 </Card.Body>
             </Card>
             {basedOnDialog}
