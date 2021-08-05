@@ -138,7 +138,8 @@ interface FlipAuction {
   sold?: boolean,
   sellerName: string,
   lowestBin: number,
-  isCopied?: boolean
+  isCopied?: boolean,
+  props?: string[]
 }
 
 interface FlipperFilter {
