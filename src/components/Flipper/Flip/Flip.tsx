@@ -130,6 +130,24 @@ function Flip(props: Props) {
                                 </b>
                             </p>
                     }
+                    {
+                        props.flip.props && props.flip.props?.length > 0 && (settings.maxExtraInfoFields!) > 0 ?
+                            <span>
+                                <hr />
+                                <ul>
+                                    {
+                                        props.flip.props?.map((prop, i) => {
+                                            if (i >= settings.maxExtraInfoFields!) {
+                                                return ""
+                                            } else {
+                                                return <li key={prop}>{prop}</li>
+                                            }
+                                        })
+
+                                    }
+                                </ul>
+                            </span> : ""
+                    }
                     <hr />
                     <div className="flex">
                         {

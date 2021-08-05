@@ -304,7 +304,7 @@ export function parseFlipAuction(flip): FlipAuction {
         sold: flip.sold,
         sellerName: flip.sellerName,
         lowestBin: flip.lowestBin,
-        props: flip.props
+        props: flip.prop
     }
 }
 

@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom';
 import Tooltip from '../Tooltip/Tooltip';
 import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
+import { DEMO_FLIP } from '../../utils/FlipUtils';
 
 interface Flips {
     all: FlipAuction[],
@@ -34,6 +35,7 @@ let missedInfo: FreeFlipperMissInformation = {
 }
 
 let mounted = true;
+
 
 function Flipper() {
 
@@ -335,18 +337,20 @@ function Flipper() {
                         }
                         <hr />
                         {flips.filtered.length > 0 ?
-                            <List
-                                ref={listRef}
-                                className="flipper-scroll-list"
-                                height={475}
-                                itemCount={flips.filtered.length}
-                                itemData={{ flips: flips.filtered }}
-                                itemSize={330}
-                                layout="horizontal"
-                                width={document.getElementById('flipper-card-body')?.offsetWidth || 100}
-                            >
-                                {getFlipForList}
-                            </List>
+                            <div id="flipper-scroll-list-wrapper">
+                                <List
+                                    ref={listRef}
+                                    className="flipper-scroll-list"
+                                    height={document.getElementById('maxHeightDummyFlip')?.offsetHeight}
+                                    itemCount={flips.filtered.length}
+                                    itemData={{ flips: flips.filtered }}
+                                    itemSize={330}
+                                    layout="horizontal"
+                                    width={document.getElementById('flipper-card-body')?.offsetWidth || 100}
+                                >
+                                    {getFlipForList}
+                                </List>
+                            </div>
                             : ""}
                     </div>
                 </Card.Body>
@@ -470,6 +474,9 @@ function Flipper() {
                     <h3>I have another question/ Bug report</h3> Ask via <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a> or <a target="_blank" href="/feedback" rel="noreferrer">feedback site</a>
                 </Card.Body>
             </Card>
+            <div id="maxHeightDummyFlip" style={{ position: "absolute", top: -1000, padding: "20px" }}>
+                <Flip flip={DEMO_FLIP} />
+            </div>
             {basedOnDialog}
             {customizeFlipDialog}
         </div >

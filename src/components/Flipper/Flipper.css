@@ -9,11 +9,6 @@
     background-color: #272b30;
 }
 
-.flipper .flip-container .card {
-    height: 100%;
-    min-width: 200px;
-}
-
 .flipper .flip-auction-card {
     height: 100%;
     width: 300px;

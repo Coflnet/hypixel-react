@@ -1,28 +1,9 @@
 import React, { ChangeEvent, useState } from 'react';
 import { Form } from 'react-bootstrap';
+import { DEMO_FLIP } from '../../../utils/FlipUtils';
 import { FLIP_CUSTOMIZING_KEY, getSetting, setSetting } from '../../../utils/SettingsUtils';
 import Flip from '../Flip/Flip';
 import './FlipCustomize.css'
-
-const testFlip: FlipAuction = {
-    bin: true,
-    cost: 7000000,
-    item: {
-        category: "MISC",
-        name: "[Lvl 90] Ocelot",
-        tag: "PET_OCELOT",
-        tier: "LEGENDARY",
-        iconUrl: "https://sky.coflnet.com/static/icon/PET_OCELOT"
-    },
-    lowestBin: 800000,
-    median: 9800000,
-    sellerName: "Testuser",
-    showLink: true,
-    uuid: "e4723502450544c8a3711a0a5b1e8cd0",
-    volume: 5.874998615,
-    sold: true
-}
-
 
 let settings: FlipCustomizeSettings;
 try {
@@ -124,7 +105,7 @@ function FlipCustomize() {
                 </Form>
                 <div className="vertical-line"></div>
                 <div style={{ width: "50%", display: "flex", alignContent: "center", justifyContent: "space-around" }}>
-                    <Flip style={{ width: "300px" }} flip={testFlip} />
+                    <Flip style={{ width: "300px" }} flip={DEMO_FLIP} />
                 </div>
             </div>
         </div>
