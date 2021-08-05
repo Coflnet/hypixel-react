@@ -386,7 +386,7 @@ function Flipper() {
                     </div>
                 </Card.Body>
                 <Card.Footer>
-                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a>.
+                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
                     <hr />
                     {isLoggedIn ? "" : <span>These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit.
                         Keep in mind that these are delayed to protect our paying supporters.
@@ -505,7 +505,7 @@ function Flipper() {
                     <p>The lowest bin gives you an indication how much this item type is worth. It displays the lowest price for a given item type and ignores modifiers. You can click it.</p>
                     <h3>Should I flip an item with low volume?</h3>
                     <p>If you have to ask this question, the answer probably no. Low volume items require some user expertise to determine if the item actually is a good flip or not. However since its sold so infrequently it may be a niche item that has a higher profit margin.</p>
-                    <h3>I have another question/ Bug report</h3> Ask via <a target="_blank" rel="noreferrer" href="https://discord.gg/Qm55WEkgu6">discord</a> or <a target="_blank" href="/feedback" rel="noreferrer">feedback site</a>
+                    <h3>I have another question/ Bug report</h3> Ask via <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a> or <a target="_blank" href="/feedback" rel="noreferrer">feedback site</a>
                 </Card.Body>
             </Card>
             {basedOnDialog}
