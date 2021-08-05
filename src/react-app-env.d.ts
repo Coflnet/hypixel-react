@@ -289,3 +289,13 @@ interface FreeFlipperMissInformation {
   missedEstimatedProfit: number,
   estimatedProfitCopiedAuctions: number
 }
+
+interface FlipCustomizeSettings {
+  hideCost?: boolean,
+  hideLowestBin?: boolean,
+  hideMedianPrice?: boolean,
+  hideSeller?: boolean,
+  hideEstimatedProfit?: boolean,
+  hideVolume?: boolean,
+  maxExtraInfoFields?: number
+}

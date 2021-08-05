@@ -1,0 +1,11 @@
+.flip .flex {
+    display: flex;
+    flex-grow: 0;
+    align-items: center;
+}
+
+.flip .flex-max {
+    flex-grow: 100;
+    display: flex;
+    flex-direction: column;
+}
