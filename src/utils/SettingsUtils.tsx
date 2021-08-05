@@ -1,22 +1,23 @@
-import { toast } from "react-toastify";
+let LOCAL_STORAGE_SETTINGS_KEY = "userSettings";
 
-let localStorageSettingsKey = "userSettings";
-let settings;
+let settings = getInitUserSettings();
+
+function getInitUserSettings(): any {
+    let item = localStorage.getItem(LOCAL_STORAGE_SETTINGS_KEY);
+    if (!item) {
+        item = "{}";
+        localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(item));
+    }
+    return JSON.parse(item);
+}
 
 export function getSetting(key: string): string {
-    if (!settings) {
-        let settings = localStorage.getItem(localStorageSettingsKey);
-        try {
-            settings = JSON.parse(localStorage.getItem(localStorageSettingsKey)!);
-            return settings![key];
-        } catch {
-            toast.error("Error saving user settings");
-        }
-    }
-    return settings[key];
+    return settings[key] || "";
 }
 
 export function setSetting(key: any, value: any) {
     settings[key] = value;
-    localStorage.setItem(localStorageSettingsKey, JSON.stringify(value));
+    localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(settings));
 }
+
+export const FLIP_CUSTOMIZING_KEY = "flipCustomizing";

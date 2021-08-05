@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Badge, Card } from 'react-bootstrap';
 import { getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter';
 import { Help as HelpIcon } from '@material-ui/icons';
 import { CopyButton } from '../../CopyButton/CopyButton';
+import { FLIP_CUSTOMIZING_KEY, getSetting, setSetting } from '../../../utils/SettingsUtils';
+import './Flip.css';
+import { useForceUpdate } from '../../../utils/Hooks';
 
 interface Props {
     flip: FlipAuction,
@@ -13,6 +16,17 @@ interface Props {
 }
 
 function Flip(props: Props) {
+
+    let settings = getFlipCustomizingSettings();
+    let forceUpdate = useForceUpdate();
+
+    useEffect(() => {
+        document.addEventListener('flipSettingsChange', forceUpdate);
+
+        return () => {
+            document.removeEventListener('flipSettingsChange', forceUpdate);
+        }
+    }, [])
 
     function getLowestBinLink(itemTag: string) {
         return '/item/' + itemTag + '?range=active&itemFilter=eyJCaW4iOiJ0cnVlIn0%3D';
@@ -36,6 +50,25 @@ function Flip(props: Props) {
         }
     }
 
+    function getFlipCustomizingSettings(): FlipCustomizeSettings {
+        let settings: FlipCustomizeSettings;
+        try {
+            settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY));
+        } catch {
+            settings = {
+                hideCost: false,
+                hideEstimatedProfit: false,
+                hideLowestBin: false,
+                hideMedianPrice: false,
+                hideSeller: false,
+                hideVolume: false,
+                maxExtraInfoFields: 3
+            };
+            setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
+        }
+        return settings;
+    }
+
     return (
         <div className="flip" key={props.flip.uuid} style={props.style}>
             <Card className="flip-auction-card" style={{ cursor: "pointer" }} onClick={onCardClick}>
@@ -48,42 +81,60 @@ function Flip(props: Props) {
                     {props.flip.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
                 </Card.Header>
                 <Card.Body style={{ padding: "10px" }}>
-                    <p>
-                        <span className="card-label">Cost: </span><br />
-                        <b style={{ color: "red" }}>{numberWithThousandsSeperators(props.flip.cost)} Coins</b>
-                    </p>
-                    <p>
-                        <span className="card-label">Median price: </span><br />
-                        <b>{numberWithThousandsSeperators(props.flip.median)} Coins</b>
-                    </p>
-                    <p>
-                        <span className="card-label">Estimated Profit: </span><br />
-                        <b style={{ color: "lime" }}>
-                            +{numberWithThousandsSeperators(props.flip.median - props.flip.cost)} Coins
-                        </b>
-                        <span style={{ float: "right" }}>
-                            <span onClick={onBasedAuctionClick}><HelpIcon /></span>
-                        </span>
-                    </p>
+                    {
+                        settings.hideCost ? null :
+                            <p>
+                                <span className="card-label">Cost: </span><br />
+                                <b style={{ color: "red" }}>{numberWithThousandsSeperators(props.flip.cost)} Coins</b>
+                            </p>
+                    }
+                    {
+                        settings.hideMedianPrice ? null :
+                            <p>
+                                <span className="card-label">Median price: </span><br />
+                                <b>{numberWithThousandsSeperators(props.flip.median)} Coins</b>
+                            </p>
+                    }
+                    {
+                        settings.hideEstimatedProfit ? null :
+                            <p>
+                                <span className="card-label">Estimated Profit: </span><br />
+                                <b style={{ color: "lime" }}>
+                                    +{numberWithThousandsSeperators(props.flip.median - props.flip.cost)} Coins
+                                </b>
+                                <span style={{ float: "right" }}>
+                                    <span onClick={onBasedAuctionClick}><HelpIcon /></span>
+                                </span>
+                            </p>
+                    }
                     <hr />
-                    <p>
-                        <span className="card-label">Lowest BIN: </span><br />
-                        <a rel="noreferrer" target="_blank" href={getLowestBinLink(props.flip.item.tag)}>
-                            {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
-                        </a>
-                    </p>
-                    <p>
-                        <span className="card-label">Seller: </span><br />
-                        <b>
-                            {props.flip.sellerName}
-                        </b>
-                    </p>
+                    {
+                        settings.hideLowestBin ? null :
+                            <p>
+                                <span className="card-label">Lowest BIN: </span><br />
+                                <a rel="noreferrer" target="_blank" href={getLowestBinLink(props.flip.item.tag)}>
+                                    {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
+                                </a>
+                            </p>
+                    }
+                    {
+                        settings.hideSeller ? null :
+                            <p>
+                                <span className="card-label">Seller: </span><br />
+                                <b>
+                                    {props.flip.sellerName}
+                                </b>
+                            </p>
+                    }
                     <hr />
                     <div className="flex">
-                        <div className="flex-max">
-                            <span className="card-label">Volume: </span>
-                            {props.flip.volume > 59 ? ">60" : "~" + Math.round(props.flip.volume * 10) / 10} per day
-                        </div>
+                        {
+                            settings.hideVolume ? null :
+                                <div className="flex-max">
+                                    <span className="card-label">Volume: </span>
+                                    {props.flip.volume > 59 ? ">60" : "~" + Math.round(props.flip.volume * 10) / 10} per day
+                                </div>
+                        }
                         <CopyButton forceIsCopied={props.flip.isCopied} onCopy={onCopy} buttonWrapperClass="flip-auction-copy-button" successMessage={<p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>} copyValue={"/viewauction " + props.flip.uuid} />
                     </div>
                 </Card.Body>

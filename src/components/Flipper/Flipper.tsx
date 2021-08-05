@@ -153,7 +153,13 @@ function Flipper() {
         })
     }
 
+    let count = 0;
     function onNewFlip(newFlipAuction: FlipAuction) {
+
+        if (count > 5) {
+            return;
+        }
+        count++;
 
         if (flipLookup[newFlipAuction.uuid] || !mounted) {
             return;
