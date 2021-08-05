@@ -96,7 +96,7 @@ function Search(props: Props) {
         borderBottomColor: results.length > 0 ? "#444" : undefined,
     }
     let searchIconStyle: React.CSSProperties = {
-        width: "60px",
+        width: "57px",
         borderRadius: results.length > 0 ? "10px 0 0 0" : "10px 0px 0px 10px",
         fontSize: "large",
         backgroundColor: "#303030",
