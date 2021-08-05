@@ -8,13 +8,12 @@ import { getItemFilterFromUrl, setURLSearchParam } from '../../utils/Parser/URLP
 import FilterElement from '../FilterElement/FilterElement';
 import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
-import api from '../../api/ApiHelper';
 import { camelCaseToSentenceCase } from '../../utils/Formatter';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
     disabled?: boolean,
-    filters?: string[],
+    filters?: FilterOptions[],
     isPrefill?: boolean
 }
 
@@ -34,7 +33,6 @@ function ItemFilter(props: Props) {
     let [expanded, setExpanded] = useState(false);
     let [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     let [showInfoDialog, setShowInfoDialog] = useState(false);
-    let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([]);
 
     let history = useHistory();
 
@@ -94,20 +92,11 @@ function ItemFilter(props: Props) {
             return;
         }
 
-        selectedFilters = [filterName, ...selectedFilters];
+        selectedFilters = [...selectedFilters, filterName];
         setSelectedFilters(selectedFilters);
 
-        api.getFilter(filterName).then(options => {
-
-            if (!mounted) {
-                return;
-            }
-            updateURLQuery(itemFilter);
-            setItemFilter(itemFilter);
-
-            filterOptions = [options, ...filterOptions];
-            setFilterOptions(filterOptions);
-        });
+        updateURLQuery(itemFilter);
+        setItemFilter(itemFilter);
     }
 
     let addFilter = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -216,7 +205,7 @@ function ItemFilter(props: Props) {
     }
 
     let filterList = selectedFilters.map(filterName => {
-        let options = filterOptions.find(f => f.name === filterName);
+        let options = props.filters?.find(f => f.name === filterName);
         let defaultValue: any = 0;
         if (options && options.options[0]) {
             defaultValue = options.options[0];
@@ -237,9 +226,9 @@ function ItemFilter(props: Props) {
         )
     });
 
-    let filterSelectList = props?.filters ? props?.filters.filter(f => !selectedFilters.includes(f)).map(filter => {
+    let filterSelectList = props?.filters ? props?.filters.filter(f => !selectedFilters.includes(f.name)).map(filter => {
         return (
-            <option data-id={filter} key={filter} value={filter}>{camelCaseToSentenceCase(filter)}</option>
+            <option data-id={filter.name} key={filter.name} value={filter.name}>{camelCaseToSentenceCase(filter.name)}</option>
         )
     }) : ""
 
