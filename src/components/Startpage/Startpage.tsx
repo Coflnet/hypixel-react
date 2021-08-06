@@ -231,29 +231,22 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Active auctions</Card.Subtitle>
+                        <Card.Subtitle>Mayor Derpy is active</Card.Subtitle
                     </Card.Header>
                     <Card.Body>
-                        <p>
-                            You can now also see, filter and browse active auctions for any item in the ah. <br />
-                            If you find yourself missing a filter please ask for it on our discord.
-                        </p>
-                        <p>
-                            The flipper displays the rarity of items as well as the seller and the lowest bin by item type.
-                        </p>
+                        <p>Since the auction house is disabled while Derpy is mayor, you won't see any new auction on this site.</p>
+                        <p>All premium users will/have received a 5-day extension.</p>
+
+                        <p>We are using the time to do some system upgrades. Please note that this could lead to unexpected behavior and set the site into a "broken" state, e.g. the search not returning suggestions.</p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
-                            <p>Recent changes (last change: 25.07.2021):</p>
+                            <p>Recent changes (last change: 06.08.2021):</p>
                             <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <span style={{ color: "#007bff", cursor: "pointer" }}>Click here to open</span></p>} tooltipContent={
                                 <ul>
-                                    <li className="changelog-item">Active auctions</li>
-                                    <li className="changelog-item">Filter improvements</li>
-                                    <li className="changelog-item">Flipper flip rework</li>
-                                    <li className="changelog-item">New reworked sidebar</li>
-                                    <li className="changelog-item">Improved non-premium flipper (still delayed by a few minutes)</li>
-                                    <li className="changelog-item">Implementation of the <Link to="/ref">Refferal-System</Link></li>
-                                    <li className="changelog-item">You can now find enchantments directly in the searchbar</li>
-                                    <li className="changelog-item">Easy scrolling in horizontal lists</li>
+                                    <li className="changelog-item">Further flipper improvements</li>
+                                    <li className="changelog-item">Implemented volume filter (Flipper)</li>
+                                    <li className="changelog-item">Stars are now always visible (Flipper)</li>
+                                    <li className="changelog-item">Styling upgrade (Flipper)</li>
                                     <li className="changelog-item">Multiple bugs fixed</li>
                                 </ul>} type="click" tooltipTitle={<span>Recent changes</span>} />
                         </div>
