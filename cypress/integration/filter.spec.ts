@@ -2,7 +2,7 @@ describe('filter', () => {
 
     // basic search bar
     it('enable rarity filter', () => {
-        cy.visit('https://sky-preview.coflnet.com/item/ASPECT_OF_THE_END')
+        cy.visit('/item/ASPECT_OF_THE_END')
         cy.contains('Aspect of the End')
         cy.contains('Add Filter').click()
         cy.contains('Click to add filter', {
@@ -16,7 +16,7 @@ describe('filter', () => {
     });
 
     it('enable valid rarity filter', () => {
-        cy.visit('https://sky-preview.coflnet.com/item/ASPECT_OF_THE_END')
+        cy.visit('/item/ASPECT_OF_THE_END')
         cy.contains('Add Filter').click()
         cy.contains('Click to add filter', {
             timeout: 12000
@@ -32,7 +32,7 @@ describe('filter', () => {
     });
 
     it('enable pet level filter', () => {
-        cy.visit('https://sky-preview.coflnet.com/item/PET_BLUE_WHALE')
+        cy.visit('/item/PET_BLUE_WHALE')
         cy.contains('Add Filter').click()
         cy.contains('Click to add filter', {
             timeout: 12000

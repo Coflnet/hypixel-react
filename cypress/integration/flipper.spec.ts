@@ -1,6 +1,6 @@
 describe("flipper", () => {
   it("check display", () => {
-    cy.visit("https://sky-preview.coflnet.com/flipper");
+    cy.visit("/flipper");
     // quit and cry
     cy.get(".flip-auction-card").contains("Cost:");
     cy.get(".flip-auction-card").contains("Median price:");
@@ -18,7 +18,7 @@ describe("flipper", () => {
   });
 
   it("copy link", () => {
-    cy.visit("https://sky-preview.coflnet.com/flipper");
+    cy.visit("/flipper");
     cy.on('uncaught:exception', (err, runnable) => {
         expect(err.message).to.include('Document is not focused')
         // return false to prevent the error from
