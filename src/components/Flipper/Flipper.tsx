@@ -373,7 +373,7 @@ function Flipper() {
                         {
                             flips.filtered.length === 0 ?
                                 <div>
-                                    {getLoadingElement(<p>Waiting for new flips....</p>)}
+                                    {getLoadingElement(<p>While Derpy is mayor the auction house is disabled. Therefore there cant be flips.</p>)}
                                 </div> : ""
                         }
                         {flips.filtered.length > 0 ?
