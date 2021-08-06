@@ -231,7 +231,7 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Mayor Derpy is active</Card.Subtitle
+                        <Card.Subtitle>Mayor Derpy is active</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
                         <p>Since the auction house is disabled while Derpy is mayor, you won't see any new auction on this site.</p>
