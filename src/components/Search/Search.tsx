@@ -114,7 +114,7 @@ function Search(props: Props) {
         }
     };
 
-    let listWidth = isSmall ? "100vw" : document.getElementById('search-input-group')?.offsetWidth ? document.getElementById('search-input-group')!.offsetWidth - 2 : "";
+    let listWidth = document.getElementById('search-input-group')?.offsetWidth ? document.getElementById('search-input-group')!.offsetWidth - 2 : "";
 
     return (
         <div className="search" style={isSmall ? { marginLeft: "-5px", marginRight: "-5px" } : {}}>
