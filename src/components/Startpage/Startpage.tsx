@@ -231,13 +231,13 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Mayor Derpy is active</Card.Subtitle>
+                        <Card.Subtitle>Mayor Derpy is active</Card.Subtitle
                     </Card.Header>
                     <Card.Body>
-                        <p>Since the auction house is disabled while Derpy is mayor you won't see any new auction on this site.</p>
+                        <p>Since the auction house is disabled while Derpy is mayor, you won't see any new auction on this site.</p>
                         <p>All premium users will/have received a 5-day extension.</p>
 
-                        <p>We are using the time to do some system upgrades. Please Note that this could lead to some unexpected behavior and set the site into a "broken" state e.g. the search not returning suggestions</p>
+                        <p>We are using the time to do some system upgrades. Please note that this could lead to unexpected behavior and set the site into a "broken" state, e.g. the search not returning suggestions.</p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
                             <p>Recent changes (last change: 06.08.2021):</p>
