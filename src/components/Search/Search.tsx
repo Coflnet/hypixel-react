@@ -118,7 +118,7 @@ function Search(props: Props) {
         <div className="search">
 
             <Form autoComplete="off">
-                <Form.Group style={{ display: "flex", justifyContent: "center", alignContent: "center", marginBottom: 0, borderBottomWidth: 0 }}>
+                <Form.Group className="search-form-group">
                     <NavBar />
                     <InputGroup id="search-input-group">
                         <InputGroup.Text style={searchIconStyle}>

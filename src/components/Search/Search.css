@@ -28,3 +28,11 @@
     border-color: #222;
     box-shadow: none;
 }
+
+.search .search-form-group {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    margin-bottom: 0;
+    border-bottom-width: 0;
+}
