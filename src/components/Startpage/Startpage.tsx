@@ -277,7 +277,7 @@ function Startpage() {
                 <p style={{ fontSize: "larger" }}>Browse through 250 million auctions, over two million players and the bazaar of hypixel skyblock</p>
                 <hr />
             </div>
-            <div className="startpage-list-element-wrapper">
+            <div className="status-element-wrapper">
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
