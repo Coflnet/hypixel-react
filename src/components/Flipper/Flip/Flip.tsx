@@ -111,7 +111,9 @@ function Flip(props: Props) {
                                 </span>
                             </p>
                     }
-                    <hr />
+                    {
+                        settings.hideLowestBin && settings.hideSeller ? null : <hr />
+                    }
                     {
                         settings.hideLowestBin ? null :
                             <p>
@@ -148,7 +150,7 @@ function Flip(props: Props) {
                                 </ul>
                             </span> : ""
                     }
-                    <hr />
+                    {settings.hideVolume ? null : <hr />}
                     <div className="flex">
                         {
                             settings.hideVolume ? null :
@@ -157,8 +159,8 @@ function Flip(props: Props) {
                                     {props.flip.volume > 59 ? ">60" : "~" + Math.round(props.flip.volume * 10) / 10} per day
                                 </div>
                         }
-                        <CopyButton forceIsCopied={props.flip.isCopied} onCopy={onCopy} buttonWrapperClass="flip-auction-copy-button" successMessage={<p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>} copyValue={"/viewauction " + props.flip.uuid} />
                     </div>
+                    <CopyButton forceIsCopied={props.flip.isCopied} onCopy={onCopy} buttonClass="flip-auction-copy-button" successMessage={<p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>} copyValue={"/viewauction " + props.flip.uuid} />
                 </Card.Body>
             </Card>
         </div >
