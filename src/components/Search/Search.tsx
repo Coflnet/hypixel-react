@@ -93,16 +93,15 @@ function Search(props: Props) {
 
     let searchStyle: React.CSSProperties = {
         borderRadius: results.length > 0 ? "0px 10px 0 0" : "0px 10px 10px 0px",
-        fontSize: "large",
         borderLeftWidth: 0,
         borderBottomColor: results.length > 0 ? "#444" : undefined
     }
     let searchIconStyle: React.CSSProperties = {
         width: isSmall ? "auto" : "58px",
         borderRadius: results.length > 0 ? "10px 0 0 0" : "10px 0px 0px 10px",
-        fontSize: "large",
         backgroundColor: "#303030",
-        borderBottomColor: results.length > 0 ? "#444" : undefined
+        borderBottomColor: results.length > 0 ? "#444" : undefined,
+        padding: isSmall ? "0px" : undefined
     }
 
     function getListItemStyle(i: number): React.CSSProperties {
@@ -121,10 +120,10 @@ function Search(props: Props) {
 
             <Form autoComplete="off">
                 <Form.Group className="search-form-group">
-                    <NavBar hamburgerIconStyle={isSmall ? { position: "absolute", top: "23px", left: "15px", zIndex: 10 } : {}} />
+                    {!isSmall ? <NavBar /> : ""}
                     <InputGroup id="search-input-group">
                         <InputGroup.Text style={searchIconStyle}>
-                            {isSmall ? <div style={{ width: "20px" }} /> :
+                            {isSmall ? <div style={{ width: "56px" }}><NavBar hamburgerIconStyle={{ marginRight: "0px", width: "56px" }} /></div> :
                                 <SearchIcon />
                             }
                         </InputGroup.Text>
