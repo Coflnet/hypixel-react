@@ -7,35 +7,32 @@
 
 .startpage .cards-wrapper {
     display: flex;
-    overflow-x: scroll;
-    align-items: stretch;
     flex-wrap: nowrap;
 }
 
-.cards-wrapper::-webkit-scrollbar {
+.startpage .cards-wrapper .card {
+    height: 100%;
+}
+
+.startpage-list-element-wrapper::-webkit-scrollbar {
     background-color: #272b30;
 }
 
-.startpage .card {
-    height: 100%;
-    width: 200px;
-}
-
-.startpage .cards-wrapper::-webkit-scrollbar {
+.startpage .startpage-list-element-wrapper::-webkit-scrollbar {
     width: 20px;
 }
 
-.startpage .cards-wrapper::-webkit-scrollbar-track {
+.startpage .startpage-list-element-wrapper::-webkit-scrollbar-track {
     box-shadow: inset 0 0 5px grey;
     border-radius: 10px;
 }
 
-.startpage .cards-wrapper::-webkit-scrollbar-thumb {
+.startpage .startpage-list-element-wrapper::-webkit-scrollbar-thumb {
     background: #3a3f44;
     border-radius: 10px;
 }
 
-.startpage .cards-wrapper::-webkit-scrollbar-thumb:hover {
+.startpage .startpage-list-element-wrapper::-webkit-scrollbar-thumb:hover {
     background: #7a8288;
 }
 
@@ -44,6 +41,7 @@
     /* Required for text-overflow to do anything */
     white-space: nowrap;
     overflow: hidden;
+    width: auto;
 }
 
 .startpage .startpage-list-element-wrapper {
@@ -55,15 +53,20 @@
     margin-bottom: 0;
 }
 
-.join-note {
+.startpage .join-note {
     margin-right: 35px;
 }
 
-.new-auctions,
-.ended-auctions {
+.startpage .new-auctions,
+.startpage .ended-auctions {
     min-height: 220px;
 }
 
-.changelog-item {
+.startpage .changelog-item {
     margin-bottom: 15px;
+}
+
+.startpage .startpage-card {
+    width: auto;
+    margin-top: 20px;
 }

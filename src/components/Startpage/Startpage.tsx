@@ -8,6 +8,7 @@ import { Person as PersonIcon, Timer as TimerIcon, FiberNew as NewIcon, Fireplac
 import moment from 'moment';
 import Tooltip from '../Tooltip/Tooltip';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
+import { FixedSizeList as List } from 'react-window';
 
 function Startpage() {
 
@@ -26,7 +27,7 @@ function Startpage() {
         loadNewPlayers();
         loadNewItems();
 
-        attachScrollEvent('cards-wrapper');
+        attachScrollEvent('startpage-list-element-wrapper');
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -93,13 +94,13 @@ function Startpage() {
         return end.getTime() < new Date().getTime() ? "Ended " + momentDate.fromNow() : "Ends " + momentDate.fromNow()
     }
 
-    function getAuctionElement(auction: Auction) {
+    function getAuctionElement(auction: Auction, style: React.CSSProperties) {
         return (
-            <div className="card-wrapper" key={auction.uuid}>
+            <div className="card-wrapper" key={auction.uuid} style={style}>
                 <Link className="disable-link-style" to={`/auction/${auction.uuid}`}>
                     <Card className="card">
                         <Card.Header style={{ padding: "10px" }}>
-                            <p className="ellipsis" style={{ width: "180px" }}>
+                            <p className="ellipsis">
                                 <img crossOrigin="anonymous" src={auction.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                 {auction.item.name}
                             </p>
@@ -148,74 +149,123 @@ function Startpage() {
 
     let newAuctionsElement = (
         <div className="cards-wrapper new-auctions">{
-            newAuctions.map(getAuctionElement)
+            <List
+                className="startpage-list-element-wrapper"
+                height={250}
+                itemCount={newAuctions.length}
+                itemSize={200}
+                layout="horizontal"
+                width={document.getElementById('new-auctions-body')?.offsetWidth || 100}
+            >
+                {({ index, style }) => {
+                    return getAuctionElement(newAuctions[index], style);
+                }}
+            </List>
         }
         </div >
     )
 
     let popularSearchesElement = (
-        <div className="cards-wrapper">{
-            popularSearches.map(search =>
-            (
-                <div className="card-wrapper" key={search.url}>
-                    <Link className="disable-link-style" to={search.url}>
-                        <Card className="card">
-                            <Card.Header style={{ height: "100%" }}>
-                                <div style={{ float: "left" }}>
-                                    <img crossOrigin="anonymous" className="player-head-icon" src={search.url.includes("/player") ? search.img + '?size=8' : search.img} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                </div>
-                                <Card.Title>{search.title}</Card.Title>
-                            </Card.Header>
-                        </Card>
-                    </Link>
-                </div>
-            ))}
+        <div className="cards-wrapper">
+            <List
+                className="startpage-list-element-wrapper"
+                height={100}
+                itemCount={popularSearches.length}
+                itemSize={200}
+                layout="horizontal"
+                width={document.getElementById('popular-searches-body')?.offsetWidth || 100}
+            >
+                {({ index, style }) => {
+                    let search = popularSearches[index];
+                    return <div className="card-wrapper" key={search.url} style={style}>
+                        <Link className="disable-link-style" to={search.url}>
+                            <Card className="card">
+                                <Card.Header style={{ height: "100%" }}>
+                                    <div style={{ float: "left" }}>
+                                        <img crossOrigin="anonymous" className="player-head-icon" src={search.url.includes("/player") ? search.img + '?size=8' : search.img} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                    </div>
+                                    <Card.Title className="ellipsis">{search.title}</Card.Title>
+                                </Card.Header>
+                            </Card>
+                        </Link>
+                    </div>
+                }}
+            </List>
         </div>
     )
 
     let endedAuctionsElement = (
-        <div className="cards-wrapper ended-auctions">{
-            endedAuctions.map(getAuctionElement)}
+        <div className="cards-wrapper ended-auctions">
+            <List
+                className="startpage-list-element-wrapper"
+                height={250}
+                itemCount={endedAuctions.length}
+                itemSize={200}
+                layout="horizontal"
+                width={document.getElementById('ended-auctions-body')?.offsetWidth || 100}
+            >
+                {({ index, style }) => {
+                    return getAuctionElement(endedAuctions[index], style);
+                }}
+            </List>
         </div>
     )
 
     let newPlayersElement = (
-        <div className="cards-wrapper">{
-            newPlayers.map(newPlayer =>
-            (
-                <div className="card-wrapper" key={newPlayer.uuid}>
-                    <Link className="disable-link-style" to={`/player/${newPlayer.uuid}`}>
-                        <Card className="card">
-                            <Card.Header style={{ padding: "10px" }}>
-                                <div style={{ float: "left" }}>
-                                    <img crossOrigin="anonymous" className="player-head-icon" src={newPlayer.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                </div>
-                                {newPlayer.name}
-                            </Card.Header>
-                        </Card>
-                    </Link>
-                </div>
-            ))}
+        <div className="cards-wrapper">
+            <List
+                className="startpage-list-element-wrapper"
+                height={100}
+                itemCount={newPlayers.length}
+                itemSize={200}
+                layout="horizontal"
+                width={document.getElementById('new-players-body')?.offsetWidth || 100}
+            >
+                {({ index, style }) => {
+                    let newPlayer = newPlayers[index];
+                    return <div className="card-wrapper" key={newPlayer.name} style={style}>
+                        <Link className="disable-link-style" to={`/player/${newPlayer.uuid}`}>
+                            <Card className="card">
+                                <Card.Header style={{ height: "100%", padding: "20px" }}>
+                                    <div style={{ float: "left" }}>
+                                        <img crossOrigin="anonymous" className="player-head-icon" src={newPlayer.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                    </div>
+                                    <Card.Title className="ellipsis">{newPlayer.name}</Card.Title>
+                                </Card.Header>
+                            </Card>
+                        </Link>
+                    </div>
+                }}
+            </List>
         </div>
     )
 
     let newItemsElement = (
-        <div className="cards-wrapper">{
-            newItems.map(newItem =>
-            (
-                <div className="card-wrapper" key={newItem.tag}>
-                    <Link className="disable-link-style" to={`/item/${newItem.tag}`}>
-                        <Card className="card">
-                            <Card.Header style={{ height: "100%" }}>
-                                <div style={{ float: "left" }}>
-                                    <img crossOrigin="anonymous" src={newItem.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                    {newItem.name}
-                                </div>
-                            </Card.Header>
-                        </Card>
-                    </Link>
-                </div>
-            ))}
+        <div className="cards-wrapper">
+            <List
+                className="startpage-list-element-wrapper"
+                height={100}
+                itemCount={newItems.length}
+                itemSize={200}
+                layout="horizontal"
+                width={document.getElementById('new-items-body')?.offsetWidth || 100}
+            >
+                {({ index, style }) => {
+                    let newItem = newItems[index];
+                    return <div className="card-wrapper" key={newItem.tag} style={style}>
+                        <Link className="disable-link-style" to={`/item/${newItem.tag}`}>
+                            <Card className="card">
+                                <Card.Header style={{ height: "100%", padding: "20px" }}>
+                                    <div style={{ float: "left" }}>
+                                        <img crossOrigin="anonymous" src={newItem.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                    </div>
+                                    <Card.Title className="ellipsis">{newItem.name}</Card.Title>
+                                </Card.Header>
+                            </Card>
+                        </Link>
+                    </div>
+                }}
+            </List>
         </div>
     )
 
@@ -227,7 +277,7 @@ function Startpage() {
                 <p style={{ fontSize: "larger" }}>Browse through 250 million auctions, over two million players and the bazaar of hypixel skyblock</p>
                 <hr />
             </div>
-            <div className="startpage-list-element-wrapper">
+            <div className="status-element-wrapper">
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
@@ -254,52 +304,52 @@ function Startpage() {
                 </Card>
             </div>
 
-            <Card className="startpage-list-element-wrapper">
+            <Card className="startpage-card">
                 <Card.Header>
                     <Card.Title><NewIcon /> New auctions</Card.Title>
                 </Card.Header>
-                <Card.Body>
+                <Card.Body className="startpage-card-body" id="new-auctions-body">
                     {newAuctionsElement}
                 </Card.Body>
             </Card>
 
-            <Card className="startpage-list-element-wrapper">
+            <Card className="startpage-card">
                 <Card.Header>
                     <Card.Title><TimerIcon /> Ended auctions</Card.Title>
                 </Card.Header>
-                <Card.Body>
+                <Card.Body className="startpage-card-body" id="ended-auctions-body">
                     {endedAuctionsElement}
                 </Card.Body>
             </Card>
 
-            <Card className="startpage-list-element-wrapper">
+            <Card className="startpage-card">
                 <Card.Header>
                     <Card.Title><PersonIcon /> New players</Card.Title>
                 </Card.Header>
-                <Card.Body>
+                <Card.Body className="startpage-card-body" id="new-players-body">
                     {newPlayersElement}
                 </Card.Body>
             </Card>
 
-            <Card className="startpage-list-element-wrapper">
+            <Card className="startpage-card">
                 <Card.Header>
                     <Card.Title><FireIcon /> Popular searches</Card.Title>
                 </Card.Header>
-                <Card.Body>
+                <Card.Body className="startpage-card-body" id="popular-searches-body">
                     {popularSearchesElement}
                 </Card.Body>
             </Card>
 
-            <Card className="startpage-list-element-wrapper">
+            <Card className="startpage-card">
                 <Card.Header>
                     <Card.Title><NewIcon /> New items</Card.Title>
                 </Card.Header>
-                <Card.Body>
+                <Card.Body className="startpage-card-body" id="new-items-body">
                     {newItemsElement}
                 </Card.Body>
             </Card>
 
-            <Card style={{ width: "100%", marginTop: "40px" }}>
+            <Card className="startpage-card" style={{ marginTop: "40px" }}>
                 <Card.Header>
                     <Card.Title>Hypixel AH history</Card.Title>
                 </Card.Header>
