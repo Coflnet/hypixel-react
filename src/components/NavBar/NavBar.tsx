@@ -8,7 +8,11 @@ import { useForceUpdate } from '../../utils/Hooks';
 
 let resizePromise: NodeJS.Timeout | null = null;
 
-function NavBar() {
+interface Props {
+    hamburgerIconStyle?: React.CSSProperties
+}
+
+function NavBar(props: Props) {
 
     let [isWideOpen, setIsWideOpen] = useState(false);
     let [isHovering, setIsHovering] = useState(false);
@@ -134,7 +138,7 @@ function NavBar() {
                     </Menu>
                 </ProSidebar>
             </aside>
-            {isSmall ? <span onClick={onHamburgerClick} id="hamburger-icon">
+            {isSmall ? <span onClick={onHamburgerClick} id="hamburger-icon" style={props.hamburgerIconStyle}>
                 <MenuIcon fontSize="large" />
             </span> : ""}
         </span>

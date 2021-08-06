@@ -22,6 +22,8 @@ function Search(props: Props) {
     let [isLoading, setIsLoading] = useState(false);
     let [noResultsFound, setNoResultsFound] = useState(false);
 
+    let isSmall = document.body.clientWidth < 1500;
+
     useEffect(() => {
         setSearchText("");
         setResults([]);
@@ -93,10 +95,10 @@ function Search(props: Props) {
         borderRadius: results.length > 0 ? "0px 10px 0 0" : "0px 10px 10px 0px",
         fontSize: "large",
         borderLeftWidth: 0,
-        borderBottomColor: results.length > 0 ? "#444" : undefined,
+        borderBottomColor: results.length > 0 ? "#444" : undefined
     }
     let searchIconStyle: React.CSSProperties = {
-        width: "58px",
+        width: isSmall ? "auto" : "58px",
         borderRadius: results.length > 0 ? "10px 0 0 0" : "10px 0px 0px 10px",
         fontSize: "large",
         backgroundColor: "#303030",
@@ -112,23 +114,25 @@ function Search(props: Props) {
         }
     };
 
-    let listWidth = document.getElementById('search-input-group')?.offsetWidth ? document.getElementById('search-input-group')!.offsetWidth - 2 : "";
+    let listWidth = isSmall ? "100vw" : document.getElementById('search-input-group')?.offsetWidth ? document.getElementById('search-input-group')!.offsetWidth - 2 : "";
 
     return (
-        <div className="search">
+        <div className="search" style={isSmall ? { marginLeft: "-5px", marginRight: "-15px" } : {}}>
 
             <Form autoComplete="off">
                 <Form.Group className="search-form-group">
-                    <NavBar />
+                    <NavBar hamburgerIconStyle={isSmall ? { position: "absolute", top: "23px", left: "15px", zIndex: 10 } : {}} />
                     <InputGroup id="search-input-group">
                         <InputGroup.Text style={searchIconStyle}>
-                            <SearchIcon />
+                            {isSmall ? <div style={{ width: "20px" }} /> :
+                                <SearchIcon />
+                            }
                         </InputGroup.Text>
                         <Form.Control style={searchStyle} type="text" placeholder="Search player/item" id="search-bar" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
                     </InputGroup>
                 </Form.Group>
             </Form>
-            < ListGroup style={{ width: listWidth, marginLeft: document.body.clientWidth < 1500 ? "48px" : "1px", borderTopWidth: 0 }}>
+            <ListGroup style={{ width: listWidth, marginLeft: isSmall ? "1px" : "1px", borderTopWidth: 0 }}>
                 {
                     noResultsFound ?
                         noResultsFoundElement :
