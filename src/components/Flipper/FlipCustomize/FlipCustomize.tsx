@@ -1,25 +1,11 @@
 import React, { ChangeEvent, useState } from 'react';
 import { Form } from 'react-bootstrap';
-import { DEMO_FLIP } from '../../../utils/FlipUtils';
-import { FLIP_CUSTOMIZING_KEY, getSetting, setSetting } from '../../../utils/SettingsUtils';
+import { DEMO_FLIP, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { FLIP_CUSTOMIZING_KEY, setSetting } from '../../../utils/SettingsUtils';
 import Flip from '../Flip/Flip';
 import './FlipCustomize.css'
 
-let settings: FlipCustomizeSettings;
-try {
-    settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY));
-} catch {
-    settings = {
-        hideCost: false,
-        hideEstimatedProfit: false,
-        hideLowestBin: false,
-        hideMedianPrice: false,
-        hideSeller: false,
-        hideVolume: false,
-        maxExtraInfoFields: 3
-    };
-    setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
-}
+let settings = getFlipCustomizeSettings();
 
 function FlipCustomize() {
 

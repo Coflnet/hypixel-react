@@ -3,9 +3,9 @@ import { Badge, Card } from 'react-bootstrap';
 import { getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter';
 import { Help as HelpIcon } from '@material-ui/icons';
 import { CopyButton } from '../../CopyButton/CopyButton';
-import { FLIP_CUSTOMIZING_KEY, getSetting, setSetting } from '../../../utils/SettingsUtils';
 import './Flip.css';
 import { useForceUpdate } from '../../../utils/Hooks';
+import { getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 
 interface Props {
     flip: FlipAuction,
@@ -17,7 +17,7 @@ interface Props {
 
 function Flip(props: Props) {
 
-    let settings = getFlipCustomizingSettings();
+    let settings = getFlipCustomizeSettings();
     let forceUpdate = useForceUpdate();
 
     useEffect(() => {
@@ -48,25 +48,6 @@ function Flip(props: Props) {
         if (props.onCopy) {
             props.onCopy(props.flip);
         }
-    }
-
-    function getFlipCustomizingSettings(): FlipCustomizeSettings {
-        let settings: FlipCustomizeSettings;
-        try {
-            settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY));
-        } catch {
-            settings = {
-                hideCost: false,
-                hideEstimatedProfit: false,
-                hideLowestBin: false,
-                hideMedianPrice: false,
-                hideSeller: false,
-                hideVolume: false,
-                maxExtraInfoFields: 3
-            };
-            setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
-        }
-        return settings;
     }
 
     let stars = props.flip.item.name?.match(/✪+/gm);
