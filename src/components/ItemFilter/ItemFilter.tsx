@@ -219,8 +219,8 @@ function ItemFilter(props: Props) {
         return (
             <div key={filterName} className="filter-element">
                 <FilterElement onFilterChange={onFilterElementChange} options={options} defaultValue={defaultValue} />
-                <div style={{ height: "100%", position: "relative" }} className="remove-filter" onClick={() => onFilterRemoveClick(filterName)}>
-                    <DeleteIcon style={{ top: "50px", position: "absolute" }} color="error" />
+                <div className="remove-filter" onClick={() => onFilterRemoveClick(filterName)}>
+                    <DeleteIcon color="error" />
                 </div>
             </div>
         )
@@ -260,7 +260,7 @@ function ItemFilter(props: Props) {
     );
 
     return (
-        <div className="enchantment-filter">
+        <div className="item-filter">
             {!expanded ?
                 <div>
                     <a href="#" onClick={() => onEnable()}>
@@ -275,16 +275,14 @@ function ItemFilter(props: Props) {
                     </Card.Title>
                     <Card.Body>
 
-                        <Form inline style={{ marginBottom: "5px" }} >
+                        <Form style={{ marginBottom: "5px" }} >
 
                             <Form.Group>
                                 {props?.filters && props.filters?.length > 0 ?
-                                    <div>
-                                        <Form.Control className="select-filter" as="select" onChange={addFilter} disabled={props.disabled} ref={reforgeSelect}>
-                                            <option>Click to add filter</option>
-                                            {filterSelectList}
-                                        </Form.Control>
-                                    </div> :
+                                    <Form.Control className="add-filter-select" as="select" onChange={addFilter} disabled={props.disabled} ref={reforgeSelect}>
+                                        <option>Click to add filter</option>
+                                        {filterSelectList}
+                                    </Form.Control> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
