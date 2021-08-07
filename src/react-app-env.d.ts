@@ -288,3 +288,10 @@ interface FreeFlipperMissInformation {
   missedEstimatedProfit: number,
   estimatedProfitCopiedAuctions: number
 }
+
+interface ReloadFeedback {
+  loadNewInformation: boolean,
+  somethingBroke: boolean,
+  otherIssue: boolean,
+  rememberHideDialog: boolean
+}
