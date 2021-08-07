@@ -275,7 +275,7 @@ function ItemFilter(props: Props) {
                     </Card.Title>
                     <Card.Body>
 
-                        <Form inline style={{ marginBottom: "5px" }} >
+                        <Form style={{ marginBottom: "5px" }} >
 
                             <Form.Group>
                                 {props?.filters && props.filters?.length > 0 ?
