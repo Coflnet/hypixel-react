@@ -131,6 +131,7 @@ interface FlipAuction {
   uuid: string,
   median: number,
   cost: number,
+
   volume: number,
   showLink: boolean,
   item: Item,
@@ -201,7 +202,8 @@ interface API {
   setRef(refId: string): Promise<void>,
   getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>,
   filterFor(item: Item): Promise<FilterOptions[]>,
-  connectMinecraftAccount(playerUUID: string): Promise<number>
+  connectMinecraftAccount(playerUUID: string): Promise<number>,
+  getAccountInfo(): Promise<AccountInfo>
 }
 
 interface CacheUtils {
@@ -288,4 +290,11 @@ interface FreeFlipperMissInformation {
   missedFlipsCount: number,
   missedEstimatedProfit: number,
   estimatedProfitCopiedAuctions: number
+}
+
+interface AccountInfo {
+  email?: string,
+  token?: string,
+  mcId?: string,
+  mcName?: string
 }

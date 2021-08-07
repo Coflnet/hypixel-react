@@ -37,7 +37,8 @@ export enum RequestType {
     SET_REF = "setRef",
     ACTIVE_AUCTIONS = "activeAuctions",
     FILTER_FOR = "filterFor",
-    CONNECT_MINECRAFT_ACCOUNT = "conMc"
+    CONNECT_MINECRAFT_ACCOUNT = "conMc",
+    GET_ACCOUNT_INFO = "accountInfo"
 }
 
 export enum SubscriptionType {
@@ -78,11 +79,11 @@ export interface Connection {
     sendRequest(request: ApiRequest): void
 }
 
-export interface WebsocketHelper extends Connection{
+export interface WebsocketHelper extends Connection {
     subscribe(subscription: ApiSubscription): void
 }
 
 export interface HttpApi extends Connection {
-    sendLimitedCacheRequest(request:ApiRequest, grouping:number ),
-    sendLimitedCacheRequest(request:ApiRequest)
+    sendLimitedCacheRequest(request: ApiRequest, grouping: number),
+    sendLimitedCacheRequest(request: ApiRequest)
 }

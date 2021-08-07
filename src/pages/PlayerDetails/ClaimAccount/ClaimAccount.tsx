@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import api from '../../../api/ApiHelper';
 import GoogleSignIn from '../../../components/GoogleSignIn/GoogleSignIn';
+import { wasAlreadyLoggedIn } from '../../../utils/GoogleUtils';
 import { getLoadingElement } from '../../../utils/LoadingUtils';
 
 interface Props {
     playerUUID: string
 }
 
+let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
+
 function ClaimAccount(props: Props) {
 
     let [verificationNumber, setVerificationNumber] = useState(0);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [isLoading, setIsLoading] = useState(false);
+    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle);
 
     function onAfterLogin() {
         setIsLoading(true);
@@ -39,13 +42,10 @@ function ClaimAccount(props: Props) {
                         <li>Create an auction for 53.<b>{verificationNumber}</b> coins</li>
                         <li>. . .</li>
                     </ul>
-                </div> :
-                <div>
-                    <p>To claim your Minecraft Account please log in with google:</p>
-                </div>
-            }
-            {
-                isLoading ? getLoadingElement() : ""
+                </div> : isLoading ? getLoadingElement() :
+                    <div>
+                        <p>To claim your Minecraft Account please log in with Google:</p>
+                    </div>
             }
             <GoogleSignIn onAfterLogin={onAfterLogin} />
         </div >

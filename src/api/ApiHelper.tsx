@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -738,7 +738,7 @@ function initAPI(): API {
                     resolve(data.map(a => parseFilterOption(a)));
                 },
                 reject: function (error) {
-                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, item.tag);
+                    apiErrorHandler(RequestType.FILTER_FOR, error, item.tag);
                     reject();
                 }
             }, 1);
@@ -755,7 +755,24 @@ function initAPI(): API {
                     resolve(data.bid);
                 },
                 reject: function (error) {
-                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, playerUUID);
+                    apiErrorHandler(RequestType.CONNECT_MINECRAFT_ACCOUNT, error, playerUUID);
+                    reject();
+                }
+            }, 1);
+        })
+    }
+
+    let getAccountInfo = (): Promise<AccountInfo> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.GET_ACCOUNT_INFO,
+                data: "",
+                resolve: function (accountInfo) {
+                    resolve(parseAccountInfo(accountInfo));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_ACCOUNT_INFO, error, "");
                     reject();
                 }
             }, 1);
@@ -802,7 +819,8 @@ function initAPI(): API {
         setRef,
         getActiveAuctions,
         filterFor,
-        connectMinecraftAccount
+        connectMinecraftAccount,
+        getAccountInfo
     }
 }
 
