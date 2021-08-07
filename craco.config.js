@@ -21,6 +21,7 @@ module.exports = {
                         /^react-datepicker.*/,
                         /^container.*/,
                         /^pro-*/,
+                        /^form-*/,
                         'btn',
                         'active',
                         'body',
@@ -35,7 +36,13 @@ module.exports = {
                         'd-none',
                         'd-md-block',
                         'is-invalid',
-                        'is-valid'
+                        'is-valid',
+                        'table',
+                        'th',
+                        'td',
+                        'tr',
+                        'tbody',
+                        'thead'
                     ]
                 }),
             ],

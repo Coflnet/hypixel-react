@@ -66,6 +66,11 @@ function initAPI(): API {
 
     let getItemPrices = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<ItemPriceData> => {
         return new Promise((resolve, reject) => {
+
+            if (!itemFilter || Object.keys(itemFilter).length === 0) {
+                itemFilter = undefined;
+            }
+
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
@@ -212,7 +217,7 @@ function initAPI(): API {
         })
     }
 
-    let getAuctionDetails = (auctionUUID: string): Promise<AuctionDetails> => {
+    let getAuctionDetails = (auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
             httpApi.sendLimitedCacheRequest({
                 type: RequestType.AUCTION_DETAILS,
@@ -223,7 +228,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     reject(error);
                 }
-            }, 2)
+            }, ignoreCache ? (3 + ignoreCache) : 2)
         })
     }
 
@@ -473,6 +478,10 @@ function initAPI(): API {
     let getRecentAuctions = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
 
+            if (!itemFilter || Object.keys(itemFilter).length === 0) {
+                itemFilter = undefined;
+            }
+
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
@@ -694,6 +703,10 @@ function initAPI(): API {
 
     let getActiveAuctions = (item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
+
+            if (!filter || Object.keys(filter).length === 0) {
+                filter = undefined;
+            }
 
             let requestData = {
                 name: item.tag,

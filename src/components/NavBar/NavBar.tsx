@@ -8,7 +8,11 @@ import { useForceUpdate } from '../../utils/Hooks';
 
 let resizePromise: NodeJS.Timeout | null = null;
 
-function NavBar() {
+interface Props {
+    hamburgerIconStyle?: React.CSSProperties
+}
+
+function NavBar(props: Props) {
 
     let [isWideOpen, setIsWideOpen] = useState(false);
     let [isHovering, setIsHovering] = useState(false);
@@ -130,11 +134,11 @@ function NavBar() {
                         <MenuItem icon={<ShareIcon />}><Link to="/ref" >Referral</Link></MenuItem>
                         <MenuItem icon={<PolicyIcon />}><Link to="/about" >Links / Legal</Link></MenuItem>
                         <MenuItem icon={<ChatIcon />}><Link to="/feedback" >Feedback</Link></MenuItem>
-                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24px"></img>}><a href="https://discord.gg/Qm55WEkgu6"><div style={{ color: "#7289da" }}>Discord</div></a></MenuItem>
+                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24px"></img>}><a href="https://discord.gg/wvKXfTgCfb"><div style={{ color: "#7289da" }}>Discord</div></a></MenuItem>
                     </Menu>
                 </ProSidebar>
             </aside>
-            {isSmall ? <span onClick={onHamburgerClick} id="hamburger-icon">
+            {isSmall ? <span onClick={onHamburgerClick} id="hamburger-icon" style={props.hamburgerIconStyle}>
                 <MenuIcon fontSize="large" />
             </span> : ""}
         </span>

@@ -3,6 +3,10 @@
     float: left;
 }
 
+.ref .copy-button {
+    margin-left: 15px;
+}
+
 @media all and (min-width: 1400px) {
     .ref .label {
         width: 30%;

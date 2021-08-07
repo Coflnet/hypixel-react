@@ -9,6 +9,7 @@ import { useHistory } from "react-router-dom";
 import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import { getURLSearchParam } from '../../utils/Parser/URLParser';
+import Cookies from 'js-cookie';
 
 export function MainApp(props: any) {
 
@@ -21,6 +22,12 @@ export function MainApp(props: any) {
     useEffect(() => {
 
         pushInstruction("requireConsent");
+
+        // check for tracking of old users
+        let cookie = Cookies.get('nonEssentialCookiesAllowed');
+        if (cookie === "true") {
+            pushInstruction("rememberConsentGiven");
+        }
 
         let uiStyle = window.localStorage.getItem("uiStyle");
         if ((!uiStyle || uiStyle !== (prefersDarkMode ? 'dark' : 'light'))) {

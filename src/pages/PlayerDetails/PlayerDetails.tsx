@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import Search from '../../components/Search/Search';
 import './PlayerDetails.css';
 import { useParams } from 'react-router-dom';
-import AuctionList from '../../components/AuctionList/AuctionList';
 import { Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
-import BidList from '../../components/BidList/BidList';
 import api from '../../api/ApiHelper';
 import { parsePlayer } from '../../utils/Parser/APIResponseParser';
 import { useSwipe } from '../../utils/Hooks';
 import Tooltip from '../../components/Tooltip/Tooltip';
 import ClaimAccount from './ClaimAccount/ClaimAccount';
+import PlayerDetailsList from '../../components/PlayerDetailsList/PlayerDetailsList';
 
 enum DetailType {
     AUCTIONS = "auctions",
@@ -79,8 +78,8 @@ function PlayerDetails() {
                     <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">Auctions</ToggleButton>
                     <ToggleButton value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">Bids</ToggleButton>
                 </ToggleButtonGroup>
-                {detailType === DetailType.AUCTIONS ? <AuctionList playerUUID={uuid} /> : undefined}
-                {detailType === DetailType.BIDS ? <BidList playerUUID={uuid} /> : undefined}
+                {detailType === DetailType.AUCTIONS ? <PlayerDetailsList type="auctions" loadingDataFunction={api.getAuctions} playerUUID={uuid} /> : undefined}
+                {detailType === DetailType.BIDS ? <PlayerDetailsList type="bids" loadingDataFunction={api.getBids} playerUUID={uuid} /> : undefined}
             </Container>
         </div >
     );

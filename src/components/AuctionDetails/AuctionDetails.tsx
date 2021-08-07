@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
-import { Badge, Button, Card, Collapse, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Badge, Button, Card, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getStyleForTier, numberWithThousandsSeperators, convertTagToName } from '../../utils/Formatter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import { useForceUpdate } from '../../utils/Hooks';
@@ -11,7 +11,6 @@ import moment from 'moment';
 import { v4 as generateUUID } from 'uuid';
 import { Link } from 'react-router-dom';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
-import { ArrowDropDown as ArrowDownIcon, ArrowDropUp as ArrowUpIcon } from '@material-ui/icons'
 import { CopyButton } from '../CopyButton/CopyButton';
 import { toast } from 'react-toastify';
 
@@ -24,13 +23,7 @@ function AuctionDetails(props: Props) {
 
     let [isAuctionFound, setIsNoAuctionFound] = useState(false);
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails>();
-    let [isItemDetailsCollapse, setIsItemDetailsCollapse] = useState(true);
-    let [showNbtData, setShowNbtData] = useState(false);
     let forceUpdate = useForceUpdate();
-
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
 
     useEffect(() => {
         loadAuctionDetails();
@@ -40,7 +33,7 @@ function AuctionDetails(props: Props) {
     let tryNumber = 1;
     let loadAuctionDetails = () => {
 
-        api.getAuctionDetails(props.auctionUUID).then(auctionDetails => {
+        api.getAuctionDetails(props.auctionUUID, tryNumber).then(auctionDetails => {
             auctionDetails.bids.sort((a, b) => b.amount - a.amount)
             setAuctionDetails(auctionDetails);
             api.getItemImageUrl(auctionDetails.auction.item).then(url => {
@@ -105,6 +98,71 @@ function AuctionDetails(props: Props) {
 
     let onAucitonEnd = () => {
         forceUpdate();
+    }
+
+    function getNBTElement() {
+        return (<div>
+            {
+                Object.keys(auctionDetails?.nbtData).map(key => {
+                    let currentNBT = auctionDetails?.nbtData[key];
+                    return (<div key={key}>
+                        <p>
+                            <span className="label">
+                                <Badge variant={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
+                            </span>
+                            {formatNBTValue(key, currentNBT)}
+                        </p>
+                    </div>)
+                })
+            }
+        </div >)
+    }
+
+    function formatNBTValue(key: string, value: any) {
+        let tagNbt = [
+            "heldItem",
+            "personal_compact_0",
+            "personal_compact_1",
+            "personal_compact_2",
+            "personal_compact_3",
+            "personal_compact_4",
+            "personal_compact_5",
+            "personal_compact_6",
+            "personal_compact_7",
+            "personal_compact_8",
+            "personal_compact_9",
+            "personal_compact_10",
+            "personal_compact_11",
+            "personal_compactor_0",
+            "personal_compactor_1",
+            "personal_compactor_2",
+            "personal_compactor_3",
+            "personal_compactor_4",
+            "personal_compactor_5",
+            "personal_compactor_6",
+            "personal_deletor_0",
+            "personal_deletor_1",
+            "personal_deletor_2",
+            "personal_deletor_3",
+            "personal_deletor_4",
+            "personal_deletor_5",
+            "personal_deletor_6",
+            "personal_deletor_7",
+            "personal_deletor_8",
+            "personal_deletor_9",
+            "last_potion_ingredient",
+            "power_ability_scroll",
+            "skin"];
+
+        if (!isNaN(value) && Number.isInteger(parseInt(value, 10))) {
+            return numberWithThousandsSeperators(value);
+        }
+
+        let index = tagNbt.findIndex(tag => tag === key);
+        if (index !== -1) {
+            return <Link to={"/item/" + value}>{convertTagToName(value)}</Link>;
+        }
+        return value.toString();
     }
 
     const labelBadgeVariant = "primary";
@@ -177,55 +235,25 @@ function AuctionDetails(props: Props) {
                     </p>
                 </Link>
 
-                <div>
+                <div style={{ overflow: "auto" }}>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? "labelForList" : "label"}>
                         <Badge variant={labelBadgeVariant}>Enchantments:</Badge>
                     </span>
-                    <div>
-                        {auctionDetails && auctionDetails!.enchantments.length > 0 ?
-                            (<ul className="enchantment-list">
-                                {auctionDetails?.enchantments.map(enchantment => {
-                                    return enchantment.name ? <li key={"enchantment-" + enchantment.name}>{enchantment.name} {enchantment.level}</li> : ""
-                                })}
-                            </ul>) :
-                            <p>None</p>}
-                    </div>
+                    {auctionDetails && auctionDetails!.enchantments.length > 0 ?
+                        (<ul className="list">
+                            {auctionDetails?.enchantments.map(enchantment => {
+                                return enchantment.name ? <li key={"enchantment-" + enchantment.name}>{enchantment.name} {enchantment.level}</li> : ""
+                            })}
+                        </ul>) :
+                        <p>None</p>}
+                </div>
+                <div>
+                    {
+                        getNBTElement()
+                    }
                 </div>
             </Card.Body>
         </div >
-    );
-
-    let itemDetailsCardContent = (auctionDetails === undefined ? getLoadingElement() :
-        <div>
-            <p>
-                <span className="label">
-                    <Badge variant={labelBadgeVariant}>Tier:</Badge>
-                </span>
-                <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.tier}</span>
-            </p>
-            <p>
-                <span className="label">
-                    <Badge variant={labelBadgeVariant}>Category:</Badge>
-                </span> {convertTagToName(auctionDetails?.auction.item.category)}
-            </p>
-            {auctionDetails.nbtData ? <p>
-                <span className="label">
-                    <Badge variant={labelBadgeVariant}>NBT-Data:</Badge>
-                </span>
-                {showNbtData ?
-                    <span>{JSON.stringify(auctionDetails.nbtData)}</span> :
-                    <a href="#" onClick={() => { setShowNbtData(true) }}>Click to show</a>
-                }
-            </p> : ""
-            }
-            {auctionDetails.auction.item.description ? <p>
-                <span className="label">
-                    <Badge variant={labelBadgeVariant}>Sample description:</Badge>
-                </span>
-                <span style={{ float: "left" }} ref={(node) => { if (auctionDetails?.auction.item.description && node) { node.innerHTML = ""; node.append((auctionDetails.auction.item.description as any).replaceColorCodes()) } }}></span>
-            </p> : ""
-            }
-        </div>
     );
 
     let bidList = auctionDetails?.bids.length === 0 ? <p>No bids</p> :
@@ -256,19 +284,6 @@ function AuctionDetails(props: Props) {
                     <div>
                         <Card className="auction-card first-card">
                             {auctionCardContent}
-                        </Card>
-                        <Card className="auction-card">
-                            <Card.Header onClick={() => { setIsItemDetailsCollapse(!isItemDetailsCollapse) }} style={{ cursor: "pointer" }}>
-                                <h2>
-                                    Item-Details
-                                    <span style={{ float: "right", marginRight: "10px" }}>{isItemDetailsCollapse ? <ArrowDownIcon /> : <ArrowUpIcon />}</span>
-                                </h2>
-                            </Card.Header>
-                            <Collapse in={!isItemDetailsCollapse}>
-                                <Card.Body>
-                                    {itemDetailsCardContent}
-                                </Card.Body>
-                            </Collapse>
                         </Card>
                         <Card className="auction-card">
                             <Card.Header>

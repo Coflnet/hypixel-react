@@ -137,13 +137,15 @@ interface FlipAuction {
   bin: boolean,
   sold?: boolean,
   sellerName: string,
-  lowestBin: number
+  lowestBin: number,
+  isCopied?: boolean
 }
 
 interface FlipperFilter {
   onlyBin?: boolean,
   minProfit?: number,
-  maxCost?: number
+  minVolume?: number,
+  maxCost?: number,
   onlyUnsold?: boolean
 }
 
@@ -162,7 +164,7 @@ interface API {
   getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>;
   getEnchantments(): Promise<Enchantment[]>;
   getReforges(): Promise<Reforge[]>;
-  getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>;
+  getAuctionDetails(auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails>;
   getPlayerName(uuid: string): Promise<string>;
   setConnectionId(): Promise<void>;
   getVersion(): Promise<string>;
@@ -279,4 +281,11 @@ interface RefInfo {
   receivedTime: number,
   receivedHours: number,
   bougthPremium: number
+}
+
+interface FreeFlipperMissInformation {
+  totalFlips: number,
+  missedFlipsCount: number,
+  missedEstimatedProfit: number,
+  estimatedProfitCopiedAuctions: number
 }

@@ -4,7 +4,6 @@ import './PriceGraph.css';
 import Chart, { ChartConfiguration } from 'chart.js';
 import api from '../../api/ApiHelper';
 import priceConfig from './PriceGraphConfig'
-import { useLocation } from "react-router-dom";
 import { DEFAULT_DATE_RANGE, getTimeSpanFromDateRange, ItemPriceRange } from '../ItemPriceRange/ItemPriceRange';
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter';
@@ -19,6 +18,8 @@ interface Props {
     item: Item
 }
 
+let currentLoadingString;
+
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true;
 
@@ -30,7 +31,7 @@ function PriceGraph(props: Props) {
     let [isLoading, setIsLoading] = useState(false);
     let [noDataFound, setNoDataFound] = useState(false);
     let [avgPrice, setAvgPrice] = useState(0);
-    let [filters, setFilters] = useState([] as string[]);
+    let [filters, setFilters] = useState([] as FilterOptions[]);
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
     let [isItemFilterPrefill, setIsItemFilterPrefill] = useState<boolean>(true);
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true);
@@ -40,11 +41,14 @@ function PriceGraph(props: Props) {
     fetchspanRef.current = fetchspan;
 
     useEffect(() => {
-        loadFilters();
         return () => {
             mounted = false;
         };
     }, [])
+
+    useEffect(() => {
+        loadFilters();
+    }, [props.item.tag])
 
     useEffect(() => {
         fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE);
@@ -65,15 +69,33 @@ function PriceGraph(props: Props) {
     }, [props.item.tag])
 
     let updateChart = (priceChart: Chart, fetchspan: number, itemFilter?: ItemFilter) => {
+
+        // active auction is selected
+        // no need to get new price data
+        if (fetchspan <= 0) {
+            setIsLoading(false);
+            return;
+        }
+
         setIsLoading(true);
         priceChart.data.labels = [];
         priceChart.data.datasets![0].data = [];
         priceChart.update();
         setPriceChart(priceChart);
 
+        currentLoadingString = JSON.stringify({
+            tag: props.item.tag,
+            fetchspan,
+            itemFilter
+        });
+
         api.getItemPrices(props.item.tag, fetchspan, itemFilter).then((result) => {
 
-            if (!mounted) {
+            if (!mounted || currentLoadingString !== JSON.stringify({
+                tag: props.item.tag,
+                fetchspan,
+                itemFilter
+            })) {
                 return;
             }
 
@@ -125,16 +147,14 @@ function PriceGraph(props: Props) {
     let onFilterChange = (filter: ItemFilter) => {
         setItemFilter(filter);
         setDefaultRangeSwitch(!defaultRangeSwitch);
-        setTimeout(() => {
-            if (fetchspanRef.current > 0) {
-                updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
-            }
-        }, 100)
+        if (fetchspanRef.current > 0) {
+            updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
+        }
     }
 
     function loadFilters() {
         api.filterFor(props.item).then(filters => {
-            setFilters(filters.map(f => f.name));
+            setFilters(filters);
         });
     }
 
@@ -155,7 +175,7 @@ function PriceGraph(props: Props) {
         <div className="price-graph">
 
             <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} isPrefill={isItemFilterPrefill} />
-            <ItemPriceRange setToDefaultRangeSwitch={defaultRangeSwitch} onRangeChange={onRangeChange} disabled={isLoading} disableAllTime={itemFilter && JSON.stringify(itemFilter) !== "{}"} item={props.item} />
+            <ItemPriceRange setToDefaultRangeSwitch={defaultRangeSwitch} onRangeChange={onRangeChange} disableAllTime={itemFilter && JSON.stringify(itemFilter) !== "{}"} item={props.item} />
 
             <div style={fetchspan <= 0 ? { display: "none" } : {}}>
                 <div className="graph-canvas-container">
@@ -170,9 +190,11 @@ function PriceGraph(props: Props) {
                 <hr />
                 {props.item?.bazaar || fetchspan <= 0 ? <p className="bazaar-notice">This is a bazaar item. There are no recent auctions.</p> : <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />}
             </div>
-            <div style={fetchspan > 0 ? { display: "none" } : {}}>
-                <ActiveAuctions item={props.item} filter={itemFilter} />
-            </div>
+            {
+                fetchspan <= 0 ?
+                    <ActiveAuctions item={props.item} filter={itemFilter} /> :
+                    ""
+            }
         </div >
     );
 }
