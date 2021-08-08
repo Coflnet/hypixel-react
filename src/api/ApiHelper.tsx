@@ -748,7 +748,7 @@ function initAPI(): API {
     let connectMinecraftAccount = (playerUUID: string): Promise<number> => {
         return new Promise((resolve, reject) => {
 
-            httpApi.sendLimitedCacheRequest({
+            websocketHelper.sendRequest({
                 type: RequestType.CONNECT_MINECRAFT_ACCOUNT,
                 data: playerUUID,
                 resolve: function (data) {
@@ -758,14 +758,14 @@ function initAPI(): API {
                     apiErrorHandler(RequestType.CONNECT_MINECRAFT_ACCOUNT, error, playerUUID);
                     reject();
                 }
-            }, 1);
+            });
         })
     }
 
-    let getAccountInfo = (): Promise<AccountInfo> => {
+    let getAccountInfo = (): Promise<AccountInfo> => {  
         return new Promise((resolve, reject) => {
 
-            httpApi.sendLimitedCacheRequest({
+            websocketHelper.sendRequest({
                 type: RequestType.GET_ACCOUNT_INFO,
                 data: "",
                 resolve: function (accountInfo) {
@@ -775,7 +775,7 @@ function initAPI(): API {
                     apiErrorHandler(RequestType.GET_ACCOUNT_INFO, error, "");
                     reject();
                 }
-            }, 1);
+            });
         })
     }
 
