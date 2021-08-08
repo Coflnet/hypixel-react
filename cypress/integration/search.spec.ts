@@ -2,7 +2,7 @@ describe('search', () => {
 
     // basic search bar
     it('check search bar', () => {
-        cy.visit('https://sky-preview.coflnet.com')
+        cy.visit('/')
         cy.get('input.searchBar', {
             timeout: 15000
         }).type('Diamond')
@@ -20,6 +20,4 @@ describe('search', () => {
         cy.get('div.graph-canvas-container')
             .should('be.visible')
     })
-
-    // check no search result
 })
