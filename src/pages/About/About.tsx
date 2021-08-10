@@ -46,7 +46,7 @@ function ItemDetails() {
                     <hr />
 <h2>Credits</h2>
                     <h3>Player Heads</h3>
-                    <p><a href="https://mc-heads.net/">mc-heads</a> and <a href="https://craftatar.com">craftatar</a></p>
+                    <p>Are provided by<a href="https://mc-heads.net/">mc-heads</a> and <a href="https://craftatar.com">craftatar</a></p>
                     <hr />
                     <h3>Item icons</h3>
                     <div>
