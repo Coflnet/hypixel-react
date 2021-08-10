@@ -20,6 +20,4 @@ describe('search', () => {
         cy.get('div.graph-canvas-container')
             .should('be.visible')
     })
-
-    // check no search result
 })

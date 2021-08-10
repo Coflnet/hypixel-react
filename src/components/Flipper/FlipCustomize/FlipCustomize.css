@@ -1,0 +1,9 @@
+.flip-customize .label {
+    font-weight: bold;
+    min-width: 150px;
+}
+
+.flip-customize .vertical-line {
+    border-left: 2px solid white;
+    height: auto;
+}

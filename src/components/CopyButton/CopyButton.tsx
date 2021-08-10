@@ -8,6 +8,7 @@ interface Props {
     successMessage?: JSX.Element,
     copyValue: string
     buttonWrapperClass?: string,
+    buttonClass?: string,
     buttonVariant?: string,
     forceIsCopied?: boolean
 }
@@ -50,7 +51,7 @@ export function CopyButton(props: Props) {
     return (
         <span>{window.navigator.clipboard ?
             <span className={props.buttonWrapperClass}>
-                <Button aria-label="copy to clipboard" variant={props.buttonVariant || "secondary"} onClick={() => { copyClick() }}>{isCopied || props.forceIsCopied ? copiedIcon : copyIcon}</Button>
+                <Button className={props.buttonClass} aria-label="copy to clipboard" variant={props.buttonVariant || "secondary"} onClick={() => { copyClick() }}>{isCopied || props.forceIsCopied ? copiedIcon : copyIcon}</Button>
             </span> : ""}
         </span>
     )
