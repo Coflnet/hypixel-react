@@ -8,15 +8,19 @@ import { getItemFilterFromUrl, setURLSearchParam } from '../../utils/Parser/URLP
 import FilterElement from '../FilterElement/FilterElement';
 import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
-import api from '../../api/ApiHelper';
 import { camelCaseToSentenceCase } from '../../utils/Formatter';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
     disabled?: boolean,
-    filters?: string[],
+    filters?: FilterOptions[],
     isPrefill?: boolean
 }
+
+const groupedFilter = [
+    ["Enchantment", "EnchantLvl"],
+    ["SecondEnchantment", "SecondEnchantLvl"]
+];
 
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true;
@@ -29,7 +33,6 @@ function ItemFilter(props: Props) {
     let [expanded, setExpanded] = useState(false);
     let [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     let [showInfoDialog, setShowInfoDialog] = useState(false);
-    let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([]);
 
     let history = useHistory();
 
@@ -52,9 +55,35 @@ function ItemFilter(props: Props) {
         itemFilter = getItemFilterFromUrl()
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true);
-            Object.keys(itemFilter).forEach(name => enableFilter(name));
+            Object.keys(itemFilter).forEach(name => {
+                enableFilter(name);
+                getGroupedFilter(name).forEach(filter => enableFilter(filter));
+            });
             setItemFilter(itemFilter);
         }
+    }
+
+    function getGroupedFilter(filterName: string): string[] {
+
+        let result: string[] = [];
+
+        let index = groupedFilter.findIndex(group => {
+            let groupIndex = group.findIndex(element => {
+                return filterName === element;
+            })
+            return groupIndex !== -1
+        })
+
+        if (index !== -1) {
+            let groupToEnable = groupedFilter[index];
+            groupToEnable.forEach(filter => {
+                if (filter !== filterName) {
+                    result.push(filter);
+                }
+            })
+        }
+
+        return result;
     }
 
     let enableFilter = (filterName: string) => {
@@ -62,24 +91,12 @@ function ItemFilter(props: Props) {
         if (selectedFilters.some(n => n === filterName)) {
             return;
         }
-        if (filterName === "Enchantment") {
-            enableFilter("EnchantLvl");
-        }
 
-        selectedFilters = [filterName, ...selectedFilters];
+        selectedFilters = [...selectedFilters, filterName];
         setSelectedFilters(selectedFilters);
 
-        api.getFilter(filterName).then(options => {
-
-            if (!mounted) {
-                return;
-            }
-            updateURLQuery(itemFilter);
-            setItemFilter(itemFilter);
-
-            filterOptions = [options, ...filterOptions];
-            setFilterOptions(filterOptions);
-        });
+        updateURLQuery(itemFilter);
+        setItemFilter(itemFilter);
     }
 
     let addFilter = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -87,13 +104,19 @@ function ItemFilter(props: Props) {
         let filterName = event.target.options[selectedIndex].getAttribute('data-id')!;
 
         enableFilter(filterName);
+        getGroupedFilter(filterName).forEach(filter => enableFilter(filter));
     }
 
-    let onFilterRemove = () => {
+    let onFilterClose = () => {
         setSelectedFilters([]);
         setExpanded(false);
         setItemFilter({});
         onFilterChange({});
+    }
+
+    function onFilterRemoveClick(filterName: string) {
+        removeFilter(filterName);
+        getGroupedFilter(filterName).forEach(filter => removeFilter(filter));
     }
 
     function removeFilter(filterName: string) {
@@ -103,7 +126,9 @@ function ItemFilter(props: Props) {
             updateURLQuery(itemFilter);
             onFilterChange(itemFilter);
         }
-        setSelectedFilters(selectedFilters.filter(f => f !== filterName))
+        let newSelectedFilters = selectedFilters.filter(f => f !== filterName);
+        selectedFilters = newSelectedFilters;
+        setSelectedFilters(newSelectedFilters);
     }
 
     let onEnable = () => {
@@ -123,7 +148,7 @@ function ItemFilter(props: Props) {
     let updateURLQuery = (filter?: ItemFilter) => {
         let filterString = filter && JSON.stringify(filter) === "{}" ? undefined : btoa(JSON.stringify(filter));
 
-        let searchString = filterString ? setURLSearchParam("itemFilter", filterString) : window.location.search;
+        let searchString = setURLSearchParam("itemFilter", filterString || "");
 
         history.replace({
             pathname: history.location.pathname,
@@ -131,11 +156,37 @@ function ItemFilter(props: Props) {
         })
     }
 
-    function onFilterChange(filter?: ItemFilter) {
+    function onFilterChange(filter: ItemFilter) {
+
+        let valid = true;
+        Object.keys(filter).forEach(key => {
+            if (!checkForValidGroupedFilter(key, filter)) {
+                valid = false;
+                return;
+            }
+        })
+
+        if (!valid) {
+            return;
+        }
+
         setItemFilter(filter!);
         if (props.onFilterChange) {
             props.onFilterChange(filter);
         }
+    }
+
+    function checkForValidGroupedFilter(filterName: string, filter: ItemFilter): boolean {
+        let groupFilters = getGroupedFilter(filterName);
+
+        let invalid = false;
+        groupFilters.forEach(name => {
+            if (filter[name] === undefined || filter[name] === null) {
+                invalid = true;
+            }
+        })
+
+        return !invalid;
     }
 
     function onFilterElementChange(filter?: ItemFilter) {
@@ -154,7 +205,7 @@ function ItemFilter(props: Props) {
     }
 
     let filterList = selectedFilters.map(filterName => {
-        let options = filterOptions.find(f => f.name === filterName);
+        let options = props.filters?.find(f => f.name === filterName);
         let defaultValue: any = 0;
         if (options && options.options[0]) {
             defaultValue = options.options[0];
@@ -168,16 +219,16 @@ function ItemFilter(props: Props) {
         return (
             <div key={filterName} className="filter-element">
                 <FilterElement onFilterChange={onFilterElementChange} options={options} defaultValue={defaultValue} />
-                <div style={{ height: "100%", position: "relative" }} className="remove-filter" onClick={() => removeFilter(filterName)}>
-                    <DeleteIcon style={{ top: "50px", position: "absolute" }} color="error" />
+                <div className="remove-filter" onClick={() => onFilterRemoveClick(filterName)}>
+                    <DeleteIcon color="error" />
                 </div>
             </div>
         )
     });
 
-    let filterSelectList = props?.filters ? props?.filters.filter(f => !selectedFilters.includes(f)).map(filter => {
+    let filterSelectList = props?.filters ? props?.filters.filter(f => !selectedFilters.includes(f.name)).map(filter => {
         return (
-            <option data-id={filter} key={filter} value={filter}>{camelCaseToSentenceCase(filter)}</option>
+            <option data-id={filter.name} key={filter.name} value={filter.name}>{camelCaseToSentenceCase(filter.name)}</option>
         )
     }) : ""
 
@@ -209,7 +260,7 @@ function ItemFilter(props: Props) {
     );
 
     return (
-        <div className="enchantment-filter">
+        <div className="item-filter">
             {!expanded ?
                 <div>
                     <a href="#" onClick={() => onEnable()}>
@@ -224,16 +275,14 @@ function ItemFilter(props: Props) {
                     </Card.Title>
                     <Card.Body>
 
-                        <Form inline style={{ marginBottom: "5px" }} >
+                        <Form style={{ marginBottom: "5px" }} >
 
                             <Form.Group>
                                 {props?.filters && props.filters?.length > 0 ?
-                                    <div>
-                                        <Form.Control className="select-filter" as="select" onChange={addFilter} disabled={props.disabled} ref={reforgeSelect}>
-                                            <option>Click to add filter</option>
-                                            {filterSelectList}
-                                        </Form.Control>
-                                    </div> :
+                                    <Form.Control className="add-filter-select" as="select" onChange={addFilter} disabled={props.disabled} ref={reforgeSelect}>
+                                        <option>Click to add filter</option>
+                                        {filterSelectList}
+                                    </Form.Control> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
@@ -242,7 +291,7 @@ function ItemFilter(props: Props) {
                             </div>
                         </Form >
                         <div>
-                            <Button className="btn-danger" onClick={() => onFilterRemove()} disabled={props.disabled}>Close</Button>
+                            <Button className="btn-danger" onClick={() => onFilterClose()} disabled={props.disabled}>Close</Button>
                         </div>
                     </Card.Body>
                 </Card>

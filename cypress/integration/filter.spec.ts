@@ -9,7 +9,8 @@ describe('filter', () => {
             timeout: 12000
         }).parent().should("be.enabled").wait(100).should("be.enabled").select('Reforge')
         cy.wait(1000)
-        cy.get('.generic-filter').children().children('select').select("Itchy")
+        
+        cy.get('.generic-filter').children().children('select').scrollIntoView().select("Itchy")
         // no sword matches Demonic
         cy.contains('0 Coins');
         cy.contains('No data found');
@@ -27,7 +28,7 @@ describe('filter', () => {
 
         cy.wait(2000)
         cy.contains('Avg Price:').parent().should('not.equal', oldPrice);
-        cy.get('.recent-auctions-list').children().first().click()
+        cy.get('.recent-auctions-list').children().first().scrollIntoView().click()
         cy.contains("Sharp")
     });
 
@@ -43,7 +44,7 @@ describe('filter', () => {
         // trigger a reload to test the url apply as well
         cy.reload()
         cy.wait(4000)
-        cy.get('.recent-auctions-list').children().first().click()
+        cy.get('.recent-auctions-list').children().first().scrollIntoView().click()
         cy.contains("[Lvl 1] ")
     });
 });

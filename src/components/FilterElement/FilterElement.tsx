@@ -131,7 +131,7 @@ function FilterElement(props: Props) {
         <div className="generic-filter">
             {!props.options ? <Spinner animation="border" role="status" variant="primary" /> :
                 <div>
-                    <Form.Label>{camelCaseToSentenceCase(props.options.name)}</Form.Label>
+                    <Form.Label style={{ float: "left" }}><b>{camelCaseToSentenceCase(props.options.name)}</b></Form.Label>
                     {
                         hasFlag(props.options.type, FilterTypeEnum.DATE)
                             ? <span><br /><DatePicker className="date-filter form-control" selected={value ? new Date(value * 1000) : new Date()} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>

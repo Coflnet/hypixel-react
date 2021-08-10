@@ -2,7 +2,7 @@ describe('search', () => {
 
     // basic search bar
     it('check search bar', () => {
-        cy.visit('/')
+        cy.visit('')
         cy.get('input.searchBar', {
             timeout: 15000
         }).type('Diamond')

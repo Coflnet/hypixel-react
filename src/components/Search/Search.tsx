@@ -1,11 +1,12 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import api from '../../api/ApiHelper';
-import { Form, ListGroup, Spinner } from 'react-bootstrap';
+import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap';
 import './Search.css';
 import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
 import NavBar from '../NavBar/NavBar';
 import OptionsMenu from '../OptionsMenu/OptionsMenu';
+import { SearchOutlined as SearchIcon } from '@material-ui/icons'
 
 interface Props {
     selected?: Player | Item,
@@ -21,19 +22,17 @@ function Search(props: Props) {
     let [isLoading, setIsLoading] = useState(false);
     let [noResultsFound, setNoResultsFound] = useState(false);
 
+    let isSmall = document.body.clientWidth < 1500;
+
     useEffect(() => {
         setSearchText("");
         setResults([]);
     }, [props.selected])
 
     let search = () => {
-        // only display loading animation if there is no answer for 500ms
-        let sheduledLoading = setTimeout(() => {
-            setIsLoading(true);
-        }, 500);
+
         let searchFor = searchText;
         api.search(searchFor).then(searchResults => {
-            clearTimeout(sheduledLoading);
 
             // has the searchtext changed?
             if (searchFor === (document.getElementById('search-bar') as HTMLInputElement).value) {
@@ -85,12 +84,6 @@ function Search(props: Props) {
         </ListGroup.Item>
     );
 
-    let loadingElement = (
-        <div style={{ marginLeft: "auto", marginRight: "auto", textAlign: "center" }}>
-            <Spinner animation="border" role="status" variant="primary" />
-        </div>
-    );
-
     let getSelectedElement = (): JSX.Element => {
         if (!props.selected || props.currentElement) {
             return props.currentElement || <div />;
@@ -98,35 +91,62 @@ function Search(props: Props) {
         return <h1 className="current"><img crossOrigin="anonymous" className="player-head-icon" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</h1>
     }
 
+    let searchStyle: React.CSSProperties = {
+        borderRadius: results.length > 0 ? "0px 10px 0 0" : "0px 10px 10px 0px",
+        borderLeftWidth: 0,
+        borderBottomColor: results.length > 0 ? "#444" : undefined
+    }
+    let searchIconStyle: React.CSSProperties = {
+        width: isSmall ? "auto" : "58px",
+        borderRadius: results.length > 0 ? "10px 0 0 0" : "10px 0px 0px 10px",
+        backgroundColor: "#303030",
+        borderBottomColor: results.length > 0 ? "#444" : undefined,
+        padding: isSmall ? "0px" : undefined
+    }
+
+    function getListItemStyle(i: number): React.CSSProperties {
+        return {
+            borderRadius: i === results.length - 1 ? "0 0 10px 10px" : "",
+            border: 0,
+            borderTop: i === 0 ? "1px solid #444" : 0,
+            borderTopWidth: i === 0 ? 0 : undefined
+        }
+    };
+
+    let listWidth = document.getElementById('search-input-group')?.offsetWidth ? document.getElementById('search-input-group')!.offsetWidth - 2 : "";
+
     return (
-        <div className="search">
+        <div className="search" style={isSmall ? { marginLeft: "-5px", marginRight: "-5px" } : {}}>
 
             <Form autoComplete="off">
-                <Form.Group>
-                    <NavBar />
-                    <Form.Control type="text" placeholder="Search player/item" id="search-bar" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
+                <Form.Group className="search-form-group">
+                    {!isSmall ? <NavBar /> : ""}
+                    <InputGroup id="search-input-group">
+                        <InputGroup.Text style={searchIconStyle}>
+                            {isSmall ? <div style={{ width: "56px" }}><NavBar hamburgerIconStyle={{ marginRight: "0px", width: "56px" }} /></div> :
+                                <SearchIcon />
+                            }
+                        </InputGroup.Text>
+                        <Form.Control style={searchStyle} type="text" placeholder="Search player/item" id="search-bar" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
+                    </InputGroup>
                 </Form.Group>
             </Form>
-            {
-                isLoading ?
-                    loadingElement :
-                    < ListGroup >
-                        {
-                            noResultsFound ?
-                                noResultsFoundElement :
-                                results.map((result, i) => (
-                                    <ListGroup.Item key={result.id} action onClick={(e: any) => { onItemClick(result) }} style={i === results.length - 1 ? { marginBottom: "10px" } : {}} >
-                                        {result.dataItem.iconUrl ?
-                                            <img className="search-result-icon player-head-icon" crossOrigin="anonymous" width={32} height={32} src={result.dataItem.iconUrl} alt="" loading="lazy" /> :
-                                            <Spinner animation="border" role="status" variant="primary" />
-                                        }
-                                        {result.dataItem.name}
-                                    </ListGroup.Item>
-                                ))
-                        }
-                    </ListGroup>
-            }
-            <div className="bar">
+            <ListGroup style={{ width: listWidth, marginLeft: isSmall ? "1px" : "1px", borderTopWidth: 0 }}>
+                {
+                    noResultsFound ?
+                        noResultsFoundElement :
+                        results.map((result, i) => (
+                            <ListGroup.Item key={result.id} action onClick={(e: any) => { onItemClick(result) }} style={getListItemStyle(i)} >
+                                {result.dataItem.iconUrl ?
+                                    <img className="search-result-icon player-head-icon" crossOrigin="anonymous" width={32} height={32} src={result.dataItem.iconUrl} alt="" loading="lazy" /> :
+                                    <Spinner animation="border" role="status" variant="primary" />
+                                }
+                                {result.dataItem.name}
+                            </ListGroup.Item>
+                        ))
+                }
+            </ListGroup>
+            <div className="bar" style={{ marginTop: "20px" }}>
                 {getSelectedElement()}
                 {isLoading ? "" : <OptionsMenu selected={props.selected} />}
             </div>

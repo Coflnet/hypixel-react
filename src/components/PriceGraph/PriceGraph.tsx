@@ -31,7 +31,7 @@ function PriceGraph(props: Props) {
     let [isLoading, setIsLoading] = useState(false);
     let [noDataFound, setNoDataFound] = useState(false);
     let [avgPrice, setAvgPrice] = useState(0);
-    let [filters, setFilters] = useState([] as string[]);
+    let [filters, setFilters] = useState([] as FilterOptions[]);
     let [itemFilter, setItemFilter] = useState<ItemFilter>();
     let [isItemFilterPrefill, setIsItemFilterPrefill] = useState<boolean>(true);
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true);
@@ -147,16 +147,14 @@ function PriceGraph(props: Props) {
     let onFilterChange = (filter: ItemFilter) => {
         setItemFilter(filter);
         setDefaultRangeSwitch(!defaultRangeSwitch);
-        setTimeout(() => {
-            if (fetchspanRef.current > 0) {
-                updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
-            }
-        }, 100)
+        if (fetchspanRef.current > 0) {
+            updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter);
+        }
     }
 
     function loadFilters() {
         api.filterFor(props.item).then(filters => {
-            setFilters(filters.map(f => f.name));
+            setFilters(filters);
         });
     }
 
