@@ -43,6 +43,7 @@ function ItemDetails() {
                     <hr />
                     <h3>Our API</h3>
                     <p><a href="https://sky.coflnet.com/api">https://sky.coflnet.com/api</a></p>
+<p>If you use it please link to <a href="https://sky.coflnet.com/data">https://sky.coflnet.com/data</a></p>
                     <hr />
 <h2>Credits</h2>
                     <h3>Player Heads</h3>
