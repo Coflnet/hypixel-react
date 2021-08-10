@@ -6,7 +6,7 @@ import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Form
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, Settings as SettingsIcon } from '@material-ui/icons';
+import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon } from '@material-ui/icons';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
 import AuctionDetails from '../AuctionDetails/AuctionDetails';
@@ -14,6 +14,7 @@ import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { FixedSizeList as List } from 'react-window';
 import { Link } from 'react-router-dom';
 import Tooltip from '../Tooltip/Tooltip';
+import Countdown from 'react-countdown';
 
 interface Flips {
     all: FlipAuction[],
@@ -33,6 +34,8 @@ let missedInfo: FreeFlipperMissInformation = {
 
 let mounted = true;
 
+const FLIPPER_DISABLED_FROM_EXTERN_DATE = new Date("8.11.2021 11:15 UTC")
+
 function Flipper() {
 
     let [flips, setFlips] = useState<Flips>({ all: [], filtered: [] });
@@ -45,6 +48,7 @@ function Flipper() {
     let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle);
     let [refInfo, setRefInfo] = useState<RefInfo>();
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
+    let [isFlipperDisabledFromExtern, setIsFlipperDisabledFromExtern] = useState(FLIPPER_DISABLED_FROM_EXTERN_DATE.getTime() > new Date().getTime());
     const listRef = useRef(null);
 
     const autoscrollRef = useRef(autoscroll);
@@ -371,10 +375,20 @@ function Flipper() {
                         </Form>
                         <hr />
                         {
-                            flips.filtered.length === 0 ?
+                            isFlipperDisabledFromExtern ?
                                 <div>
-                                    {getLoadingElement(<p>While Derpy is mayor the auction house is disabled. Therefore there can't be any new flips.</p>)}
-                                </div> : ""
+                                    {
+                                        <div>
+                                            <p>While Derpy is mayor the auction house is disabled. Therefore there can't be any new flips.</p>
+                                            <p>Auction house reopens: <Countdown date={FLIPPER_DISABLED_FROM_EXTERN_DATE} onComplete={() => { setIsFlipperDisabledFromExtern(false) }} /></p>
+                                        </div>
+                                    }
+                                </div> : (
+                                    flips.filtered.length === 0 ?
+                                        <div>
+                                            {getLoadingElement(<p>Waiting for new flips....</p>)}
+                                        </div> : ""
+                                )
                         }
                         {flips.filtered.length > 0 ?
                             <List
