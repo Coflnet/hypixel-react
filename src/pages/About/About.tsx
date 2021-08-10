@@ -68,7 +68,8 @@ function ItemDetails() {
                     <h3>Data / API</h3>
                     <p><a href="https://hypixel.net">Hypixel</a></p>
                     <hr />
-                    <h3>Legal</h3>
+                    <h2>Legal</h2>
+<p>We are not affiliated with Mojang nor HyPixel</p>
                     <p><a href="https://coflnet.com/legal">Terms of use</a></p>
                     <p><a href="https://coflnet.com/privacy">Privacy</a></p>
                     <p><a href="https://coflnet.com/impressum">Imprint</a></p>
