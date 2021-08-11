@@ -52,6 +52,7 @@ function Payment(props: Props) {
     return Promise.all(promises).then(() => {
       let newProducts = groupProductsByDuration(products2);
       products = newProducts;
+      console.log({products})
       setProducts(products);
       setIsLoading(false);
       setTimeout(() => loadPayPalButton(), 100);
@@ -111,7 +112,10 @@ function Payment(props: Props) {
 
 
   const onPay = (product: Product) => {
+    console.log("view: pay")
+    console.log({product})
     let provider = availablePaymentProvider().find(provider => provider?.name === product.paymentProviderName);
+    console.log({provider})
     provider?.pay(product);
   }
 
