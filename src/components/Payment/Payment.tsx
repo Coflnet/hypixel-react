@@ -115,8 +115,11 @@ function Payment(props: Props) {
     console.log("view: pay")
     console.log({product})
     let provider = availablePaymentProvider().find(provider => provider?.name === product.paymentProviderName);
+    console.log({provider});
     if (!provider) {
+      console.log("not found search other way")
       provider = availablePaymentProvider()[0];
+      console.log(availablePaymentProvider());
     }
     console.log({provider});
     provider?.pay(product);

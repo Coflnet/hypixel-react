@@ -8,6 +8,8 @@ let currentProviders: AbstractPaymentProvider[] = [];
 
 export default function availablePaymentProvider(): AbstractPaymentProvider[] {
   if (currentProviders.length >= 1) {
+      console.log("cache return");
+      console.log({currentProviders})
     return currentProviders;
   }
 
@@ -15,6 +17,8 @@ export default function availablePaymentProvider(): AbstractPaymentProvider[] {
   const googleProvider = GooglePlayProvider()
   if (googleProvider.checkIfPaymentIsPossible()) {
       currentProviders.push(googleProvider);
+      console.log("google return");
+      console.log({currentProviders})
       return currentProviders;
   }
 
