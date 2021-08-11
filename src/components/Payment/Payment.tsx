@@ -136,8 +136,12 @@ function Payment(props: Props) {
                     <div style={{ position: "relative", zIndex: 0 }}>
                       <div id={"paypal-button" + product.itemId}></div>
                     </div> :
+                      product?.paymentProviderName === 'stripe' ?
                     <Button variant="success" onClick={() => { onPay(product) }}>
-                      Buy with credit card
+                        Buy with credit card
+                    </Button> :
+                    <Button variant="success" onClick={() => { onPay(product) }}>
+                        Buy with Google Pay
                     </Button>
                 }
                 {
