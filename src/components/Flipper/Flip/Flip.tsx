@@ -55,7 +55,7 @@ function Flip(props: Props) {
 
     return (
         <div className="flip" key={props.flip.uuid} style={props.style}>
-            <Card className="flip-auction-card" style={{ cursor: "pointer" }} onClick={onCardClick}>
+            <Card className="flip-auction-card" style={{ cursor: "pointer" }} onMouseDown={onCardClick}>
                 <Card.Header style={{ padding: "10px", display: "flex", justifyContent: "space-between" }}>
                     <div className="ellipse">
                         <img crossOrigin="anonymous" src={props.flip.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
@@ -88,7 +88,7 @@ function Flip(props: Props) {
                                     +{numberWithThousandsSeperators(props.flip.median - props.flip.cost)} Coins
                                 </b>
                                 <span style={{ float: "right" }}>
-                                    <span onClick={onBasedAuctionClick}><HelpIcon /></span>
+                                    <span onMouseDown={onBasedAuctionClick}><HelpIcon /></span>
                                 </span>
                             </p>
                     }
