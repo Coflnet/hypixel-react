@@ -141,7 +141,7 @@ function Flip(props: Props) {
                                 </div>
                         }
                     </div>
-                    <CopyButton forceIsCopied={props.flip.isCopied} onCopy={onCopy} buttonClass="flip-auction-copy-button" successMessage={<p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>} copyValue={"/viewauction " + props.flip.uuid} />
+                    <CopyButton forceIsCopied={props.flip.isCopied} onCopy={onCopy} buttonClass="flip-auction-copy-button" successMessage={settings.hideCopySuccessMessage ? undefined : <p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>} copyValue={"/viewauction " + props.flip.uuid} />
                 </Card.Body>
             </Card>
         </div >
