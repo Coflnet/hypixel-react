@@ -536,6 +536,23 @@ function initAPI(): API {
         });
     }
 
+    let unsubscribeFlips = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.UNSUBSCRIBE_FLIPS,
+                data: "",
+                resolve: function (data) {
+                    resolve();
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, "");
+                    reject();
+                }
+            });
+        })
+    }
+
     let getFilter = (name: string): Promise<FilterOptions> => {
         return new Promise((resolve, reject) => {
             httpApi.sendRequest({
@@ -784,7 +801,8 @@ function initAPI(): API {
         getRefInfo,
         setRef,
         getActiveAuctions,
-        filterFor
+        filterFor,
+        unsubscribeFlips
     }
 }
 

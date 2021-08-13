@@ -24,6 +24,7 @@ export enum RequestType {
     VALIDATE_PAYMENT_TOKEN = "gPurchase",
     RECENT_AUCTIONS = "recentAuctions",
     SUBSCRIBE_FLIPS = "subFlip",
+    UNSUBSCRIBE_FLIPS = "unsubFlip",
     GET_FLIPS = "getFlips",
     GET_FILTER = "getFilter",
     NEW_AUCTIONS = "newAuctions",
