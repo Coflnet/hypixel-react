@@ -96,6 +96,11 @@ function Flipper() {
         })
     }
 
+    function onLoginFail() {
+        setIsLoading(false);
+        wasAlreadyLoggedInGoogle = false;
+    }
+
     function onArrowRightClick() {
         if (listRef && listRef.current) {
             (listRef!.current! as any).scrollToItem(flips?.filtered.length - 1);
@@ -290,13 +295,13 @@ function Flipper() {
             <Card className="card">
                 <Card.Header>
                     <Card.Title>
-                        {isLoading ? getLoadingElement() : !isLoggedIn ?
+                        {isLoading ? getLoadingElement(<p>Logging in with Google...</p>) : !isLoggedIn ?
                             <h2>Free Auction Flipper</h2> :
                             hasPremium ? "You have premium and receive profitable auctions in real time." : <span>
                                 These auctions are delayed by 5 min. Please purchase <a target="_blank" rel="noreferrer" href="/premium">premium</a> if you want real time flips.
                             </span>
                         }
-                        <GoogleSignIn onAfterLogin={onLogin} />
+                        <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                     </Card.Title>
                     <Card.Subtitle>
                         You need to be logged and have Premium to have all <Link to="/premium">features</Link> unlocked.
