@@ -78,11 +78,12 @@ export interface Connection {
     sendRequest(request: ApiRequest): void
 }
 
-export interface WebsocketHelper extends Connection{
-    subscribe(subscription: ApiSubscription): void
+export interface WebsocketHelper extends Connection {
+    subscribe(subscription: ApiSubscription): void,
+    removeOldSubscriptionByType(type: RequestType): void
 }
 
 export interface HttpApi extends Connection {
-    sendLimitedCacheRequest(request:ApiRequest, grouping:number ),
-    sendLimitedCacheRequest(request:ApiRequest)
+    sendLimitedCacheRequest(request: ApiRequest, grouping: number),
+    sendLimitedCacheRequest(request: ApiRequest)
 }

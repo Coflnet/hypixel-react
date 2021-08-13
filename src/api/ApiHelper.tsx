@@ -518,6 +518,9 @@ function initAPI(): API {
     }
 
     let subscribeFlips = (flipCallback: Function, soldCallback?: Function) => {
+
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS);
+
         return new Promise((resolve, reject) => {
             websocketHelper.subscribe({
                 type: RequestType.SUBSCRIBE_FLIPS,
