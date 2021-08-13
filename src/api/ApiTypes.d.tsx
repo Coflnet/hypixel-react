@@ -37,7 +37,7 @@ export enum RequestType {
     GET_REF_INFO = "getRefInfo",
     SET_REF = "setRef",
     ACTIVE_AUCTIONS = "activeAuctions",
-    FILTER_FOR = "filterFor",
+    FILTER_FOR = "filterFor"
 }
 
 export enum SubscriptionType {
