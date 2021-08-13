@@ -281,23 +281,20 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Mayor Derpy is active</Card.Subtitle>
+                        <Card.Subtitle>Flipper customization</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        <p>Since the auction house is disabled while Derpy is mayor, you won't see any new auction on this site.</p>
-                        <p>All premium users will/have received a 5-day extension.</p>
-
-                        <p>We are using the time to do some system upgrades. Please note that this could lead to unexpected behavior and set the site into a "broken" state, e.g. the search not returning suggestions.</p>
+                        <p>The new customization feature allows you to hide information in flips you don't want to see.</p>
+                        <p>All Premium users received a 5-day extension for the time the auction house was closed because of mayor derpy.</p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
-                            <p>Recent changes (last change: 06.08.2021):</p>
+                            <p>Recent changes (last change: 13.08.2021):</p>
                             <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <span style={{ color: "#007bff", cursor: "pointer" }}>Click here to open</span></p>} tooltipContent={
                                 <ul>
-                                    <li className="changelog-item">Further flipper improvements</li>
-                                    <li className="changelog-item">Implemented volume filter (Flipper)</li>
-                                    <li className="changelog-item">Stars are now always visible (Flipper)</li>
-                                    <li className="changelog-item">Styling upgrade (Flipper)</li>
-                                    <li className="changelog-item">Multiple bugs fixed</li>
+                                    <li className="changelog-item">Flipper customization</li>
+                                    <li className="changelog-item">Flipper filter style upgrade</li>
+                                    <li className="changelog-item">Improved server infrastructure</li>
+                                    <li className="changelog-item">Fixed bug that blocked the copy button on flips</li>
                                 </ul>} type="click" tooltipTitle={<span>Recent changes</span>} />
                         </div>
                     </Card.Body>
