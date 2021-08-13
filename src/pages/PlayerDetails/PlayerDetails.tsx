@@ -9,6 +9,7 @@ import { useSwipe } from '../../utils/Hooks';
 import Tooltip from '../../components/Tooltip/Tooltip';
 import ClaimAccount from './ClaimAccount/ClaimAccount';
 import PlayerDetailsList from '../../components/PlayerDetailsList/PlayerDetailsList';
+import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 
 enum DetailType {
     AUCTIONS = "auctions",
@@ -18,14 +19,27 @@ enum DetailType {
 // save Detailtype for after navigation
 let prevDetailType: DetailType;
 
+let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
+
 function PlayerDetails() {
 
     let { uuid } = useParams();
     let [detailType, setDetailType_] = useState<DetailType>(prevDetailType || DetailType.AUCTIONS);
     let [selectedPlayer, setSelectedPlayer] = useState<Player>();
+    let [accountInfo, setAccountInfo] = useState<AccountInfo>();
     let removeSwipeListeners = useSwipe(undefined, onSwipeRight, undefined, onSwipeLeft);
 
     useEffect(() => {
+
+        let googleId = localStorage.getItem("googleId");
+        if (wasAlreadyLoggedInGoogle && googleId) {
+            api.setGoogle(googleId).then(() => {
+                api.getAccountInfo().then(info => {
+                    setAccountInfo(info);
+                })
+            })
+        }
+
         return () => {
             removeSwipeListeners();
         }
@@ -71,7 +85,10 @@ function PlayerDetails() {
                         <h1 className="current">
                             <img crossOrigin="anonymous" className="player-head-icon" src={selectedPlayer?.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />
                             <span>{selectedPlayer?.name}</span>
-                            <span style={{ marginLeft: "25px" }}><Tooltip type="click" content={<span style={{ color: "#007bff", cursor: "pointer" }}>You? Claim account.</span>} tooltipContent={<ClaimAccount playerUUID={uuid} />} size="xl" tooltipTitle={<span>Claim Minecraft account</span>} /></span>
+                            {
+                                selectedPlayer?.name !== accountInfo?.mcName ?
+                                    <span style={{ marginLeft: "25px" }}><Tooltip type="click" content={<span style={{ color: "#007bff", cursor: "pointer" }}>You? Claim account.</span>} tooltipContent={<ClaimAccount playerUUID={uuid} />} size="xl" tooltipTitle={<span>Claim Minecraft account</span>} /></span> : null
+                            }
                         </h1>
                     } />
                 <ToggleButtonGroup className="player-details-type" type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>

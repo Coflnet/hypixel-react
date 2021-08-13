@@ -294,8 +294,8 @@ interface FreeFlipperMissInformation {
 }
 
 interface AccountInfo {
-  email?: string,
-  token?: string,
+  email: string,
+  token: string,
   mcId?: string,
   mcName?: string
 }
