@@ -190,6 +190,7 @@ interface API {
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
   subscribeFlips(flipCallback: Function, soldCallback: Function): void,
+  unsubscribeFlips(): Promise<void>,
   getFilter(name: string): Promise<FilterOptions>
   getNewAuctions(): Promise<Auction[]>,
   getEndedAuctions(): Promise<Auction[]>,

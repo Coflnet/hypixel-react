@@ -71,6 +71,7 @@ function Flipper() {
 
         return () => {
             mounted = false;
+            api.unsubscribeFlips();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
