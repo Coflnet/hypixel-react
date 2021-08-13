@@ -5,6 +5,7 @@ import api from "./ApiHelper";
 import { toast } from "react-toastify";
 import { getProperty } from '../utils/PropertiesUtils';
 import { getNextMessageId } from "../utils/MessageIdUtils";
+import { wasAlreadyLoggedIn } from "../utils/GoogleUtils";
 
 let requests: ApiRequest[] = [];
 let websocket: WebSocket;
@@ -15,20 +16,41 @@ let apiSubscriptions: ApiSubscription[] = [];
 function initWebsocket(): void {
 
     let onWebsocketClose = (): void => {
-        websocket = getNewWebsocket();
+        var timeout = (Math.random() * (5000 - 0)) + 0;
+        setTimeout(() => {
+            websocket = getNewWebsocket();
+        }, timeout)
     };
 
     let onWebsocketError = (e: Event): void => {
+        var timeout = (Math.random() * (5000 - 0)) + 0;
+        setTimeout(() => {
+            websocket = getNewWebsocket();
+        }, timeout)
         console.error(e);
     };
 
     let onOpen = (e: Event): void => {
-        // set the connection id first 
-        api.setConnectionId().then(() => {
-            isConnectionIdSet = true;
+
+        (window as any).ws = websocket;
+
+        let _reconnect = function () {
             apiSubscriptions.forEach(subscription => {
                 subscribe(subscription, true);
             })
+            isConnectionIdSet = true;
+        }
+
+        // set the connection id first 
+        api.setConnectionId().then(() => {
+            let googleId = localStorage.getItem('googleId');
+            if (wasAlreadyLoggedIn() && googleId) {
+                api.setGoogle(googleId).then(() => {
+                    _reconnect();
+                })
+            } else {
+                _reconnect();
+            }
         })
     }
 
@@ -131,6 +153,15 @@ function sendRequest(request: ApiRequest): Promise<void> {
     })
 }
 
+function removeOldSubscriptionByType(type: RequestType) {
+    for (let i = apiSubscriptions.length - 1; i >= 0; i--) {
+        let subscription = apiSubscriptions[i];
+        if (subscription.type === type) {
+            apiSubscriptions.splice(i, 1);
+        }
+    }
+}
+
 function subscribe(subscription: ApiSubscription, resub?: boolean): void {
     if (!websocket) {
         initWebsocket();
@@ -177,5 +208,6 @@ function _isWebsocketReady(requestType: string) {
 
 export let websocketHelper: WebsocketHelper = {
     sendRequest: sendRequest,
-    subscribe: subscribe
+    subscribe: subscribe,
+    removeOldSubscriptionByType: removeOldSubscriptionByType
 }

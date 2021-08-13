@@ -81,6 +81,9 @@ function Flipper() {
         api.hasPremium(googleId!).then(hasPremiumUntil => {
             if (hasPremiumUntil > new Date()) {
                 setHasPremium(true);
+
+                
+
                 // subscribe to the premium flips
                 api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
             }
