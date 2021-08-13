@@ -23,26 +23,20 @@ function initWebsocket(): void {
     };
 
     let onWebsocketError = (e: Event): void => {
-        var timeout = (Math.random() * (5000 - 0)) + 0;
-        setTimeout(() => {
-            websocket = getNewWebsocket();
-        }, timeout)
         console.error(e);
     };
 
     let onOpen = (e: Event): void => {
 
-        (window as any).ws = websocket;
-
         let _reconnect = function () {
             apiSubscriptions.forEach(subscription => {
                 subscribe(subscription, true);
             })
-            isConnectionIdSet = true;
         }
 
         // set the connection id first 
         api.setConnectionId().then(() => {
+            isConnectionIdSet = true;
             let googleId = localStorage.getItem('googleId');
             if (wasAlreadyLoggedIn() && googleId) {
                 api.setGoogle(googleId).then(() => {
