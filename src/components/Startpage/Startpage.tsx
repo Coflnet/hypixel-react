@@ -285,7 +285,7 @@ function Startpage() {
                     </Card.Header>
                     <Card.Body>
                         <p>The new customization feature allows you to hide information in flips you don't want to see.</p>
-                        <p>All Premium users received a 5-day extension for the time the auction house was closed.</p>
+                        <p>All Premium users received a 5-day extension for the time the auction house was closed because of mayor derpy.</p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
                             <p>Recent changes (last change: 13.08.2021):</p>
