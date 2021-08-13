@@ -82,7 +82,7 @@ function Flipper() {
             if (hasPremiumUntil > new Date()) {
                 setHasPremium(true);
 
-                
+
 
                 // subscribe to the premium flips
                 api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
@@ -307,9 +307,12 @@ function Flipper() {
                         }
                         <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                     </Card.Title>
-                    <Card.Subtitle>
-                        You need to be logged and have Premium to have all <Link to="/premium">features</Link> unlocked.
-                    </Card.Subtitle>
+                    {
+                        !isLoading && !hasPremium ?
+                            <Card.Subtitle>
+                                You need to be logged and have Premium to have all <Link to="/premium">features</Link> unlocked.
+                            </Card.Subtitle> : null
+                    }
                 </Card.Header>
                 <Card.Body>
                     <div id="flipper-card-body">
