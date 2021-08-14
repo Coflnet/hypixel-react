@@ -8,7 +8,11 @@ function getInitUserSettings(): any {
         item = "{}";
         localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(item));
     }
-    return JSON.parse(item);
+    try {
+        return JSON.parse(item);
+    } catch {
+        return {};
+    }
 }
 
 export function getSetting(key: string): string {

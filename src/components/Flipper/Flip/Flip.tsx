@@ -50,7 +50,7 @@ function Flip(props: Props) {
 
     function onCopy(e) {
 
-        if(e.defaultPrevented){
+        if (e.defaultPrevented) {
             return;
         }
 
@@ -110,7 +110,7 @@ function Flip(props: Props) {
                             </p>
                     }
                     {
-                        settings.hideLowestBin && settings.hideSeller ? null : <hr />
+                        settings.hideLowestBin && settings.hideSeller && settings.hideSecondLowestBin ? null : <hr />
                     }
                     {
                         settings.hideLowestBin ? null :
@@ -118,6 +118,15 @@ function Flip(props: Props) {
                                 <span className="card-label">Lowest BIN: </span><br />
                                 <a rel="noreferrer" target="_blank" onMouseDown={e => e.preventDefault()} href={getLowestBinLink(props.flip.item.tag)}>
                                     {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
+                                </a>
+                            </p>
+                    }
+                    {
+                        settings.hideSecondLowestBin ? null :
+                            <p>
+                                <span className="card-label">Second lowest BIN: </span><br />
+                                <a rel="noreferrer" target="_blank" onMouseDown={e => e.preventDefault()} href={getLowestBinLink(props.flip.item.tag)}>
+                                    {numberWithThousandsSeperators(props.flip.secondLowestBin)} Coins
                                 </a>
                             </p>
                     }

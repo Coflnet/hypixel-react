@@ -11,6 +11,7 @@ export const DEMO_FLIP: FlipAuction = {
         iconUrl: "https://sky.coflnet.com/static/icon/MIDAS_SWORD"
     },
     lowestBin: 100000,
+    secondLowestBin: 101000,
     median: 50000000,
     sellerName: "Testuser",
     showLink: true,
@@ -24,6 +25,11 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     let settings: FlipCustomizeSettings;
     try {
         settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY));
+
+        if (settings.hideSecondLowestBin !== false) {
+            settings.hideSecondLowestBin = true;
+        }
+
     } catch {
         settings = {
             hideCost: false,
@@ -33,8 +39,10 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             hideSeller: false,
             hideVolume: false,
             maxExtraInfoFields: 3,
-            hideCopySuccessMessage: false
+            hideCopySuccessMessage: false,
+            hideSecondLowestBin: true
         };
+
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
     }
     return settings;

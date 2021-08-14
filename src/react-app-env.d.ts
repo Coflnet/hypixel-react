@@ -138,6 +138,7 @@ interface FlipAuction {
   sold?: boolean,
   sellerName: string,
   lowestBin: number,
+  secondLowestBin: number,
   isCopied?: boolean,
   props?: string[]
 }
@@ -294,10 +295,11 @@ interface FreeFlipperMissInformation {
 interface FlipCustomizeSettings {
   hideCost?: boolean,
   hideLowestBin?: boolean,
+  hideSecondLowestBin?: boolean,
   hideMedianPrice?: boolean,
   hideSeller?: boolean,
   hideEstimatedProfit?: boolean,
   hideVolume?: boolean,
   maxExtraInfoFields?: number,
-  hideCopySuccessMessage: boolean
+  hideCopySuccessMessage?: boolean
 }
