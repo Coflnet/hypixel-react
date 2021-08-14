@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "react-google-login";
 import { toast } from "react-toastify";
 import api from "../../api/ApiHelper";
-import { refreshTokenSetup, wasAlreadyLoggedIn } from "../../utils/GoogleUtils";
+import { refreshTokenSetup } from "../../utils/GoogleUtils";
 import { useHistory } from "react-router-dom";
 import { useMatomo } from "@datapunt/matomo-tracker-react";
 import { useForceUpdate } from "../../utils/Hooks";
