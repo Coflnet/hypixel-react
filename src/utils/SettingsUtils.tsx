@@ -8,16 +8,20 @@ function getInitUserSettings(): any {
         item = "{}";
         localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(item));
     }
-    return JSON.parse(item);
+    try {
+        return JSON.parse(item);
+    } catch {
+        return {};
+    }
 }
 
 export function getSetting(key: string): string {
     return settings[key] || "";
 }
 
-export function setSetting(key: any, value: any) {
+export function setSetting(key: any, value: string) {
     settings[key] = value;
-    localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(settings));
+    localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, settings);
 }
 
 export const FLIP_CUSTOMIZING_KEY = "flipCustomizing";

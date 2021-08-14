@@ -10,6 +10,7 @@ import Tooltip from '../../components/Tooltip/Tooltip';
 import ClaimAccount from './ClaimAccount/ClaimAccount';
 import PlayerDetailsList from '../../components/PlayerDetailsList/PlayerDetailsList';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
+import GoogleSignIn from '../../components/GoogleSignIn/GoogleSignIn';
 
 enum DetailType {
     AUCTIONS = "auctions",
@@ -18,8 +19,6 @@ enum DetailType {
 
 // save Detailtype for after navigation
 let prevDetailType: DetailType;
-
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
 function PlayerDetails() {
 
@@ -30,15 +29,6 @@ function PlayerDetails() {
     let removeSwipeListeners = useSwipe(undefined, onSwipeRight, undefined, onSwipeLeft);
 
     useEffect(() => {
-
-        let googleId = localStorage.getItem("googleId");
-        if (wasAlreadyLoggedInGoogle && googleId) {
-            api.setGoogle(googleId).then(() => {
-                api.getAccountInfo().then(info => {
-                    setAccountInfo(info);
-                })
-            })
-        }
 
         return () => {
             removeSwipeListeners();
@@ -77,9 +67,20 @@ function PlayerDetails() {
         setDetailType_(type);
     }
 
+    function onAfterLogin() {
+        api.getAccountInfo().then(info => {
+            setAccountInfo(info);
+        })
+    }
+
     return (
         <div className="player-details">
             <Container>
+                {wasAlreadyLoggedIn() ?
+                    <div style={{ visibility: "collapse" }}>
+                        <GoogleSignIn onAfterLogin={onAfterLogin} />
+                    </div> : null
+                }
                 <Search selected={selectedPlayer}
                     currentElement={
                         <h1 className="current">

@@ -8,6 +8,7 @@ import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
+import { setSetting } from "../utils/SettingsUtils";
 
 function initAPI(): API {
 
@@ -782,14 +783,26 @@ function initAPI(): API {
         })
     }
 
-    let getAccountInfo = (): Promise<AccountInfo> => {  
+
+    let accountInfo;
+    let getAccountInfo = (): Promise<AccountInfo> => {
+
         return new Promise((resolve, reject) => {
+
+            accountInfo = "test";
+
+            if (accountInfo) {
+                resolve(accountInfo);
+                return;
+            }
 
             websocketHelper.sendRequest({
                 type: RequestType.GET_ACCOUNT_INFO,
                 data: "",
                 resolve: function (accountInfo) {
-                    resolve(parseAccountInfo(accountInfo));
+                    let info = parseAccountInfo(accountInfo);
+                    accountInfo = info;
+                    resolve(info);
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_ACCOUNT_INFO, error, "");
