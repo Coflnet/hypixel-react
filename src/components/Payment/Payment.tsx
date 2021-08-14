@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom"
 import { Button, Card } from 'react-bootstrap';
 import { getLoadingElement } from "../../utils/LoadingUtils";
 import availablePaymentProvider, { groupProductsByDuration } from "../../utils/Payment/PaymentUtils";
 import './Payment.css';
-import { v4 as generateUUID } from 'uuid';
 import api from "../../api/ApiHelper";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
@@ -11,6 +11,7 @@ import Tooltip from "../Tooltip/Tooltip";
 import { Help as HelpIcon } from '@material-ui/icons';
 
 declare var paypal: any;
+let PayPalButton;
 
 interface Props {
   hasPremium: boolean
@@ -50,62 +51,54 @@ function Payment(props: Props) {
       promises.push(promise);
     }
     return Promise.all(promises).then(() => {
-      let newProducts = groupProductsByDuration(products2);
-      products = newProducts;
-      setProducts(products);
-      setIsLoading(false);
-      setTimeout(() => loadPayPalButton(), 100);
+      onAfterLoadProducts(products2);
     });
-
   }
 
-  function loadPayPalButton(): void {
-    if (!paypal) {
-      setTimeout(() => loadPayPalButton(), 100);
+  function onAfterLoadProducts(products) {
+    if (!(window as any).paypal) {
+      setTimeout(() => {
+        onAfterLoadProducts(products);
+      }, 100);
       return;
     }
-    products.forEach(productGroup => {
-      productGroup.forEach(product => {
-        if (product.paymentProviderName !== 'paypal') return;
-        let el = document.querySelector('#paypal-button' + product.itemId);
-        if (!el) {
-          setTimeout(() => loadPayPalButton(), 100);
-          return;
-        }
-        el.innerHTML = "";
-        let btn = paypal.Buttons({
-          createOrder: function (data, actions) {
-            return actions.order.create({
-              purchase_units: [{
-                amount: {
-                  value: product.price.value
-                }
-              }]
-            });
-          },
-          onApprove: function (data, actions) {
-            return actions.order.capture().then(function (details) {
 
-              if (product.premiumDuration) {
-                api.paypalPurchase(details.id, product.premiumDuration).then(response =>
-                  history.push({
-                    pathname: "/success"
-                  })
-                ).catch(error =>
-                  history.push({
-                    pathname: "/cancel"
-                  })
-                )
-              } else {
-                toast.error("An Error occoured while trying to pay with paypal");
-              }
-            });
-          }
-        });
-        btn.render('#paypal-button' + product.itemId);
-      })
-    })
+    PayPalButton = paypal.Buttons.driver("react", { React, ReactDOM });
+
+    let newProducts = groupProductsByDuration(products);
+    products = newProducts;
+    setProducts(products);
+    setIsLoading(false);
   }
+
+  const createOrder = (product, actions) => {
+    return actions.order.create({
+      purchase_units: [{
+        amount: {
+          value: product.price.value
+        }
+      }]
+    });
+  };
+
+  const onApprove = (product, actions) => {
+    return actions.order.capture().then(function (details) {
+
+      if (product.premiumDuration) {
+        api.paypalPurchase(details.id, product.premiumDuration).then(response =>
+          history.push({
+            pathname: "/success"
+          })
+        ).catch(error =>
+          history.push({
+            pathname: "/cancel"
+          })
+        )
+      } else {
+        toast.error("An Error occoured while trying to pay with paypal");
+      }
+    });
+  };
 
   const roundToTwo = (param: number): number => Math.round(param * 10 ** 2) / 10 ** 2;
 
@@ -118,9 +111,9 @@ function Payment(props: Props) {
     provider?.pay(product);
   }
 
-  let planList = products.map(productGroup => {
+  let planList = products.map((productGroup, i) => {
     return (
-      <Card key={generateUUID()} className="premium-plan-card">
+      <Card key={'product-group-' + i} className="premium-plan-card">
         <Card.Header>
           <h4>{productGroup[0].title}</h4>
         </Card.Header>
@@ -134,15 +127,19 @@ function Payment(props: Props) {
                 {
                   product?.paymentProviderName === 'paypal' ?
                     <div style={{ position: "relative", zIndex: 0 }}>
-                      <div id={"paypal-button" + product.itemId}></div>
+                      <PayPalButton
+                        createOrder={(data, actions) => createOrder(product, actions)}
+                        onApprove={(data, actions) => onApprove(product, actions)}
+
+                      />
                     </div> :
-                      product?.paymentProviderName === 'stripe' ?
-                    <Button variant="success" onClick={() => { onPay(product) }}>
+                    product?.paymentProviderName === 'stripe' ?
+                      <Button variant="success" onClick={() => { onPay(product) }}>
                         Buy with credit card
-                    </Button> :
-                    <Button variant="success" onClick={() => { onPay(product) }}>
+                      </Button> :
+                      <Button variant="success" onClick={() => { onPay(product) }}>
                         Buy with Google Pay
-                    </Button>
+                      </Button>
                 }
                 {
                   i < productGroup.length - 1 ? <hr /> : ""

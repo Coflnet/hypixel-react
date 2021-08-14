@@ -9,7 +9,7 @@ import { convertTagToName, numberWithThousandsSeperators } from '../../utils/For
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
-import {Delete as DeleteIcon, Undo as UndoIcon} from '@material-ui/icons';
+import { Delete as DeleteIcon, Undo as UndoIcon } from '@material-ui/icons';
 
 interface Props {
 
@@ -55,6 +55,11 @@ function SubscriptionList(props: Props) {
         }
     }
 
+    function onLoginFail() {
+        setIsLoggedIn(false);
+        wasAlreadyLoggedInGoogle = false;
+    }
+
     function getSubTypesAsList(subTypes: SubscriptionType[], price: number): JSX.Element {
         return <ul>
             {
@@ -92,7 +97,7 @@ function SubscriptionList(props: Props) {
             setSubscriptions(subs);
             subscriptions = subs;
 
-            toast.success(<span>Subscription deleted <Button style={{ float: "right", marginRight: "5px" }} variant="info" onClick={() => { resubscribe(subscription) }}><UndoIcon/> Undo</Button></span>)
+            toast.success(<span>Subscription deleted <Button style={{ float: "right", marginRight: "5px" }} variant="info" onClick={() => { resubscribe(subscription) }}><UndoIcon /> Undo</Button></span>)
         })
     }
 
@@ -150,7 +155,7 @@ function SubscriptionList(props: Props) {
             </h5>
             {getSubTypesAsList(subscription.types, subscription.price)}
             <div style={{ position: "absolute", top: "0.75rem", right: "1.25rem", cursor: "pointer" }} onClick={() => { onDelete(subscription) }}>
-                <DeleteIcon color="error"/>
+                <DeleteIcon color="error" />
             </div>
         </ListGroup.Item>)
     )
@@ -167,7 +172,7 @@ function SubscriptionList(props: Props) {
             }
             {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
             {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ""}
-            <GoogleSignIn onAfterLogin={onLogin} />
+            <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
         </div>
     );
 }

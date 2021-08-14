@@ -52,40 +52,49 @@ function FlipCustomize() {
         setFlipCustomizeSettings(flipCustomizeSettings);
     }
 
+    function onHideCopyMessage(event: ChangeEvent<HTMLInputElement>) {
+        flipCustomizeSettings.hideCopySuccessMessage = !event.target.checked;
+        setFlipCustomizeSettings(flipCustomizeSettings);
+    }
+
     return (
         <div className="flip-customize">
             <div style={{ display: "flex", alignContent: "center", justifyContent: "space-between" }}>
                 <Form style={{ width: "50%", margin: "20px", display: "flex", alignContent: "center", justifyContent: "space-around" }}>
                     <div>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="hideCost">Cost:</Form.Label>
+                            <Form.Label className="label" htmlFor="hideCost">Cost</Form.Label>
                             <Form.Check onChange={onCostChange} defaultChecked={!flipCustomizeSettings.hideCost} id="hideCost" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="hideMedianPrice">Median price:</Form.Label>
+                            <Form.Label className="label" htmlFor="hideMedianPrice">Median price</Form.Label>
                             <Form.Check onChange={onMedianPriceChange} defaultChecked={!flipCustomizeSettings.hideMedianPrice} id="hideMedianPrice" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="hideEstimatedProfit">Estimated Profit:</Form.Label>
+                            <Form.Label className="label" htmlFor="hideEstimatedProfit">Estimated Profit</Form.Label>
                             <Form.Check onChange={onEstimantedProfitChange} defaultChecked={!flipCustomizeSettings.hideEstimatedProfit} id="hideEstimatedProfit" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields:</Form.Label>
-                            <Form.Control min={0} max={30} onChange={onMaxExtraInfoFieldsChange} defaultValue={flipCustomizeSettings.maxExtraInfoFields} type="number" id="hideMaxExtraInfo" />
+                            <Form.Label className="label" htmlFor="hideEstimatedProfit">Hide copy message</Form.Label>
+                            <Form.Check onChange={onHideCopyMessage} defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage} id="hideEstimatedProfit" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                     </div>
                     <div>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="hideLowestBin">Lowest BIN:</Form.Label>
+                            <Form.Label className="label" htmlFor="hideLowestBin">Lowest BIN</Form.Label>
                             <Form.Check onChange={onLowestBinChange} defaultChecked={!flipCustomizeSettings.hideLowestBin} id="hideLowestBin" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="hideSeller">Seller:</Form.Label>
+                            <Form.Label className="label" htmlFor="hideSeller">Seller</Form.Label>
                             <Form.Check onChange={onSellerChange} defaultChecked={!flipCustomizeSettings.hideSeller} id="hideSeller" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="hideVolume">Volume:</Form.Label>
+                            <Form.Label className="label" htmlFor="hideVolume">Volume</Form.Label>
                             <Form.Check onChange={onVolumeChange} defaultChecked={!flipCustomizeSettings.hideVolume} id="hideVolume" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields</Form.Label>
+                            <Form.Control min={0} max={30} onChange={onMaxExtraInfoFieldsChange} defaultValue={flipCustomizeSettings.maxExtraInfoFields} type="number" id="hideMaxExtraInfo" />
                         </Form.Group>
                     </div>
                 </Form>

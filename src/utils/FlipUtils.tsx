@@ -32,7 +32,8 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             hideMedianPrice: false,
             hideSeller: false,
             hideVolume: false,
-            maxExtraInfoFields: 3
+            maxExtraInfoFields: 3,
+            hideCopySuccessMessage: false
         };
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
     }

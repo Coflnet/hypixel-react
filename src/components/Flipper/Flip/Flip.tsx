@@ -6,6 +6,8 @@ import { CopyButton } from '../../CopyButton/CopyButton';
 import './Flip.css';
 import { useForceUpdate } from '../../../utils/Hooks';
 import { getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { toast } from 'react-toastify';
+import { useMatomo } from '@datapunt/matomo-tracker-react';
 
 interface Props {
     flip: FlipAuction,
@@ -19,6 +21,7 @@ function Flip(props: Props) {
 
     let settings = getFlipCustomizeSettings();
     let forceUpdate = useForceUpdate();
+    let { trackEvent } = useMatomo();
 
     useEffect(() => {
         document.addEventListener('flipSettingsChange', forceUpdate);
@@ -38,16 +41,30 @@ function Flip(props: Props) {
         }
     }
 
-    function onBasedAuctionClick() {
+    function onBasedAuctionClick(e) {
+        e.preventDefault();
         if (props.onBasedAuctionClick) {
             props.onBasedAuctionClick(props.flip);
         }
     }
 
-    function onCopy() {
+    function onCopy(e) {
+
+        if(e.defaultPrevented){
+            return;
+        }
+
+        window.navigator.clipboard.writeText("/viewauction " + props.flip.uuid);
         if (props.onCopy) {
             props.onCopy(props.flip);
         }
+        if (!settings.hideCopySuccessMessage) {
+            toast.success(<p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>)
+        }
+        trackEvent({
+            category: 'copyButtonClick',
+            action: "/viewauction " + props.flip.uuid
+        })
     }
 
     let stars = props.flip.item.name?.match(/✪+/gm);
@@ -65,7 +82,7 @@ function Flip(props: Props) {
                     {props.flip.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
                     {props.flip.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
                 </Card.Header>
-                <Card.Body style={{ padding: "10px" }}>
+                <Card.Body style={{ padding: "10px", cursor: "pointer" }} onMouseDown={onCopy}>
                     {
                         settings.hideCost ? null :
                             <p>
@@ -99,7 +116,7 @@ function Flip(props: Props) {
                         settings.hideLowestBin ? null :
                             <p>
                                 <span className="card-label">Lowest BIN: </span><br />
-                                <a rel="noreferrer" target="_blank" href={getLowestBinLink(props.flip.item.tag)}>
+                                <a rel="noreferrer" target="_blank" onMouseDown={e => e.preventDefault()} href={getLowestBinLink(props.flip.item.tag)}>
                                     {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
                                 </a>
                             </p>
@@ -141,7 +158,7 @@ function Flip(props: Props) {
                                 </div>
                         }
                     </div>
-                    <CopyButton forceIsCopied={props.flip.isCopied} onCopy={onCopy} buttonClass="flip-auction-copy-button" successMessage={<p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>} copyValue={"/viewauction " + props.flip.uuid} />
+                    <CopyButton forceIsCopied={props.flip.isCopied} buttonClass="flip-auction-copy-button" />
                 </Card.Body>
             </Card>
         </div >

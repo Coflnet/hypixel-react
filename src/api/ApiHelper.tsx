@@ -518,6 +518,9 @@ function initAPI(): API {
     }
 
     let subscribeFlips = (flipCallback: Function, soldCallback?: Function) => {
+
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS);
+
         return new Promise((resolve, reject) => {
             websocketHelper.subscribe({
                 type: RequestType.SUBSCRIBE_FLIPS,
@@ -534,6 +537,23 @@ function initAPI(): API {
                 }
             })
         });
+    }
+
+    let unsubscribeFlips = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.UNSUBSCRIBE_FLIPS,
+                data: "",
+                resolve: function (data) {
+                    resolve();
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, "");
+                    reject();
+                }
+            });
+        })
     }
 
     let getFilter = (name: string): Promise<FilterOptions> => {
@@ -820,7 +840,8 @@ function initAPI(): API {
         getActiveAuctions,
         filterFor,
         connectMinecraftAccount,
-        getAccountInfo
+        getAccountInfo,
+        unsubscribeFlips
     }
 }
 

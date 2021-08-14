@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 interface Props {
     onCopy?(),
     successMessage?: JSX.Element,
-    copyValue: string
+    copyValue?: string
     buttonWrapperClass?: string,
     buttonClass?: string,
     buttonVariant?: string,
@@ -35,17 +35,19 @@ export function CopyButton(props: Props) {
 
     function copyClick() {
         setIsCopied(true);
-        window.navigator.clipboard.writeText(props.copyValue);
+        if (props.copyValue) {
+            window.navigator.clipboard.writeText(props.copyValue);
+            trackEvent({
+                category: 'copyButtonClick',
+                action: props.copyValue
+            })
+        }
         if (props.onCopy) {
             props.onCopy();
         }
         if (props.successMessage) {
             toast.success(props.successMessage)
         }
-        trackEvent({
-            category: 'copyButtonClick',
-            action: props.copyValue
-        })
     }
 
     return (

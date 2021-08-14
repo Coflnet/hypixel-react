@@ -30,6 +30,11 @@ function Ref(props: Props) {
         }
     }
 
+    function onLoginFail() {
+        setIsLoggedIn(false);
+        wasAlreadyLoggedInGoogle = false;
+    }
+
     function getLink() {
         return getProperty("refLink") + "?refId=" + refInfo?.refId;
     }
@@ -81,7 +86,7 @@ function Ref(props: Props) {
                 </div>}
             <div>
                 {!isLoggedIn ? <p>To use the referral program please login with Google</p> : ""}
-                <GoogleSignIn onAfterLogin={onLogin} />
+                <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
             </div>
 

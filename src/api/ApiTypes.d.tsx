@@ -24,6 +24,7 @@ export enum RequestType {
     VALIDATE_PAYMENT_TOKEN = "gPurchase",
     RECENT_AUCTIONS = "recentAuctions",
     SUBSCRIBE_FLIPS = "subFlip",
+    UNSUBSCRIBE_FLIPS = "unsubFlip",
     GET_FLIPS = "getFlips",
     GET_FILTER = "getFilter",
     NEW_AUCTIONS = "newAuctions",
@@ -80,7 +81,8 @@ export interface Connection {
 }
 
 export interface WebsocketHelper extends Connection {
-    subscribe(subscription: ApiSubscription): void
+    subscribe(subscription: ApiSubscription): void,
+    removeOldSubscriptionByType(type: RequestType): void
 }
 
 export interface HttpApi extends Connection {
