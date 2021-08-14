@@ -5,7 +5,7 @@ import { Help as HelpIcon } from '@material-ui/icons';
 import { CopyButton } from '../../CopyButton/CopyButton';
 import './Flip.css';
 import { useForceUpdate } from '../../../utils/Hooks';
-import { getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { calculateProfit, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { toast } from 'react-toastify';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 
@@ -67,6 +67,12 @@ function Flip(props: Props) {
         })
     }
 
+    function getProfitElement(flip): JSX.Element {
+        let profit = calculateProfit(flip);
+        let preSymbol = profit > 0 ? "+" : "";
+        return <b style={{ color: profit > 0 ? "lime" : "white" }}>{preSymbol + numberWithThousandsSeperators(profit) + " Coins"}</b>;
+    }
+
     let stars = props.flip.item.name?.match(/✪+/gm);
     let itemName = stars && props.flip.item.name ? props.flip.item.name.split(stars[0])[0] : props.flip.item.name;
 
@@ -101,9 +107,7 @@ function Flip(props: Props) {
                         settings.hideEstimatedProfit ? null :
                             <p>
                                 <span className="card-label">Estimated Profit: </span><br />
-                                <b style={{ color: "lime" }}>
-                                    +{numberWithThousandsSeperators(props.flip.median - props.flip.cost)} Coins
-                                </b>
+                                {getProfitElement(props.flip)}
                                 <span style={{ float: "right" }}>
                                     <span onMouseDown={onBasedAuctionClick}><HelpIcon /></span>
                                 </span>

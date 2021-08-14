@@ -301,5 +301,6 @@ interface FlipCustomizeSettings {
   hideEstimatedProfit?: boolean,
   hideVolume?: boolean,
   maxExtraInfoFields?: number,
-  hideCopySuccessMessage?: boolean
+  hideCopySuccessMessage?: boolean,
+  useLowestBinForProfit?: boolean
 }

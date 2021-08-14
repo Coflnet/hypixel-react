@@ -3,8 +3,10 @@ import React, { ChangeEvent, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { DEMO_FLIP, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { FLIP_CUSTOMIZING_KEY, setSetting } from '../../../utils/SettingsUtils';
+import Tooltip from '../../Tooltip/Tooltip';
 import Flip from '../Flip/Flip';
 import './FlipCustomize.css'
+import { Help, Help as HelpIcon } from '@material-ui/icons';
 
 let settings = getFlipCustomizeSettings();
 
@@ -82,12 +84,23 @@ function FlipCustomize() {
         trackChange('hideSecondLowestBin');
     }
 
+    function onUseLowestBinForProfitChange(event: ChangeEvent<HTMLInputElement>) {
+        flipCustomizeSettings.useLowestBinForProfit = event.target.checked;
+        setFlipCustomizeSettings(flipCustomizeSettings);
+
+        trackChange('useLowestBinForProfit');
+    }
+
     function trackChange(property: string) {
         trackEvent({
             category: 'customizeFlipStyle',
             action: property + ": " + flipCustomizeSettings[property]
         });
     }
+
+    let useLowestBinHelpElement = (
+        <p>By enabling this setting, the lowest BIN is used as the estimated selling price to calculate your profit. That can lead to profitable flips being estimated way too low (even as a loss). We recommend using the median to calculate the profit.</p>
+    );
 
     return (
         <div className="flip-customize">
@@ -104,15 +117,15 @@ function FlipCustomize() {
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideSecondLowestBin">Second lowest BIN</Form.Label>
-                            <Form.Check onChange={onSecondLowestBinChange} defaultChecked={!flipCustomizeSettings.hideSecondLowestBin} id="hideSeller" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={onSecondLowestBinChange} defaultChecked={!flipCustomizeSettings.hideSecondLowestBin} id="hideSecondLowestBin" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideVolume">Volume</Form.Label>
                             <Form.Check onChange={onVolumeChange} defaultChecked={!flipCustomizeSettings.hideVolume} id="hideVolume" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields</Form.Label>
-                            <Form.Control min={0} max={30} onChange={onMaxExtraInfoFieldsChange} defaultValue={flipCustomizeSettings.maxExtraInfoFields} type="number" id="hideMaxExtraInfo" />
+                            <Form.Label className="label" htmlFor="useLowestBinForProfit">Use lowest BIN <br /> to calc. profit <Tooltip type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={useLowestBinHelpElement} /></Form.Label>
+                            <Form.Check onChange={onUseLowestBinForProfitChange} defaultChecked={flipCustomizeSettings.useLowestBinForProfit} id="useLowestBinForProfit" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                     </div>
                     <div>
@@ -130,7 +143,11 @@ function FlipCustomize() {
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideCopyMessage">Show copy message</Form.Label>
-                            <Form.Check onChange={onHideCopyMessage} defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage} id="hideEstimatedProfit" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={onHideCopyMessage} defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage} id="hideCopyMessage" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields</Form.Label>
+                            <Form.Control min={0} max={30} onChange={onMaxExtraInfoFieldsChange} defaultValue={flipCustomizeSettings.maxExtraInfoFields} type="number" id="hideMaxExtraInfo" />
                         </Form.Group>
                     </div>
                 </Form>

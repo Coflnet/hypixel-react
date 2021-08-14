@@ -17,7 +17,7 @@ import Tooltip from '../Tooltip/Tooltip';
 import Countdown from 'react-countdown';
 import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
-import { DEMO_FLIP } from '../../utils/FlipUtils';
+import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 
 interface Flips {
     all: FlipAuction[],
@@ -190,7 +190,7 @@ function Flipper() {
 
             missedInfo = {
                 estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
-                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + (newFlipAuction.median - newFlipAuction.cost) : missedInfo.missedEstimatedProfit,
+                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
                 missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
                 totalFlips: missedInfo.totalFlips + 1
             }
@@ -229,7 +229,7 @@ function Flipper() {
 
     function onCopyFlip(flip: FlipAuction) {
         let currentMissedInfo = missedInfo;
-        currentMissedInfo.estimatedProfitCopiedAuctions += flip.median - flip.cost;
+        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip);
         flip.isCopied = true;
         setFlips(flips)
     }
@@ -251,7 +251,7 @@ function Flipper() {
         if (filter?.onlyBin === true && !flipAuction.bin) {
             return false;
         }
-        if (filter?.minProfit !== undefined && filter?.minProfit >= (flipAuction.median - flipAuction.cost)) {
+        if (filter?.minProfit !== undefined && filter?.minProfit >= calculateProfit(flipAuction)) {
             return false;
         }
         if (filter?.maxCost !== undefined && filter?.maxCost < flipAuction.cost) {
