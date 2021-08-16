@@ -73,6 +73,31 @@ function PlayerDetails() {
         })
     }
 
+    let claimAccountElement = (
+        !wasAlreadyLoggedIn() ? null :
+            selectedPlayer?.name !== accountInfo?.mcName ?
+                <span style={{ marginLeft: "25px" }}>
+                    <Tooltip type="click"
+                        content={
+                            <span style={{ color: "#007bff", cursor: "pointer" }}>
+                                You? Claim account.
+                            </span>
+                        }
+                        tooltipContent={
+                            <ClaimAccount playerUUID={uuid} />
+                        }
+                        size="xl"
+                        tooltipTitle={
+                            <span>
+                                Claim Minecraft account
+                            </span>
+                        } />
+                </span> :
+                <span style={{ marginLeft: "25px", color: "#007bff" }}>
+                    (Your Account)
+                </span>
+    )
+
     return (
         <div className="player-details">
             <Container>
@@ -86,10 +111,7 @@ function PlayerDetails() {
                         <h1 className="current">
                             <img crossOrigin="anonymous" className="player-head-icon" src={selectedPlayer?.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />
                             <span>{selectedPlayer?.name}</span>
-                            {
-                                selectedPlayer?.name !== accountInfo?.mcName ?
-                                    <span style={{ marginLeft: "25px" }}><Tooltip type="click" content={<span style={{ color: "#007bff", cursor: "pointer" }}>You? Claim account.</span>} tooltipContent={<ClaimAccount playerUUID={uuid} />} size="xl" tooltipTitle={<span>Claim Minecraft account</span>} /></span> : null
-                            }
+                            {claimAccountElement}
                         </h1>
                     } />
                 <ToggleButtonGroup className="player-details-type" type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>

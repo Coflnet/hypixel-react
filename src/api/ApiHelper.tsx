@@ -788,9 +788,7 @@ function initAPI(): API {
     let getAccountInfo = (): Promise<AccountInfo> => {
 
         return new Promise((resolve, reject) => {
-
-            accountInfo = "test";
-
+            
             if (accountInfo) {
                 resolve(accountInfo);
                 return;
