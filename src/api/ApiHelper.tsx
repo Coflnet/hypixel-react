@@ -90,22 +90,6 @@ function initAPI(): API {
         })
     }
 
-    let getPlayerDetails = (playerUUID: string): Promise<PlayerDetails> => {
-        return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
-                type: RequestType.PLAYER_DETAIL,
-                data: playerUUID,
-                resolve: (playerData: any) => {
-                    resolve(parsePlayerDetails(playerData));
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.PLAYER_DETAIL, error, playerUUID);
-                    reject();
-                }
-            })
-        });
-    }
-
     let getAuctions = (uuid: string, amount: number, offset: number): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
             let requestData = {
@@ -682,7 +666,6 @@ function initAPI(): API {
                     resolve(response);
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData);
                     reject(error);
                 },
             });
@@ -770,7 +753,6 @@ function initAPI(): API {
         trackSearch,
         getItemDetails,
         getItemPrices,
-        getPlayerDetails,
         getAuctions,
         getBids,
         getEnchantments,
