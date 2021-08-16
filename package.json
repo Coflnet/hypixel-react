@@ -8,6 +8,7 @@
         "@material-ui/core": "^4.11.4",
         "@material-ui/icons": "^4.11.2",
         "@stripe/stripe-js": "^1.11.0",
+        "autonumeric": "^4.6.0",
         "bootstrap": "^4.5.2",
         "bootstrap-icons": "^1.2.2",
         "chart.js": "^2.9.3",
