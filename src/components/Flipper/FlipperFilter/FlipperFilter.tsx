@@ -159,15 +159,15 @@ function FlipperFilter(props: Props) {
     const numberFilters = <div style={{ display: "flex", alignContent: "center", justifyContent: "flex-start" }}>
         <Form.Group className="filterTextfield">
             <Form.Label className="flipper-filter-formfield-label">Min. Profit:</Form.Label>
-            <Form.Control id="filter-input-min-profit" key="filter-input-min-profit" onChange={onMinProfitChange} className="flipper-filter-formfield" type="text" disabled={!props.isLoggedIn && !freeLoginFilters} />
+            <Form.Control id="filter-input-min-profit" key="filter-input-min-profit" onChange={onMinProfitChange} className="flipper-filter-formfield flipper-filter-formfield-text" type="text" disabled={!props.isLoggedIn && !freeLoginFilters} />
         </Form.Group>
         <Form.Group className="filterTextfield">
             <Form.Label className="flipper-filter-formfield-label">Min. Volume:</Form.Label>
-            <Form.Control id="filter-input-min-volume" key="filter-input-min-volume" onChange={onMinVolumeChange} className="flipper-filter-formfield" disabled={!props.isLoggedIn && !freeLoginFilters} />
+            <Form.Control id="filter-input-min-volume" key="filter-input-min-volume" onChange={onMinVolumeChange} className="flipper-filter-formfield flipper-filter-formfield-text" disabled={!props.isLoggedIn && !freeLoginFilters} />
         </Form.Group>
         <Form.Group className="filterTextfield">
             <Form.Label className="flipper-filter-formfield-label">Max. Cost:</Form.Label>
-            <Form.Control id="filter-input-max-cost" key="filter-input-max-cost" onChange={onMaxCostChange} className="flipper-filter-formfield" disabled={!props.isLoggedIn && !freeLoginFilters} />
+            <Form.Control id="filter-input-max-cost" key="filter-input-max-cost" onChange={onMaxCostChange} className="flipper-filter-formfield flipper-filter-formfield-text" disabled={!props.isLoggedIn && !freeLoginFilters} />
         </Form.Group>
     </div>;
 

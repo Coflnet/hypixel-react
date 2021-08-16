@@ -7,6 +7,10 @@
     min-width: 170px;
 }
 
+.flipper-filter-formfield-text {
+    text-align: right;
+}
+
 .filterTextfield {
     width: 33%;
     padding-left: 10px;
