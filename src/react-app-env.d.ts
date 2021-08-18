@@ -304,3 +304,8 @@ interface FlipCustomizeSettings {
   hideCopySuccessMessage?: boolean,
   useLowestBinForProfit?: boolean
 }
+
+interface FlipRestriction {
+  item?: Item,
+  itemFilter?: ItemFilter
+}

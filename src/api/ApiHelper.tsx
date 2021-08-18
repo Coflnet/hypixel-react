@@ -656,7 +656,7 @@ function initAPI(): API {
 
             websocketHelper.sendRequest({
                 type: RequestType.GET_FLIP_BASED_AUCTIONS,
-                data: flipUUID,
+                data: "1b824a3421274ad8954776134af17dc2",
                 resolve: (data: any) => {
                     resolve(data.map(a => parseAuction(a)));
                 },
