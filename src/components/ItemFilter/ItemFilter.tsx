@@ -12,7 +12,6 @@ import { camelCaseToSentenceCase } from '../../utils/Formatter';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
-    disabled?: boolean,
     filters?: FilterOptions[],
     isPrefill?: boolean
 }
@@ -279,7 +278,7 @@ function ItemFilter(props: Props) {
 
                             <Form.Group>
                                 {props?.filters && props.filters?.length > 0 ?
-                                    <Form.Control className="add-filter-select" as="select" onChange={addFilter} disabled={props.disabled} ref={reforgeSelect}>
+                                    <Form.Control className="add-filter-select" as="select" onChange={addFilter} ref={reforgeSelect}>
                                         <option>Click to add filter</option>
                                         {filterSelectList}
                                     </Form.Control> :
@@ -291,7 +290,7 @@ function ItemFilter(props: Props) {
                             </div>
                         </Form >
                         <div>
-                            <Button className="btn-danger" onClick={() => onFilterClose()} disabled={props.disabled}>Close</Button>
+                            <Button className="btn-danger" onClick={() => onFilterClose()}>Close</Button>
                         </div>
                     </Card.Body>
                 </Card>
