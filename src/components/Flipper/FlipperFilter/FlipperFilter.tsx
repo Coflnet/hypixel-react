@@ -179,7 +179,7 @@ function FlipperFilter(props: Props) {
     </Form.Group>;
 
     const openRestrictionListDialog = <div onClick={() => { setShowRestrictionList(true) }} style={{ cursor: "pointer" }}>
-        <span className="flipper-filter-formfield-label only-bin-label">Black-/Whitelist</span>
+        <span className="flipper-filter-formfield-label only-bin-label">Blacklist</span>
         <FilterIcon className="flipper-filter-formfield" style={{ marginLeft: "-4px" }} />
     </div>
 
