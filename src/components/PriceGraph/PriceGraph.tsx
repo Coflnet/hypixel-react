@@ -41,6 +41,7 @@ function PriceGraph(props: Props) {
     fetchspanRef.current = fetchspan;
 
     useEffect(() => {
+        mounted = true;
         return () => {
             mounted = false;
         };

@@ -11,6 +11,9 @@ import { SearchOutlined as SearchIcon } from '@material-ui/icons'
 interface Props {
     selected?: Player | Item,
     currentElement?: JSX.Element
+    backgroundColor?: string,
+    searchFunction?(searchText: string),
+    onSearchresultClick?(item: SearchResultItem)
 }
 
 function Search(props: Props) {
@@ -32,7 +35,8 @@ function Search(props: Props) {
     let search = () => {
 
         let searchFor = searchText;
-        api.search(searchFor).then(searchResults => {
+        let searchFunction = props.searchFunction || api.search;
+        searchFunction(searchFor).then(searchResults => {
 
             // has the searchtext changed?
             if (searchFor === (document.getElementById('search-bar') as HTMLInputElement).value) {
@@ -66,11 +70,15 @@ function Search(props: Props) {
     }
 
     let onItemClick = (item: SearchResultItem) => {
-        api.trackSearch(item.id, item.type);
         if (item.getParams && window.location.search !== item.getParams) {
             setSearchText("");
             setResults([]);
         }
+        if (props.onSearchresultClick) {
+            props.onSearchresultClick(item);
+            return;
+        }
+        api.trackSearch(item.id, item.type);
         history.push({
             pathname: item.route,
             search: item.getParams
@@ -92,6 +100,7 @@ function Search(props: Props) {
     }
 
     let searchStyle: React.CSSProperties = {
+        backgroundColor: props.backgroundColor,
         borderRadius: results.length > 0 ? "0px 10px 0 0" : "0px 10px 10px 0px",
         borderLeftWidth: 0,
         borderBottomColor: results.length > 0 ? "#444" : undefined
@@ -99,13 +108,14 @@ function Search(props: Props) {
     let searchIconStyle: React.CSSProperties = {
         width: isSmall ? "auto" : "58px",
         borderRadius: results.length > 0 ? "10px 0 0 0" : "10px 0px 0px 10px",
-        backgroundColor: "#303030",
+        backgroundColor: props.backgroundColor || "#303030",
         borderBottomColor: results.length > 0 ? "#444" : undefined,
         padding: isSmall ? "0px" : undefined
     }
 
     function getListItemStyle(i: number): React.CSSProperties {
         return {
+            backgroundColor: props.backgroundColor,
             borderRadius: i === results.length - 1 ? "0 0 10px 10px" : "",
             border: 0,
             borderTop: i === 0 ? "1px solid #444" : 0,

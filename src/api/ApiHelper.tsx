@@ -758,10 +758,27 @@ function initAPI(): API {
                     resolve(data.map(a => parseFilterOption(a)));
                 },
                 reject: function (error) {
-                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, item.tag);
+                    apiErrorHandler(RequestType.FILTER_FOR, error, item.tag);
                     reject();
                 }
             }, 1);
+        })
+    }
+
+    let itemSearch = (searchText: string): Promise<FilterOptions[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.ITEM_SEARCH,
+                data: searchText,
+                resolve: function (data) {
+                    resolve(data.map(a => parseFilterOption(a)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ITEM_SEARCH, error, searchText);
+                    reject();
+                }
+            });
         })
     }
 
@@ -805,7 +822,8 @@ function initAPI(): API {
         setRef,
         getActiveAuctions,
         filterFor,
-        unsubscribeFlips
+        unsubscribeFlips,
+        itemSearch
     }
 }
 

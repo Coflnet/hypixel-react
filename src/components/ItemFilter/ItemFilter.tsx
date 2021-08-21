@@ -14,7 +14,9 @@ interface Props {
     onFilterChange?(filter?: ItemFilter): void,
     disabled?: boolean,
     filters?: FilterOptions[],
-    isPrefill?: boolean
+    isPrefill?: boolean,
+    forceOpen?: boolean,
+    ignoreURL?: boolean
 }
 
 const groupedFilter = [
@@ -30,7 +32,7 @@ function ItemFilter(props: Props) {
     const reforgeSelect = useRef(null);
 
     let [itemFilter, _setItemFilter] = useState<ItemFilter>({});
-    let [expanded, setExpanded] = useState(false);
+    let [expanded, setExpanded] = useState(props.forceOpen || false);
     let [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     let [showInfoDialog, setShowInfoDialog] = useState(false);
 
@@ -52,6 +54,9 @@ function ItemFilter(props: Props) {
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
+        if (props.ignoreURL) {
+            return;
+        }
         itemFilter = getItemFilterFromUrl()
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true);
@@ -146,6 +151,11 @@ function ItemFilter(props: Props) {
     }
 
     let updateURLQuery = (filter?: ItemFilter) => {
+
+        if (props.ignoreURL) {
+            return;
+        }
+
         let filterString = filter && JSON.stringify(filter) === "{}" ? undefined : btoa(JSON.stringify(filter));
 
         let searchString = setURLSearchParam("itemFilter", filterString || "");
@@ -290,9 +300,12 @@ function ItemFilter(props: Props) {
                                 {filterList}
                             </div>
                         </Form >
-                        <div>
-                            <Button className="btn-danger" onClick={() => onFilterClose()} disabled={props.disabled}>Close</Button>
-                        </div>
+                        {
+                            props.forceOpen ? null :
+                                <div>
+                                    <Button className="btn-danger" onClick={() => onFilterClose()} disabled={props.disabled}>Close</Button>
+                                </div>
+                        }
                     </Card.Body>
                 </Card>
             }

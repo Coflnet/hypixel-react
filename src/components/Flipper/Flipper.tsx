@@ -261,8 +261,43 @@ function Flipper() {
             return false;
         }
         if (filter?.minVolume !== undefined) {
-            return filter?.minVolume >= 0 ? filter?.minVolume <= flipAuction.volume : Math.abs(filter?.minVolume) >= flipAuction.volume;
+            if (filter?.minVolume >= 0 && filter?.minVolume > flipAuction.volume) {
+                return false;
+            } else if (filter?.minVolume < 0 && Math.abs(filter?.minVolume) < flipAuction.volume) {
+                return false;
+            }
         }
+
+        if (filter?.restrictions !== undefined) {
+
+            let isValid = true;
+
+            filter.restrictions.forEach(restriction => {
+
+                if (restriction.type === "blacklist" && restriction.item && restriction.item.tag === flipAuction.item.tag) {
+                    isValid = false;
+                }
+
+                if (restriction.itemFilter) {
+                    Object.keys(restriction.itemFilter).forEach(key => {
+                        if (flipAuction[key] && flipAuction[key] === restriction.itemFilter![key]) {
+                            isValid = false;
+                        }
+                        if (flipAuction.item && flipAuction.item[key] && flipAuction.item[key] === restriction.itemFilter![key]) {
+                            isValid = false;
+                        }
+                        if (flipAuction.props && flipAuction.props[key] && flipAuction.props[key] === restriction.itemFilter![key]) {
+                            isValid = false;
+                        }
+                    })
+                }
+            })
+
+            if (!isValid) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -284,7 +319,7 @@ function Flipper() {
     );
 
     let customizeFlipDialog = (
-        <Modal size={"xl"} show={showCustomizeFlip} onHide={() => { setShowCustomizeFlip(false) }}>
+        <Modal key={"test"} size={"xl"} show={showCustomizeFlip} onHide={() => { setShowCustomizeFlip(false) }}>
             <Modal.Header closeButton>
                 <Modal.Title>Customize the style of flips</Modal.Title>
             </Modal.Header>
@@ -330,7 +365,7 @@ function Flipper() {
                                 </div>
                             </Form.Group>
                             <Form.Group onClick={() => { setShowCustomizeFlip(true) }}>
-                                <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>Change flip style</Form.Label>
+                                <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>Settings</Form.Label>
                                 <span style={{ cursor: "pointer" }}> <SettingsIcon /></span>
                             </Form.Group>
                             {

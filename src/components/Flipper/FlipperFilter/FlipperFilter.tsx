@@ -1,9 +1,12 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { Form } from 'react-bootstrap';
+import { Form, Modal } from 'react-bootstrap';
 import './FlipperFilter.css';
 import Tooltip from '../../Tooltip/Tooltip';
 import Countdown, { zeroPad } from 'react-countdown';
 import { v4 as generateUUID } from 'uuid';
+import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList';
+import { BallotOutlined as FilterIcon } from '@material-ui/icons';
+
 
 interface Props {
     onChange(filter: FlipperFilter),
@@ -27,6 +30,7 @@ function FlipperFilter(props: Props) {
     let [freePremiumFilters, setFreePremiumFilters] = useState(false);
     let [freeLoginFilters, setFreeLoginFilters] = useState(false);
     let [uuids, setUUIDs] = useState<string[]>([]);
+    let [showRestrictionList, setShowRestrictionList] = useState(false);
 
     let onlyUnsoldRef = useRef(null);
 
@@ -107,6 +111,12 @@ function FlipperFilter(props: Props) {
         props.onChange(filter);
     }
 
+    function onRestrictionsChange(restrictions: FlipRestriction[]) {
+        let filter = getCurrentFilter();
+        filter.restrictions = restrictions;
+        props.onChange(filter);
+    }
+
     function onFreePremiumComplete() {
         setFreePremiumFilters(true)
     }
@@ -121,6 +131,18 @@ function FlipperFilter(props: Props) {
         </span>
     );
 
+
+    let restrictionListDialog = (
+        <Modal size={"xl"} show={showRestrictionList} onHide={() => { setShowRestrictionList(false) }}>
+            <Modal.Header closeButton>
+                <Modal.Title>Restrict the flip results</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <FlipRestrictionList onRestrictionsChange={onRestrictionsChange} />
+            </Modal.Body>
+        </Modal>
+    );
+
     const nonPremiumTooltip = <span key="nonPremiumTooltip">This is a premium feature.<br />(to use for free wait  <Countdown key={uuids[0]} date={FREE_PREMIUM_FILTER_TIME} renderer={countdownRenderer} />)</span>;
     const nonLoggedInTooltip = <span key="nonLoggedInTooltip">Login to use these filters.<br />(or wait  <Countdown key={uuids[1]} date={FREE_LOGIN_FILTER_TIME} renderer={countdownRenderer} />)</span>;
 
@@ -129,10 +151,16 @@ function FlipperFilter(props: Props) {
         <Form.Check id="onlyBinCheckbox" onChange={onOnlyBinChange} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
 
     </Form.Group>;
+
     const soldFilter = <Form.Group>
         <Form.Label htmlFor="onlyUnsoldCheckbox" className="flipper-filter-formfield-label only-bin-label">Hide SOLD Auctions</Form.Label>
         <Form.Check ref={onlyUnsoldRef} id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={props.isPremium} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
     </Form.Group>;
+
+    const openRestrictionListDialog = <div onClick={() => { setShowRestrictionList(true) }} style={{ cursor: "pointer" }}>
+        <span className="flipper-filter-formfield-label only-bin-label">Black-/Whitelist</span>
+        <FilterIcon className="flipper-filter-formfield" style={{ marginLeft: "-4px" }} />
+    </div>
 
     const numberFilters = <div style={{ display: "flex", alignContent: "center", justifyContent: "flex-start" }}>
         <Form.Group className="filterTextfield">
@@ -166,6 +194,7 @@ function FlipperFilter(props: Props) {
                         <Tooltip type="hover" content={soldFilter}
                             tooltipContent={nonPremiumTooltip}
                         /> : soldFilter}
+                    {openRestrictionListDialog}
                 </div>
 
                 <div style={{ visibility: "hidden", height: 0 }}>
@@ -174,6 +203,7 @@ function FlipperFilter(props: Props) {
                 </div>
 
             </Form >
+            {restrictionListDialog}
         </div>
     );
 
