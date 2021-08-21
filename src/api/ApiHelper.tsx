@@ -755,7 +755,7 @@ function initAPI(): API {
                 type: RequestType.ITEM_SEARCH,
                 data: searchText,
                 resolve: function (data) {
-                    resolve(data.map(a => parseFilterOption(a)));
+                    resolve(data.map(a => parseSearchResultItem(a)));
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ITEM_SEARCH, error, searchText);
