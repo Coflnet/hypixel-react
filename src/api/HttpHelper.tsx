@@ -112,7 +112,13 @@ function handleServerRequest(request, url, headers): Promise<void> {
             });
             // all http answers are valid for 60 sec
             let maxAge = 60;
-            cacheUtils.setIntoCache(request.type, Base64.decode(request.data), parsedResponse, maxAge);
+
+            let data = request.data;
+            try {
+                data = Base64.decode(request.data)
+            } catch { }
+
+            cacheUtils.setIntoCache(request.type, data, parsedResponse, maxAge);
             removeSentRequests([...equals, request]);
         }).finally(() => {
             // when there are still matching request remove them
