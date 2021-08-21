@@ -13,7 +13,9 @@ interface Props {
     currentElement?: JSX.Element
     backgroundColor?: string,
     searchFunction?(searchText: string),
-    onSearchresultClick?(item: SearchResultItem)
+    onSearchresultClick?(item: SearchResultItem),
+    hideNavbar?: boolean,
+    placeholder?: string
 }
 
 function Search(props: Props) {
@@ -130,14 +132,14 @@ function Search(props: Props) {
 
             <Form autoComplete="off">
                 <Form.Group className="search-form-group">
-                    {!isSmall ? <NavBar /> : ""}
+                    {!isSmall && !props.hideNavbar ? <NavBar /> : ""}
                     <InputGroup id="search-input-group">
                         <InputGroup.Text style={searchIconStyle}>
-                            {isSmall ? <div style={{ width: "56px" }}><NavBar hamburgerIconStyle={{ marginRight: "0px", width: "56px" }} /></div> :
+                            {isSmall && !props.hideNavbar ? <div style={{ width: "56px" }}><NavBar hamburgerIconStyle={{ marginRight: "0px", width: "56px" }} /></div> :
                                 <SearchIcon />
                             }
                         </InputGroup.Text>
-                        <Form.Control style={searchStyle} type="text" placeholder="Search player/item" id="search-bar" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
+                        <Form.Control style={searchStyle} type="text" placeholder={props.placeholder || "Search player/item"} id="search-bar" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
                     </InputGroup>
                 </Form.Group>
             </Form>

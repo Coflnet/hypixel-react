@@ -102,7 +102,7 @@ function FlipRestrictionList(props: Props) {
     function getNewRestrictionElement() {
         return (
             <div>
-                <Search selected={newRestriction.item} backgroundColor="#404040" searchFunction={api.itemSearch} onSearchresultClick={onSearchResultClick} />
+                <Search selected={newRestriction.item} backgroundColor="#404040" searchFunction={api.itemSearch} onSearchresultClick={onSearchResultClick} hideNavbar={true} placeholder="Search item" />
                 <span>
                     <Button variant="success" onClick={addNewRestriction}>
                         Save new restriction
@@ -138,7 +138,7 @@ function FlipRestrictionList(props: Props) {
     return (
         <div className="flip-restriction-list">
             {
-                isAddNewFlipperExtended ? getNewRestrictionElement() : <span onClick={() => setIsNewFlipperExtended(true)}>
+                isAddNewFlipperExtended ? getNewRestrictionElement() : <span style={{cursor: "pointer"}} onClick={() => setIsNewFlipperExtended(true)}>
                     {addIcon}
                     <span> Add new restriction</span>
                 </span>
