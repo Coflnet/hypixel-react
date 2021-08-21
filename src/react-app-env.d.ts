@@ -162,7 +162,6 @@ interface API {
     fetchStart: number,
     itemFilter?: ItemFilter
   ): Promise<ItemPriceData>;
-  getPlayerDetails(playerUUID: string): Promise<PlayerDetails>;
   getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>;
   getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>;
   getEnchantments(): Promise<Enchantment[]>;

@@ -89,13 +89,14 @@ function Payment(props: Props) {
           history.push({
             pathname: "/success"
           })
-        ).catch(error =>
-          history.push({
-            pathname: "/cancel"
-          })
-        )
+        ).catch(error => {
+          let message = error && error.Message ? error.Message : "An Error occoured while trying to pay with paypal"
+          toast.error(message);
+        })
       } else {
-        toast.error("An Error occoured while trying to pay with paypal");
+        history.push({
+          pathname: "/cancel"
+        });
       }
     });
   };

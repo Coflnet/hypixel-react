@@ -73,6 +73,11 @@ function Flip(props: Props) {
         return <b style={{ color: profit > 0 ? "lime" : "white" }}>{preSymbol + numberWithThousandsSeperators(profit) + " Coins"}</b>;
     }
 
+    function onMouseDownLowestBin(e) {
+        e.preventDefault();
+        window.open(getLowestBinLink(props.flip.item.tag), '_blank');
+    }
+
     let stars = props.flip.item.name?.match(/✪+/gm);
     let itemName = stars && props.flip.item.name ? props.flip.item.name.split(stars[0])[0] : props.flip.item.name;
 
@@ -120,7 +125,7 @@ function Flip(props: Props) {
                         settings.hideLowestBin ? null :
                             <p>
                                 <span className="card-label">Lowest BIN: </span><br />
-                                <a rel="noreferrer" target="_blank" onMouseDown={e => e.preventDefault()} href={getLowestBinLink(props.flip.item.tag)}>
+                                <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
                                     {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
                                 </a>
                             </p>
@@ -129,7 +134,7 @@ function Flip(props: Props) {
                         settings.hideSecondLowestBin ? null :
                             <p>
                                 <span className="card-label">Second lowest BIN: </span><br />
-                                <a rel="noreferrer" target="_blank" onMouseDown={e => e.preventDefault()} href={getLowestBinLink(props.flip.item.tag)}>
+                                <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
                                     {numberWithThousandsSeperators(props.flip.secondLowestBin)} Coins
                                 </a>
                             </p>
