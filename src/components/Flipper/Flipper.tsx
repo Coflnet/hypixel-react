@@ -261,8 +261,44 @@ function Flipper() {
             return false;
         }
         if (filter?.minVolume !== undefined) {
-            return filter?.minVolume >= 0 ? filter?.minVolume <= flipAuction.volume : Math.abs(filter?.minVolume) >= flipAuction.volume;
+            if (filter?.minVolume >= 0 && filter?.minVolume > flipAuction.volume) {
+                return false;
+            } else if (filter?.minVolume < 0 && Math.abs(filter?.minVolume) < flipAuction.volume) {
+                return false;
+            }
         }
+
+        if (filter?.restrictions !== undefined) {
+
+            for (let i = 0; i < filter.restrictions.length; i++) {
+
+                let restriction = filter.restrictions[i];
+
+                if (restriction.type === "blacklist" && restriction.item && restriction.item.tag === flipAuction.item.tag) {
+                    return false;
+                }
+
+                /*
+                TODO: Implement with filter
+                if (restriction.itemFilter) {
+                    let keys = Object.keys(restriction.itemFilter);
+                    for (let j = 0; j < keys.length; j++) {
+                        const key = keys[j];
+
+                        if (flipAuction[key] && flipAuction[key] === restriction.itemFilter![key]) {
+                            return false;
+                        }
+                        if (flipAuction.item && flipAuction.item[key] && flipAuction.item[key] === restriction.itemFilter![key]) {
+                            return false;
+                        }
+                        if (flipAuction.props && flipAuction.props[key] && flipAuction.props[key] === restriction.itemFilter![key]) {
+                            return false;
+                        }
+                    }
+                    */
+            }
+        }
+
         return true;
     }
 
@@ -330,7 +366,7 @@ function Flipper() {
                                 </div>
                             </Form.Group>
                             <Form.Group onClick={() => { setShowCustomizeFlip(true) }}>
-                                <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>Change flip style</Form.Label>
+                                <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>Settings</Form.Label>
                                 <span style={{ cursor: "pointer" }}> <SettingsIcon /></span>
                             </Form.Group>
                             {

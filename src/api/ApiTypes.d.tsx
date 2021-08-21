@@ -37,7 +37,8 @@ export enum RequestType {
     GET_REF_INFO = "getRefInfo",
     SET_REF = "setRef",
     ACTIVE_AUCTIONS = "activeAuctions",
-    FILTER_FOR = "filterFor"
+    FILTER_FOR = "filterFor",
+    ITEM_SEARCH = "item/search"
 }
 
 export enum SubscriptionType {
@@ -84,6 +85,7 @@ export interface WebsocketHelper extends Connection {
 }
 
 export interface HttpApi extends Connection {
+    sendApiRequest(request: ApiRequest): Promise<void>,
     sendLimitedCacheRequest(request: ApiRequest, grouping: number),
-    sendLimitedCacheRequest(request: ApiRequest)
+    sendLimitedCacheRequest(request: ApiRequest),
 }

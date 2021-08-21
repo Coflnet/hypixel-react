@@ -148,7 +148,8 @@ interface FlipperFilter {
   minProfit?: number,
   minVolume?: number,
   maxCost?: number,
-  onlyUnsold?: boolean
+  onlyUnsold?: boolean,
+  restrictions?: FlipRestriction[]
 }
 
 interface API {
@@ -202,7 +203,8 @@ interface API {
   getRefInfo(): Promise<RefInfo>,
   setRef(refId: string): Promise<void>,
   getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>,
-  filterFor(item: Item): Promise<FilterOptions[]>
+  filterFor(item: Item): Promise<FilterOptions[]>,
+  itemSearch(searchText: string): Promise<FilterOptions[]>
 }
 
 interface CacheUtils {
@@ -302,4 +304,10 @@ interface FlipCustomizeSettings {
   maxExtraInfoFields?: number,
   hideCopySuccessMessage?: boolean,
   useLowestBinForProfit?: boolean
+}
+
+interface FlipRestriction {
+  type: "blacklist",
+  item?: Item,
+  itemFilter?: ItemFilter
 }
