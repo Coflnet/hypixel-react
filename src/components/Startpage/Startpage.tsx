@@ -281,16 +281,17 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Flipper customization</Card.Subtitle>
+                        <Card.Subtitle>Flipper item blacklist</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        <p>The new customization feature allows you to hide information in flips you don't want to see.</p>
-                        <p>All Premium users received a 5-day extension for the time the auction house was closed because of mayor derpy.</p>
+                        <p>The flipper now allows you to <b>blacklist</b> items you don't want to see again.</p>
+                        <p>The customization feature allows you to hide information in flips you don't want to see.</p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
-                            <p>Recent changes (last change: 13.08.2021):</p>
+                            <p>Recent changes (last change: 21.08.2021):</p>
                             <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <span style={{ color: "#007bff", cursor: "pointer" }}>Click here to open</span></p>} tooltipContent={
                                 <ul>
+                                    <li className="changelog-item">Flipper item blacklist</li>
                                     <li className="changelog-item">Flipper customization</li>
                                     <li className="changelog-item">Flipper filter style upgrade</li>
                                     <li className="changelog-item">Improved server infrastructure</li>
