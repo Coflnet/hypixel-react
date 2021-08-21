@@ -53,13 +53,12 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
 /**
  * Sends API-Request to the backend
  * @param request The request-Object
- * @param cacheInvalidationGrouping A number which is appended to the url to be able to invalidate the cache
  * @returns A emty promise (the resolve/reject Method of the request-Object is called)
  */
 function sendApiRequest(request: ApiRequest): Promise<void> {
     request.mId = getNextMessageId();
     let requestString = request.data;
-    let headers = { 'ConId': getOrGenerateUUid(), 'mode': 'no-cors' };
+    let headers = { 'ConId': getOrGenerateUUid() };
     var url = `${apiEndpoint}/${request.type}/${requestString}`;
 
     return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {

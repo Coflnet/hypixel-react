@@ -270,31 +270,32 @@ function Flipper() {
 
         if (filter?.restrictions !== undefined) {
 
-            let isValid = true;
+            for (let i = 0; i < filter.restrictions.length; i++) {
 
-            filter.restrictions.forEach(restriction => {
+                let restriction = filter.restrictions[i];
 
                 if (restriction.type === "blacklist" && restriction.item && restriction.item.tag === flipAuction.item.tag) {
-                    isValid = false;
+                    return false;
                 }
 
+                /*
+                TODO: Implement with filter
                 if (restriction.itemFilter) {
-                    Object.keys(restriction.itemFilter).forEach(key => {
+                    let keys = Object.keys(restriction.itemFilter);
+                    for (let j = 0; j < keys.length; j++) {
+                        const key = keys[j];
+
                         if (flipAuction[key] && flipAuction[key] === restriction.itemFilter![key]) {
-                            isValid = false;
+                            return false;
                         }
                         if (flipAuction.item && flipAuction.item[key] && flipAuction.item[key] === restriction.itemFilter![key]) {
-                            isValid = false;
+                            return false;
                         }
                         if (flipAuction.props && flipAuction.props[key] && flipAuction.props[key] === restriction.itemFilter![key]) {
-                            isValid = false;
+                            return false;
                         }
-                    })
-                }
-            })
-
-            if (!isValid) {
-                return false;
+                    }
+                    */
             }
         }
 
@@ -319,7 +320,7 @@ function Flipper() {
     );
 
     let customizeFlipDialog = (
-        <Modal key={"test"} size={"xl"} show={showCustomizeFlip} onHide={() => { setShowCustomizeFlip(false) }}>
+        <Modal size={"xl"} show={showCustomizeFlip} onHide={() => { setShowCustomizeFlip(false) }}>
             <Modal.Header closeButton>
                 <Modal.Title>Customize the style of flips</Modal.Title>
             </Modal.Header>
