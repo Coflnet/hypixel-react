@@ -534,7 +534,7 @@ function Flipper() {
                     <h3>I have another question/ Bug report</h3> Ask via <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a> or <a target="_blank" href="/feedback" rel="noreferrer">feedback site</a>
                 </Card.Body>
             </Card>
-            <div id="maxHeightDummyFlip" style={{ position: "absolute", top: -1000, padding: "20px" }}>
+            <div id="maxHeightDummyFlip" style={{ position: "absolute", top: 1000, padding: "20px", zIndex: -1 }}>
                 <Flip flip={DEMO_FLIP} />
             </div>
             {basedOnDialog}
