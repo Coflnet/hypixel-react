@@ -8,6 +8,7 @@ import { useForceUpdate } from '../../../utils/Hooks';
 import { calculateProfit, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { toast } from 'react-toastify';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
+import { Link } from 'react-router-dom';
 
 interface Props {
     flip: FlipAuction,
@@ -78,6 +79,11 @@ function Flip(props: Props) {
         window.open(getLowestBinLink(props.flip.item.tag), '_blank');
     }
 
+    function onMouseDownSeller(e) {
+        e.preventDefault();
+        window.open("/player/" + props.flip.sellerName);
+    }
+
     let stars = props.flip.item.name?.match(/✪+/gm);
     let itemName = stars && props.flip.item.name ? props.flip.item.name.split(stars[0])[0] : props.flip.item.name;
 
@@ -143,9 +149,11 @@ function Flip(props: Props) {
                         settings.hideSeller ? null :
                             <p>
                                 <span className="card-label">Seller: </span><br />
-                                <b>
-                                    {props.flip.sellerName}
-                                </b>
+                                <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownSeller} href={"/player/" + props.flip.sellerName}>
+                                    <b>
+                                        {props.flip.sellerName}
+                                    </b>
+                                </a>
                             </p>
                     }
                     {
