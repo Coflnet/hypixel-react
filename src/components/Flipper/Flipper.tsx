@@ -32,7 +32,8 @@ let missedInfo: FreeFlipperMissInformation = {
     estimatedProfitCopiedAuctions: 0,
     missedEstimatedProfit: 0,
     missedFlipsCount: 0,
-    totalFlips: 0
+    totalFlips: 0,
+    totalFlipsFiltered: 0
 }
 
 let mounted = true;
@@ -181,19 +182,20 @@ function Flipper() {
             newFlipAuction.item.iconUrl = url;
             newFlipAuction.showLink = true;
 
+            missedInfo = {
+                estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
+                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
+                missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
+                totalFlips: missedInfo.totalFlips + 1,
+                totalFlipsFiltered: isValid ? missedInfo.totalFlipsFiltered + 1 : missedInfo.totalFlips
+            }
+
             setFlips(flips => {
                 return {
                     all: [...flips.all, newFlipAuction],
                     filtered: isValid ? [...flips.filtered, newFlipAuction] : flips.filtered
                 }
             });
-
-            missedInfo = {
-                estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
-                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
-                missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
-                totalFlips: missedInfo.totalFlips + 1
-            }
 
             if (autoscrollRef.current && isValid) {
                 let element = document.getElementsByClassName('flipper-scroll-list').length > 0 ? document.getElementsByClassName('flipper-scroll-list').item(0) : null;
@@ -453,6 +455,7 @@ function Flipper() {
                                 <Card.Body>
                                     <ul>
                                         <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
+                                        <li>Total flips received (filtered): {numberWithThousandsSeperators(missedInfo.totalFlipsFiltered)}</li>
                                         <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
                                     </ul>
                                 </Card.Body>
