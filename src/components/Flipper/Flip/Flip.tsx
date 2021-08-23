@@ -59,7 +59,10 @@ function Flip(props: Props) {
             props.onCopy(props.flip);
         }
         if (!settings.hideCopySuccessMessage) {
-            toast.success(<p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>)
+            toast.success(<p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>, {
+                autoClose: 1500,
+                pauseOnFocusLoss: false
+            })
         }
         trackEvent({
             category: 'copyButtonClick',
