@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -749,14 +749,14 @@ function initAPI(): API {
         })
     }
 
-    let connectMinecraftAccount = (playerUUID: string): Promise<number> => {
+    let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
         return new Promise((resolve, reject) => {
 
             websocketHelper.sendRequest({
                 type: RequestType.CONNECT_MINECRAFT_ACCOUNT,
                 data: playerUUID,
                 resolve: function (data) {
-                    resolve(data.bid);
+                    resolve(parseMinecraftConnectionInfo(data));
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.CONNECT_MINECRAFT_ACCOUNT, error, playerUUID);

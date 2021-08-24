@@ -205,7 +205,7 @@ interface API {
   setRef(refId: string): Promise<void>,
   getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>,
   filterFor(item: Item): Promise<FilterOptions[]>,
-  connectMinecraftAccount(playerUUID: string): Promise<number>,
+  connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>,
   getAccountInfo(): Promise<AccountInfo>
   itemSearch(searchText: string): Promise<FilterOptions[]>
 }
@@ -319,4 +319,9 @@ interface FlipRestriction {
   type: "blacklist",
   item?: Item,
   itemFilter?: ItemFilter
+}
+
+interface MinecraftConnectionInfo {
+  bin: number,
+  connected: boolean
 }

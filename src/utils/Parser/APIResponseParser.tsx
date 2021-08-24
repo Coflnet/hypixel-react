@@ -344,3 +344,10 @@ export function parseAccountInfo(accountInfo): AccountInfo {
         token: accountInfo.token
     }
 }
+
+export function parseMinecraftConnectionInfo(minecraftConnectionInfo): MinecraftConnectionInfo {
+    return {
+        bin: minecraftConnectionInfo.bid,
+        connected: minecraftConnectionInfo.connected === true
+    }
+}

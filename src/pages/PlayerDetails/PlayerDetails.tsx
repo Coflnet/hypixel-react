@@ -75,7 +75,7 @@ function PlayerDetails() {
 
     let claimAccountElement = (
         !wasAlreadyLoggedIn() ? null :
-            selectedPlayer?.name !== accountInfo?.mcName ?
+            uuid !== accountInfo?.mcId ?
                 <span style={{ marginLeft: "25px" }}>
                     <Tooltip type="click"
                         content={
