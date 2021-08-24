@@ -91,22 +91,6 @@ function initAPI(): API {
         })
     }
 
-    let getPlayerDetails = (playerUUID: string): Promise<PlayerDetails> => {
-        return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
-                type: RequestType.PLAYER_DETAIL,
-                data: playerUUID,
-                resolve: (playerData: any) => {
-                    resolve(parsePlayerDetails(playerData));
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.PLAYER_DETAIL, error, playerUUID);
-                    reject();
-                }
-            })
-        });
-    }
-
     let getAuctions = (uuid: string, amount: number, offset: number): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
             let requestData = {
@@ -683,7 +667,6 @@ function initAPI(): API {
                     resolve(response);
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData);
                     reject(error);
                 },
             });
@@ -788,7 +771,7 @@ function initAPI(): API {
     let getAccountInfo = (): Promise<AccountInfo> => {
 
         return new Promise((resolve, reject) => {
-            
+
             if (accountInfo) {
                 resolve(accountInfo);
                 return;
@@ -804,6 +787,22 @@ function initAPI(): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_ACCOUNT_INFO, error, "");
+                }
+            })
+        })
+    }
+
+    let itemSearch = (searchText: string): Promise<FilterOptions[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.ITEM_SEARCH,
+                data: searchText,
+                resolve: function (data) {
+                    resolve(data.map(a => parseSearchResultItem(a)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ITEM_SEARCH, error, searchText);
                     reject();
                 }
             });
@@ -815,7 +814,6 @@ function initAPI(): API {
         trackSearch,
         getItemDetails,
         getItemPrices,
-        getPlayerDetails,
         getAuctions,
         getBids,
         getEnchantments,
@@ -852,7 +850,8 @@ function initAPI(): API {
         filterFor,
         connectMinecraftAccount,
         getAccountInfo,
-        unsubscribeFlips
+        unsubscribeFlips,
+        itemSearch
     }
 }
 

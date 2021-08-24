@@ -1,4 +1,4 @@
-let LOCAL_STORAGE_SETTINGS_KEY = "userSettings";
+const LOCAL_STORAGE_SETTINGS_KEY = "userSettings";
 
 let settings = getInitUserSettings();
 
@@ -25,3 +25,4 @@ export function setSetting(key: any, value: string) {
 }
 
 export const FLIP_CUSTOMIZING_KEY = "flipCustomizing";
+export const RESTRICTIONS_SETTINGS_KEY = "flipRestrictions";

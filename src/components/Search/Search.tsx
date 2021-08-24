@@ -11,6 +11,11 @@ import { SearchOutlined as SearchIcon } from '@material-ui/icons'
 interface Props {
     selected?: Player | Item,
     currentElement?: JSX.Element
+    backgroundColor?: string,
+    searchFunction?(searchText: string),
+    onSearchresultClick?(item: SearchResultItem),
+    hideNavbar?: boolean,
+    placeholder?: string
 }
 
 function Search(props: Props) {
@@ -32,7 +37,8 @@ function Search(props: Props) {
     let search = () => {
 
         let searchFor = searchText;
-        api.search(searchFor).then(searchResults => {
+        let searchFunction = props.searchFunction || api.search;
+        searchFunction(searchFor).then(searchResults => {
 
             // has the searchtext changed?
             if (searchFor === (document.getElementById('search-bar') as HTMLInputElement).value) {
@@ -66,11 +72,15 @@ function Search(props: Props) {
     }
 
     let onItemClick = (item: SearchResultItem) => {
-        api.trackSearch(item.id, item.type);
         if (item.getParams && window.location.search !== item.getParams) {
             setSearchText("");
             setResults([]);
         }
+        if (props.onSearchresultClick) {
+            props.onSearchresultClick(item);
+            return;
+        }
+        api.trackSearch(item.id, item.type);
         history.push({
             pathname: item.route,
             search: item.getParams
@@ -92,6 +102,7 @@ function Search(props: Props) {
     }
 
     let searchStyle: React.CSSProperties = {
+        backgroundColor: props.backgroundColor,
         borderRadius: results.length > 0 ? "0px 10px 0 0" : "0px 10px 10px 0px",
         borderLeftWidth: 0,
         borderBottomColor: results.length > 0 ? "#444" : undefined
@@ -99,13 +110,14 @@ function Search(props: Props) {
     let searchIconStyle: React.CSSProperties = {
         width: isSmall ? "auto" : "58px",
         borderRadius: results.length > 0 ? "10px 0 0 0" : "10px 0px 0px 10px",
-        backgroundColor: "#303030",
+        backgroundColor: props.backgroundColor || "#303030",
         borderBottomColor: results.length > 0 ? "#444" : undefined,
         padding: isSmall ? "0px" : undefined
     }
 
     function getListItemStyle(i: number): React.CSSProperties {
         return {
+            backgroundColor: props.backgroundColor,
             borderRadius: i === results.length - 1 ? "0 0 10px 10px" : "",
             border: 0,
             borderTop: i === 0 ? "1px solid #444" : 0,
@@ -120,14 +132,14 @@ function Search(props: Props) {
 
             <Form autoComplete="off">
                 <Form.Group className="search-form-group">
-                    {!isSmall ? <NavBar /> : ""}
+                    {!isSmall && !props.hideNavbar ? <NavBar /> : ""}
                     <InputGroup id="search-input-group">
                         <InputGroup.Text style={searchIconStyle}>
-                            {isSmall ? <div style={{ width: "56px" }}><NavBar hamburgerIconStyle={{ marginRight: "0px", width: "56px" }} /></div> :
+                            {isSmall && !props.hideNavbar ? <div style={{ width: "56px" }}><NavBar hamburgerIconStyle={{ marginRight: "0px", width: "56px" }} /></div> :
                                 <SearchIcon />
                             }
                         </InputGroup.Text>
-                        <Form.Control style={searchStyle} type="text" placeholder="Search player/item" id="search-bar" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
+                        <Form.Control style={searchStyle} type="text" placeholder={props.placeholder || "Search player/item"} id="search-bar" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
                     </InputGroup>
                 </Form.Group>
             </Form>

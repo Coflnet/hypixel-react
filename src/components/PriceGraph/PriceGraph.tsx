@@ -41,6 +41,7 @@ function PriceGraph(props: Props) {
     fetchspanRef.current = fetchspan;
 
     useEffect(() => {
+        mounted = true;
         return () => {
             mounted = false;
         };
@@ -174,7 +175,7 @@ function PriceGraph(props: Props) {
     return (
         <div className="price-graph">
 
-            <ItemFilter disabled={isLoading} filters={filters} onFilterChange={onFilterChange} isPrefill={isItemFilterPrefill} />
+            <ItemFilter filters={filters} onFilterChange={onFilterChange} isPrefill={isItemFilterPrefill} />
             <ItemPriceRange setToDefaultRangeSwitch={defaultRangeSwitch} onRangeChange={onRangeChange} disableAllTime={itemFilter && JSON.stringify(itemFilter) !== "{}"} item={props.item} />
 
             <div style={fetchspan <= 0 ? { display: "none" } : {}}>

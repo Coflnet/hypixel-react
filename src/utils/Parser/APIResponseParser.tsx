@@ -145,6 +145,7 @@ export function parseSearchResultItem(item: any): SearchResultItem {
         dataItem: {
             name: item.name,
             iconUrl: item.img ? "data:image/png;base64," + item.img : (item.type === "item" ? item.iconUrl : item.iconUrl + "?size=8"),
+            tag: item.id,
             uuid: item.id
         },
         type: item.type,
@@ -301,6 +302,7 @@ export function parseFlipAuction(flip): FlipAuction {
             name: flip.name,
             tier: flip.tier
         },
+        secondLowestBin: flip.secondLowestBin,
         sold: flip.sold,
         sellerName: flip.sellerName,
         lowestBin: flip.lowestBin,

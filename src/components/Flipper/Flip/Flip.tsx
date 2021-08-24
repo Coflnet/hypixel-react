@@ -5,9 +5,10 @@ import { Help as HelpIcon } from '@material-ui/icons';
 import { CopyButton } from '../../CopyButton/CopyButton';
 import './Flip.css';
 import { useForceUpdate } from '../../../utils/Hooks';
-import { getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { calculateProfit, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { toast } from 'react-toastify';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
+import { Link } from 'react-router-dom';
 
 interface Props {
     flip: FlipAuction,
@@ -50,7 +51,7 @@ function Flip(props: Props) {
 
     function onCopy(e) {
 
-        if(e.defaultPrevented){
+        if (e.defaultPrevented) {
             return;
         }
 
@@ -59,12 +60,31 @@ function Flip(props: Props) {
             props.onCopy(props.flip);
         }
         if (!settings.hideCopySuccessMessage) {
-            toast.success(<p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>)
+            toast.success(<p>Copied ingame link <br /><i>/viewauction {props.flip.uuid}</i></p>, {
+                autoClose: 1500,
+                pauseOnFocusLoss: false
+            })
         }
         trackEvent({
             category: 'copyButtonClick',
             action: "/viewauction " + props.flip.uuid
         })
+    }
+
+    function getProfitElement(flip): JSX.Element {
+        let profit = calculateProfit(flip);
+        let preSymbol = profit > 0 ? "+" : "";
+        return <b style={{ color: profit > 0 ? "lime" : "white" }}>{preSymbol + numberWithThousandsSeperators(profit) + " Coins"}</b>;
+    }
+
+    function onMouseDownLowestBin(e) {
+        e.preventDefault();
+        window.open(getLowestBinLink(props.flip.item.tag), '_blank');
+    }
+
+    function onMouseDownSeller(e) {
+        e.preventDefault();
+        window.open("/player/" + props.flip.sellerName);
     }
 
     let stars = props.flip.item.name?.match(/✪+/gm);
@@ -101,23 +121,30 @@ function Flip(props: Props) {
                         settings.hideEstimatedProfit ? null :
                             <p>
                                 <span className="card-label">Estimated Profit: </span><br />
-                                <b style={{ color: "lime" }}>
-                                    +{numberWithThousandsSeperators(props.flip.median - props.flip.cost)} Coins
-                                </b>
+                                {getProfitElement(props.flip)}
                                 <span style={{ float: "right" }}>
                                     <span onMouseDown={onBasedAuctionClick}><HelpIcon /></span>
                                 </span>
                             </p>
                     }
                     {
-                        settings.hideLowestBin && settings.hideSeller ? null : <hr />
+                        settings.hideLowestBin && settings.hideSeller && settings.hideSecondLowestBin ? null : <hr />
                     }
                     {
                         settings.hideLowestBin ? null :
                             <p>
                                 <span className="card-label">Lowest BIN: </span><br />
-                                <a rel="noreferrer" target="_blank" onMouseDown={e => e.preventDefault()} href={getLowestBinLink(props.flip.item.tag)}>
+                                <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
                                     {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
+                                </a>
+                            </p>
+                    }
+                    {
+                        settings.hideSecondLowestBin ? null :
+                            <p>
+                                <span className="card-label">Second lowest BIN: </span><br />
+                                <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
+                                    {numberWithThousandsSeperators(props.flip.secondLowestBin)} Coins
                                 </a>
                             </p>
                     }
@@ -125,9 +152,11 @@ function Flip(props: Props) {
                         settings.hideSeller ? null :
                             <p>
                                 <span className="card-label">Seller: </span><br />
-                                <b>
-                                    {props.flip.sellerName}
-                                </b>
+                                <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownSeller} href={"/player/" + props.flip.sellerName}>
+                                    <b>
+                                        {props.flip.sellerName}
+                                    </b>
+                                </a>
                             </p>
                     }
                     {

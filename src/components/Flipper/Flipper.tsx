@@ -17,7 +17,7 @@ import Tooltip from '../Tooltip/Tooltip';
 import Countdown from 'react-countdown';
 import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
-import { DEMO_FLIP } from '../../utils/FlipUtils';
+import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 
 interface Flips {
     all: FlipAuction[],
@@ -190,7 +190,7 @@ function Flipper() {
 
             missedInfo = {
                 estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
-                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + (newFlipAuction.median - newFlipAuction.cost) : missedInfo.missedEstimatedProfit,
+                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
                 missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
                 totalFlips: missedInfo.totalFlips + 1
             }
@@ -229,7 +229,7 @@ function Flipper() {
 
     function onCopyFlip(flip: FlipAuction) {
         let currentMissedInfo = missedInfo;
-        currentMissedInfo.estimatedProfitCopiedAuctions += flip.median - flip.cost;
+        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip);
         flip.isCopied = true;
         setFlips(flips)
     }
@@ -251,7 +251,7 @@ function Flipper() {
         if (filter?.onlyBin === true && !flipAuction.bin) {
             return false;
         }
-        if (filter?.minProfit !== undefined && filter?.minProfit >= (flipAuction.median - flipAuction.cost)) {
+        if (filter?.minProfit !== undefined && filter?.minProfit >= calculateProfit(flipAuction)) {
             return false;
         }
         if (filter?.maxCost !== undefined && filter?.maxCost < flipAuction.cost) {
@@ -261,8 +261,44 @@ function Flipper() {
             return false;
         }
         if (filter?.minVolume !== undefined) {
-            return filter?.minVolume >= 0 ? filter?.minVolume <= flipAuction.volume : Math.abs(filter?.minVolume) >= flipAuction.volume;
+            if (filter?.minVolume >= 0 && filter?.minVolume > flipAuction.volume) {
+                return false;
+            } else if (filter?.minVolume < 0 && Math.abs(filter?.minVolume) < flipAuction.volume) {
+                return false;
+            }
         }
+
+        if (filter?.restrictions !== undefined) {
+
+            for (let i = 0; i < filter.restrictions.length; i++) {
+
+                let restriction = filter.restrictions[i];
+
+                if (restriction.type === "blacklist" && restriction.item && restriction.item.tag === flipAuction.item.tag) {
+                    return false;
+                }
+
+                /*
+                TODO: Implement with filter
+                if (restriction.itemFilter) {
+                    let keys = Object.keys(restriction.itemFilter);
+                    for (let j = 0; j < keys.length; j++) {
+                        const key = keys[j];
+
+                        if (flipAuction[key] && flipAuction[key] === restriction.itemFilter![key]) {
+                            return false;
+                        }
+                        if (flipAuction.item && flipAuction.item[key] && flipAuction.item[key] === restriction.itemFilter![key]) {
+                            return false;
+                        }
+                        if (flipAuction.props && flipAuction.props[key] && flipAuction.props[key] === restriction.itemFilter![key]) {
+                            return false;
+                        }
+                    }
+                    */
+            }
+        }
+
         return true;
     }
 
@@ -330,7 +366,7 @@ function Flipper() {
                                 </div>
                             </Form.Group>
                             <Form.Group onClick={() => { setShowCustomizeFlip(true) }}>
-                                <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>Change flip style</Form.Label>
+                                <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>Settings</Form.Label>
                                 <span style={{ cursor: "pointer" }}> <SettingsIcon /></span>
                             </Form.Group>
                             {

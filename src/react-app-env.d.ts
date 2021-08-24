@@ -139,6 +139,7 @@ interface FlipAuction {
   sold?: boolean,
   sellerName: string,
   lowestBin: number,
+  secondLowestBin: number,
   isCopied?: boolean,
   props?: string[]
 }
@@ -148,7 +149,8 @@ interface FlipperFilter {
   minProfit?: number,
   minVolume?: number,
   maxCost?: number,
-  onlyUnsold?: boolean
+  onlyUnsold?: boolean,
+  restrictions?: FlipRestriction[]
 }
 
 interface API {
@@ -161,7 +163,6 @@ interface API {
     fetchStart: number,
     itemFilter?: ItemFilter
   ): Promise<ItemPriceData>;
-  getPlayerDetails(playerUUID: string): Promise<PlayerDetails>;
   getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>;
   getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>;
   getEnchantments(): Promise<Enchantment[]>;
@@ -206,6 +207,7 @@ interface API {
   filterFor(item: Item): Promise<FilterOptions[]>,
   connectMinecraftAccount(playerUUID: string): Promise<number>,
   getAccountInfo(): Promise<AccountInfo>
+  itemSearch(searchText: string): Promise<FilterOptions[]>
 }
 
 interface CacheUtils {
@@ -303,10 +305,18 @@ interface AccountInfo {
 interface FlipCustomizeSettings {
   hideCost?: boolean,
   hideLowestBin?: boolean,
+  hideSecondLowestBin?: boolean,
   hideMedianPrice?: boolean,
   hideSeller?: boolean,
   hideEstimatedProfit?: boolean,
   hideVolume?: boolean,
   maxExtraInfoFields?: number,
-  hideCopySuccessMessage: boolean
+  hideCopySuccessMessage?: boolean,
+  useLowestBinForProfit?: boolean
+}
+
+interface FlipRestriction {
+  type: "blacklist",
+  item?: Item,
+  itemFilter?: ItemFilter
 }
