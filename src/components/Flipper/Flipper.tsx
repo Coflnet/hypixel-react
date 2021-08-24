@@ -38,8 +38,6 @@ let missedInfo: FreeFlipperMissInformation = {
 
 let mounted = true;
 
-const FLIPPER_DISABLED_FROM_EXTERN_DATE = new Date("8.11.2021 11:15 UTC")
-
 function Flipper() {
 
     let [flips, setFlips] = useState<Flips>({ all: [], filtered: [] });
@@ -52,7 +50,6 @@ function Flipper() {
     let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle);
     let [refInfo, setRefInfo] = useState<RefInfo>();
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
-    let [isFlipperDisabledFromExtern, setIsFlipperDisabledFromExtern] = useState(FLIPPER_DISABLED_FROM_EXTERN_DATE.getTime() > new Date().getTime());
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false);
     const listRef = useRef(null);
 
@@ -380,23 +377,6 @@ function Flipper() {
                                 <span style={{ cursor: "pointer" }}> <ArrowRightIcon /></span>
                             </Form.Group>
                         </Form>
-                        <hr />
-                        {
-                            isFlipperDisabledFromExtern ?
-                                <div>
-                                    {
-                                        <div>
-                                            <p>While Derpy is mayor the auction house is disabled. Therefore there can't be any new flips.</p>
-                                            <p>Auction house reopens: <Countdown date={FLIPPER_DISABLED_FROM_EXTERN_DATE} onComplete={() => { setIsFlipperDisabledFromExtern(false) }} /></p>
-                                        </div>
-                                    }
-                                </div> : (
-                                    flips.filtered.length === 0 ?
-                                        <div>
-                                            {getLoadingElement(<p>Waiting for new flips....</p>)}
-                                        </div> : ""
-                                )
-                        }
                         <hr />
                         {flips.filtered.length > 0 ?
                             <div id="flipper-scroll-list-wrapper">
