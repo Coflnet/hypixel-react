@@ -32,7 +32,8 @@ let missedInfo: FreeFlipperMissInformation = {
     estimatedProfitCopiedAuctions: 0,
     missedEstimatedProfit: 0,
     missedFlipsCount: 0,
-    totalFlips: 0
+    totalFlips: 0,
+    totalFlipsFiltered: 0
 }
 
 let mounted = true;
@@ -181,19 +182,20 @@ function Flipper() {
             newFlipAuction.item.iconUrl = url;
             newFlipAuction.showLink = true;
 
+            missedInfo = {
+                estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
+                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
+                missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
+                totalFlips: missedInfo.totalFlips + 1,
+                totalFlipsFiltered: isValid ? missedInfo.totalFlipsFiltered + 1 : missedInfo.totalFlips
+            }
+
             setFlips(flips => {
                 return {
                     all: [...flips.all, newFlipAuction],
                     filtered: isValid ? [...flips.filtered, newFlipAuction] : flips.filtered
                 }
             });
-
-            missedInfo = {
-                estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
-                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
-                missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
-                totalFlips: missedInfo.totalFlips + 1
-            }
 
             if (autoscrollRef.current && isValid) {
                 let element = document.getElementsByClassName('flipper-scroll-list').length > 0 ? document.getElementsByClassName('flipper-scroll-list').item(0) : null;
@@ -436,29 +438,30 @@ function Flipper() {
                         </Card>
                     </div> : ""
             }
-            {
-                !isLoading && isLoggedIn && !hasPremium ?
-                    <div>
-                        <hr />
-                        <Card>
-                            <Card.Header>
-                                <Card.Title>Flipper summary</Card.Title>
-                            </Card.Header>
-                            <Card.Body>
-                                <div className="flipper-summary-wrapper">
-                                    <Card className="flipper-summary-card">
-                                        <Card.Header>
-                                            <Card.Title>
-                                                You got:
-                                            </Card.Title>
-                                        </Card.Header>
-                                        <Card.Body>
-                                            <ul>
-                                                <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
-                                                <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
-                                            </ul>
-                                        </Card.Body>
-                                    </Card>
+            <div>
+                <hr />
+                <Card>
+                    <Card.Header>
+                        <Card.Title>Flipper summary</Card.Title>
+                    </Card.Header>
+                    <Card.Body>
+                        <div className="flipper-summary-wrapper">
+                            <Card className="flipper-summary-card">
+                                <Card.Header>
+                                    <Card.Title>
+                                        You got:
+                                    </Card.Title>
+                                </Card.Header>
+                                <Card.Body>
+                                    <ul>
+                                        <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
+                                        <li>Total flips received (filtered): {numberWithThousandsSeperators(missedInfo.totalFlipsFiltered)}</li>
+                                        <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                    </ul>
+                                </Card.Body>
+                            </Card>
+                            {
+                                !isLoading && isLoggedIn && !hasPremium ?
                                     <Card className="flipper-summary-card">
                                         <Card.Header>
                                             <Card.Title>
@@ -476,20 +479,26 @@ function Flipper() {
                                             </ul>
                                         </Card.Body>
                                     </Card>
-                                    <Card style={{ flexGrow: 2 }} className="flipper-summary-card">
-                                        <Card.Header>
+                                    : null
+                            }
+                            <Card style={{ flexGrow: 2 }} className="flipper-summary-card">
+
+                                <Card.Header>
+                                    {
+                                        !isLoading && isLoggedIn && hasPremium ?
+                                            <Card.Title>How to get extra premium time for free</Card.Title> :
                                             <Card.Title>How to get premium for free</Card.Title>
-                                        </Card.Header>
-                                        <Card.Body>
-                                            <p>Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.</p>
-                                            <p>Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} /></p>
-                                        </Card.Body>
-                                    </Card>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </div> : ""
-            }
+                                    }
+                                </Card.Header>
+                                <Card.Body>
+                                    <p>Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.</p>
+                                    <p>Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} /></p>
+                                </Card.Body>
+                            </Card>
+                        </div>
+                    </Card.Body>
+                </Card>
+            </div>
 
             <hr />
             <Card>
