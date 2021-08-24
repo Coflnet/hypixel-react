@@ -19,6 +19,10 @@
     justify-content: left;
 }
 
+.form-check {
+    padding-left: 0;
+}
+
 .only-bin-label {
     padding-right: 20px;
 }
