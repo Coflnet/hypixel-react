@@ -167,18 +167,18 @@ function FlipperFilter(props: Props) {
     const nonPremiumTooltip = <span key="nonPremiumTooltip">This is a premium feature.<br />(to use for free wait  <Countdown key={uuids[0]} date={FREE_PREMIUM_FILTER_TIME} renderer={countdownRenderer} />)</span>;
     const nonLoggedInTooltip = <span key="nonLoggedInTooltip">Login to use these filters.<br />(or wait  <Countdown key={uuids[1]} date={FREE_LOGIN_FILTER_TIME} renderer={countdownRenderer} />)</span>;
 
-    const binFilter = <Form.Group>
+    const binFilter = <Form.Group className="filter-checkbox">
         <Form.Label htmlFor="onlyBinCheckbox" className="flipper-filter-formfield-label only-bin-label">Only BIN-Auctions</Form.Label>
         <Form.Check id="onlyBinCheckbox" onChange={onOnlyBinChange} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
 
     </Form.Group>;
 
-    const soldFilter = <Form.Group>
+    const soldFilter = <Form.Group className="filter-checkbox">
         <Form.Label htmlFor="onlyUnsoldCheckbox" className="flipper-filter-formfield-label only-bin-label">Hide SOLD Auctions</Form.Label>
         <Form.Check ref={onlyUnsoldRef} id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={props.isPremium} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
     </Form.Group>;
 
-    const openRestrictionListDialog = <div onClick={() => { setShowRestrictionList(true) }} style={{ cursor: "pointer" }}>
+    const openRestrictionListDialog = <div onClick={() => { setShowRestrictionList(true) }} className="filter-checkbox" style={{ cursor: "pointer" }}>
         <span className="flipper-filter-formfield-label only-bin-label">Blacklist</span>
         <FilterIcon className="flipper-filter-formfield" style={{ marginLeft: "-4px" }} />
     </div>
