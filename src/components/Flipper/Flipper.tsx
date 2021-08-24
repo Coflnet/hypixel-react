@@ -256,7 +256,7 @@ function Flipper() {
         if (filter?.minProfit !== undefined && filter?.minProfit >= calculateProfit(flipAuction)) {
             return false;
         }
-        if (filter?.maxCost !== undefined && filter?.maxCost < flipAuction.cost) {
+        if (filter?.maxCost !== undefined && filter?.maxCost !== 0 && filter?.maxCost < flipAuction.cost) {
             return false;
         }
         if (filter?.onlyUnsold === true && flipAuction.sold) {

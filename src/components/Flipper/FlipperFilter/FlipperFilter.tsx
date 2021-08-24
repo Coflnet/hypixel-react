@@ -7,6 +7,7 @@ import { v4 as generateUUID } from 'uuid';
 import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList';
 import { BallotOutlined as FilterIcon } from '@material-ui/icons';
 import AutoNumeric from 'autonumeric';
+import { FLIPPER_FILTER_KEY, getSetting, setSetting } from '../../../utils/SettingsUtils';
 
 interface Props {
     onChange(filter: FlipperFilter),
@@ -20,13 +21,19 @@ let FREE_LOGIN_SPAN = 1000 * 60 * 6;
 let FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN;
 let FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN;
 
+let defaultFilter: FlipperFilter;
+
 function FlipperFilter(props: Props) {
 
-    let [onlyBin, setOnlyBin] = useState(false);
-    let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium);
-    let [minProfit, setMinProfit] = useState(0);
-    let [minVolume, setMinVolume] = useState(0);
-    let [maxCost, setMaxCost] = useState<number>();
+    if (!defaultFilter) {
+        defaultFilter = loadDefaultFilter();
+    }
+
+    let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin);
+    let [onlyUnsold, setOnlyUnsold] = useState(defaultFilter.onlyUnsold);
+    let [minProfit, setMinProfit] = useState(defaultFilter.minProfit);
+    let [minVolume, setMinVolume] = useState(defaultFilter.minVolume);
+    let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || 0);
     let [freePremiumFilters, setFreePremiumFilters] = useState(false);
     let [freeLoginFilters, setFreeLoginFilters] = useState(false);
     let [uuids, setUUIDs] = useState<string[]>([]);
@@ -52,14 +59,35 @@ function FlipperFilter(props: Props) {
 
     checkAutoNumeric();
 
+    function loadDefaultFilter(): FlipperFilter {
+        let filter = getSetting(FLIPPER_FILTER_KEY);
+        let parsed: FlipperFilter = {};
+        try {
+            parsed = JSON.parse(filter);
+        } catch {
+            // to nothing as the filters are correctly initialized 
+        }
+        return parsed;
+    }
+
     function checkAutoNumeric() {
 
-        let autoNumericElementsIds = ['filter-input-min-profit', 'filter-input-min-volume', 'filter-input-max-cost']
+        let autoNumericElements = [{
+            id: 'filter-input-min-profit',
+            stateName: 'minProfit'
+        }, {
+            id: 'filter-input-min-volume',
+            stateName: 'minVolume'
+        }, {
+            id: 'filter-input-max-cost',
+            stateName: 'maxCost'
+        }]
 
-        autoNumericElementsIds.forEach(autoNumericElementId => {
-            let element = document.getElementById(autoNumericElementId);
+        autoNumericElements.forEach(autoNumericElement => {
+            let element = document.getElementById(autoNumericElement.id);
             if (element && !AutoNumeric.isManagedByAutoNumeric(element)) {
-                new AutoNumeric('#' + autoNumericElementId, 0, {
+
+                new AutoNumeric('#' + autoNumericElement.id, defaultFilter[autoNumericElement.stateName], {
                     digitGroupSeparator: '.',
                     decimalCharacter: ',',
                     decimalPlaces: 0,
@@ -78,7 +106,7 @@ function FlipperFilter(props: Props) {
         }
     }, [props.isPremium])
 
-    let getCurrentFilter = (): FlipperFilter => {
+    function getCurrentFilter(): FlipperFilter {
         return {
             onlyBin: onlyBin,
             minProfit: minProfit,
@@ -88,11 +116,28 @@ function FlipperFilter(props: Props) {
         }
     }
 
+    function onFilterChange(filter: FlipperFilter) {
+
+        if (props.isLoggedIn) {
+            let filterToSave = JSON.parse(JSON.stringify(filter));
+            if (!props.isPremium) {
+                filterToSave.onlyBin = undefined;
+                filterToSave.onlyUnsold = undefined;
+            }
+
+            setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter));
+        } else {
+            setSetting(FLIPPER_FILTER_KEY, JSON.stringify({}));
+        }
+
+        props.onChange(filter);
+    }
+
     function onOnlyBinChange(event: ChangeEvent<HTMLInputElement>) {
         setOnlyBin(event.target.checked);
         let filter = getCurrentFilter();
         filter.onlyBin = event.target.checked;
-        props.onChange(filter);
+        onFilterChange(filter);
     }
 
     function onOnlyUnsoldChange(event: ChangeEvent<HTMLInputElement>) {
@@ -106,7 +151,7 @@ function FlipperFilter(props: Props) {
         setMinProfit(val)
         let filter = getCurrentFilter();
         filter.minProfit = val;
-        props.onChange(filter);
+        onFilterChange(filter);
     }
 
     function onMaxCostChange(event: ChangeEvent<HTMLInputElement>) {
@@ -114,14 +159,14 @@ function FlipperFilter(props: Props) {
         setMaxCost(val)
         let filter = getCurrentFilter();
         filter.maxCost = val;
-        props.onChange(filter);
+        onFilterChange(filter);
     }
 
     function updateOnlyUnsold(isActive: boolean) {
         setOnlyUnsold(isActive);
         let filter = getCurrentFilter();
         filter.onlyUnsold = isActive;
-        props.onChange(filter);
+        onFilterChange(filter);
     }
 
     function onMinVolumeChange(event: ChangeEvent<HTMLInputElement>) {
@@ -129,13 +174,13 @@ function FlipperFilter(props: Props) {
         setMinVolume(val)
         let filter = getCurrentFilter();
         filter.minVolume = val;
-        props.onChange(filter);
+        onFilterChange(filter);
     }
 
     function onRestrictionsChange(restrictions: FlipRestriction[]) {
         let filter = getCurrentFilter();
         filter.restrictions = restrictions;
-        props.onChange(filter);
+        onFilterChange(filter);
     }
 
     function onFreePremiumComplete() {
@@ -169,13 +214,13 @@ function FlipperFilter(props: Props) {
 
     const binFilter = <Form.Group className="filter-checkbox">
         <Form.Label htmlFor="onlyBinCheckbox" className="flipper-filter-formfield-label only-bin-label">Only BIN-Auctions</Form.Label>
-        <Form.Check id="onlyBinCheckbox" onChange={onOnlyBinChange} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
+        <Form.Check id="onlyBinCheckbox" onChange={onOnlyBinChange} defaultChecked={onlyBin} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
 
     </Form.Group>;
 
     const soldFilter = <Form.Group className="filter-checkbox">
         <Form.Label htmlFor="onlyUnsoldCheckbox" className="flipper-filter-formfield-label only-bin-label">Hide SOLD Auctions</Form.Label>
-        <Form.Check ref={onlyUnsoldRef} id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={props.isPremium} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
+        <Form.Check ref={onlyUnsoldRef} id="onlyUnsoldCheckbox" onChange={onOnlyUnsoldChange} defaultChecked={onlyUnsold} className="flipper-filter-formfield" type="checkbox" disabled={!props.isPremium && !freePremiumFilters} />
     </Form.Group>;
 
     const openRestrictionListDialog = <div onClick={() => { setShowRestrictionList(true) }} className="filter-checkbox" style={{ cursor: "pointer" }}>
