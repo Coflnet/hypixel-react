@@ -19,6 +19,10 @@
     justify-content: left;
 }
 
+.premium-filters .form-group {
+    margin-bottom: 0;
+}
+
 .form-check {
     padding-left: 0;
 }
