@@ -288,6 +288,7 @@ interface RefInfo {
 
 interface FreeFlipperMissInformation {
   totalFlips: number,
+  totalFlipsFiltered: number,
   missedFlipsCount: number,
   missedEstimatedProfit: number,
   estimatedProfitCopiedAuctions: number

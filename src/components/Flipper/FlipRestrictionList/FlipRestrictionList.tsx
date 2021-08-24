@@ -29,11 +29,16 @@ function FlipRestrictionList(props: Props) {
 
     function loadRestrictions() {
         let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY);
+        let parsed: FlipRestriction[];
         try {
-            setRestrictions(JSON.parse(restrictions));
+            parsed = JSON.parse(restrictions);
+            setRestrictions(parsed);
         } catch {
-            setRestrictions([]);
+            parsed = [];
+            setRestrictions(parsed);
         }
+
+        props.onRestrictionsChange(parsed);
     }
 
     function loadFilters() {
@@ -138,7 +143,7 @@ function FlipRestrictionList(props: Props) {
     return (
         <div className="flip-restriction-list">
             {
-                isAddNewFlipperExtended ? getNewRestrictionElement() : <span style={{cursor: "pointer"}} onClick={() => setIsNewFlipperExtended(true)}>
+                isAddNewFlipperExtended ? getNewRestrictionElement() : <span style={{ cursor: "pointer" }} onClick={() => setIsNewFlipperExtended(true)}>
                     {addIcon}
                     <span> Add new restriction</span>
                 </span>
