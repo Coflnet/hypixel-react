@@ -359,18 +359,18 @@ function Startpage() {
                         You can find all current and historic prices for the auction house and bazaar on this web tracker.
                     </p>
                     <p>
-                        We are tracking about 200 million auctions. Saved more than 250 million bazaar prices in intervalls of 10 seconds.
-                        Furthermore there are over two million skyblock players that you can search by minecraft user name.
+                        We're tracking about 200 million auctions. We've saved more than 250 million bazaar prices in intervals of 10 seconds.
+                        Furthermore, there are over two million skyblock players that you can search by their Minecraft usernames.
                         You can browse through the auctions they made over the past two years.
-                        New Items are added automatically and available within two miniutes after the first auction is startet.
+                        New Items are added automatically and available within two miniutes after the first auction is started.
                     </p>
                     <p>
-                        The autocomplete search is ranked by popularity and allows you to find whatever item you want faster.
-                        Quick urls allow you to link to specific sites. /p/Steve or /i/Oak allow you to create a link without visiting the site first.
+                        The search autocomplete is ranked by popularity and allows you to find whatever item you want faster.
+                        Quick urls allow you to link to specific sites. /p/Steve or /i/Oak allows you to create a link without visiting the site first.
                     </p>
                     <p>
                         The free accessible <Link to="/flipper">auction house flipper</Link> allows you to find profitable ah flips in no time.
-                        It suplements the option to browse all of the skyblock history on the web tracker.
+                        It supplements the option to browse all of the skyblock history on the web tracker.
                         Whats more you can see what auctions were used as reference to determine if a flip is profitable.
                     </p>
                     <p>
