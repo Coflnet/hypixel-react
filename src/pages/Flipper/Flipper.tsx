@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import './Flipper.css';
 import FlipperComponent from '../../components/Flipper/Flipper';
-import NavBar from '../../components/NavBar/NavBar';
 import { Container } from 'react-bootstrap';
 import Search from '../../components/Search/Search';
 
