@@ -23,7 +23,7 @@ function ClaimAccount(props: Props) {
         return () => {
             clearInterval(reloadMcInfoIntervalId);
         }
-    });
+    }, []);
 
     function onAfterLogin() {
         setIsLoading(true);
@@ -44,10 +44,10 @@ function ClaimAccount(props: Props) {
     }
 
     function getFormattedVerificationNumber(): string {
-        if (!mcInfo || mcInfo.bin === undefined) {
+        if (!mcInfo || mcInfo.bid === undefined) {
             return "";
         }
-        return String(mcInfo.bin).padStart(VERIFICATION_NUMBER_LENGTH, '0')
+        return String(mcInfo.bid).padStart(VERIFICATION_NUMBER_LENGTH, '0')
     }
 
     let formattedVerificationNumber = getFormattedVerificationNumber();
@@ -58,7 +58,7 @@ function ClaimAccount(props: Props) {
                 isLoading ? getLoadingElement() : null
             }
             {
-                !isLoading && isLoggedIn && mcInfo && !mcInfo.connected ?
+                !isLoading && isLoggedIn && mcInfo && mcInfo.connectedAccountId !== props.playerUUID  ?
                     <div>
                         <h3>How do I claim my Minecraft Account?</h3>
                         <p><p>To verify that his account is yours, please create a bid or an auction with the last 3 digits set to the number below. After at most 3 minutes your account will automatically be verified by our server. If your account hasn't been verified within 5 minutes please try again.</p></p>
@@ -82,7 +82,7 @@ function ClaimAccount(props: Props) {
                     </div> : null
             }
             {
-                !isLoading && isLoggedIn && mcInfo && mcInfo.connected ?
+                !isLoading && isLoggedIn && mcInfo && mcInfo.connectedAccountId === props.playerUUID ?
                     <div>
                         <h3>Your Account has been connected!</h3>
                         <p>Connecting your Minecraft account allows us to improve your experience.
