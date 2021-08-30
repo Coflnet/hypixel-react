@@ -7,6 +7,7 @@ import { convertTagToName } from '../../utils/Formatter';
 import NavBar from '../NavBar/NavBar';
 import OptionsMenu from '../OptionsMenu/OptionsMenu';
 import { SearchOutlined as SearchIcon } from '@material-ui/icons'
+import { v4 as generateUUID } from 'uuid';
 
 interface Props {
     selected?: Player | Item,
@@ -22,6 +23,7 @@ function Search(props: Props) {
 
     let history = useHistory();
 
+    let [uuid] = useState(generateUUID());
     let [searchText, setSearchText] = useState("");
     let [results, setResults] = useState<SearchResultItem[]>([]);
     let [isLoading, setIsLoading] = useState(false);
@@ -41,7 +43,8 @@ function Search(props: Props) {
         searchFunction(searchFor).then(searchResults => {
 
             // has the searchtext changed?
-            if (searchFor === (document.getElementById('search-bar') as HTMLInputElement).value) {
+            let component = document.getElementById(uuid);
+            if (component !== null && searchFor === (component.querySelector('#search-bar') as HTMLInputElement).value) {
                 setNoResultsFound(searchResults.length === 0);
                 setResults(searchResults);
                 setIsLoading(false);
@@ -125,10 +128,12 @@ function Search(props: Props) {
         }
     };
 
-    let listWidth = document.getElementById('search-input-group')?.offsetWidth ? document.getElementById('search-input-group')!.offsetWidth - 2 : "";
+    let component = document.getElementById(uuid);
+    let searchInputGroup = component ? component.querySelector<HTMLElement>('#search-input-group') : null;
+    let listWidth = component !== null && searchInputGroup && searchInputGroup.offsetWidth ? searchInputGroup.offsetWidth - 2 : "";
 
     return (
-        <div className="search" style={isSmall ? { marginLeft: "-5px", marginRight: "-5px" } : {}}>
+        <div id={uuid} className="search" style={isSmall ? { marginLeft: "-5px", marginRight: "-5px" } : {}}>
 
             <Form autoComplete="off">
                 <Form.Group className="search-form-group">
@@ -139,7 +144,7 @@ function Search(props: Props) {
                                 <SearchIcon />
                             }
                         </InputGroup.Text>
-                        <Form.Control style={searchStyle} type="text" placeholder={props.placeholder || "Search player/item"} id="search-bar" className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
+                        <Form.Control style={searchStyle} type="text" placeholder={props.placeholder || "Search player/item"} id={'search-bar'} className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
                     </InputGroup>
                 </Form.Group>
             </Form>
