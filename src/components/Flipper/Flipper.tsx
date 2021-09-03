@@ -14,7 +14,6 @@ import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { FixedSizeList as List } from 'react-window';
 import { Link } from 'react-router-dom';
 import Tooltip from '../Tooltip/Tooltip';
-import Countdown from 'react-countdown';
 import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
 import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
@@ -52,6 +51,8 @@ function Flipper() {
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false);
     const listRef = useRef(null);
+
+    let isSmall = document.body.clientWidth < 1000;
 
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
@@ -386,7 +387,7 @@ function Flipper() {
                                     height={document.getElementById('maxHeightDummyFlip')?.offsetHeight}
                                     itemCount={flips.filtered.length}
                                     itemData={{ flips: flips.filtered }}
-                                    itemSize={330}
+                                    itemSize={isSmall ? 300 : 330}
                                     layout="horizontal"
                                     width={document.getElementById('flipper-card-body')?.offsetWidth || 100}
                                 >
