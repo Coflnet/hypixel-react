@@ -6,7 +6,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, Settings as SettingsIcon } from '@material-ui/icons';
+import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, Settings as SettingsIcon, PanTool as HandIcon } from '@material-ui/icons';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
 import AuctionDetails from '../AuctionDetails/AuctionDetails';
@@ -17,6 +17,9 @@ import Tooltip from '../Tooltip/Tooltip';
 import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
 import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
+import { Menu, Item, useContextMenu, theme } from 'react-contexify';
+import { getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
+
 
 interface Flips {
     all: FlipAuction[],
@@ -37,6 +40,8 @@ let missedInfo: FreeFlipperMissInformation = {
 
 let mounted = true;
 
+const FLIP_CONEXT_MENU_ID = 'flip-context-menu';
+
 function Flipper() {
 
     let [flips, setFlips] = useState<Flips>({ all: [], filtered: [] });
@@ -50,6 +55,11 @@ function Flipper() {
     let [refInfo, setRefInfo] = useState<RefInfo>();
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false);
+
+    const { show } = useContextMenu({
+        id: FLIP_CONEXT_MENU_ID,
+    });
+
     const listRef = useRef(null);
 
     let isSmall = document.body.clientWidth < 1000;
@@ -74,6 +84,16 @@ function Flipper() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    function handleFlipContextMenu(event, flip: FlipAuction) {
+        event.preventDefault();
+        show(event, {
+            props: {
+                key: 'value',
+                flip: flip
+            }
+        })
+    }
 
     let loadHasPremium = () => {
         let googleId = localStorage.getItem("googleId");
@@ -302,9 +322,33 @@ function Flipper() {
         return true;
     }
 
+    function addItemToBlacklist(flip: FlipAuction) {
+        let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY);
+        let parsed: FlipRestriction[];
+        try {
+            parsed = JSON.parse(restrictions);
+        } catch {
+            parsed = [];
+        }
+        parsed.push({
+            type: "blacklist",
+            item: flip.item
+        })
+
+        if (flipperFilter) {
+            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(parsed));
+            flipperFilter.restrictions = parsed;
+            onFilterChange(flipperFilter);
+        } else {
+            setTimeout(addItemToBlacklist, 500);
+        }
+    }
+
     let getFlipElement = (flipAuction: FlipAuction, style) => {
         return (
-            <Flip flip={flipAuction} style={style} onCopy={onCopyFlip} onCardClick={flip => setSelectedAuctionUUID(flip.uuid)} onBasedAuctionClick={flip => { setBasedOnAuction(flip) }} />
+            <div onContextMenu={e => handleFlipContextMenu(e, flipAuction)}>
+                <Flip flip={flipAuction} style={style} onCopy={onCopyFlip} onCardClick={flip => setSelectedAuctionUUID(flip.uuid)} onBasedAuctionClick={flip => { setBasedOnAuction(flip) }} />
+            </div>
         )
     }
 
@@ -328,6 +372,14 @@ function Flipper() {
                 <FlipCustomize />
             </Modal.Body>
         </Modal>
+    );
+
+    let flipContextMenu = (
+        <div>
+            <Menu id={FLIP_CONEXT_MENU_ID} theme={theme.dark}>
+                <Item onClick={params => { addItemToBlacklist((params.props.flip as FlipAuction)) }}><HandIcon style={{ color: "red", marginRight: "5px" }} /> Add Item to Blacklist</Item>
+            </Menu>
+        </div>
     );
 
     return (
@@ -529,6 +581,7 @@ function Flipper() {
             </div>
             {basedOnDialog}
             {customizeFlipDialog}
+            {flipContextMenu}
         </div >
     );
 }

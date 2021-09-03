@@ -7,7 +7,7 @@ import { v4 as generateUUID } from 'uuid';
 import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList';
 import { BallotOutlined as FilterIcon } from '@material-ui/icons';
 import AutoNumeric from 'autonumeric';
-import { FLIPPER_FILTER_KEY, getSetting, setSetting } from '../../../utils/SettingsUtils';
+import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 
 interface Props {
     onChange(filter: FlipperFilter),
@@ -26,7 +26,7 @@ let defaultFilter: FlipperFilter;
 function FlipperFilter(props: Props) {
 
     if (!defaultFilter) {
-        defaultFilter = loadDefaultFilter();
+        defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {});
     }
 
     let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin);
@@ -36,6 +36,7 @@ function FlipperFilter(props: Props) {
     let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || 0);
     let [freePremiumFilters, setFreePremiumFilters] = useState(false);
     let [freeLoginFilters, setFreeLoginFilters] = useState(false);
+    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []));
     let [uuids, setUUIDs] = useState<string[]>([]);
     let [showRestrictionList, setShowRestrictionList] = useState(false);
 
@@ -58,17 +59,6 @@ function FlipperFilter(props: Props) {
     }, [])
 
     checkAutoNumeric();
-
-    function loadDefaultFilter(): FlipperFilter {
-        let filter = getSetting(FLIPPER_FILTER_KEY);
-        let parsed: FlipperFilter = {};
-        try {
-            parsed = JSON.parse(filter);
-        } catch {
-            // to nothing as the filters are correctly initialized 
-        }
-        return parsed;
-    }
 
     function checkAutoNumeric() {
 
@@ -112,7 +102,8 @@ function FlipperFilter(props: Props) {
             minProfit: minProfit,
             maxCost: maxCost,
             onlyUnsold: onlyUnsold,
-            minVolume: minVolume
+            minVolume: minVolume,
+            restrictions: restrictions
         }
     }
 
@@ -180,6 +171,7 @@ function FlipperFilter(props: Props) {
     function onRestrictionsChange(restrictions: FlipRestriction[]) {
         let filter = getCurrentFilter();
         filter.restrictions = restrictions;
+        setRestrictions(restrictions);
         onFilterChange(filter);
     }
 
@@ -272,7 +264,6 @@ function FlipperFilter(props: Props) {
             {restrictionListDialog}
         </div>
     );
-
 }
 
 export default FlipperFilter;

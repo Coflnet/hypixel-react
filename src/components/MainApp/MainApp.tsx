@@ -10,6 +10,8 @@ import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import { getURLSearchParam } from '../../utils/Parser/URLParser';
 import Cookies from 'js-cookie';
+import 'react-contexify/dist/ReactContexify.css';
+
 
 export function MainApp(props: any) {
 
