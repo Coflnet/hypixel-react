@@ -144,7 +144,7 @@ function Search(props: Props) {
                                 <SearchIcon />
                             }
                         </InputGroup.Text>
-                        <Form.Control style={searchStyle} type="text" placeholder={props.placeholder || "Search player/item"} id={'search-bar'} className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
+                        <Form.Control autoFocus style={searchStyle} type="text" placeholder={props.placeholder || "Search player/item"} id={'search-bar'} className="searchBar" value={searchText} onChange={onSearchChange} onKeyPress={(e: any) => { onKeyPress(e) }} />
                     </InputGroup>
                 </Form.Group>
             </Form>
