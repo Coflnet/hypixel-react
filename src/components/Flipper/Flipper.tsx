@@ -205,7 +205,7 @@ function Flipper() {
                 missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
                 missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
                 totalFlips: missedInfo.totalFlips + 1,
-                totalFlipsFiltered: isValid ? missedInfo.totalFlipsFiltered + 1 : missedInfo.totalFlips
+                totalFlipsFiltered: isValid ? missedInfo.totalFlipsFiltered + 1 : missedInfo.totalFlipsFiltered
             }
 
             setFlips(flips => {
