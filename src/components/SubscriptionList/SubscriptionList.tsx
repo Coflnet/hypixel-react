@@ -10,6 +10,7 @@ import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { Delete as DeleteIcon, Undo as UndoIcon } from '@material-ui/icons';
+import { useForceUpdate } from '../../utils/Hooks';
 
 interface Props {
 
@@ -22,6 +23,8 @@ function SubscriptionList(props: Props) {
 
     let [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    let forceUpdate = useForceUpdate();
 
     useEffect(() => {
         mounted = true;
@@ -36,14 +39,17 @@ function SubscriptionList(props: Props) {
             if (!mounted) {
                 return;
             }
-            let promises: Promise<void>[] = [];
-            subscriptions.forEach(subscription => {
-                promises.push(getSubscriptionTitle(subscription));
+
+            subscriptions.forEach((subscription, i) => {
+                getSubscriptionTitle(subscription).then(title => {
+                    let newSubscriptions = subscriptions;
+                    newSubscriptions[i].title = title;
+                    setSubscriptions(newSubscriptions);
+                    forceUpdate();
+                })
             });
 
-            Promise.all(promises).then(() => {
-                setSubscriptions(subscriptions);
-            });
+            setSubscriptions(subscriptions);
         })
     }
 
@@ -94,11 +100,15 @@ function SubscriptionList(props: Props) {
                 return;
             }
             let subs = subscriptions.filter(s => s !== subscription);
-            setSubscriptions(subs);
             subscriptions = subs;
+            setSubscriptions(subs);
 
             toast.success(<span>Subscription deleted <Button style={{ float: "right", marginRight: "5px" }} variant="info" onClick={() => { resubscribe(subscription) }}><UndoIcon /> Undo</Button></span>)
         })
+    }
+
+    function deleteAll(subscriptions: Subscription[]) {
+        // TODO: delete all
     }
 
     function resubscribe(subscription: Subscription) {
@@ -107,28 +117,28 @@ function SubscriptionList(props: Props) {
         });
     }
 
-    function getSubscriptionTitle(subscription: Subscription): Promise<void> {
+    function getSubscriptionTitle(subscription: Subscription): Promise<string> {
         return new Promise((resolve, reject) => {
             switch (subscription.type) {
                 case "item":
-                    subscription.title = convertTagToName(subscription.topicId);
-                    resolve();
+                    resolve(convertTagToName(subscription.topicId));
                     break;
                 case "player":
                     api.getPlayerName(subscription.topicId).then(playerName => {
-                        subscription.title = playerName;
-                        resolve();
+                        resolve(playerName);
+                    }).catch(() => {
+                        reject();
                     })
                     break;
                 case "auction":
                     api.getAuctionDetails(subscription.topicId).then(auctionDetails => {
-                        subscription.title = auctionDetails.auction.item.name || auctionDetails.auction.item.tag;
-                        resolve();
+                        resolve(auctionDetails.auction.item.name || auctionDetails.auction.item.tag);
+                    }).catch(() => {
+                        reject();
                     })
                     break;
                 default:
-                    subscription.title = subscription.topicId;
-                    resolve();
+                    resolve(subscription.topicId);
                     break;
             }
         });
@@ -137,11 +147,11 @@ function SubscriptionList(props: Props) {
     function getSubscriptionTitleElement(subscription: Subscription) {
         switch (subscription.type) {
             case "item":
-                return <Link class="disable-link-style" to={"/item/" + subscription.topicId}>{subscription.title}</Link>
+                return <Link className="disable-link-style" to={"/item/" + subscription.topicId}>{subscription.title}</Link>
             case "player":
-                return <Link class="disable-link-style" to={"/player/" + subscription.topicId}>{subscription.title}</Link>
+                return <Link className="disable-link-style" to={"/player/" + subscription.topicId}>{subscription.title}</Link>
             case "auction":
-                return <Link class="disable-link-style" to={"/auction/" + subscription.topicId}>{subscription.title}</Link>
+                return <Link className="disable-link-style" to={"/auction/" + subscription.topicId}>{subscription.title}</Link>
             default:
                 return subscription.title;
         }
@@ -164,9 +174,14 @@ function SubscriptionList(props: Props) {
         <div className="subscription-list">
             {isLoggedIn ?
                 (subscriptions.length > 0 ?
-                    <ListGroup style={{ marginTop: "20px" }}>
-                        {subscriptionsTableBody}
-                    </ListGroup>
+                    <div>
+                        <div style={{ height: "auto", display: "flex", justifyContent: "flex-end" }}>
+                            <Button style={{ backgroundColor: "red", float: "right" }} onClick={() => { deleteAll(subscriptions) }}>Delete all subscriptions</Button>
+                        </div>
+                        <ListGroup style={{ marginTop: "20px" }}>
+                            {subscriptionsTableBody}
+                        </ListGroup>
+                    </div>
                     : <p>You dont have any subscriptions</p>)
                 : ""
             }

@@ -638,7 +638,7 @@ function initAPI(): API {
     let getFlipBasedAuctions = (flipUUID: string): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
 
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.GET_FLIP_BASED_AUCTIONS,
                 data: flipUUID,
                 resolve: (data: any) => {
