@@ -40,7 +40,7 @@ function FlipBased(props: Props) {
                         <Card.Header style={{ padding: "10px" }}>
                             <p className="ellipsis" style={{ width: "180px" }}>
                                 <img crossOrigin="anonymous" src={props.flip.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                {props.flip.item.name}
+                                {auction.item.name}
                             </p>
                         </Card.Header>
                         <Card.Body>
