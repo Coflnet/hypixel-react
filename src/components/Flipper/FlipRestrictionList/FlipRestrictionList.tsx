@@ -81,19 +81,15 @@ function FlipRestrictionList(props: Props) {
         return range === newRestriction.type ? "primary" : "secondary";
     }
 
-    /**
-     * TODO: Implement whitelist & filter
-        <ToggleButtonGroup style={{ maxWidth: "200px" }} className="item-price-range" type="radio" name="options" value={newRestriction.type} onChange={onRestrictionTypeChange}>
-            <ToggleButton className="price-range-button" value={"blacklist"} variant={getButtonVariant("blacklist")} size="sm">Blacklist</ToggleButton>
-            <ToggleButton className="price-range-button" value={"whitelist"} variant={getButtonVariant("whitelist")} size="sm">Whitelist</ToggleButton>
-        </ToggleButtonGroup>
-
-        <ItemFilter filters={filters} forceOpen={true} onFilterChange={onFilterChange} ignoreURL={true} />
-     */
     function getNewRestrictionElement() {
         return (
             <div>
+                <ToggleButtonGroup style={{ maxWidth: "200px" }} className="item-price-range" type="radio" name="options" value={newRestriction.type} onChange={onRestrictionTypeChange}>
+                    <ToggleButton className="price-range-button" value={"blacklist"} variant={getButtonVariant("blacklist")} size="sm">Blacklist</ToggleButton>
+                    <ToggleButton className="price-range-button" value={"whitelist"} variant={getButtonVariant("whitelist")} size="sm">Whitelist</ToggleButton>
+                </ToggleButtonGroup>
                 <Search selected={newRestriction.item} backgroundColor="#404040" searchFunction={api.itemSearch} onSearchresultClick={onSearchResultClick} hideNavbar={true} placeholder="Search item" />
+                <ItemFilter filters={filters} forceOpen={true} onFilterChange={onFilterChange} ignoreURL={true} />
                 <span>
                     <Button variant="success" onClick={addNewRestriction}>
                         Save new restriction

@@ -190,7 +190,7 @@ interface API {
   ): Promise<boolean>;
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
-  subscribeFlips(flipCallback: Function, soldCallback: Function): void,
+  subscribeFlips(flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function): void,
   unsubscribeFlips(): Promise<void>,
   getFilter(name: string): Promise<FilterOptions>
   getNewAuctions(): Promise<Auction[]>,
@@ -288,7 +288,6 @@ interface RefInfo {
 
 interface FreeFlipperMissInformation {
   totalFlips: number,
-  totalFlipsFiltered: number,
   missedFlipsCount: number,
   missedEstimatedProfit: number,
   estimatedProfitCopiedAuctions: number
@@ -308,7 +307,7 @@ interface FlipCustomizeSettings {
 }
 
 interface FlipRestriction {
-  type: "blacklist",
+  type: "blacklist" | "whitelist",
   item?: Item,
   itemFilter?: ItemFilter
 }
