@@ -38,3 +38,4 @@ export function setSetting(key: any, value: any) {
 export const FLIP_CUSTOMIZING_KEY = "flipCustomizing";
 export const RESTRICTIONS_SETTINGS_KEY = "flipRestrictions";
 export const FLIPPER_FILTER_KEY = "flipperFilters";
+export const PREMIUM_EXPIRATION_NOFIFY_DATE_KEY = "premiumExpirationNotifyDate"
