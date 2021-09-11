@@ -253,15 +253,15 @@ function ItemFilter(props: Props) {
                             <h4>Item-Filter Information</h4>
                         </Modal.Header>
                         <Modal.Body>
-                            <p>You can add various filters depending on the item type. After clicking 'apply' only the auctions matching your filter will be displayed.</p>
+                            <p>You can add various filters depending on the item type. The graph matching your filter will then be displayed.</p>
                             <hr />
                             <h4><Badge variant="danger">Caution</Badge></h4>
                             <p>
-                                Some filter requests take quite some time to process. Thats because we have to search through millions of auctions that potentially match your filter.
-                                This can lead to no auctions being displayed at all because your browser things that our server is unavailable.
-                                If that happens please let us know. We may implement sheduled filters where you will get an email or push notification when we computed a result for your filter.
+                            Some filter requests take quite some time to process. That's because we have to search through millions of auctions that potentially match your filter. 
+                            This can lead to no auctions being displayed at all because your browser thinks that our server is unavailable. 
+                            If that happens please let us know. We may implement scheduled filters where you will get an email or push notification when we computed a result for your filter.
                             </p>
-                            <p>If you are missing a filter please ask for it on our <Link href="/feedback">discord</Link></p>
+                            <p>If you are missing a filter please ask for it on our <Link href="/feedback">Discord</Link>.</p>
                         </Modal.Body>
                     </Modal> : ""
             }
