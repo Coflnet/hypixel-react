@@ -450,7 +450,7 @@ function Flipper() {
                     </div>
                 </Card.Body>
                 <Card.Footer>
-                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
+                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please leave suggestions and opinios on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
                     <hr />
                     {isLoggedIn ? "" : <span>These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit.
                         Keep in mind that these are delayed to protect our paying supporters.
