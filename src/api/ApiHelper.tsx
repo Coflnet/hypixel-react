@@ -513,7 +513,7 @@ function initAPI(): API {
             minVolume: filter.minVolume || 0,
             maxCost: filter.maxCost || 0,
             filter: {
-                BIN: filter.onlyBin || false
+                BIN: filter.onlyBin ? filter.onlyBin.toString() : "false"
             }
         }
 
