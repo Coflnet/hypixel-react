@@ -253,7 +253,7 @@ function ItemFilter(props: Props) {
                             <h4>Item-Filter Information</h4>
                         </Modal.Header>
                         <Modal.Body>
-                            <p>You can add various filters depending on the item type. The graph matching your filter will then be displayed.</p>
+                            <p>You can add various filters depending on the item type. The graph and recent/active auctions will be updated to only include items with the selected properties.</p>
                             <hr />
                             <h4><Badge variant="danger">Caution</Badge></h4>
                             <p>
