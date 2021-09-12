@@ -21,7 +21,10 @@ export function checkForExpiredPremium() {
             }
             setSetting(PREMIUM_EXPIRATION_NOFIFY_DATE_KEY, premiumExpirationDate.getTime().toString())
             toast.warn("Your premium expired. Click here to renew it now.", {
-                autoClose: 20000
+                autoClose: 20000,
+                onClick: () => {
+                    window.location.href = '/premium';
+                }
             })
         }
     })
