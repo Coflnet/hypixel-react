@@ -47,9 +47,20 @@ function ItemFilter(props: Props) {
         if (props.isPrefill) {
             return;
         }
-        setSelectedFilters([]);
-        setItemFilter({});
-        onFilterChange({});
+
+        let newSelectedFilters: string[] = [];
+        let newItemFilter = {};
+        props.filters?.forEach(filter => {
+            let index = selectedFilters.findIndex(f => f === filter.name);
+            if (index !== -1) {
+                newItemFilter[filter.name] = itemFilter[filter.name];
+                newSelectedFilters.push(filter.name);
+            }
+        })
+
+        setSelectedFilters(newSelectedFilters);
+        setItemFilter(newItemFilter);
+        onFilterChange(newItemFilter);
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
