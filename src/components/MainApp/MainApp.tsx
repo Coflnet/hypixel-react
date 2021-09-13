@@ -11,6 +11,7 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import { getURLSearchParam } from '../../utils/Parser/URLParser';
 import Cookies from 'js-cookie';
 import 'react-contexify/dist/ReactContexify.css';
+import { checkForExpiredPremium } from '../../utils/ExpiredPremiumReminderUtils';
 
 
 export function MainApp(props: any) {
@@ -20,6 +21,10 @@ export function MainApp(props: any) {
     const history = useHistory();
 
     const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    useEffect(() => {
+        checkForExpiredPremium();
+    }, []);
 
     useEffect(() => {
 
@@ -89,7 +94,7 @@ export function MainApp(props: any) {
                     <p style={{ margin: "0px" }}>We use cookies for analytics. <a href="https://coflnet.com/privacy"> privacy policy </a></p>
                 </span>
             </CookieConsent>
-            <ToastContainer />
+            <ToastContainer theme={"colored"} />
         </ThemeProvider>
     )
 }
