@@ -138,7 +138,7 @@ function Flip(props: Props) {
                                         <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
                                             {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
                                         </a> :
-                                        <span onMouseDown={onMouseDownLowestBin}>
+                                        <span>
                                             {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
                                         </span>
                                 }
@@ -153,7 +153,7 @@ function Flip(props: Props) {
                                         <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
                                             {numberWithThousandsSeperators(props.flip.secondLowestBin)} Coins
                                         </a> :
-                                        <span onMouseDown={onMouseDownLowestBin}>
+                                        <span>
                                             {numberWithThousandsSeperators(props.flip.secondLowestBin)} Coins
                                         </span>
                                 }
@@ -170,7 +170,7 @@ function Flip(props: Props) {
                                                 {props.flip.sellerName}
                                             </b>
                                         </a> :
-                                        <span onMouseDown={onMouseDownSeller}>
+                                        <span>
                                             <b>
                                                 {props.flip.sellerName}
                                             </b>
