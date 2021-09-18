@@ -768,7 +768,7 @@ function initAPI(): API {
     let authenticateModConnection = (conId: number) : Promise<void> => {
         return new Promise((resolve, reject) => {
 
-            httpApi.sendApiRequest({
+            websocketHelper.sendRequest({
                 type: RequestType.AUTHENTICATE_MOD_CONNECTION,
                 data: conId,
                 resolve: function () {

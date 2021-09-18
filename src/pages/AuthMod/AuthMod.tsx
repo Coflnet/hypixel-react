@@ -33,7 +33,7 @@ function AuthMod() {
                     {
                         isAuthenticated ?
                             <p style={{ color: "#40ff00" }}>Your Connection is now authorized</p> :
-                            <p>{getLoadingElement(<p>Authorizing connection...</p>)}</p>
+                            getLoadingElement(<p>Authorizing connection...</p>)
                     }
                 </div>
             </Container>

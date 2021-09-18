@@ -55,7 +55,6 @@ setTimeout(() => {
   Success.preload();
   Ref.preload();
   ApiInfo.preload();
-  AuthMod.preload();
 }, 2000);
 
 const matomoTrackingInstance = createInstance({
