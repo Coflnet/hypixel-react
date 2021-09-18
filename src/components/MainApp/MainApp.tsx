@@ -11,7 +11,6 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import { getURLSearchParam } from '../../utils/Parser/URLParser';
 import Cookies from 'js-cookie';
 import 'react-contexify/dist/ReactContexify.css';
-import { checkForExpiredPremium } from '../../utils/ExpiredPremiumReminderUtils';
 
 
 export function MainApp(props: any) {
@@ -21,10 +20,6 @@ export function MainApp(props: any) {
     const history = useHistory();
 
     const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    useEffect(() => {
-        checkForExpiredPremium();
-    }, []);
 
     useEffect(() => {
 
