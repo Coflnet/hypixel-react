@@ -204,7 +204,8 @@ interface API {
   setRef(refId: string): Promise<void>,
   getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>,
   filterFor(item: Item): Promise<FilterOptions[]>,
-  itemSearch(searchText: string): Promise<FilterOptions[]>
+  itemSearch(searchText: string): Promise<FilterOptions[]>,
+  authenticateModConnection(conId: number): Promise<void>
 }
 
 interface CacheUtils {
