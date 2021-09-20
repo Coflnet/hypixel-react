@@ -19,6 +19,7 @@ export function getSetting(key: string): string {
     return settings[key] || "";
 }
 
+
 export function getSettingsObject<T>(key: string, defaultValue: T) {
     let object = settings[key] || JSON.stringify(defaultValue);
     let parsed: T;
@@ -32,7 +33,7 @@ export function getSettingsObject<T>(key: string, defaultValue: T) {
 
 export function setSetting(key: any, value: any) {
     settings[key] = value;
-    localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(settings));
+    localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, settings);
 }
 
 export const FLIP_CUSTOMIZING_KEY = "flipCustomizing";
