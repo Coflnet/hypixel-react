@@ -6,7 +6,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, Settings as SettingsIcon } from '@material-ui/icons';
+import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, Settings as SettingsIcon, PanTool as HandIcon } from '@material-ui/icons';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
 import AuctionDetails from '../AuctionDetails/AuctionDetails';
@@ -14,10 +14,12 @@ import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { FixedSizeList as List } from 'react-window';
 import { Link } from 'react-router-dom';
 import Tooltip from '../Tooltip/Tooltip';
-import Countdown from 'react-countdown';
 import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
 import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
+import { Menu, Item, useContextMenu, theme } from 'react-contexify';
+import { getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
+
 
 interface Flips {
     all: FlipAuction[],
@@ -32,12 +34,13 @@ let missedInfo: FreeFlipperMissInformation = {
     estimatedProfitCopiedAuctions: 0,
     missedEstimatedProfit: 0,
     missedFlipsCount: 0,
-    totalFlips: 0
+    totalFlips: 0,
+    totalFlipsFiltered: 0
 }
 
 let mounted = true;
 
-const FLIPPER_DISABLED_FROM_EXTERN_DATE = new Date("8.11.2021 11:15 UTC")
+const FLIP_CONEXT_MENU_ID = 'flip-context-menu';
 
 function Flipper() {
 
@@ -51,9 +54,15 @@ function Flipper() {
     let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle);
     let [refInfo, setRefInfo] = useState<RefInfo>();
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
-    let [isFlipperDisabledFromExtern, setIsFlipperDisabledFromExtern] = useState(FLIPPER_DISABLED_FROM_EXTERN_DATE.getTime() > new Date().getTime());
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false);
+
+    const { show } = useContextMenu({
+        id: FLIP_CONEXT_MENU_ID,
+    });
+
     const listRef = useRef(null);
+
+    let isSmall = document.body.clientWidth < 1000;
 
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
@@ -75,6 +84,16 @@ function Flipper() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    function handleFlipContextMenu(event, flip: FlipAuction) {
+        event.preventDefault();
+        show(event, {
+            props: {
+                key: 'value',
+                flip: flip
+            }
+        })
+    }
 
     let loadHasPremium = () => {
         let googleId = localStorage.getItem("googleId");
@@ -181,19 +200,20 @@ function Flipper() {
             newFlipAuction.item.iconUrl = url;
             newFlipAuction.showLink = true;
 
+            missedInfo = {
+                estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
+                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
+                missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
+                totalFlips: missedInfo.totalFlips + 1,
+                totalFlipsFiltered: isValid ? missedInfo.totalFlipsFiltered + 1 : missedInfo.totalFlipsFiltered
+            }
+
             setFlips(flips => {
                 return {
                     all: [...flips.all, newFlipAuction],
                     filtered: isValid ? [...flips.filtered, newFlipAuction] : flips.filtered
                 }
             });
-
-            missedInfo = {
-                estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
-                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
-                missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
-                totalFlips: missedInfo.totalFlips + 1
-            }
 
             if (autoscrollRef.current && isValid) {
                 let element = document.getElementsByClassName('flipper-scroll-list').length > 0 ? document.getElementsByClassName('flipper-scroll-list').item(0) : null;
@@ -254,7 +274,7 @@ function Flipper() {
         if (filter?.minProfit !== undefined && filter?.minProfit >= calculateProfit(flipAuction)) {
             return false;
         }
-        if (filter?.maxCost !== undefined && filter?.maxCost < flipAuction.cost) {
+        if (filter?.maxCost !== undefined && filter?.maxCost !== 0 && filter?.maxCost < flipAuction.cost) {
             return false;
         }
         if (filter?.onlyUnsold === true && flipAuction.sold) {
@@ -302,9 +322,33 @@ function Flipper() {
         return true;
     }
 
+    function addItemToBlacklist(flip: FlipAuction) {
+        let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY);
+        let parsed: FlipRestriction[];
+        try {
+            parsed = JSON.parse(restrictions);
+        } catch {
+            parsed = [];
+        }
+        parsed.push({
+            type: "blacklist",
+            item: flip.item
+        })
+
+        if (flipperFilter) {
+            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(parsed));
+            flipperFilter.restrictions = parsed;
+            onFilterChange(flipperFilter);
+        } else {
+            setTimeout(addItemToBlacklist, 500);
+        }
+    }
+
     let getFlipElement = (flipAuction: FlipAuction, style) => {
         return (
-            <Flip flip={flipAuction} style={style} onCopy={onCopyFlip} onCardClick={flip => setSelectedAuctionUUID(flip.uuid)} onBasedAuctionClick={flip => { setBasedOnAuction(flip) }} />
+            <div onContextMenu={e => handleFlipContextMenu(e, flipAuction)}>
+                <Flip flip={flipAuction} style={style} onCopy={onCopyFlip} onCardClick={flip => setSelectedAuctionUUID(flip.uuid)} onBasedAuctionClick={flip => { setBasedOnAuction(flip) }} />
+            </div>
         )
     }
 
@@ -328,6 +372,14 @@ function Flipper() {
                 <FlipCustomize />
             </Modal.Body>
         </Modal>
+    );
+
+    let flipContextMenu = (
+        <div>
+            <Menu id={FLIP_CONEXT_MENU_ID} theme={theme.dark}>
+                <Item onClick={params => { addItemToBlacklist((params.props.flip as FlipAuction)) }}><HandIcon style={{ color: "red", marginRight: "5px" }} /> Add Item to Blacklist</Item>
+            </Menu>
+        </div>
     );
 
     return (
@@ -379,23 +431,6 @@ function Flipper() {
                             </Form.Group>
                         </Form>
                         <hr />
-                        {
-                            isFlipperDisabledFromExtern ?
-                                <div>
-                                    {
-                                        <div>
-                                            <p>While Derpy is mayor the auction house is disabled. Therefore there can't be any new flips.</p>
-                                            <p>Auction house reopens: <Countdown date={FLIPPER_DISABLED_FROM_EXTERN_DATE} onComplete={() => { setIsFlipperDisabledFromExtern(false) }} /></p>
-                                        </div>
-                                    }
-                                </div> : (
-                                    flips.filtered.length === 0 ?
-                                        <div>
-                                            {getLoadingElement(<p>Waiting for new flips....</p>)}
-                                        </div> : ""
-                                )
-                        }
-                        <hr />
                         {flips.filtered.length > 0 ?
                             <div id="flipper-scroll-list-wrapper">
                                 <List
@@ -404,7 +439,7 @@ function Flipper() {
                                     height={document.getElementById('maxHeightDummyFlip')?.offsetHeight}
                                     itemCount={flips.filtered.length}
                                     itemData={{ flips: flips.filtered }}
-                                    itemSize={330}
+                                    itemSize={isSmall ? 300 : 330}
                                     layout="horizontal"
                                     width={document.getElementById('flipper-card-body')?.offsetWidth || 100}
                                 >
@@ -436,29 +471,30 @@ function Flipper() {
                         </Card>
                     </div> : ""
             }
-            {
-                !isLoading && isLoggedIn && !hasPremium ?
-                    <div>
-                        <hr />
-                        <Card>
-                            <Card.Header>
-                                <Card.Title>Flipper summary</Card.Title>
-                            </Card.Header>
-                            <Card.Body>
-                                <div className="flipper-summary-wrapper">
-                                    <Card className="flipper-summary-card">
-                                        <Card.Header>
-                                            <Card.Title>
-                                                You got:
-                                            </Card.Title>
-                                        </Card.Header>
-                                        <Card.Body>
-                                            <ul>
-                                                <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
-                                                <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
-                                            </ul>
-                                        </Card.Body>
-                                    </Card>
+            <div>
+                <hr />
+                <Card>
+                    <Card.Header>
+                        <Card.Title>Flipper summary</Card.Title>
+                    </Card.Header>
+                    <Card.Body>
+                        <div className="flipper-summary-wrapper">
+                            <Card className="flipper-summary-card">
+                                <Card.Header>
+                                    <Card.Title>
+                                        You got:
+                                    </Card.Title>
+                                </Card.Header>
+                                <Card.Body>
+                                    <ul>
+                                        <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
+                                        <li>Total flips received (filtered): {numberWithThousandsSeperators(missedInfo.totalFlipsFiltered)}</li>
+                                        <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                    </ul>
+                                </Card.Body>
+                            </Card>
+                            {
+                                !isLoading && isLoggedIn && !hasPremium ?
                                     <Card className="flipper-summary-card">
                                         <Card.Header>
                                             <Card.Title>
@@ -476,20 +512,26 @@ function Flipper() {
                                             </ul>
                                         </Card.Body>
                                     </Card>
-                                    <Card style={{ flexGrow: 2 }} className="flipper-summary-card">
-                                        <Card.Header>
+                                    : null
+                            }
+                            <Card style={{ flexGrow: 2 }} className="flipper-summary-card">
+
+                                <Card.Header>
+                                    {
+                                        !isLoading && isLoggedIn && hasPremium ?
+                                            <Card.Title>How to get extra premium time for free</Card.Title> :
                                             <Card.Title>How to get premium for free</Card.Title>
-                                        </Card.Header>
-                                        <Card.Body>
-                                            <p>Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.</p>
-                                            <p>Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} /></p>
-                                        </Card.Body>
-                                    </Card>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </div> : ""
-            }
+                                    }
+                                </Card.Header>
+                                <Card.Body>
+                                    <p>Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.</p>
+                                    <p>Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} /></p>
+                                </Card.Body>
+                            </Card>
+                        </div>
+                    </Card.Body>
+                </Card>
+            </div>
 
             <hr />
             <Card>
@@ -534,11 +576,12 @@ function Flipper() {
                     <h3>I have another question/ Bug report</h3> Ask via <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a> or <a target="_blank" href="/feedback" rel="noreferrer">feedback site</a>
                 </Card.Body>
             </Card>
-            <div id="maxHeightDummyFlip" style={{ position: "absolute", top: -1000, padding: "20px" }}>
+            <div id="maxHeightDummyFlip" style={{ position: "absolute", top: -1000, padding: "20px", zIndex: -1 }}>
                 <Flip flip={DEMO_FLIP} />
             </div>
             {basedOnDialog}
             {customizeFlipDialog}
+            {flipContextMenu}
         </div >
     );
 }

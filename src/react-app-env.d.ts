@@ -208,6 +208,7 @@ interface API {
   connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>,
   getAccountInfo(): Promise<AccountInfo>
   itemSearch(searchText: string): Promise<FilterOptions[]>
+  authenticateModConnection(conId: number): Promise<void>
 }
 
 interface CacheUtils {
@@ -291,6 +292,7 @@ interface RefInfo {
 
 interface FreeFlipperMissInformation {
   totalFlips: number,
+  totalFlipsFiltered: number,
   missedFlipsCount: number,
   missedEstimatedProfit: number,
   estimatedProfitCopiedAuctions: number

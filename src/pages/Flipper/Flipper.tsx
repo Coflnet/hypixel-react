@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import './Flipper.css';
 import FlipperComponent from '../../components/Flipper/Flipper';
-import NavBar from '../../components/NavBar/NavBar';
 import { Container } from 'react-bootstrap';
+import Search from '../../components/Search/Search';
 
 function Flipper() {
 
@@ -13,8 +13,8 @@ function Flipper() {
     return (
         <div className="flipper">
             <Container>
+                <Search />
                 <h2>
-                    <NavBar />
                     Item-Flipper (WIP)
                 </h2>
                 <hr />

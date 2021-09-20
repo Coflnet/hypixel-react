@@ -8,7 +8,6 @@ import { useForceUpdate } from '../../../utils/Hooks';
 import { calculateProfit, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { toast } from 'react-toastify';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
-import { Link } from 'react-router-dom';
 
 interface Props {
     flip: FlipAuction,

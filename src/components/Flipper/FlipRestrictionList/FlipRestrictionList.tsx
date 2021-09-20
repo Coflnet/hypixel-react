@@ -3,7 +3,7 @@ import { Button, Badge, Card, ToggleButton, ToggleButtonGroup } from 'react-boot
 import api from '../../../api/ApiHelper';
 import { convertTagToName, getStyleForTier } from '../../../utils/Formatter';
 import { useForceUpdate } from '../../../utils/Hooks';
-import { getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
+import { getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 import ItemFilter from '../../ItemFilter/ItemFilter';
 import Search from '../../Search/Search';
 import './FlipRestrictionList.css';
@@ -17,29 +17,15 @@ function FlipRestrictionList(props: Props) {
 
     let [newRestriction, setNewRestriction] = useState<FlipRestriction>({ type: "blacklist" })
     let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(false);
-    let [restrictions, setRestrictions] = useState<FlipRestriction[]>([]);
+    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []));
     let [filters, setFilters] = useState<FilterOptions[]>();
 
     let forceUpdate = useForceUpdate();
 
     useEffect(() => {
         loadFilters();
-        loadRestrictions();
     }, [])
 
-    function loadRestrictions() {
-        let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY);
-        let parsed: FlipRestriction[];
-        try {
-            parsed = JSON.parse(restrictions);
-            setRestrictions(parsed);
-        } catch {
-            parsed = [];
-            setRestrictions(parsed);
-        }
-
-        props.onRestrictionsChange(parsed);
-    }
 
     function loadFilters() {
         api.filterFor({ tag: "ASPECT_OF_THE_END" }).then(filters => {

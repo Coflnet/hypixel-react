@@ -7,3 +7,33 @@
     border-left: 2px solid white;
     height: auto;
 }
+
+.flip-customize .section {
+    width: 50%;
+    margin: 20px;
+    display: flex;
+    align-content: center;
+    justify-content: space-around;
+}
+
+.flip-customize {
+    display: flex;
+    align-content: center;
+    justify-content: space-between;
+}
+
+@media all and (max-width: 1000px) {
+    .flip-customize {
+        flex-wrap: wrap;
+    }
+    .flip-customize .section {
+        width: 100%;
+        margin: 0;
+    }
+    .flip-customize .vertical-line {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border-top: 2px solid white;
+        width: -webkit-fill-available;
+    }
+}

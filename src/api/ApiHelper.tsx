@@ -809,6 +809,23 @@ function initAPI(): API {
         })
     }
 
+    let authenticateModConnection = (conId: number) : Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.AUTHENTICATE_MOD_CONNECTION,
+                data: conId,
+                resolve: function () {
+                    resolve();
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId);
+                    reject();
+                }
+            });
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -851,7 +868,8 @@ function initAPI(): API {
         connectMinecraftAccount,
         getAccountInfo,
         unsubscribeFlips,
-        itemSearch
+        itemSearch,
+        authenticateModConnection
     }
 }
 

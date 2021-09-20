@@ -41,6 +41,7 @@ export enum RequestType {
     CONNECT_MINECRAFT_ACCOUNT = "conMc",
     GET_ACCOUNT_INFO = "accountInfo",
     ITEM_SEARCH = "item/search"
+    AUTHENTICATE_MOD_CONNECTION = "authCon"
 }
 
 export enum SubscriptionType {
