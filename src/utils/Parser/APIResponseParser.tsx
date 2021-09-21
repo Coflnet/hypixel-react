@@ -335,3 +335,19 @@ export function parseFilterOption(filterOption): FilterOptions {
         type: filterOption.type
     }
 }
+
+export function parseAccountInfo(accountInfo): AccountInfo {
+    return {
+        email: accountInfo.email,
+        mcId: accountInfo.mcId,
+        mcName: accountInfo.mcName,
+        token: accountInfo.token
+    }
+}
+
+export function parseMinecraftConnectionInfo(minecraftConnectionInfo): MinecraftConnectionInfo {
+    return {
+        bid: minecraftConnectionInfo.bid,
+        connectedAccountId: minecraftConnectionInfo.uuid
+    }
+}

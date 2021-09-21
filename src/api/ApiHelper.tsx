@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -8,7 +8,6 @@ import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
-import { DEMO_FLIP } from "../utils/FlipUtils";
 
 function initAPI(): API {
 
@@ -758,6 +757,49 @@ function initAPI(): API {
         })
     }
 
+    let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.CONNECT_MINECRAFT_ACCOUNT,
+                data: playerUUID,
+                resolve: function (data) {
+                    resolve(parseMinecraftConnectionInfo(data));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.CONNECT_MINECRAFT_ACCOUNT, error, playerUUID);
+                    reject();
+                }
+            });
+        })
+    }
+
+
+    let accountInfo;
+    let getAccountInfo = (): Promise<AccountInfo> => {
+
+        return new Promise((resolve, reject) => {
+
+            if (accountInfo) {
+                resolve(accountInfo);
+                return;
+            }
+
+            websocketHelper.sendRequest({
+                type: RequestType.GET_ACCOUNT_INFO,
+                data: "",
+                resolve: function (accountInfo) {
+                    let info = parseAccountInfo(accountInfo);
+                    accountInfo = info;
+                    resolve(info);
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_ACCOUNT_INFO, error, "");
+                }
+            })
+        })
+    }
+
     let itemSearch = (searchText: string): Promise<FilterOptions[]> => {
         return new Promise((resolve, reject) => {
 
@@ -769,6 +811,23 @@ function initAPI(): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ITEM_SEARCH, error, searchText);
+                    reject();
+                }
+            });
+        })
+    }
+
+    let authenticateModConnection = (conId: number) : Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.AUTHENTICATE_MOD_CONNECTION,
+                data: conId,
+                resolve: function () {
+                    resolve();
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId);
                     reject();
                 }
             });
@@ -814,8 +873,11 @@ function initAPI(): API {
         setRef,
         getActiveAuctions,
         filterFor,
+        connectMinecraftAccount,
+        getAccountInfo,
         unsubscribeFlips,
-        itemSearch
+        itemSearch,
+        authenticateModConnection
     }
 }
 
