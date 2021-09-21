@@ -511,10 +511,11 @@ function initAPI(): API {
             minProfit: filter.minProfit || 0,
             minVolume: filter.minVolume || 0,
             maxCost: filter.maxCost || 0,
-            filter: {
-                BIN: filter.onlyBin ? filter.onlyBin.toString() : "false"
-            }
+            filters: { }
         }
+
+        if (filter.onlyBin)
+            requestData.filters = { Bin: "true" };
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
@@ -817,7 +818,7 @@ function initAPI(): API {
         })
     }
 
-    let authenticateModConnection = (conId: number) : Promise<void> => {
+    let authenticateModConnection = (conId: number): Promise<void> => {
         return new Promise((resolve, reject) => {
 
             websocketHelper.sendRequest({
