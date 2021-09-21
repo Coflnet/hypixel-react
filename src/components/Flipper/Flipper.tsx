@@ -20,12 +20,6 @@ import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
 import { getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
 
-
-interface Flips {
-    all: FlipAuction[],
-    filtered: FlipAuction[]
-}
-
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
 // Not a state
@@ -34,8 +28,7 @@ let missedInfo: FreeFlipperMissInformation = {
     estimatedProfitCopiedAuctions: 0,
     missedEstimatedProfit: 0,
     missedFlipsCount: 0,
-    totalFlips: 0,
-    totalFlipsFiltered: 0
+    totalFlips: 0
 }
 
 let mounted = true;
@@ -44,9 +37,9 @@ const FLIP_CONEXT_MENU_ID = 'flip-context-menu';
 
 function Flipper() {
 
-    let [flips, setFlips] = useState<Flips>({ all: [], filtered: [] });
+    let [flips, setFlips] = useState<FlipAuction[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>();
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>({});
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
@@ -75,7 +68,6 @@ function Flipper() {
     useEffect(() => {
         mounted = true;
         _setAutoScroll(true);
-        api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
         attachScrollEvent();
 
         return () => {
@@ -101,10 +93,8 @@ function Flipper() {
             if (hasPremiumUntil > new Date()) {
                 setHasPremium(true);
 
-
-
                 // subscribe to the premium flips
-                api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
+                api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
             }
             setIsLoading(false);
         });
@@ -126,7 +116,7 @@ function Flipper() {
 
     function onArrowRightClick() {
         if (listRef && listRef.current) {
-            (listRef!.current! as any).scrollToItem(flips?.filtered.length - 1);
+            (listRef!.current! as any).scrollToItem(flips?.length - 1);
         }
     }
 
@@ -163,10 +153,7 @@ function Flipper() {
     function clearFlips() {
         setFlips(() => {
             setEnabledScroll(false);
-            return {
-                all: [],
-                filtered: []
-            };
+            return [];
         });
     }
 
@@ -175,12 +162,9 @@ function Flipper() {
             return;
         }
         setFlips(flips => {
-            let flip = flips.all.find(a => a.uuid === uuid);
+            let flip = flips.find(a => a.uuid === uuid);
             if (flip) {
                 flip.sold = true;
-                if (!isValidForFilter(flip)) {
-                    flips.filtered = flips.filtered.filter(f => f.uuid !== flip!.uuid)
-                }
             }
             return flips;
         })
@@ -195,8 +179,6 @@ function Flipper() {
 
         api.getItemImageUrl(newFlipAuction.item).then((url) => {
 
-            let isValid = isValidForFilter(newFlipAuction);
-
             newFlipAuction.item.iconUrl = url;
             newFlipAuction.showLink = true;
 
@@ -204,18 +186,12 @@ function Flipper() {
                 estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
                 missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
                 missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
-                totalFlips: missedInfo.totalFlips + 1,
-                totalFlipsFiltered: isValid ? missedInfo.totalFlipsFiltered + 1 : missedInfo.totalFlipsFiltered
+                totalFlips: missedInfo.totalFlips + 1
             }
 
-            setFlips(flips => {
-                return {
-                    all: [...flips.all, newFlipAuction],
-                    filtered: isValid ? [...flips.filtered, newFlipAuction] : flips.filtered
-                }
-            });
+            setFlips(flips => [...flips, newFlipAuction]);
 
-            if (autoscrollRef.current && isValid) {
+            if (autoscrollRef.current) {
                 let element = document.getElementsByClassName('flipper-scroll-list').length > 0 ? document.getElementsByClassName('flipper-scroll-list').item(0) : null;
                 if (element) {
                     element.scrollBy({ left: 16000, behavior: 'smooth' })
@@ -228,23 +204,16 @@ function Flipper() {
     function onFilterChange(filter) {
         setFlipperFilter(filter);
         setTimeout(() => {
-            let newFlips: Flips = {
-                all: flips.all,
-                filtered: []
-            }
 
-            newFlips.all.forEach(flip => {
-                if (isValidForFilter(flip)) {
-                    newFlips.filtered.push(flip);
-                }
-            })
-            setFlips(newFlips);
+            setFlips([]);
+
             setTimeout(() => {
                 if (listRef && listRef.current) {
-                    (listRef!.current! as any).scrollToItem(newFlips?.filtered.length - 1);
+                    (listRef!.current! as any).scrollToItem(flips.length - 1);
                 }
             })
         })
+        api.subscribeFlips(onNewFlip, filter.restrictions || [], filter, uuid => onAuctionSold(uuid));
     }
 
     function onCopyFlip(flip: FlipAuction) {
@@ -263,64 +232,6 @@ function Flipper() {
             {getFlipElement(flips[index], style)}
         </div>)
     };
-
-    function isValidForFilter(flipAuction: FlipAuction) {
-
-        let filter = filterRef.current;
-
-        if (filter?.onlyBin === true && !flipAuction.bin) {
-            return false;
-        }
-        if (filter?.minProfit !== undefined && filter?.minProfit >= calculateProfit(flipAuction)) {
-            return false;
-        }
-        if (filter?.maxCost !== undefined && filter?.maxCost !== 0 && filter?.maxCost < flipAuction.cost) {
-            return false;
-        }
-        if (filter?.onlyUnsold === true && flipAuction.sold) {
-            return false;
-        }
-        if (filter?.minVolume !== undefined) {
-            if (filter?.minVolume >= 0 && filter?.minVolume > flipAuction.volume) {
-                return false;
-            } else if (filter?.minVolume < 0 && Math.abs(filter?.minVolume) < flipAuction.volume) {
-                return false;
-            }
-        }
-
-        if (filter?.restrictions !== undefined) {
-
-            for (let i = 0; i < filter.restrictions.length; i++) {
-
-                let restriction = filter.restrictions[i];
-
-                if (restriction.type === "blacklist" && restriction.item && restriction.item.tag === flipAuction.item.tag) {
-                    return false;
-                }
-
-                /*
-                TODO: Implement with filter
-                if (restriction.itemFilter) {
-                    let keys = Object.keys(restriction.itemFilter);
-                    for (let j = 0; j < keys.length; j++) {
-                        const key = keys[j];
-
-                        if (flipAuction[key] && flipAuction[key] === restriction.itemFilter![key]) {
-                            return false;
-                        }
-                        if (flipAuction.item && flipAuction.item[key] && flipAuction.item[key] === restriction.itemFilter![key]) {
-                            return false;
-                        }
-                        if (flipAuction.props && flipAuction.props[key] && flipAuction.props[key] === restriction.itemFilter![key]) {
-                            return false;
-                        }
-                    }
-                    */
-            }
-        }
-
-        return true;
-    }
 
     function addItemToBlacklist(flip: FlipAuction) {
         let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY);
@@ -431,14 +342,14 @@ function Flipper() {
                             </Form.Group>
                         </Form>
                         <hr />
-                        {flips.filtered.length > 0 ?
+                        {flips.length > 0 ?
                             <div id="flipper-scroll-list-wrapper">
                                 <List
                                     ref={listRef}
                                     className="flipper-scroll-list"
                                     height={document.getElementById('maxHeightDummyFlip')?.offsetHeight}
-                                    itemCount={flips.filtered.length}
-                                    itemData={{ flips: flips.filtered }}
+                                    itemCount={flips.length}
+                                    itemData={{ flips: flips }}
                                     itemSize={isSmall ? 300 : 330}
                                     layout="horizontal"
                                     width={document.getElementById('flipper-card-body')?.offsetWidth || 100}
@@ -488,7 +399,6 @@ function Flipper() {
                                 <Card.Body>
                                     <ul>
                                         <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
-                                        <li>Total flips received (filtered): {numberWithThousandsSeperators(missedInfo.totalFlipsFiltered)}</li>
                                         <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
                                     </ul>
                                 </Card.Body>

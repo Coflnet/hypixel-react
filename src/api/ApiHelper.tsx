@@ -8,7 +8,6 @@ import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
-import { setSetting } from "../utils/SettingsUtils";
 
 function initAPI(): API {
 
@@ -502,26 +501,35 @@ function initAPI(): API {
         });
     }
 
-    let subscribeFlips = (flipCallback: Function, soldCallback?: Function) => {
+    let subscribeFlips = (flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function) => {
 
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS);
 
-        return new Promise((resolve, reject) => {
-            websocketHelper.subscribe({
-                type: RequestType.SUBSCRIBE_FLIPS,
-                data: "",
-                callback: function (data) {
-                    if (!data) {
-                        return;
-                    }
-                    if (!data.uuid && soldCallback) {
-                        soldCallback(data);
-                        return;
-                    }
-                    flipCallback(parseFlipAuction(data));
+        let requestData = {
+            whitelist: restrictionList.filter(restriction => restriction.type === "whitelist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
+            blacklist: restrictionList.filter(restriction => restriction.type === "blacklist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
+            minProfit: filter.minProfit || 0,
+            minVolume: filter.minVolume || 0,
+            maxCost: filter.maxCost || 0,
+            filter: {
+                BIN: filter.onlyBin ? filter.onlyBin.toString() : "false"
+            }
+        }
+
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_FLIPS,
+            data: requestData,
+            callback: function (data) {
+                if (!data) {
+                    return;
                 }
-            })
-        });
+                if (!data.uuid && soldCallback) {
+                    soldCallback(data);
+                    return;
+                }
+                flipCallback(parseFlipAuction(data));
+            }
+        })
     }
 
     let unsubscribeFlips = (): Promise<void> => {
