@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container } from 'react-bootstrap';
+import { Button, Container } from 'react-bootstrap';
 import api from '../../api/ApiHelper';
 import GoogleSignIn from '../../components/GoogleSignIn/GoogleSignIn';
 import NavBar from '../../components/NavBar/NavBar';
@@ -7,6 +7,7 @@ import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import { getURLSearchParam } from '../../utils/Parser/URLParser';
 import './AuthMod.css';
+import { Link } from 'react-router-dom'
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -46,7 +47,12 @@ function AuthMod() {
                 <div>
                     {!isLoggedIn ? "" :
                         isAuthenticated ?
-                            <p style={{ color: "#40ff00" }}>Your Connection is now authorized</p> :
+                            <div>
+                                <p style={{ color: "#40ff00" }}>Your Connection is now authorized</p>
+                                <hr />
+                                <p>Now that the mod is connected with the website you can change the filters/settings here:</p>
+                                <Link to="/flipper"><Button>To the Flipper</Button></Link>
+                            </div> :
                             getLoadingElement(<p>Authorizing connection...</p>)
                     }
                     {
