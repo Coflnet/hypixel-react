@@ -22,6 +22,8 @@ module.exports = {
                         /^container.*/,
                         /^pro-.*/,
                         /^form-.*/,
+                        /^rbt-.*/,
+                        /^dropdown-.*/,
                         /^react-contexify.*/,
                         'btn',
                         'active',
