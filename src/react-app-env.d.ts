@@ -208,7 +208,7 @@ interface API {
   connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>,
   getAccountInfo(): Promise<AccountInfo>
   itemSearch(searchText: string): Promise<FilterOptions[]>
-  authenticateModConnection(conId: number): Promise<void>
+  authenticateModConnection(conId: string): Promise<void>
 }
 
 interface CacheUtils {
