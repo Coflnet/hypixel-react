@@ -30,7 +30,7 @@ function FlipperFilter(props: Props) {
     }
 
     let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin);
-    let [onlyUnsold, setOnlyUnsold] = useState(defaultFilter.onlyUnsold);
+    let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium == null ? false : defaultFilter.onlyUnsold || false);
     let [minProfit, setMinProfit] = useState(defaultFilter.minProfit);
     let [minVolume, setMinVolume] = useState(defaultFilter.minVolume);
     let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || 0);
@@ -49,9 +49,6 @@ function FlipperFilter(props: Props) {
             newUuids.push(generateUUID())
         }
         setUUIDs(newUuids);
-
-        updateOnlyUnsold(props.isPremium == null ? false : props.isPremium);
-        props.onChange(getCurrentFilter());
         FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN;
         FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN;
 
@@ -86,15 +83,6 @@ function FlipperFilter(props: Props) {
             }
         });
     }
-
-    useEffect(() => {
-        if (onlyUnsoldRef.current) {
-            let checked = (onlyUnsoldRef.current! as HTMLInputElement).checked;
-            setOnlyUnsold(checked);
-            onlyUnsold = checked;
-            props.onChange(getCurrentFilter());
-        }
-    }, [props.isPremium])
 
     function getCurrentFilter(): FlipperFilter {
         return {
