@@ -515,7 +515,7 @@ function initAPI(): API {
         }
 
         if (filter.onlyBin)
-            requestData.filters = { Bin: "true" };
+            requestData.filters = { BIN: "true" };
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
