@@ -154,7 +154,12 @@ function AuctionDetails(props: Props) {
             "personal_deletor_9",
             "last_potion_ingredient",
             "power_ability_scroll",
-            "skin"];
+            "skin"
+        ];
+
+        if(key === "rarity_upgrades"){
+            return value === "1" ? "true" : "false";
+        }
 
         if (!isNaN(value) && Number.isInteger(parseInt(value, 10))) {
             return numberWithThousandsSeperators(value);
