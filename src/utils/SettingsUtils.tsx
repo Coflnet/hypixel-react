@@ -33,7 +33,7 @@ export function getSettingsObject<T>(key: string, defaultValue: T) {
 
 export function setSetting(key: any, value: any) {
     settings[key] = value;
-    localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, settings);
+    localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(settings));
 }
 
 export const FLIP_CUSTOMIZING_KEY = "flipCustomizing";
