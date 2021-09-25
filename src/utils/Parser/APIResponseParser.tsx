@@ -31,7 +31,7 @@ export function parseAuction(auction: any): Auction {
         end: new Date(auction.end),
         item: {
             tag: auction.tag,
-            name: auction.itemName || auction.ItemName
+            name: auction.itemName || auction.name
         },
         startingBid: auction.startingBid,
         highestBid: auction.highestBid,
