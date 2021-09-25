@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { Form, Modal } from 'react-bootstrap';
+import { Button, Form, Modal } from 'react-bootstrap';
 import './FlipperFilter.css';
 import Tooltip from '../../Tooltip/Tooltip';
 import Countdown, { zeroPad } from 'react-countdown';
