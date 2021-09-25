@@ -28,7 +28,7 @@ function FlipRestrictionList(props: Props) {
 
 
     function loadFilters() {
-        api.filterFor({ tag: "ASPECT_OF_THE_END" }).then(filters => {
+        api.filterFor({ tag: newRestriction.item ? newRestriction.item.tag : '*' }).then(filters => {
             setFilters(filters);
         })
     }
@@ -39,6 +39,7 @@ function FlipRestrictionList(props: Props) {
         }
         newRestriction.item = (item.dataItem as Item);
         setNewRestriction(newRestriction);
+        loadFilters();
         forceUpdate();
     }
 
