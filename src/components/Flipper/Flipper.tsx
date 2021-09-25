@@ -18,7 +18,7 @@ import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
 import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
-import { getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
+import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -39,7 +39,7 @@ function Flipper() {
 
     let [flips, setFlips] = useState<FlipAuction[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>({});
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}));
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
@@ -201,8 +201,12 @@ function Flipper() {
         });
     }
 
-    function onFilterChange(filter) {
-        setFlipperFilter(filter);
+    function onFilterChange(newFilter) {
+        if(JSON.stringify(flipperFilter) === JSON.stringify(newFilter)){
+            return;
+        }
+        flipperFilter = newFilter;
+        setFlipperFilter(newFilter);
         setTimeout(() => {
 
             setFlips([]);
@@ -213,7 +217,7 @@ function Flipper() {
                 }
             })
         })
-        api.subscribeFlips(onNewFlip, filter.restrictions || [], filter, uuid => onAuctionSold(uuid));
+        api.subscribeFlips(onNewFlip, newFilter.restrictions || [], newFilter, uuid => onAuctionSold(uuid));
     }
 
     function onCopyFlip(flip: FlipAuction) {
