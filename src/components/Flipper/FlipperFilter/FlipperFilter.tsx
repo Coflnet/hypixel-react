@@ -84,15 +84,6 @@ function FlipperFilter(props: Props) {
         });
     }
 
-    useEffect(() => {
-        if (onlyUnsoldRef.current) {
-            let checked = (onlyUnsoldRef.current! as HTMLInputElement).checked;
-            setOnlyUnsold(checked);
-            onlyUnsold = checked;
-            props.onChange(getCurrentFilter());
-        }
-    }, [props.isPremium])
-
     function getCurrentFilter(): FlipperFilter {
         return {
             onlyBin: onlyBin,

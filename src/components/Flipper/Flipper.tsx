@@ -202,9 +202,7 @@ function Flipper() {
     }
 
     function onFilterChange(newFilter) {
-        if(JSON.stringify(flipperFilter) === JSON.stringify(newFilter)){
-            return;
-        }
+
         flipperFilter = newFilter;
         setFlipperFilter(newFilter);
         setTimeout(() => {
