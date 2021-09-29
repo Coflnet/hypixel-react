@@ -69,6 +69,7 @@ function Flipper() {
         mounted = true;
         _setAutoScroll(true);
         attachScrollEvent();
+        api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
 
         return () => {
             mounted = false;
