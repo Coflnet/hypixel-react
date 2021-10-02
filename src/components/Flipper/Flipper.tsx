@@ -173,6 +173,10 @@ function Flipper() {
 
     function onNewFlip(newFlipAuction: FlipAuction) {
 
+        api.getFlipUpdateTime().then(date => {
+            console.log(date);
+        })
+
         if (flipLookup[newFlipAuction.uuid] || !mounted) {
             return;
         }

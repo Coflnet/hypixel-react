@@ -835,6 +835,23 @@ function initAPI(): API {
         })
     }
 
+    let getFlipUpdateTime = (): Promise<Date> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.FLIP_UPDATE_TIME,
+                data: "",
+                resolve: function (data) {
+                    resolve(new Date(data));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, "");
+                    reject();
+                }
+            });
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -878,7 +895,8 @@ function initAPI(): API {
         getAccountInfo,
         unsubscribeFlips,
         itemSearch,
-        authenticateModConnection
+        authenticateModConnection,
+        getFlipUpdateTime
     }
 }
 

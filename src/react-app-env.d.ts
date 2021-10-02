@@ -209,6 +209,7 @@ interface API {
   getAccountInfo(): Promise<AccountInfo>
   itemSearch(searchText: string): Promise<FilterOptions[]>
   authenticateModConnection(conId: string): Promise<void>
+  getFlipUpdateTime(): Promise<Date>
 }
 
 interface CacheUtils {
