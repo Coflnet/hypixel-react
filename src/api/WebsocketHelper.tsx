@@ -20,7 +20,6 @@ function initWebsocket(): void {
         var timeout = (Math.random() * (5000 - 0)) + 0;
         setTimeout(() => {
             websocket = getNewWebsocket();
-            tempOldWebsocket = getNewOldWebsocket();
         }, timeout)
     };
 
@@ -100,7 +99,7 @@ function initWebsocket(): void {
 
     let getNewWebsocket = (): WebSocket => {
 
-        let websocket = new WebSocket(getProperty("websocketEndpoint"));
+        websocket = new WebSocket(getProperty("websocketEndpoint"));
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
         websocket.onmessage = onWebsocketMessage;
@@ -110,12 +109,17 @@ function initWebsocket(): void {
 
     let getNewOldWebsocket = (): WebSocket => {
 
-        let websocket = new WebSocket(getProperty("websocketOldEndpoint"));
-        websocket.onclose = onWebsocketClose;
-        websocket.onerror = onWebsocketError;
-        websocket.onmessage = onWebsocketMessage;
-        websocket.onopen = onOpen;
-        return websocket;
+        tempOldWebsocket = new WebSocket(getProperty("websocketOldEndpoint"));
+        tempOldWebsocket.onclose = function () {
+            var timeout = (Math.random() * (5000 - 0)) + 0;
+            setTimeout(() => {
+                tempOldWebsocket = getNewOldWebsocket();
+            }, timeout)
+        };
+        tempOldWebsocket.onerror = onWebsocketError;
+        tempOldWebsocket.onmessage = onWebsocketMessage;
+        tempOldWebsocket.onopen = onOpen;
+        return tempOldWebsocket;
     }
 
     websocket = getNewWebsocket();
