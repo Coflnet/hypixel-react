@@ -55,11 +55,15 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
  * @param request The request-Object
  * @returns A emty promise (the resolve/reject Method of the request-Object is called)
  */
-function sendApiRequest(request: ApiRequest): Promise<void> {
+function sendApiRequest(request: ApiRequest, cacheInvalidationGrouping?: number): Promise<void> {
     request.mId = getNextMessageId();
     let requestString = request.data;
     let headers = { 'ConId': getOrGenerateUUid() };
     var url = `${apiEndpoint}/${request.type}/${requestString}`;
+
+    if (cacheInvalidationGrouping) {
+        url += `?t=${cacheInvalidationGrouping}`;
+    }
 
     return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
         if (cacheValue) {
@@ -134,6 +138,11 @@ function sendRequestLimitCache(request: ApiRequest, grouping = 1): Promise<void>
     return sendRequest(request, group);
 }
 
+function sendLimitedCacheApiRequest(request: ApiRequest, grouping = 1): Promise<void> {
+    let group = Math.round(new Date().getMinutes() / grouping);
+    return sendApiRequest(request, group);
+}
+
 function removeSentRequests(toDelete: ApiRequest[]) {
     requests = requests.filter(request => {
         for (let i = 0; i < toDelete.length; i++) {
@@ -159,5 +168,6 @@ function findForEqualSentRequest(request: ApiRequest) {
 export let httpApi: HttpApi = {
     sendRequest: sendRequest,
     sendLimitedCacheRequest: sendRequestLimitCache,
-    sendApiRequest: sendApiRequest
+    sendApiRequest: sendApiRequest,
+    sendLimitedCacheApiRequest: sendLimitedCacheApiRequest
 }
