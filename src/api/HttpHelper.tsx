@@ -88,7 +88,7 @@ function isResponseValid(response: Response) {
 }
 
 function handleServerRequest(request, url, headers): Promise<void> {
-    return fetch(url, { headers })
+    return fetch(url)
         .then(response => {
             let parsed;
             try {
