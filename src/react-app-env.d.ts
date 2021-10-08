@@ -131,6 +131,7 @@ interface FlipAuction {
   uuid: string,
   median: number,
   cost: number,
+
   volume: number,
   showLink: boolean,
   item: Item,
@@ -190,7 +191,7 @@ interface API {
   ): Promise<boolean>;
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
-  subscribeFlips(flipCallback: Function, soldCallback: Function): void,
+  subscribeFlips(flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function): void,
   unsubscribeFlips(): Promise<void>,
   getFilter(name: string): Promise<FilterOptions>
   getNewAuctions(): Promise<Auction[]>,
@@ -204,7 +205,10 @@ interface API {
   setRef(refId: string): Promise<void>,
   getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>,
   filterFor(item: Item): Promise<FilterOptions[]>,
+  connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>,
+  getAccountInfo(): Promise<AccountInfo>
   itemSearch(searchText: string): Promise<FilterOptions[]>
+  authenticateModConnection(conId: string): Promise<void>
 }
 
 interface CacheUtils {
@@ -288,12 +292,17 @@ interface RefInfo {
 
 interface FreeFlipperMissInformation {
   totalFlips: number,
-  totalFlipsFiltered: number,
   missedFlipsCount: number,
   missedEstimatedProfit: number,
   estimatedProfitCopiedAuctions: number
 }
 
+interface AccountInfo {
+  email: string,
+  token: string,
+  mcId?: string,
+  mcName?: string
+}
 interface FlipCustomizeSettings {
   hideCost?: boolean,
   hideLowestBin?: boolean,
@@ -309,7 +318,12 @@ interface FlipCustomizeSettings {
 }
 
 interface FlipRestriction {
-  type: "blacklist",
+  type: "blacklist" | "whitelist",
   item?: Item,
   itemFilter?: ItemFilter
+}
+
+interface MinecraftConnectionInfo {
+  bid: number,
+  connectedAccountId?: string
 }

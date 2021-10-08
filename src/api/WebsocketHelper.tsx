@@ -160,11 +160,12 @@ function subscribe(subscription: ApiSubscription, resub?: boolean): void {
     if (!websocket) {
         initWebsocket();
     }
+    let requestString = JSON.stringify(subscription.data);
     if (_isWebsocketReady(subscription.type)) {
         subscription.mId = getNextMessageId();
         if (!resub) {
             try {
-                subscription.data = Base64.encode(subscription.data);
+                subscription.data = Base64.encode(requestString);
             } catch (error) {
                 throw new Error("couldnt btoa this data: " + subscription.data);
             }

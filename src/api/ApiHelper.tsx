@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -503,26 +503,36 @@ function initAPI(): API {
         });
     }
 
-    let subscribeFlips = (flipCallback: Function, soldCallback?: Function) => {
+    let subscribeFlips = (flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function) => {
 
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS);
 
-        return new Promise((resolve, reject) => {
-            websocketHelper.subscribe({
-                type: RequestType.SUBSCRIBE_FLIPS,
-                data: "",
-                callback: function (data) {
-                    if (!data) {
-                        return;
-                    }
-                    if (!data.uuid && soldCallback) {
-                        soldCallback(data);
-                        return;
-                    }
-                    flipCallback(parseFlipAuction(data));
+        let requestData = {
+            whitelist: restrictionList.filter(restriction => restriction.type === "whitelist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
+            blacklist: restrictionList.filter(restriction => restriction.type === "blacklist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
+            minProfit: filter.minProfit || 0,
+            minVolume: filter.minVolume || 0,
+            maxCost: filter.maxCost || 0,
+            filters: { }
+        }
+
+        if (filter.onlyBin)
+            requestData.filters = { Bin: "true" };
+
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_FLIPS,
+            data: requestData,
+            callback: function (data) {
+                if (!data) {
+                    return;
                 }
-            })
-        });
+                if (!data.uuid && soldCallback) {
+                    soldCallback(data);
+                    return;
+                }
+                flipCallback(parseFlipAuction(data));
+            }
+        })
     }
 
     let unsubscribeFlips = (): Promise<void> => {
@@ -640,7 +650,7 @@ function initAPI(): API {
     let getFlipBasedAuctions = (flipUUID: string): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
 
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.GET_FLIP_BASED_AUCTIONS,
                 data: flipUUID,
                 resolve: (data: any) => {
@@ -750,6 +760,49 @@ function initAPI(): API {
         })
     }
 
+    let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.CONNECT_MINECRAFT_ACCOUNT,
+                data: playerUUID,
+                resolve: function (data) {
+                    resolve(parseMinecraftConnectionInfo(data));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.CONNECT_MINECRAFT_ACCOUNT, error, playerUUID);
+                    reject();
+                }
+            });
+        })
+    }
+
+
+    let accountInfo;
+    let getAccountInfo = (): Promise<AccountInfo> => {
+
+        return new Promise((resolve, reject) => {
+
+            if (accountInfo) {
+                resolve(accountInfo);
+                return;
+            }
+
+            websocketHelper.sendRequest({
+                type: RequestType.GET_ACCOUNT_INFO,
+                data: "",
+                resolve: function (accountInfo) {
+                    let info = parseAccountInfo(accountInfo);
+                    accountInfo = info;
+                    resolve(info);
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_ACCOUNT_INFO, error, "");
+                }
+            })
+        })
+    }
+
     let itemSearch = (searchText: string): Promise<FilterOptions[]> => {
         return new Promise((resolve, reject) => {
 
@@ -761,6 +814,23 @@ function initAPI(): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ITEM_SEARCH, error, searchText);
+                    reject();
+                }
+            });
+        })
+    }
+
+    let authenticateModConnection = (conId: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.AUTHENTICATE_MOD_CONNECTION,
+                data: conId,
+                resolve: function () {
+                    resolve();
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId);
                     reject();
                 }
             });
@@ -806,8 +876,11 @@ function initAPI(): API {
         setRef,
         getActiveAuctions,
         filterFor,
+        connectMinecraftAccount,
+        getAccountInfo,
         unsubscribeFlips,
-        itemSearch
+        itemSearch,
+        authenticateModConnection
     }
 }
 

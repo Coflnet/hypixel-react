@@ -19,6 +19,7 @@ export function getSetting(key: string): string {
     return settings[key] || "";
 }
 
+
 export function getSettingsObject<T>(key: string, defaultValue: T) {
     let object = settings[key] || JSON.stringify(defaultValue);
     let parsed: T;

@@ -31,7 +31,7 @@ export function parseAuction(auction: any): Auction {
         end: new Date(auction.end),
         item: {
             tag: auction.tag,
-            name: auction.itemName
+            name: auction.itemName || auction.name
         },
         startingBid: auction.startingBid,
         highestBid: auction.highestBid,
@@ -333,5 +333,21 @@ export function parseFilterOption(filterOption): FilterOptions {
         name: filterOption.name,
         options: filterOption.options,
         type: filterOption.type
+    }
+}
+
+export function parseAccountInfo(accountInfo): AccountInfo {
+    return {
+        email: accountInfo.email,
+        mcId: accountInfo.mcId,
+        mcName: accountInfo.mcName,
+        token: accountInfo.token
+    }
+}
+
+export function parseMinecraftConnectionInfo(minecraftConnectionInfo): MinecraftConnectionInfo {
+    return {
+        bid: minecraftConnectionInfo.bid,
+        connectedAccountId: minecraftConnectionInfo.uuid
     }
 }
