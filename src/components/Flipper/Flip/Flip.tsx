@@ -133,29 +133,49 @@ function Flip(props: Props) {
                         settings.hideLowestBin ? null :
                             <p>
                                 <span className="card-label">Lowest BIN: </span><br />
-                                <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
-                                    {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
-                                </a>
+                                {
+                                    !settings.disableLinks ?
+                                        <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
+                                            {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
+                                        </a> :
+                                        <span>
+                                            {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
+                                        </span>
+                                }
                             </p>
                     }
                     {
                         settings.hideSecondLowestBin ? null :
                             <p>
                                 <span className="card-label">Second lowest BIN: </span><br />
-                                <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
-                                    {numberWithThousandsSeperators(props.flip.secondLowestBin)} Coins
-                                </a>
+                                {
+                                    !settings.disableLinks ?
+                                        <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
+                                            {numberWithThousandsSeperators(props.flip.secondLowestBin)} Coins
+                                        </a> :
+                                        <span>
+                                            {numberWithThousandsSeperators(props.flip.secondLowestBin)} Coins
+                                        </span>
+                                }
                             </p>
                     }
                     {
                         settings.hideSeller ? null :
                             <p>
                                 <span className="card-label">Seller: </span><br />
-                                <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownSeller} href={"/player/" + props.flip.sellerName}>
-                                    <b>
-                                        {props.flip.sellerName}
-                                    </b>
-                                </a>
+                                {
+                                    !settings.disableLinks ?
+                                        <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownSeller} href={"/player/" + props.flip.sellerName}>
+                                            <b>
+                                                {props.flip.sellerName}
+                                            </b>
+                                        </a> :
+                                        <span>
+                                            <b>
+                                                {props.flip.sellerName}
+                                            </b>
+                                        </span>
+                                }
                             </p>
                     }
                     {

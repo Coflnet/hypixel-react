@@ -9,6 +9,7 @@ import { wasAlreadyLoggedIn } from "../utils/GoogleUtils";
 
 let requests: ApiRequest[] = [];
 let websocket: WebSocket;
+let tempOldWebsocket: WebSocket;
 let isConnectionIdSet: boolean = false;
 
 let apiSubscriptions: ApiSubscription[] = [];
@@ -19,6 +20,7 @@ function initWebsocket(): void {
         var timeout = (Math.random() * (5000 - 0)) + 0;
         setTimeout(() => {
             websocket = getNewWebsocket();
+            tempOldWebsocket = getNewOldWebsocket();
         }, timeout)
     };
 
@@ -98,7 +100,17 @@ function initWebsocket(): void {
 
     let getNewWebsocket = (): WebSocket => {
 
-        websocket = new WebSocket(getProperty("websocketEndpoint"));
+        let websocket = new WebSocket(getProperty("websocketEndpoint"));
+        websocket.onclose = onWebsocketClose;
+        websocket.onerror = onWebsocketError;
+        websocket.onmessage = onWebsocketMessage;
+        websocket.onopen = onOpen;
+        return websocket;
+    }
+
+    let getNewOldWebsocket = (): WebSocket => {
+
+        let websocket = new WebSocket(getProperty("websocketOldEndpoint"));
         websocket.onclose = onWebsocketClose;
         websocket.onerror = onWebsocketError;
         websocket.onmessage = onWebsocketMessage;
@@ -107,6 +119,7 @@ function initWebsocket(): void {
     }
 
     websocket = getNewWebsocket();
+    tempOldWebsocket = getNewOldWebsocket();
 }
 
 function sendRequest(request: ApiRequest): Promise<void> {
@@ -120,7 +133,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
             return;
         }
 
-        if (_isWebsocketReady(request.type)) {
+        if (_isWebsocketReady(request.type, websocket)) {
             request.mId = getNextMessageId();
 
             try {
@@ -138,7 +151,20 @@ function sendRequest(request: ApiRequest): Promise<void> {
             }
 
             requests.push(request);
-            websocket.send(JSON.stringify(request));
+
+            let paymentRequests = [RequestType.PAYMENT_SESSION, RequestType.GET_STRIPE_PRODUCTS, RequestType.GET_STRIPE_PRICES, RequestType.VALIDATE_PAYMENT_TOKEN, RequestType.PAYPAL_PAYMENT]
+            if (paymentRequests.findIndex(p => p === request.type) !== -1) {
+                if (_isWebsocketReady(request.type, websocket)) {
+                    tempOldWebsocket.send(JSON.stringify(request));
+                } else {
+                    setTimeout(() => {
+                        sendRequest(request);
+                    }, 500);
+                }
+            } else {
+                websocket.send(JSON.stringify(request));
+            }
+
         } else {
             setTimeout(() => {
                 sendRequest(request);
@@ -161,7 +187,7 @@ function subscribe(subscription: ApiSubscription, resub?: boolean): void {
         initWebsocket();
     }
     let requestString = JSON.stringify(subscription.data);
-    if (_isWebsocketReady(subscription.type)) {
+    if (_isWebsocketReady(subscription.type, websocket)) {
         subscription.mId = getNextMessageId();
         if (!resub) {
             try {
@@ -197,7 +223,7 @@ function removeSentRequests(toDelete: ApiRequest[]) {
     })
 }
 
-function _isWebsocketReady(requestType: string) {
+function _isWebsocketReady(requestType: string, websocket: WebSocket) {
     return websocket && websocket.readyState === WebSocket.OPEN && (isConnectionIdSet || requestType === RequestType.SET_CONNECTION_ID);
 }
 

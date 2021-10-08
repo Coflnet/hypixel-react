@@ -89,7 +89,7 @@ export function MainApp(props: any) {
                     <p style={{ margin: "0px" }}>We use cookies for analytics. <a href="https://coflnet.com/privacy"> privacy policy </a></p>
                 </span>
             </CookieConsent>
-            <ToastContainer />
+            <ToastContainer theme={"colored"} />
         </ThemeProvider>
     )
 }

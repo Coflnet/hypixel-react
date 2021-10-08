@@ -337,7 +337,7 @@ function Flipper() {
                             </Form.Group>
                             {
                                 hasPremium ?
-                                    <span>The flipper is stuck <Tooltip type="hover" content={<HelpIcon />} tooltipContent={<span>We get new auctions every 60 sec. from Hypixel. So you may have to wait a bit for a new ones to be found.</span>} /></span> : ""
+                                    <span>The flipper is stuck <Tooltip type="hover" content={<HelpIcon />} tooltipContent={<span>We get new auctions every 60 sec. from Hypixel. So you may have to wait a bit for new ones to be found.</span>} /></span> : ""
                             }
                             <Form.Group onClick={onArrowRightClick}>
                                 <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>To newest flip</Form.Label>
@@ -364,7 +364,7 @@ function Flipper() {
                     </div>
                 </Card.Body>
                 <Card.Footer>
-                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
+                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please leave suggestions and opinios on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
                     <hr />
                     {isLoggedIn ? "" : <span>These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit.
                         Keep in mind that these are delayed to protect our paying supporters.

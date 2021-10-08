@@ -313,7 +313,8 @@ interface FlipCustomizeSettings {
   hideVolume?: boolean,
   maxExtraInfoFields?: number,
   hideCopySuccessMessage?: boolean,
-  useLowestBinForProfit?: boolean
+  useLowestBinForProfit?: boolean,
+  disableLinks?: boolean
 }
 
 interface FlipRestriction {

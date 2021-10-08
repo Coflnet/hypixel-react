@@ -8,6 +8,7 @@ import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
+import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
 
 function initAPI(): API {
 
@@ -347,6 +348,7 @@ function initAPI(): API {
                 type: RequestType.PREMIUM_EXPIRATION,
                 data: googleId,
                 resolve: (premiumUntil) => {
+                    checkForExpiredPremium(new Date(premiumUntil));
                     resolve(new Date(premiumUntil));
                 },
                 reject: (error: any) => {

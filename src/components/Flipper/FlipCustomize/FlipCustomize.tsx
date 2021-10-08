@@ -91,6 +91,13 @@ function FlipCustomize() {
         trackChange('useLowestBinForProfit');
     }
 
+    function onDisableLinksChange(event: ChangeEvent<HTMLInputElement>) {
+        flipCustomizeSettings.disableLinks = event.target.checked;
+        setFlipCustomizeSettings(flipCustomizeSettings);
+
+        trackChange('disableLinks');
+    }
+
     function trackChange(property: string) {
         trackEvent({
             category: 'customizeFlipStyle',
@@ -126,6 +133,10 @@ function FlipCustomize() {
                         <Form.Label className="label" htmlFor="useLowestBinForProfit">Use lowest BIN <br /> to calc. profit <Tooltip type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={useLowestBinHelpElement} /></Form.Label>
                         <Form.Check onChange={onUseLowestBinForProfitChange} defaultChecked={flipCustomizeSettings.useLowestBinForProfit} id="useLowestBinForProfit" style={{ display: "inline" }} type="checkbox" />
                     </Form.Group>
+                    <Form.Group className="select-hide-group">
+                        <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields</Form.Label>
+                        <Form.Control min={0} max={30} onChange={onMaxExtraInfoFieldsChange} defaultValue={flipCustomizeSettings.maxExtraInfoFields} type="number" id="hideMaxExtraInfo" />
+                    </Form.Group>
                 </div>
                 <div>
                     <Form.Group className="select-hide-group">
@@ -145,8 +156,8 @@ function FlipCustomize() {
                         <Form.Check onChange={onHideCopyMessage} defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage} id="hideCopyMessage" style={{ display: "inline" }} type="checkbox" />
                     </Form.Group>
                     <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields</Form.Label>
-                        <Form.Control min={0} max={30} onChange={onMaxExtraInfoFieldsChange} defaultValue={flipCustomizeSettings.maxExtraInfoFields} type="number" id="hideMaxExtraInfo" />
+                        <Form.Label className="label" htmlFor="disableLinks">Disable links</Form.Label>
+                        <Form.Check onChange={onDisableLinksChange} defaultChecked={flipCustomizeSettings.disableLinks} id="hideCopyMessage" style={{ display: "inline" }} type="checkbox" />
                     </Form.Group>
                 </div>
             </Form>
