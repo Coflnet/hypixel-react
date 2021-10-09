@@ -6,6 +6,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import './FilterElement.css';
 import DatePicker from "react-datepicker";
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter';
+import { Typeahead } from 'react-bootstrap-typeahead';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
+
 
 // has to be redefined because global types from react-app-env are not accessable
 export enum FilterTypeEnum {
@@ -70,11 +73,9 @@ function FilterElement(props: Props) {
         }
     }
 
-    function updateSelectFilter(event: ChangeEvent<HTMLSelectElement>) {
-        let selectedIndex = event.target.options.selectedIndex;
-        let value = event.target.options[selectedIndex].getAttribute('data-id')!;
-        setValue(value);
-        updateValue(value);
+    function updateSelectFilter(selected) {
+        setValue(selected[0]);
+        updateValue(selected[0]);
     }
 
     function updateInputFilter(event: ChangeEvent<HTMLInputElement>) {
@@ -103,10 +104,6 @@ function FilterElement(props: Props) {
         _setValue(parseValue(value));
     }
 
-    let selectOptions = props.options?.options.map(option => {
-        return (<option data-id={option} key={option} value={option}>{convertTagToName(option)}</option>)
-    })
-
     function validate(value?: any) {
         if (!value && value !== 0) {
             setErrorText("Please fill the filter or remove it")
@@ -130,7 +127,7 @@ function FilterElement(props: Props) {
     return (
         <div className="generic-filter">
             {!props.options ? <Spinner animation="border" role="status" variant="primary" /> :
-                <div>
+                <div style={{ display: "grid" }}>
                     <Form.Label style={{ float: "left" }}><b>{camelCaseToSentenceCase(props.options.name)}</b></Form.Label>
                     {
                         hasFlag(props.options.type, FilterTypeEnum.DATE)
@@ -139,9 +136,15 @@ function FilterElement(props: Props) {
                                 <Form.Control isInvalid={!isValid} key={props.options.name} className="select-filter" defaultValue={props.defaultValue} value={value} onChange={updateInputFilter}>
 
                                 </Form.Control>
-                                : <Form.Control isInvalid={!isValid} className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
-                                    {selectOptions}
-                                </Form.Control>
+                                : <Typeahead
+                                    style={{ display: "block" }}
+                                    className="select-filter"
+                                    defaultSelected={[props.defaultValue]}
+                                    onChange={selected => updateSelectFilter(selected)}
+                                    options={props.options?.options}
+                                    labelKey={convertTagToName}
+                                    selectHintOnEnter={true}>
+                                </Typeahead >
                     }
                     {
                         !isValid ?
