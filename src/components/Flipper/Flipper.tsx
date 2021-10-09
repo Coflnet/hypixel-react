@@ -6,13 +6,13 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, Settings as SettingsIcon, PanTool as HandIcon } from '@material-ui/icons';
+import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, Settings as SettingsIcon, PanTool as HandIcon, Search as SearchIcon } from '@material-ui/icons';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
 import AuctionDetails from '../AuctionDetails/AuctionDetails';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { FixedSizeList as List } from 'react-window';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import Tooltip from '../Tooltip/Tooltip';
 import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
@@ -48,6 +48,8 @@ function Flipper() {
     let [refInfo, setRefInfo] = useState<RefInfo>();
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false);
+
+    let history = useHistory();
 
     const { show } = useContextMenu({
         id: FLIP_CONEXT_MENU_ID,
@@ -258,6 +260,12 @@ function Flipper() {
         }
     }
 
+    function redirectToSeller(sellerName: string) {
+        history.push({
+            pathname: "player/" + sellerName
+        })
+    }
+
     let getFlipElement = (flipAuction: FlipAuction, style) => {
         return (
             <div onContextMenu={e => handleFlipContextMenu(e, flipAuction)}>
@@ -292,6 +300,7 @@ function Flipper() {
         <div>
             <Menu id={FLIP_CONEXT_MENU_ID} theme={theme.dark}>
                 <Item onClick={params => { addItemToBlacklist((params.props.flip as FlipAuction)) }}><HandIcon style={{ color: "red", marginRight: "5px" }} /> Add Item to Blacklist</Item>
+                <Item onClick={params => { redirectToSeller((params.props.flip as FlipAuction).sellerName) }}><SearchIcon style={{ marginRight: "5px" }} />Open seller auction history</Item>
             </Menu>
         </div>
     );
