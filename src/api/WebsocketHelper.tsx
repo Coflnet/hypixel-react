@@ -10,6 +10,7 @@ import { wasAlreadyLoggedIn } from "../utils/GoogleUtils";
 let requests: ApiRequest[] = [];
 let websocket: WebSocket;
 let tempOldWebsocket: WebSocket;
+
 let isConnectionIdSet: boolean = false;
 
 let apiSubscriptions: ApiSubscription[] = [];
@@ -154,7 +155,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             let paymentRequests = [RequestType.PAYMENT_SESSION, RequestType.GET_STRIPE_PRODUCTS, RequestType.GET_STRIPE_PRICES, RequestType.VALIDATE_PAYMENT_TOKEN, RequestType.PAYPAL_PAYMENT]
             if (paymentRequests.findIndex(p => p === request.type) !== -1) {
-                if (_isWebsocketReady(request.type, websocket)) {
+                if (_isWebsocketReady(request.type, tempOldWebsocket)) {
                     tempOldWebsocket.send(JSON.stringify(request));
                 } else {
                     setTimeout(() => {
@@ -163,6 +164,16 @@ function sendRequest(request: ApiRequest): Promise<void> {
                 }
             } else {
                 websocket.send(JSON.stringify(request));
+            }
+
+            if (request.type === RequestType.SET_GOOGLE) {
+                if (_isWebsocketReady(request.type, tempOldWebsocket)) {
+                    tempOldWebsocket.send(JSON.stringify(request));
+                } else {
+                    setTimeout(() => {
+                        sendRequest(request);
+                    }, 500);
+                }
             }
 
         } else {
