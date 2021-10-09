@@ -149,9 +149,9 @@ function FlipCustomize() {
         let restrictions: FlipRestriction[];
         try {
             let importObject = JSON.parse(importString);
-            filter = importObject[FLIPPER_FILTER_KEY];
-            flipCustomizeSettings = importObject[FLIP_CUSTOMIZING_KEY];
-            restrictions = importObject[RESTRICTIONS_SETTINGS_KEY];
+            filter = importObject[FLIPPER_FILTER_KEY] ? JSON.parse(importObject[FLIPPER_FILTER_KEY]) : "";
+            flipCustomizeSettings = importObject[FLIP_CUSTOMIZING_KEY] ? JSON.parse(importObject[FLIP_CUSTOMIZING_KEY]) : "";
+            restrictions = importObject[RESTRICTIONS_SETTINGS_KEY] ? JSON.parse(importObject[RESTRICTIONS_SETTINGS_KEY]) : "";
         } catch {
             toast.error("The import of the filter settings failed. Please make sure this is a valid filter file.")
             return;
@@ -160,6 +160,8 @@ function FlipCustomize() {
         setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter));
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings));
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(restrictions));
+
+        window.location.reload();
     }
 
     let useLowestBinHelpElement = (
@@ -168,69 +170,75 @@ function FlipCustomize() {
 
     return (
         <div className="flip-customize">
-            <Form className="section">
-                <div>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="hideCost">Cost</Form.Label>
-                        <Form.Check onChange={onCostChange} defaultChecked={!flipCustomizeSettings.hideCost} id="hideCost" style={{ display: "inline" }} type="checkbox" />
-                    </Form.Group>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="hideEstimatedProfit">Estimated Profit</Form.Label>
-                        <Form.Check onChange={onEstimantedProfitChange} defaultChecked={!flipCustomizeSettings.hideEstimatedProfit} id="hideEstimatedProfit" style={{ display: "inline" }} type="checkbox" />
-                    </Form.Group>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="hideSecondLowestBin">Second lowest BIN</Form.Label>
-                        <Form.Check onChange={onSecondLowestBinChange} defaultChecked={!flipCustomizeSettings.hideSecondLowestBin} id="hideSecondLowestBin" style={{ display: "inline" }} type="checkbox" />
-                    </Form.Group>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="hideVolume">Volume</Form.Label>
-                        <Form.Check onChange={onVolumeChange} defaultChecked={!flipCustomizeSettings.hideVolume} id="hideVolume" style={{ display: "inline" }} type="checkbox" />
-                    </Form.Group>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="useLowestBinForProfit">Use lowest BIN <br /> to calc. profit <Tooltip type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={useLowestBinHelpElement} /></Form.Label>
-                        <Form.Check onChange={onUseLowestBinForProfitChange} defaultChecked={flipCustomizeSettings.useLowestBinForProfit} id="useLowestBinForProfit" style={{ display: "inline" }} type="checkbox" />
-                    </Form.Group>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields</Form.Label>
-                        <Form.Control min={0} max={30} onChange={onMaxExtraInfoFieldsChange} defaultValue={flipCustomizeSettings.maxExtraInfoFields} type="number" id="hideMaxExtraInfo" />
-                    </Form.Group>
-                </div>
-                <div>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="hideMedianPrice">Median price</Form.Label>
-                        <Form.Check onChange={onMedianPriceChange} defaultChecked={!flipCustomizeSettings.hideMedianPrice} id="hideMedianPrice" style={{ display: "inline" }} type="checkbox" />
-                    </Form.Group>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="hideLowestBin">Lowest BIN</Form.Label>
-                        <Form.Check onChange={onLowestBinChange} defaultChecked={!flipCustomizeSettings.hideLowestBin} id="hideLowestBin" style={{ display: "inline" }} type="checkbox" />
-                    </Form.Group>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="hideSeller">Seller</Form.Label>
-                        <Form.Check onChange={onSellerChange} defaultChecked={!flipCustomizeSettings.hideSeller} id="hideSeller" style={{ display: "inline" }} type="checkbox" />
-                    </Form.Group>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="hideCopyMessage">Show copy message</Form.Label>
-                        <Form.Check onChange={onHideCopyMessage} defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage} id="hideCopyMessage" style={{ display: "inline" }} type="checkbox" />
-                    </Form.Group>
-                    <Form.Group className="select-hide-group">
-                        <Form.Label className="label" htmlFor="disableLinks">Disable links</Form.Label>
-                        <Form.Check onChange={onDisableLinksChange} defaultChecked={flipCustomizeSettings.disableLinks} id="hideCopyMessage" style={{ display: "inline" }} type="checkbox" />
-                    </Form.Group>
-                </div>
-            </Form>
-            <hr />
-            <div className="section">
-                <Button onClick={exportFilter}>Export filter settings</Button>
-                <Button onClick={() => { document.getElementById("fileUpload")?.click() }}>Import filter settings</Button>
+            <div style={{ width: "50%" }}>
+                <Form className="section">
+                    <div>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideCost">Cost</Form.Label>
+                            <Form.Check onChange={onCostChange} defaultChecked={!flipCustomizeSettings.hideCost} id="hideCost" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideEstimatedProfit">Estimated Profit</Form.Label>
+                            <Form.Check onChange={onEstimantedProfitChange} defaultChecked={!flipCustomizeSettings.hideEstimatedProfit} id="hideEstimatedProfit" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideSecondLowestBin">Second lowest BIN</Form.Label>
+                            <Form.Check onChange={onSecondLowestBinChange} defaultChecked={!flipCustomizeSettings.hideSecondLowestBin} id="hideSecondLowestBin" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideVolume">Volume</Form.Label>
+                            <Form.Check onChange={onVolumeChange} defaultChecked={!flipCustomizeSettings.hideVolume} id="hideVolume" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="useLowestBinForProfit">Use lowest BIN <br /> to calc. profit <Tooltip type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={useLowestBinHelpElement} /></Form.Label>
+                            <Form.Check onChange={onUseLowestBinForProfitChange} defaultChecked={flipCustomizeSettings.useLowestBinForProfit} id="useLowestBinForProfit" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields</Form.Label>
+                            <Form.Control min={0} max={30} onChange={onMaxExtraInfoFieldsChange} defaultValue={flipCustomizeSettings.maxExtraInfoFields} type="number" id="hideMaxExtraInfo" />
+                        </Form.Group>
+                    </div>
+                    <div>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideMedianPrice">Median price</Form.Label>
+                            <Form.Check onChange={onMedianPriceChange} defaultChecked={!flipCustomizeSettings.hideMedianPrice} id="hideMedianPrice" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideLowestBin">Lowest BIN</Form.Label>
+                            <Form.Check onChange={onLowestBinChange} defaultChecked={!flipCustomizeSettings.hideLowestBin} id="hideLowestBin" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideSeller">Seller</Form.Label>
+                            <Form.Check onChange={onSellerChange} defaultChecked={!flipCustomizeSettings.hideSeller} id="hideSeller" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideCopyMessage">Show copy message</Form.Label>
+                            <Form.Check onChange={onHideCopyMessage} defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage} id="hideCopyMessage" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="disableLinks">Disable links</Form.Label>
+                            <Form.Check onChange={onDisableLinksChange} defaultChecked={flipCustomizeSettings.disableLinks} id="hideCopyMessage" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                    </div>
+                </Form>
+                <hr />
+                <h5>Import/Export</h5>
+                <p>You can export your custom flipper settings into a .json file. You use this to send your settings to a friend or to restore them later yourself by importing them again.</p>
+                <p>After importing a settings file, the page will reload to apply the new settings.</p>
+                <div className="section">
+                    <Button onClick={() => { document.getElementById("fileUpload")?.click() }} style={{ width: "40%" }}>Import</Button>
+                    <Button onClick={exportFilter} style={{ width: "40%" }}>Export</Button>
 
-                {/* This is the "true" upload field. It is called by the "Import"-Button */}
-                <input onChange={readImportFile} style={{ display: "none" }} type="file" id="fileUpload" />
+                    {/* This is the "true" upload field. It is called by the "Import"-Button */}
+                    <input onChange={readImportFile} style={{ display: "none" }} type="file" id="fileUpload" />
+                </div>
+                <hr />
             </div>
             <div className="vertical-line"></div>
             <div className="section" style={{ width: "50%" }}>
                 <Flip style={{ width: "300px" }} flip={DEMO_FLIP} />
             </div>
-        </div >
+        </div>
     );
 }
 
