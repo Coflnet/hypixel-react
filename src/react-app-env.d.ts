@@ -10,6 +10,7 @@ interface Enchantment {
   id: number;
   name?: string;
   level?: number;
+  color?: string;
 }
 
 interface Reforge {

@@ -116,7 +116,8 @@ export function parseEnchantment(enchantment: any): Enchantment {
     return {
         id: enchantment.id,
         level: enchantment.level,
-        name: enchantment.type ? _formatName(enchantment.type) : ""
+        name: enchantment.type ? _formatName(enchantment.type) : "",
+        color: enchantment.color
     }
 }
 
