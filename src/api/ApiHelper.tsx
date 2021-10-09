@@ -9,6 +9,7 @@ import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
 import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
+import { getFlipCustomizeSettings } from "../utils/FlipUtils";
 
 function initAPI(): API {
 
@@ -513,7 +514,8 @@ function initAPI(): API {
             minProfit: filter.minProfit || 0,
             minVolume: filter.minVolume || 0,
             maxCost: filter.maxCost || 0,
-            filters: { }
+            filters: {},
+            lbin: getFlipCustomizeSettings().useLowestBinForProfit
         }
 
         if (filter.onlyBin)
