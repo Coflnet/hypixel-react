@@ -22,7 +22,7 @@ function FlipBased(props: Props) {
     useEffect(() => {
         api.getFlipBasedAuctions(props.flip.uuid).then(auctions => {
 
-            setAuctions(auctions.sort((a, b) => b.highestBid - a.highestBid));
+            setAuctions(auctions.sort((a, b) => b.end.getTime() - a.end.getTime()));
             setIsLoading(false);
         })
     }, [props.flip.uuid])
@@ -40,7 +40,7 @@ function FlipBased(props: Props) {
                         <Card.Header style={{ padding: "10px" }}>
                             <p className="ellipsis" style={{ width: "180px" }}>
                                 <img crossOrigin="anonymous" src={props.flip.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                                {props.flip.item.name}
+                                {auction.item.name}
                             </p>
                         </Card.Header>
                         <Card.Body>

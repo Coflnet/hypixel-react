@@ -13,6 +13,8 @@ interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[])
 }
 
+const DATE_FORMAT_FILTER = ["EndBefore", "EndAfter"];
+
 function FlipRestrictionList(props: Props) {
 
     let [newRestriction, setNewRestriction] = useState<FlipRestriction>({ type: "blacklist" })
@@ -28,7 +30,7 @@ function FlipRestrictionList(props: Props) {
 
 
     function loadFilters() {
-        api.filterFor({ tag: "ASPECT_OF_THE_END" }).then(filters => {
+        api.filterFor({ tag: newRestriction.item ? newRestriction.item.tag : '*' }).then(filters => {
             setFilters(filters);
         })
     }
@@ -39,6 +41,7 @@ function FlipRestrictionList(props: Props) {
         }
         newRestriction.item = (item.dataItem as Item);
         setNewRestriction(newRestriction);
+        loadFilters();
         forceUpdate();
     }
 
@@ -157,7 +160,14 @@ function FlipRestrictionList(props: Props) {
                                                     if (!restriction.itemFilter || !restriction.itemFilter[key]) {
                                                         return "";
                                                     }
-                                                    return <p key={key}>{convertTagToName(key)}: {restriction.itemFilter[key]}</p>
+
+                                                    let display = restriction.itemFilter[key];
+
+                                                    // Special case -> display as date
+                                                    if (DATE_FORMAT_FILTER.findIndex(f => f === key) !== -1) {
+                                                        display = new Date(Number(display)*1000).toLocaleDateString();
+                                                    }
+                                                    return <p key={key}>{convertTagToName(key)}: {display}</p>
                                                 })
                                             }
                                         </Card.Body> : ""

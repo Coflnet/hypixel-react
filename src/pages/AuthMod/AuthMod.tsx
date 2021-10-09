@@ -25,7 +25,7 @@ function AuthMod() {
         setIsLoggedIn(true);
 
         if (conId) {
-            api.authenticateModConnection(parseInt(conId)).then(() => {
+            api.authenticateModConnection(conId).then(() => {
                 setIsAuthenticated(true);
             })
         }

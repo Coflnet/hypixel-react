@@ -208,7 +208,7 @@ interface API {
   connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>,
   getAccountInfo(): Promise<AccountInfo>
   itemSearch(searchText: string): Promise<FilterOptions[]>
-  authenticateModConnection(conId: number): Promise<void>
+  authenticateModConnection(conId: string): Promise<void>
 }
 
 interface CacheUtils {
@@ -313,7 +313,8 @@ interface FlipCustomizeSettings {
   hideVolume?: boolean,
   maxExtraInfoFields?: number,
   hideCopySuccessMessage?: boolean,
-  useLowestBinForProfit?: boolean
+  useLowestBinForProfit?: boolean,
+  disableLinks?: boolean
 }
 
 interface FlipRestriction {

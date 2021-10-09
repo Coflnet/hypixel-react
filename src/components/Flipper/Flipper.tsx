@@ -18,7 +18,7 @@ import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
 import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
-import { getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
+import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -39,7 +39,7 @@ function Flipper() {
 
     let [flips, setFlips] = useState<FlipAuction[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>({});
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}));
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
@@ -69,6 +69,7 @@ function Flipper() {
         mounted = true;
         _setAutoScroll(true);
         attachScrollEvent();
+        api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
 
         return () => {
             mounted = false;
@@ -201,8 +202,10 @@ function Flipper() {
         });
     }
 
-    function onFilterChange(filter) {
-        setFlipperFilter(filter);
+    function onFilterChange(newFilter) {
+
+        flipperFilter = newFilter;
+        setFlipperFilter(newFilter);
         setTimeout(() => {
 
             setFlips([]);
@@ -213,7 +216,7 @@ function Flipper() {
                 }
             })
         })
-        api.subscribeFlips(onNewFlip, filter.restrictions || [], filter, uuid => onAuctionSold(uuid));
+        api.subscribeFlips(onNewFlip, newFilter.restrictions || [], newFilter, uuid => onAuctionSold(uuid));
     }
 
     function onCopyFlip(flip: FlipAuction) {
@@ -334,7 +337,7 @@ function Flipper() {
                             </Form.Group>
                             {
                                 hasPremium ?
-                                    <span>The flipper is stuck <Tooltip type="hover" content={<HelpIcon />} tooltipContent={<span>We get new auctions every 60 sec. from Hypixel. So you may have to wait a bit for a new ones to be found.</span>} /></span> : ""
+                                    <span>The flipper is stuck <Tooltip type="hover" content={<HelpIcon />} tooltipContent={<span>We get new auctions every 60 sec. from Hypixel. So you may have to wait a bit for new ones to be found.</span>} /></span> : ""
                             }
                             <Form.Group onClick={onArrowRightClick}>
                                 <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>To newest flip</Form.Label>
@@ -361,7 +364,7 @@ function Flipper() {
                     </div>
                 </Card.Body>
                 <Card.Footer>
-                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
+                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please leave suggestions and opinios on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
                     <hr />
                     {isLoggedIn ? "" : <span>These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit.
                         Keep in mind that these are delayed to protect our paying supporters.

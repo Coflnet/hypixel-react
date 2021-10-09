@@ -8,6 +8,7 @@ import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
+import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
 
 function initAPI(): API {
 
@@ -347,6 +348,7 @@ function initAPI(): API {
                 type: RequestType.PREMIUM_EXPIRATION,
                 data: googleId,
                 resolve: (premiumUntil) => {
+                    checkForExpiredPremium(new Date(premiumUntil));
                     resolve(new Date(premiumUntil));
                 },
                 reject: (error: any) => {
@@ -648,7 +650,7 @@ function initAPI(): API {
     let getFlipBasedAuctions = (flipUUID: string): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
 
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.GET_FLIP_BASED_AUCTIONS,
                 data: flipUUID,
                 resolve: (data: any) => {
@@ -818,7 +820,7 @@ function initAPI(): API {
         })
     }
 
-    let authenticateModConnection = (conId: number): Promise<void> => {
+    let authenticateModConnection = (conId: string): Promise<void> => {
         return new Promise((resolve, reject) => {
 
             websocketHelper.sendRequest({
