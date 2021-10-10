@@ -87,10 +87,7 @@ function ClaimAccount(props: Props) {
                 !isLoading && isLoggedIn && mcInfo && mcInfo.isConnected ?
                     <div>
                         <h3>Your Account has been connected!</h3>
-                        <p>Connecting your Minecraft account allows us to improve your experience.
-                            There are a lot of features in development where we need to know what your Minecraft account is.
-                            Currently connecting your account only adds your Minecraft name to the link preview when you share your <Link to="/ref">referral link</Link>.
-                            Future features include tracking your profit from the flipper and hiding your history.</p>
+                        {whyText}
                     </div> : null
             }
             {
