@@ -326,5 +326,5 @@ interface FlipRestriction {
 
 interface MinecraftConnectionInfo {
   code: number,
-  isConnected?: boolean
+  isConnected: boolean
 }
