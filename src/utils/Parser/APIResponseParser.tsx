@@ -348,7 +348,7 @@ export function parseAccountInfo(accountInfo): AccountInfo {
 
 export function parseMinecraftConnectionInfo(minecraftConnectionInfo): MinecraftConnectionInfo {
     return {
-        bid: minecraftConnectionInfo.bid,
-        connectedAccountId: minecraftConnectionInfo.uuid
+        code: minecraftConnectionInfo.code,
+        isConnected: minecraftConnectionInfo.isConnected
     }
 }
