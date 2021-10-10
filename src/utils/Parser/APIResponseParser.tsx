@@ -3,7 +3,7 @@ import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
 export function parseItemBidForList(bid: any): BidForList {
     return {
         uuid: bid.uuid,
-        end: new Date(bid.end),
+        end: parseDate(bid.end),
         item: {
             name: bid.itemName,
             tag: bid.tag
@@ -19,7 +19,7 @@ export function parseItemBid(bid: any): ItemBid {
         auctionId: bid.auctionId,
         amount: bid.amount,
         bidder: parsePlayer(bid.bidder),
-        timestamp: new Date(bid.timestamp),
+        timestamp: parseDate(bid.timestamp),
         profileId: bid.profileId,
         bin: bid.bin
     } as ItemBid
@@ -28,7 +28,7 @@ export function parseItemBid(bid: any): ItemBid {
 export function parseAuction(auction: any): Auction {
     return {
         uuid: auction.uuid,
-        end: new Date(auction.end),
+        end: parseDate(auction.end),
         item: {
             tag: auction.tag,
             name: auction.itemName || auction.name
@@ -45,7 +45,7 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
             return {
                 uuid: bid.uuid,
                 highestOwn: bid.highestOwn,
-                end: new Date(bid.end),
+                end: parseDate(bid.end),
                 highestBid: bid.highestBid,
                 item: {
                     tag: bid.tag,
@@ -57,7 +57,7 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
             return {
                 uuid: auction.auctionId,
                 highestBid: auction.highestBid,
-                end: new Date(auction.end),
+                end: parseDate(auction.end),
                 item: {
                     tag: auction.tag,
                     name: auction.itemName
@@ -70,7 +70,7 @@ export function parsePlayerDetails(playerDetails: any): PlayerDetails {
 
 export function parseItemPrice(priceData: any): ItemPrice {
     return {
-        time: new Date(priceData.time),
+        time: parseDate(priceData.time),
         avg: priceData.avg,
         max: priceData.max,
         min: priceData.min,
@@ -173,7 +173,7 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
     return {
         auction: {
             uuid: auctionDetails.uuid,
-            end: new Date(auctionDetails.end),
+            end: parseDate(auctionDetails.end),
             highestBid: auctionDetails.bids[0],
             startingBid: auctionDetails.startingBid,
             item: {
@@ -184,7 +184,7 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
             },
             bin: auctionDetails.bin
         },
-        start: new Date(auctionDetails.start),
+        start: parseDate(auctionDetails.start),
         anvilUses: auctionDetails.anvilUses,
         auctioneer: parsePlayer(auctionDetails.auctioneerId),
         bids: auctionDetails.bids.map(bid => {
@@ -282,7 +282,7 @@ export function mapStripePrices(prices: any): Price[] {
 
 export function parseRecentAuction(auction): RecentAuction {
     return {
-        end: new Date(auction.end),
+        end: parseDate(auction.end),
         playerName: auction.playerName,
         price: auction.price,
         seller: parsePlayer(auction.seller),
@@ -351,4 +351,11 @@ export function parseMinecraftConnectionInfo(minecraftConnectionInfo): Minecraft
         code: minecraftConnectionInfo.code,
         isConnected: minecraftConnectionInfo.isConnected
     }
+}
+
+export function parseDate(dateString: string) {
+    if (dateString.slice(-1) === "Z") {
+        return new Date(dateString);
+    }
+    return new Date(dateString + "Z");
 }
