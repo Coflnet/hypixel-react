@@ -508,6 +508,8 @@ function initAPI(): API {
 
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS);
 
+        let flipSettings = getFlipCustomizeSettings();
+
         let requestData = {
             whitelist: restrictionList.filter(restriction => restriction.type === "whitelist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
             blacklist: restrictionList.filter(restriction => restriction.type === "blacklist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
@@ -515,8 +517,14 @@ function initAPI(): API {
             minVolume: filter.minVolume || 0,
             maxCost: filter.maxCost || 0,
             filters: {},
-            lbin: getFlipCustomizeSettings().useLowestBinForProfit
+            lbin: flipSettings.useLowestBinForProfit,
+            mod: {
+                justProfit: flipSettings.justProfit,
+                soundOnFlip: flipSettings.soundOnFlip
+            }
         }
+
+        console.log(requestData);
 
         if (filter.onlyBin)
             requestData.filters = { Bin: "true" };

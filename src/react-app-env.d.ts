@@ -315,7 +315,9 @@ interface FlipCustomizeSettings {
   maxExtraInfoFields?: number,
   hideCopySuccessMessage?: boolean,
   useLowestBinForProfit?: boolean,
-  disableLinks?: boolean
+  disableLinks?: boolean,
+  justProfit?: boolean,
+  soundOnFlip?: boolean
 }
 
 interface FlipRestriction {
