@@ -116,7 +116,8 @@ export function parseEnchantment(enchantment: any): Enchantment {
     return {
         id: enchantment.id,
         level: enchantment.level,
-        name: enchantment.type ? _formatName(enchantment.type) : ""
+        name: enchantment.type ? _formatName(enchantment.type) : "",
+        color: enchantment.color
     }
 }
 
@@ -347,7 +348,7 @@ export function parseAccountInfo(accountInfo): AccountInfo {
 
 export function parseMinecraftConnectionInfo(minecraftConnectionInfo): MinecraftConnectionInfo {
     return {
-        bid: minecraftConnectionInfo.bid,
-        connectedAccountId: minecraftConnectionInfo.uuid
+        code: minecraftConnectionInfo.code,
+        isConnected: minecraftConnectionInfo.isConnected
     }
 }

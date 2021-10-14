@@ -205,7 +205,7 @@ function initAPI(): API {
 
     let getAuctionDetails = (auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheRequest({
+            httpApi.sendLimitedCacheApiRequest({
                 type: RequestType.AUCTION_DETAILS,
                 data: auctionUUID,
                 resolve: (auctionDetails) => {

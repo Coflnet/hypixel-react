@@ -10,6 +10,7 @@ interface Enchantment {
   id: number;
   name?: string;
   level?: number;
+  color?: string;
 }
 
 interface Reforge {
@@ -324,6 +325,6 @@ interface FlipRestriction {
 }
 
 interface MinecraftConnectionInfo {
-  bid: number,
-  connectedAccountId?: string
+  code: number,
+  isConnected: boolean
 }
