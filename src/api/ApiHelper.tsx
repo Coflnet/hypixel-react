@@ -9,6 +9,7 @@ import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
 import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
+import { getFlipCustomizeSettings } from "../utils/FlipUtils";
 
 function initAPI(): API {
 
@@ -507,13 +508,20 @@ function initAPI(): API {
 
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS);
 
+        let flipSettings = getFlipCustomizeSettings();
+
         let requestData = {
             whitelist: restrictionList.filter(restriction => restriction.type === "whitelist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
             blacklist: restrictionList.filter(restriction => restriction.type === "blacklist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
             minProfit: filter.minProfit || 0,
             minVolume: filter.minVolume || 0,
             maxCost: filter.maxCost || 0,
-            filters: { }
+            filters: {},
+            lbin: flipSettings.useLowestBinForProfit,
+            mod: {
+                justProfit: flipSettings.justProfit,
+                soundOnFlip: flipSettings.soundOnFlip
+            }
         }
 
         if (filter.onlyBin)

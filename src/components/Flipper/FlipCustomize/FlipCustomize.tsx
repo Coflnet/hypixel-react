@@ -100,6 +100,20 @@ function FlipCustomize() {
         trackChange('disableLinks');
     }
 
+    function onJustProfitChange(event: ChangeEvent<HTMLInputElement>) {
+        flipCustomizeSettings.justProfit = !event.target.checked;
+        setFlipCustomizeSettings(flipCustomizeSettings);
+
+        trackChange('justProfit');
+    }
+
+    function onSoundOnFlipChange(event: ChangeEvent<HTMLInputElement>) {
+        flipCustomizeSettings.justProfit = !event.target.checked;
+        setFlipCustomizeSettings(flipCustomizeSettings);
+
+        trackChange('soundOnFlip');
+    }
+
     function trackChange(property: string) {
         trackEvent({
             category: 'customizeFlipStyle',
@@ -222,15 +236,35 @@ function FlipCustomize() {
                     </div>
                 </Form>
                 <hr />
-                <h5>Import/Export</h5>
-                <p>You can export your custom flipper settings into a .json file. You use this to send your settings to a friend or to restore them later yourself by importing them again.</p>
-                <p>After importing a settings file, the page will reload to apply the new settings.</p>
-                <div className="section">
-                    <Button onClick={() => { document.getElementById("fileUpload")?.click() }} style={{ width: "40%" }}>Import</Button>
-                    <Button onClick={exportFilter} style={{ width: "40%" }}>Export</Button>
+                <div>
+                    <h5>Mod settings</h5>
+                    <Form className="section">
+                        <div>
+                            <Form.Group className="select-hide-group">
+                                <Form.Label className="label" htmlFor="justProfit">Just show profit</Form.Label>
+                                <Form.Check onChange={onJustProfitChange} defaultChecked={flipCustomizeSettings.justProfit} id="justProfit" style={{ display: "inline" }} type="checkbox" />
+                            </Form.Group>
+                        </div>
+                        <div>
+                            <Form.Group className="select-hide-group">
+                                <Form.Label className="label" htmlFor="soundOnFlip">Play flip sound</Form.Label>
+                                <Form.Check onChange={onSoundOnFlipChange} defaultChecked={flipCustomizeSettings.soundOnFlip} id="soundOnFlip" style={{ display: "inline" }} type="checkbox" />
+                            </Form.Group>
+                        </div>
+                    </Form>
+                </div>
+                <hr />
+                <div>
+                    <h5>Import/Export</h5>
+                    <p>You can export your custom flipper settings into a .json file. You use this to send your settings to a friend or to restore them later yourself by importing them again.</p>
+                    <p>After importing a settings file, the page will reload to apply the new settings.</p>
+                    <div className="section">
+                        <Button onClick={() => { document.getElementById("fileUpload")?.click() }} style={{ width: "40%" }}>Import</Button>
+                        <Button onClick={exportFilter} style={{ width: "40%" }}>Export</Button>
 
-                    {/* This is the "true" upload field. It is called by the "Import"-Button */}
-                    <input onChange={readImportFile} style={{ display: "none" }} type="file" id="fileUpload" />
+                        {/* This is the "true" upload field. It is called by the "Import"-Button */}
+                        <input onChange={readImportFile} style={{ display: "none" }} type="file" id="fileUpload" />
+                    </div>
                 </div>
                 <hr />
             </div>

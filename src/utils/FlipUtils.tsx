@@ -29,6 +29,9 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
         if (settings.hideSecondLowestBin !== false) {
             settings.hideSecondLowestBin = true;
         }
+        if (settings.soundOnFlip !== false) {
+            settings.soundOnFlip = true;
+        }
 
     } catch {
         settings = {
@@ -42,7 +45,9 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             hideCopySuccessMessage: false,
             hideSecondLowestBin: true,
             useLowestBinForProfit: false,
-            disableLinks: false
+            disableLinks: false,
+            justProfit: false,
+            soundOnFlip: true
         };
 
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))

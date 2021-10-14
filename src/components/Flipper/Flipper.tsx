@@ -73,6 +73,10 @@ function Flipper() {
         attachScrollEvent();
         api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
 
+        document.addEventListener('flipSettingsChange', () => {
+            api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
+        });
+
         return () => {
             mounted = false;
             api.unsubscribeFlips();
