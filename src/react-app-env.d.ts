@@ -47,6 +47,7 @@ interface AuctionDetails {
   reforge: Reforge;
   enchantments: Enchantment[];
   nbtData: any;
+  itemCreatedAt: Date;
 }
 
 interface Auction {
