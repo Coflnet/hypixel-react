@@ -19,6 +19,7 @@ import FlipCustomize from './FlipCustomize/FlipCustomize';
 import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
+import Countdown from 'react-countdown';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -48,6 +49,7 @@ function Flipper() {
     let [refInfo, setRefInfo] = useState<RefInfo>();
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false);
+    let [lastFlipFetchTime, setLastFlipFetchTime] = useState<Date>();
 
     let history = useHistory();
 
@@ -62,8 +64,8 @@ function Flipper() {
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
 
-    const filterRef = useRef(flipperFilter);
-    filterRef.current = flipperFilter;
+    const lastFlipFetchTimeRef = useRef(lastFlipFetchTime);
+    lastFlipFetchTimeRef.current = lastFlipFetchTime;
 
     const flipLookup = {};
 
@@ -175,9 +177,12 @@ function Flipper() {
 
     function onNewFlip(newFlipAuction: FlipAuction) {
 
-        api.getFlipUpdateTime().then(date => {
-            console.log(date);
-        })
+        // 45sec after the last auction fetch get the new last auction fetch time if a new flip comes in
+        if (!lastFlipFetchTimeRef.current || new Date().getTime() > lastFlipFetchTimeRef.current.getTime() + 45000) {
+            api.getFlipUpdateTime().then(date => {
+                setLastFlipFetchTime(date);
+            })
+        }
 
         if (flipLookup[newFlipAuction.uuid] || !mounted) {
             return;
@@ -349,8 +354,7 @@ function Flipper() {
                                 <span style={{ cursor: "pointer" }}> <SettingsIcon /></span>
                             </Form.Group>
                             {
-                                hasPremium ?
-                                    <span>The flipper is stuck <Tooltip type="hover" content={<HelpIcon />} tooltipContent={<span>We get new auctions every 60 sec. from Hypixel. So you may have to wait a bit for new ones to be found.</span>} /></span> : ""
+                                hasPremium ? <span>Expected new flips in: {lastFlipFetchTime ? <Countdown date={lastFlipFetchTime.getTime() + 60000} /> : "..."}</span> : ""
                             }
                             <Form.Group onClick={onArrowRightClick}>
                                 <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>To newest flip</Form.Label>
