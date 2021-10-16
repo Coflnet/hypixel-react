@@ -157,7 +157,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             requests.push(request);
 
-            let paymentRequests = [RequestType.PAYMENT_SESSION, RequestType.GET_STRIPE_PRODUCTS, RequestType.GET_STRIPE_PRICES, RequestType.VALIDATE_PAYMENT_TOKEN, RequestType.PAYPAL_PAYMENT]
+            let paymentRequests = [RequestType.PAYMENT_SESSION, RequestType.GET_STRIPE_PRODUCTS, RequestType.GET_STRIPE_PRICES, RequestType.VALIDATE_PAYMENT_TOKEN, RequestType.PAYPAL_PAYMENT, RequestType.SET_REF]
             if (paymentRequests.findIndex(p => p === request.type) !== -1) {
                 if (_isWebsocketReady(request.type, tempOldWebsocket)) {
                     tempOldWebsocket.send(JSON.stringify(request));

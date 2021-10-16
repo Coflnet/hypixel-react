@@ -50,15 +50,7 @@ function GoogleSignIn(props: Props) {
         api.setGoogle(response.tokenId).then(() => {
             let refId = (window as any).refId;
             if (refId) {
-                api.setRef(refId).then(() => {
-                    toast.success("You received 4 hours of premium for free.", {
-                        onClick: () => {
-                            history.push({
-                                pathname: "/premium"
-                            })
-                        }
-                    });
-                });
+                api.setRef(refId);
             }
             refreshTokenSetup(response);
             props.onAfterLogin();
