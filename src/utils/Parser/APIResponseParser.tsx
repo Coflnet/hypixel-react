@@ -198,7 +198,8 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
         }),
         profileId: auctionDetails.profileId,
         reforge: auctionDetails.reforge,
-        nbtData: auctionDetails.flatNbt ? auctionDetails.flatNbt : undefined
+        nbtData: auctionDetails.flatNbt ? auctionDetails.flatNbt : undefined,
+        itemCreatedAt: parseDate(auctionDetails.itemCreatedAt)
     }
 }
 

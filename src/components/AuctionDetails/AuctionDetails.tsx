@@ -248,6 +248,13 @@ function AuctionDetails(props: Props) {
                     </p>
                 </Link>
 
+                <p>
+                    <span className="label">
+                        <Badge variant={labelBadgeVariant}>Created:</Badge>
+                    </span>
+                    {auctionDetails?.itemCreatedAt.toLocaleDateString() + " " + auctionDetails.itemCreatedAt.toLocaleTimeString()}
+                </p>
+
                 <div style={{ overflow: "auto" }}>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? "labelForList" : "label"}>
                         <Badge variant={labelBadgeVariant}>Enchantments:</Badge>
