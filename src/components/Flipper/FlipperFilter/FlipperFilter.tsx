@@ -78,7 +78,8 @@ function FlipperFilter(props: Props) {
                     digitGroupSeparator: '.',
                     decimalCharacter: ',',
                     decimalPlaces: 0,
-                    emptyInputBehavior: 'zero'
+                    emptyInputBehavior: 'zero',
+                    minimumValue: "0"
                 });
             }
         });
