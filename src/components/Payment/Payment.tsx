@@ -42,17 +42,26 @@ function Payment(props: Props) {
   }
 
   function loadProducts(): Promise<void> {
+
     let products2: Product[] = [];
     let promises: Promise<void>[] = [];
-    for (let provider of availablePaymentProvider()) {
-      let promise = provider.getProducts().then(loadedProducts => {
-        products2.push(...loadedProducts);
+
+    try {
+      for (let provider of availablePaymentProvider()) {
+        let promise = provider.getProducts().then(loadedProducts => {
+          products2.push(...loadedProducts);
+        });
+        promises.push(promise);
+      }
+      return Promise.all(promises).then(() => {
+        onAfterLoadProducts(products2);
       });
-      promises.push(promise);
+    } catch(e) {
+        return new Promise((resolve, _) => {
+            onAfterLoadProducts([]);
+            resolve();
+        })
     }
-    return Promise.all(promises).then(() => {
-      onAfterLoadProducts(products2);
-    });
   }
 
   function onAfterLoadProducts(products) {
@@ -112,46 +121,53 @@ function Payment(props: Props) {
     provider?.pay(product);
   }
 
-  let planList = products.map((productGroup, i) => {
-    return (
-      <Card key={'product-group-' + i} className="premium-plan-card">
-        <Card.Header>
-          <h4>{productGroup[0].title}</h4>
-        </Card.Header>
-        <Card.Body>
-          {productGroup.map((product, i) => {
-            return (
-              <div key={product.itemId}>
-                <p className="premium-price">Price: {roundToTwo(product.price.value)}
-                  {product?.paymentProviderName === 'paypal' ? <Tooltip content={<span style={{ marginLeft: "5px" }}><HelpIcon /></span>} type="hover" tooltipContent={<p>Higher price than with credit card due to higher fees</p>} /> : ""}
-                </p>
-                {
-                  product?.paymentProviderName === 'paypal' ?
-                    <div style={{ position: "relative", zIndex: 0 }}>
-                      <PayPalButton
-                        createOrder={(data, actions) => createOrder(product, actions)}
-                        onApprove={(data, actions) => onApprove(product, actions)}
+    let planList = products.length == 0 ?
+      <p>
+        you can not buy premium in the android app.
+        please check the discord server for more information
+      </p> :
+      products.map((productGroup, i) => {
+      return (
+        <Card key={'product-group-' + i} className="premium-plan-card">
+          <Card.Header>
+            <h4>{productGroup[0].title}</h4>
+          </Card.Header>
+          <Card.Body>
+          {
+            productGroup.map((product, i) => {
+              return (
+                <div key={product.itemId}>
+                  <p className="premium-price">Price: {roundToTwo(product.price.value)}
+                    {product?.paymentProviderName === 'paypal' ? <Tooltip content={<span style={{ marginLeft: "5px" }}><HelpIcon /></span>} type="hover" tooltipContent={<p>Higher price than with credit card due to higher fees</p>} /> : ""}
+                  </p>
+                  {
+                    product?.paymentProviderName === 'paypal' ?
+                      <div style={{ position: "relative", zIndex: 0 }}>
+                        <PayPalButton
+                          createOrder={(data, actions) => createOrder(product, actions)}
+                          onApprove={(data, actions) => onApprove(product, actions)}
 
-                      />
-                    </div> :
-                    product?.paymentProviderName === 'stripe' ?
-                      <Button variant="success" onClick={() => { onPay(product) }}>
-                        Buy with credit card
-                      </Button> :
-                      <Button variant="success" onClick={() => { onPay(product) }}>
-                        Buy with Google Pay
-                      </Button>
-                }
-                {
-                  i < productGroup.length - 1 ? <hr /> : ""
-                }
-              </div>
-            )
-          })
-          }
-        </Card.Body>
-      </Card>)
-  })
+                        />
+                      </div> :
+                      product?.paymentProviderName === 'stripe' ?
+                        <Button variant="success" onClick={() => { onPay(product) }}>
+                          Buy with credit card
+                        </Button> :
+                        <Button variant="success" onClick={() => { onPay(product) }}>
+                          Buy with Google Pay
+                        </Button>
+                  }
+                  {
+                    i < productGroup.length - 1 ? <hr /> : ""
+                  }
+                </div>
+              )
+            })
+            }
+          </Card.Body>
+        </Card>)
+      })
+
 
   return (
     <div>

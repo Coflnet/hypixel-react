@@ -41,7 +41,8 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             maxExtraInfoFields: 3,
             hideCopySuccessMessage: false,
             hideSecondLowestBin: true,
-            useLowestBinForProfit: false
+            useLowestBinForProfit: false,
+            disableLinks: false
         };
 
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))

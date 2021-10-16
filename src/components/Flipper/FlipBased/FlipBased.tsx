@@ -22,7 +22,7 @@ function FlipBased(props: Props) {
     useEffect(() => {
         api.getFlipBasedAuctions(props.flip.uuid).then(auctions => {
 
-            setAuctions(auctions.sort((a, b) => b.highestBid - a.highestBid));
+            setAuctions(auctions.sort((a, b) => b.end.getTime() - a.end.getTime()));
             setIsLoading(false);
         })
     }, [props.flip.uuid])

@@ -1,6 +1,6 @@
 .flip-customize .label {
     font-weight: bold;
-    min-width: 160px;
+    min-width: 170px;
 }
 
 .flip-customize .vertical-line {
@@ -9,7 +9,6 @@
 }
 
 .flip-customize .section {
-    width: 50%;
     margin: 20px;
     display: flex;
     align-content: center;

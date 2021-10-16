@@ -10,6 +10,7 @@ interface Enchantment {
   id: number;
   name?: string;
   level?: number;
+  color?: string;
 }
 
 interface Reforge {
@@ -314,7 +315,8 @@ interface FlipCustomizeSettings {
   hideVolume?: boolean,
   maxExtraInfoFields?: number,
   hideCopySuccessMessage?: boolean,
-  useLowestBinForProfit?: boolean
+  useLowestBinForProfit?: boolean,
+  disableLinks?: boolean
 }
 
 interface FlipRestriction {
@@ -324,6 +326,6 @@ interface FlipRestriction {
 }
 
 interface MinecraftConnectionInfo {
-  bid: number,
-  connectedAccountId?: string
+  code: number,
+  isConnected: boolean
 }

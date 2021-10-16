@@ -9,6 +9,8 @@ import { wasAlreadyLoggedIn } from "../utils/GoogleUtils";
 
 let requests: ApiRequest[] = [];
 let websocket: WebSocket;
+let tempOldWebsocket: WebSocket;
+
 let isConnectionIdSet: boolean = false;
 
 let apiSubscriptions: ApiSubscription[] = [];
@@ -106,7 +108,23 @@ function initWebsocket(): void {
         return websocket;
     }
 
+    let getNewOldWebsocket = (): WebSocket => {
+
+        tempOldWebsocket = new WebSocket(getProperty("websocketOldEndpoint"));
+        tempOldWebsocket.onclose = function () {
+            var timeout = (Math.random() * (5000 - 0)) + 0;
+            setTimeout(() => {
+                tempOldWebsocket = getNewOldWebsocket();
+            }, timeout)
+        };
+        tempOldWebsocket.onerror = onWebsocketError;
+        tempOldWebsocket.onmessage = onWebsocketMessage;
+        tempOldWebsocket.onopen = onOpen;
+        return tempOldWebsocket;
+    }
+
     websocket = getNewWebsocket();
+    tempOldWebsocket = getNewOldWebsocket();
 }
 
 function sendRequest(request: ApiRequest): Promise<void> {
@@ -120,7 +138,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
             return;
         }
 
-        if (_isWebsocketReady(request.type)) {
+        if (_isWebsocketReady(request.type, websocket)) {
             request.mId = getNextMessageId();
 
             try {
@@ -138,7 +156,30 @@ function sendRequest(request: ApiRequest): Promise<void> {
             }
 
             requests.push(request);
-            websocket.send(JSON.stringify(request));
+
+            let paymentRequests = [RequestType.PAYMENT_SESSION, RequestType.GET_STRIPE_PRODUCTS, RequestType.GET_STRIPE_PRICES, RequestType.VALIDATE_PAYMENT_TOKEN, RequestType.PAYPAL_PAYMENT]
+            if (paymentRequests.findIndex(p => p === request.type) !== -1) {
+                if (_isWebsocketReady(request.type, tempOldWebsocket)) {
+                    tempOldWebsocket.send(JSON.stringify(request));
+                } else {
+                    setTimeout(() => {
+                        sendRequest(request);
+                    }, 500);
+                }
+            } else {
+                websocket.send(JSON.stringify(request));
+            }
+
+            if (request.type === RequestType.SET_GOOGLE) {
+                if (_isWebsocketReady(request.type, tempOldWebsocket)) {
+                    tempOldWebsocket.send(JSON.stringify(request));
+                } else {
+                    setTimeout(() => {
+                        sendRequest(request);
+                    }, 500);
+                }
+            }
+
         } else {
             setTimeout(() => {
                 sendRequest(request);
@@ -161,7 +202,7 @@ function subscribe(subscription: ApiSubscription, resub?: boolean): void {
         initWebsocket();
     }
     let requestString = JSON.stringify(subscription.data);
-    if (_isWebsocketReady(subscription.type)) {
+    if (_isWebsocketReady(subscription.type, websocket)) {
         subscription.mId = getNextMessageId();
         if (!resub) {
             try {
@@ -197,7 +238,7 @@ function removeSentRequests(toDelete: ApiRequest[]) {
     })
 }
 
-function _isWebsocketReady(requestType: string) {
+function _isWebsocketReady(requestType: string, websocket: WebSocket) {
     return websocket && websocket.readyState === WebSocket.OPEN && (isConnectionIdSet || requestType === RequestType.SET_CONNECTION_ID);
 }
 

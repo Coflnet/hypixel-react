@@ -2,7 +2,7 @@ export enum RequestType {
     SEARCH = "fullSearch",
     PLAYER_DETAIL = "playerDetails",
     ITEM_PRICES = "pricerdicer",
-    AUCTION_DETAILS = "auctionDetails",
+    AUCTION_DETAILS = "auction",
     ITEM_DETAILS = "itemDetails",
     PLAYER_AUCTION = "playerAuctions",
     PLAYER_BIDS = "playerBids",
@@ -90,6 +90,7 @@ export interface WebsocketHelper extends Connection {
 
 export interface HttpApi extends Connection {
     sendApiRequest(request: ApiRequest): Promise<void>,
+    sendLimitedCacheApiRequest(request: ApiRequest, grouping: number),
     sendLimitedCacheRequest(request: ApiRequest, grouping: number),
     sendLimitedCacheRequest(request: ApiRequest),
 }

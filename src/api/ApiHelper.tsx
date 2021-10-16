@@ -8,6 +8,7 @@ import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
+import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
 
 function initAPI(): API {
 
@@ -203,7 +204,7 @@ function initAPI(): API {
 
     let getAuctionDetails = (auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheRequest({
+            httpApi.sendLimitedCacheApiRequest({
                 type: RequestType.AUCTION_DETAILS,
                 data: auctionUUID,
                 resolve: (auctionDetails) => {
@@ -347,6 +348,7 @@ function initAPI(): API {
                 type: RequestType.PREMIUM_EXPIRATION,
                 data: googleId,
                 resolve: (premiumUntil) => {
+                    checkForExpiredPremium(new Date(premiumUntil));
                     resolve(new Date(premiumUntil));
                 },
                 reject: (error: any) => {
