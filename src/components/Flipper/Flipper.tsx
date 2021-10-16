@@ -19,6 +19,7 @@ import FlipCustomize from './FlipCustomize/FlipCustomize';
 import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
+import { settings } from 'cluster';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -169,11 +170,22 @@ function Flipper() {
             return;
         }
         setFlips(flips => {
-            let flip = flips.find(a => a.uuid === uuid);
-            if (flip) {
-                flip.sold = true;
+            let index = flips.findIndex(a => a.uuid === uuid);
+            if (index !== -1) {
+                flips[index].sold = true;
+            }
+
+            if (flips[index] && flipperFilter.onlyUnsold) {
+                return flips.filter(flip => flip.uuid !== uuid);
             }
             return flips;
+        })
+
+        if (!mounted || !flipperFilter.onlyUnsold) {
+            return;
+        }
+        setFlips(flips => {
+            return flips.filter(flip => flip.uuid !== uuid);
         })
     }
 
@@ -182,6 +194,11 @@ function Flipper() {
         if (flipLookup[newFlipAuction.uuid] || !mounted) {
             return;
         }
+
+        if (flipperFilter.onlyUnsold && newFlipAuction.sold) {
+            return;
+        }
+
         flipLookup[newFlipAuction.uuid] = newFlipAuction;
 
         api.getItemImageUrl(newFlipAuction.item).then((url) => {
