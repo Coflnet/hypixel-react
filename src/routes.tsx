@@ -83,7 +83,7 @@ export default (
           <Route path='/cancel' component={Cancel.component} />
           <Route path='/success' component={Success.component} />
           <Route path='/ref' component={Ref.component} />
-          <Route path='/refed' component={Refed.component} />
+          {/* Deactivated: <Route path='/refed' component={Refed.component} />*/}
           <Route path='/data' component={ApiInfo.component} />
           <Route path='/authMod' component={AuthMod.component} />
           <Route path='*' exact component={NotFound.component} />
