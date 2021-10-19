@@ -28,13 +28,14 @@ function GoogleSignIn(props: Props) {
                 if (!gotResponse) {
                     toast.error('We had problems authenticating your account with google. Please try to log in again.')
                     setGoogleId(null);
-                    if(props.onLoginFail){
+                    if (props.onLoginFail) {
                         props.onLoginFail();
                     }
                     localStorage.removeItem("googleId");
                 }
             }, 15000);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {

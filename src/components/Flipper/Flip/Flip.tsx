@@ -29,6 +29,7 @@ function Flip(props: Props) {
         return () => {
             document.removeEventListener('flipSettingsChange', forceUpdate);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     function getLowestBinLink(itemTag: string) {

@@ -102,8 +102,8 @@ function AuctionDetails(props: Props) {
         forceUpdate();
     }
 
-    function getNBTElement() {
-        return (<div>
+    function getNBTElement(): JSX.Element {
+        return (!auctionDetails?.nbtData ? <div /> : <div>
             {
                 Object.keys(auctionDetails?.nbtData).map(key => {
                     let currentNBT = auctionDetails?.nbtData[key];

@@ -1,7 +1,6 @@
 import React from "react";
 import './PremiumFeatures.css';
-import { Card, Table } from "react-bootstrap";
-import { SentimentSatisfiedAlt as EmojiIcon } from '@material-ui/icons';
+import { Table } from "react-bootstrap";
 
 
 function PremiumFeatures() {
