@@ -3,7 +3,7 @@ import { Button, Badge, Card, ToggleButton, ToggleButtonGroup } from 'react-boot
 import api from '../../../api/ApiHelper';
 import { convertTagToName, getStyleForTier } from '../../../utils/Formatter';
 import { useForceUpdate } from '../../../utils/Hooks';
-import { getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
+import { getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 import ItemFilter from '../../ItemFilter/ItemFilter';
 import Search from '../../Search/Search';
 import './FlipRestrictionList.css';
@@ -26,6 +26,7 @@ function FlipRestrictionList(props: Props) {
 
     useEffect(() => {
         loadFilters();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
@@ -165,7 +166,7 @@ function FlipRestrictionList(props: Props) {
 
                                                     // Special case -> display as date
                                                     if (DATE_FORMAT_FILTER.findIndex(f => f === key) !== -1) {
-                                                        display = new Date(Number(display)*1000).toLocaleDateString();
+                                                        display = new Date(Number(display) * 1000).toLocaleDateString();
                                                     }
                                                     return <p key={key}>{convertTagToName(key)}: {display}</p>
                                                 })

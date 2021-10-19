@@ -50,6 +50,7 @@ function PlayerDetailsList(props: Props) {
             mounted = false;
             unlisten();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {

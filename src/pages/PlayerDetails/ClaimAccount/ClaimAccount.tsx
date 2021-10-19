@@ -23,6 +23,7 @@ function ClaimAccount(props: Props) {
         return () => {
             clearInterval(reloadMcInfoIntervalId);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function onAfterLogin() {
@@ -56,14 +57,14 @@ function ClaimAccount(props: Props) {
         There are a lot of features in development where we need to know what your Minecraft account is.
         Currently connecting your account only adds your Minecraft name to the link preview when you share your <Link to="/ref">referral link</Link>.
         Future features include tracking your profit from the flipper and hiding your history from others.</p>;
-        
+
     return (
         <div className="claim-account">
             {
                 isLoading ? getLoadingElement() : null
             }
             {
-                !isLoading && isLoggedIn && mcInfo && !mcInfo.isConnected  ?
+                !isLoading && isLoggedIn && mcInfo && !mcInfo.isConnected ?
                     <div>
                         <h3>How do I claim my Minecraft Account?</h3>
                         <p><p>To verify that this account is yours, please create a bid or an auction with the last 3 digits set to the number below. After at most 3 minutes your account will automatically be verified by our server. If your account hasn't been verified within 5 minutes please try again.</p></p>
