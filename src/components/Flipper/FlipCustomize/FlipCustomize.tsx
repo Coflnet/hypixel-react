@@ -7,7 +7,6 @@ import Tooltip from '../../Tooltip/Tooltip';
 import Flip from '../Flip/Flip';
 import './FlipCustomize.css'
 import { Help as HelpIcon } from '@material-ui/icons';
-import FlipperFilter from '../FlipperFilter/FlipperFilter';
 import { toast } from 'react-toastify';
 
 let settings = getFlipCustomizeSettings();
@@ -101,14 +100,14 @@ function FlipCustomize() {
     }
 
     function onJustProfitChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.justProfit = !event.target.checked;
+        flipCustomizeSettings.justProfit = event.target.checked;
         setFlipCustomizeSettings(flipCustomizeSettings);
 
         trackChange('justProfit');
     }
 
     function onSoundOnFlipChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.justProfit = !event.target.checked;
+        flipCustomizeSettings.soundOnFlip = event.target.checked;
         setFlipCustomizeSettings(flipCustomizeSettings);
 
         trackChange('soundOnFlip');
