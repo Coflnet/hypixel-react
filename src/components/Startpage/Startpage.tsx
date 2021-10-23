@@ -281,20 +281,19 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Minecraft Mod</Card.Subtitle>
+                        <Card.Subtitle>Minecraft Mod (Alpha release)</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
                         <p>We created a Minecraft mod as a QoL-Feature. It connects to the website and shows the flips you get there in your Minecraft chat for you to click.</p>
-                        <p>The mod can be downloaded on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a> in the channel "mod-releases".</p>
+                        <p>The mod can be downloaded on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wNRgeCYmW9">discord</a> in the channel "mod-releases".</p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
                             <p>Recent changes (last change: 23.10.2021):</p>
                             <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <span style={{ color: "#007bff", cursor: "pointer" }}>Click here to open</span></p>} tooltipContent={
                                 <ul>
-                                    <li className="changelog-item">Integration of the mod</li>
+                                    <li className="changelog-item">Integration of the alpha mod</li>
                                     <li className="changelog-item">Import/Export flipper settings</li>
                                     <li className="changelog-item">Context menu in the flipper</li>
-                                    <li className="changelog-item">Dropdowns are now searchable</li>
                                     <li className="changelog-item">Lots of UI improvements</li>
                                 </ul>} type="click" tooltipTitle={<span>Recent changes</span>} />
                         </div>
