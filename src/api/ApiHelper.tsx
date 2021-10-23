@@ -534,8 +534,6 @@ function initAPI(): API {
             }
         }
 
-        console.log(requestData);
-
         if (filter.onlyBin)
             requestData.filters = { Bin: "true" };
 
