@@ -281,21 +281,21 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Flipper item blacklist</Card.Subtitle>
+                        <Card.Subtitle>Minecraft Mod</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        <p>The flipper now allows you to <b>blacklist</b> items you don't want to see again.</p>
-                        <p>The customization feature allows you to hide information in flips you don't want to see.</p>
+                        <p>We created a Minecraft mod as a QoL-Feature. It connects to the website and shows the flips you get there in your Minecraft chat for you to click.</p>
+                        <p>The mod can be downloaded on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a> in the channel "mod-releases".</p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
-                            <p>Recent changes (last change: 21.08.2021):</p>
+                            <p>Recent changes (last change: 23.10.2021):</p>
                             <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <span style={{ color: "#007bff", cursor: "pointer" }}>Click here to open</span></p>} tooltipContent={
                                 <ul>
-                                    <li className="changelog-item">Flipper item blacklist</li>
-                                    <li className="changelog-item">Flipper customization</li>
-                                    <li className="changelog-item">Flipper filter style upgrade</li>
-                                    <li className="changelog-item">Improved server infrastructure</li>
-                                    <li className="changelog-item">Fixed bug that blocked the copy button on flips</li>
+                                    <li className="changelog-item">Integration of the mod</li>
+                                    <li className="changelog-item">Import/Export flipper settings</li>
+                                    <li className="changelog-item">Context menu in the flipper</li>
+                                    <li className="changelog-item">Dropdowns are now searchable</li>
+                                    <li className="changelog-item">Lots of UI improvements</li>
                                 </ul>} type="click" tooltipTitle={<span>Recent changes</span>} />
                         </div>
                     </Card.Body>
