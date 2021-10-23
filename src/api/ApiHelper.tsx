@@ -521,8 +521,20 @@ function initAPI(): API {
             mod: {
                 justProfit: flipSettings.justProfit,
                 soundOnFlip: flipSettings.soundOnFlip
+            },
+            visibility: {
+                cost: !flipSettings.hideCost,
+                estProfit: !flipSettings.hideEstimatedProfit,
+                lBin: !flipSettings.hideLowestBin,
+                slbin: !flipSettings.hideSecondLowestBin,
+                medPrice: !flipSettings.hideMedianPrice,
+                seller: !flipSettings.hideSeller,
+                volume: !flipSettings.hideVolume,
+                extraFields: flipSettings.maxExtraInfoFields
             }
         }
+
+        console.log(requestData);
 
         if (filter.onlyBin)
             requestData.filters = { Bin: "true" };
