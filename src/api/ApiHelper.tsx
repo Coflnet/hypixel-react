@@ -855,6 +855,23 @@ function initAPI(): API {
         })
     }
 
+    let playerSearch = (playerName: string): Promise<Player[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.PLAYER_SEARCH,
+                data: playerName,
+                resolve: function (players) {
+                    resolve(players.map(parsePlayer));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName);
+                    reject();
+                }
+            });
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -898,7 +915,8 @@ function initAPI(): API {
         getAccountInfo,
         unsubscribeFlips,
         itemSearch,
-        authenticateModConnection
+        authenticateModConnection,
+        playerSearch
     }
 }
 
