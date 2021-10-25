@@ -94,7 +94,7 @@ function Premium() {
                     hasPremium
                         ? <p style={{ color: "#00bc8c" }}>You have a premium account. Thank you for your support.</p>
                         : <div>
-                            <p style={{ color: "red", margin: 0 }}>You do no have a premium account</p>
+                            <p style={{ color: "red", margin: 0 }}>You do not have a premium account</p>
                         </div>
             }
             {
