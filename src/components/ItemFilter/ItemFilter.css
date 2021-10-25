@@ -10,7 +10,7 @@
 .item-filter .filter-element {
     display: flex;
     flex-direction: row;
-    align-items: baseline;
+    align-items: flex-end;
     width: 49%;
     margin-bottom: 10px;
 }
@@ -24,6 +24,7 @@
 
 .item-filter .remove-filter {
     cursor: pointer;
+    margin-bottom: 10px;
 }
 
 .item-filter .add-filter-select {
