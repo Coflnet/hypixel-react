@@ -514,6 +514,7 @@ function initAPI(): API {
             whitelist: restrictionList.filter(restriction => restriction.type === "whitelist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
             blacklist: restrictionList.filter(restriction => restriction.type === "blacklist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
             minProfit: filter.minProfit || 0,
+            minProfitPercent: filter.minProfitPercent || 0,
             minVolume: filter.minVolume || 0,
             maxCost: filter.maxCost || 0,
             filters: {},
