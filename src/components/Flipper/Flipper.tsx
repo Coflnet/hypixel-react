@@ -39,7 +39,7 @@ function Flipper() {
 
     let [flips, setFlips] = useState<FlipAuction[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}));
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getInitialFlipperFilter());
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
@@ -105,6 +105,12 @@ function Flipper() {
             }
             setIsLoading(false);
         });
+    }
+
+    function getInitialFlipperFilter(): FlipperFilter {
+        let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {});
+        filter.restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []);
+        return filter;
     }
 
     function onLogin() {

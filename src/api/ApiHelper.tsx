@@ -534,8 +534,11 @@ function initAPI(): API {
             }
         }
 
-        if (filter.onlyBin)
+        if (filter.onlyBin) {
             requestData.filters = { Bin: "true" };
+        }
+
+        console.log(requestData);           
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
