@@ -160,6 +160,7 @@ function FilterElement(props: Props) {
                                         onSearch={handlePlayerSearch}
                                         options={players}
                                         placeholder="Search users..."
+                                        onChange={selected => updateSelectFilter(selected.map(s => s.name))}
                                     />
                                     : <Typeahead
                                         style={{ display: "block" }}
