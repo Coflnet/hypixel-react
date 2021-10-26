@@ -50,6 +50,7 @@ function Flipper() {
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false);
     let [lastFlipFetchTime, setLastFlipFetchTime] = useState<Date>();
+    let [lastFlipFetchTimeLoading, setLastFlipFetchTimeLoading] = useState<boolean>(false);
 
     let history = useHistory();
 
@@ -66,6 +67,8 @@ function Flipper() {
 
     const lastFlipFetchTimeRef = useRef(lastFlipFetchTime);
     lastFlipFetchTimeRef.current = lastFlipFetchTime;
+    const lastFlipFetchTimeLoadingRef = useRef(lastFlipFetchTimeLoading);
+    lastFlipFetchTimeLoadingRef.current = lastFlipFetchTimeLoading;
 
     const flipLookup = {};
 
@@ -179,9 +182,13 @@ function Flipper() {
 
         // 45sec after the last auction fetch get the new last auction fetch time if a new flip comes in
         if (!lastFlipFetchTimeRef.current || new Date().getTime() > lastFlipFetchTimeRef.current.getTime() + 45000) {
-            api.getFlipUpdateTime().then(date => {
-                setLastFlipFetchTime(date);
-            })
+            if (!lastFlipFetchTimeLoadingRef.current) {
+                setLastFlipFetchTimeLoading(true);
+                api.getFlipUpdateTime().then(date => {
+                    setLastFlipFetchTime(date);
+                    setLastFlipFetchTimeLoading(false);
+                })
+            }
         }
 
         if (flipLookup[newFlipAuction.uuid] || !mounted) {
@@ -354,7 +361,7 @@ function Flipper() {
                                 <span style={{ cursor: "pointer" }}> <SettingsIcon /></span>
                             </Form.Group>
                             {
-                                hasPremium ? <span>Expected new flips in: {lastFlipFetchTime ? <Countdown date={lastFlipFetchTime.getTime() + 60000} /> : "..."}</span> : ""
+                                hasPremium ? <span>Expected new flips in: {lastFlipFetchTime && !lastFlipFetchTimeLoading ? <Countdown date={lastFlipFetchTime.getTime() + 60000} /> : "..."}</span> : ""
                             }
                             <Form.Group onClick={onArrowRightClick}>
                                 <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>To newest flip</Form.Label>
