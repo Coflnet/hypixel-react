@@ -94,7 +94,9 @@ enum FilterType {
   HIGHER = 2,
   LOWER = 4,
   DATE = 8,
-  NUMERICAL = 16
+  NUMERICAL = 16,
+  RANGE = 32,
+  PLAYER = 64
 }
 
 interface ItemFilter {
@@ -210,7 +212,8 @@ interface API {
   connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>,
   getAccountInfo(): Promise<AccountInfo>
   itemSearch(searchText: string): Promise<FilterOptions[]>
-  authenticateModConnection(conId: string): Promise<void>
+  authenticateModConnection(conId: string): Promise<void>,
+  playerSearch(playerName: string): Promise<Player[]>
 }
 
 interface CacheUtils {

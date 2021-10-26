@@ -41,6 +41,7 @@ export enum RequestType {
     CONNECT_MINECRAFT_ACCOUNT = "conMc",
     GET_ACCOUNT_INFO = "accountInfo",
     ITEM_SEARCH = "item/search",
+    PLAYER_SEARCH = "search/player",
     AUTHENTICATE_MOD_CONNECTION = "authCon"
 }
 
