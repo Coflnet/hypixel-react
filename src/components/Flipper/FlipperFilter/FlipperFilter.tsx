@@ -32,6 +32,7 @@ function FlipperFilter(props: Props) {
     let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin);
     let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium == null ? false : defaultFilter.onlyUnsold || false);
     let [minProfit, setMinProfit] = useState(defaultFilter.minProfit);
+    let [minProfitPercent, setMinProfitPercent] = useState(defaultFilter.minProfitPercent);
     let [minVolume, setMinVolume] = useState(defaultFilter.minVolume);
     let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || 0);
     let [freePremiumFilters, setFreePremiumFilters] = useState(false);
@@ -68,6 +69,9 @@ function FlipperFilter(props: Props) {
         }, {
             id: 'filter-input-max-cost',
             stateName: 'maxCost'
+        }, {
+            id: 'filter-input-min-volume-percent',
+            stateName: 'minProfitPercent'
         }]
 
         autoNumericElements.forEach(autoNumericElement => {
@@ -131,6 +135,15 @@ function FlipperFilter(props: Props) {
         setMinProfit(val)
         let filter = getCurrentFilter();
         filter.minProfit = val;
+        onFilterChange(filter);
+    }
+
+    function onMinProfitPercentChange(event: ChangeEvent<HTMLInputElement>) {
+
+        let val = AutoNumeric.getAutoNumericElement(event.target).getNumber() || 0
+        setMinProfitPercent(val)
+        let filter = getCurrentFilter();
+        filter.minProfitPercent = val;
         onFilterChange(filter);
     }
 
@@ -213,6 +226,10 @@ function FlipperFilter(props: Props) {
         <Form.Group className="filterTextfield">
             <Form.Label className="flipper-filter-formfield-label">Min. Profit:</Form.Label>
             <Form.Control id="filter-input-min-profit" key="filter-input-min-profit" onChange={onMinProfitChange} className="flipper-filter-formfield flipper-filter-formfield-text" type="text" disabled={!props.isLoggedIn && !freeLoginFilters} />
+        </Form.Group>
+        <Form.Group className="filterTextfield">
+            <Form.Label className="flipper-filter-formfield-label">Min. Profit (%):</Form.Label>
+            <Form.Control id="filter-input-min-volume-percent" key="filter-input-min-volume-percent" onChange={onMinProfitPercentChange} className="flipper-filter-formfield flipper-filter-formfield-text" disabled={!props.isLoggedIn && !freeLoginFilters} />
         </Form.Group>
         <Form.Group className="filterTextfield">
             <Form.Label className="flipper-filter-formfield-label">Min. Volume:</Form.Label>

@@ -71,10 +71,10 @@ function Flip(props: Props) {
         })
     }
 
-    function getProfitElement(flip): JSX.Element {
+    function getProfitElement(flip: FlipAuction): JSX.Element {
         let profit = calculateProfit(flip);
         let preSymbol = profit > 0 ? "+" : "";
-        return <b style={{ color: profit > 0 ? "lime" : "white" }}>{preSymbol + numberWithThousandsSeperators(profit) + " Coins"}</b>;
+        return <b style={{ color: profit > 0 ? "lime" : "white" }}>{preSymbol + numberWithThousandsSeperators(profit) + " Coins ("}{Math.round((profit / flip.cost) * 100)}%)</b>;
     }
 
     function onMouseDownLowestBin(e) {
