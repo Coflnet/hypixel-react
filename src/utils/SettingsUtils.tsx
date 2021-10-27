@@ -4,9 +4,11 @@ let settings = getInitUserSettings();
 
 function getInitUserSettings(): any {
     let item = localStorage.getItem(LOCAL_STORAGE_SETTINGS_KEY);
-    if (!item) {
+
+    // item === "\"{}\"" is a wrong state and has to be reset (fix for users that still have this in the local storage)
+    if (!item || item === "\"{}\"") {
         item = "{}";
-        localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(item));
+        localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, item);
     }
     try {
         return JSON.parse(item);
