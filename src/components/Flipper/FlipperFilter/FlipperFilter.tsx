@@ -94,6 +94,7 @@ function FlipperFilter(props: Props) {
             onlyBin: onlyBin,
             minProfit: minProfit,
             maxCost: maxCost,
+            minProfitPercent: minProfitPercent,
             onlyUnsold: onlyUnsold,
             minVolume: minVolume,
             restrictions: restrictions
