@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -9,6 +9,7 @@ import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
 import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
+import { getFlipCustomizeSettings } from "../utils/FlipUtils";
 
 function initAPI(): API {
 
@@ -507,17 +508,38 @@ function initAPI(): API {
 
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS);
 
+        let flipSettings = getFlipCustomizeSettings();
+
         let requestData = {
             whitelist: restrictionList.filter(restriction => restriction.type === "whitelist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
             blacklist: restrictionList.filter(restriction => restriction.type === "blacklist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
             minProfit: filter.minProfit || 0,
+            minProfitPercent: filter.minProfitPercent || 0,
             minVolume: filter.minVolume || 0,
             maxCost: filter.maxCost || 0,
-            filters: { }
+            filters: {},
+            lbin: flipSettings.useLowestBinForProfit,
+            mod: {
+                justProfit: flipSettings.justProfit,
+                soundOnFlip: flipSettings.soundOnFlip
+            },
+            visibility: {
+                cost: !flipSettings.hideCost,
+                estProfit: !flipSettings.hideEstimatedProfit,
+                lBin: !flipSettings.hideLowestBin,
+                slbin: !flipSettings.hideSecondLowestBin,
+                medPrice: !flipSettings.hideMedianPrice,
+                seller: !flipSettings.hideSeller,
+                volume: !flipSettings.hideVolume,
+                extraFields: flipSettings.maxExtraInfoFields
+            }
         }
 
-        if (filter.onlyBin)
+        if (filter.onlyBin) {
             requestData.filters = { Bin: "true" };
+        }
+
+        console.log(requestData);
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
@@ -848,6 +870,21 @@ function initAPI(): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, "");
+                }
+            });
+        })
+    }
+    let playerSearch = (playerName: string): Promise<Player[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.PLAYER_SEARCH,
+                data: playerName,
+                resolve: function (players) {
+                    resolve(players.map(parsePlayer));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName);
                     reject();
                 }
             });
@@ -898,7 +935,8 @@ function initAPI(): API {
         unsubscribeFlips,
         itemSearch,
         authenticateModConnection,
-        getFlipUpdateTime
+        getFlipUpdateTime,
+        playerSearch
     }
 }
 

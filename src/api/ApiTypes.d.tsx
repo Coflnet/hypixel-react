@@ -42,7 +42,8 @@ export enum RequestType {
     GET_ACCOUNT_INFO = "accountInfo",
     ITEM_SEARCH = "item/search",
     AUTHENTICATE_MOD_CONNECTION = "authCon",
-    FLIP_UPDATE_TIME = "flip/update/when"
+    FLIP_UPDATE_TIME = "flip/update/when",
+    PLAYER_SEARCH = "search/player"
 }
 
 export enum SubscriptionType {

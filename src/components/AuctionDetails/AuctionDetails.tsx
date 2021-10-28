@@ -102,8 +102,8 @@ function AuctionDetails(props: Props) {
         forceUpdate();
     }
 
-    function getNBTElement() {
-        return (<div>
+    function getNBTElement(): JSX.Element {
+        return (!auctionDetails?.nbtData ? <div /> : <div>
             {
                 Object.keys(auctionDetails?.nbtData).map(key => {
                     let currentNBT = auctionDetails?.nbtData[key];
@@ -247,6 +247,13 @@ function AuctionDetails(props: Props) {
                         <img crossOrigin="anonymous" className="player-head-icon" src={auctionDetails?.auctioneer.iconUrl} alt="auctioneer icon" height="16" width="16" style={{ marginLeft: "5px" }} loading="lazy" />
                     </p>
                 </Link>
+
+                <p>
+                    <span className="label">
+                        <Badge variant={labelBadgeVariant}>Created:</Badge>
+                    </span>
+                    {auctionDetails?.itemCreatedAt.toLocaleDateString() + " " + auctionDetails.itemCreatedAt.toLocaleTimeString()}
+                </p>
 
                 <div style={{ overflow: "auto" }}>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? "labelForList" : "label"}>

@@ -28,13 +28,14 @@ function GoogleSignIn(props: Props) {
                 if (!gotResponse) {
                     toast.error('We had problems authenticating your account with google. Please try to log in again.')
                     setGoogleId(null);
-                    if(props.onLoginFail){
+                    if (props.onLoginFail) {
                         props.onLoginFail();
                     }
                     localStorage.removeItem("googleId");
                 }
             }, 15000);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -50,15 +51,7 @@ function GoogleSignIn(props: Props) {
         api.setGoogle(response.tokenId).then(() => {
             let refId = (window as any).refId;
             if (refId) {
-                api.setRef(refId).then(() => {
-                    toast.success("You received 4 hours of premium for free.", {
-                        onClick: () => {
-                            history.push({
-                                pathname: "/premium"
-                            })
-                        }
-                    });
-                });
+                api.setRef(refId);
             }
             refreshTokenSetup(response);
             props.onAfterLogin();

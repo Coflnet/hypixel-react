@@ -47,6 +47,7 @@ interface AuctionDetails {
   reforge: Reforge;
   enchantments: Enchantment[];
   nbtData: any;
+  itemCreatedAt: Date;
 }
 
 interface Auction {
@@ -93,7 +94,9 @@ enum FilterType {
   HIGHER = 2,
   LOWER = 4,
   DATE = 8,
-  NUMERICAL = 16
+  NUMERICAL = 16,
+  RANGE = 32,
+  PLAYER = 64
 }
 
 interface ItemFilter {
@@ -148,6 +151,7 @@ interface FlipAuction {
 interface FlipperFilter {
   onlyBin?: boolean,
   minProfit?: number,
+  minProfitPercent?: number,
   minVolume?: number,
   maxCost?: number,
   onlyUnsold?: boolean,
@@ -209,8 +213,9 @@ interface API {
   connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>,
   getAccountInfo(): Promise<AccountInfo>
   itemSearch(searchText: string): Promise<FilterOptions[]>
-  authenticateModConnection(conId: string): Promise<void>
-  getFlipUpdateTime(): Promise<Date>
+  authenticateModConnection(conId: string): Promise<void>,
+  getFlipUpdateTime(): Promise<Date>,
+  playerSearch(playerName: string): Promise<Player[]>
 }
 
 interface CacheUtils {
@@ -316,7 +321,9 @@ interface FlipCustomizeSettings {
   maxExtraInfoFields?: number,
   hideCopySuccessMessage?: boolean,
   useLowestBinForProfit?: boolean,
-  disableLinks?: boolean
+  disableLinks?: boolean,
+  justProfit?: boolean,
+  soundOnFlip?: boolean
 }
 
 interface FlipRestriction {

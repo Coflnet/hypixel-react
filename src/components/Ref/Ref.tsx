@@ -60,7 +60,7 @@ function Ref(props: Props) {
                             <hr />
                             <p>Share your Ref-Link with people which might find skyblock AH history useful.</p>
                             <p><b>If the invited person buys premium, you get 20% of the purchased premium time.</b></p>
-                            <p>Share your Ref-Link with people which might find skyblock AH history useful. If the invited person logs in with Google, you and the invited person both get <b>4 free hours of premium</b>.</p>
+                            <p>Share your Ref-Link with people which might find skyblock AH history useful.</p>
                             <p>The default referral page contains some facts about this site. You are also able to share another page and still get the Referral-Bonus. All you have to do is adding <b style={{ whiteSpace: "nowrap" }}>?refId={refInfo?.refId}</b> to any link. For example</p>
                             <ul>
                                 {linkExample("https://sky.coflnet.com/item/JERRY_STAFF")}

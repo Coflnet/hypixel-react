@@ -40,7 +40,7 @@ function Flipper() {
 
     let [flips, setFlips] = useState<FlipAuction[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}));
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getInitialFlipperFilter());
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
@@ -78,6 +78,10 @@ function Flipper() {
         attachScrollEvent();
         api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
 
+        document.addEventListener('flipSettingsChange', () => {
+            api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
+        });
+
         return () => {
             mounted = false;
             api.unsubscribeFlips();
@@ -106,6 +110,12 @@ function Flipper() {
             }
             setIsLoading(false);
         });
+    }
+
+    function getInitialFlipperFilter(): FlipperFilter {
+        let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {});
+        filter.restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []);
+        return filter;
     }
 
     function onLogin() {
@@ -170,11 +180,22 @@ function Flipper() {
             return;
         }
         setFlips(flips => {
-            let flip = flips.find(a => a.uuid === uuid);
-            if (flip) {
-                flip.sold = true;
+            let index = flips.findIndex(a => a.uuid === uuid);
+            if (index !== -1) {
+                flips[index].sold = true;
+            }
+
+            if (flips[index] && flipperFilter.onlyUnsold) {
+                return flips.filter(flip => flip.uuid !== uuid);
             }
             return flips;
+        })
+
+        if (!mounted || !flipperFilter.onlyUnsold) {
+            return;
+        }
+        setFlips(flips => {
+            return flips.filter(flip => flip.uuid !== uuid);
         })
     }
 
@@ -194,6 +215,11 @@ function Flipper() {
         if (flipLookup[newFlipAuction.uuid] || !mounted) {
             return;
         }
+
+        if (flipperFilter.onlyUnsold && newFlipAuction.sold) {
+            return;
+        }
+
         flipLookup[newFlipAuction.uuid] = newFlipAuction;
 
         api.getItemImageUrl(newFlipAuction.item).then((url) => {
@@ -388,7 +414,7 @@ function Flipper() {
                     </div>
                 </Card.Body>
                 <Card.Footer>
-                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please leave suggestions and opinios on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
+                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please leave suggestions and opinions on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
                     <hr />
                     {isLoggedIn ? "" : <span>These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit.
                         Keep in mind that these are delayed to protect our paying supporters.
