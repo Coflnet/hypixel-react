@@ -12,6 +12,8 @@ import { getURLSearchParam } from '../../utils/Parser/URLParser';
 import Cookies from 'js-cookie';
 import { Modal } from 'react-bootstrap';
 import ReloadDialog from '../ReloadDialog/ReloadDialog';
+import 'react-contexify/dist/ReactContexify.css';
+
 
 export function MainApp(props: any) {
 
@@ -111,7 +113,7 @@ export function MainApp(props: any) {
                 </span>
             </CookieConsent>
             {refreshFeedbackDialog}
-            <ToastContainer />
+            <ToastContainer theme={"colored"} />
         </ThemeProvider>
     )
 }

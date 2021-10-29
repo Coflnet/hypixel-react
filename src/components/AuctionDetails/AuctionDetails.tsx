@@ -70,7 +70,9 @@ function AuctionDetails(props: Props) {
                 }, 2000)
             } else {
                 setIsNoAuctionFound(true);
-                toast.error(error.Message);
+                if (error) {
+                    toast.error(error.Message);
+                }
             }
         })
     }
@@ -100,8 +102,8 @@ function AuctionDetails(props: Props) {
         forceUpdate();
     }
 
-    function getNBTElement() {
-        return (<div>
+    function getNBTElement(): JSX.Element {
+        return (!auctionDetails?.nbtData ? <div /> : <div>
             {
                 Object.keys(auctionDetails?.nbtData).map(key => {
                     let currentNBT = auctionDetails?.nbtData[key];
@@ -152,7 +154,18 @@ function AuctionDetails(props: Props) {
             "personal_deletor_9",
             "last_potion_ingredient",
             "power_ability_scroll",
-            "skin"];
+            "skin"
+        ];
+
+        if (key === "rarity_upgrades") {
+            if (value === "0") {
+                return "false";
+            }
+            if (value === "1") {
+                return "true";
+            }
+            return value;
+        }
 
         if (!isNaN(value) && Number.isInteger(parseInt(value, 10))) {
             return numberWithThousandsSeperators(value);
@@ -235,6 +248,13 @@ function AuctionDetails(props: Props) {
                     </p>
                 </Link>
 
+                <p>
+                    <span className="label">
+                        <Badge variant={labelBadgeVariant}>Created:</Badge>
+                    </span>
+                    {auctionDetails?.itemCreatedAt.toLocaleDateString() + " " + auctionDetails.itemCreatedAt.toLocaleTimeString()}
+                </p>
+
                 <div style={{ overflow: "auto" }}>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? "labelForList" : "label"}>
                         <Badge variant={labelBadgeVariant}>Enchantments:</Badge>
@@ -242,7 +262,11 @@ function AuctionDetails(props: Props) {
                     {auctionDetails && auctionDetails!.enchantments.length > 0 ?
                         (<ul className="list">
                             {auctionDetails?.enchantments.map(enchantment => {
-                                return enchantment.name ? <li key={"enchantment-" + enchantment.name}>{enchantment.name} {enchantment.level}</li> : ""
+                                let enchantmentString = <span>{enchantment.name}</span>;
+                                if (enchantment.color) {
+                                    enchantmentString = <span style={{ float: "left" }} ref={(node) => { if (node && enchantment.color) { node.innerHTML = ""; node.append(((enchantment.color + enchantment.name + " " + enchantment.level) as any).replaceColorCodes()) } }}></span>
+                                }
+                                return enchantment.name ? <li key={"enchantment-" + enchantment.name}>{enchantmentString}</li> : ""
                             })}
                         </ul>) :
                         <p>None</p>}

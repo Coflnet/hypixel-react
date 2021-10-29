@@ -1,24 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/ApiHelper';
 import './Flipper.css';
-import { Card, Form, Badge, Modal } from 'react-bootstrap';
-import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter';
+import { Card, Form, Modal } from 'react-bootstrap';
+import { numberWithThousandsSeperators } from '../../utils/Formatter';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import FlipperFilter from './FlipperFilter/FlipperFilter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
-import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, Settings as SettingsIcon } from '@material-ui/icons';
+import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, Settings as SettingsIcon, PanTool as HandIcon, Search as SearchIcon } from '@material-ui/icons';
 import FlipBased from './FlipBased/FlipBased';
 import { CopyButton } from '../CopyButton/CopyButton';
 import AuctionDetails from '../AuctionDetails/AuctionDetails';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { FixedSizeList as List } from 'react-window';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import Tooltip from '../Tooltip/Tooltip';
-
-interface Flips {
-    all: FlipAuction[],
-    filtered: FlipAuction[]
-}
+import Flip from './Flip/Flip';
+import FlipCustomize from './FlipCustomize/FlipCustomize';
+import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
+import { Menu, Item, useContextMenu, theme } from 'react-contexify';
+import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -33,11 +33,13 @@ let missedInfo: FreeFlipperMissInformation = {
 
 let mounted = true;
 
+const FLIP_CONEXT_MENU_ID = 'flip-context-menu';
+
 function Flipper() {
 
-    let [flips, setFlips] = useState<Flips>({ all: [], filtered: [] });
+    let [flips, setFlips] = useState<FlipAuction[]>([]);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>();
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getInitialFlipperFilter());
     let [autoscroll, setAutoscroll] = useState(false);
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
@@ -45,7 +47,17 @@ function Flipper() {
     let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle);
     let [refInfo, setRefInfo] = useState<RefInfo>();
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
+    let [showCustomizeFlip, setShowCustomizeFlip] = useState(false);
+
+    let history = useHistory();
+
+    const { show } = useContextMenu({
+        id: FLIP_CONEXT_MENU_ID,
+    });
+
     const listRef = useRef(null);
+
+    let isSmall = document.body.clientWidth < 1000;
 
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
@@ -58,28 +70,50 @@ function Flipper() {
     useEffect(() => {
         mounted = true;
         _setAutoScroll(true);
-        api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
         attachScrollEvent();
+        api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
+
+        document.addEventListener('flipSettingsChange', () => {
+            api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
+        });
 
         return () => {
             mounted = false;
+            api.unsubscribeFlips();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    function handleFlipContextMenu(event, flip: FlipAuction) {
+        event.preventDefault();
+        show(event, {
+            props: {
+                key: 'value',
+                flip: flip
+            }
+        })
+    }
 
     let loadHasPremium = () => {
         let googleId = localStorage.getItem("googleId");
         api.hasPremium(googleId!).then(hasPremiumUntil => {
             if (hasPremiumUntil > new Date()) {
                 setHasPremium(true);
+
                 // subscribe to the premium flips
-                api.subscribeFlips(onNewFlip, uuid => onAuctionSold(uuid));
+                api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
             }
             setIsLoading(false);
         });
     }
 
-    let onLogin = () => {
+    function getInitialFlipperFilter(): FlipperFilter {
+        let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {});
+        filter.restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []);
+        return filter;
+    }
+
+    function onLogin() {
         setIsLoggedIn(true);
         setIsLoading(true);
         loadHasPremium();
@@ -88,13 +122,18 @@ function Flipper() {
         })
     }
 
-    let onArrowRightClick = () => {
+    function onLoginFail() {
+        setIsLoading(false);
+        wasAlreadyLoggedInGoogle = false;
+    }
+
+    function onArrowRightClick() {
         if (listRef && listRef.current) {
-            (listRef!.current! as any).scrollToItem(flips?.filtered.length - 1);
+            (listRef!.current! as any).scrollToItem(flips?.length - 1);
         }
     }
 
-    let _setAutoScroll = (value: boolean) => {
+    function _setAutoScroll(value: boolean) {
         if (value === true) {
             onArrowRightClick();
         }
@@ -127,10 +166,7 @@ function Flipper() {
     function clearFlips() {
         setFlips(() => {
             setEnabledScroll(false);
-            return {
-                all: [],
-                filtered: []
-            };
+            return [];
         });
     }
 
@@ -139,14 +175,22 @@ function Flipper() {
             return;
         }
         setFlips(flips => {
-            let flip = flips.all.find(a => a.uuid === uuid);
-            if (flip) {
-                flip.sold = true;
-                if (!isValidForFilter(flip)) {
-                    flips.filtered = flips.filtered.filter(f => f.uuid !== flip!.uuid)
-                }
+            let index = flips.findIndex(a => a.uuid === uuid);
+            if (index !== -1) {
+                flips[index].sold = true;
+            }
+
+            if (flips[index] && flipperFilter.onlyUnsold) {
+                return flips.filter(flip => flip.uuid !== uuid);
             }
             return flips;
+        })
+
+        if (!mounted || !flipperFilter.onlyUnsold) {
+            return;
+        }
+        setFlips(flips => {
+            return flips.filter(flip => flip.uuid !== uuid);
         })
     }
 
@@ -155,30 +199,28 @@ function Flipper() {
         if (flipLookup[newFlipAuction.uuid] || !mounted) {
             return;
         }
+
+        if (flipperFilter.onlyUnsold && newFlipAuction.sold) {
+            return;
+        }
+
         flipLookup[newFlipAuction.uuid] = newFlipAuction;
 
         api.getItemImageUrl(newFlipAuction.item).then((url) => {
 
-            let isValid = isValidForFilter(newFlipAuction);
-
             newFlipAuction.item.iconUrl = url;
             newFlipAuction.showLink = true;
 
-            setFlips(flips => {
-                return {
-                    all: [...flips.all, newFlipAuction],
-                    filtered: isValid ? [...flips.filtered, newFlipAuction] : flips.filtered
-                }
-            });
-
             missedInfo = {
                 estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
-                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + (newFlipAuction.median - newFlipAuction.cost) : missedInfo.missedEstimatedProfit,
+                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
                 missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
                 totalFlips: missedInfo.totalFlips + 1
             }
 
-            if (autoscrollRef.current && isValid) {
+            setFlips(flips => [...flips, newFlipAuction]);
+
+            if (autoscrollRef.current) {
                 let element = document.getElementsByClassName('flipper-scroll-list').length > 0 ? document.getElementsByClassName('flipper-scroll-list').item(0) : null;
                 if (element) {
                     element.scrollBy({ left: 16000, behavior: 'smooth' })
@@ -188,40 +230,31 @@ function Flipper() {
         });
     }
 
-    function onFilterChange(filter) {
-        setFlipperFilter(filter);
-        setTimeout(() => {
-            let newFlips: Flips = {
-                all: flips.all,
-                filtered: []
-            }
+    function onFilterChange(newFilter) {
 
-            newFlips.all.forEach(flip => {
-                if (isValidForFilter(flip)) {
-                    newFlips.filtered.push(flip);
-                }
-            })
-            setFlips(newFlips);
+        flipperFilter = newFilter;
+        setFlipperFilter(newFilter);
+        setTimeout(() => {
+
+            setFlips([]);
+
             setTimeout(() => {
                 if (listRef && listRef.current) {
-                    (listRef!.current! as any).scrollToItem(newFlips?.filtered.length - 1);
+                    (listRef!.current! as any).scrollToItem(flips.length - 1);
                 }
             })
         })
+        api.subscribeFlips(onNewFlip, newFilter.restrictions || [], newFilter, uuid => onAuctionSold(uuid));
     }
 
     function onCopyFlip(flip: FlipAuction) {
         let currentMissedInfo = missedInfo;
-        currentMissedInfo.estimatedProfitCopiedAuctions += flip.median - flip.cost;
+        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip);
         flip.isCopied = true;
         setFlips(flips)
     }
 
-    function getLowestBinLink(itemTag: string) {
-        return '/item/' + itemTag + '?range=active&itemFilter=eyJCaW4iOiJ0cnVlIn0%3D';
-    }
-
-    let getFlipForList = (listData) => {
+    function getFlipForList(listData) {
 
         let { data, index, style } = listData;
         let { flips } = data;
@@ -231,88 +264,39 @@ function Flipper() {
         </div>)
     };
 
-    function isValidForFilter(flipAuction: FlipAuction) {
+    function addItemToBlacklist(flip: FlipAuction) {
+        let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY);
+        let parsed: FlipRestriction[];
+        try {
+            parsed = JSON.parse(restrictions);
+        } catch {
+            parsed = [];
+        }
+        parsed.push({
+            type: "blacklist",
+            item: flip.item
+        })
 
-        let filter = filterRef.current;
+        if (flipperFilter) {
+            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(parsed));
+            flipperFilter.restrictions = parsed;
+            onFilterChange(flipperFilter);
+        } else {
+            setTimeout(addItemToBlacklist, 500);
+        }
+    }
 
-        if (filter?.onlyBin === true && !flipAuction.bin) {
-            return false;
-        }
-        if (filter?.minProfit !== undefined && filter?.minProfit >= (flipAuction.median - flipAuction.cost)) {
-            return false;
-        }
-        if (filter?.maxCost !== undefined && filter?.maxCost < flipAuction.cost) {
-            return false;
-        }
-        if (filter?.onlyUnsold === true && flipAuction.sold) {
-            return false;
-        }
-        if (filter?.minVolume !== undefined) {
-            return filter?.minVolume >= 0 ? filter?.minVolume <= flipAuction.volume : Math.abs(filter?.minVolume) >= flipAuction.volume;
-        }
-        return true;
+    function redirectToSeller(sellerName: string) {
+        history.push({
+            pathname: "player/" + sellerName
+        })
     }
 
     let getFlipElement = (flipAuction: FlipAuction, style) => {
-
-        let stars = flipAuction.item.name?.match(/✪+/gm);
-        let itemName = stars && flipAuction.item.name ? flipAuction.item.name.split(stars[0])[0] : flipAuction.item.name;
-
-
         return (
-            <div className="card-wrapper" key={flipAuction.uuid} style={style}>
-                <Card className="flip-auction-card" style={{ cursor: "pointer" }} onClick={() => { setSelectedAuctionUUID(flipAuction.uuid) }}>
-                    <Card.Header style={{ padding: "10px", display: "flex", justifyContent: "space-between" }}>
-                        <div className="ellipse">
-                            <img crossOrigin="anonymous" src={flipAuction.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                            <span style={getStyleForTier(flipAuction.item.tier)}>{itemName}</span>
-                        </div>
-                        <span style={getStyleForTier(flipAuction.item.tier)}>{stars ? stars[0] : ""}</span>
-                        {flipAuction.bin ? <Badge style={{ marginLeft: "5px" }} variant="success">BIN</Badge> : ""}
-                        {flipAuction.sold ? <Badge style={{ marginLeft: "5px" }} variant="danger">SOLD</Badge> : ""}
-                    </Card.Header>
-                    <Card.Body style={{ padding: "10px" }}>
-                        <p>
-                            <span className="card-label">Cost: </span><br />
-                            <b style={{ color: "red" }}>{numberWithThousandsSeperators(flipAuction.cost)} Coins</b>
-                        </p>
-                        <p>
-                            <span className="card-label">Median price: </span><br />
-                            <b>{numberWithThousandsSeperators(flipAuction.median)} Coins</b>
-                        </p>
-                        <p>
-                            <span className="card-label">Estimated Profit: </span><br />
-                            <b style={{ color: "lime" }}>
-                                +{numberWithThousandsSeperators(flipAuction.median - flipAuction.cost)} Coins
-                            </b>
-                            <span style={{ float: "right" }}>
-                                <span onClick={() => { setBasedOnAuction(flipAuction) }}><HelpIcon /></span>
-                            </span>
-                        </p>
-                        <hr />
-                        <p>
-                            <span className="card-label">Lowest BIN: </span><br />
-                            <a rel="noreferrer" target="_blank" href={getLowestBinLink(flipAuction.item.tag)}>
-                                {numberWithThousandsSeperators(flipAuction.lowestBin)} Coins
-                            </a>
-                        </p>
-                        <p>
-                            <span className="card-label">Seller: </span><br />
-                            <b>
-                                {flipAuction.sellerName}
-                            </b>
-                        </p>
-                        <hr />
-                        <div className="flex">
-                            <div className="flex-max">
-                                <span className="card-label">Volume: </span>
-                                {flipAuction.volume > 59 ? ">60" : "~" + Math.round(flipAuction.volume * 10) / 10} per day
-                            </div>
-                            <CopyButton forceIsCopied={flipAuction.isCopied} onCopy={() => { onCopyFlip(flipAuction) }} buttonWrapperClass="flip-auction-copy-button" successMessage={<p>Copied ingame link <br /><i>/viewauction {flipAuction.uuid}</i></p>} copyValue={"/viewauction " + flipAuction.uuid} />
-                        </div>
-                    </Card.Body>
-                </Card>
-            </div >
+            <div onContextMenu={e => handleFlipContextMenu(e, flipAuction)}>
+                <Flip flip={flipAuction} style={style} onCopy={onCopyFlip} onCardClick={flip => setSelectedAuctionUUID(flip.uuid)} onBasedAuctionClick={flip => { setBasedOnAuction(flip) }} />
+            </div>
         )
     }
 
@@ -327,23 +311,45 @@ function Flipper() {
         </Modal>
     );
 
+    let customizeFlipDialog = (
+        <Modal size={"xl"} show={showCustomizeFlip} onHide={() => { setShowCustomizeFlip(false) }}>
+            <Modal.Header closeButton>
+                <Modal.Title>Customize the style of flips</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <FlipCustomize />
+            </Modal.Body>
+        </Modal>
+    );
+
+    let flipContextMenu = (
+        <div>
+            <Menu id={FLIP_CONEXT_MENU_ID} theme={theme.dark}>
+                <Item onClick={params => { addItemToBlacklist((params.props.flip as FlipAuction)) }}><HandIcon style={{ color: "red", marginRight: "5px" }} /> Add Item to Blacklist</Item>
+                <Item onClick={params => { redirectToSeller((params.props.flip as FlipAuction).sellerName) }}><SearchIcon style={{ marginRight: "5px" }} />Open seller auction history</Item>
+            </Menu>
+        </div>
+    );
+
     return (
         <div className="flipper">
             <Card className="card">
                 <Card.Header>
                     <Card.Title>
-                        {isLoading ? getLoadingElement() : !isLoggedIn ?
-                            <div>
-                                <h2>Free auction house flipper preview - hypixel skyblock ah history</h2>
-                                You need to be logged and have Premium to have all features unlocked.
-                            </div> :
+                        {isLoading ? getLoadingElement(<p>Logging in with Google...</p>) : !isLoggedIn ?
+                            <h2>Free Auction Flipper</h2> :
                             hasPremium ? "You have premium and receive profitable auctions in real time." : <span>
                                 These auctions are delayed by 5 min. Please purchase <a target="_blank" rel="noreferrer" href="/premium">premium</a> if you want real time flips.
                             </span>
                         }
-                        <br />
-                        <GoogleSignIn onAfterLogin={onLogin} />
+                        <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                     </Card.Title>
+                    {
+                        !isLoading && !hasPremium ?
+                            <Card.Subtitle>
+                                You need to be logged and have Premium to have all <Link to="/premium">features</Link> unlocked.
+                            </Card.Subtitle> : null
+                    }
                 </Card.Header>
                 <Card.Body>
                     <div id="flipper-card-body">
@@ -360,9 +366,13 @@ function Flipper() {
                                     <DeleteIcon color="error" />
                                 </div>
                             </Form.Group>
+                            <Form.Group onClick={() => { setShowCustomizeFlip(true) }}>
+                                <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>Settings</Form.Label>
+                                <span style={{ cursor: "pointer" }}> <SettingsIcon /></span>
+                            </Form.Group>
                             {
                                 hasPremium ?
-                                    <span>The flipper is stuck <Tooltip type="hover" content={<HelpIcon />} tooltipContent={<span>We get new auctions every 60 sec. from Hypixel. So you may have to wait a bit for a new ones to be found.</span>} /></span> : ""
+                                    <span>The flipper is stuck <Tooltip type="hover" content={<HelpIcon />} tooltipContent={<span>We get new auctions every 60 sec. from Hypixel. So you may have to wait a bit for new ones to be found.</span>} /></span> : ""
                             }
                             <Form.Group onClick={onArrowRightClick}>
                                 <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>To newest flip</Form.Label>
@@ -370,38 +380,32 @@ function Flipper() {
                             </Form.Group>
                         </Form>
                         <hr />
-                        {
-                            flips.filtered.length === 0 ?
-                                <div>
-                                    {getLoadingElement(<p>While Derpy is mayor the auction house is disabled. Therefore there can't be any new flips.</p>)}
-                                </div> : ""
-                        }
-                        {flips.filtered.length > 0 ?
-                            <List
-                                ref={listRef}
-                                className="flipper-scroll-list"
-                                height={475}
-                                itemCount={flips.filtered.length}
-                                itemData={{ flips: flips.filtered }}
-                                itemSize={330}
-                                layout="horizontal"
-                                width={document.getElementById('flipper-card-body')?.offsetWidth || 100}
-                            >
-                                {getFlipForList}
-                            </List>
+                        {flips.length > 0 ?
+                            <div id="flipper-scroll-list-wrapper">
+                                <List
+                                    ref={listRef}
+                                    className="flipper-scroll-list"
+                                    height={document.getElementById('maxHeightDummyFlip')?.offsetHeight}
+                                    itemCount={flips.length}
+                                    itemData={{ flips: flips }}
+                                    itemSize={isSmall ? 300 : 330}
+                                    layout="horizontal"
+                                    width={document.getElementById('flipper-card-body')?.offsetWidth || 100}
+                                >
+                                    {getFlipForList}
+                                </List>
+                            </div>
                             : ""}
                     </div>
                 </Card.Body>
                 <Card.Footer>
-                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please write us your opinion and suggestion on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
+                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please leave suggestions and opinions on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a>.
                     <hr />
                     {isLoggedIn ? "" : <span>These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit.
                         Keep in mind that these are delayed to protect our paying supporters.
                         If you want more recent flips purchase our <a target="_blank" rel="noreferrer" href="/premium">premium plan.</a></span>}
                 </Card.Footer>
             </Card>
-
-
             {
                 selectedAuctionUUID ?
                     <div>
@@ -416,30 +420,29 @@ function Flipper() {
                         </Card>
                     </div> : ""
             }
-
-            {
-                !isLoading && isLoggedIn && !hasPremium ?
-                    <div>
-                        <hr />
-                        <Card>
-                            <Card.Header>
-                                <Card.Title>Flipper summary</Card.Title>
-                            </Card.Header>
-                            <Card.Body>
-                                <div className="flipper-summary-wrapper">
-                                    <Card className="flipper-summary-card">
-                                        <Card.Header>
-                                            <Card.Title>
-                                                You got:
-                                            </Card.Title>
-                                        </Card.Header>
-                                        <Card.Body>
-                                            <ul>
-                                                <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
-                                                <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
-                                            </ul>
-                                        </Card.Body>
-                                    </Card>
+            <div>
+                <hr />
+                <Card>
+                    <Card.Header>
+                        <Card.Title>Flipper summary</Card.Title>
+                    </Card.Header>
+                    <Card.Body>
+                        <div className="flipper-summary-wrapper">
+                            <Card className="flipper-summary-card">
+                                <Card.Header>
+                                    <Card.Title>
+                                        You got:
+                                    </Card.Title>
+                                </Card.Header>
+                                <Card.Body>
+                                    <ul>
+                                        <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
+                                        <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                    </ul>
+                                </Card.Body>
+                            </Card>
+                            {
+                                !isLoading && isLoggedIn && !hasPremium ?
                                     <Card className="flipper-summary-card">
                                         <Card.Header>
                                             <Card.Title>
@@ -457,20 +460,26 @@ function Flipper() {
                                             </ul>
                                         </Card.Body>
                                     </Card>
-                                    <Card style={{ flexGrow: 2 }} className="flipper-summary-card">
-                                        <Card.Header>
+                                    : null
+                            }
+                            <Card style={{ flexGrow: 2 }} className="flipper-summary-card">
+
+                                <Card.Header>
+                                    {
+                                        !isLoading && isLoggedIn && hasPremium ?
+                                            <Card.Title>How to get extra premium time for free</Card.Title> :
                                             <Card.Title>How to get premium for free</Card.Title>
-                                        </Card.Header>
-                                        <Card.Body>
-                                            <p>Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.</p>
-                                            <p>Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} /></p>
-                                        </Card.Body>
-                                    </Card>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </div> : ""
-            }
+                                    }
+                                </Card.Header>
+                                <Card.Body>
+                                    <p>Get free premium time by inviting other people to our website. For further information check out our <Link to="/ref">Referral-Program</Link>.</p>
+                                    <p>Your Link to invite people: <span style={{ fontStyle: "italic", color: "skyblue" }}>{window.location.href.split("?")[0] + "?refId=" + refInfo?.refId}</span> <CopyButton copyValue={window.location.href.split("?")[0] + "?refId=" + refInfo?.refId} successMessage={<span>Copied Ref-Link</span>} /></p>
+                                </Card.Body>
+                            </Card>
+                        </div>
+                    </Card.Body>
+                </Card>
+            </div>
 
             <hr />
             <Card>
@@ -515,7 +524,12 @@ function Flipper() {
                     <h3>I have another question/ Bug report</h3> Ask via <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">discord</a> or <a target="_blank" href="/feedback" rel="noreferrer">feedback site</a>
                 </Card.Body>
             </Card>
+            <div id="maxHeightDummyFlip" style={{ position: "absolute", top: -1000, padding: "20px", zIndex: -1 }}>
+                <Flip flip={DEMO_FLIP} />
+            </div>
             {basedOnDialog}
+            {customizeFlipDialog}
+            {flipContextMenu}
         </div >
     );
 }

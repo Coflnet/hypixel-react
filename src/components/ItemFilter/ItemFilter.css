@@ -1,33 +1,39 @@
-.enchantment-filter {
+.item-filter {
     margin: 20px 0 20px 0;
 }
 
-.enchantment-filter a {
+.item-filter a {
     text-decoration: none !important;
     color: #fff;
 }
 
-.filter-element {
+.item-filter .filter-element {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    width: 50%;
+    width: 49%;
+    margin-bottom: 10px;
 }
 
-.filter-container {
+.item-filter .filter-container {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: space-between;
 }
 
-.remove-filter {
-    margin-right: 30px;
+.item-filter .remove-filter {
     cursor: pointer;
     margin-bottom: 10px;
 }
 
+.item-filter .add-filter-select {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
 @media (max-width: 768px) {
-    .filter-element {
+    .item-filter .filter-element {
         width: 100%;
     }
 }

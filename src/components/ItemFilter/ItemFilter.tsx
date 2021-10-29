@@ -12,9 +12,10 @@ import { camelCaseToSentenceCase } from '../../utils/Formatter';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
-    disabled?: boolean,
     filters?: FilterOptions[],
-    isPrefill?: boolean
+    isPrefill?: boolean,
+    forceOpen?: boolean,
+    ignoreURL?: boolean
 }
 
 const groupedFilter = [
@@ -22,36 +23,45 @@ const groupedFilter = [
     ["SecondEnchantment", "SecondEnchantLvl"]
 ];
 
-// Boolean if the component is mounted. Set to false in useEffect cleanup function
-let mounted = true;
-
 function ItemFilter(props: Props) {
 
     const reforgeSelect = useRef(null);
 
     let [itemFilter, _setItemFilter] = useState<ItemFilter>({});
-    let [expanded, setExpanded] = useState(false);
+    let [expanded, setExpanded] = useState(props.forceOpen || false);
     let [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     let [showInfoDialog, setShowInfoDialog] = useState(false);
 
     let history = useHistory();
 
     useEffect(() => {
-        mounted = true;
         initFilter();
-        return () => { mounted = false }
     }, []);
 
     useEffect(() => {
         if (props.isPrefill) {
             return;
         }
-        setSelectedFilters([]);
-        setItemFilter({});
-        onFilterChange({});
+
+        let newSelectedFilters: string[] = [];
+        let newItemFilter = {};
+        props.filters?.forEach(filter => {
+            let index = selectedFilters.findIndex(f => f === filter.name);
+            if (index !== -1) {
+                newItemFilter[filter.name] = itemFilter[filter.name];
+                newSelectedFilters.push(filter.name);
+            }
+        })
+
+        setSelectedFilters(newSelectedFilters);
+        setItemFilter(newItemFilter);
+        onFilterChange(newItemFilter);
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
+        if (props.ignoreURL) {
+            return;
+        }
         itemFilter = getItemFilterFromUrl()
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true);
@@ -146,6 +156,11 @@ function ItemFilter(props: Props) {
     }
 
     let updateURLQuery = (filter?: ItemFilter) => {
+
+        if (props.ignoreURL) {
+            return;
+        }
+
         let filterString = filter && JSON.stringify(filter) === "{}" ? undefined : btoa(JSON.stringify(filter));
 
         let searchString = setURLSearchParam("itemFilter", filterString || "");
@@ -219,8 +234,8 @@ function ItemFilter(props: Props) {
         return (
             <div key={filterName} className="filter-element">
                 <FilterElement onFilterChange={onFilterElementChange} options={options} defaultValue={defaultValue} />
-                <div style={{ height: "100%", position: "relative" }} className="remove-filter" onClick={() => onFilterRemoveClick(filterName)}>
-                    <DeleteIcon style={{ top: "50px", position: "absolute" }} color="error" />
+                <div className="remove-filter" onClick={() => onFilterRemoveClick(filterName)}>
+                    <DeleteIcon color="error" />
                 </div>
             </div>
         )
@@ -244,15 +259,15 @@ function ItemFilter(props: Props) {
                             <h4>Item-Filter Information</h4>
                         </Modal.Header>
                         <Modal.Body>
-                            <p>You can add various filters depending on the item type. After clicking 'apply' only the auctions matching your filter will be displayed.</p>
+                            <p>You can add various filters depending on the item type. The graph and recent/active auctions will be updated to only include items with the selected properties.</p>
                             <hr />
                             <h4><Badge variant="danger">Caution</Badge></h4>
                             <p>
-                                Some filter requests take quite some time to process. Thats because we have to search through millions of auctions that potentially match your filter.
-                                This can lead to no auctions being displayed at all because your browser things that our server is unavailable.
-                                If that happens please let us know. We may implement sheduled filters where you will get an email or push notification when we computed a result for your filter.
+                                Some filter requests take quite some time to process. That's because we have to search through millions of auctions that potentially match your filter.
+                                This can lead to no auctions being displayed at all because your browser thinks that our server is unavailable.
+                                If that happens please let us know. We may implement scheduled filters where you will get an email or push notification when we computed a result for your filter.
                             </p>
-                            <p>If you are missing a filter please ask for it on our <Link href="/feedback">discord</Link></p>
+                            <p>If you are missing a filter please ask for it on our <Link href="/feedback">Discord</Link>.</p>
                         </Modal.Body>
                     </Modal> : ""
             }
@@ -260,7 +275,7 @@ function ItemFilter(props: Props) {
     );
 
     return (
-        <div className="enchantment-filter">
+        <div className="item-filter">
             {!expanded ?
                 <div>
                     <a href="#" onClick={() => onEnable()}>
@@ -275,16 +290,14 @@ function ItemFilter(props: Props) {
                     </Card.Title>
                     <Card.Body>
 
-                        <Form inline style={{ marginBottom: "5px" }} >
+                        <Form style={{ marginBottom: "5px" }} >
 
                             <Form.Group>
                                 {props?.filters && props.filters?.length > 0 ?
-                                    <div>
-                                        <Form.Control className="select-filter" as="select" onChange={addFilter} disabled={props.disabled} ref={reforgeSelect}>
-                                            <option>Click to add filter</option>
-                                            {filterSelectList}
-                                        </Form.Control>
-                                    </div> :
+                                    <Form.Control className="add-filter-select" as="select" onChange={addFilter} ref={reforgeSelect}>
+                                        <option>Click to add filter</option>
+                                        {filterSelectList}
+                                    </Form.Control> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                             </Form.Group>
@@ -292,9 +305,12 @@ function ItemFilter(props: Props) {
                                 {filterList}
                             </div>
                         </Form >
-                        <div>
-                            <Button className="btn-danger" onClick={() => onFilterClose()} disabled={props.disabled}>Close</Button>
-                        </div>
+                        {
+                            props.forceOpen ? null :
+                                <div>
+                                    <Button className="btn-danger" onClick={() => onFilterClose()}>Close</Button>
+                                </div>
+                        }
                     </Card.Body>
                 </Card>
             }

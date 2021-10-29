@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -8,6 +8,8 @@ import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
+import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
+import { getFlipCustomizeSettings } from "../utils/FlipUtils";
 
 function initAPI(): API {
 
@@ -88,22 +90,6 @@ function initAPI(): API {
                 }
             });
         })
-    }
-
-    let getPlayerDetails = (playerUUID: string): Promise<PlayerDetails> => {
-        return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
-                type: RequestType.PLAYER_DETAIL,
-                data: playerUUID,
-                resolve: (playerData: any) => {
-                    resolve(parsePlayerDetails(playerData));
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.PLAYER_DETAIL, error, playerUUID);
-                    reject();
-                }
-            })
-        });
     }
 
     let getAuctions = (uuid: string, amount: number, offset: number): Promise<Auction[]> => {
@@ -219,7 +205,7 @@ function initAPI(): API {
 
     let getAuctionDetails = (auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheRequest({
+            httpApi.sendLimitedCacheApiRequest({
                 type: RequestType.AUCTION_DETAILS,
                 data: auctionUUID,
                 resolve: (auctionDetails) => {
@@ -363,6 +349,7 @@ function initAPI(): API {
                 type: RequestType.PREMIUM_EXPIRATION,
                 data: googleId,
                 resolve: (premiumUntil) => {
+                    checkForExpiredPremium(new Date(premiumUntil));
                     resolve(new Date(premiumUntil));
                 },
                 reject: (error: any) => {
@@ -517,23 +504,74 @@ function initAPI(): API {
         });
     }
 
-    let subscribeFlips = (flipCallback: Function, soldCallback?: Function) => {
-        return new Promise((resolve, reject) => {
-            websocketHelper.subscribe({
-                type: RequestType.SUBSCRIBE_FLIPS,
-                data: "",
-                callback: function (data) {
-                    if (!data) {
-                        return;
-                    }
-                    if (!data.uuid && soldCallback) {
-                        soldCallback(data);
-                        return;
-                    }
-                    flipCallback(parseFlipAuction(data));
+    let subscribeFlips = (flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function) => {
+
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS);
+
+        let flipSettings = getFlipCustomizeSettings();
+
+        let requestData = {
+            whitelist: restrictionList.filter(restriction => restriction.type === "whitelist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
+            blacklist: restrictionList.filter(restriction => restriction.type === "blacklist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
+            minProfit: filter.minProfit || 0,
+            minProfitPercent: filter.minProfitPercent || 0,
+            minVolume: filter.minVolume || 0,
+            maxCost: filter.maxCost || 0,
+            filters: {},
+            lbin: flipSettings.useLowestBinForProfit,
+            mod: {
+                justProfit: flipSettings.justProfit,
+                soundOnFlip: flipSettings.soundOnFlip
+            },
+            visibility: {
+                cost: !flipSettings.hideCost,
+                estProfit: !flipSettings.hideEstimatedProfit,
+                lBin: !flipSettings.hideLowestBin,
+                slbin: !flipSettings.hideSecondLowestBin,
+                medPrice: !flipSettings.hideMedianPrice,
+                seller: !flipSettings.hideSeller,
+                volume: !flipSettings.hideVolume,
+                extraFields: flipSettings.maxExtraInfoFields
+            }
+        }
+
+        if (filter.onlyBin) {
+            requestData.filters = { Bin: "true" };
+        }
+
+        console.log(requestData);           
+
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_FLIPS,
+            data: requestData,
+            callback: function (data) {
+                if (!data) {
+                    return;
                 }
-            })
-        });
+                if (!data.uuid && soldCallback) {
+                    soldCallback(data);
+                    return;
+                }
+                flipCallback(parseFlipAuction(data));
+            }
+        })
+    }
+
+    let unsubscribeFlips = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.UNSUBSCRIBE_FLIPS,
+                data: "",
+                resolve: function (data) {
+                    resolve();
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, "");
+                    reject();
+                }
+            });
+        })
     }
 
     let getFilter = (name: string): Promise<FilterOptions> => {
@@ -634,7 +672,7 @@ function initAPI(): API {
     let getFlipBasedAuctions = (flipUUID: string): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
 
-            websocketHelper.sendRequest({
+            httpApi.sendRequest({
                 type: RequestType.GET_FLIP_BASED_AUCTIONS,
                 data: flipUUID,
                 resolve: (data: any) => {
@@ -662,7 +700,6 @@ function initAPI(): API {
                     resolve(response);
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData);
                     reject(error);
                 },
             });
@@ -738,10 +775,104 @@ function initAPI(): API {
                     resolve(data.map(a => parseFilterOption(a)));
                 },
                 reject: function (error) {
-                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, item.tag);
+                    apiErrorHandler(RequestType.FILTER_FOR, error, item.tag);
                     reject();
                 }
             }, 1);
+        })
+    }
+
+    let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.CONNECT_MINECRAFT_ACCOUNT,
+                data: playerUUID,
+                resolve: function (data) {
+                    resolve(parseMinecraftConnectionInfo(data));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.CONNECT_MINECRAFT_ACCOUNT, error, playerUUID);
+                    reject();
+                }
+            });
+        })
+    }
+
+
+    let accountInfo;
+    let getAccountInfo = (): Promise<AccountInfo> => {
+
+        return new Promise((resolve, reject) => {
+
+            if (accountInfo) {
+                resolve(accountInfo);
+                return;
+            }
+
+            websocketHelper.sendRequest({
+                type: RequestType.GET_ACCOUNT_INFO,
+                data: "",
+                resolve: function (accountInfo) {
+                    let info = parseAccountInfo(accountInfo);
+                    accountInfo = info;
+                    resolve(info);
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_ACCOUNT_INFO, error, "");
+                }
+            })
+        })
+    }
+
+    let itemSearch = (searchText: string): Promise<FilterOptions[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.ITEM_SEARCH,
+                data: searchText,
+                resolve: function (data) {
+                    resolve(data.map(a => parseSearchResultItem(a)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ITEM_SEARCH, error, searchText);
+                    reject();
+                }
+            });
+        })
+    }
+
+    let authenticateModConnection = (conId: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.AUTHENTICATE_MOD_CONNECTION,
+                data: conId,
+                resolve: function () {
+                    resolve();
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId);
+                    reject();
+                }
+            });
+        })
+    }
+
+    let playerSearch = (playerName: string): Promise<Player[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.PLAYER_SEARCH,
+                data: playerName,
+                resolve: function (players) {
+                    resolve(players.map(parsePlayer));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName);
+                    reject();
+                }
+            });
         })
     }
 
@@ -750,7 +881,6 @@ function initAPI(): API {
         trackSearch,
         getItemDetails,
         getItemPrices,
-        getPlayerDetails,
         getAuctions,
         getBids,
         getEnchantments,
@@ -784,7 +914,13 @@ function initAPI(): API {
         getRefInfo,
         setRef,
         getActiveAuctions,
-        filterFor
+        filterFor,
+        connectMinecraftAccount,
+        getAccountInfo,
+        unsubscribeFlips,
+        itemSearch,
+        authenticateModConnection,
+        playerSearch
     }
 }
 

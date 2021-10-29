@@ -2,7 +2,7 @@ export enum RequestType {
     SEARCH = "fullSearch",
     PLAYER_DETAIL = "playerDetails",
     ITEM_PRICES = "pricerdicer",
-    AUCTION_DETAILS = "auctionDetails",
+    AUCTION_DETAILS = "auction",
     ITEM_DETAILS = "itemDetails",
     PLAYER_AUCTION = "playerAuctions",
     PLAYER_BIDS = "playerBids",
@@ -24,6 +24,7 @@ export enum RequestType {
     VALIDATE_PAYMENT_TOKEN = "gPurchase",
     RECENT_AUCTIONS = "recentAuctions",
     SUBSCRIBE_FLIPS = "subFlip",
+    UNSUBSCRIBE_FLIPS = "unsubFlip",
     GET_FLIPS = "getFlips",
     GET_FILTER = "getFilter",
     NEW_AUCTIONS = "newAuctions",
@@ -36,7 +37,12 @@ export enum RequestType {
     GET_REF_INFO = "getRefInfo",
     SET_REF = "setRef",
     ACTIVE_AUCTIONS = "activeAuctions",
-    FILTER_FOR = "filterFor"
+    FILTER_FOR = "filterFor",
+    CONNECT_MINECRAFT_ACCOUNT = "conMc",
+    GET_ACCOUNT_INFO = "accountInfo",
+    ITEM_SEARCH = "item/search",
+    PLAYER_SEARCH = "search/player",
+    AUTHENTICATE_MOD_CONNECTION = "authCon"
 }
 
 export enum SubscriptionType {
@@ -77,11 +83,14 @@ export interface Connection {
     sendRequest(request: ApiRequest): void
 }
 
-export interface WebsocketHelper extends Connection{
-    subscribe(subscription: ApiSubscription): void
+export interface WebsocketHelper extends Connection {
+    subscribe(subscription: ApiSubscription): void,
+    removeOldSubscriptionByType(type: RequestType): void
 }
 
 export interface HttpApi extends Connection {
-    sendLimitedCacheRequest(request:ApiRequest, grouping:number ),
-    sendLimitedCacheRequest(request:ApiRequest)
+    sendApiRequest(request: ApiRequest): Promise<void>,
+    sendLimitedCacheApiRequest(request: ApiRequest, grouping: number),
+    sendLimitedCacheRequest(request: ApiRequest, grouping: number),
+    sendLimitedCacheRequest(request: ApiRequest),
 }

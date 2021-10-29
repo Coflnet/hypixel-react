@@ -4,10 +4,9 @@ import Payment from "../Payment/Payment";
 import './Premium.css';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { getLoadingElement } from "../../utils/LoadingUtils";
-import { Card, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Card, OverlayTrigger, Tooltip } from "react-bootstrap";
 import NavBar from "../NavBar/NavBar";
 import PremiumFeatures from "./PremiumFeatures/PremiumFeatures";
-import { Link as LinkIcon } from '@material-ui/icons';
 import api from "../../api/ApiHelper";
 import moment from 'moment';
 import { Base64 } from "js-base64";
@@ -55,6 +54,13 @@ function Premium() {
         }
     }
 
+    function onLoginFail() {
+        setIsLoggedIn(false);
+        setHasPremium(false);
+        wasAlreadyLoggedInGoogle = false;
+        setRerenderGoogleSignIn(!rerenderGoogleSignIn);
+    }
+
     function getAccountString() {
         let googleId = localStorage.getItem('googleId');
         if (googleId) {
@@ -88,7 +94,7 @@ function Premium() {
                     hasPremium
                         ? <p style={{ color: "#00bc8c" }}>You have a premium account. Thank you for your support.</p>
                         : <div>
-                            <p style={{ color: "red", margin: 0 }}>You do no have a premium account</p>
+                            <p style={{ color: "red", margin: 0 }}>You do not have a premium account</p>
                         </div>
             }
             {
@@ -128,7 +134,7 @@ function Premium() {
                     <p>To use premium please login with Google</p> :
                     ""
             }
-            <GoogleSignIn onAfterLogin={onLogin} rerenderFlip={rerenderGoogleSignIn} />
+            <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
             {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
             <hr />
             <Card className="premium-card">

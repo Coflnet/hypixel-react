@@ -281,23 +281,20 @@ function Startpage() {
                 <Card style={{ width: "100%" }}>
                     <Card.Header>
                         <Card.Title><AnnouncementIcon /><span style={{ color: "#40ff00" }}> News / Announcements</span></Card.Title>
-                        <Card.Subtitle>Mayor Derpy is active</Card.Subtitle>
+                        <Card.Subtitle>Minecraft Mod (Alpha release)</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        <p>Since the auction house is disabled while Derpy is mayor, you won't see any new auction on this site.</p>
-                        <p>All premium users will/have received a 5-day extension.</p>
-
-                        <p>We are using the time to do some system upgrades. Please note that this could lead to unexpected behavior and set the site into a "broken" state, e.g. the search not returning suggestions.</p>
+                        <p>We created a Minecraft mod as a QoL-Feature. It connects to the website and shows the flips you get there in your Minecraft chat for you to click.</p>
+                        <p>The mod can be downloaded on our <a target="_blank" rel="noreferrer" href="https://discord.gg/wNRgeCYmW9">discord</a> in the channel "mod-releases".</p>
                         <hr />
                         <div style={{ marginTop: "20px" }}>
-                            <p>Recent changes (last change: 06.08.2021):</p>
+                            <p>Recent changes (last change: 23.10.2021):</p>
                             <Tooltip onClick={onRecentChangesClick} content={<p><NewIcon /> <span style={{ color: "#007bff", cursor: "pointer" }}>Click here to open</span></p>} tooltipContent={
                                 <ul>
-                                    <li className="changelog-item">Further flipper improvements</li>
-                                    <li className="changelog-item">Implemented volume filter (Flipper)</li>
-                                    <li className="changelog-item">Stars are now always visible (Flipper)</li>
-                                    <li className="changelog-item">Styling upgrade (Flipper)</li>
-                                    <li className="changelog-item">Multiple bugs fixed</li>
+                                    <li className="changelog-item">Integration of the alpha mod</li>
+                                    <li className="changelog-item">Import/Export flipper settings</li>
+                                    <li className="changelog-item">Context menu in the flipper</li>
+                                    <li className="changelog-item">Lots of UI improvements</li>
                                 </ul>} type="click" tooltipTitle={<span>Recent changes</span>} />
                         </div>
                     </Card.Body>
@@ -361,18 +358,18 @@ function Startpage() {
                         You can find all current and historic prices for the auction house and bazaar on this web tracker.
                     </p>
                     <p>
-                        We are tracking about 200 million auctions. Saved more than 250 million bazaar prices in intervalls of 10 seconds.
-                        Furthermore there are over two million skyblock players that you can search by minecraft user name.
+                        We're tracking about 200 million auctions. We've saved more than 250 million bazaar prices in intervals of 10 seconds.
+                        Furthermore, there are over two million skyblock players that you can search by their Minecraft usernames.
                         You can browse through the auctions they made over the past two years.
-                        New Items are added automatically and available within two miniutes after the first auction is startet.
+                        New Items are added automatically and available within two miniutes after the first auction is started.
                     </p>
                     <p>
-                        The autocomplete search is ranked by popularity and allows you to find whatever item you want faster.
-                        Quick urls allow you to link to specific sites. /p/Steve or /i/Oak allow you to create a link without visiting the site first.
+                        The search autocomplete is ranked by popularity and allows you to find whatever item you want faster.
+                        Quick urls allow you to link to specific sites. /p/Steve or /i/Oak allows you to create a link without visiting the site first.
                     </p>
                     <p>
                         The free accessible <Link to="/flipper">auction house flipper</Link> allows you to find profitable ah flips in no time.
-                        It suplements the option to browse all of the skyblock history on the web tracker.
+                        It supplements the option to browse all of the skyblock history on the web tracker.
                         Whats more you can see what auctions were used as reference to determine if a flip is profitable.
                     </p>
                     <p>

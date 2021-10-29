@@ -6,15 +6,20 @@ import "react-datepicker/dist/react-datepicker.css";
 import './FilterElement.css';
 import DatePicker from "react-datepicker";
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter';
+import { Typeahead, AsyncTypeahead } from 'react-bootstrap-typeahead';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
+import api from '../../api/ApiHelper';
+
 
 // has to be redefined because global types from react-app-env are not accessable
-export enum FilterTypeEnum {
+export enum FilterType {
     Equal = 1,
     HIGHER = 2,
     LOWER = 4,
     DATE = 8,
     NUMERICAL = 16,
-    RANGE = 32
+    RANGE = 32,
+    PLAYER = 64
 }
 
 interface Props {
@@ -27,6 +32,10 @@ function FilterElement(props: Props) {
     let [value, _setValue] = useState<any>();
     let [isValid, setIsValid] = useState(true);
     let [errorText, setErrorText] = useState("");
+
+    // for player search
+    let [players, setPlayers] = useState<Player[]>([]);
+    let [playersLoading, setPlayersLoading] = useState(false);
 
     useEffect(() => {
         if (value) {
@@ -43,12 +52,12 @@ function FilterElement(props: Props) {
      * @param flag the flag to test against
      * @returns true if the enum contains the flag
      */
-    function hasFlag(full?: FilterType, flag?: FilterTypeEnum) {
+    function hasFlag(full?: FilterType, flag?: FilterType) {
         return full && flag && (full & flag) === flag;
     }
 
     function parseValue(newValue?: any) {
-        if (props.options && hasFlag(props.options.type, FilterTypeEnum.DATE)) {
+        if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
             if (!newValue) {
                 return new Date().getTime() / 1000;
             }
@@ -60,7 +69,7 @@ function FilterElement(props: Props) {
                 return date;
             }
             return newValue;
-        } else if (props.options && hasFlag(props.options.type, FilterTypeEnum.NUMERICAL)) {
+        } else if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
             if (!newValue) {
                 return 1;
             }
@@ -70,11 +79,9 @@ function FilterElement(props: Props) {
         }
     }
 
-    function updateSelectFilter(event: ChangeEvent<HTMLSelectElement>) {
-        let selectedIndex = event.target.options.selectedIndex;
-        let value = event.target.options[selectedIndex].getAttribute('data-id')!;
-        setValue(value);
-        updateValue(value);
+    function updateSelectFilter(selected) {
+        setValue(selected[0]);
+        updateValue(selected[0]);
     }
 
     function updateInputFilter(event: ChangeEvent<HTMLInputElement>) {
@@ -103,17 +110,13 @@ function FilterElement(props: Props) {
         _setValue(parseValue(value));
     }
 
-    let selectOptions = props.options?.options.map(option => {
-        return (<option data-id={option} key={option} value={option}>{convertTagToName(option)}</option>)
-    })
-
     function validate(value?: any) {
         if (!value && value !== 0) {
             setErrorText("Please fill the filter or remove it")
             setIsValid(false);
             return false;
         }
-        if (props.options && hasFlag(props.options.type, FilterTypeEnum.NUMERICAL)) {
+        if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
             let v = parseInt(value);
             let lowEnd = parseInt(props.options.options[0]);
             let highEnd = parseInt(props.options.options[1]);
@@ -127,21 +130,47 @@ function FilterElement(props: Props) {
         return true;
     }
 
+    function handlePlayerSearch(query) {
+        setPlayersLoading(true);
+
+        api.playerSearch(query).then(players => {
+
+            setPlayers(players);
+            setPlayersLoading(false);
+        });
+    };
+
     return (
         <div className="generic-filter">
             {!props.options ? <Spinner animation="border" role="status" variant="primary" /> :
-                <div>
-                    <Form.Label>{camelCaseToSentenceCase(props.options.name)}</Form.Label>
+                <div style={{ display: "grid" }}>
+                    <Form.Label style={{ float: "left" }}><b>{camelCaseToSentenceCase(props.options.name)}</b></Form.Label>
                     {
-                        hasFlag(props.options.type, FilterTypeEnum.DATE)
+                        hasFlag(props.options.type, FilterType.DATE)
                             ? <span><br /><DatePicker className="date-filter form-control" selected={value ? new Date(value * 1000) : new Date()} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>
-                            : hasFlag(props.options.type, FilterTypeEnum.RANGE) ?
-                                <Form.Control isInvalid={!isValid} key={props.options.name} className="select-filter" defaultValue={props.defaultValue} value={value} onChange={updateInputFilter}>
-
-                                </Form.Control>
-                                : <Form.Control isInvalid={!isValid} className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
-                                    {selectOptions}
-                                </Form.Control>
+                            : hasFlag(props.options.type, FilterType.RANGE) ?
+                                <Form.Control isInvalid={!isValid} key={props.options.name} className="select-filter" defaultValue={props.defaultValue} value={value} onChange={updateInputFilter}></Form.Control>
+                                : hasFlag(props.options.type, FilterType.PLAYER)
+                                    ? <AsyncTypeahead
+                                        filterBy={() => true}
+                                        id="async-example"
+                                        isLoading={playersLoading}
+                                        labelKey="name"
+                                        minLength={1}
+                                        onSearch={handlePlayerSearch}
+                                        options={players}
+                                        placeholder="Search users..."
+                                        onChange={selected => updateSelectFilter(selected.map(s => s.name))}
+                                    />
+                                    : <Typeahead
+                                        style={{ display: "block" }}
+                                        className="select-filter"
+                                        defaultSelected={[props.defaultValue]}
+                                        onChange={selected => updateSelectFilter(selected)}
+                                        options={props.options?.options}
+                                        labelKey={convertTagToName}
+                                        selectHintOnEnter={true}>
+                                    </Typeahead >
                     }
                     {
                         !isValid ?

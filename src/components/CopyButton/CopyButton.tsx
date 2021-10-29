@@ -6,8 +6,9 @@ import { toast } from 'react-toastify';
 interface Props {
     onCopy?(),
     successMessage?: JSX.Element,
-    copyValue: string
+    copyValue?: string
     buttonWrapperClass?: string,
+    buttonClass?: string,
     buttonVariant?: string,
     forceIsCopied?: boolean
 }
@@ -34,23 +35,25 @@ export function CopyButton(props: Props) {
 
     function copyClick() {
         setIsCopied(true);
-        window.navigator.clipboard.writeText(props.copyValue);
+        if (props.copyValue) {
+            window.navigator.clipboard.writeText(props.copyValue);
+            trackEvent({
+                category: 'copyButtonClick',
+                action: props.copyValue
+            })
+        }
         if (props.onCopy) {
             props.onCopy();
         }
         if (props.successMessage) {
             toast.success(props.successMessage)
         }
-        trackEvent({
-            category: 'copyButtonClick',
-            action: props.copyValue
-        })
     }
 
     return (
         <span>{window.navigator.clipboard ?
             <span className={props.buttonWrapperClass}>
-                <Button aria-label="copy to clipboard" variant={props.buttonVariant || "secondary"} onClick={() => { copyClick() }}>{isCopied || props.forceIsCopied ? copiedIcon : copyIcon}</Button>
+                <Button onMouseDown={copyClick} className={"copy-button-default-class " + props.buttonClass} aria-label="copy to clipboard" variant={props.buttonVariant || "secondary"}>{isCopied || props.forceIsCopied ? copiedIcon : copyIcon}</Button>
             </span> : ""}
         </span>
     )
