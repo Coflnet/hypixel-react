@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Badge, Card } from 'react-bootstrap';
-import { getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter';
+import { formatToPriceToShorten, getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter';
 import { Help as HelpIcon } from '@material-ui/icons';
 import { CopyButton } from '../../CopyButton/CopyButton';
 import './Flip.css';
@@ -74,7 +74,7 @@ function Flip(props: Props) {
     function getProfitElement(flip: FlipAuction): JSX.Element {
         let profit = calculateProfit(flip);
         let preSymbol = profit > 0 ? "+" : "";
-        return <b style={{ color: profit > 0 ? "lime" : "white" }}>{preSymbol + numberWithThousandsSeperators(profit) + " Coins ("}{Math.round((profit / flip.cost) * 100)}%)</b>;
+        return <b style={{ color: profit > 0 ? "lime" : "white" }}>{preSymbol + formatPrices(profit) + " Coins ("}{Math.round((profit / flip.cost) * 100)}%)</b>;
     }
 
     function onMouseDownLowestBin(e) {
@@ -86,6 +86,14 @@ function Flip(props: Props) {
         e.preventDefault();
         window.open("/player/" + props.flip.sellerName);
     }
+
+    function formatPrices(price: number) {
+        if (settings.shortNumbers) {
+            return formatToPriceToShorten(price);
+        }
+        return numberWithThousandsSeperators(price);
+    }
+
 
     let stars = props.flip.item.name?.match(/✪+/gm);
     let itemName = stars && props.flip.item.name ? props.flip.item.name.split(stars[0])[0] : props.flip.item.name;
@@ -107,14 +115,14 @@ function Flip(props: Props) {
                         settings.hideCost ? null :
                             <p>
                                 <span className="card-label">Cost: </span><br />
-                                <b style={{ color: "red" }}>{numberWithThousandsSeperators(props.flip.cost)} Coins</b>
+                                <b style={{ color: "red" }}>{formatPrices(props.flip.cost)} Coins</b>
                             </p>
                     }
                     {
                         settings.hideMedianPrice ? null :
                             <p>
                                 <span className="card-label">Median price: </span><br />
-                                <b>{numberWithThousandsSeperators(props.flip.median)} Coins</b>
+                                <b>{formatPrices(props.flip.median)} Coins</b>
                             </p>
                     }
                     {
@@ -137,10 +145,10 @@ function Flip(props: Props) {
                                 {
                                     !settings.disableLinks ?
                                         <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
-                                            {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
+                                            {formatPrices(props.flip.lowestBin)} Coins
                                         </a> :
                                         <span>
-                                            {numberWithThousandsSeperators(props.flip.lowestBin)} Coins
+                                            {formatPrices(props.flip.lowestBin)} Coins
                                         </span>
                                 }
                             </p>
@@ -152,10 +160,10 @@ function Flip(props: Props) {
                                 {
                                     !settings.disableLinks ?
                                         <a rel="noreferrer" target="_blank" onMouseDown={onMouseDownLowestBin} href={getLowestBinLink(props.flip.item.tag)}>
-                                            {numberWithThousandsSeperators(props.flip.secondLowestBin)} Coins
+                                            {formatPrices(props.flip.secondLowestBin)} Coins
                                         </a> :
                                         <span>
-                                            {numberWithThousandsSeperators(props.flip.secondLowestBin)} Coins
+                                            {formatPrices(props.flip.secondLowestBin)} Coins
                                         </span>
                                 }
                             </p>

@@ -521,7 +521,8 @@ function initAPI(): API {
             lbin: flipSettings.useLowestBinForProfit,
             mod: {
                 justProfit: flipSettings.justProfit,
-                soundOnFlip: flipSettings.soundOnFlip
+                soundOnFlip: flipSettings.soundOnFlip,
+                shortNumbers: flipSettings.shortNumbers
             },
             visibility: {
                 cost: !flipSettings.hideCost,
@@ -539,7 +540,7 @@ function initAPI(): API {
             requestData.filters = { Bin: "true" };
         }
 
-        console.log(requestData);           
+        console.log(requestData);
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
