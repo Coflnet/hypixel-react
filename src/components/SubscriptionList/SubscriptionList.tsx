@@ -107,8 +107,13 @@ function SubscriptionList(props: Props) {
         })
     }
 
-    function deleteAll(subscriptions: Subscription[]) {
-        // TODO: delete all
+    function deleteAll() {
+        api.unsubscribeAll().then(() => {
+            setSubscriptions([]);
+            toast.success("All subscriptions were sucessfully removed");
+        }).catch(() => {
+            toast.error("An unexpected error occured");
+        });
     }
 
     function resubscribe(subscription: Subscription) {
@@ -176,7 +181,7 @@ function SubscriptionList(props: Props) {
                 (subscriptions.length > 0 ?
                     <div>
                         <div style={{ height: "auto", display: "flex", justifyContent: "flex-end" }}>
-                            <Button style={{ backgroundColor: "red", float: "right" }} onClick={() => { deleteAll(subscriptions) }}>Delete all subscriptions</Button>
+                            <Button style={{ backgroundColor: "red", float: "right" }} onClick={deleteAll}>Delete all subscriptions</Button>
                         </div>
                         <ListGroup style={{ marginTop: "20px" }}>
                             {subscriptionsTableBody}

@@ -14,6 +14,7 @@ export enum RequestType {
     GET_VERSION = "version",
     SUBSCRIBE = "subscribe",
     UNSUBSCRIBE = "unsubscribe",
+    UNSUBSCRIBE_ALL = "unsubscribeAll",
     GET_SUBSCRIPTIONS = "subscriptions",
     SET_GOOGLE = "setGoogle",
     PAYMENT_SESSION = "paymentSession",

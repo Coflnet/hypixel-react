@@ -323,6 +323,23 @@ function initAPI(): API {
         });
     }
 
+    let unsubscribeAll = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.UNSUBSCRIBE_ALL,
+                data: "",
+                resolve: () => {
+                    resolve();
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.UNSUBSCRIBE_ALL, error, "");
+                    reject();
+                }
+            })
+        });
+    }
+
     let getSubscriptions = (): Promise<Subscription[]> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
@@ -805,7 +822,8 @@ function initAPI(): API {
         getActiveAuctions,
         filterFor,
         unsubscribeFlips,
-        itemSearch
+        itemSearch,
+        unsubscribeAll
     }
 }
 
