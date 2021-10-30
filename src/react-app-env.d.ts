@@ -214,7 +214,8 @@ interface API {
   getAccountInfo(): Promise<AccountInfo>
   itemSearch(searchText: string): Promise<FilterOptions[]>
   authenticateModConnection(conId: string): Promise<void>,
-  playerSearch(playerName: string): Promise<Player[]>
+  playerSearch(playerName: string): Promise<Player[]>,
+  sendFeedback(feedbackKey: string, feedback: any): Promise<void>
 }
 
 interface CacheUtils {
@@ -340,5 +341,5 @@ interface ReloadFeedback {
   loadNewInformation: boolean,
   somethingBroke: boolean,
   otherIssue: boolean,
-  rememberHideDialog: boolean
+  additionalInformation: string
 }

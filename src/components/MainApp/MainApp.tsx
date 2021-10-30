@@ -26,11 +26,23 @@ export function MainApp(props: any) {
     const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     useEffect(() => {
-        // TODO: Only open the dialog after multiple page reloads
+        let preventReloadDialog = localStorage.getItem("rememberHideReloadDialog") === "true";
+        if (preventReloadDialog) {
+            return;
+        }
+
+        // check if page was reloaded
         if ((performance.getEntriesByType("navigation")[0] as any).type === "reload") {
-            setTimeout(() => {
-                setShowRefreshFeedbackDialog(true);
-            }, 1000)
+
+            let lastReloadTime = localStorage.getItem("lastReloadTime");
+            // Check if the last reload was less than 30 seconds ago
+            if (lastReloadTime && 30_000 > new Date().getTime() - Number(lastReloadTime)) {
+                setTimeout(() => {
+                    setShowRefreshFeedbackDialog(true);
+                }, 1000)
+            } else {
+                localStorage.setItem("lastReloadTime", new Date().getTime().toString());
+            }
         }
     }, []);
 
