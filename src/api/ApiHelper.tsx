@@ -894,11 +894,9 @@ function initAPI(): API {
             let requestData = {
                 Context: "Skyblock",
                 User: user || "",
-                Feedback: feedback,
+                Feedback: JSON.stringify(feedback),
                 FeedbackName: feedbackKey
             };
-
-            console.log(requestData);
 
             httpApi.sendApiRequest({
                 type: RequestType.SEND_FEEDBACK,
