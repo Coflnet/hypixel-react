@@ -1,12 +1,10 @@
 import { ApiRequest, HttpApi } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
-import { v4 as generateUUID } from 'uuid';
 import cacheUtils from "../utils/CacheUtils";
 import { getProperty } from "../utils/PropertiesUtils";
 import { getNextMessageId } from "../utils/MessageIdUtils";
 
 const commandEndpoint = getProperty("commandEndpoint");
-const apiEndpoint = getProperty("apiEndpoint");
 let requests: ApiRequest[] = [];
 
 /**
@@ -154,11 +152,6 @@ function removeSentRequests(toDelete: ApiRequest[]) {
     })
 }
 
-function getOrGenerateUUid(): string {
-    let websocketUUID = window.localStorage.getItem("websocketUUID") || generateUUID();
-    window.localStorage.setItem("websocketUUID", websocketUUID);
-    return websocketUUID;
-}
 function findForEqualSentRequest(request: ApiRequest) {
     return requests.filter(r => {
         return r.type === request.type && r.data === request.data && r.mId !== request.mId;
