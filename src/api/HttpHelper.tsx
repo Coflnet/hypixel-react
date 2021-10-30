@@ -5,6 +5,7 @@ import { getProperty } from "../utils/PropertiesUtils";
 import { getNextMessageId } from "../utils/MessageIdUtils";
 
 const commandEndpoint = getProperty("commandEndpoint");
+const apiEndpoint = getProperty("apiEndpoint");
 let requests: ApiRequest[] = [];
 
 /**
@@ -55,7 +56,7 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
 function sendApiRequest(request: ApiRequest, body?: any, cacheInvalidationGrouping?: number): Promise<void> {
     request.mId = getNextMessageId();
     let requestString = request.data;
-    var url = request.customRequestURL || `${commandEndpoint}/${request.type}/${Base64.encode(requestString)}`;
+    var url = request.customRequestURL || `${apiEndpoint}/${request.type}/${requestString}`;
 
     if (cacheInvalidationGrouping) {
         url += `?t=${cacheInvalidationGrouping}`;
@@ -87,6 +88,7 @@ function handleServerRequest(request: ApiRequest, url: string, body?: any): Prom
     return fetch(url, {
         body: body,
         method: request.requestMethod,
+        headers: request.requestHeader
     }).then(response => {
         let parsed;
         try {
@@ -138,7 +140,7 @@ function sendRequestLimitCache(request: ApiRequest, grouping = 1): Promise<void>
 
 function sendLimitedCacheApiRequest(request: ApiRequest, grouping = 1): Promise<void> {
     let group = Math.round(new Date().getMinutes() / grouping);
-    return sendApiRequest(request, group);
+    return sendApiRequest(request, undefined, group);
 }
 
 function removeSentRequests(toDelete: ApiRequest[]) {

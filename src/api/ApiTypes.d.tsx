@@ -64,7 +64,8 @@ export interface ApiRequest {
     resolve: Function,
     reject: Function,
     customRequestURL?: string,
-    requestMethod?: string
+    requestMethod?: string,
+    requestHeader?: any
 }
 
 export interface ApiSubscription {

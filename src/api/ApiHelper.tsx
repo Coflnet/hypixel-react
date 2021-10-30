@@ -905,6 +905,9 @@ function initAPI(): API {
                 data: "",
                 customRequestURL: getProperty("feedbackEndpoint"),
                 requestMethod: 'POST',
+                requestHeader: {
+                    'Content-Type': 'application/json'
+                },
                 resolve: function () {
                     resolve();
                 },
