@@ -322,7 +322,8 @@ interface FlipCustomizeSettings {
   useLowestBinForProfit?: boolean,
   disableLinks?: boolean,
   justProfit?: boolean,
-  soundOnFlip?: boolean
+  soundOnFlip?: boolean,
+  shortNumbers?: boolean
 }
 
 interface FlipRestriction {

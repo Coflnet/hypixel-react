@@ -113,6 +113,13 @@ function FlipCustomize() {
         trackChange('soundOnFlip');
     }
 
+    function onShortNumbersChange(event: ChangeEvent<HTMLInputElement>) {
+        flipCustomizeSettings.shortNumbers = event.target.checked;
+        setFlipCustomizeSettings(flipCustomizeSettings);
+
+        trackChange('shortNumbers');
+    }
+
     function trackChange(property: string) {
         trackEvent({
             category: 'customizeFlipStyle',
@@ -203,12 +210,12 @@ function FlipCustomize() {
                             <Form.Check onChange={onVolumeChange} defaultChecked={!flipCustomizeSettings.hideVolume} id="hideVolume" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="useLowestBinForProfit">Use lowest BIN <br /> to calc. profit <Tooltip type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={useLowestBinHelpElement} /></Form.Label>
-                            <Form.Check onChange={onUseLowestBinForProfitChange} defaultChecked={flipCustomizeSettings.useLowestBinForProfit} id="useLowestBinForProfit" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Label className="label" htmlFor="justProfit">Shorten numbers?</Form.Label>
+                            <Form.Check onChange={onShortNumbersChange} defaultChecked={flipCustomizeSettings.shortNumbers} id="shortNumbers" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields</Form.Label>
-                            <Form.Control min={0} max={30} onChange={onMaxExtraInfoFieldsChange} defaultValue={flipCustomizeSettings.maxExtraInfoFields} type="number" id="hideMaxExtraInfo" />
+                            <Form.Label className="label" htmlFor="useLowestBinForProfit">Use lowest BIN <br /> to calc. profit <Tooltip type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={useLowestBinHelpElement} /></Form.Label>
+                            <Form.Check onChange={onUseLowestBinForProfitChange} defaultChecked={flipCustomizeSettings.useLowestBinForProfit} id="useLowestBinForProfit" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                     </div>
                     <div>
@@ -231,6 +238,10 @@ function FlipCustomize() {
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="disableLinks">Disable links</Form.Label>
                             <Form.Check onChange={onDisableLinksChange} defaultChecked={flipCustomizeSettings.disableLinks} id="hideCopyMessage" style={{ display: "inline" }} type="checkbox" />
+                        </Form.Group>
+                        <Form.Group className="select-hide-group">
+                            <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields</Form.Label>
+                            <Form.Control min={0} max={30} onChange={onMaxExtraInfoFieldsChange} defaultValue={flipCustomizeSettings.maxExtraInfoFields} type="number" id="hideMaxExtraInfo" />
                         </Form.Group>
                     </div>
                 </Form>

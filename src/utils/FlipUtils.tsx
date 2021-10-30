@@ -26,6 +26,7 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     try {
         settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY));
 
+        // Felder, die per default true sind
         if (settings.hideSecondLowestBin !== false) {
             settings.hideSecondLowestBin = true;
         }
@@ -47,7 +48,8 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             useLowestBinForProfit: false,
             disableLinks: false,
             justProfit: false,
-            soundOnFlip: true
+            soundOnFlip: true,
+            shortNumbers: false
         };
 
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
