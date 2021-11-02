@@ -20,7 +20,7 @@ export enum FilterType {
     NUMERICAL = 16,
     RANGE = 32,
     PLAYER = 64,
-    EQUAL_NO_SEARCH = 128
+    SIMPLE = 128
 }
 
 interface Props {
@@ -170,7 +170,10 @@ function FilterElement(props: Props) {
                                         onChange={selected => updateSelectFilter(selected.map(s => s.name))}
                                     />
                                     : hasFlag(props.options.type, FilterType.EQUAL)
-                                        ? <Typeahead
+                                        ? <Form.Control isInvalid={!isValid} className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
+                                            {getSelectOptions()}
+                                        </Form.Control>
+                                        : hasFlag(props.options.type, FilterType.EQUAL) && hasFlag(props.options.type, FilterType.SIMPLE) ? <Typeahead
                                             id={props.options.name}
                                             style={{ display: "block" }}
                                             className="select-filter"
@@ -179,10 +182,7 @@ function FilterElement(props: Props) {
                                             labelKey={convertTagToName}
                                             autoselect={false}
                                             selectHintOnEnter={true}>
-                                        </Typeahead > : hasFlag(props.options.type, FilterType.EQUAL_NO_SEARCH)
-                                            ? <Form.Control isInvalid={!isValid} className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
-                                                {getSelectOptions()}
-                                            </Form.Control> : null
+                                        </Typeahead > : null
                     }
                     {
                         !isValid ?

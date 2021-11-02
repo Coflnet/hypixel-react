@@ -97,7 +97,7 @@ enum FilterType {
   NUMERICAL = 16,
   RANGE = 32,
   PLAYER = 64,
-  EQUAL_NO_SEARCH = 128
+  SIMPLE = 128
 }
 
 interface ItemFilter {
