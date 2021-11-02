@@ -210,7 +210,7 @@ function FlipCustomize() {
                             <Form.Check onChange={onVolumeChange} defaultChecked={!flipCustomizeSettings.hideVolume} id="hideVolume" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
-                            <Form.Label className="label" htmlFor="justProfit">Shorten numbers?</Form.Label>
+                            <Form.Label className="label" htmlFor="shortNumbers">Shorten numbers?</Form.Label>
                             <Form.Check onChange={onShortNumbersChange} defaultChecked={flipCustomizeSettings.shortNumbers} id="shortNumbers" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
