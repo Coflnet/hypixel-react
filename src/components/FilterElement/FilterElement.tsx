@@ -169,20 +169,21 @@ function FilterElement(props: Props) {
                                         placeholder="Search users..."
                                         onChange={selected => updateSelectFilter(selected.map(s => s.name))}
                                     />
-                                    : hasFlag(props.options.type, FilterType.EQUAL)
+                                    : hasFlag(props.options.type, FilterType.EQUAL) && hasFlag(props.options.type, FilterType.SIMPLE)
                                         ? <Form.Control isInvalid={!isValid} className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
                                             {getSelectOptions()}
                                         </Form.Control>
-                                        : hasFlag(props.options.type, FilterType.EQUAL) && hasFlag(props.options.type, FilterType.SIMPLE) ? <Typeahead
-                                            id={props.options.name}
-                                            style={{ display: "block" }}
-                                            className="select-filter"
-                                            onChange={selected => updateSelectFilter(selected)}
-                                            options={props.options?.options}
-                                            labelKey={convertTagToName}
-                                            autoselect={false}
-                                            selectHintOnEnter={true}>
-                                        </Typeahead > : null
+                                        : hasFlag(props.options.type, FilterType.EQUAL)
+                                            ? <Typeahead
+                                                id={props.options.name}
+                                                style={{ display: "block" }}
+                                                className="select-filter"
+                                                onChange={selected => updateSelectFilter(selected)}
+                                                options={props.options?.options}
+                                                labelKey={convertTagToName}
+                                                autoselect={false}
+                                                selectHintOnEnter={true}>
+                                            </Typeahead > : null
                     }
                     {
                         !isValid ?
