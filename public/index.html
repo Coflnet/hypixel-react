@@ -4,6 +4,21 @@
 <head>
     <script async src="/preScript.js"></script>
     <script async src="/MinecraftColorCodes.3.7.js"></script>
+    <script>
+        // check if react was correctly loaded after 5 seconds
+        setTimeout(() => {
+            debugger;
+            let div = document.getElementById('react-container');
+            if (div === null) {
+                caches.keys().then(keys => {
+                    keys.forEach(key => {
+                        caches.delete(key);
+                    })
+                }).catch(() => {});
+                location.reload(true);
+            }
+        }, 5000);
+    </script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
