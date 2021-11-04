@@ -57,7 +57,7 @@ function ReloadDialog(props: Props) {
 
     return (
         <div className="reload-dialog">
-            <p>We noticed that you reloaded the page multiple times. We try to constantly improve our service. To do so we need to know if something went wrong.</p>
+            <p>We noticed that you reloaded the page multiple times. We try to constantly improve our service. To do so we need to know if and what went wrong.</p>
             <p>Please tell us, why you reloaded the page:</p>
             <Form>
                 <hr />
