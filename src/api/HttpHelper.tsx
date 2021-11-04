@@ -90,6 +90,12 @@ function handleServerRequest(request: ApiRequest, url: string, body?: any): Prom
         method: request.requestMethod,
         headers: request.requestHeader
     }).then(response => {
+
+        if (response.status === 204) {
+            request.resolve();
+            return;
+        }
+
         let parsed;
         try {
             parsed = response.json();
