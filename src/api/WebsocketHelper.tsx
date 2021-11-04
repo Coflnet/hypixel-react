@@ -69,15 +69,14 @@ function initWebsocket(): void {
     }
 
     let _handleSubscriptionOnMessage = function (response: ApiResponse, subscription: ApiSubscription) {
-        let parsedResponse = response.data;
         try {
-            parsedResponse = JSON.parse(response.data);
+            response.data = JSON.parse(response.data);
         } catch (e) { }
 
         if (response.type === "error")
-            toast.error(parsedResponse);
+            toast.error(response.data);
         else
-            subscription.callback(parsedResponse);
+            subscription.callback(response);
     }
 
     let onWebsocketMessage = (e: MessageEvent): void => {
@@ -138,14 +137,8 @@ function sendRequest(request: ApiRequest): Promise<void> {
             return;
         }
 
-        if (_isWebsocketReady(request.type, websocket)) {
+        if (_isWebsocketReady(request.type, websocket) && _isWebsocketReady(request.type, tempOldWebsocket)) {
             request.mId = getNextMessageId();
-
-            try {
-                request.data = Base64.encode(requestString);
-            } catch (error) {
-                throw new Error("couldnt btoa this data: " + request.data);
-            }
 
             // if a equal requests are already sent, dont really send more
             // at onMessage answer all
@@ -159,25 +152,15 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             let paymentRequests = [RequestType.PAYMENT_SESSION, RequestType.GET_STRIPE_PRODUCTS, RequestType.GET_STRIPE_PRICES, RequestType.VALIDATE_PAYMENT_TOKEN, RequestType.PAYPAL_PAYMENT, RequestType.SET_REF]
             if (paymentRequests.findIndex(p => p === request.type) !== -1) {
-                if (_isWebsocketReady(request.type, tempOldWebsocket)) {
-                    tempOldWebsocket.send(JSON.stringify(request));
-                } else {
-                    setTimeout(() => {
-                        sendRequest(request);
-                    }, 500);
-                }
+                prepareDataBeforeSend(request);
+                tempOldWebsocket.send(JSON.stringify(request));
             } else {
+                prepareDataBeforeSend(request);
                 websocket.send(JSON.stringify(request));
             }
 
             if (request.type === RequestType.SET_GOOGLE) {
-                if (_isWebsocketReady(request.type, tempOldWebsocket)) {
-                    tempOldWebsocket.send(JSON.stringify(request));
-                } else {
-                    setTimeout(() => {
-                        sendRequest(request);
-                    }, 500);
-                }
+                tempOldWebsocket.send(JSON.stringify(request));
             }
 
         } else {
@@ -186,6 +169,14 @@ function sendRequest(request: ApiRequest): Promise<void> {
             }, 500);
         }
     })
+}
+
+function prepareDataBeforeSend(request: ApiRequest) {
+    try {
+        request.data = Base64.encode(JSON.stringify(request.data));
+    } catch (error) {
+        throw new Error("couldnt btoa this data: " + request.data);
+    }
 }
 
 function removeOldSubscriptionByType(type: RequestType) {

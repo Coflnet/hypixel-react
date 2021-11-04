@@ -390,6 +390,7 @@ function initAPI(): API {
                     resolve();
                 },
                 reject: (error: any) => {
+                    apiErrorHandler(RequestType.SET_GOOGLE, error);
                     reject();
                 }
             })
@@ -504,7 +505,7 @@ function initAPI(): API {
         });
     }
 
-    let subscribeFlips = (flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function) => {
+    let subscribeFlips = (flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function, nextUpdateNotificationCallback?: Function) => {
 
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS);
 
@@ -539,20 +540,27 @@ function initAPI(): API {
             requestData.filters = { Bin: "true" };
         }
 
-        console.log(requestData);
-
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
             data: requestData,
-            callback: function (data) {
-                if (!data) {
-                    return;
+            callback: function (response) {
+                switch (response.type) {
+                    case 'flip':
+                        flipCallback(parseFlipAuction(response.data));
+                        break;
+                    case 'nextUpdate':
+                        if (nextUpdateNotificationCallback) {
+                            nextUpdateNotificationCallback();
+                        }
+                        break;
+                    case 'sold':
+                        if (soldCallback) {
+                            soldCallback();
+                        }
+                        break;
+                    default:
+                        break;
                 }
-                if (!data.uuid && soldCallback) {
-                    soldCallback(data);
-                    return;
-                }
-                flipCallback(parseFlipAuction(data));
             }
         })
     }

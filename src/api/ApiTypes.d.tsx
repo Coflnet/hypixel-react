@@ -69,7 +69,7 @@ export interface ApiSubscription {
     mId?: number,
     type: RequestType,
     data: any,
-    callback: Function
+    callback(request: ApiResponse)
 }
 
 export interface Subscription {

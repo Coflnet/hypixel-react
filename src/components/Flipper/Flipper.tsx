@@ -49,8 +49,9 @@ function Flipper() {
     let [refInfo, setRefInfo] = useState<RefInfo>();
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false);
-    let [lastFlipFetchTime, setLastFlipFetchTime] = useState<Date>();
+    let [lastFlipFetchTimeSeconds, setLastFlipFetchTimeSeconds] = useState<number>();
     let [lastFlipFetchTimeLoading, setLastFlipFetchTimeLoading] = useState<boolean>(false);
+    let [countdownDateObject, setCountdownDateObject] = useState<Date>();
 
     let history = useHistory();
 
@@ -65,10 +66,12 @@ function Flipper() {
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
 
+    /*
     const lastFlipFetchTimeRef = useRef(lastFlipFetchTime);
-    lastFlipFetchTimeRef.current = lastFlipFetchTime;
+    lastFlipFetchTimeSRef.current = lastFlipFetchTime;
     const lastFlipFetchTimeLoadingRef = useRef(lastFlipFetchTimeLoading);
     lastFlipFetchTimeLoadingRef.current = lastFlipFetchTimeLoading;
+    */
 
     const flipLookup = {};
 
@@ -76,10 +79,11 @@ function Flipper() {
         mounted = true;
         _setAutoScroll(true);
         attachScrollEvent();
-        api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
+        api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
+        getLastFlipFetchTime();
 
         document.addEventListener('flipSettingsChange', () => {
-            api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
+            api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
         });
 
         return () => {
@@ -106,7 +110,7 @@ function Flipper() {
                 setHasPremium(true);
 
                 // subscribe to the premium flips
-                api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid));
+                api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
             }
             setIsLoading(false);
         });
@@ -199,18 +203,53 @@ function Flipper() {
         })
     }
 
-    function onNewFlip(newFlipAuction: FlipAuction) {
+    function getLastFlipFetchTime() {
 
-        // 45sec after the last auction fetch get the new last auction fetch time if a new flip comes in
-        if (!lastFlipFetchTimeRef.current || new Date().getTime() > lastFlipFetchTimeRef.current.getTime() + 45000) {
-            if (!lastFlipFetchTimeLoadingRef.current) {
-                setLastFlipFetchTimeLoading(true);
-                api.getFlipUpdateTime().then(date => {
-                    setLastFlipFetchTime(date);
-                    setLastFlipFetchTimeLoading(false);
-                })
-            }
+        setLastFlipFetchTimeLoading(true);
+        api.getFlipUpdateTime().then(date => {
+            setLastFlipFetchTimeSeconds(date.getSeconds());
+            setLastFlipFetchTimeLoading(false);
+        })
+    };
+
+    function onNextFlipNotification() {
+        setLastFlipFetchTimeLoading(true);
+        setTimeout(() => {
+            let d = new Date();
+            d = new Date(d.getTime() + 10_000);
+            setLastFlipFetchTimeSeconds(d.getSeconds());
+            setLastFlipFetchTimeLoading(false);
+        }, 200);
+    }
+
+    function getCountdownDateObject(): Date {
+
+        let d = new Date();
+        if (countdownDateObject && (countdownDateObject.getTime() > new Date().getTime() && countdownDateObject.getSeconds() === lastFlipFetchTimeSeconds)) {
+            return countdownDateObject;
         }
+        d.setSeconds(lastFlipFetchTimeSeconds!);
+        if (d.getSeconds() < new Date().getSeconds()) {
+            d.setMinutes(new Date().getMinutes() + 1);
+        } else {
+            d.setMinutes(new Date().getMinutes());
+        }
+        setLastFlipFetchTimeLoading(true);
+        setTimeout(() => {
+            setCountdownDateObject(d);
+            setLastFlipFetchTimeLoading(false);
+        }, 200);
+        return d;
+    }
+
+    function onCountdownComplete() {
+        setLastFlipFetchTimeLoading(true);
+        setTimeout(() => {
+            setLastFlipFetchTimeLoading(false);
+        }, 200);
+    }
+
+    function onNewFlip(newFlipAuction: FlipAuction) {
 
         if (flipLookup[newFlipAuction.uuid] || !mounted) {
             return;
@@ -260,7 +299,7 @@ function Flipper() {
                 }
             })
         })
-        api.subscribeFlips(onNewFlip, newFilter.restrictions || [], newFilter, uuid => onAuctionSold(uuid));
+        api.subscribeFlips(onNewFlip, newFilter.restrictions || [], newFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
     }
 
     function onCopyFlip(flip: FlipAuction) {
@@ -387,7 +426,7 @@ function Flipper() {
                                 <span style={{ cursor: "pointer" }}> <SettingsIcon /></span>
                             </Form.Group>
                             {
-                                hasPremium ? <span>Expected new flips in: {lastFlipFetchTime && !lastFlipFetchTimeLoading ? <Countdown date={lastFlipFetchTime.getTime() + 60000} /> : "..."}</span> : ""
+                                hasPremium ? <span>Expected new flips in: {lastFlipFetchTimeSeconds && !lastFlipFetchTimeLoading ? <Countdown date={getCountdownDateObject()} onComplete={onCountdownComplete} /> : "..."}</span> : ""
                             }
                             <Form.Group onClick={onArrowRightClick}>
                                 <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>To newest flip</Form.Label>
