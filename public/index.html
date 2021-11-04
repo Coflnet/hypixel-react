@@ -5,11 +5,14 @@
     <script async src="/preScript.js"></script>
     <script async src="/MinecraftColorCodes.3.7.js"></script>
     <script>
-        // check if react was correctly loaded after 5 seconds
-        setTimeout(() => {
-            debugger;
-            let div = document.getElementById('react-container');
-            if (div === null) {
+        window.addEventListener('error', function(event) {
+            if (event.error.name === "ChunkLoadError") {
+                let chunkErrorLocalStorage = window.localStorage.getItem("chunkErrorReload");
+                if (chunkErrorLocalStorage && chunkErrorLocalStorage + 5000 > new Date().getTime()) {
+                    alert("There is something wrong with the website-chunks. Please try Control + F5 to hard refresh the page.");
+                    return;
+                }
+                window.localStorage.setItem("chunkErrorReload", new Date().getTime());
                 caches.keys().then(keys => {
                     keys.forEach(key => {
                         caches.delete(key);
@@ -17,7 +20,7 @@
                 }).catch(() => {});
                 location.reload(true);
             }
-        }, 5000);
+        });
     </script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
