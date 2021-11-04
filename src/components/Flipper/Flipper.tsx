@@ -66,13 +66,6 @@ function Flipper() {
     const autoscrollRef = useRef(autoscroll);
     autoscrollRef.current = autoscroll;
 
-    /*
-    const lastFlipFetchTimeRef = useRef(lastFlipFetchTime);
-    lastFlipFetchTimeSRef.current = lastFlipFetchTime;
-    const lastFlipFetchTimeLoadingRef = useRef(lastFlipFetchTimeLoading);
-    lastFlipFetchTimeLoadingRef.current = lastFlipFetchTimeLoading;
-    */
-
     const flipLookup = {};
 
     useEffect(() => {
