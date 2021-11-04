@@ -9,7 +9,7 @@ import routes from "../src/routes";
 
 
 ReactDOM.render(
-  <div>
+  <div id="react-container">
     <BrowserRouter children={routes} />
   </div>
   , document.getElementById('root'))
