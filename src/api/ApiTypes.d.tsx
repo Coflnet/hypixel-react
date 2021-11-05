@@ -42,7 +42,8 @@ export enum RequestType {
     GET_ACCOUNT_INFO = "accountInfo",
     ITEM_SEARCH = "item/search",
     PLAYER_SEARCH = "search/player",
-    AUTHENTICATE_MOD_CONNECTION = "authCon"
+    AUTHENTICATE_MOD_CONNECTION = "authCon",
+    SEND_FEEDBACK = "sendFeedback"
 }
 
 export enum SubscriptionType {
@@ -61,7 +62,10 @@ export interface ApiRequest {
     type: RequestType,
     data: any,
     resolve: Function,
-    reject: Function
+    reject: Function,
+    customRequestURL?: string,
+    requestMethod?: string,
+    requestHeader?: any
 }
 
 export interface ApiSubscription {
@@ -89,7 +93,7 @@ export interface WebsocketHelper extends Connection {
 }
 
 export interface HttpApi extends Connection {
-    sendApiRequest(request: ApiRequest): Promise<void>,
+    sendApiRequest(request: ApiRequest, body?: any): Promise<void>,
     sendLimitedCacheApiRequest(request: ApiRequest, grouping: number),
     sendLimitedCacheRequest(request: ApiRequest, grouping: number),
     sendLimitedCacheRequest(request: ApiRequest),
