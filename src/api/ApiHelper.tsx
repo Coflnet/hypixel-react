@@ -522,7 +522,8 @@ function initAPI(): API {
             lbin: flipSettings.useLowestBinForProfit,
             mod: {
                 justProfit: flipSettings.justProfit,
-                soundOnFlip: flipSettings.soundOnFlip
+                soundOnFlip: flipSettings.soundOnFlip,
+                shortNumbers: flipSettings.shortNumbers
             },
             visibility: {
                 cost: !flipSettings.hideCost,
