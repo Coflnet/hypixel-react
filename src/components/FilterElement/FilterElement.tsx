@@ -13,13 +13,14 @@ import api from '../../api/ApiHelper';
 
 // has to be redefined because global types from react-app-env are not accessable
 export enum FilterType {
-    Equal = 1,
+    EQUAL = 1,
     HIGHER = 2,
     LOWER = 4,
     DATE = 8,
     NUMERICAL = 16,
     RANGE = 32,
-    PLAYER = 64
+    PLAYER = 64,
+    SIMPLE = 128
 }
 
 interface Props {
@@ -79,9 +80,16 @@ function FilterElement(props: Props) {
         }
     }
 
-    function updateSelectFilter(selected) {
+    function updateSearchSelectFilter(selected) {
         setValue(selected[0]);
         updateValue(selected[0]);
+    }
+
+    function updateSelectFilter(event: ChangeEvent<HTMLSelectElement>) {
+        let selectedIndex = event.target.options.selectedIndex;
+        let value = event.target.options[selectedIndex].getAttribute('data-id')!;
+        setValue(value);
+        updateValue(value);
     }
 
     function updateInputFilter(event: ChangeEvent<HTMLInputElement>) {
@@ -140,6 +148,12 @@ function FilterElement(props: Props) {
         });
     };
 
+    function getSelectOptions() {
+        return props.options?.options.map(option =>
+            <option data-id={option} key={option} value={option}>{convertTagToName(option)}</option>
+        )
+    }
+
     return (
         <div className="generic-filter">
             {!props.options ? <Spinner animation="border" role="status" variant="primary" /> :
@@ -160,17 +174,23 @@ function FilterElement(props: Props) {
                                         onSearch={handlePlayerSearch}
                                         options={players}
                                         placeholder="Search users..."
-                                        onChange={selected => updateSelectFilter(selected.map(s => s.name))}
+                                        onChange={selected => updateSearchSelectFilter(selected.map(s => s.name))}
                                     />
-                                    : <Typeahead
-                                        style={{ display: "block" }}
-                                        className="select-filter"
-                                        defaultSelected={[props.defaultValue]}
-                                        onChange={selected => updateSelectFilter(selected)}
-                                        options={props.options?.options}
-                                        labelKey={convertTagToName}
-                                        selectHintOnEnter={true}>
-                                    </Typeahead >
+                                    : hasFlag(props.options.type, FilterType.EQUAL) && hasFlag(props.options.type, FilterType.SIMPLE)
+                                        ? <Form.Control isInvalid={!isValid} className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
+                                            {getSelectOptions()}
+                                        </Form.Control>
+                                        : hasFlag(props.options.type, FilterType.EQUAL)
+                                            ? <Typeahead
+                                                id={props.options.name}
+                                                style={{ display: "block" }}
+                                                className="select-filter"
+                                                onChange={updateSearchSelectFilter}
+                                                options={props.options?.options}
+                                                labelKey={convertTagToName}
+                                                autoselect={false}
+                                                selectHintOnEnter={true}>
+                                            </Typeahead > : null
                     }
                     {
                         !isValid ?

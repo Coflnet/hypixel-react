@@ -90,13 +90,14 @@ interface PlayerDetails {
   auctions: Auction[];
 }
 enum FilterType {
-  Equal = 1,
+  EQUAL = 1,
   HIGHER = 2,
   LOWER = 4,
   DATE = 8,
   NUMERICAL = 16,
   RANGE = 32,
-  PLAYER = 64
+  PLAYER = 64,
+  SIMPLE = 128
 }
 
 interface ItemFilter {
@@ -323,7 +324,8 @@ interface FlipCustomizeSettings {
   useLowestBinForProfit?: boolean,
   disableLinks?: boolean,
   justProfit?: boolean,
-  soundOnFlip?: boolean
+  soundOnFlip?: boolean,
+  shortNumbers?: boolean
 }
 
 interface FlipRestriction {
