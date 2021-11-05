@@ -870,7 +870,7 @@ function initAPI(): API {
     let getFlipUpdateTime = (): Promise<Date> => {
         return new Promise((resolve, reject) => {
 
-            httpApi.sendApiRequest({
+            httpApi.sendLimitedCacheApiRequest({
                 type: RequestType.FLIP_UPDATE_TIME,
                 data: "",
                 resolve: function (data) {
@@ -879,7 +879,7 @@ function initAPI(): API {
                 reject: function (error) {
                     apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, "");
                 }
-            });
+            }, 1);
         })
     }
     let playerSearch = (playerName: string): Promise<Player[]> => {
