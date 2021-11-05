@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Badge, ListGroup } from 'react-bootstrap';
 import api from '../../api/ApiHelper';
+import { getLoadingElement } from '../../utils/LoadingUtils';
 import './LowSupplyList.css'
 
 interface Props {
@@ -50,7 +51,7 @@ function LowSupplyList(props: Props) {
                 <ListGroup style={{ marginTop: "20px" }}>
                     {lowSupplyItemsTableBody}
                 </ListGroup>
-                : <p>Loading low supply items</p>
+                : <p>{getLoadingElement(<p>Loading low supply items</p>)}</p>
         }</div>
     );
 }

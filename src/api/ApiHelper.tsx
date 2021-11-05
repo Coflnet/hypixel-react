@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseLowSupplyItem, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -878,49 +878,22 @@ function initAPI(): API {
 
         return new Promise((resolve, reject) => {
 
-            // TODO: Implement API request
-
-            /*
             httpApi.sendApiRequest({
                 type: RequestType.GET_LOW_SUPPLY_ITEMS,
                 data: "",
-                resolve: function (players) {
-                    resolve(players.map(parsePlayer));
+                resolve: function (items) {
+                    resolve(items.map(item => {
+                        let lowSupplyItem = parseLowSupplyItem(item);
+                        lowSupplyItem.iconUrl = api.getItemImageUrl(item);
+                        lowSupplyItem.name = convertTagToName(item.tag);
+                        return lowSupplyItem;
+                    }))
                 },
                 reject: function (error) {
-                    apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName);
+                    apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, "");
                     reject();
                 }
             });
-            */
-
-            let mockData: LowSupplyItem[] = [
-                {
-                    tag: "ARMOR_OF_YOG_LEGGINGS",
-                    supply: 15
-                },
-                {
-                    tag: "STONE:9",
-                    supply: 3
-                },
-                {
-                    tag: "PUMPKIN_HELMET",
-                    supply: 2
-                },
-                {
-                    tag: "MAP:5",
-                    supply: 1
-                },
-                {
-                    tag: "PET_SKIN_YETI_GROWN_UP",
-                    supply: 7
-                }
-            ];
-            mockData.forEach(item => {
-                item.iconUrl = api.getItemImageUrl(item);
-                item.name = convertTagToName(item.tag);
-            })
-            resolve(mockData);
         })
     }
 
