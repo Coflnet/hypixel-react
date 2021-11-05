@@ -206,12 +206,10 @@ function Flipper() {
     };
 
     function onNextFlipNotification() {
-        setLastFlipFetchTimeLoading(true);
         setTimeout(() => {
             let d = new Date();
             d = new Date(d.getTime() + 10_000);
             setLastFlipFetchTimeSeconds(d.getSeconds());
-            setLastFlipFetchTimeLoading(false);
         }, 200);
     }
 

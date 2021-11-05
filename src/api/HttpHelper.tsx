@@ -59,7 +59,10 @@ function sendApiRequest(request: ApiRequest, cacheInvalidationGrouping?: number)
     request.mId = getNextMessageId();
     let requestString = request.data;
     let headers = { 'ConId': getOrGenerateUUid() };
-    var url = `${apiEndpoint}/${request.type}/${requestString}`;
+    var url = `${apiEndpoint}/${request.type}`;
+    if (requestString) {
+        url += `/${requestString}`
+    }
 
     if (cacheInvalidationGrouping) {
         url += `?t=${cacheInvalidationGrouping}`;
