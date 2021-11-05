@@ -4,7 +4,7 @@ import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
 import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
-import { enchantmentAndReforgeCompare } from "../utils/Formatter";
+import { convertTagToName, enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
@@ -43,11 +43,8 @@ function initAPI(): API {
         })
     }
 
-    let getItemImageUrl = (item: Item): Promise<string> => {
-
-        return new Promise((resolve, reject) => {
-            resolve('https://sky.coflnet.com/static/icon/' + item.tag);
-        });
+    let getItemImageUrl = (item: Item): string => {
+        return 'https://sky.coflnet.com/static/icon/' + item.tag;
     }
 
     let getItemDetails = (itemTagOrName: string): Promise<Item> => {
@@ -877,6 +874,56 @@ function initAPI(): API {
         })
     }
 
+    let getLowSupplyItems = (): Promise<LowSupplyItem[]> => {
+
+        return new Promise((resolve, reject) => {
+
+            // TODO: Implement API request
+
+            /*
+            httpApi.sendApiRequest({
+                type: RequestType.GET_LOW_SUPPLY_ITEMS,
+                data: "",
+                resolve: function (players) {
+                    resolve(players.map(parsePlayer));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName);
+                    reject();
+                }
+            });
+            */
+
+            let mockData: LowSupplyItem[] = [
+                {
+                    tag: "ARMOR_OF_YOG_LEGGINGS",
+                    supply: 15
+                },
+                {
+                    tag: "STONE:9",
+                    supply: 3
+                },
+                {
+                    tag: "PUMPKIN_HELMET",
+                    supply: 2
+                },
+                {
+                    tag: "MAP:5",
+                    supply: 1
+                },
+                {
+                    tag: "PET_SKIN_YETI_GROWN_UP",
+                    supply: 7
+                }
+            ];
+            mockData.forEach(item => {
+                item.iconUrl = api.getItemImageUrl(item);
+                item.name = convertTagToName(item.tag);
+            })
+            resolve(mockData);
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -921,7 +968,8 @@ function initAPI(): API {
         unsubscribeFlips,
         itemSearch,
         authenticateModConnection,
-        playerSearch
+        playerSearch,
+        getLowSupplyItems
     }
 }
 

@@ -42,7 +42,8 @@ export enum RequestType {
     GET_ACCOUNT_INFO = "accountInfo",
     ITEM_SEARCH = "item/search",
     PLAYER_SEARCH = "search/player",
-    AUTHENTICATE_MOD_CONNECTION = "authCon"
+    AUTHENTICATE_MOD_CONNECTION = "authCon",
+    GET_LOW_SUPPLY_ITEMS = "supply/low"
 }
 
 export enum SubscriptionType {

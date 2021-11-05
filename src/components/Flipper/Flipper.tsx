@@ -206,28 +206,25 @@ function Flipper() {
 
         flipLookup[newFlipAuction.uuid] = newFlipAuction;
 
-        api.getItemImageUrl(newFlipAuction.item).then((url) => {
+        newFlipAuction.item.iconUrl = api.getItemImageUrl(newFlipAuction.item);
+        newFlipAuction.showLink = true;
 
-            newFlipAuction.item.iconUrl = url;
-            newFlipAuction.showLink = true;
+        missedInfo = {
+            estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
+            missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
+            missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
+            totalFlips: missedInfo.totalFlips + 1
+        }
 
-            missedInfo = {
-                estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
-                missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
-                missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
-                totalFlips: missedInfo.totalFlips + 1
+        setFlips(flips => [...flips, newFlipAuction]);
+
+        if (autoscrollRef.current) {
+            let element = document.getElementsByClassName('flipper-scroll-list').length > 0 ? document.getElementsByClassName('flipper-scroll-list').item(0) : null;
+            if (element) {
+                element.scrollBy({ left: 16000, behavior: 'smooth' })
+                attachScrollEvent(element);
             }
-
-            setFlips(flips => [...flips, newFlipAuction]);
-
-            if (autoscrollRef.current) {
-                let element = document.getElementsByClassName('flipper-scroll-list').length > 0 ? document.getElementsByClassName('flipper-scroll-list').item(0) : null;
-                if (element) {
-                    element.scrollBy({ left: 16000, behavior: 'smooth' })
-                    attachScrollEvent(element);
-                }
-            }
-        });
+        }
     }
 
     function onFilterChange(newFilter) {
