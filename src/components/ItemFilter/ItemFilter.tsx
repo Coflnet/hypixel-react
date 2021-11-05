@@ -23,9 +23,6 @@ const groupedFilter = [
     ["SecondEnchantment", "SecondEnchantLvl"]
 ];
 
-// Boolean if the component is mounted. Set to false in useEffect cleanup function
-let mounted = true;
-
 function ItemFilter(props: Props) {
 
     const reforgeSelect = useRef(null);
@@ -38,18 +35,27 @@ function ItemFilter(props: Props) {
     let history = useHistory();
 
     useEffect(() => {
-        mounted = true;
         initFilter();
-        return () => { mounted = false }
     }, []);
 
     useEffect(() => {
         if (props.isPrefill) {
             return;
         }
-        setSelectedFilters([]);
-        setItemFilter({});
-        onFilterChange({});
+
+        let newSelectedFilters: string[] = [];
+        let newItemFilter = {};
+        props.filters?.forEach(filter => {
+            let index = selectedFilters.findIndex(f => f === filter.name);
+            if (index !== -1) {
+                newItemFilter[filter.name] = itemFilter[filter.name];
+                newSelectedFilters.push(filter.name);
+            }
+        })
+
+        setSelectedFilters(newSelectedFilters);
+        setItemFilter(newItemFilter);
+        onFilterChange(newItemFilter);
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
@@ -253,15 +259,15 @@ function ItemFilter(props: Props) {
                             <h4>Item-Filter Information</h4>
                         </Modal.Header>
                         <Modal.Body>
-                            <p>You can add various filters depending on the item type. After clicking 'apply' only the auctions matching your filter will be displayed.</p>
+                            <p>You can add various filters depending on the item type. The graph and recent/active auctions will be updated to only include items with the selected properties.</p>
                             <hr />
                             <h4><Badge variant="danger">Caution</Badge></h4>
                             <p>
-                                Some filter requests take quite some time to process. Thats because we have to search through millions of auctions that potentially match your filter.
-                                This can lead to no auctions being displayed at all because your browser things that our server is unavailable.
-                                If that happens please let us know. We may implement sheduled filters where you will get an email or push notification when we computed a result for your filter.
+                                Some filter requests take quite some time to process. That's because we have to search through millions of auctions that potentially match your filter.
+                                This can lead to no auctions being displayed at all because your browser thinks that our server is unavailable.
+                                If that happens please let us know. We may implement scheduled filters where you will get an email or push notification when we computed a result for your filter.
                             </p>
-                            <p>If you are missing a filter please ask for it on our <Link href="/feedback">discord</Link></p>
+                            <p>If you are missing a filter please ask for it on our <Link href="/feedback">Discord</Link>.</p>
                         </Modal.Body>
                     </Modal> : ""
             }

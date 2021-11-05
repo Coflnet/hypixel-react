@@ -1,67 +1,17 @@
-import api from "../../api/ApiHelper";
-
-const PAYMENT_METHOD = "https://play.google.com/billing";
-
-const paymentDetails: PaymentDetails = {
-    total: {
-        label: `Total`,
-        amount: { currency: `EUR`, value: `1` }
-    }
-}
-
-let paymentMethods: PaymentMethod[] = [{
-    supportedMethods: "https://play.google.com/billing",
-    data: {
-        sku: 'premium_1'
-    }
-}];
-
-let digitalGoodsService: any;
-
 export default function GooglePlayProvider(): AbstractPaymentProvider {
 
     const name = 'google_play';
 
     let getProducts = (): Promise<Product[]> => {
-        return new Promise((resolve, reject) => {
-            if (!digitalGoodsService) {
-                setDigitalGoodsService().then(() => {
-                    getProductsFromDigitalGoodsService().then(products => resolve(products));
-                });
-            } else {
-                getProductsFromDigitalGoodsService().then(products => resolve(products));
-            }
-        })
+        throw "google play products are not supported anymore";
     }
 
-    let getProductsFromDigitalGoodsService = (): Promise<Product[]> =>
-        digitalGoodsService.getDetails(['premium_30', 'premium_1', 'premium_3'])
-
     let pay = (product: Product): Promise<Product> => {
-        return new Promise((resolve, reject) => {
-            paymentMethods[0].data.sku = product.itemId;
-            const request = new PaymentRequest(paymentMethods, paymentDetails);
-            request.show().then(paymentResponse => {
-                const { token } = paymentResponse.details;
-                product.description = token;
-                validatePaymentToken(token, product).then(valid => {
-                    if (valid) {
-                        digitalGoodsService.acknowledge(token, 'onetime').then(() => {
-                            paymentResponse.complete('success').then(() => {
-                                resolve(product)
-                            })
-                        })
-                    } else {
-                        paymentResponse.complete('fail').then(() => {
-                            reject(product)
-                        });
-                    }
-                })
-            });
-        })
+        throw "google play payments are not supported anymore";
     }
 
     let checkIfPaymentIsPossible = (): boolean => {
+
         if (!window.PaymentRequest) {
             return false;
         }
@@ -69,22 +19,6 @@ export default function GooglePlayProvider(): AbstractPaymentProvider {
             return false;
         }
         return true;
-    }
-
-    let validatePaymentToken = (token: string, product: Product): Promise<boolean> => {
-        return api.validatePaymentToken(token, product.itemId);
-    }
-
-    let setDigitalGoodsService = (): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            if (!('getDigitalGoodsService' in window)) {
-                throw new Error('getDigitalGoodsService not found');
-            }
-            (window as any).getDigitalGoodsService(PAYMENT_METHOD).then(service => {
-                digitalGoodsService = service
-                resolve()
-            });
-        })
     }
 
     return {

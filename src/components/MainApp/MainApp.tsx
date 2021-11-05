@@ -10,6 +10,8 @@ import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import { getURLSearchParam } from '../../utils/Parser/URLParser';
 import Cookies from 'js-cookie';
+import 'react-contexify/dist/ReactContexify.css';
+
 
 export function MainApp(props: any) {
 
@@ -87,7 +89,7 @@ export function MainApp(props: any) {
                     <p style={{ margin: "0px" }}>We use cookies for analytics. <a href="https://coflnet.com/privacy"> privacy policy </a></p>
                 </span>
             </CookieConsent>
-            <ToastContainer />
+            <ToastContainer theme={"colored"} />
         </ThemeProvider>
     )
 }

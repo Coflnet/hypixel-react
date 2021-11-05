@@ -11,7 +11,9 @@ export function numberWithThousandsSeperators(number?: number, seperator?: strin
     if (!number) {
         return "0";
     }
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, seperator || ".");
+    var parts = number.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, seperator || ".");
+    return parts.join(",");
 }
 
 /**
@@ -84,7 +86,7 @@ export function getStyleForTier(tier?: string | number): CSSProperties {
         type: string
     }
 
-    let tierColors : TierColour[] = [
+    let tierColors: TierColour[] = [
         { type: "UNKOWN", colourCode: "black" },
         { type: "COMMON", colourCode: "black" },
         { type: "UNCOMMON", colourCode: "#55ff55" },
@@ -101,7 +103,7 @@ export function getStyleForTier(tier?: string | number): CSSProperties {
 
     if (tier) {
         //!tier ? DEFAULT_COLOR : (TIER_COLORS[tier.toString().toUpperCase()] || 
-        if(!isNaN(Number(tier))){
+        if (!isNaN(Number(tier))) {
             color = tierColors[tier]
         } else {
             color = tierColors.find(color => {
@@ -129,4 +131,19 @@ export function enchantmentAndReforgeCompare(a: Enchantment | Reforge, b: Enchan
     }
 
     return aName.localeCompare(bName);
+}
+
+export function formatToPriceToShorten(num: number, decimals: number = 0): string {
+    // Ensure number has max 3 significant digits (no rounding up can happen)
+    let i = Math.pow(10, Math.max(0, Math.log10(num) - 2));
+    num = num / i * i;
+
+    if (num >= 1_000_000_000)
+        return (num / 1_000_000_000).toFixed(decimals) + "B";
+    if (num >= 1_000_000)
+        return (num / 1_000_000).toFixed(decimals) + "M";
+    if (num >= 1_000)
+        return (num / 1_000).toFixed(decimals) + "k";
+
+    return num.toFixed(0)
 }

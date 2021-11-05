@@ -40,6 +40,7 @@ const Success = ReactLazyPreload(() => import('./pages/PaymentSuccess/PaymentSuc
 const Ref = ReactLazyPreload(() => import('./pages/Ref/Ref'));
 const Refed = ReactLazyPreload(() => import('./pages/Refed/Refed'));
 const ApiInfo = ReactLazyPreload(() => import('./pages/ApiInfo/ApiInfo'));
+const AuthMod = ReactLazyPreload(() => import('./pages/AuthMod/AuthMod'));
 
 setTimeout(() => {
   PlayerDetails.preload();
@@ -84,6 +85,7 @@ export default (
           <Route path='/ref' component={Ref.component} />
           <Route path='/refed' component={Refed.component} />
           <Route path='/data' component={ApiInfo.component} />
+          <Route path='/authMod' component={AuthMod.component} />
           <Route path='*' exact component={NotFound.component} />
         </Switch>
       </MainApp>

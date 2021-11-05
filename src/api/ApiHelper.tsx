@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parsePlayer, parsePlayerDetails, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -8,6 +8,8 @@ import { enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
+import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
+import { getFlipCustomizeSettings } from "../utils/FlipUtils";
 
 function initAPI(): API {
 
@@ -203,7 +205,7 @@ function initAPI(): API {
 
     let getAuctionDetails = (auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheRequest({
+            httpApi.sendLimitedCacheApiRequest({
                 type: RequestType.AUCTION_DETAILS,
                 data: auctionUUID,
                 resolve: (auctionDetails) => {
@@ -364,6 +366,7 @@ function initAPI(): API {
                 type: RequestType.PREMIUM_EXPIRATION,
                 data: googleId,
                 resolve: (premiumUntil) => {
+                    checkForExpiredPremium(new Date(premiumUntil));
                     resolve(new Date(premiumUntil));
                 },
                 reject: (error: any) => {
@@ -518,26 +521,58 @@ function initAPI(): API {
         });
     }
 
-    let subscribeFlips = (flipCallback: Function, soldCallback?: Function) => {
+    let subscribeFlips = (flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function) => {
 
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS);
 
-        return new Promise((resolve, reject) => {
-            websocketHelper.subscribe({
-                type: RequestType.SUBSCRIBE_FLIPS,
-                data: "",
-                callback: function (data) {
-                    if (!data) {
-                        return;
-                    }
-                    if (!data.uuid && soldCallback) {
-                        soldCallback(data);
-                        return;
-                    }
-                    flipCallback(parseFlipAuction(data));
+        let flipSettings = getFlipCustomizeSettings();
+
+        let requestData = {
+            whitelist: restrictionList.filter(restriction => restriction.type === "whitelist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
+            blacklist: restrictionList.filter(restriction => restriction.type === "blacklist").map(restriction => { return { tag: restriction.item?.tag, filter: restriction.itemFilter } }),
+            minProfit: filter.minProfit || 0,
+            minProfitPercent: filter.minProfitPercent || 0,
+            minVolume: filter.minVolume || 0,
+            maxCost: filter.maxCost || 0,
+            filters: {},
+            lbin: flipSettings.useLowestBinForProfit,
+            mod: {
+                justProfit: flipSettings.justProfit,
+                soundOnFlip: flipSettings.soundOnFlip,
+                shortNumbers: flipSettings.shortNumbers
+            },
+            visibility: {
+                cost: !flipSettings.hideCost,
+                estProfit: !flipSettings.hideEstimatedProfit,
+                lBin: !flipSettings.hideLowestBin,
+                slbin: !flipSettings.hideSecondLowestBin,
+                medPrice: !flipSettings.hideMedianPrice,
+                seller: !flipSettings.hideSeller,
+                volume: !flipSettings.hideVolume,
+                extraFields: flipSettings.maxExtraInfoFields
+            }
+        }
+
+        if (filter.onlyBin) {
+            requestData.filters = { Bin: "true" };
+        }
+
+        console.log(requestData);
+
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_FLIPS,
+            data: requestData,
+            callback: function (data) {
+                if (!data) {
+                    return;
                 }
-            })
-        });
+                if (!data.uuid && soldCallback) {
+                    soldCallback(data);
+                    return;
+                }
+                flipCallback(parseFlipAuction(data));
+            }
+        })
     }
 
     let unsubscribeFlips = (): Promise<void> => {
@@ -765,6 +800,49 @@ function initAPI(): API {
         })
     }
 
+    let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.CONNECT_MINECRAFT_ACCOUNT,
+                data: playerUUID,
+                resolve: function (data) {
+                    resolve(parseMinecraftConnectionInfo(data));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.CONNECT_MINECRAFT_ACCOUNT, error, playerUUID);
+                    reject();
+                }
+            });
+        })
+    }
+
+
+    let accountInfo;
+    let getAccountInfo = (): Promise<AccountInfo> => {
+
+        return new Promise((resolve, reject) => {
+
+            if (accountInfo) {
+                resolve(accountInfo);
+                return;
+            }
+
+            websocketHelper.sendRequest({
+                type: RequestType.GET_ACCOUNT_INFO,
+                data: "",
+                resolve: function (accountInfo) {
+                    let info = parseAccountInfo(accountInfo);
+                    accountInfo = info;
+                    resolve(info);
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_ACCOUNT_INFO, error, "");
+                }
+            })
+        })
+    }
+
     let itemSearch = (searchText: string): Promise<FilterOptions[]> => {
         return new Promise((resolve, reject) => {
 
@@ -776,6 +854,40 @@ function initAPI(): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ITEM_SEARCH, error, searchText);
+                    reject();
+                }
+            });
+        })
+    }
+
+    let authenticateModConnection = (conId: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            websocketHelper.sendRequest({
+                type: RequestType.AUTHENTICATE_MOD_CONNECTION,
+                data: conId,
+                resolve: function () {
+                    resolve();
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId);
+                    reject();
+                }
+            });
+        })
+    }
+
+    let playerSearch = (playerName: string): Promise<Player[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.PLAYER_SEARCH,
+                data: playerName,
+                resolve: function (players) {
+                    resolve(players.map(parsePlayer));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName);
                     reject();
                 }
             });
@@ -821,9 +933,13 @@ function initAPI(): API {
         setRef,
         getActiveAuctions,
         filterFor,
+        connectMinecraftAccount,
+        getAccountInfo,
         unsubscribeFlips,
         itemSearch,
-        unsubscribeAll
+        unsubscribeAll,
+        authenticateModConnection,
+        playerSearch
     }
 }
 

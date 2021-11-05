@@ -18,7 +18,7 @@ export const DEMO_FLIP: FlipAuction = {
     uuid: "e4723502450544c8a3711a0a5b1e8cd0",
     volume: 5.874998615,
     sold: true,
-    props: ["Top Bid: 50.000.000", "Recombulated", "Hot Potato Book: 2", "Ultimate Wise 1", "Sharpness 6", "Thunderlord 6", "Vampirism 6", "Critical 6", "Luck 6", "Giant Killer 6", "Smite 6", "Ender Slayer 6", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "..."]
+    props: ["Top Bid: 50.000.000", "Recombobulated", "Hot Potato Book: 2", "Ultimate Wise 1", "Sharpness 6", "Thunderlord 6", "Vampirism 6", "Critical 6", "Luck 6", "Giant Killer 6", "Smite 6", "Ender Slayer 6", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "..."]
 }
 
 export function getFlipCustomizeSettings(): FlipCustomizeSettings {
@@ -26,8 +26,12 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     try {
         settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY));
 
+        // Felder, die per default true sind
         if (settings.hideSecondLowestBin !== false) {
             settings.hideSecondLowestBin = true;
+        }
+        if (settings.soundOnFlip !== false) {
+            settings.soundOnFlip = true;
         }
 
     } catch {
@@ -41,7 +45,11 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             maxExtraInfoFields: 3,
             hideCopySuccessMessage: false,
             hideSecondLowestBin: true,
-            useLowestBinForProfit: false
+            useLowestBinForProfit: false,
+            disableLinks: false,
+            justProfit: false,
+            soundOnFlip: true,
+            shortNumbers: false
         };
 
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))

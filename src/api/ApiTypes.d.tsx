@@ -2,7 +2,7 @@ export enum RequestType {
     SEARCH = "fullSearch",
     PLAYER_DETAIL = "playerDetails",
     ITEM_PRICES = "pricerdicer",
-    AUCTION_DETAILS = "auctionDetails",
+    AUCTION_DETAILS = "auction",
     ITEM_DETAILS = "itemDetails",
     PLAYER_AUCTION = "playerAuctions",
     PLAYER_BIDS = "playerBids",
@@ -39,7 +39,11 @@ export enum RequestType {
     SET_REF = "setRef",
     ACTIVE_AUCTIONS = "activeAuctions",
     FILTER_FOR = "filterFor",
-    ITEM_SEARCH = "item/search"
+    CONNECT_MINECRAFT_ACCOUNT = "conMc",
+    GET_ACCOUNT_INFO = "accountInfo",
+    ITEM_SEARCH = "item/search",
+    PLAYER_SEARCH = "search/player",
+    AUTHENTICATE_MOD_CONNECTION = "authCon"
 }
 
 export enum SubscriptionType {
@@ -87,6 +91,7 @@ export interface WebsocketHelper extends Connection {
 
 export interface HttpApi extends Connection {
     sendApiRequest(request: ApiRequest): Promise<void>,
+    sendLimitedCacheApiRequest(request: ApiRequest, grouping: number),
     sendLimitedCacheRequest(request: ApiRequest, grouping: number),
     sendLimitedCacheRequest(request: ApiRequest),
 }

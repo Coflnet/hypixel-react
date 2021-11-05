@@ -7,7 +7,7 @@ import { v4 as generateUUID } from 'uuid';
 import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList';
 import { BallotOutlined as FilterIcon } from '@material-ui/icons';
 import AutoNumeric from 'autonumeric';
-import { FLIPPER_FILTER_KEY, getSetting, setSetting } from '../../../utils/SettingsUtils';
+import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 
 interface Props {
     onChange(filter: FlipperFilter),
@@ -26,16 +26,18 @@ let defaultFilter: FlipperFilter;
 function FlipperFilter(props: Props) {
 
     if (!defaultFilter) {
-        defaultFilter = loadDefaultFilter();
+        defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {});
     }
 
     let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin);
-    let [onlyUnsold, setOnlyUnsold] = useState(defaultFilter.onlyUnsold);
+    let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium == null ? false : defaultFilter.onlyUnsold || false);
     let [minProfit, setMinProfit] = useState(defaultFilter.minProfit);
+    let [minProfitPercent, setMinProfitPercent] = useState(defaultFilter.minProfitPercent);
     let [minVolume, setMinVolume] = useState(defaultFilter.minVolume);
     let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || 0);
     let [freePremiumFilters, setFreePremiumFilters] = useState(false);
     let [freeLoginFilters, setFreeLoginFilters] = useState(false);
+    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []));
     let [uuids, setUUIDs] = useState<string[]>([]);
     let [showRestrictionList, setShowRestrictionList] = useState(false);
 
@@ -48,9 +50,6 @@ function FlipperFilter(props: Props) {
             newUuids.push(generateUUID())
         }
         setUUIDs(newUuids);
-
-        updateOnlyUnsold(props.isPremium == null ? false : props.isPremium);
-        props.onChange(getCurrentFilter());
         FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN;
         FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN;
 
@@ -58,17 +57,6 @@ function FlipperFilter(props: Props) {
     }, [])
 
     checkAutoNumeric();
-
-    function loadDefaultFilter(): FlipperFilter {
-        let filter = getSetting(FLIPPER_FILTER_KEY);
-        let parsed: FlipperFilter = {};
-        try {
-            parsed = JSON.parse(filter);
-        } catch {
-            // to nothing as the filters are correctly initialized 
-        }
-        return parsed;
-    }
 
     function checkAutoNumeric() {
 
@@ -81,6 +69,9 @@ function FlipperFilter(props: Props) {
         }, {
             id: 'filter-input-max-cost',
             stateName: 'maxCost'
+        }, {
+            id: 'filter-input-min-volume-percent',
+            stateName: 'minProfitPercent'
         }]
 
         autoNumericElements.forEach(autoNumericElement => {
@@ -91,28 +82,22 @@ function FlipperFilter(props: Props) {
                     digitGroupSeparator: '.',
                     decimalCharacter: ',',
                     decimalPlaces: 0,
-                    emptyInputBehavior: 'zero'
+                    emptyInputBehavior: 'zero',
+                    minimumValue: "0"
                 });
             }
         });
     }
-
-    useEffect(() => {
-        if (onlyUnsoldRef.current) {
-            let checked = (onlyUnsoldRef.current! as HTMLInputElement).checked;
-            setOnlyUnsold(checked);
-            onlyUnsold = checked;
-            props.onChange(getCurrentFilter());
-        }
-    }, [props.isPremium])
 
     function getCurrentFilter(): FlipperFilter {
         return {
             onlyBin: onlyBin,
             minProfit: minProfit,
             maxCost: maxCost,
+            minProfitPercent: minProfitPercent,
             onlyUnsold: onlyUnsold,
-            minVolume: minVolume
+            minVolume: minVolume,
+            restrictions: restrictions
         }
     }
 
@@ -154,6 +139,15 @@ function FlipperFilter(props: Props) {
         onFilterChange(filter);
     }
 
+    function onMinProfitPercentChange(event: ChangeEvent<HTMLInputElement>) {
+
+        let val = AutoNumeric.getAutoNumericElement(event.target).getNumber() || 0
+        setMinProfitPercent(val)
+        let filter = getCurrentFilter();
+        filter.minProfitPercent = val;
+        onFilterChange(filter);
+    }
+
     function onMaxCostChange(event: ChangeEvent<HTMLInputElement>) {
         let val = AutoNumeric.getAutoNumericElement(event.target).getNumber() || 0
         setMaxCost(val)
@@ -180,6 +174,7 @@ function FlipperFilter(props: Props) {
     function onRestrictionsChange(restrictions: FlipRestriction[]) {
         let filter = getCurrentFilter();
         filter.restrictions = restrictions;
+        setRestrictions(restrictions);
         onFilterChange(filter);
     }
 
@@ -234,6 +229,10 @@ function FlipperFilter(props: Props) {
             <Form.Control id="filter-input-min-profit" key="filter-input-min-profit" onChange={onMinProfitChange} className="flipper-filter-formfield flipper-filter-formfield-text" type="text" disabled={!props.isLoggedIn && !freeLoginFilters} />
         </Form.Group>
         <Form.Group className="filterTextfield">
+            <Form.Label className="flipper-filter-formfield-label">Min. Profit (%):</Form.Label>
+            <Form.Control id="filter-input-min-volume-percent" key="filter-input-min-volume-percent" onChange={onMinProfitPercentChange} className="flipper-filter-formfield flipper-filter-formfield-text" disabled={!props.isLoggedIn && !freeLoginFilters} />
+        </Form.Group>
+        <Form.Group className="filterTextfield">
             <Form.Label className="flipper-filter-formfield-label">Min. Volume:</Form.Label>
             <Form.Control id="filter-input-min-volume" key="filter-input-min-volume" onChange={onMinVolumeChange} className="flipper-filter-formfield flipper-filter-formfield-text" disabled={!props.isLoggedIn && !freeLoginFilters} />
         </Form.Group>
@@ -272,7 +271,6 @@ function FlipperFilter(props: Props) {
             {restrictionListDialog}
         </div>
     );
-
 }
 
 export default FlipperFilter;

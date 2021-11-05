@@ -10,6 +10,7 @@ interface Enchantment {
   id: number;
   name?: string;
   level?: number;
+  color?: string;
 }
 
 interface Reforge {
@@ -46,6 +47,7 @@ interface AuctionDetails {
   reforge: Reforge;
   enchantments: Enchantment[];
   nbtData: any;
+  itemCreatedAt: Date;
 }
 
 interface Auction {
@@ -88,11 +90,14 @@ interface PlayerDetails {
   auctions: Auction[];
 }
 enum FilterType {
-  Equal = 1,
+  EQUAL = 1,
   HIGHER = 2,
   LOWER = 4,
   DATE = 8,
-  NUMERICAL = 16
+  NUMERICAL = 16,
+  RANGE = 32,
+  PLAYER = 64,
+  SIMPLE = 128
 }
 
 interface ItemFilter {
@@ -131,6 +136,7 @@ interface FlipAuction {
   uuid: string,
   median: number,
   cost: number,
+
   volume: number,
   showLink: boolean,
   item: Item,
@@ -146,6 +152,7 @@ interface FlipAuction {
 interface FlipperFilter {
   onlyBin?: boolean,
   minProfit?: number,
+  minProfitPercent?: number,
   minVolume?: number,
   maxCost?: number,
   onlyUnsold?: boolean,
@@ -190,7 +197,7 @@ interface API {
   ): Promise<boolean>;
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
-  subscribeFlips(flipCallback: Function, soldCallback: Function): void,
+  subscribeFlips(flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function): void,
   unsubscribeFlips(): Promise<void>,
   getFilter(name: string): Promise<FilterOptions>
   getNewAuctions(): Promise<Auction[]>,
@@ -206,6 +213,10 @@ interface API {
   filterFor(item: Item): Promise<FilterOptions[]>,
   itemSearch(searchText: string): Promise<FilterOptions[]>,
   unsubscribeAll(): Promise<void>
+  connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>,
+  getAccountInfo(): Promise<AccountInfo>,
+  authenticateModConnection(conId: string): Promise<void>,
+  playerSearch(playerName: string): Promise<Player[]>
 }
 
 interface CacheUtils {
@@ -289,12 +300,17 @@ interface RefInfo {
 
 interface FreeFlipperMissInformation {
   totalFlips: number,
-  totalFlipsFiltered: number,
   missedFlipsCount: number,
   missedEstimatedProfit: number,
   estimatedProfitCopiedAuctions: number
 }
 
+interface AccountInfo {
+  email: string,
+  token: string,
+  mcId?: string,
+  mcName?: string
+}
 interface FlipCustomizeSettings {
   hideCost?: boolean,
   hideLowestBin?: boolean,
@@ -305,11 +321,20 @@ interface FlipCustomizeSettings {
   hideVolume?: boolean,
   maxExtraInfoFields?: number,
   hideCopySuccessMessage?: boolean,
-  useLowestBinForProfit?: boolean
+  useLowestBinForProfit?: boolean,
+  disableLinks?: boolean,
+  justProfit?: boolean,
+  soundOnFlip?: boolean,
+  shortNumbers?: boolean
 }
 
 interface FlipRestriction {
-  type: "blacklist",
+  type: "blacklist" | "whitelist",
   item?: Item,
   itemFilter?: ItemFilter
+}
+
+interface MinecraftConnectionInfo {
+  code: number,
+  isConnected: boolean
 }
