@@ -4,6 +4,7 @@ import api from '../../api/ApiHelper';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import './LowSupplyList.css'
 import { ArrowDownward as ArrowDownIcon, ArrowUpward as ArrowUpIcon } from '@material-ui/icons'
+import { numberWithThousandsSeperators } from '../../utils/Formatter';
 
 let mounted = true;
 
@@ -40,6 +41,11 @@ function LowSupplyList() {
         onOrderChange(o);
     }
 
+    function onVolumeClick() {
+        let o = orderBy === "volume" ? "-volume" : "volume";
+        onOrderChange(o);
+    }
+
     function onOrderChange(order) {
 
         if (!lowSupplyItems) {
@@ -72,7 +78,8 @@ function LowSupplyList() {
                 <td><img crossOrigin="anonymous" src={item.iconUrl} width="32" height="32" alt="" style={{ marginRight: "5px" }} loading="lazy" /></td>
                 <td>{item.name}</td>
                 <td>{item.supply}</td>
-                <td>{item.medianPrice}</td>
+                <td>{item.volume}</td>
+                <td>{numberWithThousandsSeperators(item.medianPrice)}</td>
             </tr>)
     }) : []
 
@@ -88,6 +95,7 @@ function LowSupplyList() {
                                     <th>Icon</th>
                                     <th><Form.Control style={{ width: "auto" }} placeholder="Name" onChange={onNameChange} /></th>
                                     <th style={{ cursor: "pointer" }} onClick={onSupplyClick}>Supply {orderBy === "supply" ? <ArrowDownIcon /> : (orderBy === "-supply" ? <ArrowUpIcon /> : null)}</th>
+                                    <th style={{ cursor: "pointer" }} onClick={onVolumeClick}>Volume {orderBy === "volume" ? <ArrowDownIcon /> : (orderBy === "-volume" ? <ArrowUpIcon /> : null)}</th>
                                     <th style={{ cursor: "pointer" }} onClick={onMedianClick}>Median price {orderBy === "medianPrice" ? <ArrowDownIcon /> : (orderBy === "-medianPrice" ? <ArrowUpIcon /> : null)}</th>
                                 </tr>
                             </thead>

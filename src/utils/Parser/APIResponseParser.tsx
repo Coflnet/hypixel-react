@@ -362,10 +362,9 @@ export function parseDate(dateString: string) {
 }
 
 export function parseLowSupplyItem(item): LowSupplyItem {
-    item.tag = item.key;
-
     let lowSupplyItem = parseItem(item) as LowSupplyItem;
-    lowSupplyItem.supply = item.value;
+    lowSupplyItem.supply = item.supply;
     lowSupplyItem.medianPrice = item.median;
+    lowSupplyItem.volume = item.volume;
     return lowSupplyItem;
 }
