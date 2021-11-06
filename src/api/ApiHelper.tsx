@@ -10,6 +10,8 @@ import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
 import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
 import { getFlipCustomizeSettings } from "../utils/FlipUtils";
+import { getProperty } from "../utils/PropertiesUtils";
+import { Base64 } from "js-base64";
 
 function initAPI(): API {
 
@@ -894,6 +896,45 @@ function initAPI(): API {
                     reject();
                 }
             }, 1);
+        });
+    }
+
+    let sendFeedback = (feedbackKey: string, feedback: any): Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            let googleId = localStorage.getItem('googleId');
+            let user;
+            if (googleId) {
+                let parts = googleId.split('.');
+                if (parts.length > 2) {
+                    let obj = JSON.parse(Base64.atob(parts[1]));
+                    user = obj.sub;
+                }
+            }
+
+            let requestData = {
+                Context: "Skyblock",
+                User: user || "",
+                Feedback: JSON.stringify(feedback),
+                FeedbackName: feedbackKey
+            };
+
+            httpApi.sendApiRequest({
+                type: RequestType.SEND_FEEDBACK,
+                data: "",
+                customRequestURL: getProperty("feedbackEndpoint"),
+                requestMethod: 'POST',
+                requestHeader: {
+                    'Content-Type': 'application/json'
+                },
+                resolve: function () {
+                    resolve();
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.SEND_FEEDBACK, error, feedback);
+                    reject();
+                }
+            }, JSON.stringify(requestData));
         })
     }
 
@@ -942,7 +983,8 @@ function initAPI(): API {
         itemSearch,
         authenticateModConnection,
         playerSearch,
-        getLowSupplyItems
+        getLowSupplyItems,
+        sendFeedback
     }
 }
 

@@ -216,7 +216,8 @@ interface API {
   itemSearch(searchText: string): Promise<FilterOptions[]>
   authenticateModConnection(conId: string): Promise<void>,
   playerSearch(playerName: string): Promise<Player[]>,
-  getLowSupplyItems(): Promise<LowSupplyItem[]>
+  getLowSupplyItems(): Promise<LowSupplyItem[]>,
+  sendFeedback(feedbackKey: string, feedback: any): Promise<void>
 }
 
 interface CacheUtils {
@@ -343,4 +344,10 @@ interface LowSupplyItem extends Item {
   supply: number,
   medianPrice: number,
   volume: number
+}
+interface ReloadFeedback {
+  loadNewInformation: boolean,
+  somethingBroke: boolean,
+  otherIssue: boolean,
+  additionalInformation: string
 }

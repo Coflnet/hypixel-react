@@ -80,9 +80,16 @@ function FilterElement(props: Props) {
         }
     }
 
-    function updateSelectFilter(selected) {
+    function updateSearchSelectFilter(selected) {
         setValue(selected[0]);
         updateValue(selected[0]);
+    }
+
+    function updateSelectFilter(event: ChangeEvent<HTMLSelectElement>) {
+        let selectedIndex = event.target.options.selectedIndex;
+        let value = event.target.options[selectedIndex].getAttribute('data-id')!;
+        setValue(value);
+        updateValue(value);
     }
 
     function updateInputFilter(event: ChangeEvent<HTMLInputElement>) {
@@ -167,7 +174,7 @@ function FilterElement(props: Props) {
                                         onSearch={handlePlayerSearch}
                                         options={players}
                                         placeholder="Search users..."
-                                        onChange={selected => updateSelectFilter(selected.map(s => s.name))}
+                                        onChange={selected => updateSearchSelectFilter(selected.map(s => s.name))}
                                     />
                                     : hasFlag(props.options.type, FilterType.EQUAL) && hasFlag(props.options.type, FilterType.SIMPLE)
                                         ? <Form.Control isInvalid={!isValid} className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
@@ -178,7 +185,7 @@ function FilterElement(props: Props) {
                                                 id={props.options.name}
                                                 style={{ display: "block" }}
                                                 className="select-filter"
-                                                onChange={selected => updateSelectFilter(selected)}
+                                                onChange={updateSearchSelectFilter}
                                                 options={props.options?.options}
                                                 labelKey={convertTagToName}
                                                 autoselect={false}
