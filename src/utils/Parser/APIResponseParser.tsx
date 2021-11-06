@@ -389,10 +389,10 @@ export function parseProfitableCraft(craft): ProfitableCraft {
     c.item.name = convertTagToName(c.item.tag);
     c.ingredients.forEach(i => {
         i.item.name = convertTagToName(i.item.tag);
+        i.item.iconUrl = api.getItemImageUrl(i.item);
     })
-    if (c.requiredCollection) {
-        c.requiredCollection.name = convertTagToName(c.requiredCollection?.name);
-    }
+    c.item.name = convertTagToName(c.item.name);
+    c.item.iconUrl = api.getItemImageUrl(c.item);
     return c;
 }
 

@@ -1,22 +1,16 @@
-.crafts-list {
-    display: flex;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-}
-
 .crafts-list .list-group-item {
-    width: 49%;
+    width: calc(50% - 10px);
+    margin: 5px;
     margin-bottom: 15px;
     border-radius: 20px;
 }
 
 .crafts-list .list {
     display: flex;
-    flex-wrap: wrap;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
 
-.crafts-list span {
-    width: auto;
+#tooltip-container .tooltip-inner {
+    max-width: fit-content;
 }

@@ -15,7 +15,8 @@ interface Props {
     tooltipContent: JSX.Element,
     tooltipTitle?: JSX.Element,
     size?: "sm" | "lg" | "xl",
-    onClick?: Function
+    onClick?: Function,
+    id?: any
 }
 
 function Tooltip(props: Props) {
@@ -23,7 +24,7 @@ function Tooltip(props: Props) {
     let [showDialog, setShowDialog] = useState(false);
     let hoverElement = (
         <OverlayTrigger
-            overlay={<BootstrapTooltip id={generateUUID()}>
+            overlay={<BootstrapTooltip id={props.id || generateUUID()}>
                 {props.tooltipContent}
             </BootstrapTooltip>}>
             {props.content}
