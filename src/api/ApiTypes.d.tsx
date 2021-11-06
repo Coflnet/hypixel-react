@@ -43,7 +43,8 @@ export enum RequestType {
     ITEM_SEARCH = "item/search",
     PLAYER_SEARCH = "search/player",
     AUTHENTICATE_MOD_CONNECTION = "authCon",
-    SEND_FEEDBACK = "sendFeedback"
+    SEND_FEEDBACK = "sendFeedback",
+    GET_PROFITABLE_CRAFTS = "craft/profit"
 }
 
 export enum SubscriptionType {

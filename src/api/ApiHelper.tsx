@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseCraftIngredient, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseProfitableCraft, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -918,6 +918,23 @@ function initAPI(): API {
         })
     }
 
+    let getProfitableCrafts = (): Promise<ProfitableCraft[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_PROFITABLE_CRAFTS,
+                data: "",
+                resolve: function (crafts) {
+                    resolve(crafts.map(parseProfitableCraft));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_PROFITABLE_CRAFTS, error, "");
+                    reject();
+                }
+            });
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -963,7 +980,8 @@ function initAPI(): API {
         itemSearch,
         authenticateModConnection,
         playerSearch,
-        sendFeedback
+        sendFeedback,
+        getProfitableCrafts
     }
 }
 

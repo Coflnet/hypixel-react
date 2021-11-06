@@ -53,13 +53,7 @@ function Tooltip(props: Props) {
         </span>
     )
 
-    return (
-        <span>
-            {
-                props.type === "hover" ? hoverElement : clickElement
-            }
-        </span>
-    );
+    return props.type === "hover" ? hoverElement : clickElement
 }
 
 export default Tooltip;

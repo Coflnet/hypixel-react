@@ -41,6 +41,7 @@ const Ref = ReactLazyPreload(() => import('./pages/Ref/Ref'));
 const Refed = ReactLazyPreload(() => import('./pages/Refed/Refed'));
 const ApiInfo = ReactLazyPreload(() => import('./pages/ApiInfo/ApiInfo'));
 const AuthMod = ReactLazyPreload(() => import('./pages/AuthMod/AuthMod'));
+const Crafts = ReactLazyPreload(() => import('./pages/Crafts/Crafts'));
 
 setTimeout(() => {
   PlayerDetails.preload();
@@ -55,6 +56,7 @@ setTimeout(() => {
   Success.preload();
   Ref.preload();
   ApiInfo.preload();
+  Crafts.preload();
 }, 2000);
 
 const matomoTrackingInstance = createInstance({
@@ -86,6 +88,7 @@ export default (
           <Route path='/refed' component={Refed.component} />
           <Route path='/data' component={ApiInfo.component} />
           <Route path='/authMod' component={AuthMod.component} />
+          <Route path='/crafts' component={Crafts.component} />
           <Route path='*' exact component={NotFound.component} />
         </Switch>
       </MainApp>

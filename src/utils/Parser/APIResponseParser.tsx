@@ -1,4 +1,6 @@
+import api from '../../api/ApiHelper';
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
+import { convertTagToName } from '../Formatter';
 
 export function parseItemBidForList(bid: any): BidForList {
     return {
@@ -359,4 +361,37 @@ export function parseDate(dateString: string) {
         return new Date(dateString);
     }
     return new Date(dateString + "Z");
+}
+
+export function parseCraftIngredient(ingredient): CraftingIngredient {
+    return {
+        cost: ingredient.cost,
+        count: ingredient.count,
+        item: {
+            tag: ingredient.itemId
+        }
+    }
+}
+
+export function parseProfitableCraft(craft): ProfitableCraft {
+    let c = {
+        item: {
+            tag: craft.itemId
+        },
+        craftCost: craft.craftCost,
+        sellPrice: craft.sellPrice,
+        ingredients: craft.ingredients.map(parseCraftIngredient),
+        requiredCollection: craft.reqCollection ? {
+            name: craft.reqCollection.name,
+            level: craft.reqCollection.level
+        } : null
+    } as ProfitableCraft
+    c.item.name = convertTagToName(c.item.tag);
+    c.ingredients.forEach(i => {
+        i.item.name = convertTagToName(i.item.tag);
+    })
+    if (c.requiredCollection) {
+        c.requiredCollection.name = convertTagToName(c.requiredCollection?.name);
+    }
+    return c;
 }

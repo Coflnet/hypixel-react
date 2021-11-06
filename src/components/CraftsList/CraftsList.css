@@ -1,0 +1,22 @@
+.crafts-list {
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+.crafts-list .list-group-item {
+    width: 49%;
+    margin-bottom: 15px;
+    border-radius: 20px;
+}
+
+.crafts-list .list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.crafts-list span {
+    width: auto;
+}
