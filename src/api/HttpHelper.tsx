@@ -1,6 +1,5 @@
 import { ApiRequest, HttpApi } from "./ApiTypes.d";
 import { Base64 } from "js-base64";
-import { v4 as generateUUID } from 'uuid';
 import cacheUtils from "../utils/CacheUtils";
 import { getProperty } from "../utils/PropertiesUtils";
 import { getNextMessageId } from "../utils/MessageIdUtils";
@@ -19,7 +18,6 @@ let requests: ApiRequest[] = [];
 function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): Promise<void> {
     request.mId = getNextMessageId();
     let requestString = JSON.stringify(request.data);
-    let headers = { 'ConId': getOrGenerateUUid() };
     var url = `${commandEndpoint}/${request.type}/${Base64.encode(requestString)}`;
 
     if (cacheInvalidationGrouping) {
@@ -46,7 +44,7 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
         }
 
         requests.push(request);
-        return handleServerRequest(request, url, headers);
+        return handleServerRequest(request, url);
     })
 }
 
@@ -55,13 +53,16 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
  * @param request The request-Object
  * @returns A emty promise (the resolve/reject Method of the request-Object is called)
  */
-function sendApiRequest(request: ApiRequest, cacheInvalidationGrouping?: number): Promise<void> {
+function sendApiRequest(request: ApiRequest, body?: any, cacheInvalidationGrouping?: number): Promise<void> {
     request.mId = getNextMessageId();
     let requestString = request.data;
-    let headers = { 'ConId': getOrGenerateUUid() };
     var url = `${apiEndpoint}/${request.type}`;
     if (requestString) {
         url += `/${requestString}`
+    }
+
+    if (request.customRequestURL) {
+        url = request.customRequestURL;
     }
 
     if (cacheInvalidationGrouping) {
@@ -82,7 +83,7 @@ function sendApiRequest(request: ApiRequest, cacheInvalidationGrouping?: number)
         }
 
         requests.push(request);
-        return handleServerRequest(request, url, headers);
+        return handleServerRequest(request, url, body);
     })
 }
 
@@ -90,50 +91,59 @@ function isResponseValid(response: Response) {
     return response.ok && response.body;
 }
 
-function handleServerRequest(request, url, headers): Promise<void> {
-    return fetch(url)
-        .then(response => {
-            let parsed;
-            try {
-                parsed = response.json();
-            } catch (error) {
-                request.reject({ Message: "Unnown error" });
-            }
-            if (!isResponseValid(response)) {
-                parsed.then((parsedResponse) => {
-                    request.reject(parsedResponse);
-                })
-                return;
-            }
-            return parsed;
-        }).then(parsedResponse => {
-            if (!parsedResponse || parsedResponse.Slug !== undefined) {
+function handleServerRequest(request: ApiRequest, url: string, body?: any): Promise<void> {
+    return fetch(url, {
+        body: body,
+        method: request.requestMethod,
+        headers: request.requestHeader
+    }).then(response => {
+
+        if (response.status === 204) {
+            request.resolve();
+            return;
+        }
+
+        let parsed;
+        try {
+            parsed = response.json();
+        } catch (error) {
+            request.reject({ Message: "Unnown error" });
+        }
+        if (!isResponseValid(response)) {
+            parsed.then((parsedResponse) => {
                 request.reject(parsedResponse);
-                return;
-            }
-            request.resolve(parsedResponse)
-            let equals = findForEqualSentRequest(request);
-            equals.forEach(equal => {
-                equal.resolve(parsedResponse)
-            });
-            // all http answers are valid for 60 sec
-            let maxAge = 60;
-
-            let data = request.data;
-            try {
-                data = Base64.decode(request.data)
-            } catch { }
-
-            cacheUtils.setIntoCache(request.type, data, parsedResponse, maxAge);
-            removeSentRequests([...equals, request]);
-        }).finally(() => {
-            // when there are still matching request remove them
-            let equals = findForEqualSentRequest(request);
-            equals.forEach(equal => {
-                equal.reject()
-            });
-            removeSentRequests([...equals, request]);
+            })
+            return;
+        }
+        return parsed;
+    }).then(parsedResponse => {
+        if (!parsedResponse || parsedResponse.Slug !== undefined) {
+            request.reject(parsedResponse);
+            return;
+        }
+        request.resolve(parsedResponse)
+        let equals = findForEqualSentRequest(request);
+        equals.forEach(equal => {
+            equal.resolve(parsedResponse)
         });
+        // all http answers are valid for 60 sec
+        let maxAge = 60;
+
+        let data = request.data;
+        try {
+            data = Base64.decode(request.data)
+        } catch { }
+
+        cacheUtils.setIntoCache(request.type, data, parsedResponse, maxAge);
+        removeSentRequests([...equals, request]);
+    }).finally(() => {
+        // when there are still matching request remove them
+        let equals = findForEqualSentRequest(request);
+        equals.forEach(equal => {
+            equal.reject()
+        });
+        removeSentRequests([...equals, request]);
+    });
 }
 
 function sendRequestLimitCache(request: ApiRequest, grouping = 1): Promise<void> {
@@ -143,7 +153,7 @@ function sendRequestLimitCache(request: ApiRequest, grouping = 1): Promise<void>
 
 function sendLimitedCacheApiRequest(request: ApiRequest, grouping = 1): Promise<void> {
     let group = Math.round(new Date().getMinutes() / grouping);
-    return sendApiRequest(request, group);
+    return sendApiRequest(request, undefined, group);
 }
 
 function removeSentRequests(toDelete: ApiRequest[]) {
@@ -157,11 +167,6 @@ function removeSentRequests(toDelete: ApiRequest[]) {
     })
 }
 
-function getOrGenerateUUid(): string {
-    let websocketUUID = window.localStorage.getItem("websocketUUID") || generateUUID();
-    window.localStorage.setItem("websocketUUID", websocketUUID);
-    return websocketUUID;
-}
 function findForEqualSentRequest(request: ApiRequest) {
     return requests.filter(r => {
         return r.type === request.type && r.data === request.data && r.mId !== request.mId;

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useLocation } from "react-router-dom";
 import CookieConsent from 'react-cookie-consent';
@@ -10,16 +10,41 @@ import registerNotificationCallback from '../../utils/NotificationUtils';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import { getURLSearchParam } from '../../utils/Parser/URLParser';
 import Cookies from 'js-cookie';
+import { Modal } from 'react-bootstrap';
+import ReloadDialog from '../ReloadDialog/ReloadDialog';
 import 'react-contexify/dist/ReactContexify.css';
 
 
 export function MainApp(props: any) {
+
+    let [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false);
 
     const { trackPageView, trackEvent, pushInstruction } = useMatomo()
     const location = useLocation();
     const history = useHistory();
 
     const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    useEffect(() => {
+        let preventReloadDialog = localStorage.getItem("rememberHideReloadDialog") === "true";
+        if (preventReloadDialog) {
+            return;
+        }
+
+        // check if page was reloaded
+        if ((performance.getEntriesByType("navigation")[0] as any).type === "reload") {
+
+            let lastReloadTime = localStorage.getItem("lastReloadTime");
+            // Check if the last reload was less than 30 seconds ago
+            if (lastReloadTime && 30_000 > new Date().getTime() - Number(lastReloadTime)) {
+                setTimeout(() => {
+                    setShowRefreshFeedbackDialog(true);
+                }, 1000)
+            } else {
+                localStorage.setItem("lastReloadTime", new Date().getTime().toString());
+            }
+        }
+    }, []);
 
     useEffect(() => {
 
@@ -69,6 +94,16 @@ export function MainApp(props: any) {
         trackPageView({});
     }
 
+    let refreshFeedbackDialog = (
+        <Modal size={"lg"} show={showRefreshFeedbackDialog} onHide={() => { setShowRefreshFeedbackDialog(false) }}>
+            <Modal.Header closeButton>
+                <Modal.Title>Has an error occured?</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <ReloadDialog onClose={() => { setShowRefreshFeedbackDialog(false) }} />
+            </Modal.Body>
+        </Modal>);
+
     return (
         <ThemeProvider theme={theme}>
             <OfflineBanner />
@@ -89,6 +124,7 @@ export function MainApp(props: any) {
                     <p style={{ margin: "0px" }}>We use cookies for analytics. <a href="https://coflnet.com/privacy"> privacy policy </a></p>
                 </span>
             </CookieConsent>
+            {refreshFeedbackDialog}
             <ToastContainer theme={"colored"} />
         </ThemeProvider>
     )

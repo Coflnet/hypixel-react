@@ -216,7 +216,8 @@ interface API {
   itemSearch(searchText: string): Promise<FilterOptions[]>
   authenticateModConnection(conId: string): Promise<void>,
   getFlipUpdateTime(): Promise<Date>,
-  playerSearch(playerName: string): Promise<Player[]>
+  playerSearch(playerName: string): Promise<Player[]>,
+  sendFeedback(feedbackKey: string, feedback: any): Promise<void>
 }
 
 interface CacheUtils {
@@ -337,4 +338,11 @@ interface FlipRestriction {
 interface MinecraftConnectionInfo {
   code: number,
   isConnected: boolean
+}
+
+interface ReloadFeedback {
+  loadNewInformation: boolean,
+  somethingBroke: boolean,
+  otherIssue: boolean,
+  additionalInformation: string
 }
