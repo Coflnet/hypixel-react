@@ -19,7 +19,7 @@ import FlipCustomize from './FlipCustomize/FlipCustomize';
 import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
-import Countdown from 'react-countdown';
+import Countdown, { zeroPad } from 'react-countdown';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -200,7 +200,7 @@ function Flipper() {
 
         setLastFlipFetchTimeLoading(true);
         api.getFlipUpdateTime().then(date => {
-            setLastFlipFetchTimeSeconds(date.getSeconds());
+            setLastFlipFetchTimeSeconds((date.getSeconds() + 10) % 60);
             setLastFlipFetchTimeLoading(false);
         })
     };
@@ -417,7 +417,7 @@ function Flipper() {
                                 <span style={{ cursor: "pointer" }}> <SettingsIcon /></span>
                             </Form.Group>
                             {
-                                hasPremium ? <span>Expected new flips in: {lastFlipFetchTimeSeconds && !lastFlipFetchTimeLoading ? <Countdown date={getCountdownDateObject()} onComplete={onCountdownComplete} /> : "..."}</span> : ""
+                                hasPremium ? <span>Next update: {lastFlipFetchTimeSeconds && !lastFlipFetchTimeLoading ? <Countdown date={getCountdownDateObject()} onComplete={onCountdownComplete} renderer={({ seconds }) => (<span>{zeroPad(seconds)}</span>)} /> : "..."}</span> : ""
                             }
                             <Form.Group onClick={onArrowRightClick}>
                                 <Form.Label style={{ cursor: "pointer", marginRight: "10px" }}>To newest flip</Form.Label>

@@ -44,7 +44,6 @@ export enum RequestType {
     AUTHENTICATE_MOD_CONNECTION = "authCon",
     FLIP_UPDATE_TIME = "flip/update/when",
     PLAYER_SEARCH = "search/player",
-    AUTHENTICATE_MOD_CONNECTION = "authCon",
     SEND_FEEDBACK = "sendFeedback"
 }
 
