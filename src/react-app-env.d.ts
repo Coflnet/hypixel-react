@@ -216,7 +216,8 @@ interface API {
   connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>,
   getAccountInfo(): Promise<AccountInfo>,
   authenticateModConnection(conId: string): Promise<void>,
-  playerSearch(playerName: string): Promise<Player[]>
+  playerSearch(playerName: string): Promise<Player[]>,
+  sendFeedback(feedbackKey: string, feedback: any): Promise<void>
 }
 
 interface CacheUtils {
@@ -337,4 +338,11 @@ interface FlipRestriction {
 interface MinecraftConnectionInfo {
   code: number,
   isConnected: boolean
+}
+
+interface ReloadFeedback {
+  loadNewInformation: boolean,
+  somethingBroke: boolean,
+  otherIssue: boolean,
+  additionalInformation: string
 }
