@@ -107,7 +107,7 @@ function PlayerDetailsList(props: Props) {
             listElements = reset ? newListElements : listElements.concat(newListElements);
 
             newListElements.forEach(auction => {
-                loadItemImage(auction.item, auction.uuid, listElements);
+                auction.item.iconUrl = api.getItemImageUrl(auction.item);
             })
             setListElements(listElements);
             updateListState();
@@ -119,17 +119,6 @@ function PlayerDetailsList(props: Props) {
         }).catch(() => {
             setAllElementsLoaded(true);
         });
-    }
-
-    let loadItemImage = (item: Item, auctionUUID: string, listElements: (Auction | BidForList)[]): void => {
-        api.getItemImageUrl(item).then((iconUrl => {
-            let updatedListElements = listElements.slice();
-            let listElement = updatedListElements.find(a => a.uuid === auctionUUID);
-            if (listElement) {
-                listElement.item.iconUrl = iconUrl;
-            }
-            setListElements(updatedListElements);
-        }));;
     }
 
     let getCoinImage = () => {

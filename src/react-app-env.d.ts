@@ -162,7 +162,7 @@ interface FlipperFilter {
 interface API {
   search(searchText: string): Promise<SearchResultItem[]>;
   trackSearch(fullSearchId: string, fullSearchType: string): void;
-  getItemImageUrl(item: Item): Promise<string>;
+  getItemImageUrl(item: Item): string;
   getItemDetails(itemTagOrName: string): Promise<Item>;
   getItemPrices(
     itemTagOrName: string,
@@ -216,6 +216,7 @@ interface API {
   itemSearch(searchText: string): Promise<FilterOptions[]>
   authenticateModConnection(conId: string): Promise<void>,
   playerSearch(playerName: string): Promise<Player[]>,
+  getLowSupplyItems(): Promise<LowSupplyItem[]>,
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>
 }
 
@@ -339,6 +340,11 @@ interface MinecraftConnectionInfo {
   isConnected: boolean
 }
 
+interface LowSupplyItem extends Item {
+  supply: number,
+  medianPrice: number,
+  volume: number
+}
 interface ReloadFeedback {
   loadNewInformation: boolean,
   somethingBroke: boolean,

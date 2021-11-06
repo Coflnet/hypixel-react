@@ -20,10 +20,8 @@ function ItemDetails() {
     useEffect(() => {
         api.getItemDetails(tag).then(detailedItem => {
             document.title = `Auction Price tracker for ${detailedItem.name || convertTagToName(tag)} in hypixel skyblock`;
-            api.getItemImageUrl({ tag: tag }).then(iconUrl => {
-                detailedItem.iconUrl = iconUrl;
-                setItem(detailedItem);
-            })
+            detailedItem.iconUrl = api.getItemImageUrl({ tag: tag });
+            setItem(detailedItem);
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tag]);

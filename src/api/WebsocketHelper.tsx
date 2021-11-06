@@ -57,6 +57,9 @@ function initWebsocket(): void {
             request.reject(JSON.parse(response.data));
             equals.forEach(equal => equal.reject(JSON.parse(response.data)));
         } else {
+            if (response.data === "") {
+                response.data = "\"\"";
+            }
             let parsedResponse = JSON.parse(response.data);
             request.resolve(parsedResponse);
             equals.forEach(equal => equal.resolve(parsedResponse));

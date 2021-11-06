@@ -360,3 +360,11 @@ export function parseDate(dateString: string) {
     }
     return new Date(dateString + "Z");
 }
+
+export function parseLowSupplyItem(item): LowSupplyItem {
+    let lowSupplyItem = parseItem(item) as LowSupplyItem;
+    lowSupplyItem.supply = item.supply;
+    lowSupplyItem.medianPrice = item.median;
+    lowSupplyItem.volume = item.volume;
+    return lowSupplyItem;
+}
