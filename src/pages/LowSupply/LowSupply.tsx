@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import './LowSupply.css'
 import NavBar from '../../components/NavBar/NavBar';
@@ -49,7 +49,7 @@ function LowSupply() {
                     isLoggedIn && hasPremium ?
                         <div>
                             <p>These are low supply items. Strong price fluctuation may occur.</p>
-                            <LowSupplyList />
+                            <LowSupplyList/>
                         </div> : null
                 }
                 {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}

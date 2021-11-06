@@ -878,7 +878,7 @@ function initAPI(): API {
 
         return new Promise((resolve, reject) => {
 
-            httpApi.sendApiRequest({
+            httpApi.sendLimitedCacheApiRequest({
                 type: RequestType.GET_LOW_SUPPLY_ITEMS,
                 data: "",
                 resolve: function (items) {
@@ -893,7 +893,7 @@ function initAPI(): API {
                     apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, "");
                     reject();
                 }
-            });
+            }, 1);
         })
     }
 

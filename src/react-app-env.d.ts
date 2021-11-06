@@ -340,5 +340,6 @@ interface MinecraftConnectionInfo {
 }
 
 interface LowSupplyItem extends Item {
-  supply: number
+  supply: number,
+  medianPrice: number
 }
