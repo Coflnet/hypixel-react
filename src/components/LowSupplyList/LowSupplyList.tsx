@@ -12,7 +12,7 @@ let mounted = true;
 
 function LowSupplyList(props: Props) {
 
-    let [lowSupplyItems, setLowSupplyItems] = useState<LowSupplyItem[]>([]);
+    let [lowSupplyItems, setLowSupplyItems] = useState<LowSupplyItem[]>();
 
     useEffect(() => {
         mounted = true;
@@ -32,7 +32,7 @@ function LowSupplyList(props: Props) {
         });
     }
 
-    let lowSupplyItemsTableBody = lowSupplyItems.map((item, i) =>
+    let lowSupplyItemsTableBody = lowSupplyItems ? lowSupplyItems.map((item, i) =>
     (
         <ListGroup.Item key={i}>
             <h5>
@@ -43,15 +43,17 @@ function LowSupplyList(props: Props) {
             </h5>
             <p>Supply: <Badge className="supply-badge" variant="success">{item.supply}</Badge></p>
         </ListGroup.Item>)
-    )
+    ) : []
 
     return (
         <div className="low-supply-list">{
-            lowSupplyItems.length > 0 ?
-                <ListGroup style={{ marginTop: "20px" }}>
-                    {lowSupplyItemsTableBody}
-                </ListGroup>
-                : <p>{getLoadingElement(<p>Loading low supply items</p>)}</p>
+            !lowSupplyItems ?
+                <p>{getLoadingElement(<p>Loading low supply items</p>)}</p> :
+                lowSupplyItems.length > 0 ?
+                    <ListGroup style={{ marginTop: "20px" }}>
+                        {lowSupplyItemsTableBody}
+                    </ListGroup> :
+                    <p>No low volume items found</p>
         }</div>
     );
 }
