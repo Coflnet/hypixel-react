@@ -1,10 +1,10 @@
-import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseCraftIngredient, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseProfitableCraft, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseLowSupplyItem, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseProfitableCraft, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
 import { v4 as generateUUID } from 'uuid';
 import { Stripe } from "@stripe/stripe-js";
-import { enchantmentAndReforgeCompare } from "../utils/Formatter";
+import { convertTagToName, enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
@@ -45,11 +45,8 @@ function initAPI(): API {
         })
     }
 
-    let getItemImageUrl = (item: Item): Promise<string> => {
-
-        return new Promise((resolve, reject) => {
-            resolve('https://sky.coflnet.com/static/icon/' + item.tag);
-        });
+    let getItemImageUrl = (item: Item): string => {
+        return 'https://sky.coflnet.com/static/icon/' + item.tag;
     }
 
     let getItemDetails = (itemTagOrName: string): Promise<Item> => {
@@ -879,6 +876,29 @@ function initAPI(): API {
         })
     }
 
+    let getLowSupplyItems = (): Promise<LowSupplyItem[]> => {
+
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendLimitedCacheApiRequest({
+                type: RequestType.GET_LOW_SUPPLY_ITEMS,
+                data: "",
+                resolve: function (items) {
+                    resolve(items.map(item => {
+                        let lowSupplyItem = parseLowSupplyItem(item);
+                        lowSupplyItem.iconUrl = api.getItemImageUrl(item);
+                        lowSupplyItem.name = convertTagToName(item.tag);
+                        return lowSupplyItem;
+                    }))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, "");
+                    reject();
+                }
+            }, 1);
+        });
+    }
+
     let sendFeedback = (feedbackKey: string, feedback: any): Promise<void> => {
         return new Promise((resolve, reject) => {
 
@@ -980,8 +1000,9 @@ function initAPI(): API {
         itemSearch,
         authenticateModConnection,
         playerSearch,
-        sendFeedback,
-        getProfitableCrafts
+        getProfitableCrafts,
+        getLowSupplyItems,
+        sendFeedback
     }
 }
 

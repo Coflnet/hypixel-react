@@ -33,15 +33,8 @@ function Startpage() {
 
     let loadNewAuctions = () => {
         api.getNewAuctions().then(auctions => {
-
-            let promises: Promise<void>[] = [];
             auctions.forEach(auction => {
-                promises.push(api.getItemImageUrl(auction.item).then(url => {
-                    auction.item.iconUrl = url;
-                }).catch(() => { }));
-            })
-            Promise.all(promises).then(() => {
-                setNewAuctions(auctions);
+                auction.item.iconUrl = api.getItemImageUrl(auction.item);
             })
             setNewAuctions(auctions);
         });
@@ -55,15 +48,8 @@ function Startpage() {
 
     let loadEndedAuctions = () => {
         api.getEndedAuctions().then(endedAuctions => {
-
-            let promises: Promise<void>[] = [];
             endedAuctions.forEach(auction => {
-                promises.push(api.getItemImageUrl(auction.item).then(url => {
-                    auction.item.iconUrl = url;
-                }).catch(() => { }));
-            })
-            Promise.all(promises).then(() => {
-                setEndedAuctions(endedAuctions);
+                auction.item.iconUrl = api.getItemImageUrl(auction.item);
             })
             setEndedAuctions(endedAuctions);
         });
@@ -77,15 +63,10 @@ function Startpage() {
 
     let loadNewItems = () => {
         api.getNewItems().then(newItems => {
-            let promises: Promise<void>[] = [];
             newItems.forEach(item => {
-                promises.push(api.getItemImageUrl(item).then(url => {
-                    item.iconUrl = url;
-                }).catch(() => { }));
+                item.iconUrl = api.getItemImageUrl(item);
             })
-            Promise.all(promises).then(() => {
-                setNewItems(newItems);
-            })
+            setNewItems(newItems);
         })
     }
 

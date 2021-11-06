@@ -395,3 +395,11 @@ export function parseProfitableCraft(craft): ProfitableCraft {
     }
     return c;
 }
+
+export function parseLowSupplyItem(item): LowSupplyItem {
+    let lowSupplyItem = parseItem(item) as LowSupplyItem;
+    lowSupplyItem.supply = item.supply;
+    lowSupplyItem.medianPrice = item.median;
+    lowSupplyItem.volume = item.volume;
+    return lowSupplyItem;
+}
