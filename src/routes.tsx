@@ -41,6 +41,7 @@ const Ref = ReactLazyPreload(() => import('./pages/Ref/Ref'));
 const Refed = ReactLazyPreload(() => import('./pages/Refed/Refed'));
 const ApiInfo = ReactLazyPreload(() => import('./pages/ApiInfo/ApiInfo'));
 const AuthMod = ReactLazyPreload(() => import('./pages/AuthMod/AuthMod'));
+const Crafts = ReactLazyPreload(() => import('./pages/Crafts/Crafts'));
 const LowSupply = ReactLazyPreload(() => import('./pages/LowSupply/LowSupply'));
 
 setTimeout(() => {
@@ -56,6 +57,7 @@ setTimeout(() => {
   Success.preload();
   Ref.preload();
   ApiInfo.preload();
+  Crafts.preload();
   LowSupply.preload();
 }, 2000);
 

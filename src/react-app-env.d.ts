@@ -216,6 +216,8 @@ interface API {
   itemSearch(searchText: string): Promise<FilterOptions[]>
   authenticateModConnection(conId: string): Promise<void>,
   playerSearch(playerName: string): Promise<Player[]>,
+  sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
+  getProfitableCrafts(): Promise<ProfitableCraft[]>,
   getLowSupplyItems(): Promise<LowSupplyItem[]>,
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>
 }
@@ -350,4 +352,23 @@ interface ReloadFeedback {
   somethingBroke: boolean,
   otherIssue: boolean,
   additionalInformation: string
+}
+
+interface ProfitableCraft {
+  item: Item,
+  sellPrice: number,
+  craftCost: number,
+  ingredients: CraftingIngredient[],
+  requiredCollection?: RequiredCollection
+}
+
+interface CraftingIngredient {
+  item: Item,
+  count: number,
+  cost: number
+}
+
+interface RequiredCollection {
+  name: string,
+  level: number
 }
