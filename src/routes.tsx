@@ -90,7 +90,6 @@ export default (
           <Route path='/refed' component={Refed.component} />
           <Route path='/data' component={ApiInfo.component} />
           <Route path='/authMod' component={AuthMod.component} />
-          <Route path='/crafts' component={Crafts.component} />
           <Route path='/lowSupply' component={LowSupply.component} />
           <Route path='*' exact component={NotFound.component} />
         </Switch>
