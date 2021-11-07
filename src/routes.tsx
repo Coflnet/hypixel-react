@@ -58,7 +58,6 @@ setTimeout(() => {
   Ref.preload();
   ApiInfo.preload();
   Crafts.preload();
-  LowSupply.preload();
 }, 2000);
 
 const matomoTrackingInstance = createInstance({
@@ -90,6 +89,7 @@ export default (
           <Route path='/refed' component={Refed.component} />
           <Route path='/data' component={ApiInfo.component} />
           <Route path='/authMod' component={AuthMod.component} />
+          <Route path='/crafts' component={Crafts.component} />
           <Route path='/lowSupply' component={LowSupply.component} />
           <Route path='*' exact component={NotFound.component} />
         </Switch>
