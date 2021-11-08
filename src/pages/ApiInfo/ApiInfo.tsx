@@ -32,6 +32,7 @@ function ApiInfo() {
                         <p>These folks use our API:</p>
                         <ul>
                             <li><a href="https://discord.com/api/oauth2/authorize?client_id=854722092037701643&permissions=2147601408&scope=bot">Hypixel Skyblock Community Discord</a></li>
+                            <li><a href="https://item-value-calculator.bubbleapps.io/version-test">Item Calculator by Froggily</a></li>
                             <li>You use the API as well? Tell use and get listed here :)</li>
                         </ul>
                     </Card.Body>
