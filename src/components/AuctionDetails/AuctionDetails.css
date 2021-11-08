@@ -39,6 +39,11 @@
 .auction-details .label {
     width: 30vw;
     float: left;
+    padding-right: 5px;
+}
+
+.auction-details .label .badge {
+    white-space: normal;
 }
 
 .labelForList {

@@ -44,6 +44,8 @@ export enum RequestType {
     AUTHENTICATE_MOD_CONNECTION = "authCon",
     FLIP_UPDATE_TIME = "flip/update/when",
     PLAYER_SEARCH = "search/player",
+    GET_PROFITABLE_CRAFTS = "craft/profit",
+    GET_LOW_SUPPLY_ITEMS = "auctions/supply/low",
     SEND_FEEDBACK = "sendFeedback"
 }
 

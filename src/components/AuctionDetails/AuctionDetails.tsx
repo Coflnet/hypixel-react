@@ -35,11 +35,8 @@ function AuctionDetails(props: Props) {
 
         api.getAuctionDetails(props.auctionUUID, tryNumber).then(auctionDetails => {
             auctionDetails.bids.sort((a, b) => b.amount - a.amount)
+            auctionDetails.auction.item.iconUrl = api.getItemImageUrl(auctionDetails.auction.item);
             setAuctionDetails(auctionDetails);
-            api.getItemImageUrl(auctionDetails.auction.item).then(url => {
-                auctionDetails.auction.item.iconUrl = url;
-                setAuctionDetails(auctionDetails);
-            })
             api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
                 auctionDetails.auction.item.description = item.description;
                 if (!auctionDetails.auction.item.name) {

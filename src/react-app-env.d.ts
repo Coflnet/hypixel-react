@@ -162,7 +162,7 @@ interface FlipperFilter {
 interface API {
   search(searchText: string): Promise<SearchResultItem[]>;
   trackSearch(fullSearchId: string, fullSearchType: string): void;
-  getItemImageUrl(item: Item): Promise<string>;
+  getItemImageUrl(item: Item): string;
   getItemDetails(itemTagOrName: string): Promise<Item>;
   getItemPrices(
     itemTagOrName: string,
@@ -217,6 +217,9 @@ interface API {
   authenticateModConnection(conId: string): Promise<void>,
   getFlipUpdateTime(): Promise<Date>,
   playerSearch(playerName: string): Promise<Player[]>,
+  sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
+  getProfitableCrafts(): Promise<ProfitableCraft[]>,
+  getLowSupplyItems(): Promise<LowSupplyItem[]>,
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>
 }
 
@@ -340,9 +343,33 @@ interface MinecraftConnectionInfo {
   isConnected: boolean
 }
 
+interface LowSupplyItem extends Item {
+  supply: number,
+  medianPrice: number,
+  volume: number
+}
 interface ReloadFeedback {
   loadNewInformation: boolean,
   somethingBroke: boolean,
   otherIssue: boolean,
   additionalInformation: string
+}
+
+interface ProfitableCraft {
+  item: Item,
+  sellPrice: number,
+  craftCost: number,
+  ingredients: CraftingIngredient[],
+  requiredCollection?: RequiredCollection
+}
+
+interface CraftingIngredient {
+  item: Item,
+  count: number,
+  cost: number
+}
+
+interface RequiredCollection {
+  name: string,
+  level: number
 }

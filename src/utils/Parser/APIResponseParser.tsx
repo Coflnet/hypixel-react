@@ -1,4 +1,6 @@
+import api from '../../api/ApiHelper';
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
+import { convertTagToName } from '../Formatter';
 
 export function parseItemBidForList(bid: any): BidForList {
     return {
@@ -359,4 +361,45 @@ export function parseDate(dateString: string) {
         return new Date(dateString);
     }
     return new Date(dateString + "Z");
+}
+
+export function parseCraftIngredient(ingredient): CraftingIngredient {
+    return {
+        cost: ingredient.cost,
+        count: ingredient.count,
+        item: {
+            tag: ingredient.itemId
+        }
+    }
+}
+
+export function parseProfitableCraft(craft): ProfitableCraft {
+    let c = {
+        item: {
+            tag: craft.itemId
+        },
+        craftCost: craft.craftCost,
+        sellPrice: craft.sellPrice,
+        ingredients: craft.ingredients.map(parseCraftIngredient),
+        requiredCollection: craft.reqCollection ? {
+            name: craft.reqCollection.name,
+            level: craft.reqCollection.level
+        } : null
+    } as ProfitableCraft
+    c.item.name = convertTagToName(c.item.tag);
+    c.ingredients.forEach(i => {
+        i.item.name = convertTagToName(i.item.tag);
+        i.item.iconUrl = api.getItemImageUrl(i.item);
+    })
+    c.item.name = convertTagToName(c.item.name);
+    c.item.iconUrl = api.getItemImageUrl(c.item);
+    return c;
+}
+
+export function parseLowSupplyItem(item): LowSupplyItem {
+    let lowSupplyItem = parseItem(item) as LowSupplyItem;
+    lowSupplyItem.supply = item.supply;
+    lowSupplyItem.medianPrice = item.median;
+    lowSupplyItem.volume = item.volume;
+    return lowSupplyItem;
 }
