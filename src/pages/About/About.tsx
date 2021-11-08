@@ -43,9 +43,9 @@ function ItemDetails() {
                     <hr />
                     <h3>Our API</h3>
                     <p><a href="https://sky.coflnet.com/api">https://sky.coflnet.com/api</a></p>
-<p>If you use it please link to <a href="https://sky.coflnet.com/data">https://sky.coflnet.com/data</a></p>
+                    <p>If you use it please link to <a href="https://sky.coflnet.com/data">https://sky.coflnet.com/data</a></p>
                     <hr />
-<h2>Credits</h2>
+                    <h2>Credits</h2>
                     <h3>Player Heads</h3>
                     <p>Are provided by <a href="https://mc-heads.net/">mc-heads</a> and <a href="https://craftatar.com">craftatar</a></p>
                     <hr />
@@ -70,8 +70,11 @@ function ItemDetails() {
                     <h3>Data / API</h3>
                     <p><a href="https://hypixel.net">Hypixel</a></p>
                     <hr />
+                    <h3>Crafts Data</h3>
+                    <p><a href="https://github.com/NotEnoughUpdates/NotEnoughUpdates-REPO">NEU</a></p>
+                    <hr />
                     <h2>Legal</h2>
-<p>We are not affiliated with Mojang nor HyPixel</p>
+                    <p>We are not affiliated with Mojang nor HyPixel</p>
                     <p><a href="https://coflnet.com/legal">Terms of use</a></p>
                     <p><a href="https://coflnet.com/privacy">Privacy</a></p>
                     <p><a href="https://coflnet.com/impressum">Imprint</a></p>
