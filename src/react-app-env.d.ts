@@ -197,7 +197,7 @@ interface API {
   ): Promise<boolean>;
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
-  subscribeFlips(flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function): void,
+  subscribeFlips(flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function, nextUpdateNotificationCallback?: Function): void,
   unsubscribeFlips(): Promise<void>,
   getFilter(name: string): Promise<FilterOptions>
   getNewAuctions(): Promise<Auction[]>,
@@ -215,6 +215,7 @@ interface API {
   getAccountInfo(): Promise<AccountInfo>
   itemSearch(searchText: string): Promise<FilterOptions[]>
   authenticateModConnection(conId: string): Promise<void>,
+  getFlipUpdateTime(): Promise<Date>,
   playerSearch(playerName: string): Promise<Player[]>,
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
   getProfitableCrafts(): Promise<ProfitableCraft[]>,

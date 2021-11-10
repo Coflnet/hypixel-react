@@ -56,7 +56,14 @@ function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): P
 function sendApiRequest(request: ApiRequest, body?: any, cacheInvalidationGrouping?: number): Promise<void> {
     request.mId = getNextMessageId();
     let requestString = request.data;
-    var url = request.customRequestURL || `${apiEndpoint}/${request.type}/${requestString}`;
+    var url = `${apiEndpoint}/${request.type}`;
+    if (requestString) {
+        url += `/${requestString}`
+    }
+
+    if (request.customRequestURL) {
+        url = request.customRequestURL;
+    }
 
     if (cacheInvalidationGrouping) {
         url += `?t=${cacheInvalidationGrouping}`;

@@ -41,8 +41,9 @@ export enum RequestType {
     CONNECT_MINECRAFT_ACCOUNT = "conMc",
     GET_ACCOUNT_INFO = "accountInfo",
     ITEM_SEARCH = "item/search",
-    PLAYER_SEARCH = "search/player",
     AUTHENTICATE_MOD_CONNECTION = "authCon",
+    FLIP_UPDATE_TIME = "flip/update/when",
+    PLAYER_SEARCH = "search/player",
     GET_PROFITABLE_CRAFTS = "craft/profit",
     GET_LOW_SUPPLY_ITEMS = "auctions/supply/low",
     SEND_FEEDBACK = "sendFeedback"
@@ -74,7 +75,7 @@ export interface ApiSubscription {
     mId?: number,
     type: RequestType,
     data: any,
-    callback: Function
+    callback(request: ApiResponse)
 }
 
 export interface Subscription {
