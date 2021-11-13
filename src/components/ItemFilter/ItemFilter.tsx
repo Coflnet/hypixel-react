@@ -9,7 +9,7 @@ import FilterElement from '../FilterElement/FilterElement';
 import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
 import { camelCaseToSentenceCase } from '../../utils/Formatter';
-import { FilterType } from '../FilterElement/FilterType';
+import { FilterType, hasFlag } from '../FilterElement/FilterType';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
@@ -218,10 +218,6 @@ function ItemFilter(props: Props) {
         }
 
         onFilterChange(newFilter);
-    }
-
-    function hasFlag(full?: FilterType, flag?: FilterType) {
-        return full && flag && (full & flag) === flag;
     }
 
     let filterList = selectedFilters.map(filterName => {

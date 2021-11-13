@@ -9,7 +9,7 @@ import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter
 import { Typeahead, AsyncTypeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import api from '../../api/ApiHelper';
-import { FilterType } from './FilterType';
+import { FilterType, hasFlag } from './FilterType';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
@@ -34,16 +34,6 @@ function FilterElement(props: Props) {
         updateValue(parsedDefaultValue);
         setValue(parsedDefaultValue);
     }, [])
-
-    /**
-     * Checks an FilterType if a flag is present
-     * @param full the enum that should contain the flag
-     * @param flag the flag to test against
-     * @returns true if the enum contains the flag
-     */
-    function hasFlag(full?: FilterType, flag?: FilterType) {
-        return full && flag && (full & flag) === flag;
-    }
 
     function parseValue(newValue?: any) {
         if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
