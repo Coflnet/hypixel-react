@@ -9,19 +9,7 @@ import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter
 import { Typeahead, AsyncTypeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import api from '../../api/ApiHelper';
-
-
-// has to be redefined because global types from react-app-env are not accessable
-export enum FilterType {
-    EQUAL = 1,
-    HIGHER = 2,
-    LOWER = 4,
-    DATE = 8,
-    NUMERICAL = 16,
-    RANGE = 32,
-    PLAYER = 64,
-    SIMPLE = 128
-}
+import { FilterType, hasFlag } from './FilterType';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
@@ -46,16 +34,6 @@ function FilterElement(props: Props) {
         updateValue(parsedDefaultValue);
         setValue(parsedDefaultValue);
     }, [])
-
-    /**
-     * Checks an FilterType if a flag is present
-     * @param full the enum that should contain the flag
-     * @param flag the flag to test against
-     * @returns true if the enum contains the flag
-     */
-    function hasFlag(full?: FilterType, flag?: FilterType) {
-        return full && flag && (full & flag) === flag;
-    }
 
     function parseValue(newValue?: any) {
         if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
@@ -184,6 +162,7 @@ function FilterElement(props: Props) {
                                             ? <Typeahead
                                                 id={props.options.name}
                                                 style={{ display: "block" }}
+                                                defaultSelected={[props.defaultValue]}
                                                 className="select-filter"
                                                 onChange={updateSearchSelectFilter}
                                                 options={props.options?.options}

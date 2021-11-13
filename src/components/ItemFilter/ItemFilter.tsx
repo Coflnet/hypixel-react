@@ -9,6 +9,7 @@ import FilterElement from '../FilterElement/FilterElement';
 import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import { Link } from '@material-ui/core';
 import { camelCaseToSentenceCase } from '../../utils/Formatter';
+import { FilterType, hasFlag } from '../FilterElement/FilterType';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
@@ -223,7 +224,11 @@ function ItemFilter(props: Props) {
         let options = props.filters?.find(f => f.name === filterName);
         let defaultValue: any = 0;
         if (options && options.options[0]) {
-            defaultValue = options.options[0];
+
+            // dont set the first option for search-selects
+            if (!(hasFlag(options.type, FilterType.EQUAL) && !hasFlag(options.type, FilterType.SIMPLE))) {
+                defaultValue = options.options[0]
+            }
         }
         if (!options) {
             return "";
