@@ -140,6 +140,8 @@ export function parseSearchResultItem(item: any): SearchResultItem {
                 return "/item/" + item.id;
             case "player":
                 return "/player/" + item.id;
+            case "auction":
+                return "/auction/" + item.id
         }
         return "";
     }
@@ -148,8 +150,6 @@ export function parseSearchResultItem(item: any): SearchResultItem {
         dataItem: {
             name: item.name,
             iconUrl: item.img ? "data:image/png;base64," + item.img : (item.type === "item" ? item.iconUrl : item.iconUrl + "?size=8"),
-            tag: item.id,
-            uuid: item.id
         },
         type: item.type,
         route: _getRoute(),

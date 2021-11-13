@@ -125,7 +125,10 @@ interface ItemPriceData {
 }
 
 interface SearchResultItem {
-  dataItem: Player | Item;
+  dataItem: {
+    iconUrl: string,
+    name: string
+  },
   type: string;
   route: string;
   getParams?: string;
