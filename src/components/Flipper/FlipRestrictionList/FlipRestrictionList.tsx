@@ -41,6 +41,7 @@ function FlipRestrictionList(props: Props) {
             return;
         }
         newRestriction.item = (item.dataItem as Item);
+        newRestriction.item.tag = item.id;
         setNewRestriction(newRestriction);
         loadFilters();
         forceUpdate();

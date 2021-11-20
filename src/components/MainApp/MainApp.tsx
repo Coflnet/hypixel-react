@@ -13,6 +13,7 @@ import Cookies from 'js-cookie';
 import { Modal } from 'react-bootstrap';
 import ReloadDialog from '../ReloadDialog/ReloadDialog';
 import 'react-contexify/dist/ReactContexify.css';
+import { startMigrations } from '../../migrations/MigrationUtils';
 
 
 export function MainApp(props: any) {
@@ -44,6 +45,8 @@ export function MainApp(props: any) {
                 localStorage.setItem("lastReloadTime", new Date().getTime().toString());
             }
         }
+
+        startMigrations();
     }, []);
 
     useEffect(() => {
