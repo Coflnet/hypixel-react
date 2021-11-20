@@ -97,7 +97,6 @@ function GoogleSignIn(props: Props) {
         <div style={style} onClickCapture={onLoginClick}>
             <GoogleLogin
                 clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                prompt="consent"
                 buttonText="Login"
                 onSuccess={onLoginSucces}
                 onFailure={onLoginFail}
