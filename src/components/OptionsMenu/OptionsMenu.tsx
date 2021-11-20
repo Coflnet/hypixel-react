@@ -25,7 +25,7 @@ function OptionsMenu(props: Props) {
         let name = props.selected?.name;
         available.push({ title: "Wiki", url: "https://hypixel-skyblock.fandom.com/wiki/" + name })
         if ((props.selected as Item).bazaar)
-            available.push({ title: "Bazaartracker", url: "https://bazaartracker.com/product/" + tag })
+            available.push({ title: "Skyblock.bz", url: "https://Skyblock.bz/product/" + tag })
         else
             available.push({ title: "HyAuctions", url: "https://craftlink.xyz/items/" + tag })
     } else if (isPlayerPage) {
