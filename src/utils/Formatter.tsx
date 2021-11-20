@@ -1,12 +1,11 @@
+import { CSSProperties } from "react";
+
 /*
  Returns a given number as string with thousands-seperators. Example:
  1234567 => 1.234.567
 
  Default-Seperator: '.'
 */
-
-import { CSSProperties } from "react";
-
 export function numberWithThousandsSeperators(number?: number, seperator?: string): string {
     if (!number) {
         return "0";

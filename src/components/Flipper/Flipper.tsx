@@ -317,7 +317,8 @@ function Flipper() {
         }
         parsed.push({
             type: "blacklist",
-            item: flip.item
+            item: flip.item,
+            itemFilter: {}
         })
 
         if (flipperFilter) {
