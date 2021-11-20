@@ -978,6 +978,25 @@ function initAPI(): API {
         })
     }
 
+    let triggerPlayerNameCheck = (playerUUID: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.TRIGGER_PLAYER_NAME_CHECK,
+                data: "",
+                customRequestURL: getProperty("apiEndpoint") + "/player/" + playerUUID + "/name",
+                requestMethod: "POST",
+                resolve: function () {
+                    resolve();
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.TRIGGER_PLAYER_NAME_CHECK, error, "");
+                    reject();
+                }
+            });
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1026,7 +1045,8 @@ function initAPI(): API {
         playerSearch,
         getProfitableCrafts,
         getLowSupplyItems,
-        sendFeedback
+        sendFeedback,
+        triggerPlayerNameCheck
     }
 }
 

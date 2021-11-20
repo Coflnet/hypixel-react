@@ -106,13 +106,13 @@ function PlayerDetails() {
                         <GoogleSignIn onAfterLogin={onAfterLogin} />
                     </div> : null
                 }
-                <Search selected={selectedPlayer}
+                <Search selected={selectedPlayer} type="player"
                     currentElement={
-                        <h1 className="current">
+                        <span>
                             <img crossOrigin="anonymous" className="player-head-icon" src={selectedPlayer?.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />
                             <span>{selectedPlayer?.name}</span>
                             {claimAccountElement}
-                        </h1>
+                        </span>
                     } />
                 <ToggleButtonGroup className="player-details-type" type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
                     <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">Auctions</ToggleButton>
