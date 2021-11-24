@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Form, Table } from 'react-bootstrap';
 import api from '../../api/ApiHelper';
 import { getLoadingElement } from '../../utils/LoadingUtils';
@@ -18,6 +18,8 @@ function LowSupplyList() {
         mounted = true;
         loadLowSupplyItems();
         return () => { mounted = false };
+        
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function loadLowSupplyItems() {

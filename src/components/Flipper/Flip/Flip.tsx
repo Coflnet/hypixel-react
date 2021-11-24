@@ -74,7 +74,8 @@ function Flip(props: Props) {
     function getProfitElement(flip: FlipAuction): JSX.Element {
         let profit = calculateProfit(flip);
         let preSymbol = profit > 0 ? "+" : "";
-        return <b style={{ color: profit > 0 ? "lime" : "white" }}>{preSymbol + formatPrices(profit) + " Coins ("}{Math.round((profit / flip.cost) * 100)}%)</b>;
+        let profitPercentElement = <span>({Math.round((profit / flip.cost) * 100)}%)</span>
+        return <b style={{ color: profit > 0 ? "lime" : "white" }}>{preSymbol + formatPrices(profit) + " Coins "}{!settings.hideProfitPercent ? profitPercentElement : null}</b>;
     }
 
     function onMouseDownLowestBin(e) {

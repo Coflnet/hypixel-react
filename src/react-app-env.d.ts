@@ -323,7 +323,8 @@ interface FlipCustomizeSettings {
   disableLinks?: boolean,
   justProfit?: boolean,
   soundOnFlip?: boolean,
-  shortNumbers?: boolean
+  shortNumbers?: boolean,
+  hideProfitPercent?: boolean
 }
 
 interface FlipRestriction {

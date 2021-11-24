@@ -3,11 +3,11 @@ export default function GooglePlayProvider(): AbstractPaymentProvider {
     const name = 'google_play';
 
     let getProducts = (): Promise<Product[]> => {
-        throw "google play products are not supported anymore";
+        throw new Error("google play products are not supported anymore");
     }
 
     let pay = (product: Product): Promise<Product> => {
-        throw "google play payments are not supported anymore";
+        throw new Error("google play payments are not supported anymore");
     }
 
     let checkIfPaymentIsPossible = (): boolean => {

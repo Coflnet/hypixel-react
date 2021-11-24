@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Badge, Form, ListGroup } from 'react-bootstrap';
 import api from '../../api/ApiHelper';
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter';

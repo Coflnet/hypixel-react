@@ -532,7 +532,8 @@ function initAPI(): API {
                 medPrice: !flipSettings.hideMedianPrice,
                 seller: !flipSettings.hideSeller,
                 volume: !flipSettings.hideVolume,
-                extraFields: flipSettings.maxExtraInfoFields
+                extraFields: flipSettings.maxExtraInfoFields,
+                profitPercent: !flipSettings.hideProfitPercent
             }
         }
 
