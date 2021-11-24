@@ -33,7 +33,7 @@ export function MainApp(props: any) {
         }
 
         // check if page was reloaded
-        if ((performance.getEntriesByType("navigation")[0] as any).type === "reload") {
+        if (window.performance && window.performance.getEntriesByType("navigation")[0] && (window.performance.getEntriesByType("navigation")[0] as any).type === "reload") {
 
             let lastReloadTime = localStorage.getItem("lastReloadTime");
             // Check if the last reload was less than 30 seconds ago
