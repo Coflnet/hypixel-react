@@ -49,7 +49,8 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             disableLinks: false,
             justProfit: false,
             soundOnFlip: true,
-            shortNumbers: false
+            shortNumbers: false,
+            hideProfitPercent: false
         };
 
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))

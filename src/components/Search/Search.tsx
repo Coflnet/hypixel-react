@@ -110,6 +110,7 @@ function Search(props: Props) {
         borderLeftWidth: 0,
         borderBottomColor: results.length > 0 ? "#444" : undefined
     }
+    
     let searchIconStyle: React.CSSProperties = {
         width: isSmall ? "auto" : "58px",
         borderRadius: results.length > 0 ? "10px 0 0 0" : "10px 0px 0px 10px",

@@ -121,7 +121,7 @@ function Payment(props: Props) {
     provider?.pay(product);
   }
 
-    let planList = products.length == 0 ?
+    let planList = products.length === 0 ?
       <p>
         you can not buy premium in the android app.
         please check the discord server for more information
