@@ -36,7 +36,7 @@ function ItemDetails() {
     return (
         <div className="item-details">
             <Container>
-                <Search selected={getItem()} />
+                <Search selected={getItem()} type="item" />
                 <PriceGraph item={getItem()} />
             </Container>
         </div >

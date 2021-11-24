@@ -90,7 +90,6 @@ function Flipper() {
         event.preventDefault();
         show(event, {
             props: {
-                key: 'value',
                 flip: flip
             }
         })

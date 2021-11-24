@@ -213,7 +213,8 @@ interface API {
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
   getProfitableCrafts(): Promise<ProfitableCraft[]>,
   getLowSupplyItems(): Promise<LowSupplyItem[]>,
-  sendFeedback(feedbackKey: string, feedback: any): Promise<void>
+  sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
+  triggerPlayerNameCheck(playerUUID: string): Promise<void>
 }
 
 interface CacheUtils {
