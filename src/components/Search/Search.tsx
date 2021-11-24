@@ -108,12 +108,12 @@ function Search(props: Props) {
 
     let getSelectedElement = (): JSX.Element => {
         if (props.currentElement) {
-            return <h1 onContextMenu={e => handleFlipContextMenu(e)} className="current">{props.currentElement}</h1> || <div />;
+            return <h1 onContextMenu={e => handleSearchContextMenu(e)} className="current">{props.currentElement}</h1> || <div />;
         }
         if (!props.selected) {
             return <div />
         }
-        return <h1 onContextMenu={e => handleFlipContextMenu(e)} className="current"><img crossOrigin="anonymous" className="player-head-icon" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</h1>
+        return <h1 onContextMenu={e => handleSearchContextMenu(e)} className="current"><img crossOrigin="anonymous" className="player-head-icon" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</h1>
     }
 
     let searchStyle: React.CSSProperties = {
@@ -153,7 +153,7 @@ function Search(props: Props) {
         })
     }
 
-    function handleFlipContextMenu(event) {
+    function handleSearchContextMenu(event) {
         if (props.selected && props.type === "player") {
             event.preventDefault();
             show(event)
