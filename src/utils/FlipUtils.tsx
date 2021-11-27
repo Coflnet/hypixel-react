@@ -33,6 +33,9 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
         if (settings.soundOnFlip !== false) {
             settings.soundOnFlip = true;
         }
+        if (!settings.finders) {
+            settings.finders = [];
+        }
 
     } catch {
         settings = {
@@ -50,7 +53,8 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             justProfit: false,
             soundOnFlip: true,
             shortNumbers: false,
-            hideProfitPercent: false
+            hideProfitPercent: false,
+            finders: []
         };
 
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
@@ -67,3 +71,9 @@ export function calculateProfit(flip: FlipAuction) {
         return flip.median - flip.cost;
     }
 }
+
+export const FLIP_FINDERS = [
+    { value: "1", label: 'Flipper', color: "red" },
+    { value: "2", label: 'Sniper' },
+    { value: "4", label: 'Sniper (Median)' }
+]

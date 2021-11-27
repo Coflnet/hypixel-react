@@ -10,7 +10,8 @@ interface Props {
     buttonWrapperClass?: string,
     buttonClass?: string,
     buttonVariant?: string,
-    forceIsCopied?: boolean
+    forceIsCopied?: boolean,
+    buttonStyle?: React.CSSProperties
 }
 
 export function CopyButton(props: Props) {
@@ -53,7 +54,7 @@ export function CopyButton(props: Props) {
     return (
         <span>{window.navigator.clipboard ?
             <span className={props.buttonWrapperClass}>
-                <Button onMouseDown={copyClick} className={"copy-button-default-class " + props.buttonClass} aria-label="copy to clipboard" variant={props.buttonVariant || "secondary"}>{isCopied || props.forceIsCopied ? copiedIcon : copyIcon}</Button>
+                <Button style={props.buttonStyle} onMouseDown={copyClick} className={"copy-button-default-class " + props.buttonClass} aria-label="copy to clipboard" variant={props.buttonVariant || "secondary"}>{isCopied || props.forceIsCopied ? copiedIcon : copyIcon}</Button>
             </span> : ""}
         </span>
     )
