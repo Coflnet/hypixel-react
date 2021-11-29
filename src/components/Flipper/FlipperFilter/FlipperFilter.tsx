@@ -21,13 +21,9 @@ let FREE_LOGIN_SPAN = 1000 * 60 * 6;
 let FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN;
 let FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN;
 
-let defaultFilter: FlipperFilter;
+let defaultFilter: FlipperFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {});
 
 function FlipperFilter(props: Props) {
-
-    if (!defaultFilter) {
-        defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {});
-    }
 
     let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin);
     let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium == null ? false : defaultFilter.onlyUnsold || false);
@@ -44,6 +40,8 @@ function FlipperFilter(props: Props) {
     let onlyUnsoldRef = useRef(null);
 
     useEffect(() => {
+
+        defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {});
 
         let newUuids: string[] = [];
         for (let index = 0; index < 10; index++) {

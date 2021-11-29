@@ -12,6 +12,10 @@ import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
 import { getFlipCustomizeSettings } from "../utils/FlipUtils";
 import { getProperty } from "../utils/PropertiesUtils";
 import { Base64 } from "js-base64";
+import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, RESTRICTIONS_SETTINGS_KEY, setSetting, setSettingsChangedData } from "../utils/SettingsUtils";
+
+let connectionId = null;
+let changer = null;
 
 function initAPI(): API {
 
@@ -235,16 +239,16 @@ function initAPI(): API {
 
     let setConnectionId = (): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let websocketUUID = generateUUID();
+            connectionId = connectionId || generateUUID();
 
             websocketHelper.sendRequest({
                 type: RequestType.SET_CONNECTION_ID,
-                data: websocketUUID,
+                data: connectionId,
                 resolve: () => {
                     resolve();
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID);
+                    apiErrorHandler(RequestType.SET_CONNECTION_ID, error, connectionId);
                     reject();
                 }
             })
@@ -534,7 +538,8 @@ function initAPI(): API {
                 volume: !flipSettings.hideVolume,
                 extraFields: flipSettings.maxExtraInfoFields,
                 profitPercent: !flipSettings.hideProfitPercent
-            }
+            },
+            changer: window.sessionStorage.getItem("sessionId")
         }
 
         if (filter.onlyBin) {
@@ -558,6 +563,12 @@ function initAPI(): API {
                         if (soldCallback) {
                             soldCallback();
                         }
+                        break;
+                    case 'settingsUpdate':
+                        if ((response.data as any).changer === window.sessionStorage.getItem("sessionId")) {
+                            return;
+                        }
+                        setSettingsChangedData(response.data);
                         break;
                     default:
                         break;

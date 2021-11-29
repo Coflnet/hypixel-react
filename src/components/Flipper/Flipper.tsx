@@ -20,6 +20,7 @@ import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
 import Countdown, { zeroPad } from 'react-countdown';
+import { v4 as generateUUID } from 'uuid';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -52,6 +53,7 @@ function Flipper() {
     let [lastFlipFetchTimeSeconds, setLastFlipFetchTimeSeconds] = useState<number>();
     let [lastFlipFetchTimeLoading, setLastFlipFetchTimeLoading] = useState<boolean>(false);
     let [countdownDateObject, setCountdownDateObject] = useState<Date>();
+    let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID());
 
     let history = useHistory();
 
@@ -69,6 +71,7 @@ function Flipper() {
     const flipLookup = {};
 
     useEffect(() => {
+
         mounted = true;
         _setAutoScroll(true);
         attachScrollEvent();
@@ -78,13 +81,19 @@ function Flipper() {
         document.addEventListener('flipSettingsChange', () => {
             api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
         });
+        document.addEventListener('apiSettingsUpdate', onApiSettingsUpdate);
 
         return () => {
             mounted = false;
             api.unsubscribeFlips();
+            document.removeEventListener('apiSettingsUpdate', onApiSettingsUpdate)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    function onApiSettingsUpdate() {
+        setFlipperFilterKey(generateUUID());
+    }
 
     function handleFlipContextMenu(event, flip: FlipAuction) {
         event.preventDefault();
@@ -396,7 +405,7 @@ function Flipper() {
                 </Card.Header>
                 <Card.Body>
                     <div id="flipper-card-body">
-                        <FlipperFilter onChange={onFilterChange} isLoggedIn={isLoggedIn} isPremium={hasPremium} />
+                        <FlipperFilter key={flipperFilterKey} onChange={onFilterChange} isLoggedIn={isLoggedIn} isPremium={hasPremium} />
                         <hr />
                         <Form className="flipper-settings-form">
                             <Form.Group>

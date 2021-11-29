@@ -14,6 +14,7 @@ import { Modal } from 'react-bootstrap';
 import ReloadDialog from '../ReloadDialog/ReloadDialog';
 import 'react-contexify/dist/ReactContexify.css';
 import { startMigrations } from '../../migrations/MigrationUtils';
+import { v4 as generateUUID } from 'uuid'
 
 
 export function MainApp(props: any) {
@@ -27,26 +28,9 @@ export function MainApp(props: any) {
     const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     useEffect(() => {
-        let preventReloadDialog = localStorage.getItem("rememberHideReloadDialog") === "true";
-        if (preventReloadDialog) {
-            return;
-        }
-
-        // check if page was reloaded
-        if (window.performance && window.performance.getEntriesByType("navigation")[0] && (window.performance.getEntriesByType("navigation")[0] as any).type === "reload") {
-
-            let lastReloadTime = localStorage.getItem("lastReloadTime");
-            // Check if the last reload was less than 30 seconds ago
-            if (lastReloadTime && 30_000 > new Date().getTime() - Number(lastReloadTime)) {
-                setTimeout(() => {
-                    setShowRefreshFeedbackDialog(true);
-                }, 1000)
-            } else {
-                localStorage.setItem("lastReloadTime", new Date().getTime().toString());
-            }
-        }
-
+        window.sessionStorage.setItem("sessionId", generateUUID());
         startMigrations();
+        initReloadListener();
     }, []);
 
     useEffect(() => {
@@ -91,6 +75,26 @@ export function MainApp(props: any) {
             }),
         [],
     );
+
+    function initReloadListener() {
+        let preventReloadDialog = localStorage.getItem("rememberHideReloadDialog") === "true";
+        if (preventReloadDialog) {
+            return;
+        }
+        // check if page was reloaded
+        if (window.performance && window.performance.getEntriesByType("navigation")[0] && (window.performance.getEntriesByType("navigation")[0] as any).type === "reload") {
+
+            let lastReloadTime = localStorage.getItem("lastReloadTime");
+            // Check if the last reload was less than 30 seconds ago
+            if (lastReloadTime && 30_000 > new Date().getTime() - Number(lastReloadTime)) {
+                setTimeout(() => {
+                    setShowRefreshFeedbackDialog(true);
+                }, 1000)
+            } else {
+                localStorage.setItem("lastReloadTime", new Date().getTime().toString());
+            }
+        }
+    }
 
     function setTrackingAllowed() {
         pushInstruction("rememberConsentGiven");
