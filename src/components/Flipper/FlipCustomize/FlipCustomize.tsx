@@ -215,6 +215,14 @@ function FlipCustomize() {
         <p>By enabling this setting, the lowest BIN is used as the estimated selling price to calculate your profit. That can lead to profitable flips being estimated way too low (even as a loss). We recommend using the median to calculate the profit.</p>
     );
 
+    let flipFindersElement = (
+        <ul>
+            <li><b>Flipper </b>is the classical flip finding algorithm using the Skyblock AH history database. It searches the history for similar items but searching for references takes time thus this is relatively slow.</li>
+            <li><b>Sniper </b>is a classical sniping algorithm that stores prices in a dictionary grouped by any relevant modifiers. It only outputs flips that are below lbin and median for a combination of relevant modifiers. Its faster by about 3000x but may not find as many flips as the flipper.</li>
+            <li><b>Sniper (Median) </b>uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value.</li>
+        </ul>
+    )
+
     return (
         <div className="flip-customize">
             <div style={{ width: "50%" }}>
@@ -277,7 +285,7 @@ function FlipCustomize() {
                     </div>
                 </Form>
                 <div style={{ marginLeft: "30px", marginRight: "30px" }}>
-                    <label htmlFor="finders" className="label">Used Flip-Finders</label>
+                    <label htmlFor="finders" className="label">Used Flip-Finders <Tooltip id="flip-finder-tooltip" type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={flipFindersElement} /></label>
                     <Select id="finders" className="select-hide-group" isMulti options={FLIP_FINDERS} defaultValue={getDefaultValues()} styles={customSelectStyle} onChange={onFindersChange} />
                 </div>
                 <hr />
