@@ -12,10 +12,9 @@ import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
 import { getFlipCustomizeSettings } from "../utils/FlipUtils";
 import { getProperty } from "../utils/PropertiesUtils";
 import { Base64 } from "js-base64";
-import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, RESTRICTIONS_SETTINGS_KEY, setSetting, setSettingsChangedData } from "../utils/SettingsUtils";
+import { setSettingsChangedData } from "../utils/SettingsUtils";
 
 let connectionId = null;
-let changer = null;
 
 function initAPI(): API {
 
@@ -531,7 +530,7 @@ function initAPI(): API {
             visibility: {
                 cost: !flipSettings.hideCost,
                 estProfit: !flipSettings.hideEstimatedProfit,
-                lBin: !flipSettings.hideLowestBin,
+                lbin: !flipSettings.hideLowestBin,
                 slbin: !flipSettings.hideSecondLowestBin,
                 medPrice: !flipSettings.hideMedianPrice,
                 seller: !flipSettings.hideSeller,

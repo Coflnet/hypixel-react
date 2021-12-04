@@ -16,7 +16,7 @@ import { Link, useHistory } from 'react-router-dom';
 import Tooltip from '../Tooltip/Tooltip';
 import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
-import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
+import { calculateProfit, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
 import Countdown, { zeroPad } from 'react-countdown';
@@ -54,7 +54,8 @@ function Flipper() {
     let [lastFlipFetchTimeLoading, setLastFlipFetchTimeLoading] = useState<boolean>(false);
     let [countdownDateObject, setCountdownDateObject] = useState<Date>();
     let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID());
-
+    let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(generateUUID());
+    
     let history = useHistory();
 
     const { show } = useContextMenu({
@@ -78,22 +79,21 @@ function Flipper() {
         api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
         getLastFlipFetchTime();
 
-        document.addEventListener('flipSettingsChange', () => {
-            api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
+        document.addEventListener('flipSettingsChange', e => {
+            if ((e as any).detail?.apiUpdate) {
+                setFlipperFilterKey(generateUUID());
+                setFlipCustomizeKey(generateUUID());
+            } else {
+                api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
+            }
         });
-        document.addEventListener('apiSettingsUpdate', onApiSettingsUpdate);
 
         return () => {
             mounted = false;
             api.unsubscribeFlips();
-            document.removeEventListener('apiSettingsUpdate', onApiSettingsUpdate)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    function onApiSettingsUpdate() {
-        setFlipperFilterKey(generateUUID());
-    }
 
     function handleFlipContextMenu(event, flip: FlipAuction) {
         event.preventDefault();
@@ -369,7 +369,7 @@ function Flipper() {
                 <Modal.Title>Customize the style of flips</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <FlipCustomize />
+                <FlipCustomize key={flipCustomizeKey} />
             </Modal.Body>
         </Modal>
     );

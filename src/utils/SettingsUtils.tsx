@@ -1,3 +1,5 @@
+import api from "../api/ApiHelper";
+
 const LOCAL_STORAGE_SETTINGS_KEY = "userSettings";
 
 let settings = getInitUserSettings();
@@ -38,38 +40,97 @@ export function setSetting(key: any, value: any) {
     localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(settings));
 }
 
-document.addEventListener("testEvent", function () {
-    let data = { "filters": {}, "blacklist": [{ "tag": "ASPECT_OF_THE_DRAGON", "filter": {} }], "whitelist": [], "lbin": false, "minProfit": 5000, "minProfitPercent": 0, "minVolume": 0, "maxCost": 0, "visibility": { "cost": true, "estProfit": true, "lbin": false, "slbin": false, "medPrice": true, "seller": true, "volume": true, "extraFields": 0, "avgSellTime": false, "profitPercent": true, "profit": false }, "mod": { "justProfit": false, "soundOnFlip": true, "shortNumbers": false }, "finders": 7, "changer": "f6d43385-2a8d-4e96-89d4-4a04a9132ae0" }
-    setSettingsChangedData(data);
-});
+export function setSettingsChangedData(data: any): Promise<void> {
+    return new Promise(resolve => {
+        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify({
+            hideCost: !data.visibility.cost,
+            hideEstimatedProfit: !data.visibility.estProfit,
+            hideLowestBin: !data.visibility.lbin,
+            hideSecondLowestBin: !data.visibility.slbin,
+            hideMedianPrice: !data.visibility.medPrice,
+            hideSeller: !data.visibility.seller,
+            hideVolume: !data.visibility.volume,
+            maxExtraInfoFields: data.visibility.extraFields,
+            hideProfitPercent: !data.visibility.profitPercent,
+            useLowestBinForProfit: data.lbin,
+            shortNumbers: data.mod.shortNumbers,
+            soundOnFlip: data.mod.soundOnFlip,
+            justProfit: data.mod.justProfit
+        } as FlipCustomizeSettings));
 
-export function setSettingsChangedData(data: any) {
-    setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify({
-        hideCost: !data.visibility.cost,
-        hideEstimatedProfit: !data.visibility.estProfit,
-        hideLowestBin: !data.visibility.lBin,
-        hideSecondLowestBin: !data.visibility.slbin,
-        hideMedianPrice: !data.visibility.medPrice,
-        hideSeller: !data.visibility.seller,
-        hideVolume: !data.visibility.volume,
-        maxExtraInfoFields: data.visibility.extraFields,
-        hideProfitPercent: !data.visibility.profitPercent,
-        useLowestBinForProfit: data.lbin,
-        shortNumbers: data.mod.shortNumbers,
-        soundOnFlip: data.mod.soundOnFlip,
-        justProfit: data.mod.justProfit
+        setSetting(FLIPPER_FILTER_KEY, JSON.stringify({
+            maxCost: data.maxCost,
+            minProfit: data.minProfit,
+            minProfitPercent: data.minProfitPercent,
+            minVolume: data.minVolume,
+            onlyBin: data.filters.Bin === "true"
+        } as FlipperFilter))
 
-    } as FlipCustomizeSettings));
-    setSetting(FLIPPER_FILTER_KEY, JSON.stringify({
-        maxCost: data.maxCost,
-        minProfit: data.minProfit,
-        minProfitPercent: data.minProfitPercent,
-        minVolume: data.minVolume,
-        onlyBin: data.filters.Bin === "true"
-    } as FlipperFilter))
+        let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []);
+        let itemMap = {};
 
-    document.dispatchEvent(new CustomEvent("apiSettingsUpdate"));
-    document.dispatchEvent(new CustomEvent("flipSettingsChange"));
+        restrictions.forEach(restriction => {
+            if (restriction.item?.tag) {
+                itemMap[restriction.item.tag] = restriction.item?.name
+            }
+        })
+
+        let _addListToRestrictions = function (list, type): Promise<FlipRestriction[]> {
+            return new Promise((resolve) => {
+                if (list) {
+                    let newRestrictions: FlipRestriction[] = [];
+                    let promises: Promise<void>[] = [];
+                    list.forEach(item => {
+                        let itemName = itemMap[item.tag];
+                        if (!item.tag) {
+                            newRestrictions.push({
+                                type: type,
+                                itemFilter: item.filter
+                            })
+                        } else if (itemName && item.tag) {
+                            newRestrictions.push({
+                                type: type,
+                                item: {
+                                    tag: item.tag,
+                                    name: itemName,
+                                    iconUrl: api.getItemImageUrl(item)
+                                },
+                                itemFilter: item.filter
+                            })
+                        } else {
+                            promises.push(api.getItemDetails(item.tag).then(details => {
+                                newRestrictions.push({
+                                    type: type,
+                                    item: {
+                                        tag: details.tag,
+                                        name: details.name,
+                                        iconUrl: api.getItemImageUrl(item)
+                                    },
+                                    itemFilter: item.filter
+                                })
+                            }))
+                        }
+                    });
+                    if (promises.length > 0) {
+                        Promise.all(promises).then(() => {
+                            resolve(newRestrictions);
+                        })
+                    } else {
+                        resolve(newRestrictions);
+                    }
+                } else {
+                    resolve([]);
+                }
+            })
+        }
+
+        Promise.all([_addListToRestrictions(data.whitelist, "whitelist"), _addListToRestrictions(data.blacklist, "blacklist")]).then(results => {
+            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(results[0].concat(results[1])));
+
+            document.dispatchEvent(new CustomEvent("flipSettingsChange", { detail: { apiUpdate: true } }));
+            resolve();
+        })
+    })
 }
 
 export const FLIP_CUSTOMIZING_KEY = "flipCustomizing";

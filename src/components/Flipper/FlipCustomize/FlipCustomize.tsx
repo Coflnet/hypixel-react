@@ -9,11 +9,9 @@ import './FlipCustomize.css'
 import { Help as HelpIcon } from '@material-ui/icons';
 import { toast } from 'react-toastify';
 
-let settings = getFlipCustomizeSettings();
-
 function FlipCustomize() {
 
-    let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState(settings);
+    let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState(getFlipCustomizeSettings());
     let { trackEvent } = useMatomo();
 
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
