@@ -14,7 +14,6 @@ let tempOldWebsocket: WebSocket;
 let isConnectionIdSet: boolean = false;
 
 let apiSubscriptions: ApiSubscription[] = [];
-let wasSetGoogleAlreadySent = false;
 
 function initWebsocket(): void {
 
@@ -41,7 +40,7 @@ function initWebsocket(): void {
         api.setConnectionId().then(() => {
             isConnectionIdSet = true;
             let googleAuthObj = (window as any).googleAuthObj;
-            if (wasAlreadyLoggedIn() && wasSetGoogleAlreadySent && googleAuthObj) {
+            if (wasAlreadyLoggedIn() && googleAuthObj) {
                 if (new Date(googleAuthObj.tokenObj.expires_at).getTime() <= new Date().getTime()) {
                     refreshToken(googleAuthObj).then(refreshToken => {
                         api.setGoogle(refreshToken.tokenId).then(() => {
@@ -173,7 +172,6 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             if (request.type === RequestType.SET_GOOGLE) {
                 tempOldWebsocket.send(JSON.stringify(request));
-                wasSetGoogleAlreadySent = true;
             }
 
         } else {
