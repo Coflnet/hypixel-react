@@ -8,7 +8,7 @@ import Flip from '../Flip/Flip';
 import './FlipCustomize.css'
 import { Help as HelpIcon } from '@material-ui/icons';
 import { toast } from 'react-toastify';
-import Select from 'react-select';
+import Select, { components } from 'react-select';
 
 let settings = getFlipCustomizeSettings();
 
@@ -211,17 +211,13 @@ function FlipCustomize() {
         return FLIP_FINDERS.filter(option => settings.finders?.some(finder => finder.toString() === option.value))
     }
 
-    let useLowestBinHelpElement = (
+    const useLowestBinHelpElement = (
         <p>By enabling this setting, the lowest BIN is used as the estimated selling price to calculate your profit. That can lead to profitable flips being estimated way too low (even as a loss). We recommend using the median to calculate the profit.</p>
     );
 
-    let flipFindersElement = (
-        <ul>
-            <li><b>Flipper </b>is the classical flip finding algorithm using the Skyblock AH history database. It searches the history for similar items but searching for references takes time thus this is relatively slow.</li>
-            <li><b>Sniper </b>is a classical sniping algorithm that stores prices in a dictionary grouped by any relevant modifiers. It only outputs flips that are below lbin and median for a combination of relevant modifiers. Its faster by about 3000x but may not find as many flips as the flipper.</li>
-            <li><b>Sniper (Median) </b>uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value.</li>
-        </ul>
-    )
+    const MultiValueContainer = (props) => {
+        return <components.MultiValueContainer {...props} ><Tooltip type={"hover"} content={<div {...props.innerProps}>{props.children}</div>} tooltipContent={<span>{props.data.description}</span>} /></components.MultiValueContainer>
+    };
 
     return (
         <div className="flip-customize">
@@ -285,8 +281,9 @@ function FlipCustomize() {
                     </div>
                 </Form>
                 <div style={{ marginLeft: "30px", marginRight: "30px" }}>
-                    <label htmlFor="finders" className="label">Used Flip-Finders <Tooltip id="flip-finder-tooltip" type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={flipFindersElement} /></label>
-                    <Select id="finders" className="select-hide-group" isMulti options={FLIP_FINDERS} defaultValue={getDefaultValues()} styles={customSelectStyle} onChange={onFindersChange} />
+                    <label htmlFor="finders" className="label">Used Flip-Finders</label>
+                    <Select id="finders" className="select-hide-group" isMulti options={FLIP_FINDERS} defaultValue={getDefaultValues()} styles={customSelectStyle} onChange={onFindersChange} closeMenuOnSelect={false}
+                        components={{ MultiValueContainer }} />
                 </div>
                 <hr />
                 <div>
@@ -329,4 +326,4 @@ function FlipCustomize() {
     );
 }
 
-export default FlipCustomize;
+export default React.memo(FlipCustomize);

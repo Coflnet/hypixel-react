@@ -73,7 +73,7 @@ export function calculateProfit(flip: FlipAuction) {
 }
 
 export const FLIP_FINDERS = [
-    { value: "1", label: 'Flipper' },
-    { value: "2", label: 'Sniper' },
-    { value: "4", label: 'Sniper (Median)' }
+    { value: "1", label: 'Flipper', description: "Is the classical flip finding algorithm using the Skyblock AH history database. It searches the history for similar items but searching for references takes time thus this is relatively slow." },
+    { value: "2", label: 'Sniper', description: "Is a classical sniping algorithm that stores prices in a dictionary grouped by any relevant modifiers. It only outputs flips that are below lbin and median for a combination of relevant modifiers. Its faster by about 3000x but may not find as many flips as the flipper." },
+    { value: "4", label: 'Sniper (Median)', description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value." }
 ]
