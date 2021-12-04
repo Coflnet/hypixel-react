@@ -14,6 +14,7 @@ let tempOldWebsocket: WebSocket;
 let isConnectionIdSet: boolean = false;
 
 let apiSubscriptions: ApiSubscription[] = [];
+let wasSetGoogleAlreadySent = false;
 
 function initWebsocket(): void {
 
@@ -40,7 +41,7 @@ function initWebsocket(): void {
         api.setConnectionId().then(() => {
             isConnectionIdSet = true;
             let googleId = localStorage.getItem('googleId');
-            if (wasAlreadyLoggedIn() && googleId) {
+            if (wasAlreadyLoggedIn() && wasSetGoogleAlreadySent && googleId) {
                 api.setGoogle(googleId).then(() => {
                     _reconnect();
                 })
@@ -164,6 +165,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             if (request.type === RequestType.SET_GOOGLE) {
                 tempOldWebsocket.send(JSON.stringify(request));
+                wasSetGoogleAlreadySent = true;
             }
 
         } else {
