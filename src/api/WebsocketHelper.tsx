@@ -5,7 +5,7 @@ import api from "./ApiHelper";
 import { toast } from "react-toastify";
 import { getProperty } from '../utils/PropertiesUtils';
 import { getNextMessageId } from "../utils/MessageIdUtils";
-import { refreshToken, refreshTokenSetup, wasAlreadyLoggedIn } from "../utils/GoogleUtils";
+import { refreshToken, wasAlreadyLoggedIn } from "../utils/GoogleUtils";
 
 let requests: ApiRequest[] = [];
 let websocket: WebSocket;
