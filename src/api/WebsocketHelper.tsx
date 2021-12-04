@@ -5,7 +5,7 @@ import api from "./ApiHelper";
 import { toast } from "react-toastify";
 import { getProperty } from '../utils/PropertiesUtils';
 import { getNextMessageId } from "../utils/MessageIdUtils";
-import { wasAlreadyLoggedIn } from "../utils/GoogleUtils";
+import { refreshToken, wasAlreadyLoggedIn } from "../utils/GoogleUtils";
 
 let requests: ApiRequest[] = [];
 let websocket: WebSocket;
@@ -14,7 +14,6 @@ let tempOldWebsocket: WebSocket;
 let isConnectionIdSet: boolean = false;
 
 let apiSubscriptions: ApiSubscription[] = [];
-let wasSetGoogleAlreadySent = false;
 
 function initWebsocket(): void {
 
@@ -40,11 +39,19 @@ function initWebsocket(): void {
         // set the connection id first 
         api.setConnectionId().then(() => {
             isConnectionIdSet = true;
-            let googleId = localStorage.getItem('googleId');
-            if (wasAlreadyLoggedIn() && wasSetGoogleAlreadySent && googleId) {
-                api.setGoogle(googleId).then(() => {
-                    _reconnect();
-                })
+            let googleAuthObj = (window as any).googleAuthObj;
+            if (wasAlreadyLoggedIn() && googleAuthObj) {
+                if (new Date(googleAuthObj.tokenObj.expires_at).getTime() <= new Date().getTime()) {
+                    refreshToken(googleAuthObj).then(refreshToken => {
+                        api.setGoogle(refreshToken.tokenId).then(() => {
+                            _reconnect();
+                        })
+                    })
+                } else {
+                    api.setGoogle(googleAuthObj.tokenId).then(() => {
+                        _reconnect();
+                    })
+                }
             } else {
                 _reconnect();
             }
@@ -165,7 +172,6 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             if (request.type === RequestType.SET_GOOGLE) {
                 tempOldWebsocket.send(JSON.stringify(request));
-                wasSetGoogleAlreadySent = true;
             }
 
         } else {

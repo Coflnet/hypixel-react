@@ -13,15 +13,21 @@ export function refreshTokenSetup(res) {
 
     let refreshTiming = ((res.tokenObj.expires_in || 3600) - 5 * 60) * 1000;
 
-    const refreshToken = () => {
-        res.reloadAuthResponse().then(refreshToken => {
-            localStorage.setItem('googleId', refreshToken.id_token);
-            refreshTiming = (refreshToken.expires_in || 3600 - 5 * 60) * 1000;
+    refreshTimeout = setTimeout(() => {
+        refreshToken(res).then(token => {
+            refreshTiming = (token.expires_in || 3600 - 5 * 60) * 1000;
             refreshTimeout = setTimeout(refreshToken, refreshTiming);
-        });
-    };
+        })
+    }, refreshTiming);
+}
 
-    refreshTimeout = setTimeout(refreshToken, refreshTiming);
+export function refreshToken(obj): Promise<any>{
+    return new Promise((resolve, reject) => {
+        obj.reloadAuthResponse().then(refreshToken => {
+            localStorage.setItem('googleId', refreshToken.id_token);
+            resolve(refreshToken);
+        });
+    });
 }
 
 export const googlePlayPackageName = 'de.flou.hypixel.skyblock';
