@@ -557,7 +557,7 @@ function initAPI(): API {
                         break;
                     case 'sold':
                         if (soldCallback) {
-                            soldCallback();
+                            soldCallback(response.data);
                         }
                         break;
                     default:

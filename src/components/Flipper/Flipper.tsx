@@ -146,7 +146,7 @@ function Flipper() {
         if (enabledScroll)
             return;
         if (!scrollContainer)
-            scrollContainer = document.getElementById("flip-container");
+            scrollContainer = document.getElementsByClassName('flipper-scroll-list').length > 0 ? document.getElementsByClassName('flipper-scroll-list').item(0) : null;
         if (scrollContainer) {
             scrollContainer.addEventListener("wheel", (evt) => {
                 evt.preventDefault();
@@ -166,7 +166,6 @@ function Flipper() {
 
     function clearFlips() {
         setFlips(() => {
-            setEnabledScroll(false);
             return [];
         });
     }
@@ -177,21 +176,16 @@ function Flipper() {
         }
         setFlips(flips => {
             let index = flips.findIndex(a => a.uuid === uuid);
-            if (index !== -1) {
-                flips[index].sold = true;
+            if (index === -1) {
+                return flips;
             }
 
+            flips[index].sold = true;
             if (flips[index] && flipperFilter.onlyUnsold) {
-                return flips.filter(flip => flip.uuid !== uuid);
+                flips.splice(index, 1);
+                return flips;
             }
             return flips;
-        })
-
-        if (!mounted || !flipperFilter.onlyUnsold) {
-            return;
-        }
-        setFlips(flips => {
-            return flips.filter(flip => flip.uuid !== uuid);
         })
     }
 
@@ -336,6 +330,9 @@ function Flipper() {
     }
 
     let getFlipElement = (flipAuction: FlipAuction, style) => {
+        if (!flipAuction) {
+            return <div />
+        }
         return (
             <div onContextMenu={e => handleFlipContextMenu(e, flipAuction)}>
                 <Flip flip={flipAuction} style={style} onCopy={onCopyFlip} onCardClick={flip => setSelectedAuctionUUID(flip.uuid)} onBasedAuctionClick={flip => { setBasedOnAuction(flip) }} />
@@ -422,22 +419,20 @@ function Flipper() {
                             </Form.Group>
                         </Form>
                         <hr />
-                        {flips.length > 0 ?
-                            <div id="flipper-scroll-list-wrapper">
-                                <List
-                                    ref={listRef}
-                                    className="flipper-scroll-list"
-                                    height={document.getElementById('maxHeightDummyFlip')?.offsetHeight}
-                                    itemCount={flips.length}
-                                    itemData={{ flips: flips }}
-                                    itemSize={isSmall ? 300 : 330}
-                                    layout="horizontal"
-                                    width={document.getElementById('flipper-card-body')?.offsetWidth || 100}
-                                >
-                                    {getFlipForList}
-                                </List>
-                            </div>
-                            : ""}
+                        <div id="flipper-scroll-list-wrapper">
+                            <List
+                                ref={listRef}
+                                className="flipper-scroll-list"
+                                height={flips.length > 0 ? document.getElementById('maxHeightDummyFlip')?.offsetHeight : 0}
+                                itemCount={flips.length}
+                                itemData={{ flips: flips }}
+                                itemSize={isSmall ? 300 : 330}
+                                layout="horizontal"
+                                width={document.getElementById('flipper-card-body')?.offsetWidth || 100}
+                            >
+                                {getFlipForList}
+                            </List>
+                        </div>
                     </div>
                 </Card.Body>
                 <Card.Footer>
