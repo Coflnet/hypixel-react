@@ -324,7 +324,8 @@ interface FlipCustomizeSettings {
   justProfit?: boolean,
   soundOnFlip?: boolean,
   shortNumbers?: boolean,
-  hideProfitPercent?: boolean
+  hideProfitPercent?: boolean,
+  finders?: number[]
 }
 
 interface FlipRestriction {

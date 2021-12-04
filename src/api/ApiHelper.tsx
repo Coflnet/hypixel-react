@@ -534,13 +534,14 @@ function initAPI(): API {
                 volume: !flipSettings.hideVolume,
                 extraFields: flipSettings.maxExtraInfoFields,
                 profitPercent: !flipSettings.hideProfitPercent
-            }
+            },
+            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0)
         }
 
         if (filter.onlyBin) {
             requestData.filters = { Bin: "true" };
         }
-
+        
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
             data: requestData,

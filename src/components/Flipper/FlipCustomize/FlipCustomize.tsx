@@ -1,15 +1,24 @@
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 import React, { ChangeEvent, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { DEMO_FLIP, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { DEMO_FLIP, FLIP_FINDERS, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 import Tooltip from '../../Tooltip/Tooltip';
 import Flip from '../Flip/Flip';
 import './FlipCustomize.css'
 import { Help as HelpIcon } from '@material-ui/icons';
 import { toast } from 'react-toastify';
+import Select, { components } from 'react-select';
 
 let settings = getFlipCustomizeSettings();
+
+const customSelectStyle = {
+    option: (provided) => ({
+        ...provided,
+        color: "black"
+    }),
+}
+
 
 function FlipCustomize() {
 
@@ -127,6 +136,13 @@ function FlipCustomize() {
         trackChange('hideProfitPercent');
     }
 
+    function onFindersChange(newValue) {
+        flipCustomizeSettings.finders = newValue.map(value => value.value);
+        setFlipCustomizeSettings(flipCustomizeSettings);
+
+        trackChange('finders');
+    }
+
     function trackChange(property: string) {
         trackEvent({
             category: 'customizeFlipStyle',
@@ -191,9 +207,17 @@ function FlipCustomize() {
         window.location.reload();
     }
 
-    let useLowestBinHelpElement = (
+    function getDefaultValues() {
+        return FLIP_FINDERS.filter(option => settings.finders?.some(finder => finder.toString() === option.value))
+    }
+
+    const useLowestBinHelpElement = (
         <p>By enabling this setting, the lowest BIN is used as the estimated selling price to calculate your profit. That can lead to profitable flips being estimated way too low (even as a loss). We recommend using the median to calculate the profit.</p>
     );
+
+    const MultiValueContainer = (props) => {
+        return <components.MultiValueContainer {...props} ><Tooltip type={"hover"} content={<div {...props.innerProps}>{props.children}</div>} tooltipContent={<span>{props.data.description}</span>} /></components.MultiValueContainer>
+    };
 
     return (
         <div className="flip-customize">
@@ -256,6 +280,11 @@ function FlipCustomize() {
                         </Form.Group>
                     </div>
                 </Form>
+                <div style={{ marginLeft: "30px", marginRight: "30px" }}>
+                    <label htmlFor="finders" className="label">Used Flip-Finders</label>
+                    <Select id="finders" className="select-hide-group" isMulti options={FLIP_FINDERS} defaultValue={getDefaultValues()} styles={customSelectStyle} onChange={onFindersChange} closeMenuOnSelect={false}
+                        components={{ MultiValueContainer }} />
+                </div>
                 <hr />
                 <div>
                     <h5>Mod settings</h5>
@@ -297,4 +326,4 @@ function FlipCustomize() {
     );
 }
 
-export default FlipCustomize;
+export default React.memo(FlipCustomize);
