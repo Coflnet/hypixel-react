@@ -65,6 +65,8 @@ function ItemDetails() {
                         <p><a href="https://hypixel.net/threads/2138599" target="_blank" rel="noreferrer">FurfSky+ <small>v1.71</small></a> by Furf__</p>
 
                         <p><a href="https://hypixel.net/threads/2147652" target="_blank" rel="noreferrer">Vanilla+ <small>v1.39</small></a> by TBlazeWarriorT</p>
+                        
+                        <p><a href="https://hypixel.net/threads/worlds-and-beyond-16x-crystal-hollows-update-version-1-5.3597207/" target="_blank" rel="noreferrer">Worlds and Beyond [16x] <small>v1.5</small></a> by Skeletony</p>
                     </div>
                     <hr />
                     <h3>Data / API</h3>
