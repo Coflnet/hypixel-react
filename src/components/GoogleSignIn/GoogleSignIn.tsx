@@ -47,6 +47,7 @@ function GoogleSignIn(props: Props) {
         localStorage.setItem("googleId", response.tokenId);
         setGoogleId(response.tokenId);
         api.setGoogle(response.tokenId).then(() => {
+            (window as any).googleAuthObj = response;
             let refId = (window as any).refId;
             if (refId) {
                 api.setRef(refId);
@@ -97,7 +98,6 @@ function GoogleSignIn(props: Props) {
         <div style={style} onClickCapture={onLoginClick}>
             <GoogleLogin
                 clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                prompt="consent"
                 buttonText="Login"
                 onSuccess={onLoginSucces}
                 onFailure={onLoginFail}
