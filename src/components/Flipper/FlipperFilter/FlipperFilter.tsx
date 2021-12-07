@@ -269,4 +269,4 @@ function FlipperFilter(props: Props) {
     );
 }
 
-export default FlipperFilter;
+export default React.memo(FlipperFilter);

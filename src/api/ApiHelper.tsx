@@ -538,13 +538,14 @@ function initAPI(): API {
                 extraFields: flipSettings.maxExtraInfoFields,
                 profitPercent: !flipSettings.hideProfitPercent
             },
+            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
             changer: window.sessionStorage.getItem("sessionId")
         }
 
         if (filter.onlyBin) {
             requestData.filters = { Bin: "true" };
         }
-
+        
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
             data: requestData,
