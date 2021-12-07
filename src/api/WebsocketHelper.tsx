@@ -43,7 +43,7 @@ function initWebsocket(): void {
             if (wasAlreadyLoggedIn() && googleAuthObj) {
                 if (new Date(googleAuthObj.tokenObj.expires_at).getTime() <= new Date().getTime()) {
                     refreshToken(googleAuthObj).then(refreshToken => {
-                        api.setGoogle(refreshToken.tokenId).then(() => {
+                        api.setGoogle(refreshToken.id_token).then(() => {
                             _reconnect();
                         })
                     })
@@ -89,6 +89,11 @@ function initWebsocket(): void {
         else
             subscription.callback(response);
     }
+
+    document.addEventListener("customTest", function(){
+        websocket.close();
+        tempOldWebsocket.close(); 
+    });
 
     let onWebsocketMessage = (e: MessageEvent): void => {
         let response: ApiResponse = JSON.parse(e.data);
