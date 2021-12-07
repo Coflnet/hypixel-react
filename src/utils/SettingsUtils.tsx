@@ -1,4 +1,5 @@
 import api from "../api/ApiHelper";
+import { CUSTOM_EVENTS } from "../api/ApiTypes.d";
 
 const LOCAL_STORAGE_SETTINGS_KEY = "userSettings";
 
@@ -42,6 +43,11 @@ export function setSetting(key: any, value: any) {
 
 export function setSettingsChangedData(data: any): Promise<void> {
     return new Promise(resolve => {
+
+        data.visibility = data.visibility || {};
+        data.mod = data.mod || {};
+        data.filters = data.filters || {};
+
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify({
             hideCost: !data.visibility.cost,
             hideEstimatedProfit: !data.visibility.estProfit,
@@ -127,7 +133,7 @@ export function setSettingsChangedData(data: any): Promise<void> {
         Promise.all([_addListToRestrictions(data.whitelist, "whitelist"), _addListToRestrictions(data.blacklist, "blacklist")]).then(results => {
             setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(results[0].concat(results[1])));
 
-            document.dispatchEvent(new CustomEvent("flipSettingsChange", { detail: { apiUpdate: true } }));
+            document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }));
             resolve();
         })
     })

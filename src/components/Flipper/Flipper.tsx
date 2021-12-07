@@ -16,11 +16,12 @@ import { Link, useHistory } from 'react-router-dom';
 import Tooltip from '../Tooltip/Tooltip';
 import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
-import { calculateProfit, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils';
+import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
 import Countdown, { zeroPad } from 'react-countdown';
 import { v4 as generateUUID } from 'uuid';
+import { CUSTOM_EVENTS } from '../../api/ApiTypes.d';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -79,7 +80,7 @@ function Flipper() {
         api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
         getLastFlipFetchTime();
 
-        document.addEventListener('flipSettingsChange', e => {
+        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
             if ((e as any).detail?.apiUpdate) {
                 setFlipperFilterKey(generateUUID());
                 setFlipCustomizeKey(generateUUID());

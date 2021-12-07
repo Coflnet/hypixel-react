@@ -102,3 +102,7 @@ export interface HttpApi extends Connection {
     sendLimitedCacheRequest(request: ApiRequest, grouping: number),
     sendLimitedCacheRequest(request: ApiRequest),
 }
+
+export enum CUSTOM_EVENTS {
+    FLIP_SETTINGS_CHANGE = "flipSettingsChange"
+}

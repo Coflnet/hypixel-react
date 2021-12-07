@@ -8,6 +8,7 @@ import Flip from '../Flip/Flip';
 import './FlipCustomize.css'
 import { Help as HelpIcon } from '@material-ui/icons';
 import { toast } from 'react-toastify';
+import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d';
 
 function FlipCustomize() {
 
@@ -17,7 +18,7 @@ function FlipCustomize() {
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings));
         _setFlipCustomizeSettings(settings);
-        document.dispatchEvent(new CustomEvent("flipSettingsChange"));
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE));
     }
 
     function onCostChange(event: ChangeEvent<HTMLInputElement>) {

@@ -564,7 +564,8 @@ function initAPI(): API {
                         }
                         break;
                     case 'settingsUpdate':
-                        if ((response.data as any).changer === window.sessionStorage.getItem("sessionId")) {
+                        let data = response.data as any;
+                        if (!data.changer || data.changer === window.sessionStorage.getItem("sessionId")) {
                             return;
                         }
                         setSettingsChangedData(response.data);
