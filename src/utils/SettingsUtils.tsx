@@ -1,5 +1,7 @@
 import api from "../api/ApiHelper";
 import { CUSTOM_EVENTS } from "../api/ApiTypes.d";
+import { hasFlag } from "../components/FilterElement/FilterType";
+import { FLIP_FINDERS } from "./FlipUtils";
 
 const LOCAL_STORAGE_SETTINGS_KEY = "userSettings";
 
@@ -61,7 +63,10 @@ export function setSettingsChangedData(data: any): Promise<void> {
             useLowestBinForProfit: data.lbin,
             shortNumbers: data.mod.shortNumbers,
             soundOnFlip: data.mod.soundOnFlip,
-            justProfit: data.mod.justProfit
+            justProfit: data.mod.justProfit,
+            finders: FLIP_FINDERS.filter(finder => {
+                return hasFlag(parseInt(data.finders), parseInt(finder.value))
+            }).map(finder => parseInt(finder.value))
         } as FlipCustomizeSettings));
 
         setSetting(FLIPPER_FILTER_KEY, JSON.stringify({

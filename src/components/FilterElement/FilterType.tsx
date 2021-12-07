@@ -11,11 +11,11 @@ export enum FilterType {
 
 
 /**
- * Checks an FilterType if a flag is present
+ * Checks if a flag is present
  * @param full the enum that should contain the flag
  * @param flag the flag to test against
  * @returns true if the enum contains the flag
  */
-export function hasFlag(full?: FilterType, flag?: FilterType) {
+export function hasFlag(full, flag) {
     return full && flag && (full & flag) === flag;
 }
