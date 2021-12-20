@@ -101,7 +101,7 @@ function ActiveAuctions(props: Props) {
                     <div style={{ marginTop: "20px" }}>{getLoadingElement()}</div> :
                     activeAuctions.length > 0 ?
                         activeAuctionList :
-                        <p style={{ textAlign: "center" }}>No recent auctions found</p>}
+                        <p style={{ textAlign: "center" }}>No active auctions found</p>}
             </div>
         </div >
     );
