@@ -213,7 +213,7 @@ function AuctionDetails(props: Props) {
                             <SubscribeButton type="auction" topic={props.auctionUUID} hideText={document.body.clientWidth <= 480} />
                         </div>
                         : ""}
-                    <CopyButton buttonVariant="primary" copyValue={"/viewauction " + props.auctionUUID} successMessage={<p>Copied ingame link <br /><i>/viewauction {props.auctionUUID}</i></p>} />
+                    <CopyButton buttonVariant="primary" copyValue={document.location.href} successMessage={<p>Copied link to clipboard</p>} />
                 </div>
             </Card.Header>
             <Card.Body>
