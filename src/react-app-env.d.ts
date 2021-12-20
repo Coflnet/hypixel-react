@@ -91,7 +91,9 @@ interface PlayerDetails {
 }
 
 interface ItemFilter {
-  [key: string]: string
+  [key: string]: string,
+  _hide?: boolean,
+  _label?: string
 }
 
 interface FilterOptions {

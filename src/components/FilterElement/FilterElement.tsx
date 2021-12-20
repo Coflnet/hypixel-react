@@ -152,7 +152,7 @@ function FilterElement(props: Props) {
                                         onSearch={handlePlayerSearch}
                                         options={players}
                                         placeholder="Search users..."
-                                        onChange={selected => updateSearchSelectFilter(selected.map(s => s.name))}
+                                        onChange={selected => updateSearchSelectFilter(selected.map(s => s.uuid))}
                                     />
                                     : hasFlag(props.options.type, FilterType.EQUAL) && hasFlag(props.options.type, FilterType.SIMPLE)
                                         ? <Form.Control isInvalid={!isValid} className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
