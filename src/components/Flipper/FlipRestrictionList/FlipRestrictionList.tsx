@@ -14,6 +14,7 @@ interface Props {
 }
 
 const DATE_FORMAT_FILTER = ["EndBefore", "EndAfter"];
+const SELLER_FORMAT_FILTER = "Seller";
 
 function FlipRestrictionList(props: Props) {
 
@@ -26,8 +27,25 @@ function FlipRestrictionList(props: Props) {
 
     useEffect(() => {
         loadFilters();
+        restrictions.forEach(checkRestrictionForSellerName);
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    function checkRestrictionForSellerName(restriction: FlipRestriction) {
+        if (restriction.itemFilter) {
+            Object.keys(restriction.itemFilter).forEach(key => {
+                if (key === SELLER_FORMAT_FILTER) {
+                    restriction.itemFilter!._hide = true;
+                    api.getPlayerName(restriction.itemFilter![key]).then(name => {
+                        restriction.itemFilter!._hide = false;
+                        restriction.itemFilter!._label = name;
+                        forceUpdate();
+                    })
+                }
+            });
+        }
+    }
 
 
     function loadFilters() {
@@ -55,6 +73,7 @@ function FlipRestrictionList(props: Props) {
 
     function addNewRestriction() {
         restrictions.push(newRestriction);
+        checkRestrictionForSellerName(newRestriction);
 
         let restriction: FlipRestriction = { type: "blacklist" };
         setNewRestriction(restriction);
@@ -159,16 +178,26 @@ function FlipRestrictionList(props: Props) {
                                         <Card.Body>
                                             {
                                                 Object.keys(restriction.itemFilter).map(key => {
-                                                    if (!restriction.itemFilter || !restriction.itemFilter[key]) {
+                                                    if (!restriction.itemFilter || !restriction.itemFilter[key] || restriction.itemFilter._hide) {
                                                         return "";
                                                     }
 
                                                     let display = restriction.itemFilter[key];
 
+                                                    if (key.startsWith("_")) {
+                                                        return "";
+                                                    }
+
                                                     // Special case -> display as date
                                                     if (DATE_FORMAT_FILTER.findIndex(f => f === key) !== -1) {
                                                         display = new Date(Number(display) * 1000).toLocaleDateString();
                                                     }
+
+                                                    // Special case if the restriction has a special label
+                                                    if (restriction.itemFilter._label) {
+                                                        display = restriction.itemFilter._label;
+                                                    }
+
                                                     return <p key={key}>{convertTagToName(key)}: {display}</p>
                                                 })
                                             }
