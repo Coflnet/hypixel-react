@@ -403,3 +403,11 @@ export function parseLowSupplyItem(item): LowSupplyItem {
     lowSupplyItem.volume = item.volume;
     return lowSupplyItem;
 }
+
+export function parseSkyblockProfile(profile): SkyblockProfile {
+    return {
+        current: profile.current,
+        cuteName: profile.cute_name,
+        id: profile.profile_id
+    }
+}

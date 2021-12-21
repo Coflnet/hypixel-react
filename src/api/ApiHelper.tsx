@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseLowSupplyItem, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseProfitableCraft, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseLowSupplyItem, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseProfitableCraft, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSkyblockProfile, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -541,7 +541,7 @@ function initAPI(): API {
         if (filter.onlyBin) {
             requestData.filters = { Bin: "true" };
         }
-        
+
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
             data: requestData,
@@ -963,11 +963,12 @@ function initAPI(): API {
         })
     }
 
-    let getProfitableCrafts = (): Promise<ProfitableCraft[]> => {
+    let getProfitableCrafts = (playerId?: string, profileId?: string): Promise<ProfitableCraft[]> => {
         return new Promise((resolve, reject) => {
 
             httpApi.sendApiRequest({
                 type: RequestType.GET_PROFITABLE_CRAFTS,
+                customRequestURL: playerId && profileId ? getProperty("apiEndpoint") + "/" + RequestType.GET_PROFITABLE_CRAFTS + `?profile=${profileId}&player=${playerId}` : undefined,
                 data: "",
                 resolve: function (crafts) {
                     resolve(crafts.map(parseProfitableCraft));
@@ -993,6 +994,25 @@ function initAPI(): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.TRIGGER_PLAYER_NAME_CHECK, error, "");
+                    reject();
+                }
+            });
+        })
+    }
+
+    let getPlayerProfiles = (playerUUID): Promise<SkyblockProfile[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_PLAYER_PROFILES,
+                data: playerUUID,
+                resolve: function (result) {
+                    resolve(Object.keys(result.profiles).map(key => {
+                        return parseSkyblockProfile(result.profiles[key]);
+                    }))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.TRIGGER_PLAYER_NAME_CHECK, error, playerUUID);
                     reject();
                 }
             });
@@ -1048,7 +1068,8 @@ function initAPI(): API {
         getProfitableCrafts,
         getLowSupplyItems,
         sendFeedback,
-        triggerPlayerNameCheck
+        triggerPlayerNameCheck,
+        getPlayerProfiles
     }
 }
 

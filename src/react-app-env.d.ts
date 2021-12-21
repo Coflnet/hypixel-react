@@ -211,10 +211,11 @@ interface API {
   getFlipUpdateTime(): Promise<Date>,
   playerSearch(playerName: string): Promise<Player[]>,
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
-  getProfitableCrafts(): Promise<ProfitableCraft[]>,
+  getProfitableCrafts(playerId?: string, profileId?: string): Promise<ProfitableCraft[]>,
   getLowSupplyItems(): Promise<LowSupplyItem[]>,
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
-  triggerPlayerNameCheck(playerUUID: string): Promise<void>
+  triggerPlayerNameCheck(playerUUID: string): Promise<void>,
+  getPlayerProfiles(playerUUID): Promise<SkyblockProfile[]>
 }
 
 interface CacheUtils {
@@ -368,4 +369,10 @@ interface CraftingIngredient {
 interface RequiredCollection {
   name: string,
   level: number
+}
+
+interface SkyblockProfile {
+  cuteName: string,
+  current: boolean,
+  id: string
 }

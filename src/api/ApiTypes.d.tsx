@@ -47,7 +47,8 @@ export enum RequestType {
     GET_PROFITABLE_CRAFTS = "craft/profit",
     GET_LOW_SUPPLY_ITEMS = "auctions/supply/low",
     SEND_FEEDBACK = "sendFeedback",
-    TRIGGER_PLAYER_NAME_CHECK = "triggerNameCheck"
+    TRIGGER_PLAYER_NAME_CHECK = "triggerNameCheck",
+    GET_PLAYER_PROFILES = "profile"
 }
 
 export enum SubscriptionType {
