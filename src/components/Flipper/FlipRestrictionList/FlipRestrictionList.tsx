@@ -79,10 +79,10 @@ function FlipRestrictionList(props: Props) {
         setNewRestriction(restriction);
         setIsNewFlipperExtended(false);
 
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(restrictions));
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)));
 
         if (props.onRestrictionsChange) {
-            props.onRestrictionsChange(restrictions);
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions));
         }
 
         forceUpdate();
@@ -130,13 +130,38 @@ function FlipRestrictionList(props: Props) {
         restrictions.splice(index, 1);
         setRestrictions(restrictions);
 
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(restrictions));
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)));
 
         if (props.onRestrictionsChange) {
-            props.onRestrictionsChange(restrictions);
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions));
         }
 
         forceUpdate();
+    }
+
+    /**
+     * Removes private properties starting with a _ from the restrictions, because the backend cant handle these.
+     * These also have to be saved into the localStorage because they could get sent to the api from there
+     * @param restrictions The restrictions
+     * @returns A new array containing restrictions without private properties
+     */
+    function getCleanRestrictionsForApi(restrictions: FlipRestriction[]) {
+        return restrictions.map(restriction => {
+            let newRestriction = {
+                type: restriction.type,
+                item: restriction.item
+            } as FlipRestriction
+
+            if (restriction.itemFilter) {
+                newRestriction.itemFilter = {};
+                Object.keys(restriction.itemFilter).forEach(key => {
+                    if (!key.startsWith('_')) {
+                        newRestriction.itemFilter![key] = restriction.itemFilter![key];
+                    }
+                })
+            }
+            return newRestriction;
+        })
     }
 
     let addIcon = (
