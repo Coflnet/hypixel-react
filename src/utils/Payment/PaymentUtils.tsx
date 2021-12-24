@@ -1,4 +1,3 @@
-import GooglePlayProvider from "./GooglePlayProvider";
 import StripePaymentProvider from "./StripePaymentProvider";
 import PayPalProvider from "./PayPalProvider";
 
@@ -9,13 +8,6 @@ let currentProviders: AbstractPaymentProvider[] = [];
 export default function availablePaymentProvider(): AbstractPaymentProvider[] {
   if (currentProviders.length >= 1) {
     return currentProviders;
-  }
-
-  // check google provider
-  const googleProvider = GooglePlayProvider()
-  if (googleProvider.checkIfPaymentIsPossible()) {
-      currentProviders.push(googleProvider);
-      return currentProviders;
   }
 
   // other providers

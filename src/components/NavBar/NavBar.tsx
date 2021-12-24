@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ProSidebar, Menu, MenuItem, SidebarHeader } from 'react-pro-sidebar';
+import { ProSidebar, Menu, MenuItem, SidebarHeader, SubMenu } from 'react-pro-sidebar';
 import 'react-pro-sidebar/dist/css/styles.css';
 import './NavBar.css';
 import { Link } from 'react-router-dom';
@@ -126,22 +126,27 @@ function NavBar(props: Props) {
                     <SidebarHeader>
                         <div style={{ padding: "24px", fontWeight: "bold", fontSize: "20px", letterSpacing: "1px", overflow: "hidden", whiteSpace: "nowrap" }}><ExploreIcon /> {!isCollapsed() ? "Navigation" : ""}</div>
                     </SidebarHeader>
-                    <Menu iconShape="square">
+                    <Menu iconShape="square" >
                         <MenuItem icon={<HomeIcon />}>Home<Link to="/" /></MenuItem>
                         <MenuItem icon={<StorefrontIcon />}><Link to="/flipper">Item-Flipper</Link> </MenuItem>
                         <MenuItem icon={<NotificationIcon />}><Link to="/subscriptions" >Subscriptions</Link></MenuItem>
-                        <MenuItem icon={<AccountBalanceIcon />}><Link to="/premium" >Premium</Link></MenuItem>
+                        <SubMenu title="Shop" open={true} icon={<AccountBalanceIcon />}>
+                            <MenuItem icon={<AccountBalanceIcon />}><Link to="/coflCoins">CoflCoins</Link></MenuItem>
+                            <MenuItem icon={<AccountBalanceIcon />}><Link to="/premium">Premium</Link></MenuItem>
+                            <MenuItem icon={<AccountBalanceIcon />}><Link to="/snipers">Sniper</Link></MenuItem>
+                        </SubMenu>
                         <MenuItem icon={<ShareIcon />}><Link to="/ref" >Referral</Link></MenuItem>
                         <MenuItem icon={<PolicyIcon />}><Link to="/about" >Links / Legal</Link></MenuItem>
                         <MenuItem icon={<ChatIcon />}><Link to="/feedback" >Feedback</Link></MenuItem>
                         <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24px"></img>}><a href="https://discord.gg/wvKXfTgCfb"><div style={{ color: "#7289da" }}>Discord</div></a></MenuItem>
                     </Menu>
-                </ProSidebar>
-            </aside>
-            {isSmall ? <span onClick={onHamburgerClick} id="hamburger-icon" style={props.hamburgerIconStyle}>
+                </ProSidebar >
+            </aside >
+            {isSmall ? <span onClick={onHamburgerClick} id="hamburger-icon" style={props.hamburgerIconStyle} >
                 <MenuIcon fontSize="large" />
-            </span> : ""}
-        </span>
+            </span > : ""
+            }
+        </span >
     );
 }
 

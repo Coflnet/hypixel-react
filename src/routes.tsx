@@ -43,6 +43,8 @@ const ApiInfo = ReactLazyPreload(() => import('./pages/ApiInfo/ApiInfo'));
 const AuthMod = ReactLazyPreload(() => import('./pages/AuthMod/AuthMod'));
 const Crafts = ReactLazyPreload(() => import('./pages/Crafts/Crafts'));
 const LowSupply = ReactLazyPreload(() => import('./pages/LowSupply/LowSupply'));
+const CoflCoins = ReactLazyPreload(() => import('./pages/CoflCoins/CoflCoins'));
+const Snipers = ReactLazyPreload(() => import('./pages/Snipers/Snipers'));
 
 setTimeout(() => {
   PlayerDetails.preload();
@@ -58,6 +60,8 @@ setTimeout(() => {
   Ref.preload();
   ApiInfo.preload();
   Crafts.preload();
+  CoflCoins.preload();
+  Snipers.preload();
 }, 2000);
 
 const matomoTrackingInstance = createInstance({
@@ -91,6 +95,8 @@ export default (
           <Route path='/authMod' component={AuthMod.component} />
           <Route path='/crafts' component={Crafts.component} />
           <Route path='/lowSupply' component={LowSupply.component} />
+          <Route path='/coflCoins' component={CoflCoins.component} />
+          <Route path='/snipers' component={Snipers.component} />
           <Route path='*' exact component={NotFound.component} />
         </Switch>
       </MainApp>

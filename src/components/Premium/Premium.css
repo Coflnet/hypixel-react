@@ -1,3 +1,9 @@
-.premium-payment {
+.premium .premium-payment {
     margin-top: ""
+}
+
+.premium .label {
+    width: 300px;
+    float: left;
+    margin: 0;
 }

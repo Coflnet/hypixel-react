@@ -13,13 +13,13 @@ export default function StripePaymentProvider(): AbstractPaymentProvider {
 
     let getProducts = (): Promise<Product[]> => {
         return new Promise((resolve, reject) => {
-            resolve(api.getStripeProducts());
+            resolve(api.getProducts(name));
         })
     }
 
     let pay = (product: Product): Promise<Product> => {
         return new Promise((resolve, reject) => {
-            api.pay(stripePromise, product);
+            api.purchaseStripe(stripePromise, product);
             resolve(product);
         })
     }

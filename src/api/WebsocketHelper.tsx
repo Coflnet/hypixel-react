@@ -9,7 +9,6 @@ import { refreshToken, wasAlreadyLoggedIn } from "../utils/GoogleUtils";
 
 let requests: ApiRequest[] = [];
 let websocket: WebSocket;
-let tempOldWebsocket: WebSocket;
 
 let isConnectionIdSet: boolean = false;
 
@@ -90,9 +89,8 @@ function initWebsocket(): void {
             subscription.callback(response);
     }
 
-    document.addEventListener("customTest", function(){
+    document.addEventListener("customTest", function () {
         websocket.close();
-        tempOldWebsocket.close(); 
     });
 
     let onWebsocketMessage = (e: MessageEvent): void => {
@@ -123,23 +121,7 @@ function initWebsocket(): void {
         return websocket;
     }
 
-    let getNewOldWebsocket = (): WebSocket => {
-
-        tempOldWebsocket = new WebSocket(getProperty("websocketOldEndpoint"));
-        tempOldWebsocket.onclose = function () {
-            var timeout = (Math.random() * (5000 - 0)) + 0;
-            setTimeout(() => {
-                tempOldWebsocket = getNewOldWebsocket();
-            }, timeout)
-        };
-        tempOldWebsocket.onerror = onWebsocketError;
-        tempOldWebsocket.onmessage = onWebsocketMessage;
-        tempOldWebsocket.onopen = onOpen;
-        return tempOldWebsocket;
-    }
-
     websocket = getNewWebsocket();
-    tempOldWebsocket = getNewOldWebsocket();
 }
 
 function sendRequest(request: ApiRequest): Promise<void> {
@@ -153,7 +135,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
             return;
         }
 
-        if (_isWebsocketReady(request.type, websocket) && _isWebsocketReady(request.type, tempOldWebsocket)) {
+        if (_isWebsocketReady(request.type, websocket)) {
             request.mId = getNextMessageId();
 
             // if a equal requests are already sent, dont really send more
@@ -166,19 +148,8 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
             requests.push(request);
 
-            let paymentRequests = [RequestType.PAYMENT_SESSION, RequestType.GET_STRIPE_PRODUCTS, RequestType.GET_STRIPE_PRICES, RequestType.VALIDATE_PAYMENT_TOKEN, RequestType.PAYPAL_PAYMENT, RequestType.SET_REF]
-            if (paymentRequests.findIndex(p => p === request.type) !== -1) {
-                prepareDataBeforeSend(request);
-                tempOldWebsocket.send(JSON.stringify(request));
-            } else {
-                prepareDataBeforeSend(request);
-                websocket.send(JSON.stringify(request));
-            }
-
-            if (request.type === RequestType.SET_GOOGLE) {
-                tempOldWebsocket.send(JSON.stringify(request));
-            }
-
+            prepareDataBeforeSend(request);
+            websocket.send(JSON.stringify(request));
         } else {
             setTimeout(() => {
                 sendRequest(request);

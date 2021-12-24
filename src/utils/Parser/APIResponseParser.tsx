@@ -252,25 +252,18 @@ export function parseSubscription(subscription: any): Subscription {
     }
 }
 
-export function mapStripeProducts(products: any, prices: Price[]): Promise<Product[]> {
-    return new Promise((resolve, reject) => {
-        resolve(products.data.filter((product: any) =>
-            product.active
-        ).map((product: any) => {
-            const price = prices.find(price => price.productId === product.id);
-            if (!price) {
-                reject(`price for product ${product.id} not found`);
-            }
-            return {
-                paymentProviderName: 'stripe',
-                itemId: product.id,
-                description: product.description,
-                title: product.name,
-                premiumDuration: parseInt(product.metadata.days),
-                price
-            }
-        }));
-    })
+export function parseProducts(products: any): Product[] {
+    return products.data.filter((product: any) =>
+        product.active
+    ).map((product: any) => {
+        return {
+            itemId: product.id,
+            description: product.description,
+            title: product.name,
+            premiumDuration: parseInt(product.metadata.days),
+            price: product.price
+        }
+    });
 }
 
 export function mapStripePrices(prices: any): Price[] {

@@ -20,6 +20,7 @@ import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
 import Countdown, { zeroPad } from 'react-countdown';
+import { CustomEvents } from '../../utils/CustomEvents';
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -75,7 +76,7 @@ function Flipper() {
         api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
         getLastFlipFetchTime();
 
-        document.addEventListener('flipSettingsChange', () => {
+        document.addEventListener(CustomEvents.FLIP_SETTINGS_CHANGE, () => {
             api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification);
         });
 

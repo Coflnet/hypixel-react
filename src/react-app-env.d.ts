@@ -181,15 +181,9 @@ interface API {
   getSubscriptions(): Promise<Subscription[]>;
   setGoogle(id: string): Promise<void>;
   hasPremium(googleId: string): Promise<Date>;
-  pay(stripePromise: Promise<Stripe | null>, product: Product): Promise<void>;
+  purchaseStripe(stripePromise: Promise<Stripe | null>, product: Product): Promise<void>;
   setToken(token: string): Promise<void>;
-  getStripeProducts(): Promise<Product[]>;
-  getStripePrices(): Promise<Price[]>;
-  validatePaymentToken(
-    token: string,
-    productId: string,
-    packageName: string = packageName
-  ): Promise<boolean>;
+  getProducts(providerKey: string): Promise<Product[]>;
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
   subscribeFlips(flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function, nextUpdateNotificationCallback?: Function): void,
@@ -201,7 +195,7 @@ interface API {
   getNewItems(): Promise<Item[]>,
   getNewPlayers(): Promise<Player[]>
   getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>,
-  paypalPurchase(orderId: string, days: number): Promise<any>,
+  paypalPurchase(product: Product): Promise<void>,
   getRefInfo(): Promise<RefInfo>,
   setRef(refId: string): Promise<void>,
   getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>,
@@ -216,7 +210,8 @@ interface API {
   getProfitableCrafts(): Promise<ProfitableCraft[]>,
   getLowSupplyItems(): Promise<LowSupplyItem[]>,
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
-  triggerPlayerNameCheck(playerUUID: string): Promise<void>
+  triggerPlayerNameCheck(playerUUID: string): Promise<void>,
+  purchaseWithCoflcoins(productId: string): Promise<void>
 }
 
 interface CacheUtils {

@@ -16,12 +16,10 @@ export enum RequestType {
     UNSUBSCRIBE = "unsubscribe",
     GET_SUBSCRIPTIONS = "subscriptions",
     SET_GOOGLE = "setGoogle",
-    PAYMENT_SESSION = "paymentSession",
+    STRIPE_PAYMENT_SESSION = "topup/stripe",
     PREMIUM_EXPIRATION = 'premiumExpiration',
     FCM_TOKEN = "token",
-    GET_STRIPE_PRODUCTS = "getProducts",
-    GET_STRIPE_PRICES = "getPrices",
-    VALIDATE_PAYMENT_TOKEN = "gPurchase",
+    GET_PRODUCTS = "topup/options",
     RECENT_AUCTIONS = "recentAuctions",
     SUBSCRIBE_FLIPS = "subFlip",
     UNSUBSCRIBE_FLIPS = "unsubFlip",
@@ -33,7 +31,7 @@ export enum RequestType {
     POPULAR_SEARCHES = "popularSearches",
     ENDED_AUCTIONS = "endedAuctions",
     GET_FLIP_BASED_AUCTIONS = "flipBased",
-    PAYPAL_PAYMENT = "paypalPurchase",
+    PAYPAL_PAYMENT = "topup/paypal",
     GET_REF_INFO = "getRefInfo",
     SET_REF = "setRef",
     ACTIVE_AUCTIONS = "activeAuctions",
@@ -47,7 +45,8 @@ export enum RequestType {
     GET_PROFITABLE_CRAFTS = "craft/profit",
     GET_LOW_SUPPLY_ITEMS = "auctions/supply/low",
     SEND_FEEDBACK = "sendFeedback",
-    TRIGGER_PLAYER_NAME_CHECK = "triggerNameCheck"
+    TRIGGER_PLAYER_NAME_CHECK = "triggerNameCheck",
+    PURCHASE_WITH_COFLCOiNS = "purchase"
 }
 
 export enum SubscriptionType {

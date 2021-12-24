@@ -1,0 +1,14 @@
+.snipers .sniper-products {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+}
+
+.snipers .sniper-product {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.snipers .sniper-product-label {
+    text-align: center;
+}

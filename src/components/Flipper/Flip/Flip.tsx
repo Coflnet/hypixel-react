@@ -8,6 +8,7 @@ import { useForceUpdate } from '../../../utils/Hooks';
 import { calculateProfit, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { toast } from 'react-toastify';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
+import { CustomEvents } from '../../../utils/CustomEvents';
 
 interface Props {
     flip: FlipAuction,
@@ -24,10 +25,10 @@ function Flip(props: Props) {
     let { trackEvent } = useMatomo();
 
     useEffect(() => {
-        document.addEventListener('flipSettingsChange', forceUpdate);
+        document.addEventListener(CustomEvents.FLIP_SETTINGS_CHANGE, forceUpdate);
 
         return () => {
-            document.removeEventListener('flipSettingsChange', forceUpdate);
+            document.removeEventListener(CustomEvents.FLIP_SETTINGS_CHANGE, forceUpdate);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
