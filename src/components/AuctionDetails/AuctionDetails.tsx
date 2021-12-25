@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Countdown from 'react-countdown';
 import api from '../../api/ApiHelper';
 import './AuctionDetails.css';
-import { Badge, Button, Card, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Badge, Button, Card, ListGroup, OverlayTrigger, Tooltip as TooltipBootstrap } from 'react-bootstrap';
 import { getStyleForTier, numberWithThousandsSeperators, convertTagToName } from '../../utils/Formatter';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import { useForceUpdate } from '../../utils/Hooks';
@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import SubscribeButton from '../SubscribeButton/SubscribeButton';
 import { CopyButton } from '../CopyButton/CopyButton';
 import { toast } from 'react-toastify';
+import Tooltip from '../Tooltip/Tooltip';
 
 interface Props {
     auctionUUID: string,
@@ -164,6 +165,15 @@ function AuctionDetails(props: Props) {
             return value;
         }
 
+        if (key === "color") {
+            let decSplits = value ? value.split(":") : [];
+            let hexSplits: string[] = [];
+            decSplits.forEach(split => {
+                hexSplits.push(parseInt(split).toString(16));
+            })
+            return <Tooltip type="hover" content={<span>{hexSplits.join("")}</span>} tooltipContent={value} />
+        }
+
         if (!isNaN(value) && Number.isInteger(parseInt(value, 10))) {
             return numberWithThousandsSeperators(value);
         }
@@ -195,9 +205,9 @@ function AuctionDetails(props: Props) {
                 </Link>
                 <div className="auction-detail-card-head-subtext">
                     <OverlayTrigger
-                        overlay={<Tooltip id={generateUUID()}>
+                        overlay={<TooltipBootstrap id={generateUUID()}>
                             {getTimeToolTipString()}
-                        </Tooltip>}>
+                        </TooltipBootstrap>}>
                         {
                             isRunning(auctionDetails) ?
                                 <span>
