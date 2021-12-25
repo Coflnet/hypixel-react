@@ -171,7 +171,7 @@ function AuctionDetails(props: Props) {
             decSplits.forEach(split => {
                 hexSplits.push(parseInt(split).toString(16));
             })
-            return <Tooltip type="hover" content={<span>{hexSplits.join(":")}</span>} tooltipContent={value} />
+            return <Tooltip type="hover" content={<span>{hexSplits.join("")}</span>} tooltipContent={value} />
         }
 
         if (!isNaN(value) && Number.isInteger(parseInt(value, 10))) {
