@@ -62,10 +62,12 @@ function FlipperFilter(props: Props) {
 
         let autoNumericElements = [{
             id: 'filter-input-min-profit',
-            stateName: 'minProfit'
+            stateName: 'minProfit',
+            maximumValue: '2147483647'
         }, {
             id: 'filter-input-min-volume',
-            stateName: 'minVolume'
+            stateName: 'minVolume',
+            maximumValue: '120'
         }, {
             id: 'filter-input-max-cost',
             stateName: 'maxCost'
@@ -78,12 +80,20 @@ function FlipperFilter(props: Props) {
             let element = document.getElementById(autoNumericElement.id);
             if (element && !AutoNumeric.isManagedByAutoNumeric(element)) {
 
+                // set value to the maxValue if it would exceed the limit
+                if (defaultFilter[autoNumericElement.stateName] && autoNumericElement.maximumValue) {
+                    if (parseInt(autoNumericElement.maximumValue) < defaultFilter[autoNumericElement.stateName]) {
+                        defaultFilter[autoNumericElement.stateName] = parseInt(autoNumericElement.maximumValue);
+                    }
+                }
+
                 new AutoNumeric('#' + autoNumericElement.id, defaultFilter[autoNumericElement.stateName], {
                     digitGroupSeparator: '.',
                     decimalCharacter: ',',
                     decimalPlaces: 0,
                     emptyInputBehavior: 'zero',
-                    minimumValue: "0"
+                    minimumValue: "0",
+                    maximumValue: autoNumericElement.maximumValue || '10000000000000'
                 });
             }
         });
