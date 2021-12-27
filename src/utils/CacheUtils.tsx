@@ -42,6 +42,16 @@ let cacheUtils: CacheUtils = {
             };
             window.localStorage.setItem("version", version);
         })
+    },
+    clearAll: function () {
+        if (window.caches !== undefined) {
+            caches.keys().then(keys => {
+                keys.forEach(key => {
+                    caches.delete(key);
+                })
+            })
+            clear();
+        }
     }
 }
 export default cacheUtils

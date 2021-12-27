@@ -228,6 +228,7 @@ interface CacheUtils {
     maxAge: number = 0
   ): void;
   checkForCacheClear(): void;
+  clearAll(): void
 }
 
 interface ApiResponse {
