@@ -54,6 +54,7 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             soundOnFlip: true,
             shortNumbers: false,
             hideProfitPercent: false,
+            blockTenSecMsg: false,
             finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value)
         };
 
