@@ -16,20 +16,22 @@ export function CraftsList() {
     let [accountInfo, setAccountInfo] = useState<AccountInfo>();
     let [profiles, setProfiles] = useState<SkyblockProfile[]>();
     let [selectedProfile, setSelectedProfile] = useState<SkyblockProfile>();
-    let [isLoading, setIsLoading] = useState(true);
+    let [isLoadingProfileData, setIsLoadingProfileData] = useState(true);
+    let [isLoadingCrafts, setIsLoadingCrafts] = useState(true);
     let [hasPremium, setHasPremium] = useState(false);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        setIsLoading(true);
+        setIsLoadingCrafts(true);
+        setIsLoadingProfileData(true);
         loadCrafts();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function loadCrafts(playerId?: string, profileId?: string) {
         api.getProfitableCrafts(playerId, profileId).then(crafts => {
-            loadHasPremium();
             setCrafts(crafts);
+            setIsLoadingCrafts(false);
         });
     }
 
@@ -40,25 +42,27 @@ export function CraftsList() {
             if (hasPremiumUntil !== undefined && hasPremiumUntil.getTime() > new Date().getTime()) {
                 hasPremium = true;
             }
-            setIsLoading(false);
             setHasPremium(hasPremium);
         });
     }
 
     function onAfterLogin() {
         setIsLoggedIn(true);
-        api.getAccountInfo().then(info => {
-            setAccountInfo(info);
-            if (info.mcId) {
-                api.getPlayerProfiles(info.mcId).then(profiles => {
-                    profiles.forEach(profile => {
-                        if (profile.current) {
-                            setSelectedProfile(profile);
-                        }
+        loadHasPremium().then(() => {
+            api.getAccountInfo().then(info => {
+                setAccountInfo(info);
+                if (info.mcId) {
+                    api.getPlayerProfiles(info.mcId).then(profiles => {
+                        profiles.forEach(profile => {
+                            if (profile.current) {
+                                setSelectedProfile(profile);
+                            }
+                        })
+                        setProfiles(profiles);
                     })
-                    setProfiles(profiles);
-                })
-            }
+                }
+                setIsLoadingProfileData(false);
+            })
         })
     }
 
@@ -133,7 +137,7 @@ export function CraftsList() {
         <div>
             <div>
                 {
-                    isLoading || (isLoggedIn && !accountInfo) ?
+                    isLoadingProfileData && isLoggedIn ?
                         getLoadingElement() :
                         <div>
                             {
@@ -170,7 +174,7 @@ export function CraftsList() {
             <hr />
             <p>Click on a craft for further details</p>
             {
-                isLoading ?
+                isLoadingCrafts ?
                     getLoadingElement() :
                     <div className="crafts-list">
                         <ListGroup className="list">
