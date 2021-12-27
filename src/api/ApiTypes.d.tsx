@@ -48,7 +48,9 @@ export enum RequestType {
     GET_LOW_SUPPLY_ITEMS = "auctions/supply/low",
     SEND_FEEDBACK = "sendFeedback",
     TRIGGER_PLAYER_NAME_CHECK = "triggerNameCheck",
-    GET_PLAYER_PROFILES = "profile"
+    GET_PLAYER_PROFILES = "profile",
+    GET_CRAFTING_RECIPE = "craft/recipe",
+    GET_LOWEST_BIN = "lowestBin"
 }
 
 export enum SubscriptionType {

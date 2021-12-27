@@ -1,11 +1,12 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { Badge, Form, ListGroup } from 'react-bootstrap';
+import { Form, ListGroup } from 'react-bootstrap';
 import api from '../../api/ApiHelper';
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter';
 import './CraftsList.css'
 import Tooltip from '../Tooltip/Tooltip';
-import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
+import { getLoadingElement } from '../../utils/LoadingUtils';
+import { CraftDetails } from './CraftDetails/CraftDetails';
 
 export function CraftsList() {
 
@@ -15,28 +16,49 @@ export function CraftsList() {
     let [accountInfo, setAccountInfo] = useState<AccountInfo>();
     let [profiles, setProfiles] = useState<SkyblockProfile[]>();
     let [selectedProfile, setSelectedProfile] = useState<SkyblockProfile>();
+    let [isLoading, setIsLoading] = useState(true);
+    let [hasPremium, setHasPremium] = useState(false);
+    let [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
+        setIsLoading(true);
         loadCrafts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function loadCrafts(playerId?: string, profileId?: string) {
         api.getProfitableCrafts(playerId, profileId).then(crafts => {
+            loadHasPremium();
             setCrafts(crafts);
-        })
+        });
+    }
+
+    function loadHasPremium(): Promise<void> {
+        let googleId = localStorage.getItem('googleId');
+        return api.hasPremium(googleId!).then((hasPremiumUntil) => {
+            let hasPremium = false;
+            if (hasPremiumUntil !== undefined && hasPremiumUntil.getTime() > new Date().getTime()) {
+                hasPremium = true;
+            }
+            setIsLoading(false);
+            setHasPremium(hasPremium);
+        });
     }
 
     function onAfterLogin() {
+        setIsLoggedIn(true);
         api.getAccountInfo().then(info => {
             setAccountInfo(info);
-            api.getPlayerProfiles(info.mcId).then(profiles => {
-                profiles.forEach(profile => {
-                    if (profile.current) {
-                        setSelectedProfile(profile);
-                    }
+            if (info.mcId) {
+                api.getPlayerProfiles(info.mcId).then(profiles => {
+                    profiles.forEach(profile => {
+                        if (profile.current) {
+                            setSelectedProfile(profile);
+                        }
+                    })
+                    setProfiles(profiles);
                 })
-                setProfiles(profiles);
-            })
+            }
         })
     }
 
@@ -62,33 +84,30 @@ export function CraftsList() {
         loadCrafts(accountInfo?.mcId, newSelectedProfile?.id);
     }
 
-    function getListElement(craft: ProfitableCraft) {
+    function getListElement(craft: ProfitableCraft, blur: boolean) {
         if (nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
             return <span />;
         }
-        return <ListGroup.Item action className="list-group-item">
-            <h4>
-                <img crossOrigin="anonymous" src={craft.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                {convertTagToName(craft.item.name)}
-            </h4>
-            <p><span className="label">Crafting-Cost:</span> {numberWithThousandsSeperators(Math.round(craft.craftCost))}</p>
-            <p><span className="label">Sell-Price:</span> {numberWithThousandsSeperators(Math.round(craft.sellPrice))}</p>
-            <p><span className="label">Req. Collection:</span> {craft.requiredCollection ? convertTagToName(craft.requiredCollection.name) + " " + craft.requiredCollection.level : <span style={{ color: "red" }}>---</span>}</p>
+        return <ListGroup.Item action={!blur} className={"list-group-item"}>
+            {
+                blur ?
+                    <p style={{ position: "absolute", top: "25%", left: "25%", width: "50%", fontSize: "large", fontWeight: "bold", textAlign: "center" }}>The top 3 crafts can only be seen with premium</p> :
+                    ""
+            }
+            <div className={blur ? "blur" : ""}>
+                <h4>{getCraftHeader(craft)}</h4>
+                <p><span className="label">Crafting-Cost:</span> {numberWithThousandsSeperators(Math.round(craft.craftCost))} Coins</p>
+                <p><span className="label">Sell-Price:</span> {numberWithThousandsSeperators(Math.round(craft.sellPrice))} Coins</p>
+                <p><span className="label">Req. Collection:</span> {craft.requiredCollection ? convertTagToName(craft.requiredCollection.name) + " " + craft.requiredCollection.level : <span style={{ color: "red" }}>---</span>}</p>
+            </div>
         </ListGroup.Item>
     }
 
-    function getHoverElement(craft: ProfitableCraft) {
-        return <div style={{ width: "auto" }}>
-            <div style={{ width: "auto", whiteSpace: "nowrap" }}>
-                {craft.ingredients.map(ingredient => {
-                    return <p key={ingredient.item.tag} style={{ textAlign: "left" }}>
-                        <img crossOrigin="anonymous" src={ingredient.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                        {ingredient.item.name + " (" + ingredient.count + "x)"}
-                        <Badge style={{ marginLeft: "5px" }} variant="secondary">{numberWithThousandsSeperators(Math.round(ingredient.cost * ingredient.count))}</Badge>
-                    </p>
-                })}
-            </div>
-        </div>
+    function getCraftHeader(craft) {
+        return <span>
+            <img crossOrigin="anonymous" src={craft.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+            {convertTagToName(craft.item.name)}
+        </span>
     }
 
 
@@ -102,7 +121,9 @@ export function CraftsList() {
 
     let list = crafts.map((craft, i) => {
         return (
-            <Tooltip key={craft.item.tag} type="hover" id="tooltip-container" content={getListElement(craft)} tooltipContent={getHoverElement(craft)} />
+            !hasPremium && i < 3 ?
+                <div key={craft.item.tag} style={{ width: "calc(50% - 10px)" }} className="prevent-select">{getListElement(craft, true)}</div> :
+                <Tooltip key={craft.item.tag} type="click" id="tooltip-container" content={getListElement(craft, false)} tooltipTitle={getCraftHeader(craft)} tooltipContent={<CraftDetails craft={craft} />} />
         )
     });
 
@@ -110,12 +131,22 @@ export function CraftsList() {
 
     return (
         <div>
-            {
-                wasAlreadyLoggedIn() ?
-                    <div style={{ visibility: "collapse" }}>
-                        <GoogleSignIn onAfterLogin={onAfterLogin} />
-                    </div> : null
-            }
+            <div>
+                {
+                    isLoading || (isLoggedIn && !accountInfo) ?
+                        getLoadingElement() :
+                        <div>
+                            {
+                                !isLoggedIn ? <p>To use the the profile filter please login with Google and connect your Minecraft Account:</p> :
+                                    !accountInfo?.mcId ? <p>To use the the profile filter please connect your Minecraft Account</p> : ""
+                            }
+                        </div>
+                }
+                <GoogleSignIn onAfterLogin={onAfterLogin} />
+                {
+                    !isLoggedIn || !accountInfo?.mcId ? <hr /> : ""
+                }
+            </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Form.Control style={{ width: selectWidth }} placeholder="Item name..." onChange={onNameFilterChange} />
                 <Form.Control style={{ width: selectWidth }} className="select-filter" defaultValue={orderBy} as="select" onChange={updateOrderBy}>
@@ -129,7 +160,7 @@ export function CraftsList() {
                         <Form.Control style={{ width: selectWidth }} className="select-filter" defaultValue={selectedProfile?.cuteName} as="select" onChange={onProfileChange}>
                             {
                                 profiles.map(profile =>
-                                    <option value={profile.cuteName}>{profile.cuteName}</option>
+                                    <option key={profile.cuteName} value={profile.cuteName}>{profile.cuteName}</option>
                                 )
                             }
                         </Form.Control>
@@ -137,11 +168,16 @@ export function CraftsList() {
                 }
             </div>
             <hr />
-            <div className="crafts-list">
-                <ListGroup className="list">
-                    {list}
-                </ListGroup>
-            </div>
+            <p>Click on a craft for further details</p>
+            {
+                isLoading ?
+                    getLoadingElement() :
+                    <div className="crafts-list">
+                        <ListGroup className="list">
+                            {list}
+                        </ListGroup>
+                    </div>
+            }
         </div>
     )
 }

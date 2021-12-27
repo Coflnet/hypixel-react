@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseLowSupplyItem, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseProfitableCraft, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSkyblockProfile, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseCraftingRecipe, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseLowSupplyItem, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseProfitableCraft, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSkyblockProfile, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -1013,6 +1013,43 @@ function initAPI(): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.TRIGGER_PLAYER_NAME_CHECK, error, playerUUID);
+                }
+            })
+        })
+    }
+
+    let getCraftingRecipe = (itemTag: string): Promise<CraftingRecipe> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_CRAFTING_RECIPE,
+                data: itemTag,
+                resolve: function (data) {
+                    resolve(parseCraftingRecipe(data));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_CRAFTING_RECIPE, error, itemTag);
+                    reject();
+                }
+            });
+        })
+    }
+
+    let getLowestBin = (itemTag: string): Promise<LowestBin> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_LOWEST_BIN,
+                customRequestURL: "item/price/" + itemTag + "/bin",
+                data: itemTag,
+                resolve: function (data) {
+                    resolve({
+                        lowest: data.lowest,
+                        secondLowest: data.secondLowest
+                    });
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_LOWEST_BIN, error, itemTag);
                     reject();
                 }
             });
@@ -1069,7 +1106,9 @@ function initAPI(): API {
         getLowSupplyItems,
         sendFeedback,
         triggerPlayerNameCheck,
-        getPlayerProfiles
+        getPlayerProfiles,
+        getCraftingRecipe,
+        getLowestBin
     }
 }
 

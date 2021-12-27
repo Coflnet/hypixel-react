@@ -1,0 +1,40 @@
+.crafting-table {
+    display: flex;
+    justify-content: center;
+}
+
+.crafting-table .arrow {
+    font-size: 100px;
+    font-weight: bold;
+    color: #404040;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.crafting-table .result {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 20px;
+}
+
+.crafting-table .grid {
+    width: 150px;
+    height: 150px;
+}
+
+.crafting-table .grid-cell {
+    background-color: #8b8b8b;
+    border-top: thick double #373737;
+    border-left: thick double #373737;
+    border-right: double #FFFFFF;
+    border-bottom: double #FFFFFF;
+    float: left;
+}
+
+.crafting-table .ingredience-image {
+    display: block;
+    margin: auto;
+    padding: 2px;
+}

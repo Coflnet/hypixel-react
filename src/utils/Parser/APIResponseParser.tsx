@@ -411,3 +411,17 @@ export function parseSkyblockProfile(profile): SkyblockProfile {
         id: profile.profile_id
     }
 }
+
+export function parseCraftingRecipe(recipe): CraftingRecipe {
+    return {
+        A1: recipe.A1.split(":")[0],
+        A2: recipe.A2.split(":")[0],
+        A3: recipe.A3.split(":")[0],
+        B1: recipe.B1.split(":")[0],
+        B2: recipe.B2.split(":")[0],
+        B3: recipe.B3.split(":")[0],
+        C1: recipe.C1.split(":")[0],
+        C2: recipe.C2.split(":")[0],
+        C3: recipe.C3.split(":")[0]
+    }
+}
