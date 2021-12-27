@@ -143,6 +143,13 @@ function FlipCustomize() {
         trackChange('finders');
     }
 
+    function onBlockTenSecMsgChange(event: ChangeEvent<HTMLInputElement>) {
+        flipCustomizeSettings.blockTenSecMsg = !event.target.checked;
+        setFlipCustomizeSettings(flipCustomizeSettings);
+
+        trackChange('blockTenSecMsg');
+    }
+
     function trackChange(property: string) {
         trackEvent({
             category: 'customizeFlipStyle',
@@ -293,6 +300,10 @@ function FlipCustomize() {
                             <Form.Group className="select-hide-group">
                                 <Form.Label className="label" htmlFor="justProfit">Just show profit</Form.Label>
                                 <Form.Check onChange={onJustProfitChange} defaultChecked={flipCustomizeSettings.justProfit} id="justProfit" style={{ display: "inline" }} type="checkbox" />
+                            </Form.Group>
+                            <Form.Group className="select-hide-group">
+                                <Form.Label className="label" htmlFor="blockTenSecMsg">"Flips in 10 seconds"</Form.Label>
+                                <Form.Check onChange={onBlockTenSecMsgChange} defaultChecked={!flipCustomizeSettings.blockTenSecMsg} id="blockTenSecMsg" style={{ display: "inline" }} type="checkbox" />
                             </Form.Group>
                         </div>
                         <div>

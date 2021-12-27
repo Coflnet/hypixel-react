@@ -328,7 +328,8 @@ interface FlipCustomizeSettings {
   soundOnFlip?: boolean,
   shortNumbers?: boolean,
   hideProfitPercent?: boolean,
-  finders?: number[]
+  finders?: number[],
+  blockTenSecMsg?: boolean
 }
 
 interface FlipRestriction {
