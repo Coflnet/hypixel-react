@@ -118,7 +118,7 @@ function FlipRestrictionList(props: Props) {
                     <Button variant="success" onClick={addNewRestriction}>
                         Save new restriction
                     </Button>
-                    <Button variant="error" onClick={onNewRestrictionCancel}>
+                    <Button variant="danger" onClick={onNewRestrictionCancel} style={{ marginLeft: "5px" }}>
                         Cancel
                     </Button>
                 </span>

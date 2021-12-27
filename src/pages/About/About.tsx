@@ -1,10 +1,11 @@
 import React, { ChangeEvent, useEffect } from 'react';
-import { Card, Container, Form } from 'react-bootstrap';
+import { Button, Card, Container, Form } from 'react-bootstrap';
 import NavBar from '../../components/NavBar/NavBar';
 import './About.css';
 import Cookies from 'js-cookie'
 
 import { useMatomo } from '@datapunt/matomo-tracker-react'
+import cacheUtils from '../../utils/CacheUtils';
 
 function ItemDetails() {
 
@@ -28,6 +29,14 @@ function ItemDetails() {
     function isTrackingAllowed() {
         let cookie = Cookies.get('nonEssentialCookiesAllowed');
         return cookie === "true"
+    }
+
+    function deleteCaches() {
+        cacheUtils.clearAll();
+        document.cookie = "";
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.reload(true);
     }
 
     return (
@@ -65,7 +74,7 @@ function ItemDetails() {
                         <p><a href="https://hypixel.net/threads/2138599" target="_blank" rel="noreferrer">FurfSky+ <small>v1.71</small></a> by Furf__</p>
 
                         <p><a href="https://hypixel.net/threads/2147652" target="_blank" rel="noreferrer">Vanilla+ <small>v1.39</small></a> by TBlazeWarriorT</p>
-                        
+
                         <p><a href="https://hypixel.net/threads/worlds-and-beyond-16x-crystal-hollows-update-version-1-5.3597207/" target="_blank" rel="noreferrer">Worlds and Beyond [16x] <small>v1.5</small></a> by Skeletony</p>
                     </div>
                     <hr />
@@ -81,7 +90,10 @@ function ItemDetails() {
                     <p><a href="https://coflnet.com/privacy">Privacy</a></p>
                     <p><a href="https://coflnet.com/impressum">Imprint</a></p>
                     <hr />
-                    <p><label>Allow cookies for tracking: </label><Form.Check style={{ display: "inline", marginLeft: "15px" }} onChange={setTrackingAllowed} defaultChecked={isTrackingAllowed()} type="checkbox" /></p>
+                    <p style={{ marginBottom: "0px" }}><label>Allow cookies for tracking: </label><Form.Check style={{ display: "inline", marginLeft: "15px" }} onChange={setTrackingAllowed} defaultChecked={isTrackingAllowed()} type="checkbox" /></p>
+                    <hr />
+                    <Button variant="danger" onClick={deleteCaches}>Delete Caches/Cookies and hard refresh.</Button>
+                    <p style={{ color: "red" }}>Caution: Deleting your Caches/Cookies will delete all your settings and log you out.</p>
                 </Card>
             </Container>
         </div >
