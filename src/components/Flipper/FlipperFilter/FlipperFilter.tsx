@@ -34,7 +34,7 @@ function FlipperFilter(props: Props) {
     let [minProfit, setMinProfit] = useState(defaultFilter.minProfit);
     let [minProfitPercent, setMinProfitPercent] = useState(defaultFilter.minProfitPercent);
     let [minVolume, setMinVolume] = useState(defaultFilter.minVolume);
-    let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || 0);
+    let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || 2147483647);
     let [freePremiumFilters, setFreePremiumFilters] = useState(false);
     let [freeLoginFilters, setFreeLoginFilters] = useState(false);
     let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []));
@@ -70,7 +70,8 @@ function FlipperFilter(props: Props) {
             maximumValue: '120'
         }, {
             id: 'filter-input-max-cost',
-            stateName: 'maxCost'
+            stateName: 'maxCost',
+            maximumValue: '2147483647'
         }, {
             id: 'filter-input-min-volume-percent',
             stateName: 'minProfitPercent'
@@ -85,6 +86,11 @@ function FlipperFilter(props: Props) {
                     if (parseInt(autoNumericElement.maximumValue) < defaultFilter[autoNumericElement.stateName]) {
                         defaultFilter[autoNumericElement.stateName] = parseInt(autoNumericElement.maximumValue);
                     }
+                }
+
+                // set value to maxValue if nothing else is set
+                if (!defaultFilter[autoNumericElement.stateName] && autoNumericElement.stateName === "maxCost") {
+                    defaultFilter[autoNumericElement.stateName] = 2147483647
                 }
 
                 new AutoNumeric('#' + autoNumericElement.id, defaultFilter[autoNumericElement.stateName], {
