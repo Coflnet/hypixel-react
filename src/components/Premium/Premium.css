@@ -7,3 +7,40 @@
     float: left;
     margin: 0;
 }
+
+.premium .premium-products {
+    display: flex;
+    justify-content: space-around;
+    align-content: center;
+}
+
+.premium .premium-product {
+    width: calc(25% - 10px);
+}
+
+.premium .premium-product-label {
+    text-align: center;
+}
+
+.premium .premium-price {
+    text-align: center;
+    font-size: x-large;
+    font-weight: bold;
+    margin: 0px;
+}
+
+@media all and (max-width: 1024px) {
+    .premium .premium-price {
+        font-size: medium;
+    }
+    .premium .premium-product-label {
+        font-size: x-large;
+    }
+    .premium .premium-product {
+        width: auto;
+        margin-bottom: 20px;
+    }
+    .premium .premium-products {
+        display: block;
+    }
+}

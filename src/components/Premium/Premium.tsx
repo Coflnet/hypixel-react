@@ -14,6 +14,7 @@ import { GoogleLogout } from 'react-google-login';
 import { toast } from "react-toastify";
 import { numberWithThousandsSeperators } from "../../utils/Formatter";
 import { CoflCoinsDisplay } from "../CoflCoins/CoflCoinsDisplay";
+import { useCoflCoins } from "../../utils/Hooks";
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
@@ -24,8 +25,7 @@ function Premium() {
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>();
     let [isLoading, setIsLoading] = useState(false);
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false);
-    let [purchasePremiumDuration, setPurchasePremiumDuration] = useState(1);
-    let [purchasePremiumDurationType, setPurchasePremiumDurationType] = useState("days");
+    let [coflCoins] = useCoflCoins();
 
     useEffect(() => {
         if (!wasAlreadyLoggedInGoogle && !isLoggedIn) {
@@ -85,45 +85,25 @@ function Premium() {
         toast.warn("Successfully logged out");
     }
 
-    function onDurationChange(e: ChangeEvent<HTMLInputElement>) {
-        setPurchasePremiumDuration(e.target.valueAsNumber);
+    function getPremiumElement(label: string, price: number, productId: string) {
+
+        let formattedPrice = numberWithThousandsSeperators(Math.round(price));
+
+        return <Card className="premium-product">
+            <Card.Header>
+                <h3 className="premium-product-label">{label}</h3>
+            </Card.Header>
+            <Card.Body>
+                <p className="premium-price" >{formattedPrice} CoflCoins</p>
+                <hr />
+                <Button variant="success" disabled={price > coflCoins} onClick={() => { onPremiumBuy(productId) }} style={{ width: "100%" }}>Buy Sniper for <p style={{ margin: "0" }}>{formattedPrice} Coflcoins</p></Button>
+            </Card.Body >
+        </Card >
     }
 
-    function onDurationTypeChange(e: ChangeEvent<HTMLSelectElement>) {
-        setPurchasePremiumDurationType(e.target.value);
+    function onPremiumBuy(productId) {
+        // implement purchase with coflcoins
     }
-
-    function calculatePremiumPrice(duration: number, durationType: string): number | null {
-        if (!duration || !durationType) {
-            return null;
-        }
-        let durationMultiplier = 1;
-        switch (durationType) {
-            case "hours":
-                durationMultiplier = 0.05;
-                break;
-            case "days":
-                durationMultiplier = 1;
-                break;
-            case "months":
-                durationMultiplier = 31;
-                break;
-            case "years":
-                durationMultiplier = 365;
-                break;
-            default:
-                durationMultiplier = 1;
-                break;
-        }
-        return Math.round(duration * durationMultiplier * 1000);
-    }
-
-    function onPremiumBuy() {
-        // TODO: How can I buy premium time with the new payment system
-    }
-
-    let coflPrice = calculatePremiumPrice(purchasePremiumDuration, purchasePremiumDurationType);
-    let coflPriceElement = coflPrice ? numberWithThousandsSeperators(coflPrice) + " CoflCoins" : "---"
 
     return (
         <div className="premium">
@@ -195,38 +175,17 @@ function Premium() {
                     <PremiumFeatures />
                 </div>
             </Card>
+            <hr />
+            <div style={{ marginBottom: "20px" }}>
+                <h2 style={{ float: "left", marginRight: "50px" }}>Purchase Premium </h2>
+                <CoflCoinsDisplay />
+            </div>
             {
-                isLoggedIn ? <div id="buyPremium">
-                    <hr />
-                    <h2>Purchase</h2>
-                    <Card className="purchase-card">
-                        <Card.Header>
-                            <Card.Title>
-                                Buy premium for a certain duration with your CoflCoins. The premium activate shortly after your purchase.
-                            </Card.Title>
-                        </Card.Header>
-                        <div style={{ padding: "15px" }}>
-                            <div>
-                                <label className="label">Purchase Duration:</label>
-                                <Form.Control type="number" min="1" step="1" value={purchasePremiumDuration || ""} style={{ width: "100px", display: "inline" }} onChange={onDurationChange}></Form.Control>
-                                <Form.Control style={{ width: "100px", display: "inline" }} value={purchasePremiumDurationType} as="select" onChange={onDurationTypeChange}>
-                                    <option key="hours" value="hours">hours</option>
-                                    <option key="days" value="days">days</option>
-                                    <option key="months" value="months">months</option>
-                                    <option key="years" value="years">years</option>
-                                </Form.Control>
-                                <div style={{ float: "right" }}>
-                                    <CoflCoinsDisplay />
-                                </div>
-                            </div>
-                            <div style={{ marginTop: "20px" }}>
-                                <label className="label">Price:</label>
-                                <span>{coflPriceElement}</span>
-                            </div>
-                            <hr />
-                            <Button style={{ marginTop: "10px" }} type="success" onClick={onPremiumBuy}>Confirm purchase</Button>
-                        </div>
-                    </Card>
+                isLoggedIn ? <div className="premium-products">
+                    {getPremiumElement("1 Month", 1800, "premium")}
+                    {getPremiumElement("3 Month", 5400, "premium-quater")}
+                    {getPremiumElement("6 Month", 10800, "premium-half-year")}
+                    {getPremiumElement("1 Year", 21600, "premium-year")}
                 </div> : ""}
         </div>
     )

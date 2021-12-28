@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { CustomEvents } from '../../utils/CustomEvents';
+import { useCoflCoins } from '../../utils/Hooks';
 
 export function CoflCoinsDisplay() {
 
-    let [coflCoins, setCoflCoins] = useState(0);
+    let [coflCoins] = useCoflCoins();
 
     useEffect(() => {
         loadCoflCoins();
@@ -15,15 +16,22 @@ export function CoflCoinsDisplay() {
     }, []);
 
     function loadCoflCoins() {
-        // TODO: How to load coflcoins
+
     }
 
     return (
         <div className="cofl-coins-display">
-            <fieldset style={{ width: "fit-content", borderRadius: "10px", textAlign: "center" }}>
+            <fieldset style={{ width: "max-content", borderRadius: "10px", textAlign: "center" }}>
                 <legend>Your CoflCoins</legend>
                 <b style={{ fontSize: "x-large" }}>{coflCoins}</b>
             </fieldset>
         </div>
     )
+}
+
+/**
+ * 
+ */
+export function getCoflCoins() {
+
 }

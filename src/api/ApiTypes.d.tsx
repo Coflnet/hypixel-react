@@ -46,7 +46,8 @@ export enum RequestType {
     GET_LOW_SUPPLY_ITEMS = "auctions/supply/low",
     SEND_FEEDBACK = "sendFeedback",
     TRIGGER_PLAYER_NAME_CHECK = "triggerNameCheck",
-    PURCHASE_WITH_COFLCOiNS = "purchase"
+    PURCHASE_WITH_COFLCOiNS = "purchase",
+    SUBSCRIBE_COFLCOINS = "subscribeCoflCoins"
 }
 
 export enum SubscriptionType {

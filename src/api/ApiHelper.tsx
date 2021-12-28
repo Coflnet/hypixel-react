@@ -11,6 +11,7 @@ import { checkForExpiredPremium } from "../utils/ExpiredPremiumReminderUtils";
 import { getFlipCustomizeSettings } from "../utils/FlipUtils";
 import { getProperty } from "../utils/PropertiesUtils";
 import { Base64 } from "js-base64";
+import { CustomEvents } from "../utils/CustomEvents";
 
 function initAPI(): API {
 
@@ -431,8 +432,6 @@ function initAPI(): API {
     }
 
     let getProducts = (providerKey: string): Promise<Product[]> => {
-
-        // TODO: Doesnt return products
 
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
@@ -1015,7 +1014,21 @@ function initAPI(): API {
         });
     }
 
-
+    let subscribeCoflCoinChange = () => {
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_COFLCOINS,
+            data: "",
+            callback: function (response) {
+                switch (response.type) {
+                    case 'coflCoinUpdate':
+                        document.dispatchEvent(new CustomEvent(CustomEvents.COFLCOIN_UPDATE, { detail: { coflCoins: response.data } }))
+                        break;
+                    default:
+                        break;
+                }
+            }
+        })
+    }
 
     return {
         search,
@@ -1065,7 +1078,8 @@ function initAPI(): API {
         getLowSupplyItems,
         sendFeedback,
         triggerPlayerNameCheck,
-        purchaseWithCoflcoins
+        purchaseWithCoflcoins,
+        subscribeCoflCoinChange
     }
 }
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getCurrentCoflCoins, subscribeToCoflcoinChange } from "./CoflCoinsUtils";
 
 export function useForceUpdate() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -65,4 +66,14 @@ export function useSwipe(onSwipeUp?: Function, onSwipeRight?: Function, onSwipeD
         document.removeEventListener('touchstart', handleTouchStart, false);
         document.removeEventListener('touchmove', handleTouchMove, false);
     }
+}
+
+export function useCoflCoins() {
+    const [coflCoins, setCoflCoins] = useState(getCurrentCoflCoins());
+
+    subscribeToCoflcoinChange(function (coflCoins) {
+        setCoflCoins(coflCoins);
+    })
+
+    return [coflCoins];
 }

@@ -211,7 +211,8 @@ interface API {
   getLowSupplyItems(): Promise<LowSupplyItem[]>,
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
   triggerPlayerNameCheck(playerUUID: string): Promise<void>,
-  purchaseWithCoflcoins(productId: string): Promise<void>
+  purchaseWithCoflcoins(productId: string): Promise<void>,
+  subscribeCoflCoinChange()
 }
 
 interface CacheUtils {

@@ -89,10 +89,6 @@ function initWebsocket(): void {
             subscription.callback(response);
     }
 
-    document.addEventListener("customTest", function () {
-        websocket.close();
-    });
-
     let onWebsocketMessage = (e: MessageEvent): void => {
         let response: ApiResponse = JSON.parse(e.data);
         let request: ApiRequest | undefined = requests.find(e => e.mId === response.mId);

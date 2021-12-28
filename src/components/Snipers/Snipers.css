@@ -12,3 +12,45 @@
 .snipers .sniper-product-label {
     text-align: center;
 }
+
+.snipers .discount-label {
+    color: lime;
+    font-weight: bold;
+}
+
+.snipers .sniper-price {
+    text-align: center;
+    font-size: x-large;
+    font-weight: bold;
+    margin: 0px;
+}
+
+@media all and (max-width: 1400px) {
+    .snipers .sniper-price {
+        font-size: medium;
+    }
+    .snipers .sniper-product-label {
+        font-size: x-large;
+    }
+}
+
+@media all and (max-width: 1200px) {
+    .snipers .sniper-product-label {
+        font-size: large;
+    }
+}
+
+@media all and (max-width: 1024px) {
+    .snipers .sniper-products {
+        display: block;
+    }
+    .snipers .sniper-product {
+        margin-bottom: 20px;
+    }
+    .snipers .sniper-price {
+        font-size: x-large;
+    }
+    .snipers .sniper-product-label {
+        font-size: calc(1.325rem + .9vw);
+    }
+}
