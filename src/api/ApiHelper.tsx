@@ -3,7 +3,6 @@ import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
 import { v4 as generateUUID } from 'uuid';
-import { Stripe } from "@stripe/stripe-js";
 import { convertTagToName, enchantmentAndReforgeCompare } from "../utils/Formatter";
 import { toast } from 'react-toastify';
 import cacheUtils from "../utils/CacheUtils";
@@ -12,7 +11,6 @@ import { getFlipCustomizeSettings } from "../utils/FlipUtils";
 import { getProperty } from "../utils/PropertiesUtils";
 import { Base64 } from "js-base64";
 import { CustomEvents } from "../utils/CustomEvents";
-import { resolve } from "url";
 
 function initAPI(): API {
 

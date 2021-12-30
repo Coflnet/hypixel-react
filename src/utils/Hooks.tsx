@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/ApiHelper";
-import { getCurrentCoflCoins, subscribeToCoflcoinChange } from "./CoflCoinsUtils";
+import { subscribeToCoflcoinChange } from "./CoflCoinsUtils";
 
 export function useForceUpdate() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
