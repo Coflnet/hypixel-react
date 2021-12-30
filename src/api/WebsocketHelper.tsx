@@ -84,16 +84,12 @@ function initWebsocket(): void {
             response.data = JSON.parse(response.data);
         } catch (e) { }
 
-        if (response.type === "error")
-            toast.error(response.data);
-        else
+        if (response.type === "error") {
+            toast.error(response.data.Message);
+        } else {
             subscription.callback(response);
+        }
     }
-
-    document.addEventListener("customTest", function(){
-        websocket.close();
-        tempOldWebsocket.close(); 
-    });
 
     let onWebsocketMessage = (e: MessageEvent): void => {
         let response: ApiResponse = JSON.parse(e.data);
