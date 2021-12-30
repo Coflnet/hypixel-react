@@ -137,11 +137,11 @@ function SubscriptionList(props: Props) {
     function getSubscriptionTitleElement(subscription: Subscription) {
         switch (subscription.type) {
             case "item":
-                return <Link class="disable-link-style" to={"/item/" + subscription.topicId}>{subscription.title}</Link>
+                return <Link className="disable-link-style" to={"/item/" + subscription.topicId}>{subscription.title}</Link>
             case "player":
-                return <Link class="disable-link-style" to={"/player/" + subscription.topicId}>{subscription.title}</Link>
+                return <Link className="disable-link-style" to={"/player/" + subscription.topicId}>{subscription.title}</Link>
             case "auction":
-                return <Link class="disable-link-style" to={"/auction/" + subscription.topicId}>{subscription.title}</Link>
+                return <Link className="disable-link-style" to={"/auction/" + subscription.topicId}>{subscription.title}</Link>
             default:
                 return subscription.title;
         }

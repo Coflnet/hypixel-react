@@ -233,7 +233,7 @@ interface CacheUtils {
 
 interface ApiResponse {
   type: string;
-  data: string;
+  data: any;
   mId?: number;
   maxAge?: number;
 }
