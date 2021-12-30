@@ -22,8 +22,6 @@ import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTING
 import Countdown, { zeroPad } from 'react-countdown';
 import { CustomEvents } from '../../utils/CustomEvents';
 
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
-
 // Not a state
 // Update should not trigger a rerender for performance reasons
 let missedInfo: FreeFlipperMissInformation = {
@@ -46,7 +44,7 @@ function Flipper() {
     let [hasPremium, setHasPremium] = useState(false);
     let [enabledScroll, setEnabledScroll] = useState(false);
     let [selectedAuctionUUID, setSelectedAuctionUUID] = useState("");
-    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle);
+    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedIn());
     let [refInfo, setRefInfo] = useState<RefInfo>();
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null);
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false);
@@ -126,7 +124,6 @@ function Flipper() {
 
     function onLoginFail() {
         setIsLoading(false);
-        wasAlreadyLoggedInGoogle = false;
     }
 
     function onArrowRightClick() {

@@ -121,8 +121,8 @@ function NavBar(props: Props) {
 
     return (
         <span>
-            <aside onMouseMove={onMouseMove} onMouseOut={onMouseOut} id="nav-bar">
-                <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()}>
+            <aside id="nav-bar">
+                <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()} onMouseMove={onMouseMove} onMouseOutCapture={onMouseOut}>
                     <SidebarHeader>
                         <div style={{ padding: "24px", fontWeight: "bold", fontSize: "20px", letterSpacing: "1px", overflow: "hidden", whiteSpace: "nowrap" }}><ExploreIcon /> {!isCollapsed() ? "Navigation" : ""}</div>
                     </SidebarHeader>
@@ -130,7 +130,7 @@ function NavBar(props: Props) {
                         <MenuItem icon={<HomeIcon />}>Home<Link to="/" /></MenuItem>
                         <MenuItem icon={<StorefrontIcon />}><Link to="/flipper">Item-Flipper</Link> </MenuItem>
                         <MenuItem icon={<NotificationIcon />}><Link to="/subscriptions" >Subscriptions</Link></MenuItem>
-                        <SubMenu title="Shop" open={true} icon={<AccountBalanceIcon />}>
+                        <SubMenu title="Shop" open={true} icon={<AccountBalanceIcon />} firstchild={false}>
                             <MenuItem icon={<AccountBalanceIcon />}><Link to="/coflCoins">CoflCoins</Link></MenuItem>
                             <MenuItem icon={<AccountBalanceIcon />}><Link to="/premium">Premium</Link></MenuItem>
                             <MenuItem icon={<AccountBalanceIcon />}><Link to="/snipers">Sniper</Link></MenuItem>

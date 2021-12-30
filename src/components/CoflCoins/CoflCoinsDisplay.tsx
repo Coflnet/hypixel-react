@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CustomEvents } from '../../utils/CustomEvents';
 import { useCoflCoins } from '../../utils/Hooks';
+import { getLoadingElement } from '../../utils/LoadingUtils';
 
 export function CoflCoinsDisplay() {
 
     let [coflCoins] = useCoflCoins();
+    let [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         loadCoflCoins();
@@ -15,6 +17,14 @@ export function CoflCoinsDisplay() {
         }
     }, []);
 
+    useEffect(() => {
+        if (coflCoins !== -1) {
+            setIsLoading(false);
+        } else {
+            setIsLoading(true);
+        }
+    }, [coflCoins])
+
     function loadCoflCoins() {
 
     }
@@ -23,7 +33,11 @@ export function CoflCoinsDisplay() {
         <div className="cofl-coins-display">
             <fieldset style={{ width: "max-content", borderRadius: "10px", textAlign: "center" }}>
                 <legend>Your CoflCoins</legend>
-                <b style={{ fontSize: "x-large" }}>{coflCoins}</b>
+                {
+                    isLoading ?
+                        getLoadingElement(<span />) :
+                        <b style={{ fontSize: "x-large" }}>{coflCoins}</b>
+                }
             </fieldset>
         </div>
     )

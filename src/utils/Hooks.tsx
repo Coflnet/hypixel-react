@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../api/ApiHelper";
 import { getCurrentCoflCoins, subscribeToCoflcoinChange } from "./CoflCoinsUtils";
 
 export function useForceUpdate() {
@@ -69,11 +70,22 @@ export function useSwipe(onSwipeUp?: Function, onSwipeRight?: Function, onSwipeD
 }
 
 export function useCoflCoins() {
-    const [coflCoins, setCoflCoins] = useState(getCurrentCoflCoins());
+    const [coflCoins, setCoflCoins] = useState(-1);
 
-    subscribeToCoflcoinChange(function (coflCoins) {
-        setCoflCoins(coflCoins);
-    })
+    useEffect(() => {
+        api.getCoflcoinBalance().then(balance => {
+            setCoflCoins(balance);
+        });
+
+        let unsubscribeFunction = subscribeToCoflcoinChange(function (coflCoins) {
+            setCoflCoins(coflCoins);
+        })
+
+        return () => {
+            unsubscribeFunction();
+        }
+        
+    }, []);
 
     return [coflCoins];
 }

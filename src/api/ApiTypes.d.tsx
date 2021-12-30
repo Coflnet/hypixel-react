@@ -47,7 +47,8 @@ export enum RequestType {
     SEND_FEEDBACK = "sendFeedback",
     TRIGGER_PLAYER_NAME_CHECK = "triggerNameCheck",
     PURCHASE_WITH_COFLCOiNS = "purchase",
-    SUBSCRIBE_COFLCOINS = "subscribeCoflCoins"
+    SUBSCRIBE_COFLCOINS = "subscribeCoflCoins",
+    GET_COFLCOIN_BALANCE = "getCoflBalance"
 }
 
 export enum SubscriptionType {

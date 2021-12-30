@@ -27,7 +27,7 @@ export function subscribeToCoflcoinChange(callback: (n: number) => void): Functi
         let index = registeredCallbacks.findIndex(registeredCallback => {
             return registeredCallback.uuid === uuid;
         })
-        registeredCallbacks = registeredCallbacks.splice(index, 1);
+        registeredCallbacks.splice(index, 1);
     }
 }
 

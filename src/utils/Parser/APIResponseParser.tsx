@@ -253,26 +253,14 @@ export function parseSubscription(subscription: any): Subscription {
 }
 
 export function parseProducts(products: any): Product[] {
-    return products.data.filter((product: any) =>
-        product.active
-    ).map((product: any) => {
+    return products.map((product: any) => {
         return {
-            itemId: product.id,
+            productId: product.slug,
             description: product.description,
-            title: product.name,
-            premiumDuration: parseInt(product.metadata.days),
-            price: product.price
-        }
-    });
-}
-
-export function mapStripePrices(prices: any): Price[] {
-    return prices.data.map((price: any) => {
-        return {
-            productId: price.product,
-            currency: price.currency.toUpperCase(),
-            value: price.unit_amount / 100.0
-        }
+            title: product.title,
+            ownershipSeconds: product.ownershipSeconds,
+            cost: product.cost
+        } as Product
     });
 }
 

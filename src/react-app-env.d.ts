@@ -1,5 +1,7 @@
 /// <reference types="react-scripts" />
 
+declare module '*';
+
 interface Player {
   name: string;
   uuid: string;
@@ -181,9 +183,9 @@ interface API {
   getSubscriptions(): Promise<Subscription[]>;
   setGoogle(id: string): Promise<void>;
   hasPremium(googleId: string): Promise<Date>;
-  purchaseStripe(stripePromise: Promise<Stripe | null>, product: Product): Promise<void>;
+  purchaseStripe(product: Product): Promise<void>;
   setToken(token: string): Promise<void>;
-  getProducts(providerKey: string): Promise<Product[]>;
+  getProducts(): Promise<Product[]>;
   getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>,
   getFlips(): Promise<FlipAuction[]>,
   subscribeFlips(flipCallback: Function, restrictionList: FlipRestriction[], filter: FlipperFilter, soldCallback?: Function, nextUpdateNotificationCallback?: Function): void,
@@ -212,7 +214,8 @@ interface API {
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
   triggerPlayerNameCheck(playerUUID: string): Promise<void>,
   purchaseWithCoflcoins(productId: string): Promise<void>,
-  subscribeCoflCoinChange()
+  subscribeCoflCoinChange(),
+  getCoflcoinBalance(): Promise<number>
 }
 
 interface CacheUtils {
@@ -234,50 +237,11 @@ interface ApiResponse {
 }
 
 interface Product {
-  itemId: string;
+  productId: string;
   title: string;
   description: string;
-  price: Price;
-  introductoryPrice: Price;
-  paymentProviderName?: string;
-  /** duration in days */
-  premiumDuration?: number
-}
-
-interface Price {
-  productId: string | null;
-  currency: string;
-  value: number;
-}
-
-interface PaymentMethod {
-  supportedMethods: string;
-  data: PaymentMethodDataSku;
-}
-
-interface PaymentMethodDataSku {
-  sku: string;
-}
-
-interface PaymentDetails {
-  total: PaymentDetailsTotal;
-}
-
-interface PaymentDetailsTotal {
-  label: string;
-  amount: PaymentDetailTotalAmount;
-}
-
-interface PaymentDetailTotalAmount {
-  currency: string;
-  value: string;
-}
-
-interface AbstractPaymentProvider {
-  name: string;
-  getProducts(): Promise<Product[]>;
-  pay(product: Product): Promise<Product>;
-  checkIfPaymentIsPossible(): boolean;
+  cost: number;
+  ownershipSeconds?: number
 }
 
 interface PopularSearch {

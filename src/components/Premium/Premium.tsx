@@ -1,9 +1,9 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import GoogleSignIn from "../GoogleSignIn/GoogleSignIn";
 import './Premium.css';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { getLoadingElement } from "../../utils/LoadingUtils";
-import { Button, Card, Form, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Button, Card, OverlayTrigger, Tooltip } from "react-bootstrap";
 import NavBar from "../NavBar/NavBar";
 import PremiumFeatures from "./PremiumFeatures/PremiumFeatures";
 import api from "../../api/ApiHelper";
@@ -175,18 +175,21 @@ function Premium() {
                     <PremiumFeatures />
                 </div>
             </Card>
-            <hr />
-            <div style={{ marginBottom: "20px" }}>
-                <h2 style={{ float: "left", marginRight: "50px" }}>Purchase Premium </h2>
-                <CoflCoinsDisplay />
-            </div>
             {
-                isLoggedIn ? <div className="premium-products">
-                    {getPremiumElement("1 Month", 1800, "premium")}
-                    {getPremiumElement("3 Month", 5400, "premium-quater")}
-                    {getPremiumElement("6 Month", 10800, "premium-half-year")}
-                    {getPremiumElement("1 Year", 21600, "premium-year")}
-                </div> : ""}
+                isLoggedIn ?
+                    <div>
+                        <hr />
+                        <div style={{ marginBottom: "20px" }}>
+                            <h2 style={{ float: "left", marginRight: "50px" }}>Purchase Premium </h2>
+                            <CoflCoinsDisplay />
+                        </div>
+                        <div className="premium-products">
+                            {getPremiumElement("1 Month", 1800, "premium")}
+                            {getPremiumElement("3 Month", 5400, "premium-quater")}
+                            {getPremiumElement("6 Month", 10800, "premium-half-year")}
+                            {getPremiumElement("1 Year", 21600, "premium-year")}
+                        </div>
+                    </div> : ""}
         </div>
     )
 }

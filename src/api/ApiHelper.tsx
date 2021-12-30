@@ -12,6 +12,7 @@ import { getFlipCustomizeSettings } from "../utils/FlipUtils";
 import { getProperty } from "../utils/PropertiesUtils";
 import { Base64 } from "js-base64";
 import { CustomEvents } from "../utils/CustomEvents";
+import { resolve } from "url";
 
 function initAPI(): API {
 
@@ -359,43 +360,6 @@ function initAPI(): API {
         })
     }
 
-    let purchaseStripe = (stripePromise: Promise<Stripe | null>, product: Product): Promise<void> => {
-
-        // TODO: How does the new stripe request work?
-
-        return new Promise((resolve, reject) => {
-
-            let googleId = localStorage.getItem('googleId');
-            if (!googleId) {
-                toast.error("You need to be logged in to purchase something.");
-                resolve();
-                return;
-            }
-
-            let data = {
-                userId: googleId,
-                productId: product.itemId
-            }
-
-            httpApi.sendApiRequest({
-                type: RequestType.STRIPE_PAYMENT_SESSION,
-                data: data,
-                resolve: (sessionId: any) => {
-                    stripePromise.then((stripe) => {
-                        if (stripe) {
-                            stripe.redirectToCheckout({ sessionId });
-                            resolve();
-                        }
-                    })
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.STRIPE_PAYMENT_SESSION, error, data);
-                    reject();
-                },
-            })
-        })
-    }
-
     let setGoogle = (id: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
@@ -431,12 +395,12 @@ function initAPI(): API {
         })
     }
 
-    let getProducts = (providerKey: string): Promise<Product[]> => {
+    let getProducts = (): Promise<Product[]> => {
 
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.GET_PRODUCTS,
-                data: providerKey,
+                data: "",
                 resolve: (products: any) => {
                     resolve(parseProducts(products));
                 },
@@ -682,10 +646,7 @@ function initAPI(): API {
         });
     }
 
-
-    let paypalPurchase = (product: Product): Promise<void> => {
-
-        // TODO: What is the paypal endpoint?
+    let purchaseStripe = (product: Product): Promise<void> => {
 
         return new Promise((resolve, reject) => {
 
@@ -698,12 +659,50 @@ function initAPI(): API {
 
             let data = {
                 userId: googleId,
-                productId: product.itemId
+                productId: product.productId
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.STRIPE_PAYMENT_SESSION,
+                requestMethod: "POST",
+                requestHeader: {
+                    'GoogleToken': data.userId
+                },
+                data: data.productId,
+                resolve: (data: any) => {
+                    resolve();
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.STRIPE_PAYMENT_SESSION, error, data);
+                    reject();
+                },
+            })
+        })
+    }
+
+    let paypalPurchase = (product: Product): Promise<void> => {
+
+        return new Promise((resolve, reject) => {
+
+            let googleId = localStorage.getItem('googleId');
+            if (!googleId) {
+                toast.error("You need to be logged in to purchase something.");
+                resolve();
+                return;
+            }
+
+            let data = {
+                userId: googleId,
+                productId: product.productId
             }
 
             httpApi.sendApiRequest({
                 type: RequestType.PAYPAL_PAYMENT,
-                data: data,
+                requestMethod: "POST",
+                data: data.productId,
+                requestHeader: {
+                    'GoogleToken': data.userId
+                },
                 resolve: (response: any) => {
                     resolve(response);
                 },
@@ -1030,6 +1029,18 @@ function initAPI(): API {
         })
     }
 
+    let getCoflcoinBalance = (): Promise<number> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.subscribe({
+                type: RequestType.GET_COFLCOIN_BALANCE,
+                data: "",
+                callback: function (response) {
+                    resolve(parseInt(response.data));
+                }
+            })
+        });
+    }
+
     return {
         search,
         trackSearch,
@@ -1079,7 +1090,8 @@ function initAPI(): API {
         sendFeedback,
         triggerPlayerNameCheck,
         purchaseWithCoflcoins,
-        subscribeCoflCoinChange
+        subscribeCoflCoinChange,
+        getCoflcoinBalance
     }
 }
 
