@@ -91,7 +91,9 @@ interface PlayerDetails {
 }
 
 interface ItemFilter {
-  [key: string]: string
+  [key: string]: string,
+  _hide?: boolean,
+  _label?: string
 }
 
 interface FilterOptions {
@@ -229,11 +231,12 @@ interface CacheUtils {
     maxAge: number = 0
   ): void;
   checkForCacheClear(): void;
+  clearAll(): void
 }
 
 interface ApiResponse {
   type: string;
-  data: string;
+  data: any;
   mId?: number;
   maxAge?: number;
 }
@@ -328,7 +331,8 @@ interface FlipCustomizeSettings {
   soundOnFlip?: boolean,
   shortNumbers?: boolean,
   hideProfitPercent?: boolean,
-  finders?: number[]
+  finders?: number[],
+  blockTenSecMsg?: boolean
 }
 
 interface FlipRestriction {

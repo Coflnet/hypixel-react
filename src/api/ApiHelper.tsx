@@ -522,7 +522,8 @@ function initAPI(): API {
             mod: {
                 justProfit: flipSettings.justProfit,
                 soundOnFlip: flipSettings.soundOnFlip,
-                shortNumbers: flipSettings.shortNumbers
+                shortNumbers: flipSettings.shortNumbers,
+                blockTenSecMsg: flipSettings.blockTenSecMsg
             },
             visibility: {
                 cost: !flipSettings.hideCost,
