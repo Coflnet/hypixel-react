@@ -15,7 +15,7 @@ function Subscriptions(props: Props) {
             <Container>
                 <h2>
                     <NavBar />
-                    Your Subscriptions
+                    Your Notifiers
                 </h2>
                 <hr />
                 <SubscriptionList />

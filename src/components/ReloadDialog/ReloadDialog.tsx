@@ -64,7 +64,7 @@ function ReloadDialog(props: Props) {
                 <Form.Group>
                     <Form.Check id="loaddNewInformation" className="checkbox" defaultChecked={feedback.loadNewInformation} onChange={onLoadNewInformationChange} />
                     <Form.Label htmlFor="loaddNewInformation">I tried to load new information</Form.Label>
-                    <p style={{ fontStyle: "italic" }}>If you need the most recent information on something you could try to subscribe to it. Currently you can subscribe to Items, Auctions and Players. Do you need something else? Please dont hesitate to ask us.</p>
+                    <p style={{ fontStyle: "italic" }}>If you need the most recent information on something you could try to create a notification for it. Currently you can create notifications for Items, Auctions and Players. Do you need something else? Please dont hesitate to ask us.</p>
                 </Form.Group>
                 <hr />
                 <Form.Group>

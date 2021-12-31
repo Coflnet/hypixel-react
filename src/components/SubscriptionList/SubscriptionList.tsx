@@ -97,7 +97,7 @@ function SubscriptionList(props: Props) {
             setSubscriptions(subs);
             subscriptions = subs;
 
-            toast.success(<span>Subscription deleted <Button style={{ float: "right", marginRight: "5px" }} variant="info" onClick={() => { resubscribe(subscription) }}><UndoIcon /> Undo</Button></span>)
+            toast.success(<span>Notifier deleted <Button style={{ float: "right", marginRight: "5px" }} variant="info" onClick={() => { resubscribe(subscription) }}><UndoIcon /> Undo</Button></span>)
         })
     }
 
@@ -167,7 +167,7 @@ function SubscriptionList(props: Props) {
                     <ListGroup style={{ marginTop: "20px" }}>
                         {subscriptionsTableBody}
                     </ListGroup>
-                    : <p>You dont have any subscriptions</p>)
+                    : <p>You dont have any notifiers</p>)
                 : ""
             }
             {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
