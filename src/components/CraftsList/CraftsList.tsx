@@ -133,6 +133,13 @@ export function CraftsList() {
 
     const selectWidth = profiles ? "32%" : "49%";
 
+    let connectMinecraftTooltip = <Tooltip type="hover" content={<span style={{ color: "#007bff" }}>connect your Minecraft Account</span>}
+        tooltipContent={
+            <div style={{ width: "max-width" }}>
+                <p>To connect your Minecraft Account, search your ingame name in the search bar. On the player page you should see a text "You? Claim account."</p>
+            </div>
+        } />
+
     return (
         <div>
             <div>
@@ -141,8 +148,8 @@ export function CraftsList() {
                         getLoadingElement() :
                         <div>
                             {
-                                !isLoggedIn ? <p>To use the the profile filter please login with Google and connect your Minecraft Account:</p> :
-                                    !accountInfo?.mcId ? <p>To use the the profile filter please connect your Minecraft Account</p> : ""
+                                !isLoggedIn ? <p>To use the the profile filter please login with Google and {connectMinecraftTooltip}:</p> :
+                                    !accountInfo?.mcId ? <p>To use the the profile filter please {connectMinecraftTooltip}</p> : ""
                             }
                         </div>
                 }
