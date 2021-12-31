@@ -1,0 +1,17 @@
+.flip-tracking .list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.flip-tracking .list-group-item {
+    border-radius: 20px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+@media all and (min-width: 1200px) {
+    .flip-tracking .list-group-item {
+        width: 49%;
+    }
+}

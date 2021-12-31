@@ -216,7 +216,8 @@ interface API {
   getProfitableCrafts(): Promise<ProfitableCraft[]>,
   getLowSupplyItems(): Promise<LowSupplyItem[]>,
   sendFeedback(feedbackKey: string, feedback: any): Promise<void>,
-  triggerPlayerNameCheck(playerUUID: string): Promise<void>
+  triggerPlayerNameCheck(playerUUID: string): Promise<void>,
+  getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
 }
 
 interface CacheUtils {
@@ -372,4 +373,19 @@ interface CraftingIngredient {
 interface RequiredCollection {
   name: string,
   level: number
+}
+
+interface FlipTrackingFlip {
+  itemName: string,
+  pricePaid: number,
+  soldFor: number,
+  uId: string,
+  originAuction: string,
+  soldAuction: string,
+  finder: number
+}
+
+interface FlipTrackingResponse {
+  flips: FlipTrackingFlip[],
+  totalProfit: number
 }

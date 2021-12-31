@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Search from '../../components/Search/Search';
 import './PlayerDetails.css';
-import { useParams } from 'react-router-dom';
-import { Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
+import { Link, useParams } from 'react-router-dom';
+import { Button, Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import api from '../../api/ApiHelper';
 import { parsePlayer } from '../../utils/Parser/APIResponseParser';
 import { useSwipe } from '../../utils/Hooks';
@@ -95,7 +95,7 @@ function PlayerDetails() {
                 </span> :
                 <span style={{ marginLeft: "25px", color: "#007bff" }}>
                     (Your Account)
-                </span>
+                </span >
     )
 
     return (
@@ -112,6 +112,7 @@ function PlayerDetails() {
                             <img crossOrigin="anonymous" className="player-head-icon" src={selectedPlayer?.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />
                             <span>{selectedPlayer?.name}</span>
                             {claimAccountElement}
+                            <Link to={"/flipTracking/" + uuid} style={{ marginLeft: "15px" }}><Button variant="info">Check tracked flips</Button></Link>
                         </span>
                     } />
                 <ToggleButtonGroup className="player-details-type" type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>

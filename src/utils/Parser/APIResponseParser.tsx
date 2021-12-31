@@ -403,3 +403,22 @@ export function parseLowSupplyItem(item): LowSupplyItem {
     lowSupplyItem.volume = item.volume;
     return lowSupplyItem;
 }
+
+export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
+    return {
+        itemName: flip.itemName,
+        originAuction: flip.originAuction,
+        pricePaid: flip.pricePaid,
+        soldAuction: flip.soldAuction,
+        soldFor: flip.soldFor,
+        uId: flip.uId,
+        finder: flip.finder
+    }
+}
+
+export function parseFlipTrackingResponse(flipTrackingResponse): FlipTrackingResponse {
+    return {
+        flips: flipTrackingResponse.flips.map(parseFlipTrackingFlip),
+        totalProfit: flipTrackingResponse.totalProfit
+    }
+}

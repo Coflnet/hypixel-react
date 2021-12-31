@@ -1,4 +1,4 @@
-import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseItem, parseItemBidForList, parseItemPriceData, parseLowSupplyItem, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseProfitableCraft, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
+import { mapStripePrices, mapStripeProducts, parseAccountInfo, parseAuction, parseAuctionDetails, parseEnchantment, parseFilterOption, parseFlipAuction, parseFlipTrackingResponse, parseItem, parseItemBidForList, parseItemPriceData, parseLowSupplyItem, parseMinecraftConnectionInfo, parsePlayer, parsePopularSearch, parseProfitableCraft, parseRecentAuction, parseRefInfo, parseReforge, parseSearchResultItem, parseSubscription } from "../utils/Parser/APIResponseParser";
 import { RequestType, SubscriptionType, Subscription } from "./ApiTypes.d";
 import { websocketHelper } from './WebsocketHelper';
 import { httpApi } from './HttpHelper';
@@ -1000,6 +1000,22 @@ function initAPI(): API {
         })
     }
 
+    let getTrackedFlipsForPlayer = (playerUUID: string): Promise<FlipTrackingResponse> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TRACKED_FLIPS_FOR_PLAYER,
+                data: playerUUID,
+                resolve: function (data) {
+                    resolve(parseFlipTrackingResponse(data));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_TRACKED_FLIPS_FOR_PLAYER, error, playerUUID);
+                    reject();
+                }
+            });
+        });
+    }
+
     return {
         search,
         trackSearch,
@@ -1049,7 +1065,8 @@ function initAPI(): API {
         getProfitableCrafts,
         getLowSupplyItems,
         sendFeedback,
-        triggerPlayerNameCheck
+        triggerPlayerNameCheck,
+        getTrackedFlipsForPlayer
     }
 }
 
