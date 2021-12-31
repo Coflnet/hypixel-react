@@ -131,7 +131,6 @@ interface FlipAuction {
   uuid: string,
   median: number,
   cost: number,
-
   volume: number,
   showLink: boolean,
   item: Item,
@@ -141,7 +140,8 @@ interface FlipAuction {
   lowestBin: number,
   secondLowestBin: number,
   isCopied?: boolean,
-  props?: string[]
+  props?: string[],
+  finder: number
 }
 
 interface FlipperFilter {
