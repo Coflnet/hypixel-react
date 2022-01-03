@@ -528,7 +528,7 @@ function initAPI(): API {
             visibility: {
                 cost: !flipSettings.hideCost,
                 estProfit: !flipSettings.hideEstimatedProfit,
-                lBin: !flipSettings.hideLowestBin,
+                lbin: !flipSettings.hideLowestBin,
                 slbin: !flipSettings.hideSecondLowestBin,
                 medPrice: !flipSettings.hideMedianPrice,
                 seller: !flipSettings.hideSeller,
