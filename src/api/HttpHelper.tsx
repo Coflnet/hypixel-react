@@ -69,7 +69,7 @@ function sendApiRequest(request: ApiRequest, body?: any, cacheInvalidationGroupi
         url += `?t=${cacheInvalidationGrouping}`;
     }
 
-    return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
+    return cacheUtils.getFromCache(request.customRequestURL || request.type, requestString).then(cacheValue => {
         if (cacheValue) {
             request.resolve(cacheValue);
             return;
@@ -134,7 +134,7 @@ function handleServerRequest(request: ApiRequest, url: string, body?: any): Prom
             data = Base64.decode(request.data)
         } catch { }
 
-        cacheUtils.setIntoCache(request.type, data, parsedResponse, maxAge);
+        cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge);
         removeSentRequests([...equals, request]);
     }).finally(() => {
         // when there are still matching request remove them
