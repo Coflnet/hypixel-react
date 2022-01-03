@@ -129,7 +129,7 @@ function NavBar(props: Props) {
                     <Menu iconShape="square">
                         <MenuItem icon={<HomeIcon />}>Home<Link to="/" /></MenuItem>
                         <MenuItem icon={<StorefrontIcon />}><Link to="/flipper">Item-Flipper</Link> </MenuItem>
-                        <MenuItem icon={<NotificationIcon />}><Link to="/subscriptions" >Subscriptions</Link></MenuItem>
+                        <MenuItem icon={<NotificationIcon />}><Link to="/subscriptions" >Notifiers</Link></MenuItem>
                         <MenuItem icon={<BuildIcon />}><Link to="/crafts" >Profitable crafts</Link></MenuItem>
                         <MenuItem icon={<AccountBalanceIcon />}><Link to="/premium" >Premium</Link></MenuItem>
                         <MenuItem icon={<ShareIcon />}><Link to="/ref" >Referral</Link></MenuItem>
