@@ -3,7 +3,7 @@ import { Card, ListGroup } from 'react-bootstrap';
 import { useParams } from 'react-router';
 import api from '../../api/ApiHelper';
 import { ArrowRightAlt as ArrowRightIcon } from '@material-ui/icons';
-import { numberWithThousandsSeperators } from '../../utils/Formatter';
+import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter';
 import './FlipTracking.css';
 
 export function FlipTracking() {
@@ -26,7 +26,8 @@ export function FlipTracking() {
             <ListGroup.Item action className="list-group-item">
                 <h1 style={{ fontSize: "x-large" }}>
                     <div className="ellipse">
-                        {trackedFlip.itemName}
+                        <img crossOrigin="anonymous" src={trackedFlip.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                        <span style={getStyleForTier(trackedFlip.item.tier)}>{trackedFlip.item.name}</span>
                     </div>
                 </h1>
                 <hr />

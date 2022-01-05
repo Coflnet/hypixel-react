@@ -376,13 +376,13 @@ interface RequiredCollection {
 }
 
 interface FlipTrackingFlip {
-  itemName: string,
   pricePaid: number,
   soldFor: number,
   uId: string,
   originAuction: string,
   soldAuction: string,
-  finder: number
+  finder: number,
+  item: Item
 }
 
 interface FlipTrackingResponse {

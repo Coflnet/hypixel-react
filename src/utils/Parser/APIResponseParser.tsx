@@ -405,15 +405,20 @@ export function parseLowSupplyItem(item): LowSupplyItem {
 }
 
 export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
-    return {
-        itemName: flip.itemName,
+    let flipTrackingFlip = {
+        item: {
+            tag: flip.itemTag,
+            name: flip.itemName
+        },
         originAuction: flip.originAuction,
         pricePaid: flip.pricePaid,
         soldAuction: flip.soldAuction,
         soldFor: flip.soldFor,
         uId: flip.uId,
         finder: flip.finder
-    }
+    } as FlipTrackingFlip;
+    flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip.item);
+    return flipTrackingFlip;
 }
 
 export function parseFlipTrackingResponse(flipTrackingResponse): FlipTrackingResponse {
