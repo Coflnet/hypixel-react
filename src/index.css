@@ -54,3 +54,28 @@ img {
     float: right;
     margin-left: 10px;
 }
+
+option {
+    background-color: #222;
+    color: #fff;
+    border-color: #444;
+}
+
+.form-control {
+    background-color: #222;
+    color: #fff;
+    border-color: #444;
+}
+
+.form-control:focus {
+    background-color: #222;
+    color: #fff;
+    border-color: #444;
+}
+
+.form-control:disabled {
+    color: lightgrey;
+    background-color: #222;
+    color: lightgrey;
+    border-color: #222;
+}

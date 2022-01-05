@@ -28,7 +28,7 @@ function Ref(props: Props) {
                 setRefInfo(refInfo);
             })
         }
-    }
+    }   
 
     function onLoginFail() {
         setIsLoggedIn(false);

@@ -935,9 +935,9 @@ function initAPI(): API {
                 if (parts.length > 2) {
                     let obj = JSON.parse(Base64.atob(parts[1]));
                     user = obj.sub;
+
                 }
             }
-
             let requestData = {
                 Context: "Skyblock",
                 User: user || "",

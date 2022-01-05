@@ -20,6 +20,8 @@
 .search .form-control {
     background-color: #303030;
     color: white;
+    border-color: #222;
+    box-shadow: none;
 }
 
 .search .form-control:focus {
