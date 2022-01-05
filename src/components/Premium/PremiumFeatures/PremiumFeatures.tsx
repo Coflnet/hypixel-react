@@ -99,7 +99,7 @@ function PremiumFeatures() {
                     </tr>
                     <tr>
                         <td className="feature-column">
-                            Up to 100 subscriptions
+                            Up to 100 notifications
                         </td>
                         <td>
                             {xIcon}

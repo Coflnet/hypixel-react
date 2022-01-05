@@ -5,7 +5,7 @@ import { Help as HelpIcon } from '@material-ui/icons';
 import { CopyButton } from '../../CopyButton/CopyButton';
 import './Flip.css';
 import { useForceUpdate } from '../../../utils/Hooks';
-import { calculateProfit, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { calculateProfit, FLIP_FINDERS, getDefaulFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { toast } from 'react-toastify';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 
@@ -94,7 +94,6 @@ function Flip(props: Props) {
         }
         return numberWithThousandsSeperators(price);
     }
-
 
     let stars = props.flip.item.name?.match(/✪+/gm);
     let itemName = stars && props.flip.item.name ? props.flip.item.name.split(stars[0])[0] : props.flip.item.name;
@@ -206,7 +205,7 @@ function Flip(props: Props) {
                                 </ul>
                             </span> : ""
                     }
-                    {settings.hideVolume ? null : <hr />}
+                    <hr />
                     <div className="flex">
                         {
                             settings.hideVolume ? null :
@@ -214,6 +213,11 @@ function Flip(props: Props) {
                                     <span className="card-label">Volume: </span>
                                     {props.flip.volume > 59 ? ">60" : "~" + Math.round(props.flip.volume * 10) / 10} per day
                                 </div>
+                        }
+                        {
+                            getDefaulFlipFinders([props.flip.finder]).map(finder => {
+                                return <Badge variant="dark">{finder.shortLabel}</Badge>
+                            })
                         }
                     </div>
                     <CopyButton forceIsCopied={props.flip.isCopied} buttonClass="flip-auction-copy-button" />

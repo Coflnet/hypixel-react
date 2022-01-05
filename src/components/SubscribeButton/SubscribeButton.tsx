@@ -33,7 +33,7 @@ function SubscribeButton(props: Props) {
         trackEvent({ action: "subscribed", category: "subscriptions" });
         setShowDialog(false);
         api.subscribe(props.topic, getSubscriptionTypes(), price ? parseInt(price) : undefined).then(() => {
-            toast.success("Subscription success!", {
+            toast.success("Notifier successfully created!", {
                 onClick: () => {
                     history.push({
                         pathname: "/subscriptions"
@@ -78,6 +78,21 @@ function SubscribeButton(props: Props) {
         return types;
     }
 
+    function getSubscriptionText(): string {
+        let text = "Notify me...";
+        switch (props.type) {
+            case 'auction':
+                text = "Notify me if someone bids on or buys the auction.";
+                break;
+            case 'item':
+            case 'player':
+            default:
+                text = "Notify me...";
+                break;
+        }
+        return text;
+    }
+
     function onLogin() {
         setIsLoggedIn(true);
         askForNotificationPermissons().then(token => {
@@ -112,7 +127,7 @@ function SubscribeButton(props: Props) {
     let dialog = (
         <Modal show={showDialog} onHide={closeDialog} className="subscribe-dialog">
             <Modal.Header closeButton>
-                <Modal.Title>Create a Notification</Modal.Title>
+                <Modal.Title>Create a Notifier</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {isLoggedIn ?
@@ -125,7 +140,7 @@ function SubscribeButton(props: Props) {
                                 <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm" type="number" onChange={(e) => setPrice(e.target.value)} />
                             </InputGroup>
                             : ""}
-                        <h5>Notify me ... </h5>
+                        <h5>{getSubscriptionText()}</h5>
                         <div className="item-forms">
                             {props.type === "item" ?
                                 <div>
@@ -160,7 +175,7 @@ function SubscribeButton(props: Props) {
                         </div>
                         <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">Notify me</Button>
                     </div> :
-                    <p>To use subscriptions, please login with Google: </p>
+                    <p>To use notifiers, please login with Google: </p>
                 }
                 <GoogleSignIn onAfterLogin={onLogin} />
             </Modal.Body>
@@ -170,7 +185,7 @@ function SubscribeButton(props: Props) {
     return (
         <div className="subscribe-button">
             {dialog}
-            <Button style={{ width: "max-content" }} onClick={openDialog}><NotificationIcon /> {props.hideText ? "" : " Subscribe"}</Button>
+            <Button style={{ width: "max-content" }} onClick={openDialog}><NotificationIcon /> {props.hideText ? "" : " Notify"}</Button>
         </div >
     );
 }
