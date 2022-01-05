@@ -5,6 +5,7 @@ import api from "../../api/ApiHelper";
 import { refreshTokenSetup } from "../../utils/GoogleUtils";
 import { useMatomo } from "@datapunt/matomo-tracker-react";
 import { useForceUpdate } from "../../utils/Hooks";
+import { Link } from 'react-router-dom';
 
 interface Props {
     onAfterLogin(): void,
@@ -96,15 +97,18 @@ function GoogleSignIn(props: Props) {
 
     return (
         <div style={style} onClickCapture={onLoginClick}>
-            <GoogleLogin
-                clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                buttonText="Login"
-                onSuccess={onLoginSucces}
-                onFailure={onLoginFail}
-                isSignedIn={googleId !== null}
-                theme="dark"
-                cookiePolicy={"single_host_origin"}
-            />
+            <p>
+                <span style={{ marginRight: "5px" }}>I accept the <Link>privacy policy</Link> and want to</span>
+                <GoogleLogin
+                    clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
+                    buttonText="Login"
+                    onSuccess={onLoginSucces}
+                    onFailure={onLoginFail}
+                    isSignedIn={googleId !== null}
+                    theme="dark"
+                    cookiePolicy={"single_host_origin"}
+                />
+            </p>
         </div>
     )
 }
