@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, ListGroup } from 'react-bootstrap';
+import { Badge, Card, ListGroup } from 'react-bootstrap';
 import { useParams } from 'react-router';
 import api from '../../api/ApiHelper';
 import { ArrowRightAlt as ArrowRightIcon } from '@material-ui/icons';
@@ -24,11 +24,12 @@ export function FlipTracking() {
 
         return (
             <ListGroup.Item action className="list-group-item">
-                <h1 style={{ fontSize: "x-large" }}>
+                <h1 style={{ padding: "10px", display: "flex", justifyContent: "space-between", fontSize: "x-large" }}>
                     <div className="ellipse">
-                        <img crossOrigin="anonymous" src={trackedFlip.item.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                        <span style={getStyleForTier(trackedFlip.item.tier)}>{trackedFlip.item.name}</span>
+                        <img crossOrigin="anonymous" src={trackedFlip.item.iconUrl} height="36" width="36" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                        <span style={{ ...getStyleForTier(trackedFlip.item.tier), whiteSpace: "nowrap" }}>dsasdfasdfsfasdfasfdasfdasdsfasdfasdasdfasdfsdafasdfdsfsfdsf</span>
                     </div>
+                    <span style={{ color: "lime", whiteSpace: "nowrap", marginLeft: "5px" }}>+{numberWithThousandsSeperators(trackedFlip.soldFor - trackedFlip.pricePaid)} Coins</span>
                 </h1>
                 <hr />
                 <div style={{ display: "flex", "justifyContent": "space-around", "alignItems": "center" }}>
@@ -44,6 +45,7 @@ export function FlipTracking() {
                         </Card.Header>
                     </Card>
                 </div>
+                <p style={{ marginTop: "10px" }}>Finder: <Badge variant="dark">{trackedFlip.finder.shortLabel}</Badge></p>
             </ListGroup.Item>
         )
     });

@@ -5,7 +5,7 @@ import { Help as HelpIcon } from '@material-ui/icons';
 import { CopyButton } from '../../CopyButton/CopyButton';
 import './Flip.css';
 import { useForceUpdate } from '../../../utils/Hooks';
-import { calculateProfit, FLIP_FINDERS, getDefaulFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { calculateProfit, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { toast } from 'react-toastify';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 
@@ -215,9 +215,7 @@ function Flip(props: Props) {
                                 </div>
                         }
                         {
-                            getDefaulFlipFinders([props.flip.finder]).map(finder => {
-                                return <Badge variant="dark">{finder.shortLabel}</Badge>
-                            })
+                            <Badge variant="dark">{props.flip.finder.shortLabel}</Badge>
                         }
                     </div>
                     <CopyButton forceIsCopied={props.flip.isCopied} buttonClass="flip-auction-copy-button" />

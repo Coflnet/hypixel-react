@@ -1,5 +1,6 @@
 import api from '../../api/ApiHelper';
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d';
+import { getFlipFinders } from '../FlipUtils';
 import { convertTagToName } from '../Formatter';
 
 export function parseItemBidForList(bid: any): BidForList {
@@ -294,6 +295,7 @@ export function parseRecentAuction(auction): RecentAuction {
 }
 
 export function parseFlipAuction(flip): FlipAuction {
+
     return {
         showLink: true,
         median: flip.median,
@@ -311,7 +313,7 @@ export function parseFlipAuction(flip): FlipAuction {
         sellerName: flip.sellerName,
         lowestBin: flip.lowestBin,
         props: flip.prop,
-        finder: flip.finder
+        finder: getFlipFinders([flip.finder])[0]
     }
 }
 
@@ -416,7 +418,7 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
         soldAuction: flip.soldAuction,
         soldFor: flip.soldFor,
         uId: flip.uId,
-        finder: flip.finder
+        finder: getFlipFinders([flip.finder])[0]
     } as FlipTrackingFlip;
     flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip.item);
     return flipTrackingFlip;

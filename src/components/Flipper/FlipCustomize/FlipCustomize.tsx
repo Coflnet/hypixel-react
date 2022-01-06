@@ -1,7 +1,7 @@
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 import React, { ChangeEvent, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { DEMO_FLIP, FLIP_FINDERS, getDefaulFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { DEMO_FLIP, getFlipFinders, getFindersForFlipperFlips, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 import Tooltip from '../../Tooltip/Tooltip';
 import Flip from '../Flip/Flip';
@@ -285,7 +285,7 @@ function FlipCustomize() {
                 </Form>
                 <div style={{ marginLeft: "30px", marginRight: "30px" }}>
                     <label htmlFor="finders" className="label">Used Flip-Finders</label>
-                    <Select id="finders" className="select-hide-group" isMulti options={FLIP_FINDERS} defaultValue={getDefaulFlipFinders(settings.finders || [])} styles={customSelectStyle} onChange={onFindersChange} closeMenuOnSelect={false}
+                    <Select id="finders" className="select-hide-group" isMulti options={getFindersForFlipperFlips()} defaultValue={getFlipFinders(settings.finders || [])} styles={customSelectStyle} onChange={onFindersChange} closeMenuOnSelect={false}
                         components={{ MultiValueContainer }} />
                 </div>
                 <hr />

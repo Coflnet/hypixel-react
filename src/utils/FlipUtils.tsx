@@ -1,5 +1,32 @@
 import { FLIP_CUSTOMIZING_KEY, getSetting, setSetting } from "./SettingsUtils";
 
+const FLIP_FINDERS: FlipFinder[] = [
+    {
+        value: 1,
+        label: 'Flipper',
+        shortLabel: "FLIP",
+        default: true,
+        trackingOnly: false,
+        description: "Is the classical flip finding algorithm using the Skyblock AH history database. It searches the history for similar items but searching for references takes time thus this is relatively slow."
+    },
+    {
+        value: 2,
+        label: 'Sniper',
+        shortLabel: "SNIPE",
+        default: false,
+        trackingOnly: false,
+        description: "Is a classical sniping algorithm that stores prices in a dictionary grouped by any relevant modifiers. It only outputs flips that are below lbin and median for a combination of relevant modifiers. Its faster by about 3000x but may not find as many flips as the flipper."
+    },
+    {
+        value: 4,
+        label: 'Sniper (Median)',
+        shortLabel: "MSNIPE",
+        default: false,
+        trackingOnly: false,
+        description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value."
+    }
+]
+
 export const DEMO_FLIP: FlipAuction = {
     bin: true,
     cost: 45000000,
@@ -18,7 +45,7 @@ export const DEMO_FLIP: FlipAuction = {
     uuid: "e4723502450544c8a3711a0a5b1e8cd0",
     volume: 5.874998615,
     sold: true,
-    finder: 1,
+    finder: FLIP_FINDERS[0],
     props: ["Top Bid: 50.000.000", "Recombobulated", "Hot Potato Book: 2", "Ultimate Wise 1", "Sharpness 6", "Thunderlord 6", "Vampirism 6", "Critical 6", "Luck 6", "Giant Killer 6", "Smite 6", "Ender Slayer 6", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "..."]
 }
 
@@ -74,12 +101,21 @@ export function calculateProfit(flip: FlipAuction) {
     }
 }
 
-export const FLIP_FINDERS = [
-    { value: "1", label: 'Flipper', shortLabel: "FLIP", default: true, description: "Is the classical flip finding algorithm using the Skyblock AH history database. It searches the history for similar items but searching for references takes time thus this is relatively slow." },
-    { value: "2", label: 'Sniper', shortLabel: "SNIPE", default: false, description: "Is a classical sniping algorithm that stores prices in a dictionary grouped by any relevant modifiers. It only outputs flips that are below lbin and median for a combination of relevant modifiers. Its faster by about 3000x but may not find as many flips as the flipper." },
-    { value: "4", label: 'Sniper (Median)', shortLabel: "MSNIPE", default: false, description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value." }
-]
+export function getFindersForFlipperFlips() {
+    return FLIP_FINDERS.filter(finder => !finder.trackingOnly)
+}
 
-export function getDefaulFlipFinders(finders: number[]) {
-    return FLIP_FINDERS.filter(option => finders.some(finder => finder.toString() === option.value))
+export function getFindersForTracking() {
+    return FLIP_FINDERS.filter(finder => finder.trackingOnly)
+}
+
+export function getFlipFinders(finders: number[]) {
+    let found = FLIP_FINDERS.filter(option => finders.some(finder => finder.toString() === option.value.toString()))
+
+    // if no finders are found, return the default one
+    if (found.length === 0) {
+        found = [FLIP_FINDERS[0]];
+    }
+
+    return found;
 }

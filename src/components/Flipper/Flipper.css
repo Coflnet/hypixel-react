@@ -65,12 +65,6 @@
     }
 }
 
-.ellipse {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 .flipper fieldset {
     background-color: #444;
     border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;

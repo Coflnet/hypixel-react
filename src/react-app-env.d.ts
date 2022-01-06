@@ -141,7 +141,7 @@ interface FlipAuction {
   secondLowestBin: number,
   isCopied?: boolean,
   props?: string[],
-  finder: number
+  finder: FlipFinder
 }
 
 interface FlipperFilter {
@@ -384,7 +384,7 @@ interface FlipTrackingFlip {
   uId: string,
   originAuction: string,
   soldAuction: string,
-  finder: number,
+  finder: FlipFinder,
   item: Item
 }
 
@@ -414,4 +414,13 @@ interface CraftingRecipe {
 interface LowestBin {
   lowest: number,
   secondLowest: number
+}
+
+interface FlipFinder {
+  value: number,
+  label: string,
+  shortLabel: string,
+  default: boolean,
+  trackingOnly: boolean,
+  description: string
 }

@@ -54,3 +54,9 @@ img {
     float: right;
     margin-left: 10px;
 }
+
+.ellipse {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
