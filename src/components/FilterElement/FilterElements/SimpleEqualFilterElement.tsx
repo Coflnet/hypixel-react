@@ -3,7 +3,6 @@ import { Form } from 'react-bootstrap';
 import { convertTagToName } from '../../../utils/Formatter';
 
 interface Props {
-    key: string,
     onChange(n: string),
     options: string[],
     defaultValue: any,

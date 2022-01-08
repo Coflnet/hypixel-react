@@ -77,6 +77,9 @@ function initAPI(): API {
                 start: Math.round(fetchStart / 100000) * 100,
                 filter: itemFilter
             };
+
+            console.log(requestData.filter);
+
             httpApi.sendRequest({
                 type: RequestType.ITEM_PRICES,
                 data: requestData,

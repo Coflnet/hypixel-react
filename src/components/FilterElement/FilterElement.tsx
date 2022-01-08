@@ -57,9 +57,14 @@ function FilterElement(props: Props) {
         }
     }
 
-    function onFilterElementChange(value: any) {
-        setValue(value);
-        updateValue(value.toString());
+    function onFilterElementChange(value?: any) {
+        if (!value) {
+            setValue("");
+            updateValue("");
+        } else {
+            setValue(value);
+            updateValue(value.toString());
+        }
     }
 
     function updateValue(value: string) {
@@ -109,7 +114,7 @@ function FilterElement(props: Props) {
             return <PlayerWithRankFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
         }
         if (hasFlag(type, FilterType.PLAYER)) {
-            return <PlayerFilterElement key={options.name} onChange={onFilterElementChange} />
+            return <PlayerFilterElement key={options.name} defaultValue={props.defaultValue} returnType='uuid' onChange={onFilterElementChange} />
         }
         if (hasFlag(type, FilterType.EQUAL)) {
             if (hasFlag(options.type, FilterType.SIMPLE)) {

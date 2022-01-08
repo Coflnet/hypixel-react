@@ -3,7 +3,6 @@ import { convertTagToName } from '../../../utils/Formatter';
 import { Typeahead } from 'react-bootstrap-typeahead';
 
 interface Props {
-    key: string,
     onChange(n: string),
     options: FilterOptions,
     defaultValue: any
@@ -12,7 +11,7 @@ interface Props {
 export function EqualFilterElement(props: Props) {
 
     function _onChange(selected) {
-        props.onChange(selected[0]);
+        props.onChange(selected[0] || "");
     }
 
     return (

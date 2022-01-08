@@ -2,7 +2,6 @@ import React, { ChangeEvent } from 'react';
 import { Form } from 'react-bootstrap';
 
 interface Props {
-    key: string,
     onChange(n: string),
     isValid: boolean,
     defaultValue: any
@@ -15,6 +14,6 @@ export function RangeFilterElement(props: Props) {
     }
 
     return (
-        <Form.Control isInvalid={!props.isValid} key={props.key} className="select-filter" defaultValue={props.defaultValue} onChange={_onChange}></Form.Control>
+        <Form.Control isInvalid={!props.isValid} className="select-filter" defaultValue={props.defaultValue} onChange={_onChange}></Form.Control>
     )
 }

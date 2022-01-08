@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
 import { useHistory } from "react-router-dom";
 import registerNotificationCallback from '../../utils/NotificationUtils';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core';
+import { createTheme, ThemeProvider } from '@material-ui/core';
 import { getURLSearchParam } from '../../utils/Parser/URLParser';
 import Cookies from 'js-cookie';
 import { Modal } from 'react-bootstrap';
@@ -84,7 +84,7 @@ export function MainApp(props: any) {
 
     const theme = React.useMemo(
         () =>
-            createMuiTheme({
+            createTheme({
                 palette: {
                     type: 'dark',
                 },
