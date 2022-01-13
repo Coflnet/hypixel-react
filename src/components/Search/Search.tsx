@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom";
 import { convertTagToName } from '../../utils/Formatter';
 import NavBar from '../NavBar/NavBar';
 import OptionsMenu from '../OptionsMenu/OptionsMenu';
-import { SearchOutlined as SearchIcon, ArrowDropDownCircle as RefreshIcon, Refresh } from '@material-ui/icons'
+import { SearchOutlined as SearchIcon, Refresh } from '@material-ui/icons'
 import { v4 as generateUUID } from 'uuid';
 import { Item, Menu, theme, useContextMenu } from 'react-contexify';
 import { toast } from 'react-toastify';

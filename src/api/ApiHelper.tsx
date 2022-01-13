@@ -77,6 +77,7 @@ function initAPI(): API {
                 start: Math.round(fetchStart / 100000) * 100,
                 filter: itemFilter
             };
+
             httpApi.sendRequest({
                 type: RequestType.ITEM_PRICES,
                 data: requestData,
@@ -935,9 +936,9 @@ function initAPI(): API {
                 if (parts.length > 2) {
                     let obj = JSON.parse(Base64.atob(parts[1]));
                     user = obj.sub;
+
                 }
             }
-
             let requestData = {
                 Context: "Skyblock",
                 User: user || "",
