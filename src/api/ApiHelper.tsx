@@ -29,7 +29,7 @@ function initAPI(): API {
 
     let search = (searchText: string): Promise<SearchResultItem[]> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.SEARCH,
                 data: searchText,
                 resolve: (items: any) => {
