@@ -78,8 +78,6 @@ function initAPI(): API {
                 filter: itemFilter
             };
 
-            console.log(requestData.filter);
-
             httpApi.sendRequest({
                 type: RequestType.ITEM_PRICES,
                 data: requestData,
