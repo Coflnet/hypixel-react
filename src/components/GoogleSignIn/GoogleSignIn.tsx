@@ -45,6 +45,11 @@ function GoogleSignIn(props: Props) {
     const onLoginSucces = (response: any) => {
         gotResponse = true;
         localStorage.setItem("googleId", response.tokenId);
+        if(response.profileObj){
+            localStorage.setItem("googleEmail", response.profileObj.email);
+            localStorage.setItem("googleName", response.profileObj.name);
+            localStorage.setItem("googleImageUrl", response.profileObj.imageUrl);
+        }
         setGoogleId(response.tokenId);
         api.setGoogle(response.tokenId).then(() => {
             (window as any).googleAuthObj = response;
