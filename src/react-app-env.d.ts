@@ -398,3 +398,9 @@ interface LowestBin {
   lowest: number,
   secondLowest: number
 }
+
+interface GoogleProfileInfo {
+  name?: string,
+  email?: string,
+  imageUrl?: string
+}
