@@ -2,14 +2,13 @@ import React, { useEffect, useState } from "react";
 import GoogleSignIn from "../GoogleSignIn/GoogleSignIn";
 import Payment from "../Payment/Payment";
 import './Premium.css';
-import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
+import { getGoogleAccountInfo, wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { getLoadingElement } from "../../utils/LoadingUtils";
 import { Card, OverlayTrigger, Tooltip } from "react-bootstrap";
 import NavBar from "../NavBar/NavBar";
 import PremiumFeatures from "./PremiumFeatures/PremiumFeatures";
 import api from "../../api/ApiHelper";
 import moment from 'moment';
-import { Base64 } from "js-base64";
 import { v4 as generateUUID } from 'uuid';
 import { GoogleLogout } from 'react-google-login';
 import { toast } from "react-toastify";
@@ -62,15 +61,12 @@ function Premium() {
     }
 
     function getAccountString() {
-        let googleId = localStorage.getItem('googleId');
-        if (googleId) {
-            let parts = googleId.split('.');
-            if (parts.length > 2) {
-                let obj = JSON.parse(Base64.atob(parts[1]));
-                return `${obj.name} (${obj.email})`
-            }
-        }
-        return "";
+
+        let accountInfo = getGoogleAccountInfo();
+
+        let imageElement = accountInfo.imageUrl ? <img src={accountInfo.imageUrl} height={24} width={24} alt="" /> : <span />
+
+        return <span style={{ marginLeft: "10px" }}>{imageElement} {`${accountInfo.name} (${accountInfo.email})`}</span>;
     }
 
     function onLogout() {
