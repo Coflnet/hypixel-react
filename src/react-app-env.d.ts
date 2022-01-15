@@ -332,7 +332,11 @@ interface FlipCustomizeSettings {
   shortNumbers?: boolean,
   hideProfitPercent?: boolean,
   finders?: number[],
-  blockTenSecMsg?: boolean
+  blockTenSecMsg?: boolean,
+  hideModChat?: boolean,
+  hideSellerOpenBtn?: boolean,
+  hideLore?: boolean,
+  modFormat?: string
 }
 
 interface FlipRestriction {

@@ -16,7 +16,7 @@ import { Link, useHistory } from 'react-router-dom';
 import Tooltip from '../Tooltip/Tooltip';
 import Flip from './Flip/Flip';
 import FlipCustomize from './FlipCustomize/FlipCustomize';
-import { calculateProfit, DEMO_FLIP } from '../../utils/FlipUtils';
+import { calculateProfit, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils';
 import { Menu, Item, useContextMenu, theme } from 'react-contexify';
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils';
 import Countdown, { zeroPad } from 'react-countdown';
@@ -250,7 +250,7 @@ function Flipper() {
 
         missedInfo = {
             estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
-            missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
+            missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction, ) : missedInfo.missedEstimatedProfit,
             missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
             totalFlips: missedInfo.totalFlips + 1
         }
@@ -284,8 +284,9 @@ function Flipper() {
     }
 
     function onCopyFlip(flip: FlipAuction) {
+        let settings = getFlipCustomizeSettings();
         let currentMissedInfo = missedInfo;
-        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip);
+        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip, settings.useLowestBinForProfit);
         flip.isCopied = true;
         setFlips(flips)
     }

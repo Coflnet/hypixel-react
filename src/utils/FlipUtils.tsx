@@ -27,7 +27,7 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     try {
         settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY));
 
-        // Felder, die per default true sind
+        // Felder, die spezielle default values haben
         if (settings.hideSecondLowestBin !== false) {
             settings.hideSecondLowestBin = true;
         }
@@ -36,6 +36,9 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
         }
         if (!settings.finders) {
             settings.finders = FLIP_FINDERS.map(finder => +finder.value);
+        }
+        if (!settings.modFormat) {
+            settings.modFormat = "{0}: {1}{2} {3}{4} -> {5} (+{6} {7}) Med: {8} Lbin: {9} Volume: {10}";
         }
 
     } catch {
@@ -64,10 +67,9 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     return settings;
 }
 
-export function calculateProfit(flip: FlipAuction) {
-    let settings = getFlipCustomizeSettings();
+export function calculateProfit(flip: FlipAuction, useLowestBinForProfit?: boolean) {
 
-    if (settings.useLowestBinForProfit) {
+    if (useLowestBinForProfit) {
         return flip.lowestBin - flip.cost;
     } else {
         return flip.median - flip.cost;
