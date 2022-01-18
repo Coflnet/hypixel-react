@@ -169,16 +169,16 @@ function FlipCustomize() {
 
         var values = {
             "0": "FLIP",
-            "1": "§c",
-            "2": "Aspect of the End",
-            "3": "§e",
-            "4": "100.000",
-            "5": "300.000",
-            "6": "200.000",
-            "7": "200%",
-            "8": "300.000",
-            "9": "250.000",
-            "10": "20"
+            "1": "§2",
+            "2": "Armadillo",
+            "3": "§1",
+            "4": settings.shortNumbers ? "1.49M" : "1.490.000",
+            "5": settings.shortNumbers ? "2M" : "2.000.000",
+            "6": settings.shortNumbers ? "470k" : "470.000",
+            "7": "31%",
+            "8": settings.shortNumbers ? "2M" : "2.000.000",
+            "9": settings.shortNumbers ? "1M" : "1.000.000",
+            "10": "26"
         };
 
         let resultText = settings.modFormat.replace(/\{([^}]+)\}/g, function (i, match) {
@@ -220,7 +220,7 @@ function FlipCustomize() {
 
     return (
         <div className="flip-customize">
-            <div style={{ width: "50%" }}>
+            <div style={{ width: "65%" }}>
                 <Form className="section">
                     <div>
                         <Form.Group className="select-hide-group">
@@ -319,7 +319,7 @@ function FlipCustomize() {
                     </Form>
                     <div style={{ marginLeft: "30px", marginRight: "30px" }}>
                         <label htmlFor="finders" className="label">Format <Tooltip type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={formatHelpTooltip} /></label>
-                        <Form.Control onChange={onModFormatChange} defaultValue={flipCustomizeSettings.modFormat} />
+                        <Form.Control as="textarea" rows={1} style={{ resize: "none", height: "fit-content" }} onChange={onModFormatChange} defaultValue={flipCustomizeSettings.modFormat} />
                         <p ref={formatExampleRef} />
                     </div>
                 </div>
@@ -339,7 +339,7 @@ function FlipCustomize() {
                 <hr />
             </div>
             <div className="vertical-line"></div>
-            <div className="section" style={{ width: "50%" }}>
+            <div className="section" style={{ width: "35%" }}>
                 <Flip style={{ width: "300px" }} flip={DEMO_FLIP} />
             </div>
         </div>

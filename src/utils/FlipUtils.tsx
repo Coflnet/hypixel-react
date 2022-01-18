@@ -24,6 +24,9 @@ export const DEMO_FLIP: FlipAuction = {
 
 export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     let settings: FlipCustomizeSettings;
+
+    let defaultModFormat = "§6{0}: {1}{2} {3}{4} -> {5} (+{6} §4{7}{3}) §7Med: §b{8} §7Lbin: §b{9} §7Volume: §b{10}";
+
     try {
         settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY));
 
@@ -38,7 +41,7 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             settings.finders = FLIP_FINDERS.map(finder => +finder.value);
         }
         if (!settings.modFormat) {
-            settings.modFormat = "{0}: {1}{2} {3}{4} -> {5} (+{6} {7}) Med: {8} Lbin: {9} Volume: {10}";
+            settings.modFormat = defaultModFormat;
         }
 
     } catch {
@@ -59,7 +62,8 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             shortNumbers: false,
             hideProfitPercent: false,
             blockTenSecMsg: false,
-            finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value)
+            finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value),
+            modFormat: defaultModFormat
         };
 
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))

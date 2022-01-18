@@ -217,7 +217,7 @@ function Flip(props: Props) {
                         }
                         {
                             getDefaulFlipFinders([props.flip.finder]).map(finder => {
-                                return <Badge variant="dark">{finder.shortLabel}</Badge>
+                                return <Badge key={finder.shortLabel} variant="dark">{finder.shortLabel}</Badge>
                             })
                         }
                     </div>

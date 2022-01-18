@@ -548,8 +548,6 @@ function initAPI(): API {
             requestData.filters = { Bin: "true" };
         }
 
-        console.log(requestData.visibility)
-
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
             data: requestData,
