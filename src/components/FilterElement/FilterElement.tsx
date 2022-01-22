@@ -13,6 +13,7 @@ import { PlayerFilterElement } from './FilterElements/PlayerFilterElement';
 import { SimpleEqualFilterElement } from './FilterElements/SimpleEqualFilterElement';
 import { EqualFilterElement } from './FilterElements/EqualFilterElement';
 import { PlayerWithRankFilterElement } from './FilterElements/PlayerWithRankFilterElement';
+import { ColorFilterElement } from './FilterElements/ColorFilterElement';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
@@ -104,6 +105,10 @@ function FilterElement(props: Props) {
     }
 
     function getFilterElement(type: FilterType, options: FilterOptions): JSX.Element {
+        // Special case for the color filter, as there is no FilterType on the backend for that
+        if (options.name === "Color") {
+            return <ColorFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+        }
         if (hasFlag(type, FilterType.DATE)) {
             return <DateFilterElement key={options.name} selected={value ? new Date(value * 1000) : new Date()} onChange={onFilterElementChange} />
         }
