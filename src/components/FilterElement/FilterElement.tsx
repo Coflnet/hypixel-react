@@ -14,6 +14,7 @@ import { SimpleEqualFilterElement } from './FilterElements/SimpleEqualFilterElem
 import { EqualFilterElement } from './FilterElements/EqualFilterElement';
 import { PlayerWithRankFilterElement } from './FilterElements/PlayerWithRankFilterElement';
 import { ColorFilterElement } from './FilterElements/ColorFilterElement';
+import { BooleanFilterElement } from './FilterElements/BooleanFilterElement';
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void,
@@ -120,6 +121,9 @@ function FilterElement(props: Props) {
         }
         if (hasFlag(type, FilterType.PLAYER)) {
             return <PlayerFilterElement key={options.name} defaultValue={props.defaultValue} returnType='uuid' onChange={onFilterElementChange} />
+        }
+        if (hasFlag(type, FilterType.BOOLEAN)) {
+            return <BooleanFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
         }
         if (hasFlag(type, FilterType.EQUAL)) {
             if (hasFlag(options.type, FilterType.SIMPLE)) {

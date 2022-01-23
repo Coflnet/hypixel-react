@@ -7,8 +7,7 @@ export enum FilterType {
     RANGE = 32,
     PLAYER = 64,
     SIMPLE = 128,
-    // currently not used/supported
-    // BOOLEAN = 256,
+    BOOLEAN = 256,
     PLAYER_WITH_RANK = 512
 
 }
