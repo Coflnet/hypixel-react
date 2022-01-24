@@ -1,14 +1,15 @@
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { DEMO_FLIP, FLIP_FINDERS, getDefaulFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { DEFAULT_MOD_FORMAT, DEMO_FLIP, FLIP_FINDERS, getDefaulFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 import Tooltip from '../../Tooltip/Tooltip';
 import Flip from '../Flip/Flip';
 import './FlipCustomize.css'
-import { Help as HelpIcon } from '@material-ui/icons';
+import { Help as HelpIcon, Refresh as RefreshIcon } from '@material-ui/icons';
 import { toast } from 'react-toastify';
 import Select, { components } from 'react-select';
+import { useForceUpdate } from '../../../utils/Hooks';
 
 let settings = getFlipCustomizeSettings();
 
@@ -24,6 +25,8 @@ function FlipCustomize() {
     let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState(settings);
     let { trackEvent } = useMatomo();
     let formatExampleRef = useRef(null);
+
+    let forceUpdate = useForceUpdate();
 
     useEffect(() => {
         renderFormatExampleText(settings);
@@ -162,6 +165,25 @@ function FlipCustomize() {
         window.location.reload();
     }
 
+    function onModDefaultFormatCheckboxChange(event) {
+        if (event.target.checked) {
+            setDefaultModFormat()
+        } else {
+            flipCustomizeSettings.modFormat = "";
+            setFlipCustomizeSettings(flipCustomizeSettings)
+        }
+        forceUpdate();
+    }
+
+    function setDefaultModFormat() {
+        flipCustomizeSettings.modFormat = DEFAULT_MOD_FORMAT;
+        setFlipCustomizeSettings(flipCustomizeSettings);
+        trackEvent({
+            category: 'customizeFlipStyle',
+            action: "modFormat: default"
+        });
+    }
+
     function renderFormatExampleText(settings: FlipCustomizeSettings) {
         if (!settings.modFormat) {
             return "";
@@ -185,10 +207,14 @@ function FlipCustomize() {
             return values[match];
         });
 
-        if (formatExampleRef.current !== null) {
-            (formatExampleRef.current! as HTMLElement).innerHTML = "";
-            (formatExampleRef.current! as HTMLElement).appendChild((resultText as any).replaceColorCodes());
-        }
+        // Timeout, to wait for the react-render, as the modFormat may have been hidden before
+        setTimeout(() => {
+            if (formatExampleRef.current !== null) {
+                (formatExampleRef.current! as HTMLElement).innerHTML = "";
+                (formatExampleRef.current! as HTMLElement).appendChild((resultText as any).replaceColorCodes());
+            }
+        }, 0);
+
     }
 
     const useLowestBinHelpElement = (
@@ -211,6 +237,7 @@ function FlipCustomize() {
                 <li>&#123;9&#125; Lowest Bin</li>
                 <li>&#123;10&#125; Volume</li>
             </ul>
+            <p>It uses the default format if unchecked.</p>
         </div>
     );
 
@@ -220,7 +247,7 @@ function FlipCustomize() {
 
     return (
         <div className="flip-customize">
-            <div style={{ width: "65%" }}>
+            <div className="section-left">
                 <Form className="section">
                     <div>
                         <Form.Group className="select-hide-group">
@@ -318,9 +345,21 @@ function FlipCustomize() {
                         </div>
                     </Form>
                     <div style={{ marginLeft: "30px", marginRight: "30px" }}>
-                        <label htmlFor="finders" className="label">Format <Tooltip type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={formatHelpTooltip} /></label>
-                        <Form.Control as="textarea" rows={1} style={{ resize: "none", height: "fit-content" }} onChange={onModFormatChange} defaultValue={flipCustomizeSettings.modFormat} />
-                        <p ref={formatExampleRef} />
+                        <label htmlFor="finders" className="label">Custom format <Tooltip type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={formatHelpTooltip} /></label>
+                        <Form.Check onChange={onModDefaultFormatCheckboxChange} defaultChecked={!!flipCustomizeSettings.modFormat} id="hideLore" style={{ display: "inline" }} type="checkbox" />
+                        {
+                            flipCustomizeSettings.modFormat ?
+                                <div>
+                                    <div style={{ display: "flex" }}>
+                                        <Form.Control key={flipCustomizeSettings.modFormat} as="textarea" style={{ width: "100%" }} onChange={onModFormatChange} defaultValue={flipCustomizeSettings.modFormat} />
+                                        <Button style={{ whiteSpace: "nowrap" }} onClick={setDefaultModFormat}>
+                                            <RefreshIcon />
+                                            Default
+                                        </Button>
+                                    </div>
+                                    <p ref={formatExampleRef} />
+                                </div> : null
+                        }
                     </div>
                 </div>
                 <hr />
@@ -328,7 +367,7 @@ function FlipCustomize() {
                     <h5>Import/Export</h5>
                     <p>You can export your custom flipper settings into a .json file. You use this to send your settings to a friend or to restore them later yourself by importing them again.</p>
                     <p>After importing a settings file, the page will reload to apply the new settings.</p>
-                    <div className="section">
+                    <div className="section" style={{ justifyContent: "space-between" }}>
                         <Button onClick={() => { document.getElementById("fileUpload")?.click() }} style={{ width: "40%" }}>Import</Button>
                         <Button onClick={exportFilter} style={{ width: "40%" }}>Export</Button>
 
@@ -339,7 +378,7 @@ function FlipCustomize() {
                 <hr />
             </div>
             <div className="vertical-line"></div>
-            <div className="section" style={{ width: "35%" }}>
+            <div className="section-right section">
                 <Flip style={{ width: "300px" }} flip={DEMO_FLIP} />
             </div>
         </div>

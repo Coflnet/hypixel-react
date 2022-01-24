@@ -22,10 +22,10 @@ export const DEMO_FLIP: FlipAuction = {
     props: ["Top Bid: 50.000.000", "Recombobulated", "Hot Potato Book: 2", "Ultimate Wise 1", "Sharpness 6", "Thunderlord 6", "Vampirism 6", "Critical 6", "Luck 6", "Giant Killer 6", "Smite 6", "Ender Slayer 6", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "..."]
 }
 
+export const DEFAULT_MOD_FORMAT = "§6{0}: {1}{2} {3}{4} -> {5} (+{6} §4{7}{3}) §7Med: §b{8} §7Lbin: §b{9} §7Volume: §b{10}";
+
 export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     let settings: FlipCustomizeSettings;
-
-    let defaultModFormat = "§6{0}: {1}{2} {3}{4} -> {5} (+{6} §4{7}{3}) §7Med: §b{8} §7Lbin: §b{9} §7Volume: §b{10}";
 
     try {
         settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY));
@@ -39,9 +39,6 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
         }
         if (!settings.finders) {
             settings.finders = FLIP_FINDERS.map(finder => +finder.value);
-        }
-        if (!settings.modFormat) {
-            settings.modFormat = defaultModFormat;
         }
 
     } catch {
@@ -63,7 +60,7 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             hideProfitPercent: false,
             blockTenSecMsg: false,
             finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value),
-            modFormat: defaultModFormat
+            modFormat: ""
         };
 
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
