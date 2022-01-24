@@ -1,15 +1,15 @@
 import { useMatomo } from '@datapunt/matomo-tracker-react';
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { DEFAULT_MOD_FORMAT, DEMO_FLIP, FLIP_FINDERS, getDefaulFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { DEMO_FLIP, FLIP_FINDERS, getDefaulFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 import Tooltip from '../../Tooltip/Tooltip';
 import Flip from '../Flip/Flip';
 import './FlipCustomize.css'
-import { Help as HelpIcon, Refresh as RefreshIcon } from '@material-ui/icons';
+import { Help as HelpIcon } from '@material-ui/icons';
 import { toast } from 'react-toastify';
 import Select, { components } from 'react-select';
-import { useForceUpdate } from '../../../utils/Hooks';
+import FormatElement from './FormatElement/FormatElement';
 
 let settings = getFlipCustomizeSettings();
 
@@ -24,16 +24,8 @@ function FlipCustomize() {
 
     let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState(settings);
     let { trackEvent } = useMatomo();
-    let formatExampleRef = useRef(null);
-
-    let forceUpdate = useForceUpdate();
-
-    useEffect(() => {
-        renderFormatExampleText(settings);
-    }, [])
 
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
-        renderFormatExampleText(settings);
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings));
         _setFlipCustomizeSettings(settings);
         document.dispatchEvent(new CustomEvent("flipSettingsChange"));
@@ -94,8 +86,8 @@ function FlipCustomize() {
         trackChange('finders');
     }
 
-    function onModFormatChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.modFormat = event.target.value;
+    function onModFormatChange(value: string) {
+        flipCustomizeSettings.modFormat = value;
         setFlipCustomizeSettings(flipCustomizeSettings);
 
         trackChange('modFormat');
@@ -165,80 +157,8 @@ function FlipCustomize() {
         window.location.reload();
     }
 
-    function onModDefaultFormatCheckboxChange(event) {
-        if (event.target.checked) {
-            setDefaultModFormat()
-        } else {
-            flipCustomizeSettings.modFormat = "";
-            setFlipCustomizeSettings(flipCustomizeSettings)
-        }
-        forceUpdate();
-    }
-
-    function setDefaultModFormat() {
-        flipCustomizeSettings.modFormat = DEFAULT_MOD_FORMAT;
-        setFlipCustomizeSettings(flipCustomizeSettings);
-        trackEvent({
-            category: 'customizeFlipStyle',
-            action: "modFormat: default"
-        });
-    }
-
-    function renderFormatExampleText(settings: FlipCustomizeSettings) {
-        if (!settings.modFormat) {
-            return "";
-        }
-
-        var values = {
-            "0": "FLIP",
-            "1": "§2",
-            "2": "Armadillo",
-            "3": "§1",
-            "4": settings.shortNumbers ? "1.49M" : "1.490.000",
-            "5": settings.shortNumbers ? "2M" : "2.000.000",
-            "6": settings.shortNumbers ? "470k" : "470.000",
-            "7": "31%",
-            "8": settings.shortNumbers ? "2M" : "2.000.000",
-            "9": settings.shortNumbers ? "1M" : "1.000.000",
-            "10": "26"
-        };
-
-        let resultText = settings.modFormat.replace(/\{([^}]+)\}/g, function (i, match) {
-            return values[match];
-        });
-
-        // Timeout, to wait for the react-render, as the modFormat may have been hidden before
-        setTimeout(() => {
-            if (formatExampleRef.current !== null) {
-                (formatExampleRef.current! as HTMLElement).innerHTML = "";
-                (formatExampleRef.current! as HTMLElement).appendChild((resultText as any).replaceColorCodes());
-            }
-        }, 0);
-
-    }
-
     const useLowestBinHelpElement = (
         <p>By enabling this setting, the lowest BIN is used as the estimated selling price to calculate your profit. That can lead to profitable flips being estimated way too low (even as a loss). We recommend using the median to calculate the profit.</p>
-    );
-
-    const formatHelpTooltip = (
-        <div>
-            <p>The format, the mod displays messages. The followig symbols are replaced by the actual values:</p>
-            <ul>
-                <li>&#123;0&#125; FlipFinder</li>
-                <li>&#123;1&#125; Item Rarity Color</li>
-                <li>&#123;2&#125; Item Name</li>
-                <li>&#123;3&#125; Price color</li>
-                <li>&#123;4&#125; Starting bid</li>
-                <li>&#123;5&#125; Target Price</li>
-                <li>&#123;6&#125; Estimated Profit</li>
-                <li>&#123;7&#125; Provit percentage</li>
-                <li>&#123;8&#125; Median Price</li>
-                <li>&#123;9&#125; Lowest Bin</li>
-                <li>&#123;10&#125; Volume</li>
-            </ul>
-            <p>It uses the default format if unchecked.</p>
-        </div>
     );
 
     const MultiValueContainer = (props) => {
@@ -345,21 +265,7 @@ function FlipCustomize() {
                         </div>
                     </Form>
                     <div style={{ marginLeft: "30px", marginRight: "30px" }}>
-                        <label htmlFor="finders" className="label">Custom format <Tooltip type="hover" content={<HelpIcon style={{ color: "#007bff", cursor: "pointer" }} />} tooltipContent={formatHelpTooltip} /></label>
-                        <Form.Check onChange={onModDefaultFormatCheckboxChange} defaultChecked={!!flipCustomizeSettings.modFormat} id="hideLore" style={{ display: "inline" }} type="checkbox" />
-                        {
-                            flipCustomizeSettings.modFormat ?
-                                <div>
-                                    <div style={{ display: "flex" }}>
-                                        <Form.Control key={flipCustomizeSettings.modFormat} as="textarea" style={{ width: "100%" }} onChange={onModFormatChange} defaultValue={flipCustomizeSettings.modFormat} />
-                                        <Button style={{ whiteSpace: "nowrap" }} onClick={setDefaultModFormat}>
-                                            <RefreshIcon />
-                                            Default
-                                        </Button>
-                                    </div>
-                                    <p ref={formatExampleRef} />
-                                </div> : null
-                        }
+                        <FormatElement onChange={onModFormatChange} settings={flipCustomizeSettings} />
                     </div>
                 </div>
                 <hr />
