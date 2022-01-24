@@ -67,11 +67,7 @@ export function CraftsList() {
     }
 
     function onNameFilterChange(e: any) {
-        if (e.target.value) {
-            setNameFilter(e.target.value);
-        } else {
-            setNameFilter(e.target.value);
-        }
+        setNameFilter(e.target.value);
     }
 
     function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
@@ -89,9 +85,6 @@ export function CraftsList() {
     }
 
     function getListElement(craft: ProfitableCraft, blur: boolean) {
-        if (nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
-            return <span />;
-        }
         return <ListGroup.Item action={!blur} className={"list-group-item"}>
             {
                 blur ?
@@ -124,6 +117,9 @@ export function CraftsList() {
     }
 
     let list = crafts.map((craft, i) => {
+        if (nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
+            return <span />;
+        }
         return (
             !hasPremium && i < 3 ?
                 <div key={craft.item.tag} style={{ width: "calc(50% - 10px)" }} className="prevent-select">{getListElement(craft, true)}</div> :
