@@ -9,6 +9,7 @@ import './FlipCustomize.css'
 import { Help as HelpIcon } from '@material-ui/icons';
 import { toast } from 'react-toastify';
 import Select, { components } from 'react-select';
+import FormatElement from './FormatElement/FormatElement';
 
 let settings = getFlipCustomizeSettings();
 
@@ -18,7 +19,6 @@ const customSelectStyle = {
         color: "black"
     }),
 }
-
 
 function FlipCustomize() {
 
@@ -31,46 +31,10 @@ function FlipCustomize() {
         document.dispatchEvent(new CustomEvent("flipSettingsChange"));
     }
 
-    function onCostChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.hideCost = !event.target.checked;
+    function onChangeBoolean(key: string, value: boolean) {
+        flipCustomizeSettings[key] = value;
         setFlipCustomizeSettings(flipCustomizeSettings);
-
-        trackChange('hideCost');
-    }
-
-    function onLowestBinChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.hideLowestBin = !event.target.checked;
-        setFlipCustomizeSettings(flipCustomizeSettings);
-
-        trackChange('hideLowestBin');
-    }
-
-    function onMedianPriceChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.hideMedianPrice = !event.target.checked;
-        setFlipCustomizeSettings(flipCustomizeSettings);
-
-        trackChange('hideMedianPrice');
-    }
-
-    function onSellerChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.hideSeller = !event.target.checked;
-        setFlipCustomizeSettings(flipCustomizeSettings);
-
-        trackChange('hideSeller');
-    }
-
-    function onEstimantedProfitChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.hideEstimatedProfit = !event.target.checked;
-        setFlipCustomizeSettings(flipCustomizeSettings);
-
-        trackChange('hideEstimatedProfit');
-    }
-
-    function onVolumeChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.hideVolume = !event.target.checked;
-        setFlipCustomizeSettings(flipCustomizeSettings);
-
-        trackChange('hideVolume');
+        trackChange(key);
     }
 
     function onMaxExtraInfoFieldsChange(event: ChangeEvent<HTMLInputElement>) {
@@ -78,20 +42,6 @@ function FlipCustomize() {
         setFlipCustomizeSettings(flipCustomizeSettings);
 
         trackChange('maxExtraInfoFields');
-    }
-
-    function onHideCopyMessage(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.hideCopySuccessMessage = !event.target.checked;
-        setFlipCustomizeSettings(flipCustomizeSettings);
-
-        trackChange('hideCopySuccessMessage');
-    }
-
-    function onSecondLowestBinChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.hideSecondLowestBin = !event.target.checked;
-        setFlipCustomizeSettings(flipCustomizeSettings);
-
-        trackChange('hideSecondLowestBin');
     }
 
     function onUseLowestBinForProfitChange(event: ChangeEvent<HTMLInputElement>) {
@@ -129,13 +79,6 @@ function FlipCustomize() {
         trackChange('shortNumbers');
     }
 
-    function onHideProfitPercentChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.hideProfitPercent = !event.target.checked;
-        setFlipCustomizeSettings(flipCustomizeSettings);
-
-        trackChange('hideProfitPercent');
-    }
-
     function onFindersChange(newValue) {
         flipCustomizeSettings.finders = newValue.map(value => value.value);
         setFlipCustomizeSettings(flipCustomizeSettings);
@@ -143,11 +86,11 @@ function FlipCustomize() {
         trackChange('finders');
     }
 
-    function onBlockTenSecMsgChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.blockTenSecMsg = !event.target.checked;
+    function onModFormatChange(value: string) {
+        flipCustomizeSettings.modFormat = value;
         setFlipCustomizeSettings(flipCustomizeSettings);
 
-        trackChange('blockTenSecMsg');
+        trackChange('modFormat');
     }
 
     function trackChange(property: string) {
@@ -224,24 +167,24 @@ function FlipCustomize() {
 
     return (
         <div className="flip-customize">
-            <div style={{ width: "50%" }}>
+            <div className="section-left">
                 <Form className="section">
                     <div>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideCost">Cost</Form.Label>
-                            <Form.Check onChange={onCostChange} defaultChecked={!flipCustomizeSettings.hideCost} id="hideCost" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={event => onChangeBoolean("hideCost", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideCost} id="hideCost" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideEstimatedProfit">Estimated Profit</Form.Label>
-                            <Form.Check onChange={onEstimantedProfitChange} defaultChecked={!flipCustomizeSettings.hideEstimatedProfit} id="hideEstimatedProfit" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={event => onChangeBoolean("hideEstimatedProfit", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideEstimatedProfit} id="hideEstimatedProfit" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideSecondLowestBin">Second lowest BIN</Form.Label>
-                            <Form.Check onChange={onSecondLowestBinChange} defaultChecked={!flipCustomizeSettings.hideSecondLowestBin} id="hideSecondLowestBin" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={event => onChangeBoolean("hideSecondLowestBin", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideSecondLowestBin} id="hideSecondLowestBin" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideVolume">Volume</Form.Label>
-                            <Form.Check onChange={onVolumeChange} defaultChecked={!flipCustomizeSettings.hideVolume} id="hideVolume" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={event => onChangeBoolean("hideVolume", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideVolume} id="hideVolume" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="shortNumbers">Shorten numbers?</Form.Label>
@@ -249,7 +192,7 @@ function FlipCustomize() {
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="profitPercent">Profit percent?</Form.Label>
-                            <Form.Check onChange={onHideProfitPercentChange} defaultChecked={!flipCustomizeSettings.hideProfitPercent} id="profitPercent" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={event => onChangeBoolean("profitPercent", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideProfitPercent} id="profitPercent" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideMaxExtraInfo">Max. extra info fields</Form.Label>
@@ -259,19 +202,19 @@ function FlipCustomize() {
                     <div>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideMedianPrice">Median price</Form.Label>
-                            <Form.Check onChange={onMedianPriceChange} defaultChecked={!flipCustomizeSettings.hideMedianPrice} id="hideMedianPrice" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={event => onChangeBoolean("hideMedianPrice", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideMedianPrice} id="hideMedianPrice" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideLowestBin">Lowest BIN</Form.Label>
-                            <Form.Check onChange={onLowestBinChange} defaultChecked={!flipCustomizeSettings.hideLowestBin} id="hideLowestBin" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={event => onChangeBoolean("hideLowestBin", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideLowestBin} id="hideLowestBin" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideSeller">Seller</Form.Label>
-                            <Form.Check onChange={onSellerChange} defaultChecked={!flipCustomizeSettings.hideSeller} id="hideSeller" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={event => onChangeBoolean("hideSeller", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideSeller} id="hideSeller" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="hideCopyMessage">Show copy message</Form.Label>
-                            <Form.Check onChange={onHideCopyMessage} defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage} id="hideCopyMessage" style={{ display: "inline" }} type="checkbox" />
+                            <Form.Check onChange={event => onChangeBoolean("hideCopyMessage", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage} id="hideCopyMessage" style={{ display: "inline" }} type="checkbox" />
                         </Form.Group>
                         <Form.Group className="select-hide-group">
                             <Form.Label className="label" htmlFor="disableLinks">Disable links</Form.Label>
@@ -299,7 +242,11 @@ function FlipCustomize() {
                             </Form.Group>
                             <Form.Group className="select-hide-group">
                                 <Form.Label className="label" htmlFor="blockTenSecMsg">"Flips in 10 seconds"</Form.Label>
-                                <Form.Check onChange={onBlockTenSecMsgChange} defaultChecked={!flipCustomizeSettings.blockTenSecMsg} id="blockTenSecMsg" style={{ display: "inline" }} type="checkbox" />
+                                <Form.Check onChange={event => onChangeBoolean("blockTenSecMsg", !event.target.checked)} defaultChecked={!flipCustomizeSettings.blockTenSecMsg} id="blockTenSecMsg" style={{ display: "inline" }} type="checkbox" />
+                            </Form.Group>
+                            <Form.Group className="select-hide-group">
+                                <Form.Label className="label" htmlFor="hideSellerOpenBtn">Seller AH Button</Form.Label>
+                                <Form.Check onChange={event => onChangeBoolean("hideSellerOpenBtn", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideSellerOpenBtn} id="hideSellerOpenBtn" style={{ display: "inline" }} type="checkbox" />
                             </Form.Group>
                         </div>
                         <div>
@@ -307,15 +254,26 @@ function FlipCustomize() {
                                 <Form.Label className="label" htmlFor="soundOnFlip">Play flip sound</Form.Label>
                                 <Form.Check onChange={onSoundOnFlipChange} defaultChecked={flipCustomizeSettings.soundOnFlip} id="soundOnFlip" style={{ display: "inline" }} type="checkbox" />
                             </Form.Group>
+                            <Form.Group className="select-hide-group">
+                                <Form.Label className="label" htmlFor="hideModChat">Mod Chat</Form.Label>
+                                <Form.Check onChange={event => onChangeBoolean("hideModChat", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideModChat} id="hideModChat" style={{ display: "inline" }} type="checkbox" />
+                            </Form.Group>
+                            <Form.Group className="select-hide-group">
+                                <Form.Label className="label" htmlFor="hideLore">Item lore (on hover)</Form.Label>
+                                <Form.Check onChange={event => onChangeBoolean("hideLore", !event.target.checked)} defaultChecked={!flipCustomizeSettings.hideLore} id="hideLore" style={{ display: "inline" }} type="checkbox" />
+                            </Form.Group>
                         </div>
                     </Form>
+                    <div style={{ marginLeft: "30px", marginRight: "30px" }}>
+                        <FormatElement onChange={onModFormatChange} settings={flipCustomizeSettings} />
+                    </div>
                 </div>
                 <hr />
                 <div>
                     <h5>Import/Export</h5>
                     <p>You can export your custom flipper settings into a .json file. You use this to send your settings to a friend or to restore them later yourself by importing them again.</p>
                     <p>After importing a settings file, the page will reload to apply the new settings.</p>
-                    <div className="section">
+                    <div className="section" style={{ justifyContent: "space-between" }}>
                         <Button onClick={() => { document.getElementById("fileUpload")?.click() }} style={{ width: "40%" }}>Import</Button>
                         <Button onClick={exportFilter} style={{ width: "40%" }}>Export</Button>
 
@@ -326,7 +284,7 @@ function FlipCustomize() {
                 <hr />
             </div>
             <div className="vertical-line"></div>
-            <div className="section" style={{ width: "50%" }}>
+            <div className="section-right section">
                 <Flip style={{ width: "300px" }} flip={DEMO_FLIP} />
             </div>
         </div>

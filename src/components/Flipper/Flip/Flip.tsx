@@ -72,7 +72,8 @@ function Flip(props: Props) {
     }
 
     function getProfitElement(flip: FlipAuction): JSX.Element {
-        let profit = calculateProfit(flip);
+        let settings = getFlipCustomizeSettings();
+        let profit = calculateProfit(flip, settings.useLowestBinForProfit);
         let preSymbol = profit > 0 ? "+" : "";
         let profitPercentElement = <span>({Math.round((profit / flip.cost) * 100)}%)</span>
         return <b style={{ color: profit > 0 ? "lime" : "white" }}>{preSymbol + formatPrices(profit) + " Coins "}{!settings.hideProfitPercent ? profitPercentElement : null}</b>;
@@ -216,7 +217,7 @@ function Flip(props: Props) {
                         }
                         {
                             getDefaulFlipFinders([props.flip.finder]).map(finder => {
-                                return <Badge variant="dark">{finder.shortLabel}</Badge>
+                                return <Badge key={finder.shortLabel} variant="dark">{finder.shortLabel}</Badge>
                             })
                         }
                     </div>

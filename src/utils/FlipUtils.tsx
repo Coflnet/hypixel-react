@@ -22,12 +22,15 @@ export const DEMO_FLIP: FlipAuction = {
     props: ["Top Bid: 50.000.000", "Recombobulated", "Hot Potato Book: 2", "Ultimate Wise 1", "Sharpness 6", "Thunderlord 6", "Vampirism 6", "Critical 6", "Luck 6", "Giant Killer 6", "Smite 6", "Ender Slayer 6", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "...", "..."]
 }
 
+export const DEFAULT_MOD_FORMAT = "§6{0}: {1}{2} {3}{4} -> {5} (+{6} §4{7}{3}) §7Med: §b{8} §7Lbin: §b{9} §7Volume: §b{10}";
+
 export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     let settings: FlipCustomizeSettings;
+
     try {
         settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY));
 
-        // Felder, die per default true sind
+        // Felder, die spezielle default values haben
         if (settings.hideSecondLowestBin !== false) {
             settings.hideSecondLowestBin = true;
         }
@@ -56,7 +59,8 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             shortNumbers: false,
             hideProfitPercent: false,
             blockTenSecMsg: false,
-            finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value)
+            finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value),
+            modFormat: ""
         };
 
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
@@ -64,10 +68,9 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     return settings;
 }
 
-export function calculateProfit(flip: FlipAuction) {
-    let settings = getFlipCustomizeSettings();
+export function calculateProfit(flip: FlipAuction, useLowestBinForProfit?: boolean) {
 
-    if (settings.useLowestBinForProfit) {
+    if (useLowestBinForProfit) {
         return flip.lowestBin - flip.cost;
     } else {
         return flip.median - flip.cost;
