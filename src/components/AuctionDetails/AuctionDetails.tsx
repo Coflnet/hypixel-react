@@ -169,7 +169,7 @@ function AuctionDetails(props: Props) {
             let decSplits = value ? value.split(":") : [];
             let hexSplits: string[] = [];
             decSplits.forEach(split => {
-                hexSplits.push(parseInt(split).toString(16));
+                hexSplits.push(parseInt(split).toString(16).padStart(2, '0'));
             })
             return <Tooltip type="hover" content={<span>{hexSplits.join("")}</span>} tooltipContent={value} />
         }
