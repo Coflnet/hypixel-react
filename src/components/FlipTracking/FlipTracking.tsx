@@ -20,16 +20,22 @@ export function FlipTracking() {
     }, []);
 
 
-    let list = trackedFlips.map((trackedFlip, i) => {
+    let list = trackedFlips.sort((a,b)=>b.sellTime.getTime() - a.sellTime.getTime()).map((trackedFlip, i) => {
 
         return (
             <ListGroup.Item action className="list-group-item">
                 <h1 style={{ padding: "10px", display: "flex", justifyContent: "space-between", fontSize: "x-large" }}>
                     <div className="ellipse">
                         <img crossOrigin="anonymous" src={trackedFlip.item.iconUrl} height="36" width="36" alt="" style={{ marginRight: "5px" }} loading="lazy" />
-                        <span style={{ ...getStyleForTier(trackedFlip.item.tier), whiteSpace: "nowrap" }}>dsasdfasdfsfasdfasfdasfdasdsfasdfasdasdfasdfsdafasdfdsfsfdsf</span>
+                        <span style={{ ...getStyleForTier(trackedFlip.item.tier), whiteSpace: "nowrap" }}>{trackedFlip.item.name}</span>
                     </div>
-                    <span style={{ color: "lime", whiteSpace: "nowrap", marginLeft: "5px" }}>+{numberWithThousandsSeperators(trackedFlip.soldFor - trackedFlip.pricePaid)} Coins</span>
+                    {trackedFlip.soldFor - trackedFlip.pricePaid > 0 ?
+                        <span style={{ color: "lime", whiteSpace: "nowrap", marginLeft: "5px" }}>
+                        +{numberWithThousandsSeperators(trackedFlip.soldFor - trackedFlip.pricePaid)} Coins
+                        </span> :
+                        <span style={{ color: "red", whiteSpace: "nowrap", marginLeft: "5px" }}>
+                        {numberWithThousandsSeperators(trackedFlip.soldFor - trackedFlip.pricePaid)} Coins
+                        </span>}
                 </h1>
                 <hr />
                 <div style={{ display: "flex", "justifyContent": "space-around", "alignItems": "center" }}>
@@ -46,6 +52,7 @@ export function FlipTracking() {
                     </Card>
                 </div>
                 <p style={{ marginTop: "10px" }}>Finder: <Badge variant="dark">{trackedFlip.finder.shortLabel}</Badge></p>
+                <p style={{ marginTop: "10px" }}>Sell: {trackedFlip.sellTime.toLocaleDateString() + " " +trackedFlip.sellTime.toLocaleTimeString()}</p>
             </ListGroup.Item>
         )
     });

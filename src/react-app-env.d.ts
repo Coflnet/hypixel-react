@@ -385,7 +385,8 @@ interface FlipTrackingFlip {
   originAuction: string,
   soldAuction: string,
   finder: FlipFinder,
-  item: Item
+  item: Item,
+  sellTime: Date
 }
 
 interface FlipTrackingResponse {

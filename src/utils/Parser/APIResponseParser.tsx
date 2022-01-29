@@ -411,14 +411,15 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
     let flipTrackingFlip = {
         item: {
             tag: flip.itemTag,
-            name: flip.itemName
+            name: flip.itemName || flip.itemTag
         },
         originAuction: flip.originAuction,
         pricePaid: flip.pricePaid,
         soldAuction: flip.soldAuction,
         soldFor: flip.soldFor,
         uId: flip.uId,
-        finder: getFlipFinders([flip.finder])[0]
+        finder: getFlipFinders([flip.finder])[0],
+        sellTime: parseDate(flip.sellTime)
     } as FlipTrackingFlip;
     flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip.item);
     return flipTrackingFlip;
