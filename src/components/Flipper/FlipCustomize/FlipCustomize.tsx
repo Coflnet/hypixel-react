@@ -116,9 +116,9 @@ function FlipCustomize() {
     function exportFilter() {
         let exportFilter = {};
 
-        exportFilter[FLIP_CUSTOMIZING_KEY] = getSetting(FLIP_CUSTOMIZING_KEY);
-        exportFilter[RESTRICTIONS_SETTINGS_KEY] = getSetting(RESTRICTIONS_SETTINGS_KEY);
-        exportFilter[FLIPPER_FILTER_KEY] = getSetting(FLIPPER_FILTER_KEY);
+        exportFilter[FLIP_CUSTOMIZING_KEY] = getSetting(FLIP_CUSTOMIZING_KEY, "{}");
+        exportFilter[RESTRICTIONS_SETTINGS_KEY] = getSetting(RESTRICTIONS_SETTINGS_KEY, "[]");
+        exportFilter[FLIPPER_FILTER_KEY] = getSetting(FLIPPER_FILTER_KEY, "{}");
 
         download("filter.json", JSON.stringify(exportFilter));
     }
@@ -137,14 +137,15 @@ function FlipCustomize() {
     }
 
     function handleFilterImport(importString: string) {
+        
         let filter: FlipperFilter;
         let flipCustomizeSettings: FlipCustomizeSettings;
         let restrictions: FlipRestriction[];
         try {
             let importObject = JSON.parse(importString);
-            filter = importObject[FLIPPER_FILTER_KEY] ? JSON.parse(importObject[FLIPPER_FILTER_KEY]) : "";
-            flipCustomizeSettings = importObject[FLIP_CUSTOMIZING_KEY] ? JSON.parse(importObject[FLIP_CUSTOMIZING_KEY]) : "";
-            restrictions = importObject[RESTRICTIONS_SETTINGS_KEY] ? JSON.parse(importObject[RESTRICTIONS_SETTINGS_KEY]) : "";
+            filter = importObject[FLIPPER_FILTER_KEY] ? JSON.parse(importObject[FLIPPER_FILTER_KEY]) : {};
+            flipCustomizeSettings = importObject[FLIP_CUSTOMIZING_KEY] ? JSON.parse(importObject[FLIP_CUSTOMIZING_KEY]) : {};
+            restrictions = importObject[RESTRICTIONS_SETTINGS_KEY] ? JSON.parse(importObject[RESTRICTIONS_SETTINGS_KEY]) : [];
         } catch {
             toast.error("The import of the filter settings failed. Please make sure this is a valid filter file.")
             return;
