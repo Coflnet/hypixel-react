@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './SubscribeButton.css';
-import { Button, FormControl, InputGroup, Modal } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 import api from '../../api/ApiHelper';
 import { SubscriptionType } from '../../api/ApiTypes.d';
@@ -10,7 +10,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useHistory } from 'react-router-dom';
 import askForNotificationPermissons from '../../utils/NotificationPermisson';
 import { NotificationsOutlined as NotificationIcon } from '@material-ui/icons';
-import ItemFilter from '../ItemFilter/ItemFilter';
 import SubscribePlayerContent from './SubscribePlayerContent/SubscribePlayerContent';
 import SubscribeItemContent from './SubscribeItemContent/SubscribeItemContent';
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
