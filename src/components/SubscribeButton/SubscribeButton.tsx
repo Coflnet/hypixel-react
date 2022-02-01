@@ -13,12 +13,16 @@ import { NotificationsOutlined as NotificationIcon } from '@material-ui/icons';
 import ItemFilter from '../ItemFilter/ItemFilter';
 import SubscribePlayerContent from './SubscribePlayerContent/SubscribePlayerContent';
 import SubscribeItemContent from './SubscribeItemContent/SubscribeItemContent';
+import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
+import { getLoadingElement } from '../../utils/LoadingUtils';
 
 interface Props {
   topic: string;
   type: 'player' | 'item' | 'auction';
   hideText?: boolean;
 }
+
+let wasAlreadyLoggedIntoGoogle = wasAlreadyLoggedIn();
 
 function SubscribeButton(props: Props) {
   let { trackEvent } = useMatomo();
@@ -148,6 +152,7 @@ function SubscribeButton(props: Props) {
         ) : (
           <p>To use notifiers, please login with Google: </p>
         )}
+        {wasAlreadyLoggedIntoGoogle && !isLoggedIn ? getLoadingElement() : ''}
         <GoogleSignIn onAfterLogin={onLogin} />
       </Modal.Body>
     </Modal>
