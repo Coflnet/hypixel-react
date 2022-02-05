@@ -27,7 +27,7 @@ function FlipCustomize() {
 
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings));
-        _setFlipCustomizeSettings({...settings});
+        _setFlipCustomizeSettings({ ...settings });
         document.dispatchEvent(new CustomEvent("flipSettingsChange"));
     }
 
@@ -157,18 +157,18 @@ function FlipCustomize() {
         window.location.reload();
     }
 
-    function getFlipFinderWarningElement(): JSX.Element{
-        if(!flipCustomizeSettings.useLowestBinForProfit){
+    function getFlipFinderWarningElement(): JSX.Element {
+        if (!flipCustomizeSettings.useLowestBinForProfit) {
             return <></>;
         }
         let sniperFinder = FLIP_FINDERS.find(finder => finder.label === "Sniper")
-        if(!sniperFinder ){
+        if (!sniperFinder) {
             console.error("Finder with label 'Sniper' not found");
             return <></>;
         }
-        if(!flipCustomizeSettings.finders || flipCustomizeSettings.finders.length === 0 || flipCustomizeSettings.finders.length > 1 || flipCustomizeSettings.finders[0].toString() !== sniperFinder.value){
-            return <b><p style={{color: "red"}}>Only use the "Sniper"-Finder with 'Use lbin to calculate profit option'. Using other finders may leed to muliple seconds of delay as this will require additional calculations.</p></b>
-        }else{
+        if (!flipCustomizeSettings.finders || flipCustomizeSettings.finders.length === 0 || flipCustomizeSettings.finders.length > 1 || flipCustomizeSettings.finders[0].toString() !== sniperFinder.value) {
+            return <b><p style={{ color: "red" }}>Only use the "Sniper"-Finder with 'Use lbin to calculate profit option'. Using other finders may leed to muliple seconds of delay as this will require additional calculations.</p></b>
+        } else {
             return <></>;
         }
     }
@@ -246,7 +246,7 @@ function FlipCustomize() {
                     <label htmlFor="finders" className="label">Used Flip-Finders</label>
                     <Select id="finders" className="select-hide-group" isMulti options={FLIP_FINDERS} defaultValue={getFlipFinders(settings.finders || [])} styles={customSelectStyle} onChange={onFindersChange} closeMenuOnSelect={false}
                         components={{ MultiValueContainer }} />
-                        {getFlipFinderWarningElement()}
+                    {getFlipFinderWarningElement()}
                 </div>
                 <hr />
                 <div>
