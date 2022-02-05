@@ -83,6 +83,6 @@ export const FLIP_FINDERS = [
     { value: "4", label: 'Sniper (Median)', shortLabel: "MSNIPE", default: false, description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value." }
 ]
 
-export function getDefaulFlipFinders(finders: number[]) {
+export function getFlipFinders(finders: number[]) {
     return FLIP_FINDERS.filter(option => finders.some(finder => finder.toString() === option.value))
 }
