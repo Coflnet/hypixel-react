@@ -281,7 +281,7 @@ function initAPI(): API {
                     let bNum: number = typeof b === "number" ? (b as number) : (parseInt(SubscriptionType[b]));
                     return aNum + bNum;
                 }),
-                filter: filter || undefined
+                filter: JSON.stringify(filter) || undefined
             }
             websocketHelper.sendRequest({
                 type: RequestType.SUBSCRIBE,
