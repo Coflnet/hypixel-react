@@ -87,7 +87,8 @@ export interface Subscription {
     price: number,
     types: SubscriptionType[],
     type: string,
-    title?: string
+    title?: string,
+    filter?: ItemFilter
 }
 
 export interface Connection {

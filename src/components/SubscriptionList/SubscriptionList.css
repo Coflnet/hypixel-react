@@ -2,3 +2,7 @@
     width: 100%;
     font-size: medium;
 }
+
+.subscription-list .subscription-list-item{
+    margin-bottom: 15px;
+}

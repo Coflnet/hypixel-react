@@ -50,7 +50,7 @@ function SubscribeItemContent(props: Props) {
           <label htmlFor="onlyIstantBuy">only for instant buy</label>
         </div>
         <div className="input-data">
-          <ItemFilter filters={filterOptions} ignoreURL={true} isPrefill={false} onFilterChange={props.onFilterChange} />
+          <ItemFilter filters={filterOptions} ignoreURL={false} isPrefill={true} onFilterChange={props.onFilterChange} />
         </div>
       </div>
     </>

@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Badge, Card, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import api from '../../../api/ApiHelper';
-import { convertTagToName, getStyleForTier } from '../../../utils/Formatter';
+import { getStyleForTier } from '../../../utils/Formatter';
 import { useForceUpdate } from '../../../utils/Hooks';
 import { getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 import ItemFilter from '../../ItemFilter/ItemFilter';
 import Search from '../../Search/Search';
 import './FlipRestrictionList.css';
 import { Delete as DeleteIcon } from '@material-ui/icons';
+import ItemFilterPropertiesDisplay from '../../ItemFilter/ItemFilterPropertiesDisplay';
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[])
 }
-
-const DATE_FORMAT_FILTER = ["EndBefore", "EndAfter"];
-const SELLER_FORMAT_FILTER = "Seller";
 
 function FlipRestrictionList(props: Props) {
 
@@ -27,26 +25,8 @@ function FlipRestrictionList(props: Props) {
 
     useEffect(() => {
         loadFilters();
-        restrictions.forEach(checkRestrictionForSellerName);
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    function checkRestrictionForSellerName(restriction: FlipRestriction) {
-        if (restriction.itemFilter) {
-            Object.keys(restriction.itemFilter).forEach(key => {
-                if (key === SELLER_FORMAT_FILTER) {
-                    restriction.itemFilter!._hide = true;
-                    api.getPlayerName(restriction.itemFilter![key]).then(name => {
-                        restriction.itemFilter!._hide = false;
-                        restriction.itemFilter!._label = name;
-                        forceUpdate();
-                    })
-                }
-            });
-        }
-    }
-
 
     function loadFilters() {
         api.filterFor({ tag: newRestriction.item ? newRestriction.item.tag : '*' }).then(filters => {
@@ -73,7 +53,6 @@ function FlipRestrictionList(props: Props) {
 
     function addNewRestriction() {
         restrictions.push(newRestriction);
-        checkRestrictionForSellerName(newRestriction);
 
         let restriction: FlipRestriction = { type: "blacklist" };
         setNewRestriction(restriction);
@@ -201,31 +180,7 @@ function FlipRestrictionList(props: Props) {
                                 {
                                     restriction.itemFilter ?
                                         <Card.Body>
-                                            {
-                                                Object.keys(restriction.itemFilter).map(key => {
-                                                    if (!restriction.itemFilter || !restriction.itemFilter[key] || restriction.itemFilter._hide) {
-                                                        return "";
-                                                    }
-
-                                                    let display = restriction.itemFilter[key];
-
-                                                    if (key.startsWith("_")) {
-                                                        return "";
-                                                    }
-
-                                                    // Special case -> display as date
-                                                    if (DATE_FORMAT_FILTER.findIndex(f => f === key) !== -1) {
-                                                        display = new Date(Number(display) * 1000).toLocaleDateString();
-                                                    }
-
-                                                    // Special case if the restriction has a special label
-                                                    if (restriction.itemFilter._label) {
-                                                        display = restriction.itemFilter._label;
-                                                    }
-
-                                                    return <p key={key}>{convertTagToName(key)}: {display}</p>
-                                                })
-                                            }
+                                            <ItemFilterPropertiesDisplay filter={restriction.itemFilter}/>
                                         </Card.Body> : ""
                                 }
                             </Card>

@@ -248,7 +248,8 @@ export function parseSubscription(subscription: any): Subscription {
         price: subscription.price,
         topicId: subscription.topicId,
         types: parseSubscriptionTypes(subscription.type),
-        type: _getTypeFromSubTypes(parseSubscriptionTypes(subscription.type))
+        type: _getTypeFromSubTypes(parseSubscriptionTypes(subscription.type)),
+        filter: subscription.filter ? JSON.parse(subscription.filter) : undefined
     }
 }
 
