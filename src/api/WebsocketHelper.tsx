@@ -100,6 +100,11 @@ function initWebsocket(): void {
             return;
         }
 
+        if(request?.type === RequestType.SET_GOOGLE && (e.target as any).url === tempOldWebsocket.url){
+            removeSentRequests([request]);
+            return;
+        }
+
         if (request) {
             _handleRequestOnMessage(response, request);
         }
@@ -193,7 +198,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
             }
 
             if (request.type === RequestType.SET_GOOGLE) {
-                retrySend(tempOldWebsocket, request);
+               tempOldWebsocket.send(JSON.stringify(request));
             }
         }
 

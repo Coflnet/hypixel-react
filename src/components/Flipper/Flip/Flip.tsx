@@ -5,7 +5,7 @@ import { Help as HelpIcon } from '@material-ui/icons';
 import { CopyButton } from '../../CopyButton/CopyButton';
 import './Flip.css';
 import { useForceUpdate } from '../../../utils/Hooks';
-import { calculateProfit, getDefaulFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { calculateProfit, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { toast } from 'react-toastify';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 
@@ -216,7 +216,7 @@ function Flip(props: Props) {
                                 </div>
                         }
                         {
-                            getDefaulFlipFinders([props.flip.finder]).map(finder => {
+                            getFlipFinders([props.flip.finder]).map(finder => {
                                 return <Badge key={finder.shortLabel} variant="dark">{finder.shortLabel}</Badge>
                             })
                         }
