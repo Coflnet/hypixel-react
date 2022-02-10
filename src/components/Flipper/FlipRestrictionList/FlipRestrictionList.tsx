@@ -47,10 +47,9 @@ function FlipRestrictionList(props: Props) {
         }
     }
 
-
     function loadFilters() {
-        api.flipFilters({ tag: newRestriction.item ? newRestriction.item.tag : '*' }).then(filters => {
-            setFilters(filters);
+        Promise.all([api.filterFor({ tag: newRestriction.item ? newRestriction.item.tag : '*' }), api.flipFilters({ tag: newRestriction.item ? newRestriction.item.tag : '*' })]).then(filters => {
+            setFilters([...filters[0], ...filters[1]]);
         })
     }
 
