@@ -1,7 +1,7 @@
 import { useMatomo } from '@datapunt/matomo-tracker-react';
 import React, { ChangeEvent, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { DEMO_FLIP, FLIP_FINDERS, getDefaulFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
+import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 import Tooltip from '../../Tooltip/Tooltip';
 import Flip from '../Flip/Flip';
@@ -27,7 +27,7 @@ function FlipCustomize() {
 
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings));
-        _setFlipCustomizeSettings(settings);
+        _setFlipCustomizeSettings({ ...settings });
         document.dispatchEvent(new CustomEvent("flipSettingsChange"));
     }
 
@@ -158,6 +158,22 @@ function FlipCustomize() {
         window.location.reload();
     }
 
+    function getFlipFinderWarningElement(): JSX.Element {
+        if (!flipCustomizeSettings.useLowestBinForProfit) {
+            return <></>;
+        }
+        let sniperFinder = FLIP_FINDERS.find(finder => finder.label === "Sniper")
+        if (!sniperFinder) {
+            console.error("Finder with label 'Sniper' not found");
+            return <></>;
+        }
+        if (!flipCustomizeSettings.finders || flipCustomizeSettings.finders.length === 0 || flipCustomizeSettings.finders.length > 1 || flipCustomizeSettings.finders[0].toString() !== sniperFinder.value) {
+            return <b><p style={{ color: "red" }}>Only use the "Sniper"-Finder with 'Use lbin to calculate profit option'. Using other finders may leed to muliple seconds of delay as this will require additional calculations.</p></b>
+        } else {
+            return <></>;
+        }
+    }
+
     const useLowestBinHelpElement = (
         <p>By enabling this setting, the lowest BIN is used as the estimated selling price to calculate your profit. That can lead to profitable flips being estimated way too low (even as a loss). We recommend using the median to calculate the profit.</p>
     );
@@ -229,8 +245,9 @@ function FlipCustomize() {
                 </Form>
                 <div style={{ marginLeft: "30px", marginRight: "30px" }}>
                     <label htmlFor="finders" className="label">Used Flip-Finders</label>
-                    <Select id="finders" className="select-hide-group" isMulti options={FLIP_FINDERS} defaultValue={getDefaulFlipFinders(settings.finders || [])} styles={customSelectStyle} onChange={onFindersChange} closeMenuOnSelect={false}
+                    <Select id="finders" className="select-hide-group" isMulti options={FLIP_FINDERS} defaultValue={getFlipFinders(settings.finders || [])} styles={customSelectStyle} onChange={onFindersChange} closeMenuOnSelect={false}
                         components={{ MultiValueContainer }} />
+                    {getFlipFinderWarningElement()}
                 </div>
                 <hr />
                 <div>
