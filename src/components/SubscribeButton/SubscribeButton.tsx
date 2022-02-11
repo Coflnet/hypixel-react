@@ -21,6 +21,8 @@ interface Props {
   hideText?: boolean;
 }
 
+const MAX_FILTERS = 5;
+
 let wasAlreadyLoggedIntoGoogle = wasAlreadyLoggedIn();
 
 function SubscribeButton(props: Props) {
@@ -100,6 +102,9 @@ function SubscribeButton(props: Props) {
   }
 
   function isNotifyDisabled() {
+    if(itemFilter && Object.keys(itemFilter).length > MAX_FILTERS){
+      return true;
+    }
     if (props.type === 'item') {
       return price === undefined || price === '';
     }
@@ -147,6 +152,10 @@ function SubscribeButton(props: Props) {
             <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">
               Notify me
             </Button>
+            {
+              itemFilter && Object.keys(itemFilter).length > MAX_FILTERS ?
+              <p style={{color: "red"}}>Because of performance issues, you can't use more than 5 filters for Notifiers</p> : null
+            }
           </div>
         ) : (
           <p>To use notifiers, please login with Google: </p>
