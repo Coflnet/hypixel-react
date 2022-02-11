@@ -17,8 +17,8 @@ function getInitUserSettings(): any {
     }
 }
 
-export function getSetting(key: string): string {
-    return settings[key] || "";
+export function getSetting(key: string, defaultValue: any = ""): string {
+    return settings[key] || defaultValue;
 }
 
 

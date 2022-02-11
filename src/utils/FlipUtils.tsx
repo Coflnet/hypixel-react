@@ -79,10 +79,10 @@ export function calculateProfit(flip: FlipAuction, useLowestBinForProfit?: boole
 
 export const FLIP_FINDERS = [
     { value: "1", label: 'Flipper', shortLabel: "FLIP", default: true, description: "Is the classical flip finding algorithm using the Skyblock AH history database. It searches the history for similar items but searching for references takes time thus this is relatively slow." },
-    { value: "2", label: 'Sniper', shortLabel: "SNIPE", default: false, description: "Is a classical sniping algorithm that stores prices in a dictionary grouped by any relevant modifiers. It only outputs flips that are below lbin and median for a combination of relevant modifiers. Its faster by about 3000x but may not find as many flips as the flipper." },
-    { value: "4", label: 'Sniper (Median)', shortLabel: "MSNIPE", default: false, description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value." }
+    { value: "2", label: 'Sniper', shortLabel: "SNIPE", default: true, description: "Is a classical sniping algorithm that stores prices in a dictionary grouped by any relevant modifiers. It only outputs flips that are below lbin and median for a combination of relevant modifiers. Its faster by about 3000x but may not find as many flips as the flipper." },
+    { value: "4", label: 'Sniper (Median)', shortLabel: "MSNIPE", default: true, description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value." }
 ]
 
-export function getDefaulFlipFinders(finders: number[]) {
+export function getFlipFinders(finders: number[]) {
     return FLIP_FINDERS.filter(option => finders.some(finder => finder.toString() === option.value))
 }

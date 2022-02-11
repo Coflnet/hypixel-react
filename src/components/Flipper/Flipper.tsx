@@ -302,7 +302,7 @@ function Flipper() {
     };
 
     function addItemToBlacklist(flip: FlipAuction) {
-        let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY);
+        let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY, "[]");
         let parsed: FlipRestriction[];
         try {
             parsed = JSON.parse(restrictions);
