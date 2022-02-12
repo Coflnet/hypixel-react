@@ -798,6 +798,24 @@ function initAPI(): API {
         })
     }
 
+    let flipFilters = (item: Item): Promise<FilterOptions[]> => {
+        return new Promise((resolve, reject) => {
+
+            httpApi.sendLimitedCacheRequest({
+                type: RequestType.FLIP_FILTERS,
+                data: item.tag,
+                resolve: function (data) {
+                    resolve(data.map(a => parseFilterOption(a)));
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.FLIP_FILTERS, error, item.tag);
+                    reject();
+                }
+            }, 1);
+        })
+    }
+
+
     let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
         return new Promise((resolve, reject) => {
 
@@ -1114,7 +1132,8 @@ function initAPI(): API {
         triggerPlayerNameCheck,
         getPlayerProfiles,
         getCraftingRecipe,
-        getLowestBin
+        getLowestBin,
+        flipFilters
     }
 }
 

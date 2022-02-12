@@ -198,7 +198,7 @@ function Flip(props: Props) {
                                             if (i >= settings.maxExtraInfoFields!) {
                                                 return ""
                                             } else {
-                                                return <li key={prop}>{prop}</li>
+                                                return <li key={i}>{prop}</li>
                                             }
                                         })
 
