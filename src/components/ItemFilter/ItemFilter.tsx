@@ -223,9 +223,10 @@ function ItemFilter(props: Props) {
     }
 
     let filterList = selectedFilters.map(filterName => {
-        let options = props.filters?.find(f => f.name === filterName)
-        let defaultValue: any = 0
-        if (options && options.options[0]) {
+        let options = props.filters?.find(f => f.name === filterName);
+        let defaultValue: any = 0;
+        if (options && options.options[0] !== null && options.options[0] !== undefined) {
+
             // dont set the first option for search-selects
             if (!(hasFlag(options.type, FilterType.EQUAL) && !hasFlag(options.type, FilterType.SIMPLE))) {
                 defaultValue = options.options[0]

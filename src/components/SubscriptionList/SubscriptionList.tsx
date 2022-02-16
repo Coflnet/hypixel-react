@@ -10,6 +10,7 @@ import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { Delete as DeleteIcon, Undo as UndoIcon } from '@material-ui/icons';
+import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay';
 
 interface Props {
 
@@ -70,7 +71,7 @@ function SubscriptionList(props: Props) {
                             result = <li key="1">Notify only for instant buy</li>
                             break;
                         case SubscriptionType.PRICE_HIGHER_THAN.toString():
-                            result = <li key="2">Notify if price is higher than <b>{numberWithThousandsSeperators(price)} Coins</b></li>
+                            result = price > 0 ? <li key="2">Notify if price is higher than <b>{numberWithThousandsSeperators(price)} Coins</b></li> : <li key="2">Any price</li>
                             break;
                         case SubscriptionType.PRICE_LOWER_THAN.toString():
                             result = <li key="3">Notify if price is lower than <b>{numberWithThousandsSeperators(price)} Coins</b></li>
@@ -102,7 +103,7 @@ function SubscriptionList(props: Props) {
     }
 
     function resubscribe(subscription: Subscription) {
-        api.subscribe(subscription.topicId, subscription.types, subscription.price).then(() => {
+        api.subscribe(subscription.topicId, subscription.types, subscription.price, subscription.filter).then(() => {
             loadSubscriptions();
         });
     }
@@ -149,11 +150,13 @@ function SubscriptionList(props: Props) {
 
     let subscriptionsTableBody = subscriptions.map((subscription, i) =>
     (
-        <ListGroup.Item key={i}>
+        <ListGroup.Item className='subscription-list-item'>
             <h5><Badge style={{ marginRight: "5px" }} variant="primary">{i + 1}</Badge>
                 {getSubscriptionTitleElement(subscription)}
             </h5>
             {getSubTypesAsList(subscription.types, subscription.price)}
+            <hr/>
+            <ItemFilterPropertiesDisplay filter={subscription.filter}/>
             <div style={{ position: "absolute", top: "0.75rem", right: "1.25rem", cursor: "pointer" }} onClick={() => { onDelete(subscription) }}>
                 <DeleteIcon color="error" />
             </div>

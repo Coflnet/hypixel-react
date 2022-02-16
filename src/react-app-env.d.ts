@@ -175,7 +175,8 @@ interface API {
   subscribe(
     topic: string,
     type: SubscriptionType[],
-    price?: number
+    price?: number,
+    itemFilter?: ItemFilter
   ): Promise<void>;
   unsubscribe(subscription: Subscription): Promise<Number>;
   getSubscriptions(): Promise<Subscription[]>;
