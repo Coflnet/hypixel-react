@@ -314,8 +314,8 @@ function ItemFilter(props: Props) {
                                 {props?.filters && props.filters?.length > 0 ? (
                                     <Typeahead
                                         id="add-filter-typeahead"
-                                        autoFocus
-                                        defaultOpen
+                                        autoFocus={Object.keys(getItemFilterFromUrl()).length === 0}
+                                        defaultOpen={Object.keys(getItemFilterFromUrl()).length === 0}
                                         ref={typeaheadRef}
                                         placeholder="Add filter"
                                         className="add-filter-select"
