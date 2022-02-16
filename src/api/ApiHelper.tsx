@@ -21,7 +21,7 @@ import {
     parseReforge,
     parseSearchResultItem,
     parseSkyblockProfile,
-    parseSubscription,
+    parseSubscription
 } from '../utils/Parser/APIResponseParser'
 import { RequestType, SubscriptionType, Subscription } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
@@ -65,7 +65,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SEARCH, error, searchText)
                     reject()
-                },
+                }
             })
         })
     }
@@ -85,7 +85,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTagOrName)
                     reject()
-                },
+                }
             })
         })
     }
@@ -99,7 +99,7 @@ function initAPI(): API {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
-                filter: itemFilter,
+                filter: itemFilter
             }
 
             httpApi.sendRequest({
@@ -111,7 +111,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
                     reject()
-                },
+                }
             })
         })
     }
@@ -121,7 +121,7 @@ function initAPI(): API {
             let requestData = {
                 uuid: uuid,
                 amount: amount,
-                offset: offset,
+                offset: offset
             }
             httpApi.sendLimitedCacheRequest(
                 {
@@ -137,7 +137,7 @@ function initAPI(): API {
                     reject: (error: any) => {
                         apiErrorHandler(RequestType.PLAYER_AUCTION, error, requestData)
                         reject()
-                    },
+                    }
                 },
                 2
             )
@@ -149,7 +149,7 @@ function initAPI(): API {
             let requestData = {
                 uuid: uuid,
                 amount: amount,
-                offset: offset,
+                offset: offset
             }
             httpApi.sendLimitedCacheRequest({
                 type: RequestType.PLAYER_BIDS,
@@ -164,7 +164,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_BIDS, error, requestData)
                     reject()
-                },
+                }
             })
         })
     }
@@ -178,7 +178,7 @@ function initAPI(): API {
                     let parsedEnchantments: Enchantment[] = enchantments.map(enchantment => {
                         return parseEnchantment({
                             type: enchantment.label,
-                            id: enchantment.id,
+                            id: enchantment.id
                         })
                     })
                     parsedEnchantments = parsedEnchantments
@@ -191,7 +191,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, '')
                     reject()
-                },
+                }
             })
         })
     }
@@ -205,7 +205,7 @@ function initAPI(): API {
                     let parsedReforges: Reforge[] = reforges.map(reforge => {
                         return parseReforge({
                             name: reforge.label,
-                            id: reforge.id,
+                            id: reforge.id
                         })
                     })
                     parsedReforges = parsedReforges
@@ -218,7 +218,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, '')
                     reject()
-                },
+                }
             })
         })
     }
@@ -226,7 +226,7 @@ function initAPI(): API {
     let trackSearch = (fullSearchId: string, fullSearchType: string): void => {
         let requestData = {
             id: fullSearchId,
-            type: fullSearchType,
+            type: fullSearchType
         }
         websocketHelper.sendRequest({
             type: RequestType.TRACK_SEARCH,
@@ -234,7 +234,7 @@ function initAPI(): API {
             resolve: () => {},
             reject: (error: any) => {
                 apiErrorHandler(RequestType.TRACK_SEARCH, error, requestData)
-            },
+            }
         })
     }
 
@@ -249,7 +249,7 @@ function initAPI(): API {
                     },
                     reject: (error: any) => {
                         reject(error)
-                    },
+                    }
                 },
                 ignoreCache ? 3 + ignoreCache : 2
             )
@@ -267,7 +267,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_NAME, error, uuid)
                     reject()
-                },
+                }
             })
         })
     }
@@ -285,7 +285,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID)
                     reject()
-                },
+                }
             })
         })
     }
@@ -301,7 +301,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_VERSION, error, '')
                     reject()
-                },
+                }
             })
         })
     }
@@ -324,7 +324,7 @@ function initAPI(): API {
                     let bNum: number = typeof b === 'number' ? (b as number) : parseInt(SubscriptionType[b])
                     return aNum + bNum
                 }),
-                filter: filter ? JSON.stringify(filter) : undefined,
+                filter: filter ? JSON.stringify(filter) : undefined
             }
             websocketHelper.sendRequest({
                 type: RequestType.SUBSCRIBE,
@@ -334,7 +334,7 @@ function initAPI(): API {
                 },
                 reject: error => {
                     reject(error)
-                },
+                }
             })
         })
     }
@@ -352,7 +352,7 @@ function initAPI(): API {
                     let bNum: number = typeof b === 'number' ? (b as number) : parseInt(SubscriptionType[b])
                     return aNum + bNum
                 }),
-                filter: subscription.filter ? JSON.stringify(subscription.filter) : undefined,
+                filter: subscription.filter ? JSON.stringify(subscription.filter) : undefined
             }
 
             websocketHelper.sendRequest({
@@ -364,7 +364,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.UNSUBSCRIBE, error, '')
                     reject()
-                },
+                }
             })
         })
     }
@@ -384,7 +384,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error, '')
                     reject()
-                },
+                }
             })
         })
     }
@@ -401,7 +401,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PREMIUM_EXPIRATION, error, googleId)
                     reject()
-                },
+                }
             })
         })
     }
@@ -422,7 +422,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PAYMENT_SESSION, error)
                     reject()
-                },
+                }
             })
         })
     }
@@ -438,7 +438,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_GOOGLE, error)
                     reject()
-                },
+                }
             })
         })
     }
@@ -449,7 +449,7 @@ function initAPI(): API {
                 type: RequestType.FCM_TOKEN,
                 data: {
                     name: '',
-                    token: token,
+                    token: token
                 },
                 resolve: () => {
                     resolve()
@@ -457,7 +457,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.FCM_TOKEN, error, token)
                     reject()
-                },
+                }
             })
         })
     }
@@ -475,7 +475,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_STRIPE_PRODUCTS, error)
                     reject()
-                },
+                }
             })
         })
     }
@@ -489,7 +489,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_STRIPE_PRICES, error)
                     reject()
-                },
+                }
             })
         })
     }
@@ -503,7 +503,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.VALIDATE_PAYMENT_TOKEN, error)
                     reject(false)
-                },
+                }
             })
         })
     }
@@ -517,7 +517,7 @@ function initAPI(): API {
             let requestData = {
                 name: itemTagOrName,
                 start: Math.round(fetchStart / 100000) * 100,
-                filter: itemFilter,
+                filter: itemFilter
             }
             httpApi.sendLimitedCacheRequest({
                 type: RequestType.RECENT_AUCTIONS,
@@ -528,7 +528,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData)
                     reject()
-                },
+                }
             })
         })
     }
@@ -544,7 +544,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, '')
                     reject()
-                },
+                }
             })
         })
     }
@@ -583,7 +583,7 @@ function initAPI(): API {
                 shortNumbers: flipSettings.shortNumbers,
                 blockTenSecMsg: flipSettings.blockTenSecMsg,
                 format: flipSettings.modFormat,
-                chat: !flipSettings.hideModChat,
+                chat: !flipSettings.hideModChat
             },
             visibility: {
                 cost: !flipSettings.hideCost,
@@ -596,9 +596,9 @@ function initAPI(): API {
                 extraFields: flipSettings.maxExtraInfoFields,
                 profitPercent: !flipSettings.hideProfitPercent,
                 sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
-                lore: !flipSettings.hideLore,
+                lore: !flipSettings.hideLore
             },
-            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
+            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0)
         }
 
         if (filter.onlyBin) {
@@ -626,7 +626,7 @@ function initAPI(): API {
                     default:
                         break
                 }
-            },
+            }
         })
     }
 
@@ -641,7 +641,7 @@ function initAPI(): API {
                 reject: function (error) {
                     apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, '')
                     reject()
-                },
+                }
             })
         })
     }
@@ -656,7 +656,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_FILTER, error, name)
-                },
+                }
             })
         })
     }
@@ -673,7 +673,7 @@ function initAPI(): API {
                     reject: function (error) {
                         apiErrorHandler(RequestType.NEW_PLAYERS, error, '')
                         reject()
-                    },
+                    }
                 },
                 5
             )
@@ -692,7 +692,7 @@ function initAPI(): API {
                     reject: function (error) {
                         apiErrorHandler(RequestType.NEW_ITEMS, error, '')
                         reject()
-                    },
+                    }
                 },
                 15
             )
@@ -711,7 +711,7 @@ function initAPI(): API {
                     reject: function (error) {
                         apiErrorHandler(RequestType.POPULAR_SEARCHES, error, '')
                         reject()
-                    },
+                    }
                 },
                 5
             )
@@ -730,7 +730,7 @@ function initAPI(): API {
                     reject: function (error) {
                         apiErrorHandler(RequestType.ENDED_AUCTIONS, error, '')
                         reject()
-                    },
+                    }
                 },
                 1
             )
@@ -749,7 +749,7 @@ function initAPI(): API {
                     reject: function (error) {
                         apiErrorHandler(RequestType.NEW_AUCTIONS, error, '')
                         reject()
-                    },
+                    }
                 },
                 1
             )
@@ -767,7 +767,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_FLIP_BASED_AUCTIONS, error, flipUUID)
                     reject()
-                },
+                }
             })
         })
     }
@@ -775,7 +775,7 @@ function initAPI(): API {
     let paypalPurchase = (orderId: string, days: number): Promise<any> => {
         let requestData = {
             orderId,
-            days,
+            days
         }
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
@@ -786,7 +786,7 @@ function initAPI(): API {
                 },
                 reject: (error: any) => {
                     reject(error)
-                },
+                }
             })
         })
     }
@@ -802,7 +802,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_REF_INFO, error, '')
                     reject(error)
-                },
+                }
             })
         })
     }
@@ -818,7 +818,7 @@ function initAPI(): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_REF, error, '')
                     reject(error)
-                },
+                }
             })
         })
     }
@@ -832,7 +832,7 @@ function initAPI(): API {
             let requestData = {
                 name: item.tag,
                 filter: filter,
-                order: isNaN(order) ? undefined : order,
+                order: isNaN(order) ? undefined : order
             }
 
             httpApi.sendLimitedCacheRequest(
@@ -845,7 +845,7 @@ function initAPI(): API {
                     reject: function (error) {
                         apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, requestData)
                         reject()
-                    },
+                    }
                 },
                 1
             )
@@ -864,7 +864,7 @@ function initAPI(): API {
                     reject: function (error) {
                         apiErrorHandler(RequestType.FILTER_FOR, error, item.tag)
                         reject()
-                    },
+                    }
                 },
                 1
             )
@@ -873,21 +873,22 @@ function initAPI(): API {
 
     let flipFilters = (item: Item): Promise<FilterOptions[]> => {
         return new Promise((resolve, reject) => {
-
-            httpApi.sendLimitedCacheRequest({
-                type: RequestType.FLIP_FILTERS,
-                data: item.tag,
-                resolve: function (data) {
-                    resolve(data.map(a => parseFilterOption(a)));
+            httpApi.sendLimitedCacheRequest(
+                {
+                    type: RequestType.FLIP_FILTERS,
+                    data: item.tag,
+                    resolve: function (data) {
+                        resolve(data.map(a => parseFilterOption(a)))
+                    },
+                    reject: function (error) {
+                        apiErrorHandler(RequestType.FLIP_FILTERS, error, item.tag)
+                        reject()
+                    }
                 },
-                reject: function (error) {
-                    apiErrorHandler(RequestType.FLIP_FILTERS, error, item.tag);
-                    reject();
-                }
-            }, 1);
+                1
+            )
         })
     }
-
 
     let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
         return new Promise((resolve, reject) => {
@@ -900,7 +901,7 @@ function initAPI(): API {
                 reject: function (error) {
                     apiErrorHandler(RequestType.CONNECT_MINECRAFT_ACCOUNT, error, playerUUID)
                     reject()
-                },
+                }
             })
         })
     }
@@ -923,7 +924,7 @@ function initAPI(): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_ACCOUNT_INFO, error, '')
-                },
+                }
             })
         })
     }
@@ -939,7 +940,7 @@ function initAPI(): API {
                 reject: function (error) {
                     apiErrorHandler(RequestType.ITEM_SEARCH, error, searchText)
                     reject()
-                },
+                }
             })
         })
     }
@@ -955,7 +956,7 @@ function initAPI(): API {
                 reject: function (error) {
                     apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId)
                     reject()
-                },
+                }
             })
         })
     }
@@ -971,7 +972,7 @@ function initAPI(): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, '')
-                    },
+                    }
                 },
                 1
             )
@@ -988,7 +989,7 @@ function initAPI(): API {
                 reject: function (error) {
                     apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName)
                     reject()
-                },
+                }
             })
         })
     }
@@ -1012,7 +1013,7 @@ function initAPI(): API {
                     reject: function (error) {
                         apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
                         reject()
-                    },
+                    }
                 },
                 1
             )
@@ -1034,7 +1035,7 @@ function initAPI(): API {
                 Context: 'Skyblock',
                 User: user || '',
                 Feedback: JSON.stringify(feedback),
-                FeedbackName: feedbackKey,
+                FeedbackName: feedbackKey
             }
 
             httpApi.sendApiRequest(
@@ -1044,7 +1045,7 @@ function initAPI(): API {
                     customRequestURL: getProperty('feedbackEndpoint'),
                     requestMethod: 'POST',
                     requestHeader: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     resolve: function () {
                         resolve()
@@ -1052,7 +1053,7 @@ function initAPI(): API {
                     reject: function (error) {
                         apiErrorHandler(RequestType.SEND_FEEDBACK, error, feedback)
                         reject()
-                    },
+                    }
                 },
                 JSON.stringify(requestData)
             )
@@ -1074,7 +1075,7 @@ function initAPI(): API {
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_PROFITABLE_CRAFTS, error, '')
                     reject()
-                },
+                }
             })
         })
     }
@@ -1092,7 +1093,7 @@ function initAPI(): API {
                 reject: function (error) {
                     apiErrorHandler(RequestType.TRIGGER_PLAYER_NAME_CHECK, error, '')
                     reject()
-                },
+                }
             })
         })
     }
@@ -1111,7 +1112,7 @@ function initAPI(): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.TRIGGER_PLAYER_NAME_CHECK, error, playerUUID)
-                },
+                }
             })
         })
     }
@@ -1127,7 +1128,7 @@ function initAPI(): API {
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_CRAFTING_RECIPE, error, itemTag)
                     reject()
-                },
+                }
             })
         })
     }
@@ -1141,13 +1142,13 @@ function initAPI(): API {
                 resolve: function (data) {
                     resolve({
                         lowest: data.lowest,
-                        secondLowest: data.secondLowest,
+                        secondLowest: data.secondLowest
                     })
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_LOWEST_BIN, error, itemTag)
                     reject()
-                },
+                }
             })
         })
     }
