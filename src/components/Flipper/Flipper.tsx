@@ -526,7 +526,7 @@ function Flipper() {
                 </Card.Header>
                 <Card.Body>
                     <h3>How are profitable flips found?</h3>
-                    <p>New flips are found by comparing every new auction with the sell price of already finished auctions of the same item with the same or similar modifiers (e.g. enchantments).</p>
+                    <p>New flips are found by comparing every new auction with the sell price of already finished auctions of the same item with the same or similar modifiers (e.g. enchantments) and/or comparing to lowest bin.</p>
                     <h3>What auctions are new auctions compared with?</h3>
                     <p>Reference auctions depend on the individual item, its modifiers, and how often it is sold.
                         The algorithm to determine which auctions can be used as reference is changing frequently.
@@ -536,10 +536,10 @@ function Flipper() {
                     <p>Statistically very reliable. Still, some flips might not sell as fast as others or at all. If you encounter a flip that can not be sold, please post a link to it in the skyblock channel on our discord so we can improve the flipper further.</p>
                     <h3>Why is there a "premium" version?</h3>
                     <p>TLDR: Servercosts and compensation for development.<br />
-                        To run the flipper and the auction explorer we have to pay for servers to run it on. While we work hard to keep the cost down they are currently up to about 90$ per month.
+                        To run the flipper and the auction explorer we have to pay for servers to run it on. While we work hard to keep the cost down they are currently up to about 200$ per month.
                         And will increase further the more auctions we save and the the more users are using the site.
-                        Furthermore we collectively spent more than 1000 hours of our spare time developing it and would like to get a some compensation for our efforts.
-                        The best case would be to develop this and similar projects full time if we could, but so far we are struggling to cover even just the server costs.
+                        Furthermore we collectively spent more than 2000 hours of our spare time developing it and would like to get a some compensation for our efforts.
+                        The best case would be to develop this and similar projects full time if we could.
                     </p>
                     <h3>What can the free version do?</h3>
                     <p>The free version of the auction flipper can be used if you just got started with ah-flipping. It displays flips with a delay and has some features deactivated.
@@ -552,7 +552,10 @@ function Flipper() {
                     <h4>Cost</h4>
                     <p>Cost is the auction price that you would have to pay. </p>
                     <h4>Median Price</h4>
-                    <p>Median Price is the median price for that item. Taking into account ultimate enchantments, price paid at dark auctions, Rarity and stars. (for now)</p>
+                    <p>Median Price is the median price for that item. Taking into account ultimate enchantments, valuable enchantments (eg. snipe 4),
+                        price paid at dark auctions, Pet level, Pet item, Reforges, Cake years, Kill counts, Rarity and stars.
+                        (basically everything that could change the price)
+                    </p>
                     <h4>Volume</h4>
                     <p>Volume is the number of auctions that were sold in a 24 hour window. It is capped at 60 to keep the flipper fast.</p>
                     <h4>Lowest bin</h4>
