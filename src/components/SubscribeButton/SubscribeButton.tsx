@@ -162,7 +162,7 @@ function SubscribeButton(props: Props) {
             </Button>
             {
               itemFilter && Object.keys(itemFilter).length > MAX_FILTERS ?
-              <p style={{color: "red"}}>Because of performance issues, you can't use more than 5 filters for Notifiers</p> : null
+              <p style={{color: "red"}}>You currently can't use more than 5 filters for Notifiers</p> : null
             }
           </div>
         ) : (
