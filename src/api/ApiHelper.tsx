@@ -1080,6 +1080,22 @@ function initAPI(): API {
         })
     }
 
+    let getBazaarTags = (): Promise<string[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_BAZAAR_TAGS,
+                data: "",
+                resolve: function (data) {
+                    resolve(data);
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_BAZAAR_TAGS, error, "");
+                    reject();
+                }
+            });
+        });
+    }
+
     return {
         search,
         trackSearch,
@@ -1133,7 +1149,8 @@ function initAPI(): API {
         getPlayerProfiles,
         getCraftingRecipe,
         getLowestBin,
-        flipFilters
+        flipFilters,
+        getBazaarTags
     }
 }
 
