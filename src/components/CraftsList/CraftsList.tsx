@@ -8,11 +8,43 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import { CraftDetails } from './CraftDetails/CraftDetails';
 
+interface SortOption {
+    label: string,
+    value: string,
+    sortFunction(crafts: ProfitableCraft[], bazaarTags: string[])
+}
+
+const SORT_OPTIONS: SortOption[] = [{
+    label: "Profit",
+    value: "profit",
+    sortFunction: crafts => crafts.sort((a, b) => (b.sellPrice - b.craftCost) - (a.sellPrice - a.craftCost))
+}, {
+    label: "Sell-Price",
+    value: "sellPrice",
+    sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - a.sellPrice)
+}, {
+    label: "Craft-Cost",
+    value: "craftCost",
+    sortFunction: crafts => crafts.sort((a, b) => b.craftCost - a.craftCost)
+}, {
+    label: "Instant-Sell (Bazaar)",
+    value: "bazaarCrafts",
+    sortFunction: (crafts, bazaarTags) => crafts.sort((a, b) =>(b.sellPrice - b.craftCost) - (a.sellPrice - a.craftCost)).filter(craft => {
+        let searchFor = [...craft.ingredients.map(ingredients => ingredients.item.tag), craft.item.tag]
+        for (let i = 0; i < searchFor.length; i++) {
+            if(bazaarTags.indexOf(searchFor[i]) === -1){
+                return false;
+            }
+        }
+        return true;
+    })
+}]
+
 export function CraftsList() {
 
     let [crafts, setCrafts] = useState<ProfitableCraft[]>([]);
     let [nameFilter, setNameFilter] = useState<string | null>();
-    let [orderBy, setOrderBy] = useState<string>("profit");
+    let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0]);
     let [accountInfo, setAccountInfo] = useState<AccountInfo>();
     let [profiles, setProfiles] = useState<SkyblockProfile[]>();
     let [selectedProfile, setSelectedProfile] = useState<SkyblockProfile>();
@@ -20,19 +52,25 @@ export function CraftsList() {
     let [isLoadingCrafts, setIsLoadingCrafts] = useState(true);
     let [hasPremium, setHasPremium] = useState(false);
     let [isLoggedIn, setIsLoggedIn] = useState(false);
+    let [bazaarTags, setBazaarTags] = useState<string[]>([])
 
     useEffect(() => {
         setIsLoadingCrafts(true);
         setIsLoadingProfileData(true);
-        loadCrafts();
+        Promise.all([loadCrafts(), loadBazaarTags()]).then(() => {
+            setIsLoadingCrafts(false);
+        })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function loadCrafts(playerId?: string, profileId?: string) {
-        api.getProfitableCrafts(playerId, profileId).then(crafts => {
+        return api.getProfitableCrafts(playerId, profileId).then(crafts => {
             setCrafts(crafts);
-            setIsLoadingCrafts(false);
         });
+    }
+
+    function loadBazaarTags() {
+        return api.getBazaarTags().then(setBazaarTags)
     }
 
     function loadHasPremium(): Promise<void> {
@@ -73,7 +111,10 @@ export function CraftsList() {
     function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
         let selectedIndex = event.target.options.selectedIndex;
         let value = event.target.options[selectedIndex].getAttribute('value')!;
-        setOrderBy(value);
+        let sortOption = SORT_OPTIONS.find(option => option.value === value)
+        if(sortOption) {
+            setOrderBy(sortOption);
+        }
     }
 
     function onProfileChange(event: ChangeEvent<HTMLSelectElement>) {
@@ -108,21 +149,19 @@ export function CraftsList() {
     }
 
 
+    let orderedCrafts = crafts;
     if (orderBy) {
-        if (orderBy === "profit") {
-            crafts = crafts.sort((a, b) => (b.sellPrice - b.craftCost) - (a.sellPrice - a.craftCost));
-        } else {
-            crafts = crafts.sort((a, b) => (b[orderBy] as number) - (a[orderBy] as number));
-        }
+        let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
+        orderedCrafts = sortOption?.sortFunction(crafts, bazaarTags)
     }
 
-    let list = crafts.map((craft, i) => {
+    let list = orderedCrafts.map((craft, i) => {
         if (nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
             return <span />;
         }
         return (
             !hasPremium && i < 3 ?
-                <div key={craft.item.tag} style={{ width: "calc(50% - 10px)" }} className="prevent-select">{getListElement(craft, true)}</div> :
+                <div key={craft.item.tag} className="prevent-select">{getListElement(craft, true)}</div> :
                 <Tooltip key={craft.item.tag} type="click" id="tooltip-container" content={getListElement(craft, false)} tooltipTitle={getCraftHeader(craft)} tooltipContent={<CraftDetails craft={craft} />} />
         )
     });
@@ -156,11 +195,10 @@ export function CraftsList() {
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Form.Control style={{ width: selectWidth }} placeholder="Item name..." onChange={onNameFilterChange} />
-                <Form.Control style={{ width: selectWidth }} className="select-filter" defaultValue={orderBy} as="select" onChange={updateOrderBy}>
-                    <option value={""}>-</option>
-                    <option value={"craftCost"}>Craft-Cost</option>
-                    <option value={"sellPrice"}>Sell-Price</option>
-                    <option value={"profit"}>Profit</option>
+                <Form.Control style={{ width: selectWidth }} className="select-filter" defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
+                    {
+                        SORT_OPTIONS.map(option => <option value={option.value}>{option.label}</option>)
+                    }
                 </Form.Control>
                 {
                     profiles ?

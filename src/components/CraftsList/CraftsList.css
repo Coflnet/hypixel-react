@@ -16,7 +16,7 @@
 }
 
 .crafts-list .tooltip-wrapper {
-    width: calc(50% - 10px)
+    width: calc(50% - 10px);
 }
 
 .crafts-list .blur {
@@ -33,4 +33,5 @@
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    width: calc(50% - 10px);
 }

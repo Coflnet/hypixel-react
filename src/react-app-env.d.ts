@@ -220,7 +220,8 @@ interface API {
   getPlayerProfiles(playerUUID): Promise<SkyblockProfile[]>,
   getCraftingRecipe(itemTag: string): Promise<CraftingRecipe>,
   getLowestBin(itemTag: string): Promise<LowestBin>,
-  flipFilters(item: Item): Promise<FilterOptions[]>
+  flipFilters(item: Item): Promise<FilterOptions[]>,
+  getBazaarTags(): Promise<string[]>
 }
 
 interface CacheUtils {

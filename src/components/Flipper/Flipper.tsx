@@ -250,7 +250,7 @@ function Flipper() {
 
         missedInfo = {
             estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
-            missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction, ) : missedInfo.missedEstimatedProfit,
+            missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
             missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
             totalFlips: missedInfo.totalFlips + 1
         }

@@ -51,7 +51,8 @@ export enum RequestType {
     TRIGGER_PLAYER_NAME_CHECK = "triggerNameCheck",
     GET_PLAYER_PROFILES = "profile",
     GET_CRAFTING_RECIPE = "craft/recipe",
-    GET_LOWEST_BIN = "lowestBin"
+    GET_LOWEST_BIN = "lowestBin",
+    GET_BAZAAR_TAGS = "items/bazaar/tags"
 }
 
 export enum SubscriptionType {
