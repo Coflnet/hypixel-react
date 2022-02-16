@@ -38,8 +38,16 @@ function SubscribeButton(props: Props) {
   let [itemFilter, setItemFilter] = useState<ItemFilter>();
 
   function onSubscribe() {
+
     trackEvent({ action: 'subscribed', category: 'subscriptions' });
     setShowDialog(false);
+
+    // Set price to 0 per default for item subscriptions
+    // This happens if a user only selects a filter and leaves the price field empty
+    if(props.type === "item" && !price) {
+      price = "0";
+    }
+
     api
       .subscribe(props.topic, getSubscriptionTypes(), price ? parseInt(price) : undefined, itemFilter)
       .then(() => {
@@ -106,7 +114,7 @@ function SubscribeButton(props: Props) {
       return true;
     }
     if (props.type === 'item') {
-      return price === undefined || price === '';
+      return itemFilter && Object.keys(itemFilter).length > 0 ? false : (price === undefined || price === '');
     }
     if (props.type === 'player') {
       return !gotOutbid && !isSold;

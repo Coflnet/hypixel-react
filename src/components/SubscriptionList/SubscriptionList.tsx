@@ -71,10 +71,10 @@ function SubscriptionList(props: Props) {
                             result = <li key="1">Notify only for instant buy</li>
                             break;
                         case SubscriptionType.PRICE_HIGHER_THAN.toString():
-                            result = <li key="2">Notify if price is higher than <b>{numberWithThousandsSeperators(price)} Coins</b></li>
+                            result = price > 0 ? <li key="2">Notify if price is higher than <b>{numberWithThousandsSeperators(price)} Coins</b></li> : <li key="2">Any price</li>
                             break;
                         case SubscriptionType.PRICE_LOWER_THAN.toString():
-                            result = <li key="3">Notify if price is lower than <b>{numberWithThousandsSeperators(price)} Coins</b></li>
+                            result = price > 0 ? <li key="3">Notify if price is lower than <b>{numberWithThousandsSeperators(price)} Coins</b></li> : <li key="2">Any price</li>
                             break;
                         case SubscriptionType.OUTBID.toString():
                             result = <li key="4">Notify if player outbid something</li>
