@@ -38,6 +38,7 @@ export enum RequestType {
     SET_REF = "setRef",
     ACTIVE_AUCTIONS = "activeAuctions",
     FILTER_FOR = "filterFor",
+    FLIP_FILTERS = "flipFilters",
     CONNECT_MINECRAFT_ACCOUNT = "conMc",
     GET_ACCOUNT_INFO = "accountInfo",
     ITEM_SEARCH = "item/search",
