@@ -7,7 +7,6 @@ if ('serviceWorker' in navigator) {
                 loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js');
                 loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-messaging.js');
                 pushNotifications(registration);
-                loadScript("https://arc.io/widget.min.js#WK8BPDas");
             }, 5000)
 
             // Registration was successful
