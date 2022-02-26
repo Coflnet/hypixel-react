@@ -1,0 +1,67 @@
+.bidItemImage {
+    margin-right: 15px;
+}
+
+.bidList {
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.loadingBanner {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5vh;
+}
+
+.noAuctionFound {
+    margin-right: auto;
+    margin-left: auto;
+    width: max-content;
+    text-align: center;
+    margin-top: 5vh;
+}
+
+.upButton {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+}
+
+.subscribeButton {
+    position: fixed;
+    bottom: 20px;
+    right: calc(20px + 45px + 20px);
+}
+
+.fixedBottom {
+    z-index: 10;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 100%;
+}
+
+.btnBottom {
+    float: right;
+    margin-left: 10px;
+}
+
+.playerDetailsList .list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.playerDetailsList .listGroupItem {
+    border-radius: 20px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+@media all and (min-width: 1200px) {
+    .playerDetailsList .listGroupItem {
+        width: 49%;
+    }
+}

@@ -1,0 +1,29 @@
+.navClosing {
+    left: -270px;
+    transition: all 0.5s;
+}
+
+.navOpen {
+    left: 0px !important;
+    transition: left 0.5s;
+}
+
+.hamburgerIcon {
+    display: inline;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    margin-right: 12px;
+}
+
+.navBar {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    z-index: 20;
+}
+
+.navBar :global(.pro-icon-wrapper){
+    background-color: #1d1d1d !important;
+}

@@ -1,193 +1,238 @@
-import React, { useState } from 'react';
-import './SubscribeButton.css';
-import { Button, FormControl, InputGroup, Modal } from 'react-bootstrap';
-import { useMatomo } from '@datapunt/matomo-tracker-react';
-import api from '../../api/ApiHelper';
-import { SubscriptionType } from '../../api/ApiTypes.d';
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useHistory } from "react-router-dom";
-import askForNotificationPermissons from '../../utils/NotificationPermisson';
-import { NotificationsOutlined as NotificationIcon } from '@material-ui/icons';
+import React, { useState } from 'react'
+import { Button, FormControl, InputGroup, Modal } from 'react-bootstrap'
+import { useMatomo } from '@datapunt/matomo-tracker-react'
+import api from '../../api/ApiHelper'
+import { SubscriptionType } from '../../api/ApiTypes.d'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { toast } from 'react-toastify'
+import { useHistory } from 'react-router-dom'
+import askForNotificationPermissons from '../../utils/NotificationPermisson'
+import { NotificationsOutlined as NotificationIcon } from '@material-ui/icons'
+import styles from './SubscribeButton.module.css'
 
 interface Props {
     topic: string
-    type: "player" | "item" | "auction",
+    type: 'player' | 'item' | 'auction'
     hideText?: boolean
 }
 
 function SubscribeButton(props: Props) {
-
-    let { trackEvent } = useMatomo();
-    let history = useHistory();
-    let [showDialog, setShowDialog] = useState(false);
-    let [price, setPrice] = useState("");
-    let [isPriceAbove, setIsPriceAbove] = useState(true);
-    let [onlyInstantBuy, setOnlyInstantBuy] = useState(false);
-    let [gotOutbid, setGotOutbid] = useState(false);
-    let [isSold, setIsSold] = useState(false);
-    let [isLoggedIn, setIsLoggedIn] = useState(false);
+    let { trackEvent } = useMatomo()
+    let history = useHistory()
+    let [showDialog, setShowDialog] = useState(false)
+    let [price, setPrice] = useState('')
+    let [isPriceAbove, setIsPriceAbove] = useState(true)
+    let [onlyInstantBuy, setOnlyInstantBuy] = useState(false)
+    let [gotOutbid, setGotOutbid] = useState(false)
+    let [isSold, setIsSold] = useState(false)
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
 
     function onSubscribe() {
-        trackEvent({ action: "subscribed", category: "subscriptions" });
-        setShowDialog(false);
-        api.subscribe(props.topic, getSubscriptionTypes(), price ? parseInt(price) : undefined).then(() => {
-            toast.success("Notifier successfully created!", {
-                onClick: () => {
-                    history.push({
-                        pathname: "/subscriptions"
-                    })
-                }
-            });
-        }).catch(error => {
-            toast.error(error.Message, {
-                onClick: () => {
-                    history.push({
-                        pathname: "/subscriptions"
-                    })
-                }
-            });
-        })
+        trackEvent({ action: 'subscribed', category: 'subscriptions' })
+        setShowDialog(false)
+        api.subscribe(props.topic, getSubscriptionTypes(), price ? parseInt(price) : undefined)
+            .then(() => {
+                toast.success('Notifier successfully created!', {
+                    onClick: () => {
+                        history.push({
+                            pathname: '/subscriptions'
+                        })
+                    }
+                })
+            })
+            .catch(error => {
+                toast.error(error.Message, {
+                    onClick: () => {
+                        history.push({
+                            pathname: '/subscriptions'
+                        })
+                    }
+                })
+            })
     }
 
     function getSubscriptionTypes(): SubscriptionType[] {
-        let types: SubscriptionType[] = [];
-        if (props.type === "item") {
+        let types: SubscriptionType[] = []
+        if (props.type === 'item') {
             if (isPriceAbove) {
-                types.push(SubscriptionType.PRICE_HIGHER_THAN);
+                types.push(SubscriptionType.PRICE_HIGHER_THAN)
             }
             if (!isPriceAbove) {
-                types.push(SubscriptionType.PRICE_LOWER_THAN);
+                types.push(SubscriptionType.PRICE_LOWER_THAN)
             }
             if (onlyInstantBuy) {
-                types.push(SubscriptionType.BIN);
+                types.push(SubscriptionType.BIN)
             }
         }
-        if (props.type === "player") {
+        if (props.type === 'player') {
             if (gotOutbid) {
-                types.push(SubscriptionType.OUTBID);
+                types.push(SubscriptionType.OUTBID)
             }
             if (isSold) {
-                types.push(SubscriptionType.SOLD);
+                types.push(SubscriptionType.SOLD)
             }
         }
-        if (props.type === "auction") {
-            types.push(SubscriptionType.AUCTION);
+        if (props.type === 'auction') {
+            types.push(SubscriptionType.AUCTION)
         }
-        return types;
+        return types
     }
 
     function getSubscriptionText(): string {
-        let text = "Notify me...";
+        let text = 'Notify me...'
         switch (props.type) {
             case 'auction':
-                text = "Notify me if someone bids on or buys the auction.";
-                break;
+                text = 'Notify me if someone bids on or buys the auction.'
+                break
             case 'item':
             case 'player':
             default:
-                text = "Notify me...";
-                break;
+                text = 'Notify me...'
+                break
         }
-        return text;
+        return text
     }
 
     function onLogin() {
-        setIsLoggedIn(true);
+        setIsLoggedIn(true)
         askForNotificationPermissons().then(token => {
             api.setToken(token).then(() => {
-                if (props.type === "auction") {
-                    onSubscribe();
-                    setShowDialog(false);
+                if (props.type === 'auction') {
+                    onSubscribe()
+                    setShowDialog(false)
                 }
-            });
-        });
+            })
+        })
     }
 
     function isNotifyDisabled() {
-        if (props.type === "item") {
-            return price === undefined || price === "";
+        if (props.type === 'item') {
+            return price === undefined || price === ''
         }
-        if (props.type === "player") {
-            return !gotOutbid && !isSold;
+        if (props.type === 'player') {
+            return !gotOutbid && !isSold
         }
     }
 
     function closeDialog() {
-        trackEvent({ action: "subscription dialog closed", category: "subscriptions" });
+        trackEvent({ action: 'subscription dialog closed', category: 'subscriptions' })
         setShowDialog(false)
     }
 
     function openDialog() {
-        trackEvent({ action: "subscription dialog opened", category: "subscriptions" });
+        trackEvent({ action: 'subscription dialog opened', category: 'subscriptions' })
         setShowDialog(true)
     }
 
     let dialog = (
-        <Modal show={showDialog} onHide={closeDialog} className="subscribe-dialog">
+        <Modal show={showDialog} onHide={closeDialog} className={styles.subscribeDialog}>
             <Modal.Header closeButton>
                 <Modal.Title>Create a Notifier</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {isLoggedIn ?
+                {isLoggedIn ? (
                     <div>
-                        {props.type === "item" ?
-                            <InputGroup className="price-input">
+                        {props.type === 'item' ? (
+                            <InputGroup className={styles.priceInput}>
                                 <InputGroup.Prepend>
                                     <InputGroup.Text id="inputGroup-sizing-sm">Item price</InputGroup.Text>
                                 </InputGroup.Prepend>
-                                <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm" type="number" onChange={(e) => setPrice(e.target.value)} />
+                                <FormControl
+                                    aria-label="Small"
+                                    aria-describedby="inputGroup-sizing-sm"
+                                    type="number"
+                                    onChange={e => setPrice(e.target.value)}
+                                />
                             </InputGroup>
-                            : ""}
+                        ) : (
+                            ''
+                        )}
                         <h5>{getSubscriptionText()}</h5>
-                        <div className="item-forms">
-                            {props.type === "item" ?
+                        <div className={styles.itemForms}>
+                            {props.type === 'item' ? (
                                 <div>
-                                    <div className="input-data">
-                                        <input type="radio" id="priceAboveCheckbox" defaultChecked={isPriceAbove} name="priceState" onChange={(e) => setIsPriceAbove(true)} />
+                                    <div className={styles.inputData}>
+                                        <input
+                                            type="radio"
+                                            id="priceAboveCheckbox"
+                                            defaultChecked={isPriceAbove}
+                                            name="priceState"
+                                            onChange={e => setIsPriceAbove(true)}
+                                        />
                                         <label htmlFor="priceAboveCheckbox">if the price is above the selected value</label>
                                     </div>
-                                    <div className="input-data">
-                                        <input type="radio" id="priceBelowCheckbox" name="priceState" defaultChecked={!isPriceAbove} onChange={(e) => setIsPriceAbove(false)} />
+                                    <div className={styles.inputData}>
+                                        <input
+                                            type="radio"
+                                            id="priceBelowCheckbox"
+                                            name="priceState"
+                                            defaultChecked={!isPriceAbove}
+                                            onChange={e => setIsPriceAbove(false)}
+                                        />
                                         <label htmlFor="priceBelowCheckbox">if the price is below the selected value</label>
                                     </div>
-                                    <div className="input-data">
-                                        <input type="checkbox" id="onlyIstantBuy" defaultChecked={onlyInstantBuy} onClick={(e) => { setOnlyInstantBuy((e.target as HTMLInputElement).checked) }} />
+                                    <div className={styles.inputData}>
+                                        <input
+                                            type="checkbox"
+                                            id="onlyIstantBuy"
+                                            defaultChecked={onlyInstantBuy}
+                                            onClick={e => {
+                                                setOnlyInstantBuy((e.target as HTMLInputElement).checked)
+                                            }}
+                                        />
                                         <label htmlFor="onlyIstantBuy">only for instant buy</label>
                                     </div>
                                 </div>
-                                : ""}
+                            ) : (
+                                ''
+                            )}
                         </div>
-                        <div className="player-forms">
-                            {props.type === "player" ?
+                        <div className={styles.playerForms}>
+                            {props.type === 'player' ? (
                                 <div>
-                                    <div className="input-data">
-                                        <input type="checkbox" id="outbidCheckbox" defaultChecked={gotOutbid} onChange={(e) => setGotOutbid((e.target as HTMLInputElement).checked)} />
+                                    <div className={styles.inputData}>
+                                        <input
+                                            type="checkbox"
+                                            id="outbidCheckbox"
+                                            defaultChecked={gotOutbid}
+                                            onChange={e => setGotOutbid((e.target as HTMLInputElement).checked)}
+                                        />
                                         <label htmlFor="outbidCheckbox">if player gets outbid</label>
                                     </div>
-                                    <div className="input-data">
-                                        <input type="checkbox" id="isSoldCheckbox" defaultChecked={isSold} onChange={(e) => setIsSold((e.target as HTMLInputElement).checked)} />
+                                    <div className={styles.inputData}>
+                                        <input
+                                            type="checkbox"
+                                            id="isSoldCheckbox"
+                                            defaultChecked={isSold}
+                                            onChange={e => setIsSold((e.target as HTMLInputElement).checked)}
+                                        />
                                         <label htmlFor="isSoldCheckbox">if an auction of the player has ended</label>
                                     </div>
                                 </div>
-                                : ""}
+                            ) : (
+                                ''
+                            )}
                         </div>
-                        <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">Notify me</Button>
-                    </div> :
+                        <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className={styles.notifyButton}>
+                            Notify me
+                        </Button>
+                    </div>
+                ) : (
                     <p>To use notifiers, please login with Google: </p>
-                }
+                )}
                 <GoogleSignIn onAfterLogin={onLogin} />
             </Modal.Body>
         </Modal>
-    );
+    )
 
     return (
-        <div className="subscribe-button">
+        <div className={styles.subscribeButton}>
             {dialog}
-            <Button style={{ width: "max-content" }} onClick={openDialog}><NotificationIcon /> {props.hideText ? "" : " Notify"}</Button>
-        </div >
-    );
+            <Button style={{ width: 'max-content' }} onClick={openDialog}>
+                <NotificationIcon /> {props.hideText ? '' : ' Notify'}
+            </Button>
+        </div>
+    )
 }
 
-export default SubscribeButton;
+export default SubscribeButton

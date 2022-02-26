@@ -1,0 +1,16 @@
+.restrictionList {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.restriction {
+    margin: 1%;
+    width: 48%;
+    height: fit-content;
+}
+
+.removeFilter {
+    cursor: pointer;
+}

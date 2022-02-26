@@ -2,6 +2,7 @@ import { useMatomo } from '@datapunt/matomo-tracker-react';
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import { isClientSideRendering } from '../../utils/SSRUtils';
 
 interface Props {
     onCopy?(),
@@ -52,7 +53,7 @@ export function CopyButton(props: Props) {
     }
 
     return (
-        <span>{window.navigator.clipboard ?
+        <span>{isClientSideRendering() && window.navigator.clipboard ?
             <span className={props.buttonWrapperClass}>
                 <Button style={props.buttonStyle} onMouseDown={copyClick} className={"copy-button-default-class " + props.buttonClass} aria-label="copy to clipboard" variant={props.buttonVariant || "secondary"}>{isCopied || props.forceIsCopied ? copiedIcon : copyIcon}</Button>
             </span> : ""}

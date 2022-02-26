@@ -1,25 +1,24 @@
-import React, { useState } from 'react';
-import './ShareButton.css';
-import { Badge, Button, OverlayTrigger, Popover } from 'react-bootstrap';
-import { useMatomo } from '@datapunt/matomo-tracker-react';
-import { v4 as generateUUID } from 'uuid';
-import {ShareOutlined as ShareIcon} from '@material-ui/icons';
+import React, { useState } from 'react'
+import { Badge, Button, OverlayTrigger, Popover } from 'react-bootstrap'
+import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { v4 as generateUUID } from 'uuid'
+import { ShareOutlined as ShareIcon } from '@material-ui/icons'
+import styles from './ShareButton.module.css'
 
 interface Props {
-    title: string,
-    text: string,
+    title: string
+    text: string
     url?: string
 }
 
 function ShareButton(props: Props) {
+    let { trackEvent } = useMatomo()
 
-    let { trackEvent } = useMatomo();
-
-    let [canUseShareAPI, setCanUseShareAPI] = useState(checkShareAPI());
-    let [showOverlayTrigger, setShowOverlayTrigger] = useState(false);
+    let [canUseShareAPI, setCanUseShareAPI] = useState(checkShareAPI())
+    let [showOverlayTrigger, setShowOverlayTrigger] = useState(false)
 
     function checkShareAPI(): boolean {
-        return false;
+        return false
     }
 
     function onShare() {
@@ -34,8 +33,8 @@ function ShareButton(props: Props) {
                 action: 'shareAPI'
             })
         } catch (error) {
-            setCanUseShareAPI(false);
-            copyToClipboard();
+            setCanUseShareAPI(false)
+            copyToClipboard()
         }
     }
 
@@ -45,8 +44,8 @@ function ShareButton(props: Props) {
                 category: 'share',
                 action: 'copyToClipboard'
             })
-            window.navigator.clipboard.writeText(window.location.href);
-            setShowOverlayTrigger(true);
+            window.navigator.clipboard.writeText(window.location.href)
+            setShowOverlayTrigger(true)
         } else {
             trackEvent({
                 category: 'share',
@@ -56,18 +55,24 @@ function ShareButton(props: Props) {
     }
 
     return (
-        <div className="share-button">
-            <OverlayTrigger show={showOverlayTrigger && !canUseShareAPI} trigger="click" placement="bottom-end" onEntered={() => setTimeout(() => setShowOverlayTrigger(false), 3000)} overlay={
-                <Popover id={generateUUID()}>
-                    <Popover.Content>
-                        <Badge variant="secondary">Copied to clipboard</Badge>
-                    </Popover.Content>
-                </Popover>
-            }>
+        <div className={styles.shareButton}>
+            <OverlayTrigger
+                show={showOverlayTrigger && !canUseShareAPI}
+                trigger="click"
+                placement="bottom-end"
+                onEntered={() => setTimeout(() => setShowOverlayTrigger(false), 3000)}
+                overlay={
+                    <Popover id={generateUUID()}>
+                        <Popover.Content>
+                            <Badge variant="secondary">Copied to clipboard</Badge>
+                        </Popover.Content>
+                    </Popover>
+                }
+            >
                 <Button onClick={canUseShareAPI ? onShare : copyToClipboard}>{<ShareIcon />} Share</Button>
             </OverlayTrigger>
-        </div >
-    );
+        </div>
+    )
 }
 
-export default ShareButton;
+export default ShareButton

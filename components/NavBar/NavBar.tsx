@@ -1,112 +1,139 @@
-import React, { useEffect, useState } from 'react';
-import { ProSidebar, Menu, MenuItem, SidebarHeader } from 'react-pro-sidebar';
-import 'react-pro-sidebar/dist/css/styles.css';
-import { Build as BuildIcon, ShareOutlined as ShareIcon, NotificationsOutlined as NotificationIcon, Home as HomeIcon, Storefront as StorefrontIcon, AccountBalance as AccountBalanceIcon, Policy as PolicyIcon, Chat as ChatIcon, Menu as MenuIcon, ExploreOutlined as ExploreIcon } from '@material-ui/icons';
-import { useForceUpdate } from '../../utils/Hooks';
+import React, { useEffect, useState } from 'react'
+import { ProSidebar, Menu, MenuItem, SidebarHeader } from 'react-pro-sidebar'
+import 'react-pro-sidebar/dist/css/styles.css'
+import {
+    Build as BuildIcon,
+    ShareOutlined as ShareIcon,
+    NotificationsOutlined as NotificationIcon,
+    Home as HomeIcon,
+    Storefront as StorefrontIcon,
+    AccountBalance as AccountBalanceIcon,
+    Policy as PolicyIcon,
+    Chat as ChatIcon,
+    Menu as MenuIcon,
+    ExploreOutlined as ExploreIcon
+} from '@material-ui/icons'
+import { useForceUpdate } from '../../utils/Hooks'
+import styles from './NavBar.module.css'
+import { isClientSideRendering } from '../../utils/SSRUtils'
+import Link from 'next/link'
 
-let resizePromise: NodeJS.Timeout | null = null;
+let resizePromise: NodeJS.Timeout | null = null
 
 interface Props {
     hamburgerIconStyle?: React.CSSProperties
 }
 
 function NavBar(props: Props) {
-
-    let [isWideOpen, setIsWideOpen] = useState(false);
-    let [isHovering, setIsHovering] = useState(false);
-    let forceUpdate = useForceUpdate();
-
-    let isSmall = typeof document !== "undefined" ? document.body.clientWidth < 1500 : true;
-
-    if (typeof window !== "undefined") {
-        addResizeEventListener()
-    }
+    let [isWideOpen, setIsWideOpen] = useState(false)
+    let [isHovering, setIsHovering] = useState(false)
+    let [isSmall, setIsSmall] = useState(false)
+    let forceUpdate = useForceUpdate()
 
     useEffect(() => {
+        if (!isClientSideRendering()) {
+            return
+        }
+
+        setIsSmall(document.body.clientWidth < 1500)
+
+        window.addEventListener('resize', resizeHandler)
+
+        return () => {
+            if (!isClientSideRendering()) {
+                return
+            }
+            window.removeEventListener('resize', resizeHandler)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!isClientSideRendering()) {
+            return
+        }
         if (isWideOpen) {
-            document.addEventListener('click', outsideClickHandler, true);
+            document.addEventListener('click', outsideClickHandler, true)
         } else {
-            document.removeEventListener('click', outsideClickHandler, true);
+            document.removeEventListener('click', outsideClickHandler, true)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isWideOpen])
 
     function outsideClickHandler(evt) {
-        const flyoutEl = document.getElementById("nav-bar");
-        const hamburgerEl = document.getElementById("hamburger-icon");
-        let targetEl = evt.target;
+        const flyoutEl = document.getElementById('navBar')
+        const hamburgerEl = document.getElementById('hamburgerIcon')
+        let targetEl = evt.target
 
         do {
             if (targetEl === flyoutEl || targetEl === hamburgerEl) {
-                return;
+                return
             }
-            targetEl = (targetEl as any).parentNode;
-        } while (targetEl);
+            targetEl = (targetEl as any).parentNode
+        } while (targetEl)
 
         if (isWideOpen) {
             if (isSmall) {
-                let el = document.getElementById('pro-sidebar');
-                el?.classList.add('nav-closing');
-                el?.classList.remove('nav-open');
+                let el = document.getElementById('pro-sidebar')
+                el?.classList.add(styles.navClosing)
+                el?.classList.remove(styles.navOpen)
                 setTimeout(() => {
-                    setIsWideOpen(false);
-                    el?.classList.remove('nav-closing');
+                    setIsWideOpen(false)
+                    el?.classList.remove(styles.navClosing)
                 }, 500)
             } else {
-                setIsWideOpen(false);
+                setIsWideOpen(false)
             }
         }
     }
 
     function onMouseMove() {
-        setIsHovering(true);
+        setIsHovering(true)
     }
 
     function onMouseOut() {
-        setIsHovering(false);
+        setIsHovering(false)
     }
 
     function isCollapsed() {
         if (isSmall) {
-            return false;
+            return false
         }
-        return !isWideOpen && !isHovering;
+        return !isWideOpen && !isHovering
     }
 
-    function addResizeEventListener() {
-        window.addEventListener("resize", function (event) {
-            if (resizePromise) {
-                return;
+    function resizeHandler() {
+        if (resizePromise) {
+            return
+        }
+        resizePromise = setTimeout(() => {
+            setIsWideOpen(false)
+            setIsSmall(document.body.clientWidth < 1500)
+            forceUpdate()
+            resizePromise = null
+            let el = document.getElementById('pro-sidebar')
+            if (el) {
+                el.style.left = '0px'
             }
-            resizePromise = setTimeout(() => {
-                setIsWideOpen(false);
-                forceUpdate();
-                resizePromise = null;
-                let el = document.getElementById('pro-sidebar');
-                if (el) {
-                    el.style.left = "0px";
-                }
-            }, 500)
-        })
+        }, 500)
     }
 
     function isHidden() {
-        return isSmall && !isWideOpen;
+        return isSmall && !isWideOpen
     }
 
     function onHamburgerClick() {
         if (isSmall && !isWideOpen) {
-            let el = document.getElementById('pro-sidebar');
+            let el = document.getElementById('pro-sidebar')
             if (el) {
-                el.hidden = false;
-                el.style.left = "-270px";
+                el.hidden = false
+                el.style.left = '-270px'
                 setTimeout(() => {
                     if (el) {
-                        el.classList.add('nav-open');
+                        el.classList.add(styles.navOpen)
                     }
-                });
+                })
                 setTimeout(() => {
-                    setIsWideOpen(true);
+                    setIsWideOpen(true)
                 }, 500)
             }
         } else {
@@ -115,39 +142,49 @@ function NavBar(props: Props) {
     }
 
     let style = {
-        position: "absolute",
+        position: 'absolute',
         bottom: 0,
         zIndex: 100,
         left: 0,
         top: 0,
-        minHeight: "100vh"
+        minHeight: '100vh'
     } as React.CSSProperties
 
     return (
         <span>
-            <aside onMouseMove={onMouseMove} onMouseOut={onMouseOut} id="nav-bar">
+            <aside onMouseMove={onMouseMove} onMouseOut={onMouseOut} className={styles.navBar} id="navBar">
                 <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()}>
                     <SidebarHeader>
-                        <div style={{ padding: "24px", fontWeight: "bold", fontSize: "20px", letterSpacing: "1px", overflow: "hidden", whiteSpace: "nowrap" }}><ExploreIcon /> {!isCollapsed() ? "Navigation" : ""}</div>
+                        <div style={{ padding: '24px', fontWeight: 'bold', fontSize: '20px', letterSpacing: '1px', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                            <ExploreIcon /> {!isCollapsed() ? 'Navigation' : ''}
+                        </div>
                     </SidebarHeader>
                     <Menu iconShape="square">
-                        <MenuItem icon={<HomeIcon />}>Home</MenuItem>
-                        <MenuItem icon={<StorefrontIcon />}>Item-Flipper</MenuItem>
-                        <MenuItem icon={<NotificationIcon />}></MenuItem>
-                        <MenuItem icon={<BuildIcon />}>Profitable crafts</MenuItem>
-                        <MenuItem icon={<AccountBalanceIcon />}>Premium</MenuItem>
-                        <MenuItem icon={<ShareIcon />}>Referral</MenuItem>
-                        <MenuItem icon={<PolicyIcon />}>Links / Legal</MenuItem>
-                        <MenuItem icon={<ChatIcon />}>Feedback</MenuItem>
-                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24px"></img>}><a href="https://discord.gg/wvKXfTgCfb"><div style={{ color: "#7289da" }}>Discord</div></a></MenuItem>
+                        <MenuItem icon={<HomeIcon />}><Link href={"/"}>Home</Link></MenuItem>
+                        <MenuItem icon={<StorefrontIcon />}><Link href={"/flipper"}>Item-Flipper</Link></MenuItem>
+                        <MenuItem icon={<NotificationIcon />}><Link href={"/subscriptions"}>Notifier</Link></MenuItem>
+                        <MenuItem icon={<BuildIcon />}><Link href={"/crafts"}>Profitable crafts</Link></MenuItem>
+                        <MenuItem icon={<AccountBalanceIcon />}><Link href={"/premium"}>Premium</Link></MenuItem>
+                        <MenuItem icon={<ShareIcon />}><Link href={"/ref"}>Referral</Link></MenuItem>
+                        <MenuItem icon={<PolicyIcon />}><Link href={"/about"}>Links / Legal</Link></MenuItem>
+                        <MenuItem icon={<ChatIcon />}><Link href={"/feedback"}>Feedback</Link></MenuItem>
+                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24px"></img>}>
+                            <a href="https://discord.gg/wvKXfTgCfb">
+                                <div style={{ color: '#7289da' }}>Discord</div>
+                            </a>
+                        </MenuItem>
                     </Menu>
                 </ProSidebar>
             </aside>
-            {isSmall ? <span onClick={onHamburgerClick} id="hamburger-icon" style={props.hamburgerIconStyle}>
-                <MenuIcon fontSize="large" />
-            </span> : ""}
+            {isSmall ? (
+                <span onClick={onHamburgerClick} className={styles.hamburgerIcon} id="hamburgerIcon" style={props.hamburgerIconStyle}>
+                    <MenuIcon fontSize="large" />
+                </span>
+            ) : (
+                ''
+            )}
         </span>
-    );
+    )
 }
 
-export default NavBar;
+export default NavBar

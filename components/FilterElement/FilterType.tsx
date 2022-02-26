@@ -6,7 +6,9 @@ export enum FilterType {
     NUMERICAL = 16,
     RANGE = 32,
     PLAYER = 64,
-    SIMPLE = 128
+    SIMPLE = 128,
+    BOOLEAN = 256,
+    PLAYER_WITH_RANK = 512
 }
 
 

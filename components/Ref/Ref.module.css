@@ -1,0 +1,14 @@
+.label {
+    width: 100%;
+    float: left;
+}
+
+.copyButton {
+    margin-left: 15px;
+}
+
+@media all and (min-width: 1400px) {
+    .label {
+        width: 30%;
+    }
+}

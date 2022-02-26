@@ -1,21 +1,21 @@
+import { isClientSideRendering } from '../SSRUtils'
+
 export function parseItemFilter(itemFilterBase64: string): ItemFilter {
-    let itemFilter: any = JSON.parse(atob(itemFilterBase64));
+    let itemFilter: any = JSON.parse(atob(itemFilterBase64))
     if (!itemFilter) {
-        return {};
+        return {}
     }
-    return itemFilter;
+    return itemFilter
 }
 export function getItemFilterFromUrl(): ItemFilter {
-    let itemFilterBase64 = getURLSearchParam("itemFilter");
-    return itemFilterBase64 ? parseItemFilter(itemFilterBase64) : {};
-}
-export function setURLSearchParam(key: string, value: string): string {
-    let searchParams = new URLSearchParams(window.location.search);
-    searchParams.set(key, value);
-    return searchParams.toString()
+    let itemFilterBase64 = getURLSearchParam('itemFilter')
+    return itemFilterBase64 ? parseItemFilter(itemFilterBase64) : {}
 }
 
 export function getURLSearchParam(key: string): string | null {
-    let searchParams = new URLSearchParams(window.location.search);
-    return searchParams.get(key);
+    if (!isClientSideRendering()) {
+        return null
+    }
+    let searchParams = new URLSearchParams(window.location.search)
+    return searchParams.get(key)
 }

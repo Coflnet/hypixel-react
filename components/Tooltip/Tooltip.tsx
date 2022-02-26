@@ -38,7 +38,7 @@ function Tooltip(props: Props) {
     }
 
     let clickElement = (
-        <span className="tooltip-wrapper">
+        <span>
             <span style={{ cursor: "pointer" }} onClick={onClick}>
                 {props.content}
             </span>

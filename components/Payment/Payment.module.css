@@ -1,0 +1,32 @@
+.productGrid {
+    display: inline-grid;
+    grid-template-columns: 50% 25% 25%;
+    padding: 2em;
+    column-gap: 10px;
+    row-gap: 15px;
+    width: 100%;
+}
+
+.productWrapper {
+    display: contents;
+}
+
+.productColumnHeader {
+    font-size: larger;
+}
+
+.productColumn {
+    font-size: large;
+}
+
+.premiumPrice {
+    margin-right: 10px;
+}
+
+.premiumPlanCard {
+    margin-bottom: 15px;
+}
+
+.premiumPrice {
+    font-size: larger;
+}

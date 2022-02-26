@@ -1,27 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import api from '../../../api/ApiHelper';
-import { convertTagToName } from '../../../utils/Formatter';
-import { ArrowRightAlt as ArrowRightIcon } from '@material-ui/icons';
-import './CraftingRecipe.css'
+import React, { useEffect, useState } from 'react'
+import api from '../../../api/ApiHelper'
+import { convertTagToName } from '../../../utils/Formatter'
+import { ArrowRightAlt as ArrowRightIcon } from '@material-ui/icons'
+import styles from './CraftingRecipe.module.css'
 
 interface Props {
-    itemTag: string,
+    itemTag: string
     onIngredientClick?(tag: string)
 }
 
 export function CraftingRecipe(props: Props) {
-
-    let [recipe, setRecipe] = useState<CraftingRecipe>();
+    let [recipe, setRecipe] = useState<CraftingRecipe>()
 
     useEffect(() => {
         api.getCraftingRecipe(props.itemTag).then(recipe => {
-            setRecipe(recipe);
+            setRecipe(recipe)
         })
     }, [props.itemTag])
 
     function onIngredientClick(tag) {
         if (props.onIngredientClick) {
-            props.onIngredientClick(tag);
+            props.onIngredientClick(tag)
         }
     }
 
@@ -30,19 +29,34 @@ export function CraftingRecipe(props: Props) {
     } as React.CSSProperties
 
     function getGridElement(tag?: string) {
-
-        return <div onClick={() => { onIngredientClick(tag) }} style={style} className="grid-cell">
-            {
-                tag ?
-                    <img title={convertTagToName(tag)} className="ingredience-image" src={api.getItemImageUrl({ tag: tag })} alt="" crossOrigin="anonymous" width={36} height={36} /> :
-                    <div style={{ height: "36px", width: "36px" }} />
-            }
-        </div>
+        return (
+            <div
+                onClick={() => {
+                    onIngredientClick(tag)
+                }}
+                style={style}
+                className={styles.gridCell}
+            >
+                {tag ? (
+                    <img
+                        title={convertTagToName(tag)}
+                        className={styles.ingredienceImage}
+                        src={api.getItemImageUrl({ tag: tag })}
+                        alt=""
+                        crossOrigin="anonymous"
+                        width={36}
+                        height={36}
+                    />
+                ) : (
+                    <div style={{ height: '36px', width: '36px' }} />
+                )}
+            </div>
+        )
     }
 
     return (
-        <div className="crafting-table">
-            <div className="grid">
+        <div className={styles.craftingTable}>
+            <div className={styles.grid}>
                 {getGridElement(recipe?.A1)}
                 {getGridElement(recipe?.A2)}
                 {getGridElement(recipe?.A3)}
@@ -53,11 +67,27 @@ export function CraftingRecipe(props: Props) {
                 {getGridElement(recipe?.C2)}
                 {getGridElement(recipe?.C3)}
             </div>
-            <div className="arrow">
+            <div className={styles.arrow}>
                 <ArrowRightIcon fontSize="inherit" />
             </div>
-            <div className="result">
-                <div onClick={() => { onIngredientClick(props.itemTag) }} style={style} className="grid-cell"><img title={convertTagToName(props.itemTag)} className="ingredience-image" src={api.getItemImageUrl({ tag: props.itemTag })} alt="" crossOrigin="anonymous" width={36} height={36} /></div>
+            <div className={styles.result}>
+                <div
+                    onClick={() => {
+                        onIngredientClick(props.itemTag)
+                    }}
+                    style={style}
+                    className={styles.gridCell}
+                >
+                    <img
+                        title={convertTagToName(props.itemTag)}
+                        className={styles.ingredienceImage}
+                        src={api.getItemImageUrl({ tag: props.itemTag })}
+                        alt=""
+                        crossOrigin="anonymous"
+                        width={36}
+                        height={36}
+                    />
+                </div>
             </div>
         </div>
     )

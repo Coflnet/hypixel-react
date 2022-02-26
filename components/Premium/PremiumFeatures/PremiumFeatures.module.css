@@ -1,0 +1,20 @@
+.premiumFeatures .featureCard {
+    margin-bottom: 20px;
+}
+
+.premiumFeatures :globals(td) {
+    text-align: center;
+}
+
+.premiumFeatures :globals(th) {
+    text-align: center;
+}
+
+.premiumFeatures .featureColumn {
+    font-size: larger;
+    text-align: left;
+}
+
+.premiumFeatures .featureColumnHeading {
+    text-align: left;
+}

@@ -1,85 +1,85 @@
-import React, { useState } from 'react';
-import { Button, Fade, Menu, MenuItem } from '@material-ui/core';
-import MoreVert from '@material-ui/icons/MoreVert';
-import { useParams } from "react-router-dom";
-import './OptionsMenu.css';
+import React, { useState } from 'react'
+import { MoreVert as MoreVertIcon } from '@material-ui/icons'
+import styles from './OptionsMenu.module.css'
+import { Button, Dropdown, DropdownButton } from 'react-bootstrap'
 
 interface Props {
     selected?: Player | Item
 }
 interface AvailableLinks {
-    title: string;
-    url: string;
+    title: string
+    url: string
 }
 
+const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
+    <a
+        href=""
+        ref={ref as any}
+        onClick={e => {
+            e.preventDefault()
+            onClick(e)
+        }}
+    >
+        {children}
+        <MoreVertIcon />
+    </a>
+))
+
 function OptionsMenu(props: Props) {
-
-    let [anchorEl, setAnchorEl] = useState(null);
-
-    let { tag } = useParams();
-
-    let available: AvailableLinks[] = [];
-    const isItemPage = window.location.href.indexOf("/item/") > 0;
-    const isPlayerPage = window.location.href.indexOf("/player/") > 0;
+    let available: AvailableLinks[] = []
+    const isItemPage = (props.selected as Item)?.tag !== undefined
+    const isPlayerPage = !isItemPage
     if (isItemPage) {
-        let name = props.selected?.name;
-        available.push({ title: "Wiki", url: "https://hypixel-skyblock.fandom.com/wiki/" + name })
-        if ((props.selected as Item).bazaar)
-            available.push({ title: "Skyblock.bz", url: "https://Skyblock.bz/product/" + tag })
-        else
-            available.push({ title: "HyAuctions", url: "https://craftlink.xyz/items/" + tag })
+        let name = props.selected?.name
+        let tag = (props.selected as Item).tag
+        available.push({ title: 'Wiki', url: 'https://hypixel-skyblock.fandom.com/wiki/' + name })
+        if ((props.selected as Item).bazaar) {
+            available.push({ title: 'Skyblock.bz', url: 'https://Skyblock.bz/product/' + tag })
+        } else {
+            available.push({ title: 'HyAuctions', url: 'https://craftlink.xyz/items/' + tag })
+        }
     } else if (isPlayerPage) {
-        let player = (props.selected as Player);
-        available.push({ title: "SkyCrypt", url: "https://sky.shiiyu.moe/stats/" + player?.uuid })
-        available.push({ title: "Plancke", url: "https://plancke.io/hypixel/player/stats/" + player?.uuid })
-        available.push({ title: "HyAuctions", url: "https://auctions.craftlink.xyz/players/" + player?.uuid })
+        let player = props.selected as Player
+        available.push({ title: 'SkyCrypt', url: 'https://sky.shiiyu.moe/stats/' + player?.uuid })
+        available.push({ title: 'Plancke', url: 'https://plancke.io/hypixel/player/stats/' + player?.uuid })
+        available.push({ title: 'HyAuctions', url: 'https://auctions.craftlink.xyz/players/' + player?.uuid })
     }
 
-
-    const open = Boolean(anchorEl);
-
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
     const navigate = (url: string) => {
-        window.open(url, "_blank")
+        window.open(url, '_blank')
+    }
+
+    if (!props.selected) {
+        return null
     }
 
     return (
-        <div className="options-menu">
-            <div className="d-none d-md-block">
+        <div className={styles.optionsMenu}>
+            <div className={styles.buttonsWrapper}>
                 {available.map((result, i) => (
-                    <a key={i} href={result.url} title={result.title} target="_blank" rel="noreferrer"><Button variant="outlined" >{result.title}</Button></a>
+                    <a key={i} href={result.url} title={result.title} target="_blank" rel="noreferrer">
+                        <Button>{result.title}</Button>
+                    </a>
                 ))}
             </div>
 
-            {available.length === 0 ? "" :
-                <div className="d-md-none">
-                    <Button aria-controls="fade-menu" aria-haspopup="true" onClick={handleClick}>
-                        <MoreVert />
-                    </Button>
-                    <Menu
-                        id="fade-menu"
-                        aria-label="open menu"
-                        anchorEl={anchorEl}
-                        keepMounted
-                        open={open}
-                        onClose={handleClose}
-                        TransitionComponent={Fade}
-                    >
-                        {available.map((result, i) => (
-                            <MenuItem key={i} onClick={(e: any) => { navigate(result.url) }}>{result.title}</MenuItem>
-                        ))}
-                    </Menu>
-                </div>
-            }
-        </div >
-    );
+            <Dropdown className={styles.dropdown}>
+                <Dropdown.Toggle as={CustomToggle}></Dropdown.Toggle>
+                <Dropdown.Menu id="dropdownMenuButton">
+                    {available.map((result, i) => (
+                        <Dropdown.Item
+                            key={result.url}
+                            onClick={() => {
+                                navigate(result.url)
+                            }}
+                        >
+                            {result.title}
+                        </Dropdown.Item>
+                    ))}
+                </Dropdown.Menu>
+            </Dropdown>
+        </div>
+    )
 }
 
-export default OptionsMenu;
+export default OptionsMenu

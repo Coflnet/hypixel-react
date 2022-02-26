@@ -1,0 +1,34 @@
+.optionsMenu :global(a) {
+    text-decoration: none !important;
+    color: #fff;
+    margin-left: 5px;
+}
+
+.optionsMenu{
+    display: flex;
+    justify-content: flex-end;
+}
+
+.buttonsWrapper {
+    display: inline-block;
+}
+
+@media all and (max-width: 768px) {
+    .dropdown {
+        display: block;
+    }
+
+    .buttonsWrapper {
+        display: none;
+    }
+}
+
+@media all and (min-width: 768px) {
+    .dropdown {
+        display: none;
+    }
+
+    .buttonsWrapper {
+        display: block;
+    }
+}

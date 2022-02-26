@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import cacheUtils from "./CacheUtils";
 
-export default function registerCallback(history) {
+export default function registerNotificationCallback(router) {
     let interval = setInterval(function () {
         // wait until messaging is definded
         let messaging = (window as any).messaging;
@@ -20,7 +20,7 @@ export default function registerCallback(history) {
     function displayNotification(notification: any) {
         toast.info(notification.title + "\n" + notification.body, {
             onClick: () => {
-                history.push(
+                router.push(
                     '/' + notification.click_action.match(/\/\/[^/]+\/([^.]+)/)[1]
                 );
             },

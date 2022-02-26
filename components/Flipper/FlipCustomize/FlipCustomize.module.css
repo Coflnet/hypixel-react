@@ -1,0 +1,38 @@
+.label {
+    font-weight: bold;
+    min-width: 170px;
+}
+
+.verticalLine {
+    border-left: 2px solid white;
+    height: auto;
+}
+
+.section {
+    margin: 20px;
+    display: flex;
+    align-content: center;
+    justify-content: space-around;
+}
+
+.flipCustomize {
+    display: flex;
+    align-content: center;
+    justify-content: space-between;
+}
+
+@media all and (max-width: 1000px) {
+    .flipCustomize {
+        flex-wrap: wrap;
+    }
+    .section {
+        width: 100%;
+        margin: 0;
+    }
+    .verticalLine {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border-top: 2px solid white;
+        width: -webkit-fill-available;
+    }
+}

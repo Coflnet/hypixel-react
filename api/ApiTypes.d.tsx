@@ -38,6 +38,7 @@ export enum RequestType {
     SET_REF = "setRef",
     ACTIVE_AUCTIONS = "activeAuctions",
     FILTER_FOR = "filterFor",
+    FLIP_FILTERS = "flipFilters",
     CONNECT_MINECRAFT_ACCOUNT = "conMc",
     GET_ACCOUNT_INFO = "accountInfo",
     ITEM_SEARCH = "item/search",
@@ -50,7 +51,8 @@ export enum RequestType {
     TRIGGER_PLAYER_NAME_CHECK = "triggerNameCheck",
     GET_PLAYER_PROFILES = "profile",
     GET_CRAFTING_RECIPE = "craft/recipe",
-    GET_LOWEST_BIN = "lowestBin"
+    GET_LOWEST_BIN = "lowestBin",
+    GET_BAZAAR_TAGS = "items/bazaar/tags"
 }
 
 export enum SubscriptionType {
@@ -87,7 +89,8 @@ export interface Subscription {
     price: number,
     types: SubscriptionType[],
     type: string,
-    title?: string
+    title?: string,
+    filter?: ItemFilter
 }
 
 export interface Connection {

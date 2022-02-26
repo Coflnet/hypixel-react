@@ -1,0 +1,37 @@
+.itemFilter {
+    margin: 20px 0 20px 0;
+}
+
+.itemFilter :global(a) {
+    text-decoration: none !important;
+    color: #fff;
+}
+
+.itemFilter .filterElement {
+    display: flex;
+    flex-direction: row;
+    width: 49%;
+}
+
+.itemFilter .filterContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.itemFilter .removeFilter {
+    cursor: pointer;
+    margin-top: 35px;
+}
+
+.itemFilter .addFilterSelect {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+@media (max-width: 768px) {
+    .itemFilter .filterElement {
+        width: 100%;
+    }
+}

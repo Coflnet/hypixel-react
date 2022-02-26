@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import 'react-toastify/dist/ReactToastify.css';
-import './OfflineBanner.css';
+import styles from './OfflineBanner.module.css'
 
 
 
@@ -25,7 +24,7 @@ export function OfflineBanner(props: any) {
         <div>
             {
                 !isOnline ?
-                    <div id="offline-banner" className="offline-banner">
+                    <div id="offline-banner" className={styles.OfflineBanner}>
                         <span style={{ color: "white" }}>No connection</span>
                     </div> : ""
             }

@@ -1,191 +1,168 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { ChangeEvent, useEffect, useState } from 'react';
-import { Form, Spinner } from 'react-bootstrap';
-import "react-datepicker/dist/react-datepicker.css";
-import './FilterElement.css';
-import DatePicker from "react-datepicker";
-import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter';
-import { Typeahead, AsyncTypeahead } from 'react-bootstrap-typeahead';
-import 'react-bootstrap-typeahead/css/Typeahead.css';
-import api from '../../api/ApiHelper';
-import { FilterType, hasFlag } from './FilterType';
+import React, { useEffect, useState } from 'react'
+import { Form, Spinner } from 'react-bootstrap'
+import { camelCaseToSentenceCase } from '../../utils/Formatter'
+import { FilterType, hasFlag } from './FilterType'
+import { DateFilterElement } from './FilterElements/DateFilterElement'
+import { RangeFilterElement } from './FilterElements/RangeFilterElement'
+import { PlayerFilterElement } from './FilterElements/PlayerFilterElement'
+import { SimpleEqualFilterElement } from './FilterElements/SimpleEqualFilterElement'
+import { EqualFilterElement } from './FilterElements/EqualFilterElement'
+import { PlayerWithRankFilterElement } from './FilterElements/PlayerWithRankFilterElement'
+import { ColorFilterElement } from './FilterElements/ColorFilterElement'
+import { BooleanFilterElement } from './FilterElements/BooleanFilterElement'
+import styles from './FilterElement.module.css'
 
 interface Props {
-    onFilterChange?(filter?: ItemFilter): void,
-    options?: FilterOptions,
+    onFilterChange?(filter?: ItemFilter): void
+    options?: FilterOptions
     defaultValue: any
 }
 
 function FilterElement(props: Props) {
-    let [value, _setValue] = useState<any>();
-    let [isValid, setIsValid] = useState(true);
-    let [errorText, setErrorText] = useState("");
-
-    // for player search
-    let [players, setPlayers] = useState<Player[]>([]);
-    let [playersLoading, setPlayersLoading] = useState(false);
+    let [value, _setValue] = useState<any>()
+    let [isValid, setIsValid] = useState(true)
+    let [errorText, setErrorText] = useState('')
 
     useEffect(() => {
         if (value) {
-            return;
+            return
         }
-        let parsedDefaultValue = parseValue(props.defaultValue);
-        updateValue(parsedDefaultValue);
-        setValue(parsedDefaultValue);
+        let parsedDefaultValue = parseValue(props.defaultValue)
+        updateValue(parsedDefaultValue)
+        setValue(parsedDefaultValue)
     }, [])
 
     function parseValue(newValue?: any) {
         if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
             if (!newValue) {
-                return new Date().getTime() / 1000;
+                return new Date().getTime() / 1000
             }
             if (!isNaN(newValue)) {
-                return newValue;
+                return newValue
             }
-            let date = Date.parse(newValue) / 1000;
+            let date = Date.parse(newValue) / 1000
             if (!isNaN(date)) {
-                return date;
+                return date
             }
-            return newValue;
+            return newValue
         } else if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
             if (!newValue) {
-                return 1;
+                return 1
             }
-            return newValue;
+            return newValue
         } else {
-            return newValue || "";
+            return newValue || ''
         }
     }
 
-    function updateSearchSelectFilter(selected) {
-        setValue(selected[0]);
-        updateValue(selected[0]);
-    }
-
-    function updateSelectFilter(event: ChangeEvent<HTMLSelectElement>) {
-        let selectedIndex = event.target.options.selectedIndex;
-        let value = event.target.options[selectedIndex].getAttribute('data-id')!;
-        setValue(value);
-        updateValue(value);
-    }
-
-    function updateInputFilter(event: ChangeEvent<HTMLInputElement>) {
-        setValue(event.target.value);
-        updateValue(event.target.value);
-    }
-
-    function updateDateFilter(date: Date) {
-        setValue(date.getTime() / 1000);
-        updateValue(Math.round(date.getTime() / 1000).toString());
+    function onFilterElementChange(value?: any) {
+        if (!value) {
+            setValue('')
+            updateValue('')
+        } else {
+            setValue(value)
+            updateValue(value.toString())
+        }
     }
 
     function updateValue(value: string) {
-
         if (!validate(value)) {
-            return;
+            return
         }
 
-        let newFilter = {};
-        newFilter[props.options!.name] = value.toString();
+        let newFilter = {}
+        newFilter[props.options!.name] = value.toString()
 
-        props.onFilterChange!(newFilter);
+        props.onFilterChange!(newFilter)
     }
 
     function setValue(value?: any) {
-        _setValue(parseValue(value));
+        _setValue(parseValue(value))
     }
 
     function validate(value?: any) {
         if (!value && value !== 0) {
-            setErrorText("Please fill the filter or remove it")
-            setIsValid(false);
-            return false;
+            setErrorText('Please fill the filter or remove it')
+            setIsValid(false)
+            return false
         }
         if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
-            let v = parseInt(value);
-            let lowEnd = parseInt(props.options.options[0]);
-            let highEnd = parseInt(props.options.options[1]);
+            let v = parseInt(value)
+            let lowEnd = parseInt(props.options.options[0])
+            let highEnd = parseInt(props.options.options[1])
             if (v < lowEnd || v > highEnd) {
-                setErrorText("Please choose a value between " + lowEnd + " and " + highEnd);
-                setIsValid(false);
-                return false;
+                setErrorText('Please choose a value between ' + lowEnd + ' and ' + highEnd)
+                setIsValid(false)
+                return false
             }
         }
-        setIsValid(true);
-        return true;
+        setIsValid(true)
+        return true
     }
 
-    function handlePlayerSearch(query) {
-        setPlayersLoading(true);
-
-        api.playerSearch(query).then(players => {
-
-            setPlayers(players);
-            setPlayersLoading(false);
-        });
-    };
-
-    function getSelectOptions() {
-        return props.options?.options.map(option =>
-            <option data-id={option} key={option} value={option}>{convertTagToName(option)}</option>
-        )
+    function getFilterElement(type: FilterType, options: FilterOptions): JSX.Element {
+        // Special case for the color filter, as there is no FilterType on the backend for that
+        if (options.name === 'Color') {
+            return <ColorFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+        }
+        if (hasFlag(type, FilterType.DATE)) {
+            return <DateFilterElement key={options.name} selected={value ? new Date(value * 1000) : new Date()} onChange={onFilterElementChange} />
+        }
+        if (hasFlag(type, FilterType.RANGE)) {
+            return <RangeFilterElement isValid={isValid} key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+        }
+        if (hasFlag(type, FilterType.PLAYER_WITH_RANK)) {
+            return <PlayerWithRankFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+        }
+        if (hasFlag(type, FilterType.PLAYER)) {
+            return <PlayerFilterElement key={options.name} defaultValue={props.defaultValue} returnType="uuid" onChange={onFilterElementChange} />
+        }
+        if (hasFlag(type, FilterType.BOOLEAN)) {
+            return <BooleanFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+        }
+        if (hasFlag(type, FilterType.EQUAL)) {
+            if (hasFlag(options.type, FilterType.SIMPLE)) {
+                return (
+                    <SimpleEqualFilterElement
+                        key={options.name}
+                        options={options.options}
+                        defaultValue={props.defaultValue}
+                        isValid={isValid}
+                        onChange={onFilterElementChange}
+                    />
+                )
+            } else {
+                return <EqualFilterElement key={options.name} options={options} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+            }
+        }
+        return <div />
     }
 
     return (
-        <div className="generic-filter">
-            {!props.options ? <Spinner animation="border" role="status" variant="primary" /> :
-                <div style={{ display: "grid" }}>
-                    <Form.Label style={{ float: "left" }}><b>{camelCaseToSentenceCase(props.options.name)}</b></Form.Label>
-                    {
-                        hasFlag(props.options.type, FilterType.DATE)
-                            ? <span><br /><DatePicker className="date-filter form-control" selected={value ? new Date(value * 1000) : new Date()} onChange={updateDateFilter} popperClassName="date-picker-popper" /></span>
-                            : hasFlag(props.options.type, FilterType.RANGE) ?
-                                <Form.Control isInvalid={!isValid} key={props.options.name} className="select-filter" defaultValue={props.defaultValue} value={value} onChange={updateInputFilter}></Form.Control>
-                                : hasFlag(props.options.type, FilterType.PLAYER)
-                                    ? <AsyncTypeahead
-                                        filterBy={() => true}
-                                        id="async-example"
-                                        isLoading={playersLoading}
-                                        labelKey="name"
-                                        minLength={1}
-                                        onSearch={handlePlayerSearch}
-                                        options={players}
-                                        placeholder="Search users..."
-                                        onChange={selected => updateSearchSelectFilter(selected.map(s => s.uuid))}
-                                    />
-                                    : hasFlag(props.options.type, FilterType.EQUAL) && hasFlag(props.options.type, FilterType.SIMPLE)
-                                        ? <Form.Control isInvalid={!isValid} className="select-filter" defaultValue={props.defaultValue} value={value} as="select" onChange={updateSelectFilter}>
-                                            {getSelectOptions()}
-                                        </Form.Control>
-                                        : hasFlag(props.options.type, FilterType.EQUAL)
-                                            ? <Typeahead
-                                                id={props.options.name}
-                                                style={{ display: "block" }}
-                                                defaultSelected={[props.defaultValue]}
-                                                className="select-filter"
-                                                onChange={updateSearchSelectFilter}
-                                                options={props.options?.options}
-                                                labelKey={convertTagToName}
-                                                autoselect={false}
-                                                selectHintOnEnter={true}>
-                                            </Typeahead > : null
-                    }
-                    {
-                        !isValid ?
-                            <div>
-                                <Form.Control.Feedback type="invalid">
-                                    <span style={{ color: "red" }}>{errorText}</span>
-                                </Form.Control.Feedback>
-                            </div> : ""
-                    }
+        <div className={styles.genericFilter}>
+            {!props.options ? (
+                <Spinner animation="border" role="status" variant="primary" />
+            ) : (
+                <div style={{ display: 'grid' }}>
+                    <Form.Label style={{ float: 'left' }}>
+                        <b>{camelCaseToSentenceCase(props.options.name)}</b>
+                    </Form.Label>
+                    {getFilterElement(props.options.type, props.options)}
+                    {!isValid ? (
+                        <div>
+                            <Form.Control.Feedback type="invalid">
+                                <span style={{ color: 'red' }}>{errorText}</span>
+                            </Form.Control.Feedback>
+                        </div>
+                    ) : (
+                        ''
+                    )}
                 </div>
-            }
-
-        </div >
+            )}
+        </div>
     )
 }
 
-export default FilterElement;
-
-
+export default FilterElement
