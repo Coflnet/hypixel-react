@@ -249,14 +249,20 @@ function AuctionDetails(props: Props) {
                     ></OverlayTrigger>
                     {isRunning(auctionDetails) ? (
                         <div>
-                            <SubscribeButton type="auction" topic={auctionDetails.auction.uuid} hideText={document.body.clientWidth <= 480} />
+                            <SubscribeButton
+                                type="auction"
+                                topic={auctionDetails.auction.uuid}
+                                hideText={isClientSideRendering() ? document.body.clientWidth <= 480 : false}
+                            />
                         </div>
                     ) : (
                         ''
                     )}
                     <CopyButton
                         buttonVariant="primary"
-                        copyValue={isRunning(auctionDetails) ? '/viewauction ' + auctionDetails.auction.uuid : isClientSideRendering() ? document.location.href : ""}
+                        copyValue={
+                            isRunning(auctionDetails) ? '/viewauction ' + auctionDetails.auction.uuid : isClientSideRendering() ? document.location.href : ''
+                        }
                         successMessage={
                             isRunning(auctionDetails) ? (
                                 <p>
