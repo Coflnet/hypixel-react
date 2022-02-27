@@ -55,6 +55,12 @@ const RANKS = [
     }, {
         "color": "#FF55FF",
         "tag": "[PIG+++]"
+    }, {
+        "color": "#FF5555",
+        "tag": "[MINISTER]"
+    }, {
+        "color": "#FF55FF",
+        "tag": "[MAYOR]"
     }
 ]
 
