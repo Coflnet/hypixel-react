@@ -35,3 +35,12 @@
     -ms-user-select: none;
     width: calc(50% - 10px);
 }
+
+.crafts-list .label {
+    width: 150px;
+    float: left;
+}
+
+.crafts-list .list-group-item p {
+    margin: 0;
+}
