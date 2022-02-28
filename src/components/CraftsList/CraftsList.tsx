@@ -48,6 +48,8 @@ const SORT_OPTIONS: SortOption[] = [
     }
 ]
 
+let observer: MutationObserver
+
 export function CraftsList() {
     let [crafts, setCrafts] = useState<ProfitableCraft[]>([])
     let [nameFilter, setNameFilter] = useState<string | null>()
@@ -60,6 +62,7 @@ export function CraftsList() {
     let [hasPremium, setHasPremium] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [bazaarTags, setBazaarTags] = useState<string[]>([])
+    let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
 
     useEffect(() => {
         setIsLoadingCrafts(true)
@@ -69,6 +72,13 @@ export function CraftsList() {
         })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(() => {
+        // reset the blur observer, when something changed
+        setTimeout(() => {
+            setBlurObserver()
+        }, 100)
+    })
 
     function loadCrafts(playerId?: string, profileId?: string) {
         return api.getProfitableCrafts(playerId, profileId).then(crafts => {
@@ -89,6 +99,28 @@ export function CraftsList() {
             }
             setHasPremium(hasPremium)
         })
+    }
+
+    function setBlurObserver() {
+        if (observer) {
+            observer.disconnect()
+        }
+        observer = new MutationObserver(function () {
+            setShowTechSavvyMessage(true)
+        })
+
+        var targets = document.getElementsByClassName('blur')
+        for (var i = 0; i < targets.length; i++) {
+            console.log(typeof targets[i])
+            console.log(targets[i])
+            var config = {
+                attributes: true,
+                childList: true,
+                characterData: true,
+                attributeFilter: ['style']
+            }
+            observer.observe(targets[i], config)
+        }
     }
 
     function onAfterLogin() {
@@ -132,6 +164,12 @@ export function CraftsList() {
         loadCrafts(accountInfo?.mcId, newSelectedProfile?.id)
     }
 
+    let blurStyle: React.CSSProperties = {
+        WebkitFilter: 'blur(5px)',
+        msFilter: 'blur(5px)',
+        filter: 'blur(5px)'
+    }
+
     function getListElement(craft: ProfitableCraft, blur: boolean) {
         return (
             <ListGroup.Item action={!blur} className={'list-group-item'}>
@@ -142,7 +180,25 @@ export function CraftsList() {
                 ) : (
                     ''
                 )}
-                <div className={blur ? 'blur' : ''}>
+                {showTechSavvyMessage && blur ? (
+                    <p
+                        style={{
+                            position: 'absolute',
+                            top: '25%',
+                            left: '25%',
+                            width: '50%',
+                            fontSize: 'large',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            backgroundColor: 'gray'
+                        }}
+                    >
+                        You seem like a tech savvy person, you might want to join our development team. :)
+                    </p>
+                ) : (
+                    ''
+                )}
+                <div className={`list-group-item-content ${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
                     <h4>{getCraftHeader(craft)}</h4>
                     <p>
                         <span className="label">Crafting-Cost:</span> {numberWithThousandsSeperators(Math.round(craft.craftCost))} Coins
@@ -157,7 +213,7 @@ export function CraftsList() {
                     <p>
                         <span className="label">Volume:</span> {craft.volume > 0 ? `${numberWithThousandsSeperators(Math.round(craft.volume))}` : 'unknown'}
                     </p>
-                    <hr/>
+                    <hr />
                     <p>
                         <span className="label">Req. Collection:</span>{' '}
                         {craft.requiredCollection ? (
@@ -194,11 +250,13 @@ export function CraftsList() {
         orderedCrafts = sortOption?.sortFunction(crafts, bazaarTags)
     }
 
+    let shown = 0
     let list = orderedCrafts.map((craft, i) => {
         if (nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
-            return <span />
+            return null
         }
-        return !hasPremium && i < 3 ? (
+        shown++
+        return !hasPremium && shown < 4 ? (
             <div key={craft.item.tag} className="prevent-select">
                 {getListElement(craft, true)}
             </div>
