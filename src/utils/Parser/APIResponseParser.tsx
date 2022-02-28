@@ -383,10 +383,16 @@ export function parseProfitableCraft(craft): ProfitableCraft {
         craftCost: craft.craftCost,
         sellPrice: craft.sellPrice,
         ingredients: craft.ingredients.map(parseCraftIngredient),
+        median: craft.median,
+        volume: craft.volume,
         requiredCollection: craft.reqCollection ? {
             name: craft.reqCollection.name,
             level: craft.reqCollection.level
-        } : null
+        } : null,
+        requiredSlayer: craft.reqSlayer ? {
+            name: craft.reqSlayer.name,
+            level: craft.reqSlayer.level
+        } : null,
     } as ProfitableCraft
     c.item.name = convertTagToName(c.item.tag);
     c.ingredients.forEach(i => {

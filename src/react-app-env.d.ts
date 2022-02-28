@@ -370,7 +370,10 @@ interface ProfitableCraft {
   sellPrice: number,
   craftCost: number,
   ingredients: CraftingIngredient[],
-  requiredCollection?: RequiredCollection
+  volume: number,
+  median: number,
+  requiredCollection?: CraftRequirement,
+  requiredSlayer?: CraftRequirement,
 }
 
 interface CraftingIngredient {
@@ -379,7 +382,7 @@ interface CraftingIngredient {
   cost: number
 }
 
-interface RequiredCollection {
+interface CraftRequirement {
   name: string,
   level: number
 }
