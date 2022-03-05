@@ -157,20 +157,19 @@ export function CraftsList() {
                     <p>
                         <span className="label">Volume:</span> {craft.volume > 0 ? `${numberWithThousandsSeperators(Math.round(craft.volume))}` : 'unknown'}
                     </p>
-                    <hr />
                     {craft.requiredCollection ? (
-                        <p>
-                            <span className="label">Req. Collection:</span>
+                        <p className="craftRequirement">
+                            <span className="craftRequirementLabel">Req. Collection:</span>
                             {convertTagToName(craft.requiredCollection.name) + ' ' + craft.requiredCollection.level}
                         </p>
                     ) : null}
                     {craft.requiredSlayer ? (
-                        <p>
-                            <span className="label">Req. Slayer:</span>
+                        <p className="craftRequirement">
+                            <span className="craftRequirementLabel">Req. Slayer:</span>
                             {convertTagToName(craft.requiredSlayer.name) + ' ' + craft.requiredSlayer.level}
                         </p>
                     ) : null}
-                    {!craft.requiredCollection && !craft.requiredSlayer ? <p>No Collection/Slayer required</p> : null}
+                    {!craft.requiredCollection && !craft.requiredSlayer ? <p className="craftRequirement">No Collection/Slayer required</p> : null}
                 </div>
             </ListGroup.Item>
         )
