@@ -5,7 +5,7 @@ import RefComponent from '../components/Ref/Ref'
 
 function Ref() {
     return (
-        <div className="ref-page">
+        <div className="page">
             <Head>
                 <title>Referral</title>
             </Head>

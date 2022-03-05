@@ -32,7 +32,7 @@ function AuthMod() {
     }
 
     return (
-        <div className="auth-mod-page">
+        <div className="page">
             <Head>
                 <title>Authenticate Mod</title>
             </Head>

@@ -23,12 +23,6 @@
     margin-top: 5vh;
 }
 
-.upButton {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-}
-
 .subscribeButton {
     position: fixed;
     bottom: 20px;
@@ -41,27 +35,30 @@
     bottom: 20px;
     right: 20px;
     width: 100%;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .btnBottom {
-    float: right;
     margin-left: 10px;
+    width: max-content;
 }
 
 .playerDetailsList .list {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    flex-direction: initial;
 }
 
-.playerDetailsList .listGroupItem {
+.playerDetailsList :global(.list-group-item) {
     border-radius: 20px;
     width: 100%;
     margin-bottom: 15px;
 }
 
 @media all and (min-width: 1200px) {
-    .playerDetailsList .listGroupItem {
+    .playerDetailsList :global(.list-group-item) {
         width: 49%;
     }
 }

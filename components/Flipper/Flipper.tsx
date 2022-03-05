@@ -29,6 +29,7 @@ import styles from './Flipper.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import AutoSizer from 'react-virtualized-auto-sizer'
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
@@ -307,11 +308,7 @@ function Flipper() {
         let { data, index, style } = listData
         let { flips } = data
 
-        return (
-            <div id="flip-container" className={styles.cardsWrapper}>
-                {getFlipElement(flips[index], style)}
-            </div>
-        )
+        return <div>{getFlipElement(flips[index], style)}</div>
     }
 
     function addItemToBlacklist(flip: FlipAuction) {
@@ -351,7 +348,10 @@ function Flipper() {
             <div onContextMenu={e => handleFlipContextMenu(e, flipAuction)}>
                 <Flip
                     flip={flipAuction}
-                    style={style}
+                    style={{
+                        paddingLeft: '20px',
+                        ...style
+                    }}
                     onCopy={onCopyFlip}
                     onCardClick={flip => setSelectedAuctionUUID(flip.uuid)}
                     onBasedAuctionClick={flip => {
@@ -508,19 +508,28 @@ function Flipper() {
                             </Form.Group>
                         </Form>
                         <hr />
-                        <div id="flipper-scroll-list-wrapper">
-                            <List
-                                ref={listRef}
-                                className={styles.flipperScrollList}
-                                height={flips.length > 0 ? document.getElementById('maxHeightDummyFlip')?.offsetHeight : 0}
-                                itemCount={flips.length}
-                                itemData={{ flips: flips }}
-                                itemSize={isSmall ? 300 : 330}
-                                layout="horizontal"
-                                width={isClientSideRendering() ? document.getElementById('flipper-card-body')?.offsetWidth || 100 : 100}
-                            >
-                                {getFlipForList}
-                            </List>
+                        <div
+                            id="flipper-scroll-list-wrapper"
+                            style={{ height: flips.length > 0 ? document.getElementById('maxHeightDummyFlip')?.offsetHeight : 0 }}
+                        >
+                            <AutoSizer>
+                                {({ height, width }) => {
+                                    return (
+                                        <List
+                                            ref={listRef}
+                                            className={styles.flipperScrollList}
+                                            height={height}
+                                            itemCount={flips.length}
+                                            itemData={{ flips: flips }}
+                                            itemSize={isSmall ? 300 : 330}
+                                            layout="horizontal"
+                                            width={width}
+                                        >
+                                            {getFlipForList}
+                                        </List>
+                                    )
+                                }}
+                            </AutoSizer>
                         </div>
                     </div>
                 </Card.Body>

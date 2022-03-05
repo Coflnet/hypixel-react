@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import { Delete as DeleteIcon, Undo as UndoIcon } from '@material-ui/icons'
 import Link from 'next/link'
 import styles from './SubscriptionList.module.css'
+import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 
 interface Props {}
 
@@ -58,7 +59,6 @@ function SubscriptionList(props: Props) {
         setIsLoggedIn(false)
         wasAlreadyLoggedInGoogle = false
     }
-
     function getSubTypesAsList(subTypes: SubscriptionType[], price: number): JSX.Element {
         return (
             <ul>
@@ -69,11 +69,14 @@ function SubscriptionList(props: Props) {
                             result = <li key="1">Notify only for instant buy</li>
                             break
                         case SubscriptionType.PRICE_HIGHER_THAN.toString():
-                            result = (
-                                <li key="2">
-                                    Notify if price is higher than <b>{numberWithThousandsSeperators(price)} Coins</b>
-                                </li>
-                            )
+                            result =
+                                price > 0 ? (
+                                    <li key="2">
+                                        Notify if price is higher than <b>{numberWithThousandsSeperators(price)} Coins</b>
+                                    </li>
+                                ) : (
+                                    <li key="2">Any price</li>
+                                )
                             break
                         case SubscriptionType.PRICE_LOWER_THAN.toString():
                             result = (
@@ -94,7 +97,6 @@ function SubscriptionList(props: Props) {
             </ul>
         )
     }
-
     function onDelete(subscription: Subscription) {
         api.unsubscribe(subscription).then(n => {
             if (n === 0) {
@@ -122,7 +124,7 @@ function SubscriptionList(props: Props) {
     }
 
     function resubscribe(subscription: Subscription) {
-        api.subscribe(subscription.topicId, subscription.types, subscription.price).then(() => {
+        api.subscribe(subscription.topicId, subscription.types, subscription.price, subscription.filter).then(() => {
             loadSubscriptions()
         })
     }
@@ -158,21 +160,21 @@ function SubscriptionList(props: Props) {
         switch (subscription.type) {
             case 'item':
                 return (
-                    <span className="disableLinkStyle">
-                        <Link href={'/item/' + subscription.topicId}>{subscription.title}</Link>
-                    </span>
+                    <Link href={'/item/' + subscription.topicId}>
+                        <a className="disableLinkStyle">{subscription.title}</a>
+                    </Link>
                 )
             case 'player':
                 return (
-                    <span className="disableLinkStyle">
-                        <Link href={'/player/' + subscription.topicId}>{subscription.title}</Link>
-                    </span>
+                    <Link href={'/player/' + subscription.topicId}>
+                        <a className="disableLinkStyle">{subscription.title}</a>
+                    </Link>
                 )
             case 'auction':
                 return (
-                    <span className="disableLinkStyle">
-                        <Link href={'/auction/' + subscription.topicId}>{subscription.title}</Link>
-                    </span>
+                    <Link href={'/auction/' + subscription.topicId}>
+                        <a className="disableLinkStyle">{subscription.title}</a>
+                    </Link>
                 )
             default:
                 return subscription.title
@@ -188,6 +190,8 @@ function SubscriptionList(props: Props) {
                 {getSubscriptionTitleElement(subscription)}
             </h5>
             {getSubTypesAsList(subscription.types, subscription.price)}
+            {subscription.filter ? <hr /> : null}
+            <ItemFilterPropertiesDisplay filter={subscription.filter} />
             <div
                 style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer' }}
                 onClick={() => {

@@ -202,7 +202,7 @@ function FlipCustomize() {
     return (
         <div className={styles.flipCustomize}>
             <div className={styles.sectionLeft}>
-                <Form className="section">
+                <Form className={styles.section}>
                     <div>
                         <Form.Group>
                             <Form.Label className={styles.label} htmlFor="hideCost">
@@ -389,7 +389,7 @@ function FlipCustomize() {
                 <hr />
                 <div>
                     <h5>Mod settings</h5>
-                    <Form className="section">
+                    <Form className={styles.section}>
                         <div>
                             <Form.Group>
                                 <Form.Label className={styles.label} htmlFor="justProfit">
@@ -468,11 +468,11 @@ function FlipCustomize() {
                         </div>
                     </Form>
                     <div style={{ marginLeft: '30px', marginRight: '30px' }}>
-                        <FormatElement onChange={onModFormatChange} settings={flipCustomizeSettings} />
+                        <FormatElement onChange={onModFormatChange} settings={flipCustomizeSettings} labelClass={styles.label} />
                     </div>
                 </div>
                 <hr />
-                <div>
+                <div style={{ margin: '20px' }}>
                     <h5>Import/Export</h5>
                     <p>
                         You can export your custom flipper settings into a .json file. You use this to send your settings to a friend or to restore them later

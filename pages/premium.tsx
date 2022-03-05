@@ -5,7 +5,7 @@ import Premium from '../components/Premium/Premium'
 
 function PremiumPage() {
     return (
-        <div className="premium-page">
+        <div className="page">
             <Head>
                 <title>Premium</title>
             </Head>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import Head from 'next/head'
 import Search from '../../components/Search/Search'
 import { Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
@@ -11,6 +12,7 @@ import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import GoogleSignIn from '../../components/GoogleSignIn/GoogleSignIn'
 import { useRouter } from 'next/router'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import style from './player.module.css'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -46,7 +48,6 @@ function PlayerDetails() {
                     name: name
                 })
             )
-            document.title = `Auctions and bids from ${name} in the hypixel skyblock ah`
         })
     }, [uuid])
 
@@ -92,7 +93,10 @@ function PlayerDetails() {
     )
 
     return (
-        <div className="player-details">
+        <div className="page">
+            <Head>
+                <title>{`Auctions and bids from ${selectedPlayer?.name} in the hypixel skyblock ah`}</title>
+            </Head>
             <Container>
                 {wasAlreadyLoggedIn() ? (
                     <div style={{ visibility: 'collapse' }}>
@@ -119,7 +123,7 @@ function PlayerDetails() {
                         </span>
                     }
                 />
-                <ToggleButtonGroup className="player-details-type" type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
+                <ToggleButtonGroup className={style.playerDetailsType} type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
                     <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">
                         Auctions
                     </ToggleButton>

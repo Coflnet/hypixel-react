@@ -1,10 +1,10 @@
 import '../styles/bootstrap-react.min.css'
 import '../styles/bootstrap-dark-full.min.css'
 import '../styles/globals.css'
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'
 import 'react-contexify/dist/ReactContexify.css'
-import "react-datepicker/dist/react-datepicker.css";
-import 'react-bootstrap-typeahead/css/Typeahead.css';
+import 'react-datepicker/dist/react-datepicker.css'
+import 'react-bootstrap-typeahead/css/Typeahead.css'
 import { useEffect } from 'react'
 import Head from 'next/head'
 import Script from 'next/script'

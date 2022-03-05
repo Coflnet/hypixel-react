@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import Head from 'next/head'
 import Search from '../../components/Search/Search'
 import PriceGraph from '../../components/PriceGraph/PriceGraph'
 import { parseItem } from '../../utils/Parser/APIResponseParser'
@@ -22,8 +23,7 @@ function ItemDetails() {
             return
         }
         api.getItemDetails(tag).then(detailedItem => {
-            document.title = `Auction Price tracker for ${detailedItem.name || convertTagToName(tag)} in hypixel skyblock`
-            detailedItem.iconUrl = api.getItemImageUrl({ tag: tag })
+            document.title = detailedItem.iconUrl = api.getItemImageUrl({ tag: tag })
             setItem(detailedItem)
         })
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -41,6 +41,9 @@ function ItemDetails() {
 
     return (
         <div className="page">
+            <Head>
+                <title>{`Auction Price tracker for ${item?.name || convertTagToName(tag)} in hypixel skyblock`}</title>
+            </Head>
             <Container>
                 <Search selected={getItem()} type="item" />
                 <PriceGraph item={getItem()} />

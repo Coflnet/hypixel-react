@@ -7,7 +7,7 @@ import Head from 'next/head'
 
 function Flipper() {
     return (
-        <div className="flipper">
+        <div className="page">
             <Head>
                 <title>Auction flipper for hypixel skyblock</title>
             </Head>

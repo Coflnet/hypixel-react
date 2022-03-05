@@ -92,7 +92,7 @@ export function CraftsList() {
             return <span />
         }
         return (
-            <ListGroup.Item action={!blur} className={styles.listGroupItem}>
+            <ListGroup.Item action={!blur}>
                 {blur ? (
                     <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
                         The top 3 crafts can only be seen with premium
@@ -100,7 +100,7 @@ export function CraftsList() {
                 ) : (
                     ''
                 )}
-                <div className={blur ? 'blur' : ''}>
+                <div className={blur ? styles.blur : ''}>
                     <h4>{getCraftHeader(craft)}</h4>
                     <p>
                         <span className={styles.label}>Crafting-Cost:</span> {numberWithThousandsSeperators(Math.round(craft.craftCost))} Coins
@@ -140,14 +140,13 @@ export function CraftsList() {
 
     let list = crafts.map((craft, i) => {
         return !hasPremium && i < 3 ? (
-            <div key={craft.item.tag} style={{ width: 'calc(50% - 10px)' }} className="prevent-select">
+            <div key={craft.item.tag} style={{ width: 'calc(50% - 10px)' }} className={styles.preventSelect}>
                 {getListElement(craft, true)}
             </div>
         ) : (
             <Tooltip
                 key={craft.item.tag}
                 type="click"
-                id="tooltip-container"
                 content={getListElement(craft, false)}
                 tooltipTitle={getCraftHeader(craft)}
                 tooltipContent={<CraftDetails craft={craft} />}

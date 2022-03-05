@@ -3,9 +3,8 @@ import React, { useEffect } from 'react'
 import { Button, Container } from 'react-bootstrap'
 import NavBar from '../components/NavBar/NavBar'
 function Feedback() {
-
     return (
-        <div className="feedback-page">
+        <div className="page">
             <Head>
                 <title>Feedback</title>
             </Head>

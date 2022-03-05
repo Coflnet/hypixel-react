@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import Head from 'next/head'
 import AuctionDetails from '../../components/AuctionDetails/AuctionDetails'
 import { useForceUpdate } from '../../utils/Hooks'
 import { Container } from 'react-bootstrap'
@@ -11,13 +12,17 @@ interface Props {
     auctionDetails: any
 }
 
-function AuctionDetailsPage(props) {
+function AuctionDetailsPage(props: Props) {
     const router = useRouter()
     let auctionUUID = router.query.auctionUUID as string
     let forceUpdate = useForceUpdate()
+    let [auctionDetails, setAuctionDetails] = useState(props.auctionDetails)
 
     useEffect(() => {
         window.scrollTo(0, 0)
+        if (!props.auctionDetails) {
+            api.getAuctionDetails(auctionUUID).then(setAuctionDetails)
+        }
     }, [])
 
     useEffect(() => {
@@ -27,6 +32,9 @@ function AuctionDetailsPage(props) {
 
     return (
         <div className="page">
+            <Head>
+                <title>{`Auction from ${auctionDetails?.auctioneer?.name} for ${auctionDetails?.auction?.item?.name}`}</title>
+            </Head>
             <Container>
                 <Search />
                 <AuctionDetails auctionUUID={auctionUUID} auctionDetails={props.auctionDetails} />

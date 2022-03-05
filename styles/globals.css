@@ -27,6 +27,7 @@ code {
 
 a {
     color: #007bff;
+    cursor: pointer;
 }
 
 .disableLinkStyle {
@@ -81,4 +82,8 @@ option {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.form-check-input {
+    position: absolute !important;
 }

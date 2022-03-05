@@ -9,19 +9,34 @@
 }
 
 .section {
-    margin: 20px;
+    padding: 30px 30px 0px 30px;
     display: flex;
     align-content: center;
-    justify-content: space-around;
+    flex-direction: initial;
+}
+
+.sectionLeft {
+    width: 70%;
+}
+
+.sectionRight {
+    width: 30%;
+}
+
+@media all and (min-width: 500px) {
+    .section>:global(div) {
+        margin-right: 120px;
+    }
 }
 
 .flipCustomize {
     display: flex;
     align-content: center;
     justify-content: space-between;
+    flex-direction: initial;
 }
 
-@media all and (max-width: 1000px) {
+@media all and (max-width: 1200px) {
     .flipCustomize {
         flex-wrap: wrap;
     }
@@ -35,4 +50,16 @@
         border-top: 2px solid white;
         width: -webkit-fill-available;
     }
+    .sectionLeft {
+        width: 100%;
+    }
+    .sectionRight {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+#flip-finder-tooltip .tooltip-inner {
+    max-width: max-content !important;
+    text-align: left;
 }

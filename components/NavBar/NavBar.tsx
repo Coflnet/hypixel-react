@@ -160,15 +160,31 @@ function NavBar(props: Props) {
                         </div>
                     </SidebarHeader>
                     <Menu iconShape="square">
-                        <MenuItem icon={<HomeIcon />}><Link href={"/"}>Home</Link></MenuItem>
-                        <MenuItem icon={<StorefrontIcon />}><Link href={"/flipper"}>Item-Flipper</Link></MenuItem>
-                        <MenuItem icon={<NotificationIcon />}><Link href={"/subscriptions"}>Notifier</Link></MenuItem>
-                        <MenuItem icon={<BuildIcon />}><Link href={"/crafts"}>Profitable crafts</Link></MenuItem>
-                        <MenuItem icon={<AccountBalanceIcon />}><Link href={"/premium"}>Premium</Link></MenuItem>
-                        <MenuItem icon={<ShareIcon />}><Link href={"/ref"}>Referral</Link></MenuItem>
-                        <MenuItem icon={<PolicyIcon />}><Link href={"/about"}>Links / Legal</Link></MenuItem>
-                        <MenuItem icon={<ChatIcon />}><Link href={"/feedback"}>Feedback</Link></MenuItem>
-                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24px"></img>}>
+                        <MenuItem  className="disableLinkStyle" icon={<HomeIcon />}>
+                            <Link href={'/'}>Home</Link>
+                        </MenuItem>
+                        <MenuItem className="disableLinkStyle" icon={<StorefrontIcon />}>
+                            <Link href={'/flipper'}>Item-Flipper</Link>
+                        </MenuItem>
+                        <MenuItem className="disableLinkStyle" icon={<NotificationIcon />}>
+                            <Link href={'/subscriptions'}>Notifier</Link>
+                        </MenuItem>
+                        <MenuItem className="disableLinkStyle" icon={<BuildIcon />}>
+                            <Link href={'/crafts'}>Profitable crafts</Link>
+                        </MenuItem>
+                        <MenuItem className="disableLinkStyle" icon={<AccountBalanceIcon />}>
+                            <Link href={'/premium'}>Premium</Link>
+                        </MenuItem>
+                        <MenuItem className="disableLinkStyle" icon={<ShareIcon />}>
+                            <Link href={'/ref'}>Referral</Link>
+                        </MenuItem>
+                        <MenuItem className="disableLinkStyle" icon={<PolicyIcon />}>
+                            <Link href={'/about'}>Links / Legal</Link>
+                        </MenuItem>
+                        <MenuItem className="disableLinkStyle" icon={<ChatIcon />}>
+                            <Link href={'/feedback'}>Feedback</Link>
+                        </MenuItem>
+                        <MenuItem className="disableLinkStyle" icon={<img src="/discord_icon.svg" alt="" height="24px"></img>}>
                             <a href="https://discord.gg/wvKXfTgCfb">
                                 <div style={{ color: '#7289da' }}>Discord</div>
                             </a>

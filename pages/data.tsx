@@ -6,14 +6,14 @@ import Search from '../components/Search/Search'
 
 function ApiInfo() {
     return (
-        <div className="api-info-page">
+        <div className="page">
             <Head>
                 <title>API</title>
             </Head>
             <Container>
                 <Search />
                 <hr />
-                <Card className="api-info-card">
+                <Card>
                     <Card.Header>
                         <Card.Title>An app you use gets the data from us</Card.Title>
                     </Card.Header>
