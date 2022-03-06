@@ -198,7 +198,7 @@ export function CraftsList() {
                 ) : (
                     ''
                 )}
-                <div className={`list-group-item-content ${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
+                <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
                     <h4>{getCraftHeader(craft)}</h4>
                     <p>
                         <span className="label">Crafting-Cost:</span> {numberWithThousandsSeperators(Math.round(craft.craftCost))} Coins
@@ -213,23 +213,19 @@ export function CraftsList() {
                     <p>
                         <span className="label">Volume:</span> {craft.volume > 0 ? `${numberWithThousandsSeperators(Math.round(craft.volume))}` : 'unknown'}
                     </p>
-                    <hr />
-                    <p>
-                        <span className="label">Req. Collection:</span>{' '}
-                        {craft.requiredCollection ? (
-                            convertTagToName(craft.requiredCollection.name) + ' ' + craft.requiredCollection.level
-                        ) : (
-                            <span style={{ color: 'red' }}>---</span>
-                        )}
-                    </p>
-                    <p>
-                        <span className="label">Req. Slayer:</span>{' '}
-                        {craft.requiredSlayer ? (
-                            convertTagToName(craft.requiredSlayer.name) + ' ' + craft.requiredSlayer.level
-                        ) : (
-                            <span style={{ color: 'red' }}>---</span>
-                        )}
-                    </p>
+                    {craft.requiredCollection ? (
+                        <p className="craftRequirement">
+                            <span className="craftRequirementLabel">Req. Collection:</span>
+                            {convertTagToName(craft.requiredCollection.name) + ' ' + craft.requiredCollection.level}
+                        </p>
+                    ) : null}
+                    {craft.requiredSlayer ? (
+                        <p className="craftRequirement">
+                            <span className="craftRequirementLabel">Req. Slayer:</span>
+                            {convertTagToName(craft.requiredSlayer.name) + ' ' + craft.requiredSlayer.level}
+                        </p>
+                    ) : null}
+                    {!craft.requiredCollection && !craft.requiredSlayer ? <p className="craftRequirement">No Collection/Slayer required</p> : null}
                 </div>
             </ListGroup.Item>
         )

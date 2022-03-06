@@ -36,3 +36,11 @@
 .crafts-list .list-group-item p {
     margin: 0;
 }
+
+.crafts-list .list-group-item .craftRequirement {
+    text-align: right;
+}
+
+.crafts-list .list-group-item .craftRequirementLabel{
+    margin-right: 10px;
+}
