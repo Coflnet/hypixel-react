@@ -193,7 +193,7 @@ export function CraftsList() {
                             backgroundColor: 'gray'
                         }}
                     >
-                        You seem like a tech savvy person, you might want to join our development team. :)
+                        You seem like a tech savvy person, join our development team to get premium for free. :)
                     </p>
                 ) : (
                     ''
