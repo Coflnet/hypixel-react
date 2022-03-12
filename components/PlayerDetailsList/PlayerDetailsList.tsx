@@ -173,7 +173,7 @@ function PlayerDetailsList(props: Props) {
     let bottomElements = (
         <div className={styles.fixedBottom}>
             {props.type === 'auctions' ? (
-                <span>
+                <>
                     <div className={styles.btnBottom}>
                         <Button
                             type="primary"
@@ -198,27 +198,25 @@ function PlayerDetailsList(props: Props) {
                     <div className={styles.btnBottom}>
                         <SubscribeButton type="player" topic={props.playerUUID} />
                     </div>
-                </span>
+                </>
             ) : (
                 ''
             )}
             {props.type === 'bids' ? (
-                <span>
-                    <div className={styles.btnBottom}>
-                        <Button
-                            type="primary"
-                            className={styles.upButton}
-                            onClick={() => {
-                                window.scrollTo({ top: 0, behavior: 'smooth' })
-                            }}
-                        >
-                            <ArrowUpIcon />
-                        </Button>
-                    </div>
+                <>
+                    <Button
+                        type="primary"
+                        className={styles.btnBottom}
+                        onClick={() => {
+                            window.scrollTo({ top: 0, behavior: 'smooth' })
+                        }}
+                    >
+                        <ArrowUpIcon />
+                    </Button>
                     <div className={styles.btnBottom}>
                         <SubscribeButton type="player" topic={props.playerUUID} />
                     </div>
-                </span>
+                </>
             ) : (
                 ''
             )}

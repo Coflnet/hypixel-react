@@ -27,6 +27,7 @@ code {
 
 a {
     color: #007bff;
+    cursor: pointer;
 }
 
 .disableLinkStyle {
@@ -83,6 +84,6 @@ option {
     text-overflow: ellipsis;
 }
 
-.form-check{
-    display: inline-flex !important;
+.form-check-input {
+    position: absolute !important;
 }

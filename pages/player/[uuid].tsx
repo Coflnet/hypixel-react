@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import Head from 'next/head'
 import Search from '../../components/Search/Search'
 import { Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api, { initAPI } from '../../api/ApiHelper'
@@ -51,7 +52,6 @@ function PlayerDetails(props: Props) {
                     name: name
                 })
             )
-            document.title = `Auctions and bids from ${name} in the hypixel skyblock ah`
         })
     }, [uuid])
 
@@ -97,7 +97,10 @@ function PlayerDetails(props: Props) {
     )
 
     return (
-        <div className="player-details">
+        <div className="page">
+            <Head>
+                <title>{`Auctions and bids from ${selectedPlayer?.name} in the hypixel skyblock ah`}</title>
+            </Head>
             <Container>
                 {wasAlreadyLoggedIn() ? (
                     <div style={{ visibility: 'collapse' }}>

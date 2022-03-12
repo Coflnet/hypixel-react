@@ -29,6 +29,7 @@ import styles from './Flipper.module.css'
 import { getSSRElement, isClientSideRendering } from '../../utils/SSRUtils'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import AutoSizer from 'react-virtualized-auto-sizer'
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
@@ -310,11 +311,7 @@ function Flipper(props: Props) {
         let { data, index, style } = listData
         let { flips } = data
 
-        return (
-            <div id="flip-container" className={styles.cardsWrapper}>
-                {getFlipElement(flips[index], style)}
-            </div>
-        )
+        return <div>{getFlipElement(flips[index], style)}</div>
     }
 
     function addItemToBlacklist(flip: FlipAuction) {

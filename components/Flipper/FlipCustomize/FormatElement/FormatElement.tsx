@@ -10,6 +10,7 @@ import styles from './FormatElement.module.css'
 interface Props {
     onChange(value: string)
     settings: FlipCustomizeSettings
+    labelClass?: string
 }
 
 function FormatElement(props: Props) {

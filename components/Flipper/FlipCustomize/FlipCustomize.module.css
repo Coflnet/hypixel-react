@@ -62,3 +62,8 @@
         justify-content: center;
     }
 }
+
+#flip-finder-tooltip .tooltip-inner {
+    max-width: max-content !important;
+    text-align: left;
+}

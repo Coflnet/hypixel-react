@@ -1,9 +1,8 @@
 import Head from 'next/head'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Container } from 'react-bootstrap'
 import { initAPI } from '../api/ApiHelper'
 import { CraftsList } from '../components/CraftsList/CraftsList'
-import NavBar from '../components/NavBar/NavBar'
 import Search from '../components/Search/Search'
 import { parseProfitableCraft } from '../utils/Parser/APIResponseParser'
 
@@ -20,7 +19,6 @@ function Crafts(props: Props) {
             <Container>
                 <Search />
                 <h2>
-                    <NavBar />
                     Profitable crafts
                 </h2>
                 <hr />

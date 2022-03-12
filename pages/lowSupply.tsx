@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import React, { useState } from 'react'
 import { Container } from 'react-bootstrap'
 import api, { initAPI } from '../api/ApiHelper'
@@ -42,6 +43,9 @@ function LowSupply(props: Props) {
 
     return (
         <div className="page">
+            <Head>
+                <title>Low supply items</title>
+            </Head>
             <Container>
                 <h2>
                     <NavBar />

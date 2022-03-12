@@ -96,17 +96,21 @@ function Startpage(props: Props) {
         for (var i = 0; i < scrollContainers.length; i++) {
             let container = scrollContainers.item(i)
             if (container) {
-                container.addEventListener('wheel', evt => {
-                    evt.preventDefault()
-                    let scrollAmount = 0
-                    var slideTimer = setInterval(() => {
-                        container!.scrollLeft += (evt as WheelEvent).deltaY / 10
-                        scrollAmount += Math.abs((evt as WheelEvent).deltaY) / 10
-                        if (scrollAmount >= Math.abs((evt as WheelEvent).deltaY)) {
-                            clearInterval(slideTimer)
-                        }
-                    }, 25)
-                })
+                container.addEventListener(
+                    'wheel',
+                    evt => {
+                        evt.preventDefault()
+                        let scrollAmount = 0
+                        var slideTimer = setInterval(() => {
+                            container!.scrollLeft += (evt as WheelEvent).deltaY / 10
+                            scrollAmount += Math.abs((evt as WheelEvent).deltaY) / 10
+                            if (scrollAmount >= Math.abs((evt as WheelEvent).deltaY)) {
+                                clearInterval(slideTimer)
+                            }
+                        }, 25)
+                    },
+                    { passive: true }
+                )
             }
         }
     }

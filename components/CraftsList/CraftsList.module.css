@@ -1,11 +1,11 @@
-.craftsList .listGroupItem {
+.craftsList :global(.list-group-item ) {
     width: -webkit-fill-available;
     margin: 5px;
     margin-bottom: 15px;
     border-radius: 20px;
 }
 
-.craftsList .list {
+.list {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
@@ -20,7 +20,7 @@
     width: calc(50% - 10px)
 }
 
-.craftsList .blur {
+.blur {
     -webkit-filter: blur(5px);
     -moz-filter: blur(5px);
     -o-filter: blur(5px);

@@ -14,7 +14,7 @@ import { toast } from 'react-toastify'
 import Tooltip from '../Tooltip/Tooltip'
 import Link from 'next/link'
 import styles from './AuctionDetails.module.css'
-import { parseAuction, parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
+import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 
 interface Props {
@@ -297,22 +297,24 @@ function AuctionDetails(props: Props) {
                 </p>
 
                 <Link href={`/player/${auctionDetails.auctioneer.uuid}`}>
-                    <p>
-                        <span className={styles.label}>
-                            <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
-                        </span>
-                        {auctionDetails?.auctioneer.name}
-                        <img
-                            crossOrigin="anonymous"
-                            className="playerHeadIcon"
-                            src={auctionDetails?.auctioneer.iconUrl}
-                            alt="auctioneer icon"
-                            height="16"
-                            width="16"
-                            style={{ marginLeft: '5px' }}
-                            loading="lazy"
-                        />
-                    </p>
+                    <a>
+                        <p>
+                            <span className={styles.label}>
+                                <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
+                            </span>
+                            {auctionDetails?.auctioneer.name}
+                            <img
+                                crossOrigin="anonymous"
+                                className="playerHeadIcon"
+                                src={auctionDetails?.auctioneer.iconUrl}
+                                alt="auctioneer icon"
+                                height="16"
+                                width="16"
+                                style={{ marginLeft: '5px' }}
+                                loading="lazy"
+                            />
+                        </p>
+                    </a>
                 </Link>
 
                 <p>

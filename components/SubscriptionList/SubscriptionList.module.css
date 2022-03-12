@@ -2,3 +2,10 @@
     width: 100%;
     font-size: medium;
 }
+
+.subscriptionList :global(.list-group-item) {
+    width: -webkit-fill-available;
+    margin: 5px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+}
