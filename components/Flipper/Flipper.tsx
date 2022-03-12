@@ -353,7 +353,7 @@ function Flipper(props: Props) {
                     flip={flipAuction}
                     style={{
                         ...style,
-                        padding: "10px"
+                        padding: '10px'
                     }}
                     onCopy={onCopyFlip}
                     onBasedAuctionClick={flip => {
@@ -511,19 +511,23 @@ function Flipper(props: Props) {
                         </Form>
                         <hr />
                         {isClientSideRendering() ? (
-                            <div id="flipper-scroll-list-wrapper">
-                                <List
-                                    ref={listRef}
-                                    className={styles.flipperScrollList}
-                                    height={document.getElementById('maxHeightDummyFlip')?.offsetHeight}
-                                    itemCount={flips.length}
-                                    itemData={{ flips: flips }}
-                                    itemSize={isSmall ? 300 : 330}
-                                    layout="horizontal"
-                                    width={document.getElementById('flipper-card-body')?.offsetWidth}
-                                >
-                                    {getFlipForList}
-                                </List>
+                            <div id="flipper-scroll-list-wrapper" style={{height: document.getElementById('maxHeightDummyFlip')?.offsetHeight, width: "100%"}}>
+                                <AutoSizer>
+                                    {({ height, width }) => (
+                                        <List
+                                            ref={listRef}
+                                            className={styles.flipperScrollList}
+                                            height={height}
+                                            itemCount={flips.length}
+                                            itemData={{ flips: flips }}
+                                            itemSize={isSmall ? 300 : 330}
+                                            layout="horizontal"
+                                            width={width}
+                                        >
+                                            {getFlipForList}
+                                        </List>
+                                    )}
+                                </AutoSizer>
                             </div>
                         ) : (
                             flips.map(flip => getSSRElement(flip))

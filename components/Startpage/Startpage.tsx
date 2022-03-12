@@ -10,7 +10,6 @@ import { FixedSizeList as List } from 'react-window'
 import Link from 'next/link'
 import styles from './Startpage.module.css'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { parseAuction, parseItem, parsePlayer, parsePopularSearch } from '../../utils/Parser/APIResponseParser'
 import { getSSRElement, isClientSideRendering } from '../../utils/SSRUtils'
 
 interface Props {
