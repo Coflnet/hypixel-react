@@ -55,7 +55,6 @@ function Startpage(props: Props) {
                                     height="32"
                                     alt=""
                                     style={{ marginRight: '5px' }}
-                                    loading="lazy"
                                 />
                                 {auction.item.name}
                             </p>
@@ -107,8 +106,7 @@ function Startpage(props: Props) {
                                 clearInterval(slideTimer)
                             }
                         }, 25)
-                    },
-                    { passive: true }
+                    }
                 )
             }
         }
