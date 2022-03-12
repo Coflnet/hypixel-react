@@ -7,7 +7,7 @@ import Search from '../components/Search/Search'
 
 function Success() {
     return (
-        <div>
+        <div className='page'>
             <Head>
                 <title>Payment successful</title>
             </Head>

@@ -6,7 +6,7 @@ import Search from '../components/Search/Search'
 
 function Cancel() {
     return (
-        <div className="payment-cancel">
+        <div className="page">
             <Head>
                 <title>Payment canceled</title>
             </Head>

@@ -4,8 +4,14 @@ import { Container } from 'react-bootstrap'
 import Search from '../components/Search/Search'
 import { isClientSideRendering } from '../utils/SSRUtils'
 import Head from 'next/head'
+import { parseFlipAuction } from '../utils/Parser/APIResponseParser'
+import { initAPI } from '../api/ApiHelper'
 
-function Flipper() {
+interface Props {
+    flips?: any[]
+}
+
+function Flipper(props: Props) {
     return (
         <div className="flipper">
             <Head>
@@ -15,10 +21,20 @@ function Flipper() {
                 <Search />
                 <h2>Item-Flipper (WIP)</h2>
                 <hr />
-                <FlipperComponent />
+                <FlipperComponent flips={props.flips?.map(parseFlipAuction)} />
             </Container>
         </div>
     )
+}
+
+export const getServerSideProps = async () => {
+    let api = initAPI(true)
+    let flips = await api.getPreloadFlips()
+    return {
+        props: {
+            flips: flips
+        }
+    }
 }
 
 export default Flipper

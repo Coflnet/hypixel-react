@@ -4,6 +4,7 @@ import StartpageComponent from '../components/Startpage/Startpage'
 import Search from '../components/Search/Search'
 import { initAPI } from '../api/ApiHelper'
 import Head from 'next/head'
+import { parseAuction, parseItem, parsePlayer, parsePopularSearch } from '../utils/Parser/APIResponseParser'
 
 interface Props {
     newAuctions: Auction[]
@@ -22,11 +23,11 @@ const Startpage = (props: Props) => {
             <Container>
                 <Search />
                 <StartpageComponent
-                    newAuctions={props.newAuctions}
-                    endedAuctions={props.endedAuctions}
-                    newItems={props.newItems}
-                    newPlayers={props.newPlayers}
-                    popularSearches={props.popularSearches}
+                    newAuctions={props.newAuctions?.map(parseAuction)}
+                    endedAuctions={props.endedAuctions?.map(parseAuction)}
+                    newItems={props.newItems?.map(parseItem)}
+                    newPlayers={props.newPlayers?.map(parsePlayer)}
+                    popularSearches={props.popularSearches?.map(parsePopularSearch)}
                 />
             </Container>
         </div>
@@ -35,7 +36,9 @@ const Startpage = (props: Props) => {
 
 export const getServerSideProps = async () => {
     let api = initAPI(true)
-    let results = await Promise.all([api.getNewAuctions(), api.getEndedAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()])
+    let results = await Promise.all(
+        [api.getNewAuctions(), api.getEndedAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => e))
+    )
     return {
         props: {
             newAuctions: results[0],

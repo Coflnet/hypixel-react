@@ -6,12 +6,13 @@ import Search from '../../components/Search/Search'
 import { useRouter } from 'next/router'
 import api, { initAPI } from '../../api/ApiHelper'
 import '../../public/MinecraftColorCodes.3.7'
+import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 
 interface Props {
     auctionDetails: any
 }
 
-function AuctionDetailsPage(props) {
+function AuctionDetailsPage(props: Props) {
     const router = useRouter()
     let auctionUUID = router.query.auctionUUID as string
     let forceUpdate = useForceUpdate()
@@ -29,15 +30,15 @@ function AuctionDetailsPage(props) {
         <div className="page">
             <Container>
                 <Search />
-                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={props.auctionDetails} />
+                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={parseAuctionDetails(props.auctionDetails)} />
             </Container>
         </div>
     )
 }
 
 export const getServerSideProps = async ({ query }) => {
-    let api = initAPI(true)
     let auctionUUID = query.auctionUUID as string
+    let api = initAPI(true);
     let auctionDetails: any = await api.getAuctionDetails(auctionUUID)
     auctionDetails.bids.sort((a, b) => b.amount - a.amount)
     let item = await api.getItemDetails(auctionDetails.tag)
@@ -50,10 +51,11 @@ export const getServerSideProps = async ({ query }) => {
     let namePromises: Promise<void>[] = []
     auctionDetails.bids.forEach(bid => {
         let promise = api.getPlayerName(bid.bidder).then(name => {
-            bid.bidder = {
+            let newBidder = {
                 name: name,
                 uuid: bid.bidder
             }
+            bid.bidder = newBidder
         })
         namePromises.push(promise)
     })

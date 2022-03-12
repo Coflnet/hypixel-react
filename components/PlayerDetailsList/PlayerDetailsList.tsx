@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Badge, Button, ListGroup } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import api from '../../api/ApiHelper'
+import api, { initAPI } from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
@@ -15,7 +15,8 @@ import styles from './PlayerDetailsList.module.css'
 interface Props {
     playerUUID: string
     loadingDataFunction: Function
-    type: 'auctions' | 'bids'
+    type: 'auctions' | 'bids',
+    auctions?: Auction[]
 }
 
 interface ListState {
@@ -36,7 +37,7 @@ function PlayerDetailsList(props: Props) {
     let forceUpdate = useForceUpdate()
     let router = useRouter()
 
-    let [listElements, setListElements] = useState<(Auction | BidForList)[]>([])
+    let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [playerName, setPlayerName] = useState('')
 
@@ -92,7 +93,7 @@ function PlayerDetailsList(props: Props) {
 
     let loadNewElements = (reset?: boolean): void => {
         props
-            .loadingDataFunction(props.playerUUID, 10, reset ? 0 : listElements.length)
+            .loadingDataFunction(props.playerUUID, 12, reset ? 0 : listElements.length)
             .then(newListElements => {
                 if (!mounted) {
                     return
@@ -111,7 +112,7 @@ function PlayerDetailsList(props: Props) {
                 setListElements(listElements)
                 updateListState()
 
-                if (listElements.length < 10 && newListElements.length !== 0) {
+                if (listElements.length < 12 && newListElements.length !== 0) {
                     loadNewElements()
                 }
             })

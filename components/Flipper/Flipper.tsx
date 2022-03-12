@@ -26,7 +26,7 @@ import { Menu, Item, useContextMenu, theme } from 'react-contexify'
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils'
 import Countdown, { zeroPad } from 'react-countdown'
 import styles from './Flipper.module.css'
-import { isClientSideRendering } from '../../utils/SSRUtils'
+import { getSSRElement, isClientSideRendering } from '../../utils/SSRUtils'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
@@ -45,14 +45,17 @@ let mounted = true
 
 const FLIP_CONEXT_MENU_ID = 'flip-context-menu'
 
-function Flipper() {
-    let [flips, setFlips] = useState<FlipAuction[]>([])
+interface Props {
+    flips?: FlipAuction[]
+}
+
+function Flipper(props: Props) {
+    let [flips, setFlips] = useState<FlipAuction[]>(props.flips || [])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getInitialFlipperFilter())
     let [autoscroll, setAutoscroll] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [enabledScroll, setEnabledScroll] = useState(false)
-    let [selectedAuctionUUID, setSelectedAuctionUUID] = useState('')
     let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle)
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null)
@@ -351,9 +354,11 @@ function Flipper() {
             <div onContextMenu={e => handleFlipContextMenu(e, flipAuction)}>
                 <Flip
                     flip={flipAuction}
-                    style={style}
+                    style={{
+                        ...style,
+                        padding: "10px"
+                    }}
                     onCopy={onCopyFlip}
-                    onCardClick={flip => setSelectedAuctionUUID(flip.uuid)}
                     onBasedAuctionClick={flip => {
                         setBasedOnAuction(flip)
                     }}
@@ -508,20 +513,24 @@ function Flipper() {
                             </Form.Group>
                         </Form>
                         <hr />
-                        <div id="flipper-scroll-list-wrapper">
-                            <List
-                                ref={listRef}
-                                className={styles.flipperScrollList}
-                                height={flips.length > 0 ? document.getElementById('maxHeightDummyFlip')?.offsetHeight : 0}
-                                itemCount={flips.length}
-                                itemData={{ flips: flips }}
-                                itemSize={isSmall ? 300 : 330}
-                                layout="horizontal"
-                                width={isClientSideRendering() ? document.getElementById('flipper-card-body')?.offsetWidth || 100 : 100}
-                            >
-                                {getFlipForList}
-                            </List>
-                        </div>
+                        {isClientSideRendering() ? (
+                            <div id="flipper-scroll-list-wrapper">
+                                <List
+                                    ref={listRef}
+                                    className={styles.flipperScrollList}
+                                    height={document.getElementById('maxHeightDummyFlip')?.offsetHeight}
+                                    itemCount={flips.length}
+                                    itemData={{ flips: flips }}
+                                    itemSize={isSmall ? 300 : 330}
+                                    layout="horizontal"
+                                    width={document.getElementById('flipper-card-body')?.offsetWidth}
+                                >
+                                    {getFlipForList}
+                                </List>
+                            </div>
+                        ) : (
+                            flips.map(flip => getSSRElement(flip))
+                        )}
                     </div>
                 </Card.Body>
                 <Card.Footer>
@@ -544,21 +553,6 @@ function Flipper() {
                     )}
                 </Card.Footer>
             </Card>
-            {selectedAuctionUUID ? (
-                <div>
-                    <hr />
-                    <Card>
-                        <Card.Header>
-                            <Card.Title>Auction-Details</Card.Title>
-                        </Card.Header>
-                        <Card.Body>
-                            <AuctionDetails auctionUUID={selectedAuctionUUID} retryCounter={5} />
-                        </Card.Body>
-                    </Card>
-                </div>
-            ) : (
-                ''
-            )}
             <div>
                 <hr />
                 <Card>

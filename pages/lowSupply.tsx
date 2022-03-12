@@ -1,63 +1,76 @@
-import React, { useState } from 'react';
-import { Container } from 'react-bootstrap';
-import api from '../api/ApiHelper';
-import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn';
-import LowSupplyList from '../components/LowSupplyList/LowSupplyList';
-import NavBar from '../components/NavBar/NavBar';
-import { wasAlreadyLoggedIn } from '../utils/GoogleUtils';
-import { getLoadingElement } from '../utils/LoadingUtils';
+import React, { useState } from 'react'
+import { Container } from 'react-bootstrap'
+import api, { initAPI } from '../api/ApiHelper'
+import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'
+import LowSupplyList from '../components/LowSupplyList/LowSupplyList'
+import NavBar from '../components/NavBar/NavBar'
+import { wasAlreadyLoggedIn } from '../utils/GoogleUtils'
+import { getLoadingElement } from '../utils/LoadingUtils'
+import { parseLowSupplyItem } from '../utils/Parser/APIResponseParser'
 
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
-function LowSupply() {
+interface Props {
+    lowSupplyItems: any
+}
 
-    let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [hasPremium, setHasPremium] = useState(false);
+let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
+
+function LowSupply(props: Props) {
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [hasPremium, setHasPremium] = useState(false)
 
     function onLogin() {
-        let googleId = localStorage.getItem('googleId');
+        let googleId = localStorage.getItem('googleId')
         if (googleId) {
-            setIsLoggedIn(true);
-            loadHasPremium();
+            setIsLoggedIn(true)
+            loadHasPremium()
         }
     }
 
     function onLoginFail() {
-        setIsLoggedIn(false);
-        wasAlreadyLoggedInGoogle = false;
+        setIsLoggedIn(false)
+        wasAlreadyLoggedInGoogle = false
     }
 
-
     let loadHasPremium = () => {
-        let googleId = localStorage.getItem("googleId");
+        let googleId = localStorage.getItem('googleId')
         api.hasPremium(googleId!).then(hasPremiumUntil => {
             if (hasPremiumUntil > new Date()) {
-                setHasPremium(true);
+                setHasPremium(true)
             }
-        });
+        })
     }
 
     return (
-        <div className="low-supply-page">
+        <div className="page">
             <Container>
                 <h2>
                     <NavBar />
                     Low supply items
                 </h2>
                 <hr />
-                {
-                    isLoggedIn && hasPremium ?
-                        <div>
-                            <p>These are low supply items. Strong price fluctuation may occur.</p>
-                            <LowSupplyList/>
-                        </div> : null
-                }
-                {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ""}
-                {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>You need to be logged in and have premium to see this page.</p> : ""}
-                {isLoggedIn && !hasPremium ? <p>You need to have premium to see this page.</p> : ""}
+                {isLoggedIn && hasPremium ? (
+                    <div>
+                        <p>These are low supply items. Strong price fluctuation may occur.</p>
+                        <LowSupplyList lowSupplyItems={props.lowSupplyItems?.map(parseLowSupplyItem)} />
+                    </div>
+                ) : null}
+                {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ''}
+                {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>You need to be logged in and have premium to see this page.</p> : ''}
+                {isLoggedIn && !hasPremium ? <p>You need to have premium to see this page.</p> : ''}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             </Container>
         </div>
-    );
+    )
 }
 
-export default LowSupply;
+export const getServerSideProps = async () => {
+    let api = initAPI(true)
+    let lowSupplyItems = await api.getLowSupplyItems()
+    return {
+        props: {
+            lowSupplyItems: lowSupplyItems
+        }
+    }
+}
+
+export default LowSupply

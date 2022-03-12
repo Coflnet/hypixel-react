@@ -223,7 +223,8 @@ interface API {
   getCraftingRecipe(itemTag: string): Promise<CraftingRecipe>,
   getLowestBin(itemTag: string): Promise<LowestBin>,
   flipFilters(item: Item): Promise<FilterOptions[]>,
-  getBazaarTags(): Promise<string[]>
+  getBazaarTags(): Promise<string[]>,
+  getPreloadFlips(): Promise<FlipAuction[]>
 }
 
 interface CacheUtils {

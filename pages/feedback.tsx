@@ -5,7 +5,7 @@ import NavBar from '../components/NavBar/NavBar'
 function Feedback() {
 
     return (
-        <div className="feedback-page">
+        <div className="page">
             <Head>
                 <title>Feedback</title>
             </Head>

@@ -1,13 +1,19 @@
 import Head from 'next/head'
 import React, { useEffect } from 'react'
 import { Container } from 'react-bootstrap'
+import { initAPI } from '../api/ApiHelper'
 import { CraftsList } from '../components/CraftsList/CraftsList'
 import NavBar from '../components/NavBar/NavBar'
 import Search from '../components/Search/Search'
+import { parseProfitableCraft } from '../utils/Parser/APIResponseParser'
 
-function Crafts() {
+interface Props {
+    crafts: any[]
+}
+
+function Crafts(props: Props) {
     return (
-        <div className="crafts-page">
+        <div className="page">
             <Head>
                 <title>Crafts</title>
             </Head>
@@ -18,10 +24,20 @@ function Crafts() {
                     Profitable crafts
                 </h2>
                 <hr />
-                <CraftsList />
+                <CraftsList crafts={props.crafts?.map(parseProfitableCraft)} />
             </Container>
         </div>
     )
+}
+
+export const getServerSideProps = async () => {
+    let api = initAPI(true)
+    let crafts = await api.getProfitableCrafts()
+    return {
+        props: {
+            crafts: crafts
+        }
+    }
 }
 
 export default Crafts

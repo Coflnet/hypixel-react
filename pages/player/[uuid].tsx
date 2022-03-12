@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Search from '../../components/Search/Search'
 import { Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
-import api from '../../api/ApiHelper'
-import { parsePlayer } from '../../utils/Parser/APIResponseParser'
+import api, { initAPI } from '../../api/ApiHelper'
+import { parseAuction, parsePlayer } from '../../utils/Parser/APIResponseParser'
 import { useSwipe } from '../../utils/Hooks'
 import Tooltip from '../../components/Tooltip/Tooltip'
 import ClaimAccount from '../../components/ClaimAccount/ClaimAccount'
@@ -11,6 +11,7 @@ import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import GoogleSignIn from '../../components/GoogleSignIn/GoogleSignIn'
 import { useRouter } from 'next/router'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import styles from './player.module.css'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -20,7 +21,11 @@ enum DetailType {
 // save Detailtype for after navigation
 let prevDetailType: DetailType
 
-function PlayerDetails() {
+interface Props {
+    auctions?: any[]
+}
+
+function PlayerDetails(props: Props) {
     const router = useRouter()
     let uuid = router.query.uuid as string
     let [detailType, setDetailType_] = useState<DetailType>(prevDetailType || DetailType.AUCTIONS)
@@ -119,7 +124,7 @@ function PlayerDetails() {
                         </span>
                     }
                 />
-                <ToggleButtonGroup className="player-details-type" type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
+                <ToggleButtonGroup className={styles.playerDetailsType} type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
                     <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">
                         Auctions
                     </ToggleButton>
@@ -127,11 +132,23 @@ function PlayerDetails() {
                         Bids
                     </ToggleButton>
                 </ToggleButtonGroup>
-                {detailType === DetailType.AUCTIONS ? <PlayerDetailsList type="auctions" loadingDataFunction={api.getAuctions} playerUUID={uuid} /> : undefined}
+                {detailType === DetailType.AUCTIONS ? (
+                    <PlayerDetailsList type="auctions" auctions={props.auctions?.map(parseAuction)} loadingDataFunction={api.getAuctions} playerUUID={uuid} />
+                ) : undefined}
                 {detailType === DetailType.BIDS ? <PlayerDetailsList type="bids" loadingDataFunction={api.getBids} playerUUID={uuid} /> : undefined}
             </Container>
         </div>
     )
+}
+
+export const getServerSideProps = async ({ query }) => {
+    let api = initAPI(true)
+    let auctions = await api.getAuctions(query.uuid, 12, 0)
+    return {
+        props: {
+            auctions: auctions
+        }
+    }
 }
 
 export default PlayerDetails

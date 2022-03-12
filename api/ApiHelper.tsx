@@ -83,7 +83,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 type: RequestType.ITEM_DETAILS,
                 data: itemTagOrName,
                 resolve: (item: any) => {
-                    resolve(parseItem(item))
+                    returnSSRResponse ? resolve(item) : resolve(parseItem(item))
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTagOrName)
@@ -130,11 +130,13 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     type: RequestType.PLAYER_AUCTION,
                     data: requestData,
                     resolve: (auctions: any) => {
-                        resolve(
-                            auctions.map((auction: any) => {
-                                return parseAuction(auction)
-                            })
-                        )
+                        returnSSRResponse
+                            ? resolve(auctions)
+                            : resolve(
+                                  auctions.map((auction: any) => {
+                                      return parseAuction(auction)
+                                  })
+                              )
                     },
                     reject: (error: any) => {
                         apiErrorHandler(RequestType.PLAYER_AUCTION, error, requestData)
@@ -247,7 +249,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     type: RequestType.AUCTION_DETAILS,
                     data: auctionUUID,
                     resolve: auctionDetails => {
-                        resolve(auctionDetails)
+                        returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
                     },
                     reject: (error: any) => {
                         reject(error)
@@ -539,6 +541,21 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, '')
                     reject()
+                }
+            })
+        })
+    }
+
+    let getPreloadFlips = (): Promise<FlipAuction[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendRequest({
+                type: RequestType.GET_FLIPS,
+                data: '',
+                resolve: (data: any) => {
+                    returnSSRResponse ? resolve(data) : resolve(data.map(parseFlipAuction))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_FILTER, error, name)
                 }
             })
         })
@@ -973,14 +990,14 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     type: RequestType.GET_LOW_SUPPLY_ITEMS,
                     data: '',
                     resolve: function (items) {
-                        resolve(
-                            items.map(item => {
-                                let lowSupplyItem = parseLowSupplyItem(item)
-                                lowSupplyItem.iconUrl = api.getItemImageUrl(item)
-                                lowSupplyItem.name = convertTagToName(item.tag)
-                                return lowSupplyItem
-                            })
-                        )
+                        returnSSRResponse
+                            ? resolve(items)
+                            : resolve(
+                                  items.map(item => {
+                                      let lowSupplyItem = parseLowSupplyItem(item)
+                                      return lowSupplyItem
+                                  })
+                              )
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
@@ -1043,7 +1060,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         : undefined,
                 data: '',
                 resolve: function (crafts) {
-                    resolve(crafts.map(parseProfitableCraft))
+                    returnSSRResponse ? resolve(crafts) : resolve(crafts.map(parseProfitableCraft))
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_PROFITABLE_CRAFTS, error, '')
@@ -1149,16 +1166,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.GET_BAZAAR_TAGS,
-                data: "",
+                data: '',
                 resolve: function (data) {
-                    resolve(data);
+                    resolve(data)
                 },
                 reject: function (error) {
-                    apiErrorHandler(RequestType.GET_BAZAAR_TAGS, error, "");
-                    reject();
+                    apiErrorHandler(RequestType.GET_BAZAAR_TAGS, error, '')
+                    reject()
                 }
-            });
-        });
+            })
+        })
     }
 
     return {
@@ -1215,7 +1232,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getCraftingRecipe,
         getLowestBin,
         flipFilters,
-        getBazaarTags
+        getBazaarTags,
+        getPreloadFlips
     }
 }
 

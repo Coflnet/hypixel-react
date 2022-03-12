@@ -11,12 +11,10 @@ import { Delete as DeleteIcon, Undo as UndoIcon } from '@material-ui/icons'
 import Link from 'next/link'
 import styles from './SubscriptionList.module.css'
 
-interface Props {}
-
 let mounted = true
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
-function SubscriptionList(props: Props) {
+function SubscriptionList() {
     let [subscriptions, setSubscriptions] = useState<Subscription[]>([])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
 

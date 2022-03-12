@@ -18,14 +18,14 @@ import { parseAuction, parseAuctionDetails } from '../../utils/Parser/APIRespons
 import { isClientSideRendering } from '../../utils/SSRUtils'
 
 interface Props {
-    auctionDetails?: any
+    auctionDetails?: AuctionDetails
     auctionUUID?: string
     retryCounter?: number
 }
 
 function AuctionDetails(props: Props) {
     let [isAuctionFound, setIsNoAuctionFound] = useState(false)
-    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | null>(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : null)
+    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails)
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {

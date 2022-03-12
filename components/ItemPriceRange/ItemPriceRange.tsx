@@ -96,7 +96,6 @@ export function ItemPriceRange(props: Props) {
 
     let onRangeChange = (newRange: DateRange) => {
         router.query.range = newRange
-        console.log(router)
         router.push(router)
 
         setSelectedDateRange(newRange)

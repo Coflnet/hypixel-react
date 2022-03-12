@@ -202,7 +202,7 @@ function FlipCustomize() {
     return (
         <div className={styles.flipCustomize}>
             <div className={styles.sectionLeft}>
-                <Form className="section">
+                <Form className={styles.section}>
                     <div>
                         <Form.Group>
                             <Form.Label className={styles.label} htmlFor="hideCost">
@@ -389,7 +389,7 @@ function FlipCustomize() {
                 <hr />
                 <div>
                     <h5>Mod settings</h5>
-                    <Form className="section">
+                    <Form className={styles.section}>
                         <div>
                             <Form.Group>
                                 <Form.Label className={styles.label} htmlFor="justProfit">

@@ -82,3 +82,7 @@ option {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.form-check{
+    display: inline-flex !important;
+}

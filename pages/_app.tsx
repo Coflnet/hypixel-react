@@ -1,14 +1,15 @@
 import '../styles/bootstrap-react.min.css'
 import '../styles/bootstrap-dark-full.min.css'
 import '../styles/globals.css'
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'
 import 'react-contexify/dist/ReactContexify.css'
-import "react-datepicker/dist/react-datepicker.css";
-import 'react-bootstrap-typeahead/css/Typeahead.css';
+import 'react-datepicker/dist/react-datepicker.css'
+import 'react-bootstrap-typeahead/css/Typeahead.css'
 import { useEffect } from 'react'
 import Head from 'next/head'
 import Script from 'next/script'
 import { MainApp } from '../components/MainApp/MainApp'
+import NextNProgress from 'nextjs-progressbar'
 
 function MyApp({ Component, pageProps }) {
     useEffect(() => {
@@ -61,6 +62,7 @@ function MyApp({ Component, pageProps }) {
             <Script async={true} src={'/preScript.js'} />
             <Script async={true} src={'/MinecraftColorCodes.3.7.js'} />
             <MainApp>
+                <NextNProgress />
                 <Component {...pageProps} />
             </MainApp>
         </>

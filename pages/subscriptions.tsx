@@ -6,7 +6,7 @@ import NavBar from '../components/NavBar/NavBar';
 function Subscriptions() {
 
     return (
-        <div className="subscriptions-page">
+        <div className="page">
             <Container>
                 <h2>
                     <NavBar />

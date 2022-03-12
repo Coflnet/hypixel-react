@@ -9,30 +9,56 @@
 }
 
 .section {
-    margin: 20px;
+    padding: 30px 30px 0;
     display: flex;
     align-content: center;
-    justify-content: space-around;
+    flex-direction: initial;
+}
+
+.section > :global(div) {
+    margin-right: 120px;
+}
+
+.flipCustomize .sectionLeft {
+    width: 70%;
+}
+
+.flipCustomize .sectionRight {
+    width: 30%;
 }
 
 .flipCustomize {
     display: flex;
     align-content: center;
     justify-content: space-between;
+    flex-direction: initial;
 }
 
-@media all and (max-width: 1000px) {
+@media all and (min-width: 500px) {
+    .flipCustomize .section > :global(div) {
+        margin-right: 120px;
+    }
+}
+
+@media all and (max-width: 1200px) {
     .flipCustomize {
         flex-wrap: wrap;
     }
-    .section {
+    .flipCustomize .section {
         width: 100%;
         margin: 0;
     }
-    .verticalLine {
+    .flipCustomize .verticalLine {
         margin-top: 20px;
         margin-bottom: 20px;
         border-top: 2px solid white;
         width: -webkit-fill-available;
+    }
+    .flipCustomize .sectionLeft {
+        width: 100%;
+    }
+    .flipCustomize .sectionRight {
+        width: 100%;
+        justify-content: center;
     }
 }

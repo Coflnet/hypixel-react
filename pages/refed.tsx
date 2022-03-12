@@ -11,7 +11,7 @@ function Refed() {
     }
 
     return (
-        <div className="refed">
+        <div className="page">
             <Container>
                 <Search />
                 <Card>

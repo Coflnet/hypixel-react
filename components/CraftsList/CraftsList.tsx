@@ -8,29 +8,29 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
 
-export function CraftsList() {
-    let [crafts, setCrafts] = useState<ProfitableCraft[]>([])
+interface Props {
+    crafts?: ProfitableCraft[]
+}
+
+export function CraftsList(props: Props) {
+    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts || [])
     let [nameFilter, setNameFilter] = useState<string | null>()
     let [orderBy, setOrderBy] = useState<string>('profit')
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
     let [profiles, setProfiles] = useState<SkyblockProfile[]>()
     let [selectedProfile, setSelectedProfile] = useState<SkyblockProfile>()
     let [isLoadingProfileData, setIsLoadingProfileData] = useState(true)
-    let [isLoadingCrafts, setIsLoadingCrafts] = useState(true)
     let [hasPremium, setHasPremium] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
 
     useEffect(() => {
-        setIsLoadingCrafts(true)
         setIsLoadingProfileData(true)
-        loadCrafts()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     function loadCrafts(playerId?: string, profileId?: string) {
         api.getProfitableCrafts(playerId, profileId).then(crafts => {
             setCrafts(crafts)
-            setIsLoadingCrafts(false)
         })
     }
 
@@ -100,7 +100,7 @@ export function CraftsList() {
                 ) : (
                     ''
                 )}
-                <div className={blur ? 'blur' : ''}>
+                <div className={blur ? styles.blur : ''}>
                     <h4>{getCraftHeader(craft)}</h4>
                     <p>
                         <span className={styles.label}>Crafting-Cost:</span> {numberWithThousandsSeperators(Math.round(craft.craftCost))} Coins
@@ -140,7 +140,7 @@ export function CraftsList() {
 
     let list = crafts.map((craft, i) => {
         return !hasPremium && i < 3 ? (
-            <div key={craft.item.tag} style={{ width: 'calc(50% - 10px)' }} className="prevent-select">
+            <div key={craft.item.tag} className={styles.preventSelect}>
                 {getListElement(craft, true)}
             </div>
         ) : (
@@ -213,13 +213,9 @@ export function CraftsList() {
             </div>
             <hr />
             <p>Click on a craft for further details</p>
-            {isLoadingCrafts ? (
-                getLoadingElement()
-            ) : (
-                <div className={styles.craftsList}>
-                    <ListGroup className={styles.list}>{list}</ListGroup>
-                </div>
-            )}
+            <div className={styles.craftsList}>
+                <ListGroup className={styles.list}>{list}</ListGroup>
+            </div>
         </div>
     )
 }

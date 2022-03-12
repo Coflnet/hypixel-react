@@ -10,12 +10,11 @@ import { FixedSizeList as List } from 'react-window'
 import Link from 'next/link'
 import styles from './Startpage.module.css'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { NextPage } from 'next'
 import { parseAuction, parseItem, parsePlayer, parsePopularSearch } from '../../utils/Parser/APIResponseParser'
-import { isClientSideRendering } from '../../utils/SSRUtils'
+import { getSSRElement, isClientSideRendering } from '../../utils/SSRUtils'
 
 interface Props {
-    newAuctions?: any[]
+    newAuctions?: Auction[]
     endedAuctions?: Auction[]
     popularSearches?: PopularSearch[]
     newPlayers?: Player[]
@@ -25,11 +24,11 @@ interface Props {
 function Startpage(props: Props) {
     let { trackEvent } = useMatomo()
 
-    let [newAuctions, setNewAuctions] = useState<Auction[]>(props.newAuctions?.map(parseAuction) || [])
-    let [endedAuctions, setEndedAuctions] = useState<Auction[]>(props.endedAuctions?.map(parseAuction) || [])
-    let [popularSearches, setPopularSearches] = useState<PopularSearch[]>(props.popularSearches?.map(parsePopularSearch) || [])
-    let [newPlayers, setNewPlayers] = useState<Player[]>(props.newPlayers?.map(parsePlayer) || [])
-    let [newItems, setNewItems] = useState<Item[]>(props.newItems?.map(parseItem) || [])
+    let [newAuctions, setNewAuctions] = useState<Auction[]>(props.newAuctions || [])
+    let [endedAuctions, setEndedAuctions] = useState<Auction[]>(props.endedAuctions || [])
+    let [popularSearches, setPopularSearches] = useState<PopularSearch[]>(props.popularSearches || [])
+    let [newPlayers, setNewPlayers] = useState<Player[]>(props.newPlayers || [])
+    let [newItems, setNewItems] = useState<Item[]>(props.newItems || [])
 
     useEffect(() => {
         setTimeout(() => {
@@ -110,25 +109,6 @@ function Startpage(props: Props) {
                 })
             }
         }
-    }
-
-    function getSSRElement(obj: any): JSX.Element {
-        return (
-            <ul>
-                {Object.keys(obj).map(key => {
-                    if (!obj[key]) {
-                        return null
-                    }
-                    if (key === 'iconUrl') {
-                        return <img src={obj[key]} />
-                    }
-                    if (typeof obj[key] === 'object') {
-                        return getSSRElement(obj[key])
-                    }
-                    return <li>{`${key}: ${obj[key].toString()}`}</li>
-                })}
-            </ul>
-        )
     }
 
     let newAuctionsElement = (

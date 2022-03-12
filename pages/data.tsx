@@ -6,7 +6,7 @@ import Search from '../components/Search/Search'
 
 function ApiInfo() {
     return (
-        <div className="api-info-page">
+        <div className="page">
             <Head>
                 <title>API</title>
             </Head>

@@ -406,6 +406,8 @@ export function parseLowSupplyItem(item): LowSupplyItem {
     lowSupplyItem.supply = item.supply
     lowSupplyItem.medianPrice = item.median
     lowSupplyItem.volume = item.volume
+    lowSupplyItem.iconUrl = api.getItemImageUrl(item)
+    lowSupplyItem.name = convertTagToName(item.tag)
     return lowSupplyItem
 }
 

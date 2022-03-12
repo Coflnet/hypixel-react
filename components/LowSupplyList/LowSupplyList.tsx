@@ -8,31 +8,22 @@ import styles from './LowSupplyList.module.css'
 
 let mounted = true
 
-function LowSupplyList() {
-    let [lowSupplyItems, setLowSupplyItems] = useState<LowSupplyItem[]>()
+interface Props{
+    lowSupplyItems?: LowSupplyItem[]
+}
+
+function LowSupplyList(props: Props) {
+    let [lowSupplyItems, setLowSupplyItems] = useState<LowSupplyItem[]>(props.lowSupplyItems || [])
     let [orderBy, setOrderBy] = useState('-supply')
     let [nameFilter, setNameFilter] = useState<string | null>()
 
     useEffect(() => {
         mounted = true
-        loadLowSupplyItems()
         return () => {
             mounted = false
         }
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    function loadLowSupplyItems() {
-        api.getLowSupplyItems().then(items => {
-            if (!mounted) {
-                return
-            }
-            lowSupplyItems = items
-            onOrderChange(orderBy)
-            setLowSupplyItems(items)
-        })
-    }
 
     function onSupplyClick() {
         let o = orderBy === 'supply' ? '-supply' : 'supply'
