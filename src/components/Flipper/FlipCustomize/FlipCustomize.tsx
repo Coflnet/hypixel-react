@@ -1,5 +1,5 @@
 import { useMatomo } from '@datapunt/matomo-tracker-react';
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils';
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
@@ -10,9 +10,6 @@ import { Help as HelpIcon } from '@material-ui/icons';
 import { toast } from 'react-toastify';
 import Select, { components } from 'react-select';
 import FormatElement from './FormatElement/FormatElement';
-
-let settings = getFlipCustomizeSettings();
-
 const customSelectStyle = {
     option: (provided) => ({
         ...provided,
@@ -22,8 +19,12 @@ const customSelectStyle = {
 
 function FlipCustomize() {
 
-    let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState(settings);
+    let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({});
     let { trackEvent } = useMatomo();
+
+    useEffect(() => {
+        _setFlipCustomizeSettings(getFlipCustomizeSettings())
+    }, [])
 
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings));
@@ -182,6 +183,10 @@ function FlipCustomize() {
         return <components.MultiValueContainer {...props} ><Tooltip type={"hover"} content={<div {...props.innerProps}>{props.children}</div>} tooltipContent={<span>{props.data.description}</span>} /></components.MultiValueContainer>
     };
 
+    if(Object.keys(flipCustomizeSettings).length === 0){
+        return <></>
+    }
+
     return (
         <div className="flip-customize">
             <div className="section-left">
@@ -245,7 +250,7 @@ function FlipCustomize() {
                 </Form>
                 <div style={{ marginLeft: "30px", marginRight: "30px" }}>
                     <label htmlFor="finders" className="label">Used Flip-Finders</label>
-                    <Select id="finders" className="select-hide-group" isMulti options={FLIP_FINDERS} defaultValue={getFlipFinders(settings.finders || [])} styles={customSelectStyle} onChange={onFindersChange} closeMenuOnSelect={false}
+                    <Select id="finders" className="select-hide-group" isMulti options={FLIP_FINDERS} defaultValue={getFlipFinders(flipCustomizeSettings.finders || [])} styles={customSelectStyle} onChange={onFindersChange} closeMenuOnSelect={false}
                         components={{ MultiValueContainer }} />
                     {getFlipFinderWarningElement()}
                 </div>
