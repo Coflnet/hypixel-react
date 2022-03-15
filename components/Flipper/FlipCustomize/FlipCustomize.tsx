@@ -19,7 +19,7 @@ const customSelectStyle = {
 }
 
 function FlipCustomize() {
-    let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState({})
+    let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
     let { trackEvent } = useMatomo()
 
     useEffect(() => {
@@ -384,7 +384,7 @@ function FlipCustomize() {
                         id="finders"
                         isMulti
                         options={FLIP_FINDERS}
-                        defaultValue={getFlipFinders(settings.finders || [])}
+                        defaultValue={getFlipFinders(flipCustomizeSettings.finders || [])}
                         styles={customSelectStyle}
                         onChange={onFindersChange}
                         closeMenuOnSelect={false}
