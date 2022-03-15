@@ -293,7 +293,7 @@ export function parseRecentAuction(auction): RecentAuction {
 }
 
 export function parseFlipAuction(flip): FlipAuction {
-    return {
+    let parsedFlip = {
         showLink: true,
         median: flip.median,
         cost: flip.cost,
@@ -311,7 +311,10 @@ export function parseFlipAuction(flip): FlipAuction {
         lowestBin: flip.lowestBin,
         props: flip.prop,
         finder: flip.finder
-    }
+    } as FlipAuction
+    parsedFlip.item.iconUrl = api.getItemImageUrl(parsedFlip.item);
+
+    return parsedFlip;
 }
 
 export function parsePopularSearch(search): PopularSearch {

@@ -1,5 +1,5 @@
 import { useMatomo } from '@datapunt/matomo-tracker-react'
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
@@ -11,8 +11,6 @@ import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
 import styles from './FlipCustomize.module.css'
 
-let settings = getFlipCustomizeSettings()
-
 const customSelectStyle = {
     option: provided => ({
         ...provided,
@@ -21,8 +19,12 @@ const customSelectStyle = {
 }
 
 function FlipCustomize() {
-    let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState(settings)
+    let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState({})
     let { trackEvent } = useMatomo()
+
+    useEffect(() => {
+        _setFlipCustomizeSettings(getFlipCustomizeSettings())
+    }, [])
 
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
@@ -197,6 +199,10 @@ function FlipCustomize() {
                 <Tooltip type={'hover'} content={<div {...props.innerProps}>{props.children}</div>} tooltipContent={<span>{props.data.description}</span>} />
             </components.MultiValueContainer>
         )
+    }
+
+    if (Object.keys(flipCustomizeSettings).length === 0) {
+        return <></>
     }
 
     return (

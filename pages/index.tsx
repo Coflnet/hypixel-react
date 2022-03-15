@@ -37,7 +37,7 @@ const Startpage = (props: Props) => {
 export const getServerSideProps = async () => {
     let api = initAPI(true)
     let results = await Promise.all(
-        [api.getNewAuctions(), api.getEndedAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => e))
+        [api.getNewAuctions(), api.getEndedAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => null))
     )
     return {
         props: {

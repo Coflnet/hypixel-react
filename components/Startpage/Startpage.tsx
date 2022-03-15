@@ -327,7 +327,7 @@ function Startpage(props: Props) {
                                     </p>
                                 }
                                 tooltipContent={
-                                    <ul>
+                                    <ul key="changelogList">
                                         <li className={styles.changelogItem}>Integration of the alpha mod</li>
                                         <li className={styles.changelogItem}>Import/Export flipper settings</li>
                                         <li className={styles.changelogItem}>Context menu in the flipper</li>
