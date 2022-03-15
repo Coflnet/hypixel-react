@@ -387,21 +387,25 @@ export function parseProfitableCraft(craft): ProfitableCraft {
         craftCost: craft.craftCost,
         sellPrice: craft.sellPrice,
         ingredients: craft.ingredients.map(parseCraftIngredient),
-        requiredCollection: craft.reqCollection
-            ? {
-                  name: craft.reqCollection.name,
-                  level: craft.reqCollection.level
-              }
-            : null
+        median: craft.median,
+        volume: craft.volume,
+        requiredCollection: craft.reqCollection ? {
+            name: craft.reqCollection.name,
+            level: craft.reqCollection.level
+        } : null,
+        requiredSlayer: craft.reqSlayer ? {
+            name: craft.reqSlayer.name,
+            level: craft.reqSlayer.level
+        } : null,
     } as ProfitableCraft
-    c.item.name = convertTagToName(c.item.tag)
+    c.item.name = convertTagToName(c.item.tag);
     c.ingredients.forEach(i => {
-        i.item.name = convertTagToName(i.item.tag)
-        i.item.iconUrl = api.getItemImageUrl(i.item)
+        i.item.name = convertTagToName(i.item.tag);
+        i.item.iconUrl = api.getItemImageUrl(i.item);
     })
-    c.item.name = convertTagToName(c.item.name)
-    c.item.iconUrl = api.getItemImageUrl(c.item)
-    return c
+    c.item.name = convertTagToName(c.item.name);
+    c.item.iconUrl = api.getItemImageUrl(c.item);
+    return c;
 }
 
 export function parseLowSupplyItem(item): LowSupplyItem {

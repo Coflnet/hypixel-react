@@ -10,28 +10,102 @@ import styles from './CraftsList.module.css'
 
 interface Props {
     crafts?: ProfitableCraft[]
+    bazaarTags?: string[]
 }
 
+interface SortOption {
+    label: string
+    value: string
+    sortFunction(crafts: ProfitableCraft[], bazaarTags: string[])
+}
+
+const SORT_OPTIONS: SortOption[] = [
+    {
+        label: 'Profit',
+        value: 'profit',
+        sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
+    },
+    {
+        label: 'Sell-Price',
+        value: 'sellPrice',
+        sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - a.sellPrice)
+    },
+    {
+        label: 'Craft-Cost',
+        value: 'craftCost',
+        sortFunction: crafts => crafts.sort((a, b) => b.craftCost - a.craftCost)
+    },
+    {
+        label: 'Instant-Sell (Bazaar)',
+        value: 'bazaarCrafts',
+        sortFunction: (crafts, bazaarTags) =>
+            crafts
+                .sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
+                .filter(craft => {
+                    let searchFor = [...craft.ingredients.map(ingredients => ingredients.item.tag), craft.item.tag]
+                    for (let i = 0; i < searchFor.length; i++) {
+                        if (bazaarTags.indexOf(searchFor[i]) === -1) {
+                            return false
+                        }
+                    }
+                    return true
+                })
+    }
+]
+
+let observer: MutationObserver
+
 export function CraftsList(props: Props) {
-    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts || [])
+    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts ||[])
     let [nameFilter, setNameFilter] = useState<string | null>()
-    let [orderBy, setOrderBy] = useState<string>('profit')
+    let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
     let [profiles, setProfiles] = useState<SkyblockProfile[]>()
     let [selectedProfile, setSelectedProfile] = useState<SkyblockProfile>()
     let [isLoadingProfileData, setIsLoadingProfileData] = useState(true)
     let [hasPremium, setHasPremium] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [bazaarTags, setBazaarTags] = useState<string[]>(props.bazaarTags || [])
+    let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
 
     useEffect(() => {
         setIsLoadingProfileData(true)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    useEffect(() => {
+        // reset the blur observer, when something changed
+        setTimeout(() => {
+            setBlurObserver()
+        }, 100)
+    })
+
     function loadCrafts(playerId?: string, profileId?: string) {
         api.getProfitableCrafts(playerId, profileId).then(crafts => {
             setCrafts(crafts)
         })
+    }
+
+    function setBlurObserver() {
+        if (observer) {
+            observer.disconnect()
+        }
+        observer = new MutationObserver(function () {
+            setShowTechSavvyMessage(true)
+        })
+
+        var targets = document.getElementsByClassName('blur')
+        for (var i = 0; i < targets.length; i++) {
+            console.log(typeof targets[i])
+            console.log(targets[i])
+            var config = {
+                attributes: true,
+                childList: true,
+                characterData: true,
+                attributeFilter: ['style']
+            }
+            observer.observe(targets[i], config)
+        }
     }
 
     function loadHasPremium(): Promise<void> {
@@ -66,17 +140,16 @@ export function CraftsList(props: Props) {
     }
 
     function onNameFilterChange(e: any) {
-        if (e.target.value) {
-            setNameFilter(e.target.value)
-        } else {
-            setNameFilter(e.target.value)
-        }
+        setNameFilter(e.target.value)
     }
 
     function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
         let selectedIndex = event.target.options.selectedIndex
         let value = event.target.options[selectedIndex].getAttribute('value')!
-        setOrderBy(value)
+        let sortOption = SORT_OPTIONS.find(option => option.value === value)
+        if (sortOption) {
+            setOrderBy(sortOption)
+        }
     }
 
     function onProfileChange(event: ChangeEvent<HTMLSelectElement>) {
@@ -85,6 +158,12 @@ export function CraftsList(props: Props) {
         let newSelectedProfile = profiles?.find(p => p.cuteName === value)
         setSelectedProfile(newSelectedProfile)
         loadCrafts(accountInfo?.mcId, newSelectedProfile?.id)
+    }
+
+    let blurStyle: React.CSSProperties = {
+        WebkitFilter: 'blur(5px)',
+        msFilter: 'blur(5px)',
+        filter: 'blur(5px)'
     }
 
     function getListElement(craft: ProfitableCraft, blur: boolean) {
@@ -100,8 +179,26 @@ export function CraftsList(props: Props) {
                 ) : (
                     ''
                 )}
-                <div className={blur ? styles.blur : ''}>
-                    <h4>{getCraftHeader(craft)}</h4>
+                {showTechSavvyMessage && blur ? (
+                    <p
+                        style={{
+                            position: 'absolute',
+                            top: '25%',
+                            left: '25%',
+                            width: '50%',
+                            fontSize: 'large',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            backgroundColor: 'gray'
+                        }}
+                    >
+                        You seem like a tech savvy person, join our development team to get premium for free. :)
+                    </p>
+                ) : (
+                    ''
+                )}
+                <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
+                <h4>{getCraftHeader(craft)}</h4>
                     <p>
                         <span className={styles.label}>Crafting-Cost:</span> {numberWithThousandsSeperators(Math.round(craft.craftCost))} Coins
                     </p>
@@ -109,13 +206,25 @@ export function CraftsList(props: Props) {
                         <span className={styles.label}>Sell-Price:</span> {numberWithThousandsSeperators(Math.round(craft.sellPrice))} Coins
                     </p>
                     <p>
-                        <span className={styles.label}>Req. Collection:</span>{' '}
-                        {craft.requiredCollection ? (
-                            convertTagToName(craft.requiredCollection.name) + ' ' + craft.requiredCollection.level
-                        ) : (
-                            <span style={{ color: 'red' }}>---</span>
-                        )}
+                        <span className={styles.label}>Median:</span>{' '}
+                        {craft.median > 0 ? `${numberWithThousandsSeperators(Math.round(craft.median))} Coins` : 'unknown'}
                     </p>
+                    <p>
+                        <span className={styles.label}>Volume:</span> {craft.volume > 0 ? `${numberWithThousandsSeperators(Math.round(craft.volume))}` : 'unknown'}
+                    </p>
+                    {craft.requiredCollection ? (
+                        <p className={styles.craftRequirement}>
+                            <span className={styles.craftRequirementLabel}>Req. Collection:</span>
+                            {convertTagToName(craft.requiredCollection.name) + ' ' + craft.requiredCollection.level}
+                        </p>
+                    ) : null}
+                    {craft.requiredSlayer ? (
+                        <p className={styles.craftRequirement}>
+                            <span className={styles.craftRequirementLabel}>Req. Slayer:</span>
+                            {convertTagToName(craft.requiredSlayer.name) + ' ' + craft.requiredSlayer.level}
+                        </p>
+                    ) : null}
+                    {!craft.requiredCollection && !craft.requiredSlayer ? <p className={styles.craftRequirement}>No Collection/Slayer required</p> : null}
                 </div>
             </ListGroup.Item>
         )
@@ -130,16 +239,19 @@ export function CraftsList(props: Props) {
         )
     }
 
+    let orderedCrafts = crafts
     if (orderBy) {
-        if (orderBy === 'profit') {
-            crafts = crafts.sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
-        } else {
-            crafts = crafts.sort((a, b) => (b[orderBy] as number) - (a[orderBy] as number))
-        }
+        let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
+        orderedCrafts = sortOption?.sortFunction(crafts, bazaarTags)
     }
 
-    let list = crafts.map((craft, i) => {
-        return !hasPremium && i < 3 ? (
+    let shown = 0
+    let list = orderedCrafts.map((craft, i) => {
+        if (nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
+            return null
+        }
+        shown++
+        return !hasPremium && shown <= 3 ? (
             <div key={craft.item.tag} className={styles.preventSelect}>
                 {getListElement(craft, true)}
             </div>
@@ -192,11 +304,10 @@ export function CraftsList(props: Props) {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Form.Control style={{ width: selectWidth }} placeholder="Item name..." onChange={onNameFilterChange} />
-                <Form.Control style={{ width: selectWidth }} defaultValue={orderBy} as="select" onChange={updateOrderBy}>
-                    <option value={''}>-</option>
-                    <option value={'craftCost'}>Craft-Cost</option>
-                    <option value={'sellPrice'}>Sell-Price</option>
-                    <option value={'profit'}>Profit</option>
+                <Form.Control style={{ width: selectWidth }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
+                    {SORT_OPTIONS.map(option => (
+                        <option value={option.value}>{option.label}</option>
+                    ))}
                 </Form.Control>
                 {profiles ? (
                     <Form.Control style={{ width: selectWidth }} defaultValue={selectedProfile?.cuteName} as="select" onChange={onProfileChange}>

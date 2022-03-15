@@ -7,7 +7,8 @@ import Search from '../components/Search/Search'
 import { parseProfitableCraft } from '../utils/Parser/APIResponseParser'
 
 interface Props {
-    crafts: any[]
+    crafts: any[],
+    bazaarTags: string[]
 }
 
 function Crafts(props: Props) {
@@ -18,11 +19,9 @@ function Crafts(props: Props) {
             </Head>
             <Container>
                 <Search />
-                <h2>
-                    Profitable crafts
-                </h2>
+                <h2>Profitable crafts</h2>
                 <hr />
-                <CraftsList crafts={props.crafts?.map(parseProfitableCraft)} />
+                <CraftsList crafts={props.crafts?.map(parseProfitableCraft)} bazaarTags={props.bazaarTags} />
             </Container>
         </div>
     )
@@ -30,10 +29,11 @@ function Crafts(props: Props) {
 
 export const getServerSideProps = async () => {
     let api = initAPI(true)
-    let crafts = await api.getProfitableCrafts()
+    let results = await Promise.all([api.getProfitableCrafts(), api.getBazaarTags()])
     return {
         props: {
-            crafts: crafts
+            crafts: results[0],
+            bazaarTags: results[1]
         }
     }
 }

@@ -20,14 +20,6 @@
     width: calc(50% - 10px)
 }
 
-.blur {
-    -webkit-filter: blur(5px);
-    -moz-filter: blur(5px);
-    -o-filter: blur(5px);
-    -ms-filter: blur(5px);
-    filter: blur(5px);
-}
-
 .craftsList .preventSelect {
     width: calc(50% - 10px);
     -webkit-touch-callout: none;
@@ -35,4 +27,21 @@
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+}
+
+.craftsList .label {
+    width: 150px;
+    float: left;
+}
+
+.craftsList :global(.list-group-item) :global(p) {
+    margin: 0;
+}
+
+.craftsList :global(.list-group-item) .craftRequirement {
+    text-align: right;
+}
+
+.craftsList :global(.list-group-item) .craftRequirementLabel{
+    margin-right: 10px;
 }
