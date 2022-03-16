@@ -1,11 +1,21 @@
-FROM node:16-alpine3.11 as frontend
+FROM node:16
 
-WORKDIR /build
-COPY package*.json ./
-RUN npm ci
-COPY . .
+ENV PORT 3000
+
+# Create app directory
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+# Installing dependencies
+COPY package*.json /usr/src/app/
+RUN npm install
+
+# Copying source files
+COPY . /usr/src/app
+
+# Building app
 RUN npm run build
+EXPOSE 3000
 
-FROM nginx:1.21.5-alpine
-
-COPY --from=frontend /build/build /usr/share/nginx/html
+# Running the app
+CMD "npm" "run" "start"
