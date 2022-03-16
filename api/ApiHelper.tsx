@@ -310,10 +310,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let subscribe = (topic: string, types: SubscriptionType[], price?: number): Promise<void> => {
+    let subscribe = (topic: string, types: SubscriptionType[], price?: number, filter?: ItemFilter): Promise<void> => {
         return new Promise((resolve, reject) => {
             // Add none, so reduce works (doesnt change the result)
             types.push(SubscriptionType.NONE)
+
+            if (filter) {
+                filter._hide = undefined
+                filter._label = undefined
+            }
 
             let requestData = {
                 topic: topic,
@@ -322,7 +327,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     let aNum: number = typeof a === 'number' ? (a as number) : parseInt(SubscriptionType[a])
                     let bNum: number = typeof b === 'number' ? (b as number) : parseInt(SubscriptionType[b])
                     return aNum + bNum
-                })
+                }),
+                filter: filter ? JSON.stringify(filter) : undefined
             }
             websocketHelper.sendRequest({
                 type: RequestType.SUBSCRIBE,
@@ -349,7 +355,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     let aNum: number = typeof a === 'number' ? (a as number) : parseInt(SubscriptionType[a])
                     let bNum: number = typeof b === 'number' ? (b as number) : parseInt(SubscriptionType[b])
                     return aNum + bNum
-                })
+                }),
+                filter: subscription.filter ? JSON.stringify(subscription.filter) : undefined
             }
 
             websocketHelper.sendRequest({

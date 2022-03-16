@@ -372,7 +372,6 @@ interface ProfitableCraft {
   sellPrice: number,
   craftCost: number,
   ingredients: CraftingIngredient[],
-  requiredCollection?: RequiredCollection,
   volume: number,
   median: number,
   requiredCollection?: CraftRequirement,
