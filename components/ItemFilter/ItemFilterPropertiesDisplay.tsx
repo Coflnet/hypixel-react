@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
-import ItemFilter from './ItemFilter'
 
 interface Props {
     filter?: ItemFilter
