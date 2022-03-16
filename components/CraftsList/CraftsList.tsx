@@ -119,28 +119,6 @@ export function CraftsList(props: Props) {
         })
     }
 
-    function setBlurObserver() {
-        if (observer) {
-            observer.disconnect()
-        }
-        observer = new MutationObserver(function () {
-            setShowTechSavvyMessage(true)
-        })
-
-        var targets = document.getElementsByClassName('blur')
-        for (var i = 0; i < targets.length; i++) {
-            console.log(typeof targets[i])
-            console.log(targets[i])
-            var config = {
-                attributes: true,
-                childList: true,
-                characterData: true,
-                attributeFilter: ['style']
-            }
-            observer.observe(targets[i], config)
-        }
-    }
-
     function onAfterLogin() {
         setIsLoggedIn(true)
         loadHasPremium().then(() => {

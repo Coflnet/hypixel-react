@@ -36,16 +36,17 @@ const Startpage = (props: Props) => {
 
 export const getServerSideProps = async () => {
     let api = initAPI(true)
+    // Dont load ended Auctions, as this is a expensive computation and can take multiple seconds
     let results = await Promise.all(
-        [api.getNewAuctions(), api.getEndedAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => null))
+        [api.getNewAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => null))
     )
     return {
         props: {
             newAuctions: results[0],
-            endedAuctions: results[1],
-            newPlayers: results[2],
-            popularSearches: results[3],
-            newItems: results[4]
+            endedAuctions: [],
+            newPlayers: results[1],
+            popularSearches: results[2],
+            newItems: results[3]
         }
     }
 }
