@@ -52,31 +52,33 @@ function Startpage(props: Props) {
         return (
             <div className={`${styles.cardWrapper}`} key={auction.uuid} style={style}>
                 <Link href={`/auction/${auction.uuid}`}>
-                    <Card>
-                        <Card.Header style={{ padding: '10px' }}>
-                            <p className={styles.ellipsis}>
-                                <img crossOrigin="anonymous" src={auction.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: '5px' }} />
-                                {auction.item.name}
-                            </p>
-                        </Card.Header>
-                        <Card.Body>
-                            <div>
-                                <ul>
-                                    <li>{getEndString(auction.end)}</li>
-                                    <li>{numberWithThousandsSeperators(auction.highestBid || auction.startingBid)} Coins</li>
-                                    {auction.bin ? (
-                                        <li>
-                                            <Badge style={{ marginLeft: '5px' }} variant="success">
-                                                BIN
-                                            </Badge>
-                                        </li>
-                                    ) : (
-                                        ''
-                                    )}
-                                </ul>
-                            </div>
-                        </Card.Body>
-                    </Card>
+                    <a className="disableLinkStyle">
+                        <Card>
+                            <Card.Header style={{ padding: '10px' }}>
+                                <p className={styles.ellipsis}>
+                                    <img crossOrigin="anonymous" src={auction.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: '5px' }} />
+                                    {auction.item.name}
+                                </p>
+                            </Card.Header>
+                            <Card.Body>
+                                <div>
+                                    <ul>
+                                        <li>{getEndString(auction.end)}</li>
+                                        <li>{numberWithThousandsSeperators(auction.highestBid || auction.startingBid)} Coins</li>
+                                        {auction.bin ? (
+                                            <li>
+                                                <Badge style={{ marginLeft: '5px' }} variant="success">
+                                                    BIN
+                                                </Badge>
+                                            </li>
+                                        ) : (
+                                            ''
+                                        )}
+                                    </ul>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </a>
                 </Link>
             </div>
         )
@@ -149,23 +151,25 @@ function Startpage(props: Props) {
                             return (
                                 <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={search.url} style={style}>
                                     <Link href={search.url}>
-                                        <Card>
-                                            <Card.Header style={{ height: '100%' }}>
-                                                <div style={{ float: 'left' }}>
-                                                    <img
-                                                        crossOrigin="anonymous"
-                                                        className="playerHeadIcon"
-                                                        src={search.url.includes('/player') ? search.img + '?size=8' : search.img}
-                                                        width="32"
-                                                        height="32"
-                                                        alt=""
-                                                        style={{ marginRight: '5px' }}
-                                                        loading="lazy"
-                                                    />
-                                                </div>
-                                                <Card.Title className={styles.ellipsis}>{search.title}</Card.Title>
-                                            </Card.Header>
-                                        </Card>
+                                        <a className="disableLinkStyle">
+                                            <Card>
+                                                <Card.Header style={{ height: '100%' }}>
+                                                    <div style={{ float: 'left' }}>
+                                                        <img
+                                                            crossOrigin="anonymous"
+                                                            className="playerHeadIcon"
+                                                            src={search.url.includes('/player') ? search.img + '?size=8' : search.img}
+                                                            width="32"
+                                                            height="32"
+                                                            alt=""
+                                                            style={{ marginRight: '5px' }}
+                                                            loading="lazy"
+                                                        />
+                                                    </div>
+                                                    <Card.Title className={styles.ellipsis}>{search.title}</Card.Title>
+                                                </Card.Header>
+                                            </Card>
+                                        </a>
                                     </Link>
                                 </div>
                             )
@@ -214,23 +218,25 @@ function Startpage(props: Props) {
                             return (
                                 <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newPlayer.name} style={style}>
                                     <Link href={`/player/${newPlayer.uuid}`}>
-                                        <Card>
-                                            <Card.Header style={{ height: '100%', padding: '20px' }}>
-                                                <div style={{ float: 'left' }}>
-                                                    <img
-                                                        crossOrigin="anonymous"
-                                                        className="playerHeadIcon"
-                                                        src={newPlayer.iconUrl}
-                                                        width="32"
-                                                        height="32"
-                                                        alt=""
-                                                        style={{ marginRight: '5px' }}
-                                                        loading="lazy"
-                                                    />
-                                                </div>
-                                                <Card.Title className={styles.ellipsis}>{newPlayer.name}</Card.Title>
-                                            </Card.Header>
-                                        </Card>
+                                        <a className="disableLinkStyle">
+                                            <Card>
+                                                <Card.Header style={{ height: '100%', padding: '20px' }}>
+                                                    <div style={{ float: 'left' }}>
+                                                        <img
+                                                            crossOrigin="anonymous"
+                                                            className="playerHeadIcon"
+                                                            src={newPlayer.iconUrl}
+                                                            width="32"
+                                                            height="32"
+                                                            alt=""
+                                                            style={{ marginRight: '5px' }}
+                                                            loading="lazy"
+                                                        />
+                                                    </div>
+                                                    <Card.Title className={styles.ellipsis}>{newPlayer.name}</Card.Title>
+                                                </Card.Header>
+                                            </Card>
+                                        </a>
                                     </Link>
                                 </div>
                             )
@@ -258,22 +264,24 @@ function Startpage(props: Props) {
                             return (
                                 <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newItem.tag} style={style}>
                                     <Link href={`/item/${newItem.tag}`}>
-                                        <Card>
-                                            <Card.Header style={{ height: '100%', padding: '20px' }}>
-                                                <div style={{ float: 'left' }}>
-                                                    <img
-                                                        crossOrigin="anonymous"
-                                                        src={newItem.iconUrl}
-                                                        width="32"
-                                                        height="32"
-                                                        alt=""
-                                                        style={{ marginRight: '5px' }}
-                                                        loading="lazy"
-                                                    />
-                                                </div>
-                                                <Card.Title className={styles.ellipsis}>{newItem.name}</Card.Title>
-                                            </Card.Header>
-                                        </Card>
+                                        <a className="disableLinkStyle">
+                                            <Card>
+                                                <Card.Header style={{ height: '100%', padding: '20px' }}>
+                                                    <div style={{ float: 'left' }}>
+                                                        <img
+                                                            crossOrigin="anonymous"
+                                                            src={newItem.iconUrl}
+                                                            width="32"
+                                                            height="32"
+                                                            alt=""
+                                                            style={{ marginRight: '5px' }}
+                                                            loading="lazy"
+                                                        />
+                                                    </div>
+                                                    <Card.Title className={styles.ellipsis}>{newItem.name}</Card.Title>
+                                                </Card.Header>
+                                            </Card>
+                                        </a>
                                     </Link>
                                 </div>
                             )

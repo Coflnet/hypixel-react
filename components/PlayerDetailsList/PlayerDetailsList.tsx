@@ -15,7 +15,7 @@ import styles from './PlayerDetailsList.module.css'
 interface Props {
     playerUUID: string
     loadingDataFunction: Function
-    type: 'auctions' | 'bids',
+    type: 'auctions' | 'bids'
     auctions?: Auction[]
 }
 
@@ -228,41 +228,43 @@ function PlayerDetailsList(props: Props) {
             <ListGroup.Item action className={styles.listGroupItem}>
                 <span key={listElement.uuid} className={`${styles.disableLinkStyle} ${styles.listItemLink}`}>
                     <Link href={`/auction/${listElement.uuid}`}>
-                        <div>
-                            <h4>
-                                {getItemImageElement(listElement)}
-                                {listElement.item.name || convertTagToName(listElement.item.tag)}
-                                {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
-                                    <Badge variant="danger" style={{ marginLeft: '10px' }}>
-                                        Ended
-                                    </Badge>
-                                ) : (
-                                    <Badge variant="info" style={{ marginLeft: '10px' }}>
-                                        Running
-                                    </Badge>
-                                )}
-                                {listElement.bin ? (
-                                    <Badge style={{ marginLeft: '5px' }} variant="success">
-                                        BIN
-                                    </Badge>
-                                ) : (
-                                    ''
-                                )}
-                            </h4>
-                            <p>
-                                Highest Bid: {numberWithThousandsSeperators(listElement.highestBid)} {getCoinImage()}
-                            </p>
-                            {props.type === 'auctions' ? (
+                        <a className="disableLinkStyle">
+                            <div>
+                                <h4>
+                                    {getItemImageElement(listElement)}
+                                    {listElement.item.name || convertTagToName(listElement.item.tag)}
+                                    {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
+                                        <Badge variant="danger" style={{ marginLeft: '10px' }}>
+                                            Ended
+                                        </Badge>
+                                    ) : (
+                                        <Badge variant="info" style={{ marginLeft: '10px' }}>
+                                            Running
+                                        </Badge>
+                                    )}
+                                    {listElement.bin ? (
+                                        <Badge style={{ marginLeft: '5px' }} variant="success">
+                                            BIN
+                                        </Badge>
+                                    ) : (
+                                        ''
+                                    )}
+                                </h4>
                                 <p>
-                                    Starting Bid: {numberWithThousandsSeperators((listElement as Auction).startingBid)} {getCoinImage()}
+                                    Highest Bid: {numberWithThousandsSeperators(listElement.highestBid)} {getCoinImage()}
                                 </p>
-                            ) : (
-                                <p>
-                                    Highest Own: {numberWithThousandsSeperators((listElement as BidForList).highestOwn)} {getCoinImage()}
-                                </p>
-                            )}
-                            <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
-                        </div>
+                                {props.type === 'auctions' ? (
+                                    <p>
+                                        Starting Bid: {numberWithThousandsSeperators((listElement as Auction).startingBid)} {getCoinImage()}
+                                    </p>
+                                ) : (
+                                    <p>
+                                        Highest Own: {numberWithThousandsSeperators((listElement as BidForList).highestOwn)} {getCoinImage()}
+                                    </p>
+                                )}
+                                <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
+                            </div>
+                        </a>
                     </Link>
                 </span>
             </ListGroup.Item>

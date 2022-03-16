@@ -25,7 +25,9 @@ function Refed() {
                         </p>
 
                         <Link href="/">
-                            <Button>Go to main page</Button>
+                            <a className="disableLinkStyle">
+                                <Button>Go to main page</Button>
+                            </a>
                         </Link>
                     </Card.Body>
                 </Card>

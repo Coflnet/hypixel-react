@@ -174,7 +174,7 @@ function AuctionDetails(props: Props) {
             let decSplits = value ? value.split(':') : []
             let hexSplits: string[] = []
             decSplits.forEach(split => {
-                hexSplits.push(parseInt(split).toString(16).padStart(2, '0'));
+                hexSplits.push(parseInt(split).toString(16).padStart(2, '0'))
             })
             return <Tooltip type="hover" content={<span>{hexSplits.join('')}</span>} tooltipContent={value} />
         }
@@ -200,32 +200,34 @@ function AuctionDetails(props: Props) {
         <div>
             <Card.Header className={styles.auctionCardHeader}>
                 <Link href={'/item/' + auctionDetails.auction.item.tag}>
-                    <h1>
-                        <span className={styles.itemIcon}>
-                            <img
-                                crossOrigin="anonymous"
-                                src={auctionDetails?.auction.item.iconUrl}
-                                height="48"
-                                width="48"
-                                alt="item icon"
-                                style={{ marginRight: '5px' }}
-                                loading="lazy"
-                            />
-                        </span>
-                        <span>
-                            <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
-                            <Badge variant={countBadgeVariant} style={{ marginLeft: '5px' }}>
-                                x{auctionDetails?.count}
-                            </Badge>
-                            {auctionDetails.auction.bin ? (
-                                <Badge variant={binBadgeVariant} style={{ marginLeft: '5px' }}>
-                                    BIN
+                    <a className="disableLinkStyle">
+                        <h1>
+                            <span className={styles.itemIcon}>
+                                <img
+                                    crossOrigin="anonymous"
+                                    src={auctionDetails?.auction.item.iconUrl}
+                                    height="48"
+                                    width="48"
+                                    alt="item icon"
+                                    style={{ marginRight: '5px' }}
+                                    loading="lazy"
+                                />
+                            </span>
+                            <span>
+                                <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
+                                <Badge variant={countBadgeVariant} style={{ marginLeft: '5px' }}>
+                                    x{auctionDetails?.count}
                                 </Badge>
-                            ) : (
-                                ''
-                            )}
-                        </span>
-                    </h1>
+                                {auctionDetails.auction.bin ? (
+                                    <Badge variant={binBadgeVariant} style={{ marginLeft: '5px' }}>
+                                        BIN
+                                    </Badge>
+                                ) : (
+                                    ''
+                                )}
+                            </span>
+                        </h1>
+                    </a>
                 </Link>
                 <div className={styles.cardHeadSubtext}>
                     <OverlayTrigger
@@ -297,7 +299,7 @@ function AuctionDetails(props: Props) {
                 </p>
 
                 <Link href={`/player/${auctionDetails.auctioneer.uuid}`}>
-                    <a>
+                    <a className="disableLinkStyle">
                         <p>
                             <span className={styles.label}>
                                 <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
@@ -365,22 +367,24 @@ function AuctionDetails(props: Props) {
                 let headingStyle = i === 0 ? { color: 'green' } : { color: 'red' }
                 return (
                     <Link href={`/player/${bid.bidder.uuid}`}>
-                        <ListGroup.Item key={bid.amount} action>
-                            <img
-                                crossOrigin="anonymous"
-                                className="playerHeadIcon"
-                                src={bid.bidder.iconUrl}
-                                height="64"
-                                width="64"
-                                alt="bidder minecraft icon"
-                                style={{ marginRight: '15px', float: 'left' }}
-                                loading="lazy"
-                            />
-                            <h6 style={headingStyle}>{numberWithThousandsSeperators(bid.amount)} Coins</h6>
-                            <span>{bid.bidder.name}</span>
-                            <br />
-                            <span>{moment(bid.timestamp).fromNow()}</span>
-                        </ListGroup.Item>
+                        <a className="disableLinkStyle">
+                            <ListGroup.Item key={bid.amount} action>
+                                <img
+                                    crossOrigin="anonymous"
+                                    className="playerHeadIcon"
+                                    src={bid.bidder.iconUrl}
+                                    height="64"
+                                    width="64"
+                                    alt="bidder minecraft icon"
+                                    style={{ marginRight: '15px', float: 'left' }}
+                                    loading="lazy"
+                                />
+                                <h6 style={headingStyle}>{numberWithThousandsSeperators(bid.amount)} Coins</h6>
+                                <span>{bid.bidder.name}</span>
+                                <br />
+                                <span>{moment(bid.timestamp).fromNow()}</span>
+                            </ListGroup.Item>
+                        </a>
                     </Link>
                 )
             })
@@ -393,7 +397,9 @@ function AuctionDetails(props: Props) {
                     <p>The auction you tried to see doesn't seem to exist. Please go back.</p>
                     <br />
                     <Link href="/">
-                        <Button>Get back</Button>
+                        <a className="disableLinkStyle">
+                            <Button>Get back</Button>
+                        </a>
                     </Link>
                 </div>
             ) : (

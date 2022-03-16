@@ -64,35 +64,37 @@ function ActiveAuctions(props: Props) {
         return (
             <div className={styles.cardWrapper} key={activeAuction.uuid}>
                 <Card>
-                    <span className="disableLinkStyle">
+                    <span>
                         <Link href={`/auction/${activeAuction.uuid}`}>
-                            <Card.Header style={{ padding: '10px' }}>
-                                <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'space-between' }}>
-                                    <img
-                                        crossOrigin="anonymous"
-                                        className="playerHeadIcon"
-                                        src={props.item.iconUrl}
-                                        width="32"
-                                        height="32"
-                                        alt=""
-                                        style={{ marginRight: '5px' }}
-                                        loading="lazy"
-                                    />
-                                    <span style={{ padding: '2px', textAlign: 'center' }}>{numberWithThousandsSeperators(activeAuction.price)} Coins</span>
-                                    <div onClick={e => e.preventDefault()}>
-                                        <CopyButton
-                                            buttonVariant="primary"
-                                            copyValue={'/viewauction ' + activeAuction.uuid}
-                                            successMessage={
-                                                <p>
-                                                    Copied ingame link <br />
-                                                    <i>/viewauction {activeAuction.uuid}</i>
-                                                </p>
-                                            }
+                            <a className="disableLinkStyle">
+                                <Card.Header style={{ padding: '10px' }}>
+                                    <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'space-between' }}>
+                                        <img
+                                            crossOrigin="anonymous"
+                                            className="playerHeadIcon"
+                                            src={props.item.iconUrl}
+                                            width="32"
+                                            height="32"
+                                            alt=""
+                                            style={{ marginRight: '5px' }}
+                                            loading="lazy"
                                         />
+                                        <span style={{ padding: '2px', textAlign: 'center' }}>{numberWithThousandsSeperators(activeAuction.price)} Coins</span>
+                                        <div onClick={e => e.preventDefault()}>
+                                            <CopyButton
+                                                buttonVariant="primary"
+                                                copyValue={'/viewauction ' + activeAuction.uuid}
+                                                successMessage={
+                                                    <p>
+                                                        Copied ingame link <br />
+                                                        <i>/viewauction {activeAuction.uuid}</i>
+                                                    </p>
+                                                }
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                            </Card.Header>
+                                </Card.Header>
+                            </a>
                         </Link>
                     </span>
                     <Card.Body style={{ padding: '10px' }}>

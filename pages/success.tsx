@@ -6,7 +6,7 @@ import Search from '../components/Search/Search'
 
 function Success() {
     return (
-        <div className='page'>
+        <div className="page">
             <Head>
                 <title>Payment successful</title>
             </Head>
@@ -22,7 +22,9 @@ function Success() {
                             If any problems should occur please contact us via <Link href="/feedback">the contact page</Link>.
                         </p>
                         <Link href="/">
-                            <Button>Return to main page</Button>
+                            <a className="disableLinkStyle">
+                                <Button>Return to main page</Button>
+                            </a>
                         </Link>
                     </Card.Body>
                 </Card>

@@ -35,39 +35,41 @@ function FlipBased(props: Props) {
             <div className={styles.cardWrapper} style={{ display: 'inline-block' }} key={auction.uuid}>
                 <span className="disableLinkStyle">
                     <Link href={`/auction/${auction.uuid}`}>
-                        <Card className="card">
-                            <Card.Header style={{ padding: '10px' }}>
-                                <p className="ellipsis" style={{ width: '180px' }}>
-                                    <img
-                                        crossOrigin="anonymous"
-                                        src={props.flip.item.iconUrl}
-                                        width="32"
-                                        height="32"
-                                        alt=""
-                                        style={{ marginRight: '5px' }}
-                                        loading="lazy"
-                                    />
-                                    {auction.item.name}
-                                </p>
-                            </Card.Header>
-                            <Card.Body>
-                                <div>
-                                    <ul>
-                                        <li>Ended {moment(auction.end).fromNow()}</li>
-                                        <li>{numberWithThousandsSeperators(auction.highestBid || auction.startingBid)} Coins</li>
-                                        {auction.bin ? (
-                                            <li>
-                                                <Badge style={{ marginLeft: '5px' }} variant="success">
-                                                    BIN
-                                                </Badge>
-                                            </li>
-                                        ) : (
-                                            ''
-                                        )}
-                                    </ul>
-                                </div>
-                            </Card.Body>
-                        </Card>
+                        <a className="disableLinkStyle">
+                            <Card className="card">
+                                <Card.Header style={{ padding: '10px' }}>
+                                    <p className="ellipsis" style={{ width: '180px' }}>
+                                        <img
+                                            crossOrigin="anonymous"
+                                            src={props.flip.item.iconUrl}
+                                            width="32"
+                                            height="32"
+                                            alt=""
+                                            style={{ marginRight: '5px' }}
+                                            loading="lazy"
+                                        />
+                                        {auction.item.name}
+                                    </p>
+                                </Card.Header>
+                                <Card.Body>
+                                    <div>
+                                        <ul>
+                                            <li>Ended {moment(auction.end).fromNow()}</li>
+                                            <li>{numberWithThousandsSeperators(auction.highestBid || auction.startingBid)} Coins</li>
+                                            {auction.bin ? (
+                                                <li>
+                                                    <Badge style={{ marginLeft: '5px' }} variant="success">
+                                                        BIN
+                                                    </Badge>
+                                                </li>
+                                            ) : (
+                                                ''
+                                            )}
+                                        </ul>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </a>
                     </Link>
                 </span>
             </div>

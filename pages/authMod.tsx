@@ -51,7 +51,9 @@ function AuthMod() {
                             <hr />
                             <p>Now that the mod is connected with the website you can change the filters/settings here:</p>
                             <Link href="/flipper">
-                                <Button>To the Flipper</Button>
+                                <a className="disableLinkStyle">
+                                    <Button>To the Flipper</Button>
+                                </a>
                             </Link>
                         </div>
                     ) : (
