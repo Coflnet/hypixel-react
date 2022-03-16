@@ -299,7 +299,7 @@ function AuctionDetails(props: Props) {
                 </p>
 
                 <Link href={`/player/${auctionDetails.auctioneer.uuid}`}>
-                    <a className="disableLinkStyle">
+                    <a>
                         <p>
                             <span className={styles.label}>
                                 <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
