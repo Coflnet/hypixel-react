@@ -5,12 +5,12 @@ import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser'
 import FilterElement from '../FilterElement/FilterElement'
 import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@material-ui/icons'
-import { Link } from '@material-ui/core'
 import { camelCaseToSentenceCase } from '../../utils/Formatter'
 import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void

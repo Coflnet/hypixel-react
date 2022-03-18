@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import Head from 'next/head'
 import Search from '../../components/Search/Search'
 import { Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api, { initAPI } from '../../api/ApiHelper'
@@ -11,7 +10,7 @@ import PlayerDetailsList from '../../components/PlayerDetailsList/PlayerDetailsL
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import GoogleSignIn from '../../components/GoogleSignIn/GoogleSignIn'
 import { useRouter } from 'next/router'
-import { isClientSideRendering } from '../../utils/SSRUtils'
+import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './player.module.css'
 
 enum DetailType {
@@ -98,9 +97,13 @@ function PlayerDetails(props: Props) {
 
     return (
         <div className="page">
-            <Head>
-                <title>{`Auctions and bids from ${selectedPlayer?.name} in the hypixel skyblock ah`}</title>
-            </Head>
+            {getHeadElement(
+                `${selectedPlayer?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`,
+                `Auctions and bids for ${selectedPlayer?.name} in Hypixel Skyblock.`,
+                selectedPlayer?.iconUrl?.split('?')[0],
+                [selectedPlayer?.name || ''],
+                `${selectedPlayer?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`
+            )}
             <Container>
                 {wasAlreadyLoggedIn() ? (
                     <div style={{ visibility: 'collapse' }}>
@@ -136,9 +139,9 @@ function PlayerDetails(props: Props) {
                     </ToggleButton>
                 </ToggleButtonGroup>
                 {detailType === DetailType.AUCTIONS ? (
-                    <PlayerDetailsList type="auctions" auctions={props.auctions?.map(parseAuction)} loadingDataFunction={api.getAuctions} playerUUID={uuid} />
+                    <PlayerDetailsList key={"auctions"} type="auctions" auctions={props.auctions?.map(parseAuction)} loadingDataFunction={api.getAuctions} playerUUID={uuid} />
                 ) : undefined}
-                {detailType === DetailType.BIDS ? <PlayerDetailsList type="bids" loadingDataFunction={api.getBids} playerUUID={uuid} /> : undefined}
+                {detailType === DetailType.BIDS ? <PlayerDetailsList key={"bids"} type="bids" loadingDataFunction={api.getBids} playerUUID={uuid} /> : undefined}
             </Container>
         </div>
     )

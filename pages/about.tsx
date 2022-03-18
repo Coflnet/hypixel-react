@@ -4,7 +4,7 @@ import NavBar from '../components/NavBar/NavBar'
 import Cookies from 'js-cookie'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import cacheUtils from '../utils/CacheUtils'
-import Head from 'next/head'
+import { getHeadElement } from '../utils/SSRUtils'
 
 function About() {
     const { pushInstruction } = useMatomo()
@@ -35,9 +35,7 @@ function About() {
 
     return (
         <div className="page">
-            <Head>
-                <title>About</title>
-            </Head>
+            {getHeadElement('About')}
             <Container>
                 <h2>
                     <NavBar />

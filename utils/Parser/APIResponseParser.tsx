@@ -179,7 +179,7 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
         auction: {
             uuid: auctionDetails.uuid,
             end: parseDate(auctionDetails.end),
-            highestBid: auctionDetails.bids[0],
+            highestBid: auctionDetails.highestBidAmount,
             startingBid: auctionDetails.startingBid,
             item: parseItem(auctionDetails),
             bin: auctionDetails.bin

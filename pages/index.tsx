@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Container } from 'react-bootstrap'
 import StartpageComponent from '../components/Startpage/Startpage'
 import Search from '../components/Search/Search'
 import { initAPI } from '../api/ApiHelper'
-import Head from 'next/head'
 import { parseAuction, parseItem, parsePlayer, parsePopularSearch } from '../utils/Parser/APIResponseParser'
+import { getHeadElement } from '../utils/SSRUtils'
 
 interface Props {
     newAuctions: Auction[]
@@ -17,9 +17,7 @@ interface Props {
 const Startpage = (props: Props) => {
     return (
         <div className="page">
-            <Head>
-                <title>Auction house tracker for hypixel skyblock</title>
-            </Head>
+            {getHeadElement()}
             <Container>
                 <Search />
                 <StartpageComponent
@@ -37,9 +35,7 @@ const Startpage = (props: Props) => {
 export const getServerSideProps = async () => {
     let api = initAPI(true)
     // Dont load ended Auctions, as this is a expensive computation and can take multiple seconds
-    let results = await Promise.all(
-        [api.getNewAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => null))
-    )
+    let results = await Promise.all([api.getNewAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => null)))
     return {
         props: {
             newAuctions: results[0],

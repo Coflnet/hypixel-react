@@ -2,13 +2,12 @@ import Head from 'next/head'
 import Link from 'next/link'
 import React from 'react'
 import { Button, Container } from 'react-bootstrap'
+import { getHeadElement } from '../utils/SSRUtils'
 
 function NotFound() {
     return (
         <div className="page">
-            <Head>
-                <title>Not found</title>
-            </Head>
+            {getHeadElement('Not found')}
             <Container>
                 <h1>Oops, seems something went wrong</h1>
                 <p>There is nothing to see here.</p>

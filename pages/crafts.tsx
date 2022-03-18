@@ -5,18 +5,17 @@ import { initAPI } from '../api/ApiHelper'
 import { CraftsList } from '../components/CraftsList/CraftsList'
 import Search from '../components/Search/Search'
 import { parseProfitableCraft } from '../utils/Parser/APIResponseParser'
+import { getHeadElement } from '../utils/SSRUtils'
 
 interface Props {
-    crafts: any[],
+    crafts: any[]
     bazaarTags: string[]
 }
 
 function Crafts(props: Props) {
     return (
         <div className="page">
-            <Head>
-                <title>Crafts</title>
-            </Head>
+            {getHeadElement('Crafts', 'List of profitable crafts based on current ah and bazaar prices')}
             <Container>
                 <Search />
                 <h2>Profitable crafts</h2>

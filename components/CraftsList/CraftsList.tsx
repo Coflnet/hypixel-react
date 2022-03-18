@@ -96,8 +96,6 @@ export function CraftsList(props: Props) {
 
         var targets = document.getElementsByClassName('blur')
         for (var i = 0; i < targets.length; i++) {
-            console.log(typeof targets[i])
-            console.log(targets[i])
             var config = {
                 attributes: true,
                 childList: true,

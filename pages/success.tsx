@@ -1,15 +1,13 @@
-import Head from 'next/head'
 import Link from 'next/link'
 import React from 'react'
 import { Button, Container, Card } from 'react-bootstrap'
 import Search from '../components/Search/Search'
+import { getHeadElement } from '../utils/SSRUtils'
 
 function Success() {
     return (
         <div className="page">
-            <Head>
-                <title>Payment successful</title>
-            </Head>
+            {getHeadElement('Payment successful')}
             <Container>
                 <Search />
                 <Card>

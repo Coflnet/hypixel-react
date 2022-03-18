@@ -3,13 +3,12 @@ import Head from 'next/head'
 import { Container } from 'react-bootstrap'
 import SubscriptionList from '../components/SubscriptionList/SubscriptionList'
 import NavBar from '../components/NavBar/NavBar'
+import { getHeadElement } from '../utils/SSRUtils'
 
 function Subscriptions() {
     return (
         <div className="page">
-            <Head>
-                <title>Your Notifiers</title>
-            </Head>
+            {getHeadElement('Notifiers')}
             <Container>
                 <h2>
                     <NavBar />

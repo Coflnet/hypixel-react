@@ -3,10 +3,12 @@ import { Button, Container, Card } from 'react-bootstrap'
 import Link from 'next/link'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'
 import Search from '../components/Search/Search'
+import { getHeadElement } from '../utils/SSRUtils'
 
 function Refed() {
     return (
         <div className="page">
+            {getHeadElement()}
             <Container>
                 <Search />
                 <Card>

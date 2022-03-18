@@ -1,6 +1,5 @@
-import Head from 'next/head'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Button, Container } from 'react-bootstrap'
 import api from '../api/ApiHelper'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'
@@ -8,6 +7,7 @@ import NavBar from '../components/NavBar/NavBar'
 import { wasAlreadyLoggedIn } from '../utils/GoogleUtils'
 import { getLoadingElement } from '../utils/LoadingUtils'
 import { getURLSearchParam } from '../utils/Parser/URLParser'
+import { getHeadElement } from '../utils/SSRUtils'
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
@@ -33,9 +33,7 @@ function AuthMod() {
 
     return (
         <div className="page">
-            <Head>
-                <title>Authenticate Mod</title>
-            </Head>
+            {getHeadElement('Authenticate Mod')}
             <Container>
                 <h2>
                     <NavBar />

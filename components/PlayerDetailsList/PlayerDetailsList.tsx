@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Badge, Button, ListGroup } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import api, { initAPI } from '../../api/ApiHelper'
+import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
@@ -43,23 +43,7 @@ function PlayerDetailsList(props: Props) {
 
     useEffect(() => {
         mounted = true
-
         router.events.on('routeChangeStart', onRouteChange)
-
-        return () => {
-            mounted = false
-            router.events.off('routeChangeStart', onRouteChange)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    useEffect(() => {
-        api.getPlayerName(props.playerUUID).then(name => {
-            if (!mounted) {
-                return
-            }
-            setPlayerName(name)
-        })
 
         let listState = getListState()
         if (listState !== undefined) {
@@ -75,14 +59,29 @@ function PlayerDetailsList(props: Props) {
                     behavior: 'auto'
                 })
             }, 100)
-        } else {
-            window.scrollTo(0, 0)
-            setAllElementsLoaded(false)
-            setListElements([])
-            loadNewElements(true)
+        }
+
+        return () => {
+            mounted = false
+            router.events.off('routeChangeStart', onRouteChange)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.playerUUID, props.type])
+    }, [])
+
+    useEffect(() => {
+        api.getPlayerName(props.playerUUID).then(name => {
+            if (!mounted) {
+                return
+            }
+            setPlayerName(name)
+        })
+    }, [props.playerUUID])
+
+    useEffect(() => {
+        if (!props.auctions) {
+            loadNewElements()
+        }
+    }, [props.auctions])
 
     let onRouteChange = () => {
         let listState = getListState()
@@ -175,15 +174,7 @@ function PlayerDetailsList(props: Props) {
             {props.type === 'auctions' ? (
                 <>
                     <div className={styles.btnBottom}>
-                        <Button
-                            type="primary"
-                            className={styles.upButton}
-                            onClick={() => {
-                                window.scrollTo({ top: 0, behavior: 'smooth' })
-                            }}
-                        >
-                            <ArrowUpIcon />
-                        </Button>
+                        <SubscribeButton type="player" topic={props.playerUUID} />
                     </div>
                     <CopyButton
                         buttonVariant="primary"
@@ -196,7 +187,15 @@ function PlayerDetailsList(props: Props) {
                         }
                     />
                     <div className={styles.btnBottom}>
-                        <SubscribeButton type="player" topic={props.playerUUID} />
+                        <Button
+                            type="primary"
+                            className={styles.upButton}
+                            onClick={() => {
+                                window.scrollTo({ top: 0, behavior: 'smooth' })
+                            }}
+                        >
+                            <ArrowUpIcon />
+                        </Button>
                     </div>
                 </>
             ) : (
@@ -204,6 +203,9 @@ function PlayerDetailsList(props: Props) {
             )}
             {props.type === 'bids' ? (
                 <>
+                    <div className={styles.btnBottom}>
+                        <SubscribeButton type="player" topic={props.playerUUID} />
+                    </div>
                     <Button
                         type="primary"
                         className={styles.btnBottom}
@@ -213,9 +215,6 @@ function PlayerDetailsList(props: Props) {
                     >
                         <ArrowUpIcon />
                     </Button>
-                    <div className={styles.btnBottom}>
-                        <SubscribeButton type="player" topic={props.playerUUID} />
-                    </div>
                 </>
             ) : (
                 ''
@@ -275,7 +274,7 @@ function PlayerDetailsList(props: Props) {
         <div className={styles.playerDetailsList}>
             {listElements.length === 0 && allElementsLoaded ? (
                 <div className="noAuctionFound">
-                    <img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
+                    <img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
                     <p>No auctions found</p>
                 </div>
             ) : (

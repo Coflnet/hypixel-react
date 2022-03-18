@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react'
 
 function SubscribeAuctionContent() {
-  return (
-    <>
-      <h5>Notify me if someone bids on or buys the auction.</h5>
-    </>
-  );
+    return (
+        <>
+            <h4 style={{ marginBottom: '20px' }}>Notify me if someone bids on or buys the auction.</h4>
+        </>
+    )
 }
 
-export default SubscribeAuctionContent;
+export default SubscribeAuctionContent

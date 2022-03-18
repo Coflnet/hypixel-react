@@ -1,4 +1,3 @@
-import Head from 'next/head'
 import React, { useState } from 'react'
 import { Container } from 'react-bootstrap'
 import api, { initAPI } from '../api/ApiHelper'
@@ -8,6 +7,7 @@ import NavBar from '../components/NavBar/NavBar'
 import { wasAlreadyLoggedIn } from '../utils/GoogleUtils'
 import { getLoadingElement } from '../utils/LoadingUtils'
 import { parseLowSupplyItem } from '../utils/Parser/APIResponseParser'
+import { getHeadElement } from '../utils/SSRUtils'
 
 interface Props {
     lowSupplyItems: any
@@ -43,9 +43,7 @@ function LowSupply(props: Props) {
 
     return (
         <div className="page">
-            <Head>
-                <title>Low supply items</title>
-            </Head>
+            {getHeadElement('Low Supply Items', 'Items that are in low supply on the auction house')}
             <Container>
                 <h2>
                     <NavBar />

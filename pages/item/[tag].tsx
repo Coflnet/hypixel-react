@@ -7,7 +7,7 @@ import { convertTagToName } from '../../utils/Formatter'
 import api from '../../api/ApiHelper'
 import { Container } from 'react-bootstrap'
 import { useRouter } from 'next/router'
-import { isClientSideRendering } from '../../utils/SSRUtils'
+import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
 
 function ItemDetails() {
     const router = useRouter()
@@ -41,9 +41,13 @@ function ItemDetails() {
 
     return (
         <div className="page">
-            <Head>
-                <title>{`Auction Price tracker for ${item?.name || convertTagToName(tag)} in hypixel skyblock`}</title>
-            </Head>
+            {getHeadElement(
+                `${getItem().name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`,
+                `Auction Price tracker for ${getItem().name || convertTagToName(tag)} in Hypixel Skyblock`,
+                getItem().iconUrl,
+                [convertTagToName(getItem().tag)],
+                `${getItem().name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`
+            )}
             <Container>
                 <Search selected={getItem()} type="item" />
                 <PriceGraph item={getItem()} />

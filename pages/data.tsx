@@ -1,15 +1,13 @@
-import Head from 'next/head'
 import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Card, Container } from 'react-bootstrap'
 import Search from '../components/Search/Search'
+import { getHeadElement } from '../utils/SSRUtils'
 
 function ApiInfo() {
     return (
         <div className="page">
-            <Head>
-                <title>API</title>
-            </Head>
+            {getHeadElement('API')}
             <Container>
                 <Search />
                 <hr />

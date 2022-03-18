@@ -13,6 +13,7 @@ import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import SubscribeItemContent from './SubscribeItemContent/SubscribeItemContent'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import SubscribePlayerContent from './SubscribePlayerContent/SubscribePlayerContent'
+import SubscribeAuctionContent from './SubscribeAuctionContent/SubscribeAuctionContent'
 
 interface Props {
     topic: string
@@ -141,10 +142,9 @@ function SubscribeButton(props: Props) {
                                 onOnlyInstantBuyChange={setOnlyInstantBuy}
                                 onPriceChange={setPrice}
                             />
-                        ) : (
-                            ''
-                        )}
-                        {props.type === 'player' ? <SubscribePlayerContent onGotOutbidChange={setGotOutbid} onIsSoldChange={setIsSold} /> : ''}
+                        ) : null}
+                        {props.type === 'player' ? <SubscribePlayerContent onGotOutbidChange={setGotOutbid} onIsSoldChange={setIsSold} /> : null}
+                        {props.type === 'auction' ? <SubscribeAuctionContent /> : null}
                         <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">
                             Notify me
                         </Button>
@@ -155,10 +155,6 @@ function SubscribeButton(props: Props) {
                 ) : (
                     <p>To use notifiers, please login with Google: </p>
                 )}
-                <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className={styles.notifyButton}>
-                    Notify me
-                </Button>
-                ) : (<p>To use notifiers, please login with Google: </p>)
                 <GoogleSignIn onAfterLogin={onLogin} />
                 {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ''}
             </Modal.Body>
