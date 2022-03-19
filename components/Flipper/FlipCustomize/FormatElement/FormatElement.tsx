@@ -3,7 +3,7 @@ import React, { ChangeEvent, useEffect, useRef } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEFAULT_MOD_FORMAT } from '../../../../utils/FlipUtils'
 import Tooltip from '../../../Tooltip/Tooltip'
-import { Refresh as RefreshIcon, Help as HelpIcon } from '@material-ui/icons'
+import { Refresh as RefreshIcon, Help as HelpIcon } from '@mui/icons-material'
 import { useForceUpdate } from '../../../../utils/Hooks'
 import styles from './FormatElement.module.css'
 

@@ -5,7 +5,7 @@ import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } fro
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import Flip from '../Flip/Flip'
-import { Help as HelpIcon } from '@material-ui/icons'
+import { Help as HelpIcon } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'

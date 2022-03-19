@@ -6,7 +6,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
-import { ArrowUpward as ArrowUpIcon } from '@material-ui/icons'
+import { ArrowUpward as ArrowUpIcon } from '@mui/icons-material'
 import { CopyButton } from '../CopyButton/CopyButton'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -130,6 +130,7 @@ function PlayerDetailsList(props: Props) {
                 crossOrigin="anonymous"
                 className="auctionItemImage"
                 src={listElement.item.iconUrl}
+                style={{marginRight: "10px"}}
                 alt="item icon"
                 height="48"
                 width="48"
@@ -188,6 +189,7 @@ function PlayerDetailsList(props: Props) {
                     />
                     <div className={styles.btnBottom}>
                         <Button
+                            aria-label="up button"
                             type="primary"
                             className={styles.upButton}
                             onClick={() => {
@@ -229,7 +231,7 @@ function PlayerDetailsList(props: Props) {
                     <Link href={`/auction/${listElement.uuid}`}>
                         <a className="disableLinkStyle">
                             <div>
-                                <h4>
+                                <p style={{fontSize: "1.5rem"}}>
                                     {getItemImageElement(listElement)}
                                     {listElement.item.name || convertTagToName(listElement.item.tag)}
                                     {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
@@ -248,7 +250,7 @@ function PlayerDetailsList(props: Props) {
                                     ) : (
                                         ''
                                     )}
-                                </h4>
+                                </p>
                                 <p>
                                     Highest Bid: {numberWithThousandsSeperators(listElement.highestBid)} {getCoinImage()}
                                 </p>

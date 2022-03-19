@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MoreVert as MoreVertIcon } from '@material-ui/icons'
+import { MoreVert as MoreVertIcon } from '@mui/icons-material'
 import styles from './OptionsMenu.module.css'
 import { Button, Dropdown, DropdownButton } from 'react-bootstrap'
 
@@ -26,6 +26,7 @@ const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
 ))
 
 function OptionsMenu(props: Props) {
+    
     let available: AvailableLinks[] = []
     const isItemPage = (props.selected as Item)?.tag !== undefined
     const isPlayerPage = !isItemPage
@@ -49,7 +50,7 @@ function OptionsMenu(props: Props) {
         window.open(url, '_blank')
     }
 
-    if (!props.selected) {
+    if (!props.selected || props.selected.name === undefined) {
         return null
     }
 

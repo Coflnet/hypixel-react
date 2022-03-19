@@ -4,7 +4,7 @@ import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap';
 import { convertTagToName } from '../../utils/Formatter';
 import NavBar from '../NavBar/NavBar';
 import OptionsMenu from '../OptionsMenu/OptionsMenu';
-import { SearchOutlined as SearchIcon, ArrowDropDownCircle as RefreshIcon, Refresh } from '@material-ui/icons'
+import { SearchOutlined as SearchIcon, ArrowDropDownCircle as RefreshIcon, Refresh } from '@mui/icons-material'
 import { Item, Menu, theme, useContextMenu } from 'react-contexify';
 import { toast } from 'react-toastify';
 import { isClientSideRendering } from '../../utils/SSRUtils';
@@ -176,10 +176,6 @@ function Search(props: Props) {
         </div>
     );
 
-    let component = isClientSideRendering() ? document.getElementById(uuid) : null;
-    let searchInputGroup = component ? component.querySelector<HTMLElement>('#search-input-group') : null;
-    let listWidth = component !== null && searchInputGroup && searchInputGroup.offsetWidth ? searchInputGroup.offsetWidth - 2 : "";
-
     return (
         <div id={uuid} className={styles.search} style={isSmall ? { marginLeft: "-5px", marginRight: "-5px" } : {}}>
 
@@ -196,7 +192,7 @@ function Search(props: Props) {
                     </InputGroup>
                 </Form.Group>
             </Form>
-            <ListGroup style={{ width: listWidth, marginLeft: isSmall ? "1px" : "1px", borderTopWidth: 0 }}>
+            <ListGroup className={styles.searchResutList}>
                 {
                     noResultsFound ?
                         noResultsFoundElement :

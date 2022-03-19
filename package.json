@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "@datapunt/matomo-tracker-react": "^0.5.1",
-    "@material-ui/icons": "^4.11.2",
+    "@emotion/styled": "^11.8.1",
+    "@mui/icons-material": "^5.5.1",
     "@stripe/stripe-js": "^1.22.0",
     "autonumeric": "^4.6.0",
     "bootstrap": "^4.6.1",
@@ -24,7 +25,6 @@
     "react-bootstrap": "^1.6.4",
     "react-bootstrap-typeahead": "^5.2.1",
     "react-colorful": "^5.5.1",
-    "react-com": "^1.0.6",
     "react-contexify": "^5.0.0",
     "react-cookie-consent": "^6.4.1",
     "react-countdown": "^2.3.2",

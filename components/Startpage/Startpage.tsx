@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { Badge, Card } from 'react-bootstrap'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
-import { Person as PersonIcon, Timer as TimerIcon, FiberNew as NewIcon, Fireplace as FireIcon, Announcement as AnnouncementIcon } from '@material-ui/icons'
+import { Person as PersonIcon, Timer as TimerIcon, FiberNew as NewIcon, Fireplace as FireIcon, Announcement as AnnouncementIcon } from '@mui/icons-material'
 import moment from 'moment'
 import Tooltip from '../Tooltip/Tooltip'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
@@ -28,8 +28,10 @@ function Startpage(props: Props) {
     let [popularSearches, setPopularSearches] = useState<PopularSearch[]>(props.popularSearches || [])
     let [newPlayers, setNewPlayers] = useState<Player[]>(props.newPlayers || [])
     let [newItems, setNewItems] = useState<Item[]>(props.newItems || [])
+    let [isSSR, setIsSSR] = useState(!isClientSideRendering())
 
     useEffect(() => {
+        setIsSSR(false)
         setTimeout(() => {
             attachScrollEvent(styles.startpageListElementWrapper)
         }, 500)
@@ -354,7 +356,7 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-auctions-body">
-                    {isClientSideRendering() ? newAuctionsElement : newAuctions.map(getSSRElement)}
+                    {!isSSR ? newAuctionsElement : newAuctions.map(getSSRElement)}
                 </Card.Body>
             </Card>
 
@@ -365,7 +367,7 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="ended-auctions-body">
-                    {isClientSideRendering() ? endedAuctionsElement : endedAuctions.map(getSSRElement)}
+                    {!isSSR ? endedAuctionsElement : endedAuctions.map(getSSRElement)}
                 </Card.Body>
             </Card>
 
@@ -376,7 +378,7 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-players-body">
-                    {isClientSideRendering() ? newPlayersElement : newPlayers.map(getSSRElement)}
+                    {!isSSR ? newPlayersElement : newPlayers.map(getSSRElement)}
                 </Card.Body>
             </Card>
 
@@ -387,7 +389,7 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="popular-searches-body">
-                    {isClientSideRendering() ? popularSearchesElement : popularSearches.map(getSSRElement)}
+                    {!isSSR ? popularSearchesElement : popularSearches.map(getSSRElement)}
                 </Card.Body>
             </Card>
 
@@ -398,7 +400,7 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-items-body">
-                    {isClientSideRendering() ? newItemsElement : newItems.map(getSSRElement)}
+                    {isSSR ? newItemsElement : newItems.map(getSSRElement)}
                 </Card.Body>
             </Card>
 

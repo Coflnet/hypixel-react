@@ -6,7 +6,7 @@ import availablePaymentProvider, { groupProductsByDuration } from '../../utils/P
 import api from '../../api/ApiHelper'
 import { toast } from 'react-toastify'
 import Tooltip from '../Tooltip/Tooltip'
-import { Help as HelpIcon } from '@material-ui/icons'
+import { Help as HelpIcon } from '@mui/icons-material'
 import styles from './Payment.module.css'
 import { useRouter } from 'next/router'
 

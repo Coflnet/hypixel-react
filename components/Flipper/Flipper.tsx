@@ -12,7 +12,7 @@ import {
     Settings as SettingsIcon,
     PanTool as HandIcon,
     Search as SearchIcon
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import FlipBased from './FlipBased/FlipBased'
 import { CopyButton } from '../CopyButton/CopyButton'
 import AuctionDetails from '../AuctionDetails/AuctionDetails'

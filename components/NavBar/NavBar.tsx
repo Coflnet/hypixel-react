@@ -12,7 +12,7 @@ import {
     Chat as ChatIcon,
     Menu as MenuIcon,
     ExploreOutlined as ExploreIcon
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'

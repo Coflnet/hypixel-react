@@ -6,7 +6,7 @@ import { useForceUpdate } from '../../../utils/Hooks';
 import { getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils';
 import ItemFilter from '../../ItemFilter/ItemFilter';
 import Search from '../../Search/Search';
-import { Delete as DeleteIcon } from '@material-ui/icons';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import ItemFilterPropertiesDisplay from '../../ItemFilter/ItemFilterPropertiesDisplay';
 import styles from './FlipRestrictionList.module.css'
 import priceRangeStyles from '../../ItemPriceRange/ItemPriceRange.module.css'

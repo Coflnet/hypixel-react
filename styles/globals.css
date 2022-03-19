@@ -6,6 +6,9 @@ body {
     -moz-osx-font-smoothing: grayscale;
     position: relative;
     min-height: 100%;
+    background-color: #222;
+    display: inline-block;
+    width: 100%;
 }
 
 code {

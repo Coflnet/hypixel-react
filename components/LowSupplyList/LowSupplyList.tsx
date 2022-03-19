@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Card, Form, Table } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { ArrowDownward as ArrowDownIcon, ArrowUpward as ArrowUpIcon } from '@material-ui/icons'
+import { ArrowDownward as ArrowDownIcon, ArrowUpward as ArrowUpIcon } from '@mui/icons-material'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './LowSupplyList.module.css'
 
