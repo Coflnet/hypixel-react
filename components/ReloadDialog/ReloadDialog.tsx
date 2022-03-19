@@ -65,13 +65,13 @@ function ReloadDialog(props: Props) {
             <Form>
                 <hr />
                 <Form.Group>
+                    <Form.Label htmlFor="loaddNewInformation">I tried to load new information</Form.Label>
                     <Form.Check
                         id="loaddNewInformation"
                         className={styles.checkbox}
                         defaultChecked={feedback.loadNewInformation}
                         onChange={onLoadNewInformationChange}
                     />
-                    <Form.Label htmlFor="loaddNewInformation">I tried to load new information</Form.Label>
                     <p style={{ fontStyle: 'italic' }}>
                         If you need the most recent information on something you could try to create a notification for it. Currently you can create
                         notifications for Items, Auctions and Players. Do you need something else? Please dont hesitate to ask us.
@@ -79,15 +79,15 @@ function ReloadDialog(props: Props) {
                 </Form.Group>
                 <hr />
                 <Form.Group>
-                    <Form.Check id="somethingBroke" className={styles.checkbox} defaultChecked={feedback.somethingBroke} onChange={onSomethingBrokeChange} />
                     <Form.Label htmlFor="somethingBroke">Something broke</Form.Label>
+                    <Form.Check id="somethingBroke" className={styles.checkbox} defaultChecked={feedback.somethingBroke} onChange={onSomethingBrokeChange} />
                     <p style={{ fontStyle: 'italic' }}>You found an bug? Please tell us about it so that we can fix it as soon as possible.</p>
                 </Form.Group>
 
                 <hr />
                 <Form.Group>
-                    <Form.Check id="otherIssues" className={styles.checkbox} defaultChecked={feedback.otherIssue} onChange={onOtherIssueChange} />
                     <Form.Label htmlFor="otherIssues">Other issue</Form.Label>
+                    <Form.Check id="otherIssues" className={styles.checkbox} defaultChecked={feedback.otherIssue} onChange={onOtherIssueChange} />
                     <p style={{ fontStyle: 'italic' }}>If you need any kind of help please join our discord or write us an E-Mail. We are happy to help.</p>
                 </Form.Group>
 
@@ -104,10 +104,10 @@ function ReloadDialog(props: Props) {
 
                 <hr />
                 <Form.Group>
-                    <Form.Check id="rememberHideDialog" className={styles.checkbox} onChange={onRememberHideDialogChange} />
                     <Form.Label htmlFor="rememberHideDialog">
                         <b>Please dont show this dialog again.</b>
                     </Form.Label>
+                    <Form.Check id="rememberHideDialog" className={styles.checkbox} onChange={onRememberHideDialogChange} />
                 </Form.Group>
             </Form>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>

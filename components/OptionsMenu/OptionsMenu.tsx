@@ -12,8 +12,7 @@ interface AvailableLinks {
 }
 
 const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
-    <a
-        href=""
+    <span
         ref={ref as any}
         onClick={e => {
             e.preventDefault()
@@ -22,7 +21,7 @@ const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
     >
         {children}
         <MoreVertIcon />
-    </a>
+    </span>
 ))
 
 function OptionsMenu(props: Props) {

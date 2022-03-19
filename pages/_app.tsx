@@ -1,14 +1,23 @@
-import '../styles/globals.css'
 import '../styles/bootstrap-react.min.css'
 import '../styles/bootstrap-dark-full.min.css'
 import 'react-toastify/dist/ReactToastify.css'
 import 'react-contexify/dist/ReactContexify.css'
 import 'react-datepicker/dist/react-datepicker.css'
 import 'react-bootstrap-typeahead/css/Typeahead.css'
+import '../styles/globals.css'
 import { useEffect } from 'react'
 import Script from 'next/script'
 import { MainApp } from '../components/MainApp/MainApp'
 import NextNProgress from 'nextjs-progressbar'
+import { isClientSideRendering } from '../utils/SSRUtils'
+
+if (process.env.NODE_ENV === 'production') {
+    if (isClientSideRendering()) {
+        window.onerror = () => {
+            return true
+        }
+    }
+}
 
 function MyApp({ Component, pageProps }) {
     useEffect(() => {

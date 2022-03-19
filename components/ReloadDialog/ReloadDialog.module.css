@@ -1,3 +1,4 @@
 .checkbox {
-    display: inline-flex
+    display: inline-flex;
+    margin-left: 10px;
 }

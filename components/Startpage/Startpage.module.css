@@ -77,3 +77,10 @@
 .statusTitle {
     color: #40ff00;
 }
+
+.SSRcardsWrapper {
+    display: flex;
+    overflow-x: scroll;
+    align-items: stretch;
+    flex-wrap: nowrap;
+}

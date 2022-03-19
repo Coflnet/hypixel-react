@@ -28,7 +28,7 @@ function Startpage(props: Props) {
     let [popularSearches, setPopularSearches] = useState<PopularSearch[]>(props.popularSearches || [])
     let [newPlayers, setNewPlayers] = useState<Player[]>(props.newPlayers || [])
     let [newItems, setNewItems] = useState<Item[]>(props.newItems || [])
-    let [isSSR, setIsSSR] = useState(!isClientSideRendering())
+    let [isSSR, setIsSSR] = useState(true)
 
     useEffect(() => {
         setIsSSR(false)
@@ -79,6 +79,89 @@ function Startpage(props: Props) {
                                     </ul>
                                 </div>
                             </Card.Body>
+                        </Card>
+                    </a>
+                </Link>
+            </div>
+        )
+    }
+
+    function getNewPlayerElement(newPlayer: Player, style: React.CSSProperties) {
+        return (
+            <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newPlayer.name} style={style}>
+                <Link href={`/player/${newPlayer.uuid}`}>
+                    <a className="disableLinkStyle">
+                        <Card>
+                            <Card.Header style={{ height: '100%', padding: '20px' }}>
+                                <div style={{ float: 'left' }}>
+                                    <img
+                                        crossOrigin="anonymous"
+                                        className="playerHeadIcon"
+                                        src={newPlayer.iconUrl}
+                                        width="32"
+                                        height="32"
+                                        alt=""
+                                        style={{ marginRight: '5px' }}
+                                        loading="lazy"
+                                    />
+                                </div>
+                                <Card.Title className={styles.ellipsis}>{newPlayer.name}</Card.Title>
+                            </Card.Header>
+                        </Card>
+                    </a>
+                </Link>
+            </div>
+        )
+    }
+
+    function getPopularSearchElement(search: PopularSearch, style: React.CSSProperties) {
+        return (
+            <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={search.url} style={style}>
+                <Link href={search.url}>
+                    <a className="disableLinkStyle">
+                        <Card>
+                            <Card.Header style={{ height: '100%' }}>
+                                <div style={{ float: 'left' }}>
+                                    <img
+                                        crossOrigin="anonymous"
+                                        className="playerHeadIcon"
+                                        src={search.url.includes('/player') ? search.img + '?size=8' : search.img}
+                                        width="32"
+                                        height="32"
+                                        alt=""
+                                        style={{ marginRight: '5px' }}
+                                        loading="lazy"
+                                    />
+                                </div>
+                                <Card.Title className={styles.ellipsis}>{search.title}</Card.Title>
+                            </Card.Header>
+                        </Card>
+                    </a>
+                </Link>
+            </div>
+        )
+    }
+
+    function getNewItemElement(newItem: Item, style: React.CSSProperties) {
+        return (
+            <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newItem.tag} style={style}>
+                <Link href={`/item/${newItem.tag}`}>
+                    <a className="disableLinkStyle">
+                        <Card>
+                            <Card.Header style={{ height: '100%', padding: '20px' }}>
+                                <div style={{ float: 'left' }}>
+                                    <img
+                                        crossOrigin="anonymous"
+                                        src={newItem.iconUrl}
+                                        width="32"
+                                        height="32"
+                                        alt=""
+                                        style={{ marginRight: '5px' }}
+                                        loading="lazy"
+                                    />
+                                </div>
+                                <Card.Title className={styles.ellipsis}>{newItem.name}</Card.Title>
+                            </Card.Header>
                         </Card>
                     </a>
                 </Link>
@@ -149,32 +232,7 @@ function Startpage(props: Props) {
                         width={width}
                     >
                         {({ index, style }) => {
-                            let search = popularSearches[index]
-                            return (
-                                <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={search.url} style={style}>
-                                    <Link href={search.url}>
-                                        <a className="disableLinkStyle">
-                                            <Card>
-                                                <Card.Header style={{ height: '100%' }}>
-                                                    <div style={{ float: 'left' }}>
-                                                        <img
-                                                            crossOrigin="anonymous"
-                                                            className="playerHeadIcon"
-                                                            src={search.url.includes('/player') ? search.img + '?size=8' : search.img}
-                                                            width="32"
-                                                            height="32"
-                                                            alt=""
-                                                            style={{ marginRight: '5px' }}
-                                                            loading="lazy"
-                                                        />
-                                                    </div>
-                                                    <Card.Title className={styles.ellipsis}>{search.title}</Card.Title>
-                                                </Card.Header>
-                                            </Card>
-                                        </a>
-                                    </Link>
-                                </div>
-                            )
+                            return getPopularSearchElement(popularSearches[index], style)
                         }}
                     </List>
                 )}
@@ -216,32 +274,7 @@ function Startpage(props: Props) {
                         width={width}
                     >
                         {({ index, style }) => {
-                            let newPlayer = newPlayers[index]
-                            return (
-                                <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newPlayer.name} style={style}>
-                                    <Link href={`/player/${newPlayer.uuid}`}>
-                                        <a className="disableLinkStyle">
-                                            <Card>
-                                                <Card.Header style={{ height: '100%', padding: '20px' }}>
-                                                    <div style={{ float: 'left' }}>
-                                                        <img
-                                                            crossOrigin="anonymous"
-                                                            className="playerHeadIcon"
-                                                            src={newPlayer.iconUrl}
-                                                            width="32"
-                                                            height="32"
-                                                            alt=""
-                                                            style={{ marginRight: '5px' }}
-                                                            loading="lazy"
-                                                        />
-                                                    </div>
-                                                    <Card.Title className={styles.ellipsis}>{newPlayer.name}</Card.Title>
-                                                </Card.Header>
-                                            </Card>
-                                        </a>
-                                    </Link>
-                                </div>
-                            )
+                            return getNewPlayerElement(newPlayers[index], style)
                         }}
                     </List>
                 )}
@@ -262,31 +295,7 @@ function Startpage(props: Props) {
                         width={width}
                     >
                         {({ index, style }) => {
-                            let newItem = newItems[index]
-                            return (
-                                <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newItem.tag} style={style}>
-                                    <Link href={`/item/${newItem.tag}`}>
-                                        <a className="disableLinkStyle">
-                                            <Card>
-                                                <Card.Header style={{ height: '100%', padding: '20px' }}>
-                                                    <div style={{ float: 'left' }}>
-                                                        <img
-                                                            crossOrigin="anonymous"
-                                                            src={newItem.iconUrl}
-                                                            width="32"
-                                                            height="32"
-                                                            alt=""
-                                                            style={{ marginRight: '5px' }}
-                                                            loading="lazy"
-                                                        />
-                                                    </div>
-                                                    <Card.Title className={styles.ellipsis}>{newItem.name}</Card.Title>
-                                                </Card.Header>
-                                            </Card>
-                                        </a>
-                                    </Link>
-                                </div>
-                            )
+                            return getNewItemElement(newItems[index], style)
                         }}
                     </List>
                 )}
@@ -356,7 +365,15 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-auctions-body">
-                    {!isSSR ? newAuctionsElement : newAuctions.map(getSSRElement)}
+                    {!isSSR ? (
+                        newAuctionsElement
+                    ) : (
+                        <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
+                            {newAuctions.map(auction => {
+                                return getAuctionElement(auction, { height: 180, width: 200 })
+                            })}
+                        </div>
+                    )}
                 </Card.Body>
             </Card>
 
@@ -367,7 +384,15 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="ended-auctions-body">
-                    {!isSSR ? endedAuctionsElement : endedAuctions.map(getSSRElement)}
+                    {!isSSR ? (
+                        endedAuctionsElement
+                    ) : (
+                        <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
+                            {endedAuctions.map(auction => {
+                                return getAuctionElement(auction, { height: 180, width: 200 })
+                            })}
+                        </div>
+                    )}
                 </Card.Body>
             </Card>
 
@@ -378,7 +403,15 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-players-body">
-                    {!isSSR ? newPlayersElement : newPlayers.map(getSSRElement)}
+                    {!isSSR ? (
+                        newPlayersElement
+                    ) : (
+                        <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
+                            {newPlayers.map(player => {
+                                return getNewPlayerElement(player, { height: 70, width: 200 })
+                            })}
+                        </div>
+                    )}
                 </Card.Body>
             </Card>
 
@@ -389,7 +422,15 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="popular-searches-body">
-                    {!isSSR ? popularSearchesElement : popularSearches.map(getSSRElement)}
+                    {!isSSR ? (
+                        popularSearchesElement
+                    ) : (
+                        <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
+                            {popularSearches.map(search => {
+                                return getPopularSearchElement(search, { height: 70, width: 200 })
+                            })}
+                        </div>
+                    )}
                 </Card.Body>
             </Card>
 
@@ -400,7 +441,15 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-items-body">
-                    {isSSR ? newItemsElement : newItems.map(getSSRElement)}
+                    {!isSSR ? (
+                        newItemsElement
+                    ) : (
+                        <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
+                            {newItems.map(search => {
+                                return getNewItemElement(search, { height: 70, width: 200 })
+                            })}
+                        </div>
+                    )}
                 </Card.Body>
             </Card>
 

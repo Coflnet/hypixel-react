@@ -111,3 +111,10 @@
 .flipperSettingsForm :global(.form-group) {
     margin-bottom: 0;
 }
+
+.SSRcardsWrapper {
+    display: flex;
+    overflow-x: scroll;
+    align-items: stretch;
+    flex-wrap: nowrap;
+}

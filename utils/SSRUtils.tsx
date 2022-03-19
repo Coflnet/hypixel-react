@@ -40,7 +40,9 @@ export function getHeadElement(
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <meta name="theme-color" content="#000000" />
             <meta name="og:title" content={embedTitle} />
+            <meta name="description" content={description} />
             <meta name="og:description" content={description} />
+            <meta name="keywords" content={`${keywords.toString()},hypixel,skyblock,auction,history,bazaar,tracker`} />
             <meta property="og:keywords" content={`${keywords.toString()},hypixel,skyblock,auction,history,bazaar,tracker`} />
             <meta property="og:image" content={imageUrl} />
             <meta

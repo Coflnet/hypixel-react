@@ -240,8 +240,11 @@ function FlipperFilter(props: Props) {
     const numberFilters = (
         <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'flex-start' }}>
             <Form.Group className={styles.filterTextfield}>
-                <Form.Label className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Min. Profit:</Form.Label>
+                <Form.Label htmlFor="min-profit" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                    Min. Profit:
+                </Form.Label>
                 <NumberFormat
+                    id="min-profit"
                     onValueChange={onMinProfitChange}
                     className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                     type="text"
@@ -252,14 +255,17 @@ function FlipperFilter(props: Props) {
                     customInput={Form.Control}
                     defaultValue={minProfit}
                     thousandSeparator="."
-                    decimalSeparator=','
+                    decimalSeparator=","
                     allowNegative={false}
                     decimalScale={0}
                 />
             </Form.Group>
             <Form.Group className={styles.filterTextfield}>
-                <Form.Label className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Min. Profit (%):</Form.Label>
+                <Form.Label htmlFor="min-profit-percent" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                    Min. Profit (%):
+                </Form.Label>
                 <NumberFormat
+                    id="min-profit-percent"
                     onValueChange={onMinProfitPercentChange}
                     className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                     disabled={!props.isLoggedIn && !freeLoginFilters}
@@ -269,14 +275,17 @@ function FlipperFilter(props: Props) {
                     customInput={Form.Control}
                     defaultValue={minProfitPercent}
                     thousandSeparator="."
-                    decimalSeparator=','
+                    decimalSeparator=","
                     allowNegative={false}
                     decimalScale={0}
                 />
             </Form.Group>
             <Form.Group className={styles.filterTextfield}>
-                <Form.Label className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Min. Volume:</Form.Label>
+                <Form.Label htmlFor="min-volume" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                    Min. Volume:
+                </Form.Label>
                 <NumberFormat
+                    id="min-volume"
                     onValueChange={onMinVolumeChange}
                     className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                     disabled={!props.isLoggedIn && !freeLoginFilters}
@@ -286,14 +295,17 @@ function FlipperFilter(props: Props) {
                     customInput={Form.Control}
                     defaultValue={minVolume}
                     thousandSeparator="."
-                    decimalSeparator=','
+                    decimalSeparator=","
                     allowNegative={false}
                     decimalScale={0}
                 />
             </Form.Group>
             <Form.Group className={styles.filterTextfield}>
-                <Form.Label className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Max. Cost:</Form.Label>
+                <Form.Label htmlFor="max-cost" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                    Max. Cost:
+                </Form.Label>
                 <NumberFormat
+                    id="max-cost"
                     onValueChange={onMaxCostChange}
                     className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                     disabled={!props.isLoggedIn && !freeLoginFilters}
@@ -303,7 +315,7 @@ function FlipperFilter(props: Props) {
                     customInput={Form.Control}
                     defaultValue={maxCost}
                     thousandSeparator="."
-                    decimalSeparator=','
+                    decimalSeparator=","
                     allowNegative={false}
                     decimalScale={0}
                 />
