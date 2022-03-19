@@ -90,3 +90,8 @@ option {
 .form-check-input {
     position: absolute !important;
 }
+
+.form-check {
+    position: absolute !important;
+    display: inline !important;
+}

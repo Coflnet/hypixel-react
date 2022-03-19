@@ -5,7 +5,7 @@ import Countdown, { zeroPad } from 'react-countdown'
 import { v4 as generateUUID } from 'uuid'
 import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
 import { BallotOutlined as FilterIcon } from '@mui/icons-material'
-import AutoNumeric from 'autonumeric'
+import NumberFormat, { NumberFormatValues } from 'react-number-format'
 import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import styles from './FlipperFilter.module.css'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
@@ -31,9 +31,9 @@ function FlipperFilter(props: Props) {
 
     let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin)
     let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium == null ? false : defaultFilter.onlyUnsold || false)
-    let [minProfit, setMinProfit] = useState(defaultFilter.minProfit)
-    let [minProfitPercent, setMinProfitPercent] = useState(defaultFilter.minProfitPercent)
-    let [minVolume, setMinVolume] = useState(defaultFilter.minVolume)
+    let [minProfit, setMinProfit] = useState(defaultFilter.minProfit || 0)
+    let [minProfitPercent, setMinProfitPercent] = useState(defaultFilter.minProfitPercent || 0)
+    let [minVolume, setMinVolume] = useState(defaultFilter.minVolume || 0)
     let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || 2147483647)
     let [freePremiumFilters, setFreePremiumFilters] = useState(false)
     let [freeLoginFilters, setFreeLoginFilters] = useState(false)
@@ -54,62 +54,6 @@ function FlipperFilter(props: Props) {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    checkAutoNumeric()
-
-    function checkAutoNumeric() {
-        if (!isClientSideRendering()) {
-            return
-        }
-
-        let autoNumericElements = [
-            {
-                id: 'filter-input-min-profit',
-                stateName: 'minProfit',
-                maximumValue: '2147483647'
-            },
-            {
-                id: 'filter-input-min-volume',
-                stateName: 'minVolume',
-                maximumValue: '120'
-            },
-            {
-                id: 'filter-input-max-cost',
-                stateName: 'maxCost',
-                maximumValue: '2147483647'
-            },
-            {
-                id: 'filter-input-min-volume-percent',
-                stateName: 'minProfitPercent'
-            }
-        ]
-
-        autoNumericElements.forEach(autoNumericElement => {
-            let element = document.getElementById(autoNumericElement.id)
-            if (element && !AutoNumeric.isManagedByAutoNumeric(element)) {
-                // set value to the maxValue if it would exceed the limit
-                if (defaultFilter[autoNumericElement.stateName] && autoNumericElement.maximumValue) {
-                    if (parseInt(autoNumericElement.maximumValue) < defaultFilter[autoNumericElement.stateName]) {
-                        defaultFilter[autoNumericElement.stateName] = parseInt(autoNumericElement.maximumValue)
-                    }
-                }
-
-                // set value to maxValue if nothing else is set
-                if (!defaultFilter[autoNumericElement.stateName] && autoNumericElement.stateName === 'maxCost') {
-                    defaultFilter[autoNumericElement.stateName] = 2147483647
-                }
-
-                new AutoNumeric('#' + autoNumericElement.id, defaultFilter[autoNumericElement.stateName], {
-                    digitGroupSeparator: '.',
-                    decimalCharacter: ',',
-                    decimalPlaces: 0,
-                    emptyInputBehavior: 'zero',
-                    minimumValue: '0',
-                    maximumValue: autoNumericElement.maximumValue || '10000000000000'
-                })
-            }
-        })
-    }
 
     function getCurrentFilter(): FlipperFilter {
         return {
@@ -151,24 +95,24 @@ function FlipperFilter(props: Props) {
         updateOnlyUnsold(isActive)
     }
 
-    function onMinProfitChange(event: ChangeEvent<HTMLInputElement>) {
-        let val = AutoNumeric.getAutoNumericElement(event.target).getNumber() || 0
+    function onMinProfitChange(value: NumberFormatValues) {
+        let val = value.floatValue || 0
         setMinProfit(val)
         let filter = getCurrentFilter()
         filter.minProfit = val
         onFilterChange(filter)
     }
 
-    function onMinProfitPercentChange(event: ChangeEvent<HTMLInputElement>) {
-        let val = AutoNumeric.getAutoNumericElement(event.target).getNumber() || 0
+    function onMinProfitPercentChange(value: NumberFormatValues) {
+        let val = value.floatValue || 0
         setMinProfitPercent(val)
         let filter = getCurrentFilter()
         filter.minProfitPercent = val
         onFilterChange(filter)
     }
 
-    function onMaxCostChange(event: ChangeEvent<HTMLInputElement>) {
-        let val = AutoNumeric.getAutoNumericElement(event.target).getNumber() || 0
+    function onMaxCostChange(value: NumberFormatValues) {
+        let val = value.floatValue || 0
         setMaxCost(val)
         let filter = getCurrentFilter()
         filter.maxCost = val
@@ -182,8 +126,8 @@ function FlipperFilter(props: Props) {
         onFilterChange(filter)
     }
 
-    function onMinVolumeChange(event: ChangeEvent<HTMLInputElement>) {
-        let val = AutoNumeric.getAutoNumericElement(event.target).getNumber() || 0
+    function onMinVolumeChange(value: NumberFormatValues) {
+        let val = value.floatValue || 0
         setMinVolume(val)
         let filter = getCurrentFilter()
         filter.minVolume = val
@@ -210,6 +154,10 @@ function FlipperFilter(props: Props) {
             {zeroPad(minutes)}:{zeroPad(seconds)}
         </span>
     )
+
+    function numberFieldMaxValue(value: number = 0, maxValue: number) {
+        return value <= maxValue
+    }
 
     let restrictionListDialog = (
         <Modal
@@ -293,43 +241,71 @@ function FlipperFilter(props: Props) {
         <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'flex-start' }}>
             <Form.Group className={styles.filterTextfield}>
                 <Form.Label className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Min. Profit:</Form.Label>
-                <Form.Control
-                    id="filter-input-min-profit"
-                    key="filter-input-min-profit"
-                    onChange={onMinProfitChange}
+                <NumberFormat
+                    onValueChange={onMinProfitChange}
                     className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                     type="text"
                     disabled={!props.isLoggedIn && !freeLoginFilters}
+                    isAllowed={value => {
+                        return numberFieldMaxValue(value.floatValue, 2147483647)
+                    }}
+                    customInput={Form.Control}
+                    defaultValue={minProfit}
+                    thousandSeparator="."
+                    decimalSeparator=','
+                    allowNegative={false}
+                    decimalScale={0}
                 />
             </Form.Group>
             <Form.Group className={styles.filterTextfield}>
                 <Form.Label className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Min. Profit (%):</Form.Label>
-                <Form.Control
-                    id="filter-input-min-volume-percent"
-                    key="filter-input-min-volume-percent"
-                    onChange={onMinProfitPercentChange}
+                <NumberFormat
+                    onValueChange={onMinProfitPercentChange}
                     className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                     disabled={!props.isLoggedIn && !freeLoginFilters}
+                    isAllowed={value => {
+                        return numberFieldMaxValue(value.floatValue, 2147483647)
+                    }}
+                    customInput={Form.Control}
+                    defaultValue={minProfitPercent}
+                    thousandSeparator="."
+                    decimalSeparator=','
+                    allowNegative={false}
+                    decimalScale={0}
                 />
             </Form.Group>
             <Form.Group className={styles.filterTextfield}>
                 <Form.Label className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Min. Volume:</Form.Label>
-                <Form.Control
-                    id="filter-input-min-volume"
-                    key="filter-input-min-volume"
-                    onChange={onMinVolumeChange}
+                <NumberFormat
+                    onValueChange={onMinVolumeChange}
                     className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                     disabled={!props.isLoggedIn && !freeLoginFilters}
+                    isAllowed={value => {
+                        return numberFieldMaxValue(value.floatValue, 120)
+                    }}
+                    customInput={Form.Control}
+                    defaultValue={minVolume}
+                    thousandSeparator="."
+                    decimalSeparator=','
+                    allowNegative={false}
+                    decimalScale={0}
                 />
             </Form.Group>
             <Form.Group className={styles.filterTextfield}>
                 <Form.Label className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Max. Cost:</Form.Label>
-                <Form.Control
-                    id="filter-input-max-cost"
-                    key="filter-input-max-cost"
-                    onChange={onMaxCostChange}
+                <NumberFormat
+                    onValueChange={onMaxCostChange}
                     className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                     disabled={!props.isLoggedIn && !freeLoginFilters}
+                    isAllowed={value => {
+                        return numberFieldMaxValue(value.floatValue, 2147483647)
+                    }}
+                    customInput={Form.Control}
+                    defaultValue={maxCost}
+                    thousandSeparator="."
+                    decimalSeparator=','
+                    allowNegative={false}
+                    decimalScale={0}
                 />
             </Form.Group>
         </div>
