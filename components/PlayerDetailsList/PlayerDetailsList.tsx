@@ -121,7 +121,7 @@ function PlayerDetailsList(props: Props) {
     }
 
     let getCoinImage = () => {
-        return <img src="/Coin.png" height="35px" alt="auction house logo" loading="lazy" />
+        return <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" loading="lazy" />
     }
 
     let getItemImageElement = (listElement: Auction | BidForList) => {
