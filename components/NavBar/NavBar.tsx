@@ -184,7 +184,7 @@ function NavBar(props: Props) {
                         <MenuItem className="disableLinkStyle" icon={<ChatIcon />}>
                             <Link href={'/feedback'}>Feedback</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<img src="/discord_icon.svg" alt="" width="32" height="24"></img>}>
+                        <MenuItem className="disableLinkStyle" icon={<img src="/discord_icon.svg" alt="" height="24"></img>}>
                             <a href="https://discord.gg/wvKXfTgCfb">
                                 <div style={{ color: '#7289da' }}>Discord</div>
                             </a>

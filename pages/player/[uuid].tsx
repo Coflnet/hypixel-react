@@ -119,7 +119,6 @@ function PlayerDetails(props: Props) {
                                 crossOrigin="anonymous"
                                 className="playerHeadIcon"
                                 src={selectedPlayer?.iconUrl}
-                                width="32"
                                 height="32"
                                 alt=""
                                 style={{ marginRight: '10px' }}

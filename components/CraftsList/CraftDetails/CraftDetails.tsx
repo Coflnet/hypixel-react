@@ -40,7 +40,6 @@ export function CraftDetails(props: Props) {
                             crossOrigin="anonymous"
                             src={ingredient.item.iconUrl}
                             height="24"
-                            width="24"
                             alt=""
                             style={{ marginRight: '5px' }}
                             loading="lazy"

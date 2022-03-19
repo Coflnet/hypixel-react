@@ -73,7 +73,6 @@ function ActiveAuctions(props: Props) {
                                             crossOrigin="anonymous"
                                             className="playerHeadIcon"
                                             src={props.item.iconUrl}
-                                            width="32"
                                             height="32"
                                             alt=""
                                             style={{ marginRight: '5px' }}

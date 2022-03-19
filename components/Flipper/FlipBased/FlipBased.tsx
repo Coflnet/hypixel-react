@@ -42,7 +42,6 @@ function FlipBased(props: Props) {
                                         <img
                                             crossOrigin="anonymous"
                                             src={props.flip.item.iconUrl}
-                                            width="32"
                                             height="32"
                                             alt=""
                                             style={{ marginRight: '5px' }}

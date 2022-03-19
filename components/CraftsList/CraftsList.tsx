@@ -231,7 +231,7 @@ export function CraftsList(props: Props) {
     function getCraftHeader(craft) {
         return (
             <span>
-                <img crossOrigin="anonymous" src={craft.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <img crossOrigin="anonymous" src={craft.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                 {convertTagToName(craft.item.name)}
             </span>
         )

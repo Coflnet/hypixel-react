@@ -58,7 +58,7 @@ function Startpage(props: Props) {
                         <Card>
                             <Card.Header style={{ padding: '10px' }}>
                                 <p className={styles.ellipsis}>
-                                    <img crossOrigin="anonymous" src={auction.item.iconUrl} width="32" height="32" alt="" style={{ marginRight: '5px' }} />
+                                    <img crossOrigin="anonymous" src={auction.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} />
                                     {auction.item.name}
                                 </p>
                             </Card.Header>
@@ -98,7 +98,6 @@ function Startpage(props: Props) {
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
                                         src={newPlayer.iconUrl}
-                                        width="32"
                                         height="32"
                                         alt=""
                                         style={{ marginRight: '5px' }}
@@ -126,7 +125,6 @@ function Startpage(props: Props) {
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
                                         src={search.url.includes('/player') ? search.img + '?size=8' : search.img}
-                                        width="32"
                                         height="32"
                                         alt=""
                                         style={{ marginRight: '5px' }}
@@ -153,7 +151,6 @@ function Startpage(props: Props) {
                                     <img
                                         crossOrigin="anonymous"
                                         src={newItem.iconUrl}
-                                        width="32"
                                         height="32"
                                         alt=""
                                         style={{ marginRight: '5px' }}

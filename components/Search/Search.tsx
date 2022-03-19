@@ -105,7 +105,7 @@ function Search(props: Props) {
 
     let noResultsFoundElement = (
         <ListGroup.Item key={-1} style={{ marginBottom: "10px" }}>
-            <img className={styles.searchResultIcon} width={32} height={32} src="/Barrier.png" alt="" />
+            <img className={styles.searchResultIcon} height={32} src="/Barrier.png" alt="" />
             No search results
         </ListGroup.Item>
     );
@@ -117,7 +117,7 @@ function Search(props: Props) {
         if (!props.selected) {
             return <div />
         }
-        return <h1 onContextMenu={e => handleSearchContextMenu(e)} className={styles.current}><img crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} width="32" height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</h1>
+        return <h1 onContextMenu={e => handleSearchContextMenu(e)} className={styles.current}><img crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" alt="" style={{ marginRight: "10px" }} loading="lazy" />{props.selected.name || convertTagToName((props.selected as Item).tag)}</h1>
     }
 
     let searchStyle: React.CSSProperties = {
@@ -199,7 +199,7 @@ function Search(props: Props) {
                         results.map((result, i) => (
                             <ListGroup.Item key={result.id} action onClick={(e: any) => { onItemClick(result) }} style={getListItemStyle(i)} >
                                 {result.dataItem.iconUrl ?
-                                    <img className={`${styles.searchResultIcon} playerHeadIcon`} crossOrigin="anonymous" width={32} height={32} src={result.dataItem.iconUrl} alt="" loading="lazy" /> :
+                                    <img className={`${styles.searchResultIcon} playerHeadIcon`} crossOrigin="anonymous" width={32} src={result.dataItem.iconUrl} alt="" loading="lazy" /> :
                                     <Spinner animation="border" role="status" variant="primary" />
                                 }
                                 {result.dataItem.name}

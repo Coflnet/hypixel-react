@@ -170,7 +170,7 @@ function FlipRestrictionList(props: Props) {
                                     {
                                         restriction.item ?
                                             <div className="ellipse" style={{ width: "-webkit-fill-available", float: "left" }}>
-                                                <img crossOrigin="anonymous" src={restriction.item?.iconUrl} height="24" width="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
+                                                <img crossOrigin="anonymous" src={restriction.item?.iconUrl} height="24" alt="" style={{ marginRight: "5px" }} loading="lazy" />
                                                 <span style={getStyleForTier(restriction.item?.tier)}>{restriction.item?.name}</span>
                                             </div> : ""
                                     }

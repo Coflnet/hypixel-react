@@ -117,7 +117,6 @@ function Flip(props: Props) {
                             crossOrigin="anonymous"
                             src={props.flip.item.iconUrl}
                             height="24"
-                            width="24"
                             alt=""
                             style={{ marginRight: '5px' }}
                             loading="lazy"

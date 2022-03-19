@@ -121,7 +121,7 @@ function PlayerDetailsList(props: Props) {
     }
 
     let getCoinImage = () => {
-        return <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" loading="lazy" />
+        return <img src="/Coin.png" height="35px" alt="auction house logo" loading="lazy" />
     }
 
     let getItemImageElement = (listElement: Auction | BidForList) => {
@@ -133,7 +133,6 @@ function PlayerDetailsList(props: Props) {
                 style={{marginRight: "10px"}}
                 alt="item icon"
                 height="48"
-                width="48"
                 onError={error => onImageLoadError(listElement, error)}
                 loading="lazy"
             />
@@ -276,7 +275,7 @@ function PlayerDetailsList(props: Props) {
         <div className={styles.playerDetailsList}>
             {listElements.length === 0 && allElementsLoaded ? (
                 <div className="noAuctionFound">
-                    <img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
+                    <img src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
                     <p>No auctions found</p>
                 </div>
             ) : (

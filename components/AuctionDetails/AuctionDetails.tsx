@@ -207,7 +207,6 @@ function AuctionDetails(props: Props) {
                                     crossOrigin="anonymous"
                                     src={auctionDetails?.auction.item.iconUrl}
                                     height="48"
-                                    width="48"
                                     alt="item icon"
                                     style={{ marginRight: '5px' }}
                                     loading="lazy"
@@ -311,7 +310,6 @@ function AuctionDetails(props: Props) {
                                 src={auctionDetails?.auctioneer.iconUrl}
                                 alt="auctioneer icon"
                                 height="16"
-                                width="16"
                                 style={{ marginLeft: '5px' }}
                                 loading="lazy"
                             />
@@ -374,7 +372,6 @@ function AuctionDetails(props: Props) {
                                     className="playerHeadIcon"
                                     src={bid.bidder.iconUrl}
                                     height="64"
-                                    width="64"
                                     alt="bidder minecraft icon"
                                     style={{ marginRight: '15px', float: 'left' }}
                                     loading="lazy"

@@ -44,7 +44,6 @@ export function CraftingRecipe(props: Props) {
                         src={api.getItemImageUrl({ tag: tag })}
                         alt=""
                         crossOrigin="anonymous"
-                        width={36}
                         height={36}
                     />
                 ) : (
@@ -84,7 +83,6 @@ export function CraftingRecipe(props: Props) {
                         src={api.getItemImageUrl({ tag: props.itemTag })}
                         alt=""
                         crossOrigin="anonymous"
-                        width={36}
                         height={36}
                     />
                 </div>

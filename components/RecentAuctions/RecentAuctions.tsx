@@ -71,7 +71,6 @@ function RecentAuctions(props: Props) {
                                             crossOrigin="anonymous"
                                             className="playerHeadIcon"
                                             src={props.item.iconUrl}
-                                            width="32"
                                             height="32"
                                             alt=""
                                             style={{ marginRight: '5px' }}
@@ -88,7 +87,6 @@ function RecentAuctions(props: Props) {
                                         src={recentAuction.seller.iconUrl}
                                         alt=""
                                         height="24"
-                                        width="24"
                                         loading="lazy"
                                     />
                                     <span>{recentAuction.playerName}</span>
