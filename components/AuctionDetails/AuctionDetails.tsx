@@ -14,7 +14,6 @@ import { toast } from 'react-toastify'
 import Tooltip from '../Tooltip/Tooltip'
 import Link from 'next/link'
 import styles from './AuctionDetails.module.css'
-import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 
 interface Props {
@@ -24,8 +23,9 @@ interface Props {
 }
 
 function AuctionDetails(props: Props) {
-    let [isAuctionFound, setIsNoAuctionFound] = useState(false)
+    let [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails)
+    let [isLoading, setIsLoading] = useState(false)
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
@@ -37,6 +37,7 @@ function AuctionDetails(props: Props) {
 
     let tryNumber = 1
     function loadAuctionDetails(auctionUUID: string) {
+        setIsLoading(true)
         api.getAuctionDetails(auctionUUID, tryNumber)
             .then(auctionDetails => {
                 auctionDetails.bids.sort((a, b) => b.amount - a.amount)
@@ -63,11 +64,12 @@ function AuctionDetails(props: Props) {
                     })
                 )
                 Promise.all(namePromises).then(() => {
-                    document.title = 'Auction from ' + auctionDetails.auctioneer.name + ' for ' + auctionDetails.auction.item.name
                     forceUpdate()
+                    setIsLoading(false)
                 })
             })
             .catch(error => {
+                setIsLoading(false)
                 if (tryNumber < (props.retryCounter || 0)) {
                     tryNumber++
                     setTimeout(() => {
@@ -389,7 +391,9 @@ function AuctionDetails(props: Props) {
 
     return (
         <div className={styles.auctionDetails}>
-            {isAuctionFound ? (
+            {isLoading ? (
+                getLoadingElement()
+            ) : isNoAuctionFound ? (
                 <div>
                     <p>The auction you tried to see doesn't seem to exist. Please go back.</p>
                     <br />

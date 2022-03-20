@@ -249,7 +249,17 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     type: RequestType.AUCTION_DETAILS,
                     data: auctionUUID,
                     resolve: auctionDetails => {
-                        returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
+                        if (!auctionDetails.auctioneer) {
+                            api.getPlayerName(auctionDetails.auctioneerId).then(name => {
+                                auctionDetails.auctioneer = {
+                                    name,
+                                    uuid: auctionDetails.auctioneerId
+                                }
+                                returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
+                            })
+                        } else {
+                            returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
+                        }
                     },
                     reject: (error: any) => {
                         reject(error)

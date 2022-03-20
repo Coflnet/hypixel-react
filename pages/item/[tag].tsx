@@ -23,7 +23,6 @@ function ItemDetails() {
             return
         }
         api.getItemDetails(tag).then(detailedItem => {
-            document.title = detailedItem.iconUrl = api.getItemImageUrl({ tag: tag })
             setItem(detailedItem)
         })
         // eslint-disable-next-line react-hooks/exhaustive-deps

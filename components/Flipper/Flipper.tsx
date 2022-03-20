@@ -29,6 +29,7 @@ import { isClientSideRendering } from '../../utils/SSRUtils'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import AutoSizer from 'react-virtualized-auto-sizer'
+import AuctionDetails from '../AuctionDetails/AuctionDetails'
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
@@ -64,6 +65,7 @@ function Flipper(props: Props) {
     let [lastFlipFetchTimeLoading, setLastFlipFetchTimeLoading] = useState<boolean>(false)
     let [countdownDateObject, setCountdownDateObject] = useState<Date>()
     let [isSmall, setIsSmall] = useState(false)
+    let [selectedAuctionUUID, setSelectedAuctionUUID] = useState('')
 
     let router = useRouter()
 
@@ -355,6 +357,7 @@ function Flipper(props: Props) {
                         padding: '10px'
                     }}
                     onCopy={onCopyFlip}
+                    onCardClick={flip => setSelectedAuctionUUID(flip.uuid)}
                     onBasedAuctionClick={flip => {
                         setBasedOnAuction(flip)
                     }}
@@ -532,7 +535,9 @@ function Flipper(props: Props) {
                                 </AutoSizer>
                             </div>
                         ) : (
-                            <div className={`${styles.SSRcardsWrapper} ${styles.flipperScrollList}`}>{flips.map(flip => getFlipElement(flip, {width: "300px", height: "100%"}))}</div>
+                            <div className={`${styles.SSRcardsWrapper} ${styles.flipperScrollList}`}>
+                                {flips.map(flip => getFlipElement(flip, { width: '300px', height: '100%' }))}
+                            </div>
                         )}
                     </div>
                 </Card.Body>
@@ -556,6 +561,21 @@ function Flipper(props: Props) {
                     )}
                 </Card.Footer>
             </Card>
+            {selectedAuctionUUID ? (
+                <div>
+                    <hr />
+                    <Card className="card">
+                        <Card.Header>
+                            <Card.Title>Auction-Details</Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            <AuctionDetails auctionUUID={selectedAuctionUUID} retryCounter={5} />
+                        </Card.Body>
+                    </Card>
+                </div>
+            ) : (
+                ''
+            )}
             <div>
                 <hr />
                 <Card>
