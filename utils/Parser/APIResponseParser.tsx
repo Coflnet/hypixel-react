@@ -99,7 +99,7 @@ export function parseItem(item: any): Item {
         tag: item.tag,
         name: item.altNames && item.altNames[0] && item.altNames[0].Name ? item.altNames[0].Name : item.name,
         category: item.category,
-        iconUrl: item.iconUrl || item.icon,
+        iconUrl: item.iconUrl || item.icon || api.getItemImageUrl(item),
         tier: item.tier,
         description: item.description,
         bazaar: item.bazaar

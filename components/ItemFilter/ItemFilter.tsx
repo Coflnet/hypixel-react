@@ -167,8 +167,8 @@ function ItemFilter(props: Props) {
 
         let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoa(JSON.stringify(filter))
 
-        router.query.itemFilter = filterString || '';
-        //router.push(router);
+        router.query.itemFilter = filterString || ''
+        router.replace(router)
     }
 
     function onFilterChange(filter: ItemFilter) {

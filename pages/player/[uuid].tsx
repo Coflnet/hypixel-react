@@ -23,13 +23,14 @@ let prevDetailType: DetailType
 
 interface Props {
     auctions?: any[]
+    player?: any
 }
 
 function PlayerDetails(props: Props) {
     const router = useRouter()
     let uuid = router.query.uuid as string
     let [detailType, setDetailType_] = useState<DetailType>(prevDetailType || DetailType.AUCTIONS)
-    let [selectedPlayer, setSelectedPlayer] = useState<Player>()
+    let [selectedPlayer, setSelectedPlayer] = useState<Player>(parsePlayer(props.player))
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
     let removeSwipeListeners = useSwipe(undefined, onSwipeRight, undefined, onSwipeLeft)
 
@@ -138,9 +139,17 @@ function PlayerDetails(props: Props) {
                     </ToggleButton>
                 </ToggleButtonGroup>
                 {detailType === DetailType.AUCTIONS ? (
-                    <PlayerDetailsList key={"auctions"} type="auctions" auctions={props.auctions?.map(parseAuction)} loadingDataFunction={api.getAuctions} playerUUID={uuid} />
+                    <PlayerDetailsList
+                        key={'auctions'}
+                        type="auctions"
+                        auctions={props.auctions?.map(parseAuction)}
+                        loadingDataFunction={api.getAuctions}
+                        playerUUID={uuid}
+                    />
                 ) : undefined}
-                {detailType === DetailType.BIDS ? <PlayerDetailsList key={"bids"} type="bids" loadingDataFunction={api.getBids} playerUUID={uuid} /> : undefined}
+                {detailType === DetailType.BIDS ? (
+                    <PlayerDetailsList key={'bids'} type="bids" loadingDataFunction={api.getBids} playerUUID={uuid} />
+                ) : undefined}
             </Container>
         </div>
     )
@@ -149,9 +158,14 @@ function PlayerDetails(props: Props) {
 export const getServerSideProps = async ({ query }) => {
     let api = initAPI(true)
     let auctions = await api.getAuctions(query.uuid, 12, 0)
+    let playerName = await api.getPlayerName(query.uuid)
     return {
         props: {
-            auctions: auctions
+            auctions: auctions,
+            player: {
+                uuid: query.uuid,
+                name: playerName
+            }
         }
     }
 }

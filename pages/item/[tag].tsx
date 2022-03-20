@@ -4,15 +4,19 @@ import Search from '../../components/Search/Search'
 import PriceGraph from '../../components/PriceGraph/PriceGraph'
 import { parseItem } from '../../utils/Parser/APIResponseParser'
 import { convertTagToName } from '../../utils/Formatter'
-import api from '../../api/ApiHelper'
+import api, { initAPI } from '../../api/ApiHelper'
 import { Container } from 'react-bootstrap'
 import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
 
-function ItemDetails() {
+interface Props {
+    item?: any
+}
+
+function ItemDetails(props: Props) {
     const router = useRouter()
     let tag = router.query.tag as string
-    let [item, setItem] = useState<Item>()
+    let [item, setItem] = useState<Item>(parseItem(props.item))
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -33,7 +37,8 @@ function ItemDetails() {
             item ||
             parseItem({
                 tag: tag,
-                name: convertTagToName(tag)
+                name: convertTagToName(tag),
+                iconUrl: api.getItemImageUrl({ tag })
             })
         )
     }
@@ -53,6 +58,16 @@ function ItemDetails() {
             </Container>
         </div>
     )
+}
+
+export const getServerSideProps = async ({ query }) => {
+    let api = initAPI(true)
+    let item = await api.getItemDetails(query.tag)
+    return {
+        props: {
+            item: item
+        }
+    }
 }
 
 export default ItemDetails

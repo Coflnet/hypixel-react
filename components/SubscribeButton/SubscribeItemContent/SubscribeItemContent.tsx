@@ -34,6 +34,7 @@ function SubscribeItemContent(props: Props) {
                 <hr />
                 <h4 style={{ marginBottom: '20px' }}>Notify me...</h4>
                 <Form.Group>
+                    <Form.Label htmlFor="priceAboveCheckbox">if the price is above the selected value</Form.Label>
                     <Form.Check
                         type="radio"
                         id="priceAboveCheckbox"
@@ -41,9 +42,9 @@ function SubscribeItemContent(props: Props) {
                         onChange={e => props.onIsPriceAboveChange(false)}
                         style={{ display: 'inline' }}
                     />
-                    <Form.Label htmlFor="priceAboveCheckbox">if the price is above the selected value</Form.Label>
                 </Form.Group>
                 <Form.Group>
+                    <Form.Label htmlFor="priceBelowCheckbox">if the price is below the selected value</Form.Label>
                     <Form.Check
                         type="radio"
                         id="priceBelowCheckbox"
@@ -51,9 +52,9 @@ function SubscribeItemContent(props: Props) {
                         onChange={e => props.onIsPriceAboveChange(false)}
                         style={{ display: 'inline' }}
                     />
-                    <Form.Label htmlFor="priceBelowCheckbox">if the price is below the selected value</Form.Label>
                 </Form.Group>
                 <Form.Group>
+                    <Form.Label htmlFor="onlyIstantBuy">only for instant buy</Form.Label>
                     <Form.Check
                         style={{ display: 'inline' }}
                         type="checkbox"
@@ -62,7 +63,6 @@ function SubscribeItemContent(props: Props) {
                             props.onOnlyInstantBuyChange((e.target as HTMLInputElement).checked)
                         }}
                     />
-                    <Form.Label htmlFor="onlyIstantBuy">only for instant buy</Form.Label>
                 </Form.Group>
                 <Form.Group>
                     <ItemFilter filters={filterOptions} ignoreURL={false} isPrefill={true} onFilterChange={props.onFilterChange} />

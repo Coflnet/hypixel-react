@@ -30,6 +30,9 @@ function AuctionDetailsPage(props: Props) {
 
     useEffect(() => {
         forceUpdate()
+        getServerSideProps({ query: router.query }).then(auctionDetails => {
+            setAuctionDetails(parseAuctionDetails(auctionDetails))
+        })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [auctionUUID])
 
