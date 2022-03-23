@@ -19,13 +19,10 @@ function AuctionDetailsPage(props: Props) {
     const router = useRouter()
     let auctionUUID = router.query.auctionUUID as string
     let forceUpdate = useForceUpdate()
-    let [auctionDetails, setAuctionDetails] = useState(parseAuctionDetails(props.auctionDetails))
+    let [auctionDetails, setAuctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
 
     useEffect(() => {
         window.scrollTo(0, 0)
-        if (!props.auctionDetails) {
-            api.getAuctionDetails(auctionUUID).then(setAuctionDetails)
-        }
     }, [])
 
     useEffect(() => {
@@ -42,6 +39,10 @@ function AuctionDetailsPage(props: Props) {
     }, [auctionDetails])
 
     function getAuctionDescription(): string {
+        if (!auctionDetails) {
+            return 'Browse over 300 million auctions, and the bazaar of Hypixel SkyBlock.'
+        }
+
         let description = ''
         if (auctionDetails.auction.bin) {
             description += 'BIN '
@@ -64,13 +65,15 @@ function AuctionDetailsPage(props: Props) {
 
     return (
         <div className="page">
-            {getHeadElement(
-                `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`,
-                getAuctionDescription(),
-                auctionDetails.auction.item.iconUrl,
-                [auctionDetails.auction.item.name || auctionDetails.auction.item.tag, auctionDetails.auctioneer.name],
-                `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`
-            )}
+            {auctionDetails
+                ? getHeadElement(
+                      `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`,
+                      getAuctionDescription(),
+                      auctionDetails.auction.item.iconUrl,
+                      [auctionDetails.auction.item.name || auctionDetails.auction.item.tag, auctionDetails.auctioneer.name],
+                      `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`
+                  )
+                : getHeadElement()}
             <Container>
                 <Search />
                 <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} />
@@ -82,7 +85,15 @@ function AuctionDetailsPage(props: Props) {
 export const getServerSideProps = async ({ query }) => {
     let auctionUUID = query.auctionUUID as string
     let api = initAPI(true)
-    let auctionDetails: any = await api.getAuctionDetails(auctionUUID)
+    let auctionDetails: any
+    try {
+        auctionDetails = await api.getAuctionDetails(auctionUUID)
+    } catch {
+        return {
+            props: {}
+        }
+    }
+
     auctionDetails.bids.sort((a, b) => b.amount - a.amount)
     let item = await api.getItemDetails(auctionDetails.tag)
     auctionDetails.description = item.description

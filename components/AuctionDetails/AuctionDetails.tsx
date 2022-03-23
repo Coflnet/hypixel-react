@@ -70,7 +70,7 @@ function AuctionDetails(props: Props) {
             })
             .catch(error => {
                 setIsLoading(false)
-                if (tryNumber < (props.retryCounter || 0)) {
+                if (tryNumber < (props.retryCounter || 5)) {
                     tryNumber++
                     setTimeout(() => {
                         loadAuctionDetails(auctionUUID)

@@ -11,6 +11,7 @@ import {
     parseItem,
     parseItemBidForList,
     parseItemPriceData,
+    parseItemSummary,
     parseLowSupplyItem,
     parseMinecraftConnectionInfo,
     parsePlayer,
@@ -249,6 +250,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     type: RequestType.AUCTION_DETAILS,
                     data: auctionUUID,
                     resolve: auctionDetails => {
+                        if(!auctionDetails){
+                            reject();
+                            return;
+                        }
                         if (!auctionDetails.auctioneer) {
                             api.getPlayerName(auctionDetails.auctioneerId).then(name => {
                                 auctionDetails.auctioneer = {
@@ -1195,6 +1200,25 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getItemPriceSummary = (itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary> => {
+        let getParams = new URLSearchParams(filter).toString()
+
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.ITEM_PRICE_SUMMARY,
+                customRequestURL: `${getProperty('apiEndpoint')}/${RequestType.ITEM_PRICE_SUMMARY}/${itemTag}?${getParams}`,
+                data: '',
+                resolve: function (data) {
+                    returnSSRResponse ? resolve(data) : resolve(parseItemSummary(data))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ITEM_PRICE_SUMMARY, error, '')
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1250,7 +1274,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getLowestBin,
         flipFilters,
         getBazaarTags,
-        getPreloadFlips
+        getPreloadFlips,
+        getItemPriceSummary
     }
 }
 

@@ -224,7 +224,8 @@ interface API {
   getLowestBin(itemTag: string): Promise<LowestBin>,
   flipFilters(item: Item): Promise<FilterOptions[]>,
   getBazaarTags(): Promise<string[]>,
-  getPreloadFlips(): Promise<FlipAuction[]>
+  getPreloadFlips(): Promise<FlipAuction[]>,
+  getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
 }
 
 interface CacheUtils {
@@ -415,4 +416,13 @@ interface GoogleProfileInfo {
   name?: string,
   email?: string,
   imageUrl?: string
+}
+
+interface ItemPriceSummary {
+  min: number,
+  median: number,
+  mean: number,
+  mode: number,
+  volume: number,
+  max: number
 }

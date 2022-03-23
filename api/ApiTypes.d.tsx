@@ -52,7 +52,8 @@ export enum RequestType {
     GET_PLAYER_PROFILES = "profile",
     GET_CRAFTING_RECIPE = "craft/recipe",
     GET_LOWEST_BIN = "lowestBin",
-    GET_BAZAAR_TAGS = "items/bazaar/tags"
+    GET_BAZAAR_TAGS = "items/bazaar/tags",
+    ITEM_PRICE_SUMMARY = "item/price"
 }
 
 export enum SubscriptionType {

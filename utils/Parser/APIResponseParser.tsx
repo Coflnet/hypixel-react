@@ -313,9 +313,9 @@ export function parseFlipAuction(flip): FlipAuction {
         props: flip.prop,
         finder: flip.finder
     } as FlipAuction
-    parsedFlip.item.iconUrl = api.getItemImageUrl(parsedFlip.item);
+    parsedFlip.item.iconUrl = api.getItemImageUrl(parsedFlip.item)
 
-    return parsedFlip;
+    return parsedFlip
 }
 
 export function parsePopularSearch(search): PopularSearch {
@@ -390,23 +390,27 @@ export function parseProfitableCraft(craft): ProfitableCraft {
         ingredients: craft.ingredients.map(parseCraftIngredient),
         median: craft.median,
         volume: craft.volume,
-        requiredCollection: craft.reqCollection ? {
-            name: craft.reqCollection.name,
-            level: craft.reqCollection.level
-        } : null,
-        requiredSlayer: craft.reqSlayer ? {
-            name: craft.reqSlayer.name,
-            level: craft.reqSlayer.level
-        } : null,
+        requiredCollection: craft.reqCollection
+            ? {
+                  name: craft.reqCollection.name,
+                  level: craft.reqCollection.level
+              }
+            : null,
+        requiredSlayer: craft.reqSlayer
+            ? {
+                  name: craft.reqSlayer.name,
+                  level: craft.reqSlayer.level
+              }
+            : null
     } as ProfitableCraft
-    c.item.name = convertTagToName(c.item.tag);
+    c.item.name = convertTagToName(c.item.tag)
     c.ingredients.forEach(i => {
-        i.item.name = convertTagToName(i.item.tag);
-        i.item.iconUrl = api.getItemImageUrl(i.item);
+        i.item.name = convertTagToName(i.item.tag)
+        i.item.iconUrl = api.getItemImageUrl(i.item)
     })
-    c.item.name = convertTagToName(c.item.name);
-    c.item.iconUrl = api.getItemImageUrl(c.item);
-    return c;
+    c.item.name = convertTagToName(c.item.name)
+    c.item.iconUrl = api.getItemImageUrl(c.item)
+    return c
 }
 
 export function parseLowSupplyItem(item): LowSupplyItem {
@@ -438,5 +442,16 @@ export function parseCraftingRecipe(recipe): CraftingRecipe {
         C1: recipe.C1.split(':')[0],
         C2: recipe.C2.split(':')[0],
         C3: recipe.C3.split(':')[0]
+    }
+}
+
+export function parseItemSummary(price): ItemPriceSummary {
+    return {
+        max: price.max,
+        mean: price.mean,
+        median: price.median,
+        min: price.min,
+        mode: price.mode,
+        volume: price.volume
     }
 }

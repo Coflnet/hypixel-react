@@ -33,7 +33,7 @@ function Search(props: Props) {
     let [results, setResults] = useState<SearchResultItem[]>([]);
     let [isLoading, setIsLoading] = useState(false);
     let [noResultsFound, setNoResultsFound] = useState(false);
-    let [isSmall, setIsSmall] = useState(false)
+    let [isSmall, setIsSmall] = useState(true)
     const { show } = useContextMenu({
         id: SEARCH_CONEXT_MENU_ID,
     });

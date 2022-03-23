@@ -27,7 +27,7 @@ interface Props {
 function NavBar(props: Props) {
     let [isWideOpen, setIsWideOpen] = useState(false)
     let [isHovering, setIsHovering] = useState(false)
-    let [isSmall, setIsSmall] = useState(false)
+    let [isSmall, setIsSmall] = useState(true)
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
