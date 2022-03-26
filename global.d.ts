@@ -124,7 +124,7 @@ interface SearchResultItem {
   },
   type: string;
   route: string;
-  getParams?: string;
+  urlSearchParams?: URLSearchParams;
   id: string;
 }
 
