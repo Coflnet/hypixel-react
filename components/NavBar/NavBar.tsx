@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ProSidebar, Menu, MenuItem, SidebarHeader } from 'react-pro-sidebar'
+import { ProSidebar, Menu, MenuItem, SidebarHeader, SubMenu } from 'react-pro-sidebar'
 import 'react-pro-sidebar/dist/css/styles.css'
 import {
     Build as BuildIcon,
@@ -152,15 +152,15 @@ function NavBar(props: Props) {
 
     return (
         <span>
-            <aside onMouseMove={onMouseMove} onMouseOut={onMouseOut} className={styles.navBar} id="navBar">
-                <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()}>
+            <aside className={styles.navBar} id="navBar">
+                <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()} onMouseMove={onMouseMove} onMouseOut={onMouseOut}>
                     <SidebarHeader>
                         <div style={{ padding: '24px', fontWeight: 'bold', fontSize: '20px', letterSpacing: '1px', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                             <ExploreIcon /> {!isCollapsed() ? 'Navigation' : ''}
                         </div>
                     </SidebarHeader>
                     <Menu iconShape="square">
-                        <MenuItem  className="disableLinkStyle" icon={<HomeIcon />}>
+                        <MenuItem className="disableLinkStyle" icon={<HomeIcon />}>
                             <Link href={'/'}>Home</Link>
                         </MenuItem>
                         <MenuItem className="disableLinkStyle" icon={<StorefrontIcon />}>
@@ -172,9 +172,14 @@ function NavBar(props: Props) {
                         <MenuItem className="disableLinkStyle" icon={<BuildIcon />}>
                             <Link href={'/crafts'}>Profitable crafts</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<AccountBalanceIcon />}>
-                            <Link href={'/premium'}>Premium</Link>
-                        </MenuItem>
+                        <SubMenu className="disableLinkStyle" title="Shop" open={true} icon={<AccountBalanceIcon />} firstchild={false}>
+                            <MenuItem icon={<AccountBalanceIcon />}>
+                                <Link href={'/coflcoins'}>CoflCoins</Link>
+                            </MenuItem>
+                            <MenuItem icon={<AccountBalanceIcon />}>
+                                <Link href={'/premium'}>Premium</Link>
+                            </MenuItem>
+                        </SubMenu>
                         <MenuItem className="disableLinkStyle" icon={<ShareIcon />}>
                             <Link href={'/ref'}>Referral</Link>
                         </MenuItem>

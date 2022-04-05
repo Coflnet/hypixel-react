@@ -30,8 +30,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
-
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
+import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -57,7 +56,7 @@ function Flipper(props: Props) {
     let [autoscroll, setAutoscroll] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [enabledScroll, setEnabledScroll] = useState(false)
-    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle)
+    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedIn())
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null)
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
@@ -91,7 +90,7 @@ function Flipper(props: Props) {
         api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification)
         getLastFlipFetchTime()
 
-        document.addEventListener('flipSettingsChange', () => {
+        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, () => {
             api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification)
         })
         setIsSmall(document.body.clientWidth < 1000)
@@ -142,7 +141,6 @@ function Flipper(props: Props) {
 
     function onLoginFail() {
         setIsLoading(false)
-        wasAlreadyLoggedInGoogle = false
     }
 
     function onArrowRightClick() {

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import Payment from '../Payment/Payment'
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Button, Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
@@ -13,6 +12,9 @@ import { v4 as generateUUID } from 'uuid'
 import { GoogleLogout } from 'react-google-login'
 import { toast } from 'react-toastify'
 import styles from './Premium.module.css'
+import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { CoflCoinsDisplay } from '../CoflCoins/CoflCoinsDisplay'
+import { useCoflCoins } from '../../utils/Hooks'
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
@@ -22,6 +24,7 @@ function Premium() {
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
     let [isLoading, setIsLoading] = useState(false)
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
+    let [coflCoins] = useCoflCoins()
 
     useEffect(() => {
         if (!wasAlreadyLoggedInGoogle && !isLoggedIn) {
@@ -29,6 +32,36 @@ function Premium() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    function getPremiumElement(label: string, price: number, productId: string) {
+        let formattedPrice = numberWithThousandsSeperators(Math.round(price))
+
+        return (
+            <Card className={styles.premiumProduct}>
+                <Card.Header>
+                    <h3 className={styles.premiumProductLabel}>{label}</h3>
+                </Card.Header>
+                <Card.Body>
+                    <p className={styles.premiumPrice}>{formattedPrice} CoflCoins</p>
+                    <hr />
+                    <Button
+                        variant="success"
+                        disabled={price > coflCoins}
+                        onClick={() => {
+                            onPremiumBuy(productId)
+                        }}
+                        style={{ width: '100%' }}
+                    >
+                        Buy Sniper for <p style={{ margin: '0' }}>{formattedPrice} Coflcoins</p>
+                    </Button>
+                </Card.Body>
+            </Card>
+        )
+    }
+
+    function onPremiumBuy(productId) {
+        // implement purchase with coflcoins
+    }
 
     function loadHasPremiumUntil(): Promise<void> {
         let googleId = localStorage.getItem('googleId')
@@ -81,7 +114,7 @@ function Premium() {
     }
 
     return (
-        <div className="premium">
+        <div>
             <h2>
                 <NavBar />
                 Premium
@@ -137,10 +170,10 @@ function Premium() {
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
             {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ''}
             <hr />
+            <h2>Features</h2>
             <Card className={styles.premiumCard}>
                 <Card.Header>
-                    <Card.Title>Features</Card.Title>
-                    <Card.Subtitle>
+                    <Card.Title>
                         {hasPremium ? (
                             <p>
                                 Thank you for your support. You have a Premium account. By buying another Premium-Plan you can extend your premium-time. You can
@@ -149,14 +182,29 @@ function Premium() {
                         ) : (
                             <p>Log in and buy Premium to support us and get access to these features</p>
                         )}
-                    </Card.Subtitle>
+                    </Card.Title>
                 </Card.Header>
                 <div style={{ padding: '15px' }}>
                     <PremiumFeatures />
                 </div>
             </Card>
-            <hr />
-            <div id="buyPremium">{isLoggedIn ? <Payment hasPremium={hasPremium || false} /> : ''}</div>
+            {isLoggedIn ? (
+                <div>
+                    <hr />
+                    <div style={{ marginBottom: '20px' }}>
+                        <h2 style={{ float: 'left', marginRight: '50px' }}>Purchase Premium </h2>
+                        <CoflCoinsDisplay />
+                    </div>
+                    <div className={styles.premiumProducts}>
+                        {getPremiumElement('1 Month', 1800, 'premium')}
+                        {getPremiumElement('3 Month', 5400, 'premium-quater')}
+                        {getPremiumElement('6 Month', 10800, 'premium-half-year')}
+                        {getPremiumElement('1 Year', 21600, 'premium-year')}
+                    </div>
+                </div>
+            ) : (
+                ''
+            )}
         </div>
     )
 }
