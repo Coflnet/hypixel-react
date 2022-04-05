@@ -1,3 +1,7 @@
+import api from '../api/ApiHelper'
+import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
+import { hasFlag } from '../components/FilterElement/FilterType'
+import { FLIP_FINDERS, getFlipFinders } from './FlipUtils'
 import { isClientSideRendering } from './SSRUtils'
 
 const LOCAL_STORAGE_SETTINGS_KEY = 'userSettings'
@@ -47,6 +51,119 @@ export function setSetting(key: any, value: any) {
     }
     settings[key] = value
     localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(settings))
+}
+
+export function setSettingsChangedData(data: any): Promise<void> {
+    return new Promise(resolve => {
+        data.visibility = data.visibility || {}
+        data.mod = data.mod || {}
+        data.filters = data.filters || {}
+
+        setSetting(
+            FLIP_CUSTOMIZING_KEY,
+            JSON.stringify({
+                hideCost: !data.visibility.cost,
+                hideEstimatedProfit: !data.visibility.estProfit,
+                hideLowestBin: !data.visibility.lbin,
+                hideSecondLowestBin: !data.visibility.slbin,
+                hideMedianPrice: !data.visibility.medPrice,
+                hideSeller: !data.visibility.seller,
+                hideVolume: !data.visibility.volume,
+                maxExtraInfoFields: data.visibility.extraFields,
+                hideProfitPercent: !data.visibility.profitPercent,
+                hideSellerOpenBtn: !data.visibility.sellerOpenBtn,
+                hideLore: !data.visibility.lore,
+                useLowestBinForProfit: data.lbin,
+                shortNumbers: data.mod.shortNumbers,
+                soundOnFlip: data.mod.soundOnFlip,
+                justProfit: data.mod.justProfit,
+                blockTenSecMsg: data.mod.blockTenSecMsg,
+                hideModChat: !data.mod.chat,
+                modFormat: data.mod.format,
+                finders: FLIP_FINDERS.filter(finder => {
+                    return hasFlag(parseInt(data.finders), parseInt(finder.value))
+                }).map(finder => parseInt(finder.value))
+            } as FlipCustomizeSettings)
+        )
+
+        setSetting(
+            FLIPPER_FILTER_KEY,
+            JSON.stringify({
+                maxCost: data.maxCost,
+                minProfit: data.minProfit,
+                minProfitPercent: data.minProfitPercent,
+                minVolume: data.minVolume,
+                onlyBin: data.filters.Bin === 'true'
+            } as FlipperFilter)
+        )
+
+        let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+        let itemMap = {}
+
+        restrictions.forEach(restriction => {
+            if (restriction.item?.tag) {
+                itemMap[restriction.item.tag] = restriction.item?.name
+            }
+        })
+
+        let _addListToRestrictions = function (list, type): Promise<FlipRestriction[]> {
+            return new Promise(resolve => {
+                if (list) {
+                    let newRestrictions: FlipRestriction[] = []
+                    let promises: Promise<void>[] = []
+                    list.forEach(item => {
+                        let itemName = itemMap[item.tag]
+                        if (!item.tag) {
+                            newRestrictions.push({
+                                type: type,
+                                itemFilter: item.filter
+                            })
+                        } else if (itemName && item.tag) {
+                            newRestrictions.push({
+                                type: type,
+                                item: {
+                                    tag: item.tag,
+                                    name: itemName,
+                                    iconUrl: api.getItemImageUrl(item)
+                                },
+                                itemFilter: item.filter
+                            })
+                        } else {
+                            promises.push(
+                                api.getItemDetails(item.tag).then(details => {
+                                    newRestrictions.push({
+                                        type: type,
+                                        item: {
+                                            tag: details.tag,
+                                            name: details.name,
+                                            iconUrl: api.getItemImageUrl(item)
+                                        },
+                                        itemFilter: item.filter
+                                    })
+                                })
+                            )
+                        }
+                    })
+                    if (promises.length > 0) {
+                        Promise.all(promises).then(() => {
+                            resolve(newRestrictions)
+                        })
+                    } else {
+                        resolve(newRestrictions)
+                    }
+                } else {
+                    resolve([])
+                }
+            })
+        }
+
+        Promise.all([_addListToRestrictions(data.whitelist, 'whitelist'), _addListToRestrictions(data.blacklist, 'blacklist')]).then(results => {
+            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(results[0].concat(results[1])))
+
+            document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }));
+            resolve()
+        })
+    })
 }
 
 export const FLIP_CUSTOMIZING_KEY = 'flipCustomizing'

@@ -22,12 +22,10 @@ let FREE_LOGIN_SPAN = 1000 * 60 * 6
 let FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN
 let FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN
 
-let defaultFilter: FlipperFilter
-
 function FlipperFilter(props: Props) {
-    if (!defaultFilter) {
-        defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
-    }
+
+    let defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {});
+
 
     let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin)
     let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium == null ? false : defaultFilter.onlyUnsold || false)

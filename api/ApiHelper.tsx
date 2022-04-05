@@ -29,8 +29,8 @@ import { websocketHelper } from './WebsocketHelper'
 import { httpApi } from './HttpHelper'
 import { v4 as generateUUID } from 'uuid'
 import { Stripe } from '@stripe/stripe-js'
-import { convertTagToName, enchantmentAndReforgeCompare } from '../utils/Formatter'
-import { googlePlayPackageName } from '../utils/GoogleUtils'
+import { enchantmentAndReforgeCompare } from '../utils/Formatter'
+import { googlePlayPackageName, wasAlreadyLoggedIn } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify'
 import cacheUtils from '../utils/CacheUtils'
 import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
@@ -38,6 +38,7 @@ import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { Base64 } from 'js-base64'
 import { isClientSideRendering } from '../utils/SSRUtils'
+import { getSettingsObject, setSettingsChangedData } from '../utils/SettingsUtils'
 
 export function initAPI(returnSSRResponse: boolean = false): API {
     setTimeout(() => {
@@ -250,9 +251,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     type: RequestType.AUCTION_DETAILS,
                     data: auctionUUID,
                     resolve: auctionDetails => {
-                        if(!auctionDetails){
-                            reject();
-                            return;
+                        if (!auctionDetails) {
+                            reject()
+                            return
                         }
                         if (!auctionDetails.auctioneer) {
                             api.getPlayerName(auctionDetails.auctioneerId).then(name => {
@@ -291,18 +292,20 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let connectionId = null
+
     let setConnectionId = (): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let websocketUUID = generateUUID()
+            connectionId = connectionId || generateUUID()
 
             websocketHelper.sendRequest({
                 type: RequestType.SET_CONNECTION_ID,
-                data: websocketUUID,
+                data: connectionId,
                 resolve: () => {
                     resolve()
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID)
+                    apiErrorHandler(RequestType.SET_CONNECTION_ID, error, connectionId)
                     reject()
                 }
             })
@@ -588,7 +591,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         restrictionList: FlipRestriction[],
         filter: FlipperFilter,
         soldCallback?: Function,
-        nextUpdateNotificationCallback?: Function
+        nextUpdateNotificationCallback?: Function,
+        forceSettingsUpdate: boolean = false
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
 
@@ -615,7 +619,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 justProfit: flipSettings.justProfit,
                 soundOnFlip: flipSettings.soundOnFlip,
                 shortNumbers: flipSettings.shortNumbers,
-                blockTenSecMsg: flipSettings.blockTenSecMsg
+                blockTenSecMsg: flipSettings.blockTenSecMsg,
+                format: flipSettings.modFormat,
+                chat: !flipSettings.hideModChat
             },
             visibility: {
                 cost: !flipSettings.hideCost,
@@ -626,18 +632,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 seller: !flipSettings.hideSeller,
                 volume: !flipSettings.hideVolume,
                 extraFields: flipSettings.maxExtraInfoFields,
-                profitPercent: !flipSettings.hideProfitPercent
+                profitPercent: !flipSettings.hideProfitPercent,
+                sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
+                lore: !flipSettings.hideLore
             },
-            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0)
+            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
+            changer: window.sessionStorage.getItem('sessionId')
         }
 
         if (filter.onlyBin) {
             requestData.filters = { Bin: 'true' }
         }
 
+        let isCheckingForServerSettings = !!(window as any).googleAuthObj && !forceSettingsUpdate
+
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
-            data: requestData,
+            data: isCheckingForServerSettings ? null : requestData,
             callback: function (response) {
                 switch (response.type) {
                     case 'flip':
@@ -652,6 +663,25 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         if (soldCallback) {
                             soldCallback(response.data)
                         }
+                        break
+                    case 'flipSettings':
+                        console.log('checking for server settings')
+                        if (!response.data) {
+                            console.log('didnt find any settings, update server to local settings')
+                            api.subscribeFlips(flipCallback, restrictionList, filter, soldCallback, nextUpdateNotificationCallback, true)
+                        } else {
+                            console.log('found server settings, updating local settings')
+                            console.log('server settings:')
+                            console.log(response.data)
+                            setSettingsChangedData(response.data)
+                        }
+                        break
+                    case 'settingsUpdate':
+                        let data = response.data as any
+                        if (data.changer === window.sessionStorage.getItem('sessionId')) {
+                            return
+                        }
+                        setSettingsChangedData(response.data)
                         break
                     default:
                         break
