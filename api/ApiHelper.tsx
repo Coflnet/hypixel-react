@@ -29,7 +29,7 @@ import { websocketHelper } from './WebsocketHelper'
 import { httpApi } from './HttpHelper'
 import { v4 as generateUUID } from 'uuid'
 import { Stripe } from '@stripe/stripe-js'
-import { convertTagToName, enchantmentAndReforgeCompare } from '../utils/Formatter'
+import { enchantmentAndReforgeCompare } from '../utils/Formatter'
 import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify'
 import cacheUtils from '../utils/CacheUtils'
@@ -577,7 +577,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     returnSSRResponse ? resolve(data) : resolve(data.map(parseFlipAuction))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_FILTER, error, name)
+                    apiErrorHandler(RequestType.GET_FILTER, error, '')
                 }
             })
         })
