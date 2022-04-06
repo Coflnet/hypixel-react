@@ -100,8 +100,6 @@ export const getServerSideProps = async ({ query }) => {
         auctionDetails.name = auctionDetails.itemName
     }
 
-    console.log(auctionDetails)
-
     let namePromises: Promise<void>[] = []
     auctionDetails.bids.forEach(bid => {
         let promise = api.getPlayerName(bid.bidder).then(name => {
