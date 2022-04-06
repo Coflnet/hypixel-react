@@ -1,21 +1,26 @@
-FROM node:16
+# Install dependencies only when needed
+FROM node:lts-alpine AS deps
 
-ENV PORT 3000
-
-# Create app directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
-
-# Installing dependencies
-COPY package*.json /usr/src/app/
+WORKDIR /opt/app
+COPY package*.json ./
 RUN npm ci
 
-# Copying source files
-COPY . /usr/src/app
+FROM node:lts-alpine AS builder
 
-# Building app
+ENV NODE_ENV=production
+WORKDIR /opt/app
+COPY . .
+COPY --from=deps /opt/app/node_modules ./node_modules
 RUN npm run build
-EXPOSE 3000
 
-# Running the app
-CMD "npm" "run" "start"
+# Production image, copy all the files and run next
+FROM node:lts-alpine AS runner
+
+ARG X_TAG
+WORKDIR /opt/app
+ENV NODE_ENV=production
+COPY --from=builder /opt/app/next.config.js ./
+COPY --from=builder /opt/app/public ./public
+COPY --from=builder /opt/app/.next ./.next
+COPY --from=builder /opt/app/node_modules ./node_modules
+CMD ["node_modules/.bin/next", "start"]
