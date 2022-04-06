@@ -5,7 +5,7 @@ import api from "./ApiHelper";
 import { toast } from "react-toastify";
 import { getProperty } from '../utils/PropertiesUtils';
 import { getNextMessageId } from "../utils/MessageIdUtils";
-import { refreshToken, wasAlreadyLoggedIn } from "../utils/GoogleUtils";
+import { refreshToken} from "../utils/GoogleUtils";
 
 let requests: ApiRequest[] = [];
 let websocket: WebSocket;
@@ -40,7 +40,7 @@ function initWebsocket(): void {
         api.setConnectionId().then(() => {
             isConnectionIdSet = true;
             let googleAuthObj = (window as any).googleAuthObj;
-            if (wasAlreadyLoggedIn() && googleAuthObj) {
+            if (localStorage.getItem('googleId') !== null && googleAuthObj) {
                 if (new Date(googleAuthObj.tokenObj.expires_at).getTime() <= new Date().getTime()) {
                     refreshToken(googleAuthObj).then(refreshToken => {
                         api.setGoogle(refreshToken.id_token).then(() => {

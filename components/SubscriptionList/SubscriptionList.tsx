@@ -5,19 +5,19 @@ import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
-import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import { toast } from 'react-toastify'
 import { Delete as DeleteIcon, Undo as UndoIcon } from '@mui/icons-material'
 import Link from 'next/link'
 import styles from './SubscriptionList.module.css'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 
 let mounted = true
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
 function SubscriptionList() {
     let [subscriptions, setSubscriptions] = useState<Subscription[]>([])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
         mounted = true
@@ -55,7 +55,6 @@ function SubscriptionList() {
 
     function onLoginFail() {
         setIsLoggedIn(false)
-        wasAlreadyLoggedInGoogle = false
     }
     function getSubTypesAsList(subTypes: SubscriptionType[], price: number): JSX.Element {
         return (
@@ -212,8 +211,8 @@ function SubscriptionList() {
             ) : (
                 ''
             )}
-            {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ''}
-            {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ''}
+            {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
+            {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
         </div>
     )

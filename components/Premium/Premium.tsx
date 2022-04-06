@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import Payment from '../Payment/Payment'
-import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
@@ -13,8 +12,7 @@ import { v4 as generateUUID } from 'uuid'
 import { GoogleLogout } from 'react-google-login'
 import { toast } from 'react-toastify'
 import styles from './Premium.module.css'
-
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -22,9 +20,10 @@ function Premium() {
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
     let [isLoading, setIsLoading] = useState(false)
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn();
 
     useEffect(() => {
-        if (!wasAlreadyLoggedInGoogle && !isLoggedIn) {
+        if (!wasAlreadyLoggedIn && !isLoggedIn) {
             setHasPremium(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,7 +54,6 @@ function Premium() {
     function onLoginFail() {
         setIsLoggedIn(false)
         setHasPremium(false)
-        wasAlreadyLoggedInGoogle = false
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
     }
 
@@ -75,7 +73,6 @@ function Premium() {
         setIsLoggedIn(false)
         setHasPremium(false)
         localStorage.removeItem('googleId')
-        wasAlreadyLoggedInGoogle = false
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
     }
@@ -133,9 +130,9 @@ function Premium() {
             ) : (
                 ''
             )}
-            {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
+            {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
-            {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ''}
+            {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
             <hr />
             <Card className={styles.premiumCard}>
                 <Card.Header>

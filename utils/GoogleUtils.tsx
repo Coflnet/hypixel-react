@@ -1,12 +1,3 @@
-import { isClientSideRendering } from './SSRUtils'
-
-export function wasAlreadyLoggedIn() {
-    if (!isClientSideRendering()) {
-        return false
-    }
-    return localStorage.getItem('googleId') !== null
-}
-
 let refreshTimeout
 
 export function refreshTokenSetup(res) {
