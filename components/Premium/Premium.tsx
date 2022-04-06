@@ -15,7 +15,6 @@ import styles from './Premium.module.css'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { CoflCoinsDisplay } from '../CoflCoins/CoflCoinsDisplay'
 import { useCoflCoins } from '../../utils/Hooks'
-import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
