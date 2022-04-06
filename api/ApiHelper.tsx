@@ -26,7 +26,6 @@ import {
 } from '../utils/Parser/APIResponseParser'
 import { RequestType, SubscriptionType, Subscription } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
-import { httpApi } from './HttpHelper'
 import { v4 as generateUUID } from 'uuid'
 import { Stripe } from '@stripe/stripe-js'
 import { convertTagToName, enchantmentAndReforgeCompare } from '../utils/Formatter'
@@ -38,8 +37,18 @@ import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { Base64 } from 'js-base64'
 import { isClientSideRendering } from '../utils/SSRUtils'
+import { initHttpHelper } from './HttpHelper'
 
 export function initAPI(returnSSRResponse: boolean = false): API {
+    let httpApi
+    if (isClientSideRendering()) {
+        httpApi = initHttpHelper()
+    } else {
+        let commandEndpoint = process.env.COMMAND_ENDPOINT
+        let apiEndpoint = process.env.API_ENDPOINT
+        httpApi = initHttpHelper(commandEndpoint, apiEndpoint)
+    }
+
     setTimeout(() => {
         if (isClientSideRendering()) {
             cacheUtils.checkForCacheClear()
@@ -61,9 +70,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 data: searchText,
                 resolve: (items: any) => {
                     resolve(
-                        !items ? [] : items.map((item: any) => {
-                            return parseSearchResultItem(item)
-                        })
+                        !items
+                            ? []
+                            : items.map((item: any) => {
+                                  return parseSearchResultItem(item)
+                              })
                     )
                 },
                 reject: (error: any) => {
@@ -250,9 +261,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     type: RequestType.AUCTION_DETAILS,
                     data: auctionUUID,
                     resolve: auctionDetails => {
-                        if(!auctionDetails){
-                            reject();
-                            return;
+                        if (!auctionDetails) {
+                            reject()
+                            return
                         }
                         if (!auctionDetails.auctioneer) {
                             api.getPlayerName(auctionDetails.auctioneerId).then(name => {
