@@ -53,7 +53,7 @@ function Premium() {
                         }}
                         style={{ width: '100%' }}
                     >
-                        Buy Sniper for <p style={{ margin: '0' }}>{formattedPrice} Coflcoins</p>
+                        Buy Premium for <p style={{ margin: '0' }}>{formattedPrice} Coflcoins</p>
                     </Button>
                 </Card.Body>
             </Card>

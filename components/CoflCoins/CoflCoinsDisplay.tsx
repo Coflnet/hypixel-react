@@ -31,13 +31,8 @@ export function CoflCoinsDisplay() {
     return (
         <div className="cofl-coins-display">
             <fieldset className={styles.border} style={{ width: 'max-content', borderRadius: '15px', textAlign: 'center' }}>
-                {isLoading ? getLoadingElement(<span />) : <b style={{ fontSize: 'x-large' }}>CoflCoins: {coflCoins}</b>}
+                {isLoading ? getLoadingElement(<span />) : <b style={{ fontSize: 'x-large' }}>Balance: {coflCoins} CoflCoins</b>}
             </fieldset>
         </div>
     )
 }
-
-/**
- *
- */
-export function getCoflCoins() {}
