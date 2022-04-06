@@ -84,6 +84,7 @@ export interface ApiSubscription {
     type: RequestType
     data: any
     callback(request: ApiResponse)
+    resubscribe(subscription: ApiSubscription)
 }
 
 export interface Subscription {

@@ -38,7 +38,7 @@ import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { Base64 } from 'js-base64'
 import { isClientSideRendering } from '../utils/SSRUtils'
-import { getSettingsObject, setSettingsChangedData } from '../utils/SettingsUtils'
+import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
 
 export function initAPI(returnSSRResponse: boolean = false): API {
     setTimeout(() => {
@@ -681,6 +681,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     default:
                         break
                 }
+            },
+            resubscribe: function (subscription) {
+                let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
+                filter.restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+                subscribeFlips(flipCallback, filter.restrictions, filter, soldCallback, nextUpdateNotificationCallback, false)
             }
         })
     }
