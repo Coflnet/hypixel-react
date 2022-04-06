@@ -10,7 +10,7 @@ import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
 
 interface Props {
-    item?: any,
+    item?: any
     mean?: number
 }
 
@@ -33,7 +33,7 @@ function ItemDetails(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tag])
 
-    let getItem = (): Item => {
+    function getItem(): Item {
         return (
             item ||
             parseItem({
@@ -44,14 +44,26 @@ function ItemDetails(props: Props) {
         )
     }
 
+    function getFiltersText() {
+        if (!router.query.itemFilter) {
+            return ''
+        }
+        let filter = JSON.parse(atob(router.query.itemFilter.toString()))
+        return ` FILTERS ➡️ ${Object.keys(filter)
+            .map(key => `${key}: ${filter[key]}`)
+            .toString()}`
+    }
+
     return (
         <div className="page">
             {getHeadElement(
                 `${getItem().name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`,
-                `Price for ${getItem().name || convertTagToName(tag)} in Hypixel Skyblock is ${numberWithThousandsSeperators(Math.floor(props.mean || 0))} Coins on average | Hypixel SkyBlock AH history tracker`,
+                `Price for ${getItem().name || convertTagToName(tag)} in Hypixel Skyblock is ${numberWithThousandsSeperators(
+                    Math.floor(props.mean || 0)
+                )} Coins on average.${getFiltersText()} | Hypixel SkyBlock AH history tracker`,
                 getItem().iconUrl,
                 [convertTagToName(getItem().tag)],
-                `${getItem().name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`,
+                `${getItem().name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`
             )}
             <Container>
                 <Search selected={getItem()} type="item" />
@@ -61,9 +73,13 @@ function ItemDetails(props: Props) {
     )
 }
 
-export const getServerSideProps = async ({query}) => {
+export const getServerSideProps = async ({ query }) => {
     let api = initAPI(true)
-    let apiResponses = await Promise.all([api.getItemDetails(query.tag), api.getItemPriceSummary(query.tag, query.itemFilter ? JSON.parse(atob(query.itemFilter)) : {})].map(p => p.catch(e => null)))
+    let apiResponses = await Promise.all(
+        [api.getItemDetails(query.tag), api.getItemPriceSummary(query.tag, query.itemFilter ? JSON.parse(atob(query.itemFilter)) : {})].map(p =>
+            p.catch(e => null)
+        )
+    )
     return {
         props: {
             item: apiResponses[0],

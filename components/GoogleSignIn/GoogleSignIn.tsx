@@ -17,11 +17,7 @@ interface Props {
 let gotResponse = false
 
 function GoogleSignIn(props: Props) {
-    if (!isClientSideRendering()) {
-        return null
-    }
-
-    let [googleId, setGoogleId] = useState(localStorage.getItem('googleId'))
+    let [googleId, setGoogleId] = useState(isClientSideRendering() ? localStorage.getItem('googleId') : null)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 

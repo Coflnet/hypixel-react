@@ -14,6 +14,7 @@ import SubscribeItemContent from './SubscribeItemContent/SubscribeItemContent'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import SubscribePlayerContent from './SubscribePlayerContent/SubscribePlayerContent'
 import SubscribeAuctionContent from './SubscribeAuctionContent/SubscribeAuctionContent'
+import { useRouter } from 'next/router'
 
 interface Props {
     topic: string
@@ -26,7 +27,7 @@ let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
 function SubscribeButton(props: Props) {
     let { trackEvent } = useMatomo()
-    let history = useHistory()
+    let router = useRouter();
     let [showDialog, setShowDialog] = useState(false)
     let [price, setPrice] = useState('')
     let [isPriceAbove, setIsPriceAbove] = useState(true)
@@ -48,7 +49,7 @@ function SubscribeButton(props: Props) {
             .then(() => {
                 toast.success('Notifier successfully created!', {
                     onClick: () => {
-                        history.push({
+                        router.push({
                             pathname: '/subscriptions'
                         })
                     }
@@ -57,7 +58,7 @@ function SubscribeButton(props: Props) {
             .catch(error => {
                 toast.error(error.Message, {
                     onClick: () => {
-                        history.push({
+                        router.push({
                             pathname: '/subscriptions'
                         })
                     }

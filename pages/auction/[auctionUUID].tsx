@@ -23,15 +23,17 @@ function AuctionDetailsPage(props: Props) {
 
     useEffect(() => {
         window.scrollTo(0, 0)
-    }, [])
 
-    useEffect(() => {
-        forceUpdate()
-        getServerSideProps({ query: router.query }).then(auctionDetails => {
-            setAuctionDetails(parseAuctionDetails(auctionDetails))
-        })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [auctionUUID])
+        function reload(){
+            window.location.reload();
+        }
+
+        router.events.on('routeChangeComplete', reload)
+
+        return () => {
+            router.events.off('routeChangeComplete', reload)
+        }
+    }, [])
 
     useEffect(() => {
         forceUpdate()
