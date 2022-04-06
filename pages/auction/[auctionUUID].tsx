@@ -24,10 +24,14 @@ function AuctionDetailsPage(props: Props) {
     useEffect(() => {
         window.scrollTo(0, 0)
 
-        router.events.on('routeChangeComplete', window.location.reload)
+        function reload(){
+            window.location.reload();
+        }
+
+        router.events.on('routeChangeComplete', reload)
 
         return () => {
-            router.events.off('routeChangeComplete', window.location.reload)
+            router.events.off('routeChangeComplete', reload)
         }
     }, [])
 

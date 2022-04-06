@@ -36,7 +36,7 @@ function Search(props: Props) {
         id: SEARCH_CONEXT_MENU_ID
     })
 
-    let searchElement = useRef(null);
+    let searchElement = useRef(null)
 
     useEffect(() => {
         if (isClientSideRendering()) {
@@ -54,7 +54,10 @@ function Search(props: Props) {
         let searchFunction = props.searchFunction || api.search
         searchFunction(searchFor).then(searchResults => {
             // has the searchtext changed?
-            if (searchElement.current !== null && searchFor === ((searchElement.current as HTMLDivElement).querySelector('#search-bar') as HTMLInputElement).value) {
+            if (
+                searchElement.current !== null &&
+                searchFor === ((searchElement.current as HTMLDivElement).querySelector('#search-bar') as HTMLInputElement).value
+            ) {
                 setNoResultsFound(searchResults.length === 0)
                 setResults(searchResults)
                 setIsLoading(false)
@@ -78,7 +81,12 @@ function Search(props: Props) {
     }
 
     let onKeyPress = (e: KeyboardEvent) => {
-        if (!results || e.key !== 'Enter') {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+        } else {
+            return
+        }
+        if (!results || results.length === 0) {
             return
         }
         onItemClick(results[0])
