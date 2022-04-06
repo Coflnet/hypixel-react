@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { useCoflCoins } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import styles from './CoflCoinsDisplay.module.css'
 
 export function CoflCoinsDisplay() {
     let [coflCoins] = useCoflCoins()
@@ -29,9 +30,8 @@ export function CoflCoinsDisplay() {
 
     return (
         <div className="cofl-coins-display">
-            <fieldset style={{ width: 'max-content', borderRadius: '10px', textAlign: 'center' }}>
-                <legend>Your CoflCoins</legend>
-                {isLoading ? getLoadingElement(<span />) : <b style={{ fontSize: 'x-large' }}>{coflCoins}</b>}
+            <fieldset className={styles.border} style={{ width: 'max-content', borderRadius: '15px', textAlign: 'center' }}>
+                {isLoading ? getLoadingElement(<span />) : <b style={{ fontSize: 'x-large' }}>CoflCoins: {coflCoins}</b>}
             </fieldset>
         </div>
     )

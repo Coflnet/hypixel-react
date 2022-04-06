@@ -434,3 +434,10 @@ export function parseItemSummary(price): ItemPriceSummary {
         volume: price.volume
     }
 }
+
+export function parsePaymentResponse(payment): PaymentResponse {
+    return {
+        id: payment.id,
+        directLink: payment.dirctLink
+    } as PaymentResponse
+}

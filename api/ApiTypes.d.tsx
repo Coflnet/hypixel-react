@@ -54,7 +54,7 @@ export enum RequestType {
     ITEM_PRICE_SUMMARY = 'item/price',
     PURCHASE_WITH_COFLCOiNS = 'purchase',
     SUBSCRIBE_COFLCOINS = 'subscribeCoflCoins',
-    GET_COFLCOIN_BALANCE = 'getCoflBalance'
+    GET_COFLCOIN_BALANCE = 'getCoflBalance',
 }
 
 export enum SubscriptionType {

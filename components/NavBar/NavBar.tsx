@@ -152,27 +152,27 @@ function NavBar(props: Props) {
 
     return (
         <span>
-            <aside className={styles.navBar} id="navBar">
-                <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()} onMouseMove={onMouseMove} onMouseOut={onMouseOut}>
+            <aside className={styles.navBar} id="navBar" onMouseEnter={onMouseMove} onMouseLeave={onMouseOut}>
+                <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()} >
                     <SidebarHeader>
                         <div style={{ padding: '24px', fontWeight: 'bold', fontSize: '20px', letterSpacing: '1px', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                             <ExploreIcon /> {!isCollapsed() ? 'Navigation' : ''}
                         </div>
                     </SidebarHeader>
                     <Menu iconShape="square">
-                        <MenuItem className="disableLinkStyle" icon={<HomeIcon />}>
+                        <MenuItem icon={<HomeIcon />}>
                             <Link href={'/'}>Home</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<StorefrontIcon />}>
+                        <MenuItem icon={<StorefrontIcon />}>
                             <Link href={'/flipper'}>Item-Flipper</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<NotificationIcon />}>
+                        <MenuItem icon={<NotificationIcon />}>
                             <Link href={'/subscriptions'}>Notifier</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<BuildIcon />}>
+                        <MenuItem icon={<BuildIcon />}>
                             <Link href={'/crafts'}>Profitable crafts</Link>
                         </MenuItem>
-                        <SubMenu className="disableLinkStyle" title="Shop" open={true} icon={<AccountBalanceIcon />} firstchild={false}>
+                        <SubMenu title="Shop" open={true} icon={<AccountBalanceIcon />} firstchild={false}>
                             <MenuItem icon={<AccountBalanceIcon />}>
                                 <Link href={'/coflcoins'}>CoflCoins</Link>
                             </MenuItem>
@@ -180,16 +180,16 @@ function NavBar(props: Props) {
                                 <Link href={'/premium'}>Premium</Link>
                             </MenuItem>
                         </SubMenu>
-                        <MenuItem className="disableLinkStyle" icon={<ShareIcon />}>
+                        <MenuItem icon={<ShareIcon />}>
                             <Link href={'/ref'}>Referral</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<PolicyIcon />}>
+                        <MenuItem icon={<PolicyIcon />}>
                             <Link href={'/about'}>Links / Legal</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<ChatIcon />}>
+                        <MenuItem icon={<ChatIcon />}>
                             <Link href={'/feedback'}>Feedback</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<img src="/discord_icon.svg" alt="" height="24"></img>}>
+                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24"></img>}>
                             <a href="https://discord.gg/wvKXfTgCfb">
                                 <div style={{ color: '#7289da' }}>Discord</div>
                             </a>

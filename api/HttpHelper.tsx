@@ -98,11 +98,6 @@ function handleServerRequest(request: ApiRequest, url: string, body?: any): Prom
         headers: request.requestHeader
     }).then(response => {
 
-        if(!response.ok){
-            request.resolve();
-            return;
-        }
-
         if (response.status === 204) {
             request.resolve();
             return;

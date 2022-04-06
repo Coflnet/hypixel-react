@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import Script from 'next/script'
 import { MainApp } from '../components/MainApp/MainApp'
 import NextNProgress from 'nextjs-progressbar'
+import { initCoflCoinManager } from '../utils/CoflCoinsUtils'
 
 function MyApp({ Component, pageProps }) {
     useEffect(() => {
@@ -31,6 +32,7 @@ function MyApp({ Component, pageProps }) {
                 location.reload()
             }
         })
+        initCoflCoinManager()
     }, [])
 
     return (

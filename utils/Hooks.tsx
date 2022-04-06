@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import api from '../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
-import { subscribeToCoflcoinChange } from './CoflCoinsUtils'
+import { getCurrentCoflCoins, subscribeToCoflcoinChange } from './CoflCoinsUtils'
 import { isClientSideRendering } from './SSRUtils'
 
 export function useForceUpdate() {
@@ -79,30 +79,15 @@ export function useSwipe(onSwipeUp?: Function, onSwipeRight?: Function, onSwipeD
 }
 
 export function useCoflCoins() {
-    const [coflCoins, setCoflCoins] = useState(-1)
+    const [coflCoins, setCoflCoins] = useState(getCurrentCoflCoins())
 
     useEffect(() => {
-        document.addEventListener(CUSTOM_EVENTS.GOOGLE_LOGIN, loadCoflCoinBalance)
-
-        if (!!(window as any).googleAuthObj) {
-            loadCoflCoinBalance()
-        }
-
-        let unsubscribeFunction = subscribeToCoflcoinChange(function (coflCoins) {
-            setCoflCoins(coflCoins)
-        })
+        let unsubscribe = subscribeToCoflcoinChange(setCoflCoins)
 
         return () => {
-            unsubscribeFunction()
-            document.removeEventListener(CUSTOM_EVENTS.GOOGLE_LOGIN, loadCoflCoinBalance)
+            unsubscribe()
         }
     }, [])
-
-    function loadCoflCoinBalance() {
-        api.getCoflcoinBalance().then(balance => {
-            setCoflCoins(balance)
-        })
-    }
 
     return [coflCoins]
 }

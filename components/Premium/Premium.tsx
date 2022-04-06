@@ -15,6 +15,7 @@ import styles from './Premium.module.css'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { CoflCoinsDisplay } from '../CoflCoins/CoflCoinsDisplay'
 import { useCoflCoins } from '../../utils/Hooks'
+import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
@@ -60,7 +61,9 @@ function Premium() {
     }
 
     function onPremiumBuy(productId) {
-        // implement purchase with coflcoins
+        api.purchaseWithCoflcoins(productId).then(() => {
+            toast.success('Purchase successful')
+        })
     }
 
     function loadHasPremiumUntil(): Promise<void> {
@@ -197,9 +200,9 @@ function Premium() {
                     </div>
                     <div className={styles.premiumProducts}>
                         {getPremiumElement('1 Month', 1800, 'premium')}
-                        {getPremiumElement('3 Month', 5400, 'premium-quater')}
-                        {getPremiumElement('6 Month', 10800, 'premium-half-year')}
-                        {getPremiumElement('1 Year', 21600, 'premium-year')}
+                        {getPremiumElement('3 Month', 5400, 'premium_quarter_year')}
+                        {getPremiumElement('6 Month', 10800, 'premium_half_year')}
+                        {getPremiumElement('1 Year', 21600, 'premium_year')}
                     </div>
                 </div>
             ) : (
