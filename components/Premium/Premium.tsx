@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Button, Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Button, Card, Form, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
@@ -15,8 +15,11 @@ import styles from './Premium.module.css'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { CoflCoinsDisplay } from '../CoflCoins/CoflCoinsDisplay'
 import { useCoflCoins } from '../../utils/Hooks'
+import NumberFormat, { NumberFormatValues } from 'react-number-format'
 
 let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
+
+let PREMIUM_PRICE_MONTH = 1800
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -25,6 +28,7 @@ function Premium() {
     let [isLoading, setIsLoading] = useState(false)
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [coflCoins] = useCoflCoins()
+    let [purchasePremiumDuration, setPurchasePremiumDuration] = useState(1)
 
     useEffect(() => {
         if (!wasAlreadyLoggedInGoogle && !isLoggedIn) {
@@ -32,32 +36,6 @@ function Premium() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    function getPremiumElement(label: string, price: number, productId: string) {
-        let formattedPrice = numberWithThousandsSeperators(Math.round(price))
-
-        return (
-            <Card className={styles.premiumProduct}>
-                <Card.Header>
-                    <h3 className={styles.premiumProductLabel}>{label}</h3>
-                </Card.Header>
-                <Card.Body>
-                    <p className={styles.premiumPrice}>{formattedPrice} CoflCoins</p>
-                    <hr />
-                    <Button
-                        variant="success"
-                        disabled={price > coflCoins}
-                        onClick={() => {
-                            onPremiumBuy(productId)
-                        }}
-                        style={{ width: '100%' }}
-                    >
-                        Buy Premium for <p style={{ margin: '0' }}>{formattedPrice} Coflcoins</p>
-                    </Button>
-                </Card.Body>
-            </Card>
-        )
-    }
 
     function onPremiumBuy(productId) {
         api.purchaseWithCoflcoins(productId).then(() => {
@@ -113,6 +91,10 @@ function Premium() {
         wasAlreadyLoggedInGoogle = false
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
+    }
+
+    function onDurationChange(number: NumberFormatValues) {
+        setPurchasePremiumDuration(number.floatValue)
     }
 
     return (
@@ -193,16 +175,50 @@ function Premium() {
             {isLoggedIn ? (
                 <div>
                     <hr />
-                    <div style={{ marginBottom: '20px' }}>
-                        <h2 style={{ float: 'left', marginRight: '50px' }}>Purchase Premium </h2>
-                        <CoflCoinsDisplay />
-                    </div>
-                    <div className={styles.premiumProducts}>
-                        {getPremiumElement('1 Month', 1800, 'premium')}
-                        {getPremiumElement('3 Month', 5400, 'premium_quarter_year')}
-                        {getPremiumElement('6 Month', 10800, 'premium_half_year')}
-                        {getPremiumElement('1 Year', 21600, 'premium_year')}
-                    </div>
+                    <h2>Purchase</h2>
+                    <Card className="purchase-card">
+                        <Card.Header>
+                            <Card.Title>Buy premium for a certain duration with your CoflCoins. The premium activate shortly after your purchase.</Card.Title>
+                        </Card.Header>
+                        <div style={{ padding: '15px' }}>
+                            <div style={{ marginBottom: '15px' }}>
+                                <label className={styles.label}>Purchase Duration:</label>
+                                <NumberFormat
+                                    onValueChange={onDurationChange}
+                                    className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
+                                    isAllowed={value => {
+                                        return (value.floatValue || 0) <= 12
+                                    }}
+                                    customInput={Form.Control}
+                                    defaultValue={purchasePremiumDuration}
+                                    thousandSeparator="."
+                                    decimalSeparator=","
+                                    allowNegative={false}
+                                    decimalScale={0}
+                                    step={1}
+                                    style={{ width: '100px', display: 'inline' }}
+                                />
+                                <span style={{ marginLeft: '20px' }}>Month(s)</span>
+                                <div style={{ float: 'right' }}>
+                                    <CoflCoinsDisplay />
+                                </div>
+                            </div>
+                            <div>
+                                <label className={styles.label}>Price:</label>
+                                <span>{numberWithThousandsSeperators(purchasePremiumDuration * 1800)} Coins</span>
+                            </div>
+                            <hr />
+                            <Button
+                                style={{ marginTop: '10px' }}
+                                variant="success"
+                                onClick={() => {
+                                    onPremiumBuy('premium')
+                                }}
+                            >
+                                Confirm purchase
+                            </Button>
+                        </div>
+                    </Card>
                 </div>
             ) : (
                 ''
