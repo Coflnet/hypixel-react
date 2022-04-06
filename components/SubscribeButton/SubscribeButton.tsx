@@ -47,7 +47,6 @@ function SubscribeButton(props: Props) {
         }
         api.subscribe(props.topic, getSubscriptionTypes(), price ? parseInt(price) : undefined, itemFilter)
             .then(() => {
-                debugger;
                 toast.success('Notifier successfully created!', {
                     onClick: () => {
                         router.push({
@@ -57,10 +56,8 @@ function SubscribeButton(props: Props) {
                 })
             })
             .catch(error => {
-                debugger;
                 toast.error(error.Message, {
                     onClick: () => {
-                        debugger;
                         router.push({
                             pathname: '/subscriptions'
                         })
