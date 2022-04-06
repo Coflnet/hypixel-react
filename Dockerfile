@@ -1,11 +1,26 @@
-FROM node:16-alpine3.11 as frontend
+# Install dependencies only when needed
+FROM node:lts-alpine AS deps
 
-WORKDIR /build
+WORKDIR /opt/app
 COPY package*.json ./
 RUN npm ci
+
+FROM node:lts-alpine AS builder
+
+ENV NODE_ENV=production
+WORKDIR /opt/app
 COPY . .
+COPY --from=deps /opt/app/node_modules ./node_modules
 RUN npm run build
 
-FROM nginx:1.21.5-alpine
+# Production image, copy all the files and run next
+FROM node:lts-alpine AS runner
 
-COPY --from=frontend /build/build /usr/share/nginx/html
+ARG X_TAG
+WORKDIR /opt/app
+ENV NODE_ENV=production
+COPY --from=builder /opt/app/next.config.js ./
+COPY --from=builder /opt/app/public ./public
+COPY --from=builder /opt/app/.next ./.next
+COPY --from=builder /opt/app/node_modules ./node_modules
+CMD ["node_modules/.bin/next", "start"]

@@ -1,0 +1,7 @@
+.genericFilter {
+    flex-grow: 100;
+}
+
+.genericFilter :global(.form-control) {
+    width: 100%;
+}

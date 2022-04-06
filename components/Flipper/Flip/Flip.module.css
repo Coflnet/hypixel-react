@@ -1,0 +1,16 @@
+.flex {
+    display: flex;
+    flex-grow: 0;
+    align-items: center;
+}
+
+.flexMax {
+    flex-grow: 100;
+    display: flex;
+    flex-direction: column;
+}
+
+.flipAuctionCopyButton {
+    width: 100%;
+    margin-top: 10px;
+}

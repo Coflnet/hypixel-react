@@ -34,3 +34,4 @@ package-lock.json
 .eslintcache
 cypress/screenshots/*
 cypress/videos/*
+.next

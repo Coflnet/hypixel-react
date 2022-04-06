@@ -1,0 +1,40 @@
+.search {
+    margin-right: 20px;
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+.searchResultIcon {
+    margin-right: 20px;
+}
+
+.bar {
+    display: flex;
+}
+
+.current {
+    flex-grow: 100;
+    font-size: 1rem;
+}
+
+.search :global(.form-control) {
+    background-color: #303030;
+    color: white;
+    border-color: #222;
+    box-shadow: none;
+}
+
+.search :global(.form-control:focus) {
+    background-color: #303030;
+    color: white;
+    border-color: #222;
+    box-shadow: none;
+}
+
+.searchFormGroup {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    margin-bottom: 0;
+    border-bottom-width: 0;
+}

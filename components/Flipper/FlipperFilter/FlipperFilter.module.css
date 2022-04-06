@@ -1,0 +1,41 @@
+.flipperFilterFormfieldText {
+    text-align: right;
+}
+
+.filterTextfield {
+    width: 25%;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.premiumFilters {
+    margin-top: 20px;
+    margin-left: 10px;
+    display: flex;
+    justify-content: left;
+}
+
+.premiumFilters :global(.form-group) {
+    margin-bottom: 0;
+}
+
+.formCheck {
+    padding-left: 0;
+}
+
+.checkboxLabel {
+    padding-right: 20px;
+}
+
+@media all and (max-width: 480px) {
+    .checkboxLabel {
+        min-width: 100px;
+    }
+    .premiumFilters {
+        flex-wrap: wrap;
+    }
+}
+
+.filterCheckbox {
+    margin-right: 50px;
+}
