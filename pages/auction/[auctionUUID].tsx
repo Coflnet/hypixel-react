@@ -23,15 +23,13 @@ function AuctionDetailsPage(props: Props) {
 
     useEffect(() => {
         window.scrollTo(0, 0)
-    }, [])
 
-    useEffect(() => {
-        forceUpdate()
-        getServerSideProps({ query: router.query }).then(auctionDetails => {
-            setAuctionDetails(parseAuctionDetails(auctionDetails))
-        })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [auctionUUID])
+        router.events.on('routeChangeComplete', window.location.reload)
+
+        return () => {
+            router.events.off('routeChangeComplete', window.location.reload)
+        }
+    }, [])
 
     useEffect(() => {
         forceUpdate()
@@ -101,6 +99,8 @@ export const getServerSideProps = async ({ query }) => {
     if (!auctionDetails.name) {
         auctionDetails.name = auctionDetails.itemName
     }
+
+    console.log(auctionDetails)
 
     let namePromises: Promise<void>[] = []
     auctionDetails.bids.forEach(bid => {

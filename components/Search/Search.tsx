@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
 import { convertTagToName } from '../../utils/Formatter'
@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
 import { useRouter } from 'next/router'
+import { v4 as generateUUID } from 'uuid'
 
 interface Props {
     selected?: Player | Item
@@ -23,11 +24,9 @@ interface Props {
 }
 
 const SEARCH_CONEXT_MENU_ID = 'search-context-menu'
-const SEARCH_FIELD_ID = 'search-field-id'
 
 function Search(props: Props) {
     let router = useRouter()
-    let [uuid] = useState(SEARCH_FIELD_ID)
     let [searchText, setSearchText] = useState('')
     let [results, setResults] = useState<SearchResultItem[]>([])
     let [isLoading, setIsLoading] = useState(false)
@@ -36,6 +35,8 @@ function Search(props: Props) {
     const { show } = useContextMenu({
         id: SEARCH_CONEXT_MENU_ID
     })
+
+    let searchElement = useRef(null);
 
     useEffect(() => {
         if (isClientSideRendering()) {
@@ -53,8 +54,7 @@ function Search(props: Props) {
         let searchFunction = props.searchFunction || api.search
         searchFunction(searchFor).then(searchResults => {
             // has the searchtext changed?
-            let component = document.getElementById(uuid)
-            if (component !== null && searchFor === (component.querySelector('#search-bar') as HTMLInputElement).value) {
+            if (searchElement.current !== null && searchFor === ((searchElement.current as HTMLDivElement).querySelector('#search-bar') as HTMLInputElement).value) {
                 setNoResultsFound(searchResults.length === 0)
                 setResults(searchResults)
                 setIsLoading(false)
@@ -216,7 +216,7 @@ function Search(props: Props) {
     )
 
     return (
-        <div id={uuid} className={styles.search} style={isSmall ? { marginLeft: '-5px', marginRight: '-5px' } : {}}>
+        <div ref={searchElement} className={styles.search} style={isSmall ? { marginLeft: '-5px', marginRight: '-5px' } : {}}>
             <Form autoComplete="off">
                 <Form.Group className={styles.searchFormGroup}>
                     {!isSmall && !props.hideNavbar ? <NavBar /> : ''}

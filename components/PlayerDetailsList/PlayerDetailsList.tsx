@@ -130,7 +130,7 @@ function PlayerDetailsList(props: Props) {
                 crossOrigin="anonymous"
                 className="auctionItemImage"
                 src={listElement.item.iconUrl}
-                style={{marginRight: "10px"}}
+                style={{ marginRight: '10px' }}
                 alt="item icon"
                 height="48"
                 onError={error => onImageLoadError(listElement, error)}
@@ -225,12 +225,12 @@ function PlayerDetailsList(props: Props) {
 
     let list = listElements.map((listElement, i) => {
         return (
-            <ListGroup.Item action className={styles.listGroupItem}>
+            <ListGroup.Item action className={styles.listGroupItem} key={'listItem-' + i}>
                 <span key={listElement.uuid} className={`${styles.disableLinkStyle} ${styles.listItemLink}`}>
                     <Link href={`/auction/${listElement.uuid}`}>
                         <a className="disableLinkStyle">
                             <div>
-                                <p style={{fontSize: "1.5rem"}}>
+                                <p style={{ fontSize: '1.5rem' }}>
                                     {getItemImageElement(listElement)}
                                     {listElement.item.name || convertTagToName(listElement.item.tag)}
                                     {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (

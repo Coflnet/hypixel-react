@@ -25,7 +25,6 @@ import { Menu, Item, useContextMenu, theme } from 'react-contexify'
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils'
 import Countdown, { zeroPad } from 'react-countdown'
 import styles from './Flipper.module.css'
-import { isClientSideRendering } from '../../utils/SSRUtils'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -66,6 +65,7 @@ function Flipper(props: Props) {
     let [countdownDateObject, setCountdownDateObject] = useState<Date>()
     let [isSmall, setIsSmall] = useState(false)
     let [selectedAuctionUUID, setSelectedAuctionUUID] = useState('')
+    let [isSSR, setIsSSR] = useState(true)
 
     let router = useRouter()
 
@@ -81,9 +81,7 @@ function Flipper(props: Props) {
     const flipLookup = {}
 
     useEffect(() => {
-        if (!isClientSideRendering()) {
-            return
-        }
+        setIsSSR(false)
 
         mounted = true
         _setAutoScroll(true)
@@ -160,7 +158,7 @@ function Flipper(props: Props) {
     }
 
     function attachScrollEvent(scrollContainer: Element | null = null) {
-        if (!isClientSideRendering()) {
+        if (isSSR) {
             return
         }
 
@@ -312,7 +310,7 @@ function Flipper(props: Props) {
         let { data, index, style } = listData
         let { flips } = data
 
-        return <div>{getFlipElement(flips[index], style)}</div>
+        return <div key={'flip-' + index}>{getFlipElement(flips[index], style)}</div>
     }
 
     function addItemToBlacklist(flip: FlipAuction) {
@@ -512,7 +510,7 @@ function Flipper(props: Props) {
                             </Form.Group>
                         </Form>
                         <hr />
-                        {isClientSideRendering() ? (
+                        {!isSSR ? (
                             <div
                                 id="flipper-scroll-list-wrapper"
                                 style={{ height: document.getElementById('maxHeightDummyFlip')?.offsetHeight, width: '100%' }}
@@ -536,7 +534,9 @@ function Flipper(props: Props) {
                             </div>
                         ) : (
                             <div className={`${styles.SSRcardsWrapper} ${styles.flipperScrollList}`}>
-                                {flips.map(flip => getFlipElement(flip, { width: '300px', height: '100%' }))}
+                                {flips.map((flip, index) => {
+                                    return <span key={'flip' + index}>{getFlipElement(flip, { width: '300px', height: '100%' })}</span>
+                                })}
                             </div>
                         )}
                     </div>
@@ -638,10 +638,10 @@ function Flipper(props: Props) {
                                     <p>
                                         Your Link to invite people:{' '}
                                         <span style={{ fontStyle: 'italic', color: 'skyblue' }}>
-                                            {isClientSideRendering() ? window.location.href.split('?')[0] + '?refId=' + refInfo?.refId : ''}
+                                            {!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.refId : ''}
                                         </span>{' '}
                                         <CopyButton
-                                            copyValue={isClientSideRendering() ? window.location.href.split('?')[0] + '?refId=' + refInfo?.refId : ''}
+                                            copyValue={!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.refId : ''}
                                             successMessage={<span>Copied Ref-Link</span>}
                                         />
                                     </p>
