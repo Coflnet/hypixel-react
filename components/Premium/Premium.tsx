@@ -13,6 +13,7 @@ import { GoogleLogout } from 'react-google-login'
 import { toast } from 'react-toastify'
 import styles from './Premium.module.css'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { isClientSideRendering } from '../../utils/SSRUtils'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -20,11 +21,15 @@ function Premium() {
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
     let [isLoading, setIsLoading] = useState(false)
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn();
+    let [isLoggingIn, setIsLoggingIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
         if (!wasAlreadyLoggedIn && !isLoggedIn) {
             setHasPremium(false)
+        }
+        if (localStorage.getItem('googleId') !== null) {
+            setIsLoggingIn(true)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -46,12 +51,14 @@ function Premium() {
         let googleId = localStorage.getItem('googleId')
         if (googleId) {
             setIsLoading(true)
+            setIsLoggingIn(false)
             setIsLoggedIn(true)
             loadHasPremiumUntil()
         }
     }
 
     function onLoginFail() {
+        setIsLoggingIn(false)
         setIsLoggedIn(false)
         setHasPremium(false)
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
@@ -76,7 +83,7 @@ function Premium() {
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
     }
-
+    
     return (
         <div className="premium">
             <h2>
@@ -130,9 +137,9 @@ function Premium() {
             ) : (
                 ''
             )}
-            {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
+            {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
-            {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
+            {isLoggingIn ? getLoadingElement() : ''}
             <hr />
             <Card className={styles.premiumCard}>
                 <Card.Header>

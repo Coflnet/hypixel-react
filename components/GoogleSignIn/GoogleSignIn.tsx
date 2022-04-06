@@ -45,6 +45,7 @@ function GoogleSignIn(props: Props) {
 
     useEffect(() => {
         forceUpdate()
+        setIsLoggedIn(localStorage.getItem('googleId') !== null)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.rerenderFlip])
 
