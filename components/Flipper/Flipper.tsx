@@ -85,6 +85,7 @@ function Flipper(props: Props) {
         mounted = true
         _setAutoScroll(true)
         attachScrollEvent()
+        isSSR = false
         api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification)
         getLastFlipFetchTime()
 
