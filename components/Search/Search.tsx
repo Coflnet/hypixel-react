@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
 import { useRouter } from 'next/router'
+import { v4 as generateUUID } from 'uuid'
 
 interface Props {
     selected?: Player | Item
@@ -23,11 +24,10 @@ interface Props {
 }
 
 const SEARCH_CONEXT_MENU_ID = 'search-context-menu'
-const SEARCH_FIELD_ID = 'search-field-id'
 
 function Search(props: Props) {
     let router = useRouter()
-    let [uuid] = useState(SEARCH_FIELD_ID)
+    let [uuid] = useState(generateUUID())
     let [searchText, setSearchText] = useState('')
     let [results, setResults] = useState<SearchResultItem[]>([])
     let [isLoading, setIsLoading] = useState(false)

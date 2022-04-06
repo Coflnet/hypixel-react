@@ -665,14 +665,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         }
                         break
                     case 'flipSettings':
-                        console.log('checking for server settings')
                         if (!response.data) {
-                            console.log('didnt find any settings, update server to local settings')
                             api.subscribeFlips(flipCallback, restrictionList, filter, soldCallback, nextUpdateNotificationCallback, true)
                         } else {
-                            console.log('found server settings, updating local settings')
-                            console.log('server settings:')
-                            console.log(response.data)
                             setSettingsChangedData(response.data)
                         }
                         break
