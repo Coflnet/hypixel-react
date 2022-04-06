@@ -74,3 +74,12 @@ export function useSwipe(onSwipeUp?: Function, onSwipeRight?: Function, onSwipeD
         document.removeEventListener('touchmove', handleTouchMove, false)
     }
 }
+
+export function useWasAlreadyLoggedIn() {
+    const [wasAlreadyLoggedIn, setWasAlreadyLoggedIn] = useState(false)
+    useEffect(() => {
+        setWasAlreadyLoggedIn(localStorage.getItem('googleId') !== null)
+    }, [])
+
+    return wasAlreadyLoggedIn
+}
