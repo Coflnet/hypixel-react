@@ -61,7 +61,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 data: searchText,
                 resolve: (items: any) => {
                     resolve(
-                        items.map((item: any) => {
+                        !items ? [] : items.map((item: any) => {
                             return parseSearchResultItem(item)
                         })
                     )
