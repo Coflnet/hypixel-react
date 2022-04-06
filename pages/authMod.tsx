@@ -57,7 +57,7 @@ function AuthMod() {
                     ) : (
                         getLoadingElement(<p>Authorizing connection...</p>)
                     )}
-                    {!isLoggedIn ? <p>Please log in to authenticate for the mod usage</p> : ''}
+                    {!isLoggedIn ? <p>Please log in to authenticate for the mod usage</p>: ''}
                 </div>
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             </Container>
