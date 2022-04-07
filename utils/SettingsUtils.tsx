@@ -80,6 +80,7 @@ export function setSettingsChangedData(data: any): Promise<void> {
                 blockTenSecMsg: data.mod.blockTenSecMsg,
                 hideModChat: !data.mod.chat,
                 modFormat: data.mod.format,
+                hideCopySuccessMessage: !data.visibility.copySuccessMessage,
                 finders: FLIP_FINDERS.filter(finder => {
                     return hasFlag(parseInt(data.finders), parseInt(finder.value))
                 }).map(finder => parseInt(finder.value))
