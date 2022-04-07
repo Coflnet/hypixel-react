@@ -60,6 +60,9 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             hideProfitPercent: false,
             blockTenSecMsg: false,
             finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value),
+            hideLore: true,
+            hideModChat: false,
+            hideSellerOpenBtn: false,
             modFormat: ""
         };
 
