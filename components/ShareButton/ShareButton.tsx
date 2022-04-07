@@ -18,24 +18,19 @@ function ShareButton(props: Props) {
     let [showOverlayTrigger, setShowOverlayTrigger] = useState(false)
 
     function checkShareAPI(): boolean {
-        return false
+        return typeof navigator !== 'undefined' && typeof navigator.share !== 'undefined'
     }
 
     function onShare() {
-        try {
-            // navigator.share({ navigator.share !== undefined
-            //     title: props.title,
-            //     text: props.text,
-            //     url: props.url || window.location.href
-            // })
-            trackEvent({
-                category: 'share',
-                action: 'shareAPI'
-            })
-        } catch (error) {
-            setCanUseShareAPI(false)
-            copyToClipboard()
-        }
+        navigator.share({
+            title: props.title,
+            text: props.text,
+            url: props.url || window.location.href
+        })
+        trackEvent({
+            category: 'share',
+            action: 'shareAPI'
+        })
     }
 
     function copyToClipboard() {

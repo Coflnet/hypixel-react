@@ -10,6 +10,7 @@ import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../utils/SSRUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import moment from 'moment'
+import { RttTwoTone } from '@mui/icons-material'
 
 interface Props {
     auctionDetails: any
@@ -23,15 +24,17 @@ function AuctionDetailsPage(props: Props) {
 
     useEffect(() => {
         window.scrollTo(0, 0)
-    }, [])
 
-    useEffect(() => {
-        forceUpdate()
-        getServerSideProps({ query: router.query }).then(auctionDetails => {
-            setAuctionDetails(parseAuctionDetails(auctionDetails))
-        })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [auctionUUID])
+        function reload() {
+            window.location.reload()
+        }
+
+        router.events.on('routeChangeComplete', reload)
+
+        return () => {
+            router.events.off('routeChangeComplete', reload)
+        }
+    }, [])
 
     useEffect(() => {
         forceUpdate()
@@ -82,7 +85,7 @@ function AuctionDetailsPage(props: Props) {
     )
 }
 
-export const getServerSideProps = async ({ query }) => {
+export const getServerSideProps = async ({ query, res }) => {
     let auctionUUID = query.auctionUUID as string
     let api = initAPI(true)
     let auctionDetails: any
@@ -94,8 +97,21 @@ export const getServerSideProps = async ({ query }) => {
         }
     }
 
+    if (!auctionDetails) {
+        console.log('auctionDetails not found (auctionUUID=' + auctionUUID + ')')
+        return {
+            notFound: true
+        }
+    }
+
     auctionDetails.bids.sort((a, b) => b.amount - a.amount)
     let item = await api.getItemDetails(auctionDetails.tag)
+    if (!item) {
+        console.log('itemDetails not found (tag=' + auctionDetails.tag + ')')
+        return {
+            notFound: true
+        }
+    }
     auctionDetails.description = item.description
     auctionDetails.iconUrl = api.getItemImageUrl(auctionDetails)
     if (!auctionDetails.name) {

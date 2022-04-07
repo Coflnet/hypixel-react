@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import Payment from '../Payment/Payment'
-import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
@@ -13,8 +12,8 @@ import { v4 as generateUUID } from 'uuid'
 import { GoogleLogout } from 'react-google-login'
 import { toast } from 'react-toastify'
 import styles from './Premium.module.css'
-
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { isClientSideRendering } from '../../utils/SSRUtils'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -22,10 +21,15 @@ function Premium() {
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
     let [isLoading, setIsLoading] = useState(false)
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
+    let [isLoggingIn, setIsLoggingIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
-        if (!wasAlreadyLoggedInGoogle && !isLoggedIn) {
+        if (!wasAlreadyLoggedIn && !isLoggedIn) {
             setHasPremium(false)
+        }
+        if (localStorage.getItem('googleId') !== null) {
+            setIsLoggingIn(true)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -47,15 +51,16 @@ function Premium() {
         let googleId = localStorage.getItem('googleId')
         if (googleId) {
             setIsLoading(true)
+            setIsLoggingIn(false)
             setIsLoggedIn(true)
             loadHasPremiumUntil()
         }
     }
 
     function onLoginFail() {
+        setIsLoggingIn(false)
         setIsLoggedIn(false)
         setHasPremium(false)
-        wasAlreadyLoggedInGoogle = false
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
     }
 
@@ -75,11 +80,10 @@ function Premium() {
         setIsLoggedIn(false)
         setHasPremium(false)
         localStorage.removeItem('googleId')
-        wasAlreadyLoggedInGoogle = false
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
     }
-
+    
     return (
         <div className="premium">
             <h2>
@@ -133,9 +137,9 @@ function Premium() {
             ) : (
                 ''
             )}
-            {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
+            {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
-            {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ''}
+            {isLoggingIn ? getLoadingElement() : ''}
             <hr />
             <Card className={styles.premiumCard}>
                 <Card.Header>

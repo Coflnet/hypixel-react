@@ -49,6 +49,7 @@ function AuctionDetails(props: Props) {
                         auctionDetails.auction.item.name = item.name
                     }
                     setAuctionDetails(auctionDetails)
+                    forceUpdate()
                 })
 
                 let namePromises: Promise<void>[] = []
@@ -366,7 +367,7 @@ function AuctionDetails(props: Props) {
             auctionDetails?.bids.map((bid, i) => {
                 let headingStyle = i === 0 ? { color: 'green' } : { color: 'red' }
                 return (
-                    <Link href={`/player/${bid.bidder.uuid}`}>
+                    <Link href={`/player/${bid.bidder.uuid}`} key={'bid-' + i}>
                         <a className="disableLinkStyle">
                             <ListGroup.Item key={bid.amount} action>
                                 <img

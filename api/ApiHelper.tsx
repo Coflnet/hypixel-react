@@ -26,11 +26,10 @@ import {
 } from '../utils/Parser/APIResponseParser'
 import { RequestType, SubscriptionType, Subscription } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
-import { httpApi } from './HttpHelper'
 import { v4 as generateUUID } from 'uuid'
 import { Stripe } from '@stripe/stripe-js'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
-import { googlePlayPackageName, wasAlreadyLoggedIn } from '../utils/GoogleUtils'
+import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify'
 import cacheUtils from '../utils/CacheUtils'
 import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
@@ -39,8 +38,18 @@ import { getProperty } from '../utils/PropertiesUtils'
 import { Base64 } from 'js-base64'
 import { isClientSideRendering } from '../utils/SSRUtils'
 import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
+import { initHttpHelper } from './HttpHelper'
 
 export function initAPI(returnSSRResponse: boolean = false): API {
+    let httpApi
+    if (isClientSideRendering()) {
+        httpApi = initHttpHelper()
+    } else {
+        let commandEndpoint = process.env.COMMAND_ENDPOINT
+        let apiEndpoint = process.env.API_ENDPOINT
+        httpApi = initHttpHelper(commandEndpoint, apiEndpoint)
+    }
+
     setTimeout(() => {
         if (isClientSideRendering()) {
             cacheUtils.checkForCacheClear()
@@ -62,9 +71,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 data: searchText,
                 resolve: (items: any) => {
                     resolve(
-                        items.map((item: any) => {
-                            return parseSearchResultItem(item)
-                        })
+                        !items
+                            ? []
+                            : items.map((item: any) => {
+                                  return parseSearchResultItem(item)
+                              })
                     )
                 },
                 reject: (error: any) => {
@@ -580,7 +591,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     returnSSRResponse ? resolve(data) : resolve(data.map(parseFlipAuction))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_FILTER, error, name)
+                    apiErrorHandler(RequestType.GET_FILTER, error, '')
                 }
             })
         })

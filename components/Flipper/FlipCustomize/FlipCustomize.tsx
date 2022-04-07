@@ -272,11 +272,11 @@ function FlipCustomize() {
                             />
                         </Form.Group>
                         <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="profitPercent">
+                            <Form.Label className={styles.label} htmlFor="hideProfitPercent">
                                 Profit percent?
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('profitPercent', !event.target.checked)}
+                                onChange={event => onChangeBoolean('hideProfitPercent', !event.target.checked)}
                                 defaultChecked={!flipCustomizeSettings.hideProfitPercent}
                                 id="profitPercent"
                                 style={{ display: 'inline' }}
@@ -335,13 +335,13 @@ function FlipCustomize() {
                             />
                         </Form.Group>
                         <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideCopyMessage">
+                            <Form.Label className={styles.label} htmlFor="hideCopySuccessMessage">
                                 Show copy message
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideCopyMessage', !event.target.checked)}
+                                onChange={event => onChangeBoolean('hideCopySuccessMessage', !event.target.checked)}
                                 defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage}
-                                id="hideCopyMessage"
+                                id="hideCopySuccessMessage"
                                 style={{ display: 'inline' }}
                                 type="checkbox"
                             />

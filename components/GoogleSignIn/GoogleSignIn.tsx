@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { refreshTokenSetup } from '../../utils/GoogleUtils'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
-import { useForceUpdate } from '../../utils/Hooks'
+import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 
 interface Props {
@@ -16,20 +16,17 @@ interface Props {
 let gotResponse = false
 
 function GoogleSignIn(props: Props) {
-    if (!isClientSideRendering()) {
-        return null
-    }
-
-    let [googleId, setGoogleId] = useState(localStorage.getItem('googleId'))
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if (googleId !== null) {
+        if (wasAlreadyLoggedIn) {
             setTimeout(() => {
                 if (!gotResponse) {
                     toast.error('We had problems authenticating your account with google. Please try to log in again.')
-                    setGoogleId(null)
+                    setIsLoggedIn(false)
                     if (props.onLoginFail) {
                         props.onLoginFail()
                     }
@@ -41,15 +38,21 @@ function GoogleSignIn(props: Props) {
     }, [])
 
     useEffect(() => {
-        setGoogleId(localStorage.getItem('googleId'))
+        if (wasAlreadyLoggedIn) {
+            setIsLoggedIn(true)
+        }
+    }, [wasAlreadyLoggedIn])
+
+    useEffect(() => {
         forceUpdate()
+        setIsLoggedIn(localStorage.getItem('googleId') !== null)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.rerenderFlip])
 
     const onLoginSucces = (response: any) => {
         gotResponse = true
         localStorage.setItem('googleId', response.tokenId)
-        setGoogleId(response.tokenId)
+        setIsLoggedIn(true)
         api.setGoogle(response.tokenId)
             .then(() => {
                 ;(window as any).googleAuthObj = response
@@ -62,7 +65,7 @@ function GoogleSignIn(props: Props) {
             })
             .catch(() => {
                 toast.error('An error occoured while trying to sign in with Google')
-                googleId = null
+                setIsLoggedIn(false)
                 localStorage.removeItem('googleId')
             })
     }
@@ -95,13 +98,12 @@ function GoogleSignIn(props: Props) {
         })
     }
 
-    let style: React.CSSProperties =
-        googleId !== null
-            ? {
-                  visibility: 'collapse',
-                  height: 0
-              }
-            : {}
+    let style: React.CSSProperties = isLoggedIn
+        ? {
+              visibility: 'collapse',
+              height: 0
+          }
+        : {}
 
     return (
         <div style={style} onClickCapture={onLoginClick}>
@@ -110,7 +112,7 @@ function GoogleSignIn(props: Props) {
                 buttonText="Login"
                 onSuccess={onLoginSucces}
                 onFailure={onLoginFail}
-                isSignedIn={googleId !== null}
+                isSignedIn={isClientSideRendering() ? localStorage.getItem('googleId') !== null : false}
                 theme="dark"
                 cookiePolicy={'single_host_origin'}
             />

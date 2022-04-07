@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
 import { convertTagToName } from '../../utils/Formatter'
@@ -37,6 +37,8 @@ function Search(props: Props) {
         id: SEARCH_CONEXT_MENU_ID
     })
 
+    let searchElement = useRef(null)
+
     useEffect(() => {
         if (isClientSideRendering()) {
             setIsSmall(isClientSideRendering() ? document.body.clientWidth < 1500 : false)
@@ -53,8 +55,10 @@ function Search(props: Props) {
         let searchFunction = props.searchFunction || api.search
         searchFunction(searchFor).then(searchResults => {
             // has the searchtext changed?
-            let component = document.getElementById(uuid)
-            if (component !== null && searchFor === (component.querySelector('#search-bar') as HTMLInputElement).value) {
+            if (
+                searchElement.current !== null &&
+                searchFor === ((searchElement.current as HTMLDivElement).querySelector('#search-bar') as HTMLInputElement).value
+            ) {
                 setNoResultsFound(searchResults.length === 0)
                 setResults(searchResults)
                 setIsLoading(false)
@@ -78,7 +82,12 @@ function Search(props: Props) {
     }
 
     let onKeyPress = (e: KeyboardEvent) => {
-        if (!results || e.key !== 'Enter') {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+        } else {
+            return
+        }
+        if (!results || results.length === 0) {
             return
         }
         onItemClick(results[0])
@@ -216,7 +225,7 @@ function Search(props: Props) {
     )
 
     return (
-        <div id={uuid} className={styles.search} style={isSmall ? { marginLeft: '-5px', marginRight: '-5px' } : {}}>
+        <div ref={searchElement} className={styles.search} style={isSmall ? { marginLeft: '-5px', marginRight: '-5px' } : {}}>
             <Form autoComplete="off">
                 <Form.Group className={styles.searchFormGroup}>
                     {!isSmall && !props.hideNavbar ? <NavBar /> : ''}

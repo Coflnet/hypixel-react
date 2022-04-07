@@ -1,20 +1,25 @@
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Container } from 'react-bootstrap'
 import api from '../api/ApiHelper'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'
 import NavBar from '../components/NavBar/NavBar'
-import { wasAlreadyLoggedIn } from '../utils/GoogleUtils'
+import { useWasAlreadyLoggedIn } from '../utils/Hooks'
 import { getLoadingElement } from '../utils/LoadingUtils'
 import { getURLSearchParam } from '../utils/Parser/URLParser'
 import { getHeadElement } from '../utils/SSRUtils'
 
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
-
 function AuthMod() {
     let [conId] = useState(getURLSearchParam('conId'))
     let [isAuthenticated, setIsAuthenticated] = useState(false)
-    let [isLoggedIn, setIsLoggedIn] = useState(wasAlreadyLoggedInGoogle)
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+
+    useEffect(() => {
+        if (wasAlreadyLoggedIn && !isLoggedIn) {
+            setIsLoggedIn(true)
+        }
+    }, [wasAlreadyLoggedIn])
 
     function onLogin() {
         setIsLoggedIn(true)
@@ -28,7 +33,6 @@ function AuthMod() {
 
     function onLoginFail() {
         setIsLoggedIn(false)
-        wasAlreadyLoggedInGoogle = false
     }
 
     return (

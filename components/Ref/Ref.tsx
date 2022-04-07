@@ -2,21 +2,20 @@ import React, { useState } from 'react'
 import api from '../../api/ApiHelper'
 import Navbar from '../../components/NavBar/NavBar'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Card } from 'react-bootstrap'
 import { getProperty } from '../../utils/PropertiesUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import Link from 'next/link'
 import styles from './Ref.module.css'
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 
 interface Props {}
-
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
 function Ref(props: Props) {
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     function onLogin() {
         let googleId = localStorage.getItem('googleId')
@@ -30,7 +29,6 @@ function Ref(props: Props) {
 
     function onLoginFail() {
         setIsLoggedIn(false)
-        wasAlreadyLoggedInGoogle = false
     }
 
     function getLink() {
@@ -107,7 +105,7 @@ function Ref(props: Props) {
             <div>
                 {!isLoggedIn ? <p>To use the referral program please login with Google</p> : ''}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
-                {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ''}
+                {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
             </div>
         </div>
     )

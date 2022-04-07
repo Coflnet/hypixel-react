@@ -53,7 +53,7 @@ export function CopyButton(props: Props) {
     }
 
     return (
-        <span>{isClientSideRendering() && window.navigator.clipboard ?
+        <span>{!isClientSideRendering() || window.navigator.clipboard ?
             <span className={props.buttonWrapperClass}>
                 <Button style={props.buttonStyle} onMouseDown={copyClick} className={props.buttonClass} aria-label="copy to clipboard" variant={props.buttonVariant || "secondary"}>{isCopied || props.forceIsCopied ? copiedIcon : copyIcon}</Button>
             </span> : ""}
