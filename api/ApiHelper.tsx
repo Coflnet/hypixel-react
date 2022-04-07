@@ -626,7 +626,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 justProfit: flipSettings.justProfit,
                 soundOnFlip: flipSettings.soundOnFlip,
                 shortNumbers: flipSettings.shortNumbers,
-                blockTenSecMsg: flipSettings.blockTenSecMsg
+                blockTenSecMsg: flipSettings.blockTenSecMsg,
+                format: flipSettings.modFormat,
+                chat: !flipSettings.hideModChat
             },
             visibility: {
                 cost: !flipSettings.hideCost,
@@ -637,7 +639,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 seller: !flipSettings.hideSeller,
                 volume: !flipSettings.hideVolume,
                 extraFields: flipSettings.maxExtraInfoFields,
-                profitPercent: !flipSettings.hideProfitPercent
+                profitPercent: !flipSettings.hideProfitPercent,
+                sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
+                lore: !flipSettings.hideLore
             },
             finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0)
         }
