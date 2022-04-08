@@ -1,0 +1,26 @@
+.list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    flex-direction: initial;
+}
+
+.listGroupItem {
+    border-radius: 20px !important;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.noAuctionFound {
+    margin-right: auto;
+    margin-left: auto;
+    width: max-content;
+    text-align: center;
+    margin-top: 5vh;
+}
+
+@media all and (min-width: 1200px) {
+    .listGroupItem {
+        width: 49%;
+    }
+}

@@ -8,6 +8,7 @@ import {
     parseEnchantment,
     parseFilterOption,
     parseFlipAuction,
+    parseFlipTrackingResponse,
     parseItem,
     parseItemBidForList,
     parseItemPriceData,
@@ -1234,6 +1235,22 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getTrackedFlipsForPlayer = (playerUUID: string): Promise<FlipTrackingResponse> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TRACKED_FLIPS_FOR_PLAYER,
+                data: playerUUID,
+                resolve: function (data) {
+                    returnSSRResponse ? resolve(data) : resolve(parseFlipTrackingResponse(data))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_TRACKED_FLIPS_FOR_PLAYER, error, playerUUID)
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1290,7 +1307,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         flipFilters,
         getBazaarTags,
         getPreloadFlips,
-        getItemPriceSummary
+        getItemPriceSummary,
+        getTrackedFlipsForPlayer
     }
 }
 
