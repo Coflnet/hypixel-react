@@ -9,6 +9,12 @@ import { useEffect } from 'react'
 import Script from 'next/script'
 import { MainApp } from '../components/MainApp/MainApp'
 import NextNProgress from 'nextjs-progressbar'
+import { createInstance, MatomoProvider } from '@datapunt/matomo-tracker-react'
+
+const matomoTrackingInstance = createInstance({
+    urlBase: 'https://track.coflnet.com',
+    siteId: 1
+})
 
 function MyApp({ Component, pageProps }) {
     useEffect(() => {
@@ -37,10 +43,12 @@ function MyApp({ Component, pageProps }) {
         <>
             <Script async={true} src={'/preScript.js'} />
             <Script async={true} src={'/MinecraftColorCodes.3.7.js'} />
-            <MainApp>
-                <NextNProgress />
-                <Component {...pageProps} />
-            </MainApp>
+            <MatomoProvider value={matomoTrackingInstance}>
+                <MainApp>
+                    <NextNProgress />
+                    <Component {...pageProps} />
+                </MainApp>
+            </MatomoProvider>
         </>
     )
 }
