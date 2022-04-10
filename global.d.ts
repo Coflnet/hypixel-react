@@ -342,7 +342,8 @@ interface FlipCustomizeSettings {
   hideModChat?: boolean,
   hideSellerOpenBtn?: boolean,
   hideLore?: boolean,
-  modFormat?: string
+  modFormat?: string,
+  modCountdown?: boolean
 }
 
 interface FlipRestriction {
