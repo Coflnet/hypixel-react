@@ -332,6 +332,7 @@ interface FlipCustomizeSettings {
     hideSellerOpenBtn?: boolean
     hideLore?: boolean
     modFormat?: string
+    modCountdown?: boolean
 }
 
 interface FlipRestriction {

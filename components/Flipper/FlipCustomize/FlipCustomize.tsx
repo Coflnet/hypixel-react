@@ -434,6 +434,18 @@ function FlipCustomize() {
                                     type="checkbox"
                                 />
                             </Form.Group>
+                            <Form.Group>
+                                <Form.Label className={styles.label} htmlFor="modCountdown">
+                                    Countdown
+                                </Form.Label>
+                                <Form.Check
+                                    onChange={event => onChangeBoolean('modCountdown', !event.target.checked)}
+                                    defaultChecked={flipCustomizeSettings.modCountdown}
+                                    id="modCountdown"
+                                    style={{ display: 'inline' }}
+                                    type="checkbox"
+                                />
+                            </Form.Group>
                         </div>
                         <div>
                             <Form.Group>

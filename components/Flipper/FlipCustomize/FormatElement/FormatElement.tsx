@@ -110,11 +110,11 @@ function FormatElement(props: Props) {
     )
 
     return (
-        <div>
-            <label htmlFor="modFormat" className={styles.label}>
+        <>
+            <Form.Label htmlFor="modFormat" className={styles.label}>
                 Custom format
                 <Tooltip type="hover" content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />} tooltipContent={formatHelpTooltip} />
-            </label>
+            </Form.Label>
             <Form.Check
                 onChange={onModDefaultFormatCheckboxChange}
                 defaultChecked={!!props.settings.modFormat}
@@ -139,8 +139,10 @@ function FormatElement(props: Props) {
                     </div>
                     <p ref={formatExampleRef} />
                 </div>
-            ) : null}
-        </div>
+            ) : (
+                <Form.Control as="textarea" style={{ width: '100%' }} disabled />
+            )}
+        </>
     )
 }
 

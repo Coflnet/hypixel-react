@@ -632,7 +632,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 shortNumbers: flipSettings.shortNumbers,
                 blockTenSecMsg: flipSettings.blockTenSecMsg,
                 format: flipSettings.modFormat,
-                chat: !flipSettings.hideModChat
+                chat: !flipSettings.hideModChat,
+                countdown: flipSettings.modCountdown
             },
             visibility: {
                 cost: !flipSettings.hideCost,
