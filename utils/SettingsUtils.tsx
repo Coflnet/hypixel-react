@@ -80,6 +80,8 @@ export function setSettingsChangedData(data: any): Promise<void> {
                 blockTenSecMsg: data.mod.blockTenSecMsg,
                 hideModChat: !data.mod.chat,
                 modFormat: data.mod.format,
+                modCountdown: data.mod.countdown,
+                links: data.visibility.links,
                 hideCopySuccessMessage: !data.visibility.copySuccessMessage,
                 finders: FLIP_FINDERS.filter(finder => {
                     return hasFlag(parseInt(data.finders), parseInt(finder.value))
@@ -161,7 +163,7 @@ export function setSettingsChangedData(data: any): Promise<void> {
         Promise.all([_addListToRestrictions(data.whitelist, 'whitelist'), _addListToRestrictions(data.blacklist, 'blacklist')]).then(results => {
             setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(results[0].concat(results[1])))
 
-            document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }));
+            document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
             resolve()
         })
     })

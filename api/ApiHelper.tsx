@@ -647,7 +647,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 profitPercent: !flipSettings.hideProfitPercent,
                 sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
                 lore: !flipSettings.hideLore,
-                copySuccessMessage: !flipSettings.hideCopySuccessMessage
+                copySuccessMessage: !flipSettings.hideCopySuccessMessage,
+                links: !flipSettings.disableLinks
             },
             finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
             changer: window.sessionStorage.getItem('sessionId')
