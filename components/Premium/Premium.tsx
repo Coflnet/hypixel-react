@@ -122,6 +122,8 @@ function Premium() {
                     >
                         <span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>
                     </OverlayTrigger>
+
+                    <p style={{ color: 'yellow' , marginTop: 15 }}>This is not a recurring subscription. We won't automatically charge you after your premium time runs out!</p>
                 </div>
             ) : (
                 ''
