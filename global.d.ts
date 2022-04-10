@@ -424,7 +424,8 @@ interface FlipTrackingFlip {
     soldAuction: string
     finder: FlipFinder
     item: Item
-    sellTime: Date
+    sellTime: Date,
+    profit: number
 }
 
 interface FlipTrackingResponse {

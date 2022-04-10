@@ -31,13 +31,13 @@ export function FlipTracking(props: Props) {
                             />
                             <span style={{ ...getStyleForTier(trackedFlip.item.tier), whiteSpace: 'nowrap' }}>{trackedFlip.item.name}</span>
                         </div>
-                        {trackedFlip.soldFor - trackedFlip.pricePaid > 0 ? (
+                        {trackedFlip.profit > 0 ? (
                             <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
-                                +{numberWithThousandsSeperators(trackedFlip.soldFor - trackedFlip.pricePaid)} Coins
+                                +{numberWithThousandsSeperators(trackedFlip.profit)} Coins
                             </span>
                         ) : (
                             <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>
-                                {numberWithThousandsSeperators(trackedFlip.soldFor - trackedFlip.pricePaid)} Coins
+                                {numberWithThousandsSeperators(trackedFlip.profit)} Coins
                             </span>
                         )}
                     </h1>
@@ -66,11 +66,10 @@ export function FlipTracking(props: Props) {
     return (
         <div>
             <b>
-                <p style={{ fontSize: 'larger' }}>
+                <p style={{ fontSize: 'x-large' }}>
                     Total Profit: <span style={{ color: 'gold' }}>{numberWithThousandsSeperators(totalProfit)} Coins</span>
                 </p>
             </b>
-            <hr />
             {trackedFlips.length === 0 ? (
                 <div className={styles.noAuctionFound}>
                     <img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}

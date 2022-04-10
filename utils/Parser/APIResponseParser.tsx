@@ -458,7 +458,6 @@ export function parseItemSummary(price): ItemPriceSummary {
 }
 
 export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
-    console.log(flip.finder)
     let flipTrackingFlip = {
         item: {
             tag: flip.itemTag,
@@ -470,7 +469,8 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
         soldFor: flip.soldFor,
         uId: flip.uId,
         finder: getFlipFinders([flip.finder])[0],
-        sellTime: parseDate(flip.sellTime)
+        sellTime: parseDate(flip.sellTime),
+        profit: flip.profit
     } as FlipTrackingFlip
     flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip.item)
     return flipTrackingFlip
