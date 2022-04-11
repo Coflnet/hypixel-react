@@ -1,5 +1,6 @@
 import api from '../../api/ApiHelper'
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
+import Flip from '../../components/Flipper/Flip/Flip'
 import { convertTagToName } from '../Formatter'
 
 export function parseItemBidForList(bid: any): BidForList {
@@ -454,4 +455,30 @@ export function parseItemSummary(price): ItemPriceSummary {
         mode: price.mode,
         volume: price.volume
     }
+}
+
+export function parseKatFlip(katFlip): KatFlip {
+    let flip = {
+        coreData: {
+            amount: katFlip.coreData.amount,
+            cost: katFlip.coreData.cost,
+            hours: katFlip.coreData.hours,
+            item: {
+                tag: katFlip.coreData.itemTag,
+                name: katFlip.coreData.name,
+                tier: katFlip.coreData.baseRarity
+            },
+            material: katFlip.coreData.material
+        },
+        materialCost: katFlip.materialCost,
+        median: katFlip.median,
+        originAuctionUUID: katFlip.originAuction,
+        profit: katFlip.profit,
+        referenceAuctionUUID: katFlip.referenceAuction,
+        targetRarity: katFlip.targetRarity,
+        upgradeCost: katFlip.upgradeCost,
+        volume: katFlip.volume
+    } as KatFlip
+    flip.coreData.item.iconUrl = api.getItemImageUrl(flip.coreData.item)
+    return flip
 }

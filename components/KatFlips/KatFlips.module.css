@@ -1,4 +1,4 @@
-.craftsList :global(.list-group-item ) {
+.catFlips :global(.list-group-item) {
     width: -webkit-fill-available;
     margin: 5px;
     margin-bottom: 15px;
@@ -16,11 +16,11 @@
     max-width: fit-content;
 }
 
-.craftsList :global(.tooltipWrapper) {
-    width: calc(50% - 10px)
+.catFlips .flipCard {
+    width: calc(50% - 10px);
 }
 
-.craftsList .preventSelect {
+.catFlips .preventSelect {
     width: calc(50% - 10px);
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -29,19 +29,19 @@
     -ms-user-select: none;
 }
 
-.craftsList .label {
+.catFlips .label {
     width: 150px;
     float: left;
 }
 
-.craftsList :global(.list-group-item) :global(p) {
+.catFlips :global(.list-group-item) :global(p) {
     margin: 0;
 }
 
-.craftsList :global(.list-group-item) .craftRequirement {
+.catFlips :global(.list-group-item) .craftRequirement {
     text-align: right;
 }
 
-.craftsList :global(.list-group-item) .craftRequirementLabel{
+.catFlips :global(.list-group-item) .craftRequirementLabel {
     margin-right: 10px;
 }
