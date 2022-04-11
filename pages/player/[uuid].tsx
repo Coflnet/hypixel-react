@@ -157,19 +157,24 @@ function PlayerDetails(props: Props) {
     )
 }
 
-export const getServerSideProps = async ({ query }) => {
+export const getStaticProps = async ({ params }) => {
     let api = initAPI(true)
-    let auctions = await api.getAuctions(query.uuid, 12, 0)
-    let playerName = await api.getPlayerName(query.uuid)
+    let auctions = await api.getAuctions(params.uuid, 12, 0)
+    let playerName = await api.getPlayerName(params.uuid)
     return {
         props: {
             auctions: auctions,
             player: {
-                uuid: query.uuid,
+                uuid: params.uuid,
                 name: playerName
             }
-        }
+        },
+        revalidate: 60
     }
+}
+
+export async function getStaticPaths() {
+    return { paths: [], fallback: 'blocking' }
 }
 
 export default PlayerDetails
