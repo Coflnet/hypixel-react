@@ -13,6 +13,7 @@ import {
     parseItemBidForList,
     parseItemPriceData,
     parseItemSummary,
+    parseKatFlip,
     parseLowSupplyItem,
     parseMinecraftConnectionInfo,
     parsePlayer,
@@ -1235,6 +1236,21 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getKatFlips = (): Promise<KatFlip[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_KAT_FLIPS,
+                data: '',
+                resolve: function (data) {
+                    returnSSRResponse ? resolve(data) : resolve(data.map(parseKatFlip))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_KAT_FLIPS, error, '')
+                }
+            })
+        })
+    }
+
     let getTrackedFlipsForPlayer = (playerUUID: string): Promise<FlipTrackingResponse> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
@@ -1308,6 +1324,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getBazaarTags,
         getPreloadFlips,
         getItemPriceSummary,
+        getKatFlips
         getTrackedFlipsForPlayer
     }
 }

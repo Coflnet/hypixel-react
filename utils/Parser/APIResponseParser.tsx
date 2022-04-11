@@ -457,6 +457,34 @@ export function parseItemSummary(price): ItemPriceSummary {
     }
 }
 
+export function parseKatFlip(katFlip): KatFlip {
+    let flip = {
+        coreData: {
+            amount: katFlip.coreData.amount,
+            cost: katFlip.coreData.cost,
+            hours: katFlip.coreData.hours,
+            item: {
+                tag: katFlip.coreData.itemTag,
+                name: katFlip.coreData.name,
+                tier: katFlip.coreData.baseRarity
+            },
+            material: katFlip.coreData.material
+        },
+        cost: katFlip.purchaseCost + katFlip.materialCost + katFlip.upgradeCost,
+        purchaseCost: katFlip.purchaseCost,
+        materialCost: katFlip.materialCost,
+        median: katFlip.median,
+        originAuctionUUID: katFlip.originAuction,
+        profit: katFlip.profit,
+        referenceAuctionUUID: katFlip.referenceAuction,
+        targetRarity: katFlip.targetRarity,
+        upgradeCost: katFlip.upgradeCost,
+        volume: katFlip.volume
+    } as KatFlip
+    flip.coreData.item.iconUrl = api.getItemImageUrl(flip.coreData.item)
+    return flip
+}
+
 export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
     let flipTrackingFlip = {
         item: {

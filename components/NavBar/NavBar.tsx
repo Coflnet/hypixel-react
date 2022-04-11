@@ -11,7 +11,8 @@ import {
     Policy as PolicyIcon,
     Chat as ChatIcon,
     Menu as MenuIcon,
-    ExploreOutlined as ExploreIcon
+    ExploreOutlined as ExploreIcon,
+    PetsOutlined as PetsIcon
 } from '@mui/icons-material'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
@@ -160,7 +161,7 @@ function NavBar(props: Props) {
                         </div>
                     </SidebarHeader>
                     <Menu iconShape="square">
-                        <MenuItem  className="disableLinkStyle" icon={<HomeIcon />}>
+                        <MenuItem className="disableLinkStyle" icon={<HomeIcon />}>
                             <Link href={'/'}>Home</Link>
                         </MenuItem>
                         <MenuItem className="disableLinkStyle" icon={<StorefrontIcon />}>
@@ -171,6 +172,9 @@ function NavBar(props: Props) {
                         </MenuItem>
                         <MenuItem className="disableLinkStyle" icon={<BuildIcon />}>
                             <Link href={'/crafts'}>Profitable crafts</Link>
+                        </MenuItem>
+                        <MenuItem className="disableLinkStyle" icon={<PetsIcon />}>
+                            <Link href={'/kat'}>Kat flips</Link>
                         </MenuItem>
                         <MenuItem className="disableLinkStyle" icon={<AccountBalanceIcon />}>
                             <Link href={'/premium'}>Premium</Link>
