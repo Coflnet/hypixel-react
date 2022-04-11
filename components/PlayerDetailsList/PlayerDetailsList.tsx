@@ -230,7 +230,7 @@ function PlayerDetailsList(props: Props) {
                     <Link href={`/auction/${listElement.uuid}`}>
                         <a className="disableLinkStyle">
                             <div>
-                                <p style={{ fontSize: '1.5rem' }}>
+                                <h4>
                                     {getItemImageElement(listElement)}
                                     {listElement.item.name || convertTagToName(listElement.item.tag)}
                                     {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
@@ -249,7 +249,7 @@ function PlayerDetailsList(props: Props) {
                                     ) : (
                                         ''
                                     )}
-                                </p>
+                                </h4>
                                 <p>
                                     Highest Bid: {numberWithThousandsSeperators(listElement.highestBid)} {getCoinImage()}
                                 </p>
