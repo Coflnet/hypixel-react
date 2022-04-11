@@ -91,7 +91,6 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             blockTenSecMsg: false,
             finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value),
             hideLore: true,
-            modCountdown: true,
             hideModChat: false,
             hideSellerOpenBtn: false,
             modFormat: ''

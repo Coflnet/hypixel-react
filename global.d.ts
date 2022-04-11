@@ -312,28 +312,27 @@ interface AccountInfo {
     mcName?: string
 }
 interface FlipCustomizeSettings {
-  hideCost?: boolean,
-  hideLowestBin?: boolean,
-  hideSecondLowestBin?: boolean,
-  hideMedianPrice?: boolean,
-  hideSeller?: boolean,
-  hideEstimatedProfit?: boolean,
-  hideVolume?: boolean,
-  maxExtraInfoFields?: number,
-  hideCopySuccessMessage?: boolean,
-  useLowestBinForProfit?: boolean,
-  disableLinks?: boolean,
-  justProfit?: boolean,
-  soundOnFlip?: boolean,
-  shortNumbers?: boolean,
-  hideProfitPercent?: boolean,
-  finders?: number[],
-  blockTenSecMsg?: boolean,
-  hideModChat?: boolean,
-  hideSellerOpenBtn?: boolean,
-  hideLore?: boolean,
-  modFormat?: string,
-  modCountdown?: boolean
+    hideCost?: boolean
+    hideLowestBin?: boolean
+    hideSecondLowestBin?: boolean
+    hideMedianPrice?: boolean
+    hideSeller?: boolean
+    hideEstimatedProfit?: boolean
+    hideVolume?: boolean
+    maxExtraInfoFields?: number
+    hideCopySuccessMessage?: boolean
+    useLowestBinForProfit?: boolean
+    disableLinks?: boolean
+    justProfit?: boolean
+    soundOnFlip?: boolean
+    shortNumbers?: boolean
+    hideProfitPercent?: boolean
+    finders?: number[]
+    blockTenSecMsg?: boolean
+    hideModChat?: boolean
+    hideSellerOpenBtn?: boolean
+    hideLore?: boolean
+    modFormat?: string
 }
 
 interface FlipRestriction {

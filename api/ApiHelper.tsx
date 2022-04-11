@@ -630,8 +630,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 shortNumbers: flipSettings.shortNumbers,
                 blockTenSecMsg: flipSettings.blockTenSecMsg,
                 format: flipSettings.modFormat,
-                chat: !flipSettings.hideModChat,
-                countdown: flipSettings.modCountdown
+                chat: !flipSettings.hideModChat
             },
             visibility: {
                 cost: !flipSettings.hideCost,
@@ -1325,7 +1324,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getBazaarTags,
         getPreloadFlips,
         getItemPriceSummary,
-        getKatFlips,
+        getKatFlips
         getTrackedFlipsForPlayer
     }
 }
