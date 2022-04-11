@@ -19,6 +19,16 @@
     margin-top: 5vh;
 }
 
+.profitNumberCard {
+    width: '45%';
+    text-align: 'center';
+    border-color: 'transparent';
+}
+
+.profitNumberHeader {
+    border-radius: 20px;
+}
+
 @media all and (min-width: 1200px) {
     .listGroupItem {
         width: 49%;

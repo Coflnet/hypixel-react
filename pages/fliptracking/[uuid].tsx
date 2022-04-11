@@ -18,6 +18,10 @@ function Flipper(props: Props) {
     let player = parsePlayer(props.player)
 
     function getEmbedDescription() {
+        if (!flipTrackingResponse.flips || flipTrackingResponse.flips.length === 0) {
+            return `There were no tracked flips found for ${player.name}`
+        }
+
         let profitByFinder = {}
         flipTrackingResponse.flips.forEach(flip => {
             if (!flip.finder.label) {
@@ -59,7 +63,13 @@ function Flipper(props: Props) {
 
     return (
         <div className="page">
-            {getHeadElement(`Tracked flips of ${player.name}`, getEmbedDescription(), player.iconUrl?.split('?')[0], ['tracker'], `Tracked flips of ${player.name}`)}
+            {getHeadElement(
+                `Tracked flips of ${player.name}`,
+                getEmbedDescription(),
+                player.iconUrl?.split('?')[0],
+                ['tracker'],
+                `Tracked flips of ${player.name}`
+            )}
             <Container>
                 <Search
                     type="player"

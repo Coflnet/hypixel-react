@@ -43,15 +43,15 @@ export function FlipTracking(props: Props) {
                     </h1>
                     <hr />
                     <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                        <Card style={{ width: '45%' }}>
-                            <Card.Header>
-                                <Card.Title>{numberWithThousandsSeperators(trackedFlip.pricePaid)} Coins</Card.Title>
+                        <Card className={styles.profitNumberCard}>
+                            <Card.Header className={styles.profitNumberHeader}>
+                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.pricePaid)} Coins</Card.Title>
                             </Card.Header>
                         </Card>
                         <ArrowRightIcon style={{ fontSize: '50px' }} />
-                        <Card style={{ width: '45%' }}>
-                            <Card.Header>
-                                <Card.Title>{numberWithThousandsSeperators(trackedFlip.soldFor)} Coins</Card.Title>
+                        <Card className={styles.profitNumberCard}>
+                            <Card.Header className={styles.profitNumberHeader}>
+                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.soldFor)} Coins</Card.Title>
                             </Card.Header>
                         </Card>
                     </div>
