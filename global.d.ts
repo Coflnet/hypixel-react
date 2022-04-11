@@ -325,7 +325,7 @@ interface FlipCustomizeSettings {
   hideCost?: boolean,
   hideLowestBin?: boolean,
   hideSecondLowestBin?: boolean,
-  hideMedianPrice?: boolean,
+  hideTargetPrice?: boolean,
   hideSeller?: boolean,
   hideEstimatedProfit?: boolean,
   hideVolume?: boolean,

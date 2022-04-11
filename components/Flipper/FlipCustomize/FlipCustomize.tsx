@@ -298,13 +298,13 @@ function FlipCustomize() {
                     </div>
                     <div>
                         <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideMedianPrice">
-                                Median price
+                            <Form.Label className={styles.label} htmlFor="hideTargetPrice">
+                                Target price
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideMedianPrice', !event.target.checked)}
-                                defaultChecked={!flipCustomizeSettings.hideMedianPrice}
-                                id="hideMedianPrice"
+                                onChange={event => onChangeBoolean('hideTargetPrice', !event.target.checked)}
+                                defaultChecked={!flipCustomizeSettings.hideTargetPrice}
+                                id="hideTargetPrice"
                                 style={{ display: 'inline' }}
                                 type="checkbox"
                             />

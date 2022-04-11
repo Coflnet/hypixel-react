@@ -45,9 +45,9 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
         settings = {
             hideCost: false,
             hideEstimatedProfit: false,
-            hideLowestBin: false,
-            hideMedianPrice: false,
-            hideSeller: false,
+            hideLowestBin: true,
+            hideTargetPrice: false,
+            hideSeller: true,
             hideVolume: false,
             maxExtraInfoFields: 3,
             hideCopySuccessMessage: false,

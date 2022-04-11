@@ -635,7 +635,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 estProfit: !flipSettings.hideEstimatedProfit,
                 lbin: !flipSettings.hideLowestBin,
                 slbin: !flipSettings.hideSecondLowestBin,
-                medPrice: !flipSettings.hideMedianPrice,
+                medPrice: !flipSettings.hideTargetPrice,
                 seller: !flipSettings.hideSeller,
                 volume: !flipSettings.hideVolume,
                 extraFields: flipSettings.maxExtraInfoFields,

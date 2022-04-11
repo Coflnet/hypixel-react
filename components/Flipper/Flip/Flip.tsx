@@ -147,7 +147,7 @@ function Flip(props: Props) {
                             <b style={{ color: 'red' }}>{formatPrices(props.flip.cost)} Coins</b>
                         </p>
                     )}
-                    {settings.hideMedianPrice ? null : (
+                    {settings.hideTargetPrice ? null : (
                         <p>
                             <span>Median price: </span>
                             <br />
