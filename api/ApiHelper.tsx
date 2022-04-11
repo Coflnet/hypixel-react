@@ -8,6 +8,7 @@ import {
     parseEnchantment,
     parseFilterOption,
     parseFlipAuction,
+    parseFlipTrackingResponse,
     parseItem,
     parseItemBidForList,
     parseItemPriceData,
@@ -1245,6 +1246,21 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_KAT_FLIPS, error, '')
+                }
+            })
+        })
+    }
+
+    let getTrackedFlipsForPlayer = (playerUUID: string): Promise<FlipTrackingResponse> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TRACKED_FLIPS_FOR_PLAYER,
+                data: playerUUID,
+                resolve: function (data) {
+                    returnSSRResponse ? resolve(data) : resolve(parseFlipTrackingResponse(data))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_TRACKED_FLIPS_FOR_PLAYER, error, playerUUID)
                     reject()
                 }
             })
@@ -1309,6 +1325,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getPreloadFlips,
         getItemPriceSummary,
         getKatFlips
+        getTrackedFlipsForPlayer
     }
 }
 

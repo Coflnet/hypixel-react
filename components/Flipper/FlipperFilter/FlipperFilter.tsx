@@ -297,7 +297,7 @@ function FlipperFilter(props: Props) {
                     thousandSeparator="."
                     decimalSeparator=","
                     allowNegative={false}
-                    decimalScale={0}
+                    decimalScale={1}
                 />
             </Form.Group>
             <Form.Group className={styles.filterTextfield}>

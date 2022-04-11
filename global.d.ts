@@ -220,6 +220,7 @@ interface API {
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
     getKatFlips(): Promise<KatFlip[]>
+    getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
 }
 
 interface CacheUtils {
@@ -435,4 +436,20 @@ interface KatFlip {
     referenceAuctionUUID: string,
     purchaseCost: number,
     cost: number
+}
+interface FlipTrackingFlip {
+    pricePaid: number
+    soldFor: number
+    uId: string
+    originAuction: string
+    soldAuction: string
+    finder: FlipFinder
+    item: Item
+    sellTime: Date,
+    profit: number
+}
+
+interface FlipTrackingResponse {
+    flips: FlipTrackingFlip[]
+    totalProfit: number
 }

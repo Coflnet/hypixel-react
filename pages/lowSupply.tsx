@@ -63,13 +63,14 @@ function LowSupply(props: Props) {
     )
 }
 
-export const getServerSideProps = async () => {
+export const getStaticProps = async () => {
     let api = initAPI(true)
     let lowSupplyItems = await api.getLowSupplyItems()
     return {
         props: {
             lowSupplyItems: lowSupplyItems
-        }
+        },
+        revalidate: 60
     }
 }
 
