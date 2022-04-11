@@ -18,7 +18,6 @@ interface Props {
     isPrefill?: boolean
     forceOpen?: boolean
     ignoreURL?: boolean
-    forceSelectedFilter?: ItemFilter
 }
 
 const groupedFilter = [
@@ -59,24 +58,6 @@ function ItemFilter(props: Props) {
         setItemFilter(newItemFilter)
         onFilterChange(newItemFilter)
     }, [JSON.stringify(props.filters)])
-
-    useEffect(() => {
-        if (!props.forceSelectedFilter) {
-            return
-        }
-        setItemFilter(props.forceSelectedFilter)
-        itemFilter = props.forceSelectedFilter
-        setSelectedFilters([])
-        selectedFilters = []
-        if (Object.keys(itemFilter).length > 0) {
-            setExpanded(true)
-            Object.keys(itemFilter).forEach(name => {
-                enableFilter(name)
-                getGroupedFilter(name).forEach(filter => enableFilter(filter))
-            })
-            setItemFilter(itemFilter)
-        }
-    }, [JSON.stringify(props.forceSelectedFilter)])
 
     function initFilter() {
         if (props.ignoreURL) {
