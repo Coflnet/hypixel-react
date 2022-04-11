@@ -470,6 +470,8 @@ export function parseKatFlip(katFlip): KatFlip {
             },
             material: katFlip.coreData.material
         },
+        cost: katFlip.purchaseCost + katFlip.materialCost + katFlip.upgradeCost,
+        purchaseCost: katFlip.purchaseCost,
         materialCost: katFlip.materialCost,
         median: katFlip.median,
         originAuctionUUID: katFlip.originAuction,

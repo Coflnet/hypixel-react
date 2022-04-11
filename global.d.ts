@@ -418,7 +418,6 @@ interface ItemPriceSummary {
 
 interface KatFlipCoreData {
     hours: number
-    cost: number
     material?: string
     amount: number
     item: Item
@@ -433,5 +432,7 @@ interface KatFlip {
     coreData: KatFlipCoreData
     targetRarity: string
     profit: number
-    referenceAuctionUUID: string
+    referenceAuctionUUID: string,
+    purchaseCost: number,
+    cost: number
 }
