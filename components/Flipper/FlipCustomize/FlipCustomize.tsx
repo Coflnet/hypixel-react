@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
 import styles from './FlipCustomize.module.css'
+import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 
 const customSelectStyle = {
     option: provided => ({
@@ -29,7 +30,7 @@ function FlipCustomize() {
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
         _setFlipCustomizeSettings({ ...settings })
-        document.dispatchEvent(new CustomEvent('flipSettingsChange'))
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
     }
 
     function onChangeBoolean(key: string, value: boolean) {
@@ -429,6 +430,18 @@ function FlipCustomize() {
                                     onChange={event => onChangeBoolean('hideSellerOpenBtn', !event.target.checked)}
                                     defaultChecked={!flipCustomizeSettings.hideSellerOpenBtn}
                                     id="hideSellerOpenBtn"
+                                    style={{ display: 'inline' }}
+                                    type="checkbox"
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label className={styles.label} htmlFor="modCountdown">
+                                    Countdown
+                                </Form.Label>
+                                <Form.Check
+                                    onChange={event => onChangeBoolean('modCountdown', event.target.checked)}
+                                    defaultChecked={flipCustomizeSettings.modCountdown}
+                                    id="modCountdown"
                                     style={{ display: 'inline' }}
                                     type="checkbox"
                                 />
