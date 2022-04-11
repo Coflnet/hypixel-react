@@ -1,5 +1,6 @@
 import api from '../../api/ApiHelper'
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
+import { getFlipFinders } from '../FlipUtils'
 import { convertTagToName } from '../Formatter'
 
 export function parseItemBidForList(bid: any): BidForList {
@@ -453,5 +454,31 @@ export function parseItemSummary(price): ItemPriceSummary {
         min: price.min,
         mode: price.mode,
         volume: price.volume
+    }
+}
+
+export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
+    let flipTrackingFlip = {
+        item: {
+            tag: flip.itemTag,
+            name: flip.itemName || flip.itemTag
+        },
+        originAuction: flip.originAuction,
+        pricePaid: flip.pricePaid,
+        soldAuction: flip.soldAuction,
+        soldFor: flip.soldFor,
+        uId: flip.uId,
+        finder: getFlipFinders([flip.finder])[0],
+        sellTime: parseDate(flip.sellTime),
+        profit: flip.profit
+    } as FlipTrackingFlip
+    flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip.item)
+    return flipTrackingFlip
+}
+
+export function parseFlipTrackingResponse(flipTrackingResponse): FlipTrackingResponse {
+    return {
+        flips: flipTrackingResponse.flips.map(parseFlipTrackingFlip),
+        totalProfit: flipTrackingResponse.totalProfit
     }
 }
