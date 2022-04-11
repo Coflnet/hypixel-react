@@ -17,7 +17,19 @@
 }
 
 .catFlips .flipCard {
-    width: calc(50% - 10px);
+    width: calc(100% - 10px);
+}
+
+@media all and (min-width: 768px) {
+    .catFlips .flipCard {
+        width: calc(50% - 10px);
+    }
+}
+
+@media all and (min-width: 1424px) {
+    .catFlips .flipCard {
+        width: calc(33% - 10px);
+    }
 }
 
 .catFlips .preventSelect {

@@ -1,10 +1,12 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
-import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
-import Tooltip from '../Tooltip/Tooltip'
+import { convertTagToName, getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import styles from './KatFlips.module.css'
+import { toast } from 'react-toastify'
+import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 interface Props {
     flips: KatFlip[]
@@ -23,9 +25,14 @@ const SORT_OPTIONS: SortOption[] = [
         sortFunction: crafts => crafts.sort((a, b) => b.profit - a.profit)
     },
     {
-        label: 'Time',
-        value: 'time',
+        label: 'Time ⇧',
+        value: 'timeAsc',
         sortFunction: crafts => crafts.sort((a, b) => b.coreData.hours - a.coreData.hours)
+    },
+    {
+        label: 'Time ⇩',
+        value: 'timeDesc',
+        sortFunction: crafts => crafts.sort((a, b) => a.coreData.hours - b.coreData.hours)
     },
     {
         label: 'Profit/Time',
@@ -42,6 +49,7 @@ export function KatFlips(props: Props) {
     let [hasPremium, setHasPremium] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
+    let router = useRouter()
 
     useEffect(() => {
         // reset the blur observer, when something changed
@@ -101,12 +109,47 @@ export function KatFlips(props: Props) {
         filter: 'blur(5px)'
     }
 
+    function onFlipClick(e, flip: KatFlip) {
+        if (e.defaultPrevented) {
+            return
+        }
+        toast.success(
+            <p>
+                Copied the origin auction UUID <br />
+                <i>{flip.originAuctionUUID}</i>
+            </p>,
+            {
+                autoClose: 1500,
+                pauseOnFocusLoss: false
+            }
+        )
+    }
+
+    function onCostClick(e, flip: KatFlip) {
+        e.preventDefault()
+        router.push({
+            pathname: 'auction/' + flip.originAuctionUUID
+        })
+    }
+
+    function onProfitClick(e, flip: KatFlip) {
+        e.preventDefault()
+        router.push({
+            pathname: 'auction/' + flip.referenceAuctionUUID
+        })
+    }
+
     function getListElement(flip: KatFlip, blur: boolean) {
         if (nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
             return <span />
         }
         return (
-            <ListGroup.Item action={!blur}>
+            <ListGroup.Item
+                action={!blur}
+                onClick={e => {
+                    onFlipClick(e, flip)
+                }}
+            >
                 {blur ? (
                     <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
                         The top 3 flips can only be seen with premium
@@ -135,7 +178,15 @@ export function KatFlips(props: Props) {
                 <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
                     <h4>{getFlipHeader(flip)}</h4>
                     <p>
-                        <span className={styles.label}>Cost:</span> {numberWithThousandsSeperators(Math.round(flip.coreData.cost))} Coins
+                        <span
+                            className={styles.label}
+                            onClick={e => {
+                                onCostClick(e, flip)
+                            }}
+                        >
+                            Cost:
+                        </span>{' '}
+                        <Link href={'auction/' + flip.originAuctionUUID}>{`${numberWithThousandsSeperators(Math.round(flip.coreData.cost))} Coins`}</Link>
                     </p>
                     <p>
                         <span className={styles.label}>Material-Cost:</span> {numberWithThousandsSeperators(Math.round(flip.materialCost))} Coins
@@ -152,11 +203,17 @@ export function KatFlips(props: Props) {
                                 <span className={styles.label}>Material-Cost:</span> {numberWithThousandsSeperators(Math.round(flip.materialCost))} Coins
                             </p>
                         </span>
-                    ) : (
-                        <p>No material required</p>
-                    )}
+                    ) : null}
                     <p>
-                        <span className={styles.label}>Profit:</span> {numberWithThousandsSeperators(Math.round(flip.profit))} Coins
+                        <span
+                            className={styles.label}
+                            onClick={e => {
+                                onProfitClick(e, flip)
+                            }}
+                        >
+                            Profit:
+                        </span>{' '}
+                        <Link href={'auction/' + flip.referenceAuctionUUID}>{`${numberWithThousandsSeperators(Math.round(flip.profit))} Coins`}</Link>
                     </p>
                     <p>
                         <span className={styles.label}>Volume:</span> {numberWithThousandsSeperators(Math.round(flip.volume))}
@@ -165,7 +222,7 @@ export function KatFlips(props: Props) {
                         <span className={styles.label}>Upgrade Cost:</span> {numberWithThousandsSeperators(Math.round(flip.upgradeCost))} Coins
                     </p>
                     <p>
-                        <span className={styles.label}>Target Rarity:</span> {flip.targetRarity}
+                        <span className={styles.label}>Target Rarity:</span> <span style={getStyleForTier(flip.targetRarity)}>{flip.targetRarity}</span>
                     </p>
                     <p>
                         <span className={styles.label}>Time:</span> {flip.coreData.hours} Hours
@@ -177,9 +234,9 @@ export function KatFlips(props: Props) {
 
     function getFlipHeader(flip) {
         return (
-            <span>
+            <span style={getStyleForTier(flip.coreData.item.tier)}>
                 <img crossOrigin="anonymous" src={flip.coreData.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
-                {flip.coreData.item.name || convertTagToName(flip.coreData.item.tag)}
+                {convertTagToName(flip.coreData.item.name) || convertTagToName(flip.coreData.item.tag)}
             </span>
         )
     }
