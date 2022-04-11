@@ -1324,7 +1324,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getBazaarTags,
         getPreloadFlips,
         getItemPriceSummary,
-        getKatFlips
+        getKatFlips,
         getTrackedFlipsForPlayer
     }
 }
