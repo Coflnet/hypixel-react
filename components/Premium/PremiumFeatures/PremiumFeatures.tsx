@@ -69,7 +69,7 @@ function PremiumFeatures() {
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>
-                            List of low volume items (<Link href="/lowSupply">here</Link>)
+                            List of low supply items (<Link href="/lowSupply">here</Link>)
                         </td>
                         <td>{xIcon}</td>
                         <td>{checkIcon}</td>
