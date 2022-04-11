@@ -439,7 +439,7 @@ function FlipCustomize() {
                                     Countdown
                                 </Form.Label>
                                 <Form.Check
-                                    onChange={event => onChangeBoolean('modCountdown', !event.target.checked)}
+                                    onChange={event => onChangeBoolean('modCountdown', event.target.checked)}
                                     defaultChecked={flipCustomizeSettings.modCountdown}
                                     id="modCountdown"
                                     style={{ display: 'inline' }}
