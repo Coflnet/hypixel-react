@@ -220,6 +220,7 @@ interface API {
     getBazaarTags(): Promise<string[]>
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
+    setFlipSetting(identifier: string, value: any): Promise<void>
 }
 
 interface CacheUtils {

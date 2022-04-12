@@ -624,7 +624,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             minProfitPercent: filter.minProfitPercent || 0,
             minVolume: filter.minVolume || 0,
             maxCost: filter.maxCost || 0,
-            filters: {},
+            onlyBin: filter.onlyBin,
             lbin: flipSettings.useLowestBinForProfit,
             mod: {
                 justProfit: flipSettings.justProfit,
@@ -652,10 +652,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             },
             finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
             changer: window.sessionStorage.getItem('sessionId')
-        }
-
-        if (filter.onlyBin) {
-            requestData.filters = { Bin: 'true' }
         }
 
         let isCheckingForServerSettings = !!(window as any).googleAuthObj && !forceSettingsUpdate
@@ -1263,6 +1259,28 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let setFlipSetting = (key: string, value: any): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let data = {
+                key,
+                value: typeof value === 'object' ? JSON.stringify(value) : value.toString(),
+                changer: window.sessionStorage.getItem('sessionId')
+            }
+
+            websocketHelper.sendRequest({
+                type: RequestType.SET_FLIP_SETTING,
+                data: data,
+                resolve: () => {
+                    resolve()
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.SET_FLIP_SETTING, error, data)
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1319,7 +1337,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         flipFilters,
         getBazaarTags,
         getPreloadFlips,
-        getItemPriceSummary
+        getItemPriceSummary,
+        setFlipSetting
     }
 }
 

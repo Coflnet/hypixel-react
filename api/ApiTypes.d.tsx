@@ -54,7 +54,8 @@ export enum RequestType {
     GET_LOWEST_BIN = 'lowestBin',
     GET_BAZAAR_TAGS = 'items/bazaar/tags',
     ITEM_PRICE_SUMMARY = 'item/price',
-    GET_FLIP_SETTINGS = 'getFlipSettings'
+    GET_FLIP_SETTINGS = 'getFlipSettings',
+    SET_FLIP_SETTING = 'setFlipSetting'
 }
 
 export enum SubscriptionType {

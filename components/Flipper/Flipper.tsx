@@ -98,8 +98,6 @@ function Flipper(props: Props) {
             if ((e as any).detail?.apiUpdate) {
                 setFlipperFilterKey(generateUUID())
                 setFlipCustomizeKey(generateUUID())
-            } else {
-                api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification, true)
             }
         })
 
@@ -310,7 +308,6 @@ function Flipper(props: Props) {
                 }
             })
         })
-        api.subscribeFlips(onNewFlip, newFilter.restrictions || [], newFilter, uuid => onAuctionSold(uuid), onNextFlipNotification, true)
     }
 
     function onCopyFlip(flip: FlipAuction) {

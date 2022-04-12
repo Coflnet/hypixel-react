@@ -9,6 +9,7 @@ import NumberFormat, { NumberFormatValues } from 'react-number-format'
 import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import styles from './FlipperFilter.module.css'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
+import api from '../../../api/ApiHelper'
 
 interface Props {
     onChange(filter: FlipperFilter)
@@ -23,9 +24,7 @@ let FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN
 let FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN
 
 function FlipperFilter(props: Props) {
-
-    let defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {});
-
+    let defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
 
     let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin)
     let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium == null ? false : defaultFilter.onlyUnsold || false)
@@ -85,6 +84,7 @@ function FlipperFilter(props: Props) {
         setOnlyBin(event.target.checked)
         let filter = getCurrentFilter()
         filter.onlyBin = event.target.checked
+        api.setFlipSetting('onlyBin', event.target.checked)
         onFilterChange(filter)
     }
 
@@ -98,6 +98,7 @@ function FlipperFilter(props: Props) {
         setMinProfit(val)
         let filter = getCurrentFilter()
         filter.minProfit = val
+        api.setFlipSetting('minProfit', val)
         onFilterChange(filter)
     }
 
@@ -106,6 +107,7 @@ function FlipperFilter(props: Props) {
         setMinProfitPercent(val)
         let filter = getCurrentFilter()
         filter.minProfitPercent = val
+        api.setFlipSetting('minProfitPercent', val)
         onFilterChange(filter)
     }
 
@@ -114,6 +116,7 @@ function FlipperFilter(props: Props) {
         setMaxCost(val)
         let filter = getCurrentFilter()
         filter.maxCost = val
+        api.setFlipSetting('maxCost', val)
         onFilterChange(filter)
     }
 
@@ -121,6 +124,7 @@ function FlipperFilter(props: Props) {
         setOnlyUnsold(isActive)
         let filter = getCurrentFilter()
         filter.onlyUnsold = isActive
+        api.setFlipSetting('maxCost', isActive)
         onFilterChange(filter)
     }
 
@@ -129,13 +133,22 @@ function FlipperFilter(props: Props) {
         setMinVolume(val)
         let filter = getCurrentFilter()
         filter.minVolume = val
+        api.setFlipSetting('minVolume', val)
         onFilterChange(filter)
     }
 
-    function onRestrictionsChange(restrictions: FlipRestriction[]) {
+    function onRestrictionsChange(restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') {
         let filter = getCurrentFilter()
         filter.restrictions = restrictions
         setRestrictions(restrictions)
+        api.setFlipSetting(
+            type,
+            restrictions
+                .filter(restriction => restriction.type === type)
+                .map(restriction => {
+                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
+                })
+        )
         onFilterChange(filter)
     }
 
