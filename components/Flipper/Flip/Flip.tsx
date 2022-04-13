@@ -8,6 +8,7 @@ import { calculateProfit, getFlipFinders, getFlipCustomizeSettings } from '../..
 import { toast } from 'react-toastify'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import styles from './Flip.module.css'
+import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 
 interface Props {
     flip: FlipAuction
@@ -23,10 +24,10 @@ function Flip(props: Props) {
     let { trackEvent } = useMatomo()
 
     useEffect(() => {
-        document.addEventListener('flipSettingsChange', forceUpdate)
+        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, forceUpdate)
 
         return () => {
-            document.removeEventListener('flipSettingsChange', forceUpdate)
+            document.removeEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, forceUpdate)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -113,14 +114,7 @@ function Flip(props: Props) {
             <Card className={styles.flipAuctionCard} style={{ cursor: 'pointer' }} onMouseDown={onCardClick}>
                 <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
                     <div className="ellipse">
-                        <img
-                            crossOrigin="anonymous"
-                            src={props.flip.item.iconUrl}
-                            height="24"
-                            alt=""
-                            style={{ marginRight: '5px' }}
-                            loading="lazy"
-                        />
+                        <img crossOrigin="anonymous" src={props.flip.item.iconUrl} height="24" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                         <span style={getStyleForTier(props.flip.item.tier)}>{itemName}</span>
                     </div>
                     <span style={getStyleForTier(props.flip.item.tier)}>{stars ? stars[0] : ''}</span>

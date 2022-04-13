@@ -81,7 +81,7 @@ export function setSettingsChangedData(data: any): Promise<void> {
                 hideModChat: !data.mod.chat,
                 modFormat: data.mod.format,
                 modCountdown: data.mod.countdown,
-                links: data.visibility.links,
+                disableLinks: !data.visibility.links,
                 hideCopySuccessMessage: !data.visibility.copySuccessMessage,
                 finders: FLIP_FINDERS.filter(finder => {
                     return hasFlag(parseInt(data.finders), parseInt(finder.value))

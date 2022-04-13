@@ -1260,6 +1260,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let setFlipSetting = (key: string, value: any): Promise<void> => {
+        if (localStorage.getItem('googleId') === null) {
+            return Promise.resolve()
+        }
         return new Promise((resolve, reject) => {
             let data = {
                 key,
