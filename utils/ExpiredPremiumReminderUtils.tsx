@@ -1,27 +1,24 @@
-import { toast } from "react-toastify";
-import { wasAlreadyLoggedIn } from "./GoogleUtils";
-import { getSetting, PREMIUM_EXPIRATION_NOFIFY_DATE_KEY, setSetting } from "./SettingsUtils";
+import { toast } from 'react-toastify'
+import { getSetting, PREMIUM_EXPIRATION_NOFIFY_DATE_KEY, setSetting } from './SettingsUtils'
 
 export function checkForExpiredPremium(premiumExpirationDate: Date) {
+    let googleId = localStorage.getItem('googleId')
 
-    let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
-    let googleId = localStorage.getItem("googleId");
-
-    if (!wasAlreadyLoggedInGoogle || !googleId) {
-        return;
+    if (!googleId) {
+        return
     }
 
-    let currentDate = new Date().getTime();
+    let currentDate = new Date().getTime()
     if (premiumExpirationDate && premiumExpirationDate.getTime() < currentDate) {
         let lastNotifyString = getSetting(PREMIUM_EXPIRATION_NOFIFY_DATE_KEY)
         if (lastNotifyString === premiumExpirationDate.getTime().toString()) {
-            return;
+            return
         }
         setSetting(PREMIUM_EXPIRATION_NOFIFY_DATE_KEY, premiumExpirationDate.getTime().toString())
-        toast.warn("Your premium expired. Click here to renew it now.", {
+        toast.warn('Your premium expired. Click here to renew it now.', {
             autoClose: 20000,
             onClick: () => {
-                window.location.href = '/premium';
+                window.location.href = '/premium'
             }
         })
     }

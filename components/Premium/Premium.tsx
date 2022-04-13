@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
+import Payment from '../Payment/Payment'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Button, Card, Form, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
@@ -16,8 +16,8 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { CoflCoinsDisplay } from '../CoflCoins/CoflCoinsDisplay'
 import { useCoflCoins } from '../../utils/Hooks'
 import NumberFormat, { NumberFormatValues } from 'react-number-format'
-
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { isClientSideRendering } from '../../utils/SSRUtils'
 
 let PREMIUM_PRICE_MONTH = 1800
 
@@ -29,10 +29,15 @@ function Premium() {
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [coflCoins] = useCoflCoins()
     let [purchasePremiumDuration, setPurchasePremiumDuration] = useState(1)
+    let [isLoggingIn, setIsLoggingIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
-        if (!wasAlreadyLoggedInGoogle && !isLoggedIn) {
+        if (!wasAlreadyLoggedIn && !isLoggedIn) {
             setHasPremium(false)
+        }
+        if (localStorage.getItem('googleId') !== null) {
+            setIsLoggingIn(true)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -60,15 +65,16 @@ function Premium() {
         let googleId = localStorage.getItem('googleId')
         if (googleId) {
             setIsLoading(true)
+            setIsLoggingIn(false)
             setIsLoggedIn(true)
             loadHasPremiumUntil()
         }
     }
 
     function onLoginFail() {
+        setIsLoggingIn(false)
         setIsLoggedIn(false)
         setHasPremium(false)
-        wasAlreadyLoggedInGoogle = false
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
     }
 
@@ -88,13 +94,12 @@ function Premium() {
         setIsLoggedIn(false)
         setHasPremium(false)
         localStorage.removeItem('googleId')
-        wasAlreadyLoggedInGoogle = false
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
     }
 
     function onDurationChange(number: NumberFormatValues) {
-        setPurchasePremiumDuration(number.floatValue)
+        setPurchasePremiumDuration(number.floatValue || 1)
     }
 
     return (
@@ -150,9 +155,9 @@ function Premium() {
             ) : (
                 ''
             )}
-            {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
+            {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
-            {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ''}
+            {isLoggingIn ? getLoadingElement() : ''}
             <hr />
             <h2>Features</h2>
             <Card className={styles.premiumCard}>

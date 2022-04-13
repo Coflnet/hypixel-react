@@ -91,3 +91,12 @@ export function useCoflCoins() {
 
     return [coflCoins]
 }
+
+export function useWasAlreadyLoggedIn() {
+    const [wasAlreadyLoggedIn, setWasAlreadyLoggedIn] = useState(false)
+    useEffect(() => {
+        setWasAlreadyLoggedIn(localStorage.getItem('googleId') !== null)
+    }, [])
+
+    return wasAlreadyLoggedIn
+}

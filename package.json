@@ -15,6 +15,7 @@
     "bootstrap": "^4.6.1",
     "bootstrap-icons": "^1.7.2",
     "chart.js": "^2.9.3",
+    "dotenv": "^16.0.0",
     "idb-keyval": "^3.2.0",
     "js-base64": "^3.7.2",
     "js-cookie": "^3.0.1",

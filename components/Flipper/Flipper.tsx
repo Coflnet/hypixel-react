@@ -15,7 +15,6 @@ import {
 } from '@mui/icons-material'
 import FlipBased from './FlipBased/FlipBased'
 import { CopyButton } from '../CopyButton/CopyButton'
-import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import { FixedSizeList as List } from 'react-window'
 import Tooltip from '../Tooltip/Tooltip'
 import Flip from './Flip/Flip'
@@ -30,6 +29,7 @@ import { useRouter } from 'next/router'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -55,7 +55,7 @@ function Flipper(props: Props) {
     let [autoscroll, setAutoscroll] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [enabledScroll, setEnabledScroll] = useState(false)
-    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedIn())
+    let [isLoading, setIsLoading] = useState(false)
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null)
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
@@ -65,6 +65,7 @@ function Flipper(props: Props) {
     let [isSmall, setIsSmall] = useState(false)
     let [selectedAuctionUUID, setSelectedAuctionUUID] = useState('')
     let [isSSR, setIsSSR] = useState(true)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     let router = useRouter()
 
@@ -85,6 +86,7 @@ function Flipper(props: Props) {
         mounted = true
         _setAutoScroll(true)
         attachScrollEvent()
+        isSSR = false
         api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification)
         getLastFlipFetchTime()
 
@@ -99,6 +101,12 @@ function Flipper(props: Props) {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(() => {
+        if (localStorage.getItem('googleId') !== null && !isLoggedIn) {
+            setIsLoading(true)
+        }
+    }, [wasAlreadyLoggedIn, isLoggedIn])
 
     function handleFlipContextMenu(event, flip: FlipAuction) {
         event.preventDefault()

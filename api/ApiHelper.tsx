@@ -6,10 +6,12 @@ import {
     parseEnchantment,
     parseFilterOption,
     parseFlipAuction,
+    parseFlipTrackingResponse,
     parseItem,
     parseItemBidForList,
     parseItemPriceData,
     parseItemSummary,
+    parseKatFlip,
     parseLowSupplyItem,
     parseMinecraftConnectionInfo,
     parsePaymentResponse,
@@ -25,9 +27,10 @@ import {
 } from '../utils/Parser/APIResponseParser'
 import { RequestType, SubscriptionType, Subscription, CUSTOM_EVENTS } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
-import { httpApi } from './HttpHelper'
 import { v4 as generateUUID } from 'uuid'
+import { Stripe } from '@stripe/stripe-js'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
+import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify'
 import cacheUtils from '../utils/CacheUtils'
 import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
@@ -35,8 +38,18 @@ import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { Base64 } from 'js-base64'
 import { isClientSideRendering } from '../utils/SSRUtils'
+import { initHttpHelper } from './HttpHelper'
 
 export function initAPI(returnSSRResponse: boolean = false): API {
+    let httpApi
+    if (isClientSideRendering()) {
+        httpApi = initHttpHelper()
+    } else {
+        let commandEndpoint = process.env.COMMAND_ENDPOINT
+        let apiEndpoint = process.env.API_ENDPOINT
+        httpApi = initHttpHelper(commandEndpoint, apiEndpoint)
+    }
+
     setTimeout(() => {
         if (isClientSideRendering()) {
             cacheUtils.checkForCacheClear()
@@ -58,9 +71,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 data: searchText,
                 resolve: (items: any) => {
                     resolve(
-                        !items ? [] : items.map((item: any) => {
-                            return parseSearchResultItem(item)
-                        })
+                        !items
+                            ? []
+                            : items.map((item: any) => {
+                                  return parseSearchResultItem(item)
+                              })
                     )
                 },
                 reject: (error: any) => {
@@ -507,7 +522,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     returnSSRResponse ? resolve(data) : resolve(data.map(parseFlipAuction))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_FILTER, error, name)
+                    apiErrorHandler(RequestType.GET_FILTER, error, '')
                 }
             })
         })
@@ -545,7 +560,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 justProfit: flipSettings.justProfit,
                 soundOnFlip: flipSettings.soundOnFlip,
                 shortNumbers: flipSettings.shortNumbers,
-                blockTenSecMsg: flipSettings.blockTenSecMsg
+                blockTenSecMsg: flipSettings.blockTenSecMsg,
+                format: flipSettings.modFormat,
+                chat: !flipSettings.hideModChat
             },
             visibility: {
                 cost: !flipSettings.hideCost,
@@ -556,7 +573,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 seller: !flipSettings.hideSeller,
                 volume: !flipSettings.hideVolume,
                 extraFields: flipSettings.maxExtraInfoFields,
-                profitPercent: !flipSettings.hideProfitPercent
+                profitPercent: !flipSettings.hideProfitPercent,
+                sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
+                lore: !flipSettings.hideLore
             },
             finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0)
         }
@@ -1262,6 +1281,37 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getKatFlips = (): Promise<KatFlip[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_KAT_FLIPS,
+                data: '',
+                resolve: function (data) {
+                    returnSSRResponse ? resolve(data) : resolve(data.map(parseKatFlip))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_KAT_FLIPS, error, '')
+                }
+            })
+        })
+    }
+
+    let getTrackedFlipsForPlayer = (playerUUID: string): Promise<FlipTrackingResponse> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TRACKED_FLIPS_FOR_PLAYER,
+                data: playerUUID,
+                resolve: function (data) {
+                    returnSSRResponse ? resolve(data) : resolve(parseFlipTrackingResponse(data))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_TRACKED_FLIPS_FOR_PLAYER, error, playerUUID)
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1318,7 +1368,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getItemPriceSummary,
         purchaseWithCoflcoins,
         subscribeCoflCoinChange,
-        getCoflcoinBalance
+        getCoflcoinBalance,
+        getKatFlips,
+        getTrackedFlipsForPlayer
     }
 }
 

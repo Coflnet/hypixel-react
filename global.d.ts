@@ -176,6 +176,11 @@ interface API {
     hasPremium(googleId: string): Promise<Date>
     stripePurchase(productId: string): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
+    pay(stripePromise: Promise<Stripe | null>, product: Product): Promise<void>
+    setToken(token: string): Promise<void>
+    getStripeProducts(): Promise<Product[]>
+    getStripePrices(): Promise<Price[]>
+    validatePaymentToken(token: string, productId: string, packageName: string = packageName): Promise<boolean>
     getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>
     getFlips(): Promise<FlipAuction[]>
     subscribeFlips(
@@ -219,6 +224,8 @@ interface API {
     purchaseWithCoflcoins(productId: string): Promise<void>
     subscribeCoflCoinChange()
     getCoflcoinBalance(): Promise<number>
+    getKatFlips(): Promise<KatFlip[]>
+    getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
 }
 
 interface CacheUtils {
@@ -379,4 +386,40 @@ interface ItemPriceSummary {
 interface PaymentResponse {
     id: string
     directLink: string
+}
+interface KatFlipCoreData {
+    hours: number
+    material?: string
+    amount: number
+    item: Item
+}
+
+interface KatFlip {
+    volume: number
+    median: number
+    upgradeCost: number
+    materialCost: number
+    originAuctionUUID: string
+    coreData: KatFlipCoreData
+    targetRarity: string
+    profit: number
+    referenceAuctionUUID: string,
+    purchaseCost: number,
+    cost: number
+}
+interface FlipTrackingFlip {
+    pricePaid: number
+    soldFor: number
+    uId: string
+    originAuction: string
+    soldAuction: string
+    finder: FlipFinder
+    item: Item
+    sellTime: Date,
+    profit: number
+}
+
+interface FlipTrackingResponse {
+    flips: FlipTrackingFlip[]
+    totalProfit: number
 }

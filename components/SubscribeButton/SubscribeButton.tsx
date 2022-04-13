@@ -9,12 +9,12 @@ import { useHistory } from 'react-router-dom'
 import askForNotificationPermissons from '../../utils/NotificationPermisson'
 import { NotificationsOutlined as NotificationIcon } from '@mui/icons-material'
 import styles from './SubscribeButton.module.css'
-import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils'
 import SubscribeItemContent from './SubscribeItemContent/SubscribeItemContent'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import SubscribePlayerContent from './SubscribePlayerContent/SubscribePlayerContent'
 import SubscribeAuctionContent from './SubscribeAuctionContent/SubscribeAuctionContent'
 import { useRouter } from 'next/router'
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 
 interface Props {
     topic: string
@@ -23,7 +23,6 @@ interface Props {
 }
 
 const MAX_FILTERS = 5
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
 
 function SubscribeButton(props: Props) {
     let { trackEvent } = useMatomo()
@@ -36,6 +35,7 @@ function SubscribeButton(props: Props) {
     let [isSold, setIsSold] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn();
 
     function onSubscribe() {
         trackEvent({ action: 'subscribed', category: 'subscriptions' })
@@ -157,7 +157,7 @@ function SubscribeButton(props: Props) {
                     <p>To use notifiers, please login with Google: </p>
                 )}
                 <GoogleSignIn onAfterLogin={onLogin} />
-                {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ''}
+                {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
             </Modal.Body>
         </Modal>
     )

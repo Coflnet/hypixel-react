@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/ApiHelper';
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn';
-import { wasAlreadyLoggedIn } from '../../utils/GoogleUtils';
 import { getLoadingElement } from '../../utils/LoadingUtils';
 import Link from 'next/link';
 
@@ -10,13 +9,12 @@ interface Props {
 }
 
 const VERIFICATION_NUMBER_LENGTH = 3;
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn();
 
 function ClaimAccount(props: Props) {
 
     let [mcInfo, setMcInfo] = useState<MinecraftConnectionInfo>();
     let [isLoggedIn, setIsLoggedIn] = useState(false);
-    let [isLoading, setIsLoading] = useState(wasAlreadyLoggedInGoogle);
+    let [isLoading, setIsLoading] = useState(false);
     let [reloadMcInfoIntervalId, setReloadMcInfoIntervalId] = useState<number>();
 
     useEffect(() => {

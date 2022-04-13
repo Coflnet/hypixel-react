@@ -4,7 +4,7 @@ import api, { initAPI } from '../api/ApiHelper'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'
 import LowSupplyList from '../components/LowSupplyList/LowSupplyList'
 import NavBar from '../components/NavBar/NavBar'
-import { wasAlreadyLoggedIn } from '../utils/GoogleUtils'
+import { useWasAlreadyLoggedIn } from '../utils/Hooks'
 import { getLoadingElement } from '../utils/LoadingUtils'
 import { parseLowSupplyItem } from '../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../utils/SSRUtils'
@@ -13,11 +13,10 @@ interface Props {
     lowSupplyItems: any
 }
 
-let wasAlreadyLoggedInGoogle = wasAlreadyLoggedIn()
-
 function LowSupply(props: Props) {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     function onLogin() {
         let googleId = localStorage.getItem('googleId')
@@ -29,7 +28,6 @@ function LowSupply(props: Props) {
 
     function onLoginFail() {
         setIsLoggedIn(false)
-        wasAlreadyLoggedInGoogle = false
     }
 
     let loadHasPremium = () => {
@@ -56,8 +54,8 @@ function LowSupply(props: Props) {
                         <LowSupplyList lowSupplyItems={props.lowSupplyItems?.map(parseLowSupplyItem)} />
                     </div>
                 ) : null}
-                {wasAlreadyLoggedInGoogle && !isLoggedIn ? getLoadingElement() : ''}
-                {!wasAlreadyLoggedInGoogle && !isLoggedIn ? <p>You need to be logged in and have premium to see this page.</p> : ''}
+                {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
+                {!wasAlreadyLoggedIn && !isLoggedIn ? <p>You need to be logged in and have premium to see this page.</p> : ''}
                 {isLoggedIn && !hasPremium ? <p>You need to have premium to see this page.</p> : ''}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             </Container>
@@ -65,13 +63,14 @@ function LowSupply(props: Props) {
     )
 }
 
-export const getServerSideProps = async () => {
+export const getStaticProps = async () => {
     let api = initAPI(true)
     let lowSupplyItems = await api.getLowSupplyItems()
     return {
         props: {
             lowSupplyItems: lowSupplyItems
-        }
+        },
+        revalidate: 60
     }
 }
 
