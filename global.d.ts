@@ -217,7 +217,7 @@ interface API {
     getBazaarTags(): Promise<string[]>
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
-    purchaseWithCoflcoins(productId: string): Promise<void>
+    purchaseWithCoflcoins(productId: string, count?: number): Promise<void>
     subscribeCoflCoinChange()
     getCoflcoinBalance(): Promise<number>
     getKatFlips(): Promise<KatFlip[]>

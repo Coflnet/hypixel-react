@@ -39,7 +39,7 @@ import { isClientSideRendering } from '../utils/SSRUtils'
 import { initHttpHelper } from './HttpHelper'
 
 export function initAPI(returnSSRResponse: boolean = false): API {
-    let httpApi : HttpApi
+    let httpApi: HttpApi
     if (isClientSideRendering()) {
         httpApi = initHttpHelper()
     } else {
@@ -813,7 +813,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let purchaseWithCoflcoins = (productId: string): Promise<void> => {
+    let purchaseWithCoflcoins = (productId: string, count?: number): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = localStorage.getItem('googleId')
             if (!googleId) {
@@ -827,28 +827,34 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 productId: productId
             }
 
-            httpApi.sendApiRequest({
-                type: RequestType.PURCHASE_WITH_COFLCOiNS,
-                data: productId,
-                requestMethod: 'POST',
-                requestHeader: {
-                    GoogleToken: data.userId
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.PURCHASE_WITH_COFLCOiNS,
+                    data: '',
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        GoogleToken: data.userId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: function () {
+                        resolve()
+                    },
+                    reject: function (error) {
+                        apiErrorHandler(RequestType.PURCHASE_WITH_COFLCOiNS, error, data)
+                        reject()
+                    }
                 },
-                resolve: function () {
-                    resolve()
-                },
-                reject: function (error) {
-                    apiErrorHandler(RequestType.PURCHASE_WITH_COFLCOiNS, error, data)
-                    reject()
-                }
-            })
+                JSON.stringify({
+                    count: count,
+                    slug: productId
+                })
+            )
         })
     }
 
     let subscribeCoflCoinChange = () => {
-
         // TODO: Has yet to be implemented by the backend
-        return;
+        return
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_COFLCOINS,

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import Payment from '../Payment/Payment'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Button, Card, Form, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
@@ -17,7 +16,7 @@ import { CoflCoinsDisplay } from '../CoflCoins/CoflCoinsDisplay'
 import { useCoflCoins } from '../../utils/Hooks'
 import NumberFormat, { NumberFormatValues } from 'react-number-format'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
-import { isClientSideRendering } from '../../utils/SSRUtils'
+import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 
 let PREMIUM_PRICE_MONTH = 1800
 
@@ -30,6 +29,8 @@ function Premium() {
     let [coflCoins] = useCoflCoins()
     let [purchasePremiumDuration, setPurchasePremiumDuration] = useState(1)
     let [isLoggingIn, setIsLoggingIn] = useState(false)
+    let [purchaseSuccessfulMonths, setPurchaseSuccessfulMonths] = useState<number>()
+    let [isPurchasing, setIsPurchasing] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
@@ -43,7 +44,13 @@ function Premium() {
     }, [])
 
     function onPremiumBuy(productId) {
-        api.purchaseWithCoflcoins(productId).then(() => {
+        setIsPurchasing(true)
+        api.purchaseWithCoflcoins(productId, purchasePremiumDuration).then(() => {
+            document.dispatchEvent(
+                new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: coflCoins - PREMIUM_PRICE_MONTH * purchasePremiumDuration } })
+            )
+            setPurchaseSuccessfulMonths(purchasePremiumDuration)
+            setIsPurchasing(false)
             toast.success('Purchase successful')
         })
     }
@@ -186,42 +193,52 @@ function Premium() {
                             <Card.Title>Buy premium for a certain duration with your CoflCoins. The premium activate shortly after your purchase.</Card.Title>
                         </Card.Header>
                         <div style={{ padding: '15px' }}>
-                            <div style={{ marginBottom: '15px' }}>
-                                <label className={styles.label}>Purchase Duration:</label>
-                                <NumberFormat
-                                    onValueChange={onDurationChange}
-                                    className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
-                                    isAllowed={value => {
-                                        return (value.floatValue || 0) <= 12
-                                    }}
-                                    customInput={Form.Control}
-                                    defaultValue={purchasePremiumDuration}
-                                    thousandSeparator="."
-                                    decimalSeparator=","
-                                    allowNegative={false}
-                                    decimalScale={0}
-                                    step={1}
-                                    style={{ width: '100px', display: 'inline' }}
-                                />
-                                <span style={{ marginLeft: '20px' }}>Month(s)</span>
-                                <div style={{ float: 'right' }}>
-                                    <CoflCoinsDisplay />
+                            {!purchaseSuccessfulMonths ? (
+                                <div>
+                                    <div style={{ marginBottom: '15px' }}>
+                                        <label className={styles.label}>Purchase Duration:</label>
+                                        <NumberFormat
+                                            onValueChange={onDurationChange}
+                                            className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
+                                            isAllowed={value => {
+                                                return (value.floatValue || 0) <= 12
+                                            }}
+                                            customInput={Form.Control}
+                                            defaultValue={purchasePremiumDuration}
+                                            thousandSeparator="."
+                                            decimalSeparator=","
+                                            allowNegative={false}
+                                            decimalScale={0}
+                                            step={1}
+                                            style={{ width: '100px', display: 'inline' }}
+                                        />
+                                        <span style={{ marginLeft: '20px' }}>Month(s)</span>
+                                        <div style={{ float: 'right' }}>
+                                            <CoflCoinsDisplay />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className={styles.label}>Price:</label>
+                                        <span>{numberWithThousandsSeperators(purchasePremiumDuration * PREMIUM_PRICE_MONTH)} Coins</span>
+                                    </div>
+                                    <hr />
+                                    <Button
+                                        style={{ marginTop: '10px' }}
+                                        variant="success"
+                                        onClick={() => {
+                                            onPremiumBuy('premium')
+                                        }}
+                                        disabled={purchasePremiumDuration * PREMIUM_PRICE_MONTH > coflCoins || isPurchasing}
+                                    >
+                                        Confirm purchase
+                                    </Button>
                                 </div>
-                            </div>
-                            <div>
-                                <label className={styles.label}>Price:</label>
-                                <span>{numberWithThousandsSeperators(purchasePremiumDuration * 1800)} Coins</span>
-                            </div>
-                            <hr />
-                            <Button
-                                style={{ marginTop: '10px' }}
-                                variant="success"
-                                onClick={() => {
-                                    onPremiumBuy('premium')
-                                }}
-                            >
-                                Confirm purchase
-                            </Button>
+                            ) : (
+                                <p style={{ color: 'lime' }}>
+                                    You successfully bought {purchaseSuccessfulMonths} {purchaseSuccessfulMonths === 1 ? 'Month' : 'Months'} of Premium for{' '}
+                                    {numberWithThousandsSeperators(purchasePremiumDuration * PREMIUM_PRICE_MONTH)} CoflCoins!
+                                </p>
+                            )}
                         </div>
                     </Card>
                 </div>

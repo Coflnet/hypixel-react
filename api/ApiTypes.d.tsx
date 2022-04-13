@@ -57,7 +57,7 @@ export enum RequestType {
     ITEM_PRICE_SUMMARY = "item/price",
     GET_KAT_FLIPS = "kat/profit",
     GET_TRACKED_FLIPS_FOR_PLAYER = "flip/stats/player",
-    PURCHASE_WITH_COFLCOiNS = 'purchase',
+    PURCHASE_WITH_COFLCOiNS = 'service/purchase',
     SUBSCRIBE_COFLCOINS = 'subscribeCoflCoins',
     GET_COFLCOIN_BALANCE = 'getCoflBalance',
 }
