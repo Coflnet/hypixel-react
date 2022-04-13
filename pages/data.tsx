@@ -42,6 +42,9 @@ function ApiInfo() {
                             <li>
                                 <a href="https://item-value-calculator.bubbleapps.io/version-test">Item Calculator by Froggily</a>
                             </li>
+                            <li>
+                                <a href="https://skyhelper.altpapier.dev/">SkyHelper Discord Bot</a>
+                            </li>
                             <li>You use the API as well? Tell use and get listed here :)</li>
                         </ul>
                     </Card.Body>
