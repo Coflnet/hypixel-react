@@ -176,11 +176,7 @@ interface API {
     hasPremium(googleId: string): Promise<Date>
     stripePurchase(productId: string): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
-    pay(stripePromise: Promise<Stripe | null>, product: Product): Promise<void>
     setToken(token: string): Promise<void>
-    getStripeProducts(): Promise<Product[]>
-    getStripePrices(): Promise<Price[]>
-    validatePaymentToken(token: string, productId: string, packageName: string = packageName): Promise<boolean>
     getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>
     getFlips(): Promise<FlipAuction[]>
     subscribeFlips(
