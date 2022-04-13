@@ -25,7 +25,7 @@ import {
     parseSkyblockProfile,
     parseSubscription
 } from '../utils/Parser/APIResponseParser'
-import { RequestType, SubscriptionType, Subscription, CUSTOM_EVENTS } from './ApiTypes.d'
+import { RequestType, SubscriptionType, Subscription, CUSTOM_EVENTS, HttpApi } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
 import { v4 as generateUUID } from 'uuid'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
@@ -39,7 +39,7 @@ import { isClientSideRendering } from '../utils/SSRUtils'
 import { initHttpHelper } from './HttpHelper'
 
 export function initAPI(returnSSRResponse: boolean = false): API {
-    let httpApi
+    let httpApi : HttpApi
     if (isClientSideRendering()) {
         httpApi = initHttpHelper()
     } else {
