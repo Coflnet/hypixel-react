@@ -72,7 +72,7 @@ function Flipper(props: Props) {
     function _getHeadElement() {
         if (targetFlip !== null) {
             return getHeadElement(
-                `Flip: ${targetFlip?.item.name}`,
+                `Tracked flips of ${player.name}`,
                 getTargetFlipEmbedDescription(targetFlip!),
                 targetFlip?.item.iconUrl?.split('?')[0],
                 ['tracker'],
@@ -80,7 +80,7 @@ function Flipper(props: Props) {
             )
         } else {
             return getHeadElement(
-                `Tracked flip of ${player.name}`,
+                `Tracked flips of ${player.name}`,
                 getEmbedDescription(),
                 player.iconUrl?.split('?')[0],
                 ['tracker'],
