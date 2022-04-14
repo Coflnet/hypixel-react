@@ -3,6 +3,10 @@ import { Badge, Card, ListGroup } from 'react-bootstrap'
 import { ArrowRightAlt as ArrowRightIcon } from '@mui/icons-material'
 import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './FlipTracking.module.css'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { CopyButton } from '../CopyButton/CopyButton'
+import { isClientSideRendering } from '../../utils/SSRUtils'
 
 interface Props {
     totalProfit?: number
@@ -12,14 +16,29 @@ interface Props {
 export function FlipTracking(props: Props) {
     let [totalProfit, setTotalProfit] = useState(props.totalProfit || 0)
     let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
+    let router = useRouter()
+
+    useEffect(() => {
+        let toFlip = router.query.flip
+        router.replace(router)
+    }, [])
 
     let list = trackedFlips
         .sort((a, b) => b.sellTime.getTime() - a.sellTime.getTime())
         .map((trackedFlip, i) => {
             return (
-                <ListGroup.Item className={styles.listGroupItem}>
+                <ListGroup.Item
+                    className={styles.listGroupItem}
+                    id={trackedFlip.uId}
+                >
                     <h1 style={{ padding: '10px', display: 'flex', justifyContent: 'space-between', fontSize: 'x-large' }}>
-                        <div className="ellipse">
+                        <div
+                            className="ellipse"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                                router.push(`/item/${trackedFlip.item.tag}`)
+                            }}
+                        >
                             <img
                                 crossOrigin="anonymous"
                                 src={trackedFlip.item.iconUrl}
@@ -44,21 +63,39 @@ export function FlipTracking(props: Props) {
                     <hr />
                     <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
                         <Card className={styles.profitNumberCard}>
-                            <Card.Header className={styles.profitNumberHeader}>
-                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.pricePaid)} Coins</Card.Title>
-                            </Card.Header>
+                            <a href={`/auction/${trackedFlip.originAuction}`} target={'_blank'} className="disableLinkStyle">
+                                <Card.Header className={styles.profitNumberHeader}>
+                                    <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.pricePaid)} Coins</Card.Title>
+                                </Card.Header>
+                            </a>
                         </Card>
                         <ArrowRightIcon style={{ fontSize: '50px' }} />
                         <Card className={styles.profitNumberCard}>
-                            <Card.Header className={styles.profitNumberHeader}>
-                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.soldFor)} Coins</Card.Title>
-                            </Card.Header>
+                            <a href={`/auction/${trackedFlip.soldAuction}`} target={'_blank'} className="disableLinkStyle">
+                                <Card.Header className={styles.profitNumberHeader}>
+                                    <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.soldFor)} Coins</Card.Title>
+                                </Card.Header>
+                            </a>
                         </Card>
                     </div>
-                    <p style={{ marginTop: '10px' }}>
-                        Finder: <Badge variant="dark">{trackedFlip.finder.shortLabel}</Badge>
-                    </p>
-                    <p style={{ marginTop: '10px' }}>Sell: {trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <div>
+                            <p style={{ marginTop: '10px' }}>
+                                Finder: <Badge variant="dark">{trackedFlip.finder.shortLabel}</Badge>
+                            </p>
+                            <p style={{ marginTop: '10px' }}>
+                                Sell: {trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}
+                            </p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'end' }}>
+                            <CopyButton
+                                copyValue={isClientSideRendering() ? `${window.location.origin}${window.location.pathname}?targetFlip=${trackedFlip.uId}#${trackedFlip.uId}` : ''}
+                                successMessage={
+                                    isClientSideRendering() ? <span>{`Copied link to flip!`}</span> : <span />
+                                }
+                            />
+                        </div>
+                    </div>
                 </ListGroup.Item>
             )
         })
