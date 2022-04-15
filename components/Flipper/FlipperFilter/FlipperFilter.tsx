@@ -124,7 +124,7 @@ function FlipperFilter(props: Props) {
         setOnlyUnsold(isActive)
         let filter = getCurrentFilter()
         filter.onlyUnsold = isActive
-        api.setFlipSetting('maxCost', isActive)
+        api.setFlipSetting('showHideSold', isActive)
         onFilterChange(filter)
     }
 

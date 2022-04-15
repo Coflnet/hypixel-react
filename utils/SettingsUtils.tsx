@@ -96,7 +96,8 @@ export function setSettingsChangedData(data: any): Promise<void> {
                 minProfit: data.minProfit,
                 minProfitPercent: data.minProfitPercent,
                 minVolume: data.minVolume,
-                onlyBin: data.filters.Bin === 'true'
+                onlyBin: data.onlyBin,
+                onlyUnsold: data.visibility.hideSold
             } as FlipperFilter)
         )
 
