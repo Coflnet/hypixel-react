@@ -221,6 +221,8 @@ interface API {
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
     setFlipSetting(identifier: string, value: any): Promise<void>
+    getKatFlips(): Promise<KatFlip[]>
+    getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
 }
 
 interface CacheUtils {
@@ -416,4 +418,41 @@ interface ItemPriceSummary {
     mode: number
     volume: number
     max: number
+}
+
+interface KatFlipCoreData {
+    hours: number
+    material?: string
+    amount: number
+    item: Item
+}
+
+interface KatFlip {
+    volume: number
+    median: number
+    upgradeCost: number
+    materialCost: number
+    originAuctionUUID: string
+    coreData: KatFlipCoreData
+    targetRarity: string
+    profit: number
+    referenceAuctionUUID: string
+    purchaseCost: number
+    cost: number
+}
+interface FlipTrackingFlip {
+    pricePaid: number
+    soldFor: number
+    uId: string
+    originAuction: string
+    soldAuction: string
+    finder: FlipFinder
+    item: Item
+    sellTime: Date
+    profit: number
+}
+
+interface FlipTrackingResponse {
+    flips: FlipTrackingFlip[]
+    totalProfit: number
 }

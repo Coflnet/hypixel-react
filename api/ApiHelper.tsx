@@ -8,10 +8,12 @@ import {
     parseEnchantment,
     parseFilterOption,
     parseFlipAuction,
+    parseFlipTrackingResponse,
     parseItem,
     parseItemBidForList,
     parseItemPriceData,
     parseItemSummary,
+    parseKatFlip,
     parseLowSupplyItem,
     parseMinecraftConnectionInfo,
     parsePlayer,
@@ -632,8 +634,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 shortNumbers: flipSettings.shortNumbers,
                 blockTenSecMsg: flipSettings.blockTenSecMsg,
                 format: flipSettings.modFormat,
-                chat: !flipSettings.hideModChat,
-                countdown: flipSettings.modCountdown
+                chat: !flipSettings.hideModChat
             },
             visibility: {
                 cost: !flipSettings.hideCost,
@@ -1278,6 +1279,36 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_FLIP_SETTING, error, data)
+                }
+            })
+        })
+    }
+
+    let getKatFlips = (): Promise<KatFlip[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_KAT_FLIPS,
+                data: '',
+                resolve: function (data) {
+                    returnSSRResponse ? resolve(data) : resolve(data.map(parseKatFlip))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_KAT_FLIPS, error, '')
+                }
+            })
+        })
+    }
+
+    let getTrackedFlipsForPlayer = (playerUUID: string): Promise<FlipTrackingResponse> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TRACKED_FLIPS_FOR_PLAYER,
+                data: playerUUID,
+                resolve: function (data) {
+                    returnSSRResponse ? resolve(data) : resolve(parseFlipTrackingResponse(data))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_TRACKED_FLIPS_FOR_PLAYER, error, playerUUID)
                     reject()
                 }
             })
@@ -1342,6 +1373,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getPreloadFlips,
         getItemPriceSummary,
         setFlipSetting
+        getKatFlips,
+        getTrackedFlipsForPlayer
     }
 }
 

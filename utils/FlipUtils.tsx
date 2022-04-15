@@ -91,7 +91,6 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             blockTenSecMsg: false,
             finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value),
             hideLore: true,
-            modCountdown: true,
             hideModChat: false,
             hideSellerOpenBtn: false,
             modFormat: ''
@@ -117,7 +116,8 @@ export const FLIP_FINDERS = [
         shortLabel: 'FLIP',
         default: true,
         description:
-            'Is the classical flip finding algorithm using the Skyblock AH history database. It searches the history for similar items but searching for references takes time thus this is relatively slow.'
+            'Is the classical flip finding algorithm using the Skyblock AH history database. It searches the history for similar items but searching for references takes time thus this is relatively slow.',
+        selectable: true
     },
     {
         value: '2',
@@ -125,17 +125,33 @@ export const FLIP_FINDERS = [
         shortLabel: 'SNIPE',
         default: true,
         description:
-            'Is a classical sniping algorithm that stores prices in a dictionary grouped by any relevant modifiers. It only outputs flips that are below lbin and median for a combination of relevant modifiers. Its faster by about 3000x but may not find as many flips as the flipper.'
+            'Is a classical sniping algorithm that stores prices in a dictionary grouped by any relevant modifiers. It only outputs flips that are below lbin and median for a combination of relevant modifiers. Its faster by about 3000x but may not find as many flips as the flipper.',
+        selectable: true
     },
     {
         value: '4',
         label: 'Sniper (Median)',
         shortLabel: 'MSNIPE',
         default: true,
-        description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value."
-    }
+        description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value.",
+        selectable: true
+    },
+    { value: '8', label: 'AI', shortLabel: 'AI', default: false, description: '', selectable: false },
+    { value: '32', label: 'TFM', shortLabel: 'TFM', default: false, description: '', selectable: false },
+    { value: '64', label: 'Stonks', shortLabel: 'Stonks', default: false, description: '', selectable: false },
+    { value: '128', label: 'External', shortLabel: 'External', default: false, description: '', selectable: false }
 ]
 
-export function getFlipFinders(finders: number[]) {
-    return FLIP_FINDERS.filter(option => finders.some(finder => finder.toString() === option.value))
+export function getFlipFinders(finderValues: number[]) {
+    let finders = FLIP_FINDERS.filter(option => finderValues.some(finder => finder.toString() === option.value))
+    let notFoundFinder = {
+        value: '',
+        label: 'Unknown',
+        shortLabel: 'Unknown',
+        default: false,
+        description: '',
+        selectable: false
+    }
+
+    return finders.length > 0 ? finders : [notFoundFinder]
 }

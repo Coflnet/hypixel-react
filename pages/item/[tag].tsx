@@ -73,10 +73,10 @@ function ItemDetails(props: Props) {
     )
 }
 
-export const getServerSideProps = async ({ query }) => {
+export const getStaticProps = async ({ params }) => {
     let api = initAPI(true)
     let apiResponses = await Promise.all(
-        [api.getItemDetails(query.tag), api.getItemPriceSummary(query.tag, query.itemFilter ? JSON.parse(atob(query.itemFilter)) : {})].map(p =>
+        [api.getItemDetails(params.tag), api.getItemPriceSummary(params.tag, params.itemFilter ? JSON.parse(atob(params.itemFilter)) : {})].map(p =>
             p.catch(e => null)
         )
     )
@@ -84,8 +84,13 @@ export const getServerSideProps = async ({ query }) => {
         props: {
             item: apiResponses[0],
             mean: (apiResponses[1] as ItemPriceSummary).mean
-        }
+        },
+        revalidate: 60
     }
+}
+
+export async function getStaticPaths() {
+    return { paths: [], fallback: 'blocking' }
 }
 
 export default ItemDetails

@@ -55,7 +55,9 @@ export enum RequestType {
     GET_BAZAAR_TAGS = 'items/bazaar/tags',
     ITEM_PRICE_SUMMARY = 'item/price',
     GET_FLIP_SETTINGS = 'getFlipSettings',
-    SET_FLIP_SETTING = 'setFlipSetting'
+    SET_FLIP_SETTING = 'setFlipSetting',
+    GET_KAT_FLIPS = 'kat/profit',
+    GET_TRACKED_FLIPS_FOR_PLAYER = 'flip/stats/player'
 }
 
 export enum SubscriptionType {
