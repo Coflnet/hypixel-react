@@ -24,5 +24,3 @@ export function refreshToken(obj): Promise<any> {
         })
     })
 }
-
-export const googlePlayPackageName = 'de.flou.hypixel.skyblock'

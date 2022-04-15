@@ -1,5 +1,4 @@
-import Head from 'next/head'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Container } from 'react-bootstrap'
 import Premium from '../components/Premium/Premium'
 import { getHeadElement } from '../utils/SSRUtils'

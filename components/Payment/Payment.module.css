@@ -1,32 +1,27 @@
 .productGrid {
-    display: inline-grid;
-    grid-template-columns: 50% 25% 25%;
-    padding: 2em;
-    column-gap: 10px;
-    row-gap: 15px;
-    width: 100%;
-}
-
-.productWrapper {
-    display: contents;
-}
-
-.productColumnHeader {
-    font-size: larger;
-}
-
-.productColumn {
-    font-size: large;
-}
-
-.premiumPrice {
-    margin-right: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: initial;
+    flex-wrap: wrap;
 }
 
 .premiumPlanCard {
-    margin-bottom: 15px;
+    width: 49%;
+    margin-bottom: 25px;
 }
 
 .premiumPrice {
     font-size: larger;
+}
+
+.paymentOption {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.discount {
+    color: lime;
+    float: right;
 }

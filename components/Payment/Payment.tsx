@@ -1,203 +1,191 @@
-import React, { useEffect, useState } from 'react'
-import ReactDOM from 'react-dom'
+import React, { useState } from 'react'
 import { Button, Card } from 'react-bootstrap'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import availablePaymentProvider, { groupProductsByDuration } from '../../utils/Payment/PaymentUtils'
 import api from '../../api/ApiHelper'
-import { toast } from 'react-toastify'
+import styles from './Payment.module.css'
 import Tooltip from '../Tooltip/Tooltip'
 import { Help as HelpIcon } from '@mui/icons-material'
-import styles from './Payment.module.css'
-import { useRouter } from 'next/router'
+import { useCoflCoins } from '../../utils/Hooks'
+import { numberWithThousandsSeperators } from '../../utils/Formatter'
 
-declare var paypal: any
-let PayPalButton
+function Payment() {
+    let [isLoadingId, setLoadingId] = useState('')
+    let [showAll, setShowAll] = useState(false)
+    let coflCoins = useCoflCoins()
 
-interface Props {
-    hasPremium: boolean
-}
-
-function Payment(props: Props) {
-    let [products, setProducts] = useState<Product[][]>([])
-    let [isLoading, setIsLoading] = useState(true)
-    let router = useRouter()
-
-    useEffect(() => {
-        loadProducts()
-        insertPaypalSDK()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    function insertPaypalSDK() {
-        let id = 'paypal-skd-script'
-        if (!document.getElementById(id)) {
-            let script = document.createElement('script')
-            script.type = 'text/javascript'
-            script.id = id
-            script.async = true
-            script.src =
-                'https://www.paypal.com/sdk/js?client-id=Aak_J-tnckfr6kBQPj0GrMoOpbcG6HTrzx5svF8gGcH5AH2XwbwIVIdK8In05-38TPHofJZE2u4dRWSj&locale=en_US&disable-funding=credit,card,giropay,sofort&currency=EUR'
-            document.getElementsByTagName('head')[0].appendChild(script)
-        }
-    }
-
-    function loadProducts(): Promise<void> {
-        let products2: Product[] = []
-        let promises: Promise<void>[] = []
-
-        try {
-            for (let provider of availablePaymentProvider()) {
-                let promise = provider.getProducts().then(loadedProducts => {
-                    products2.push(...loadedProducts)
-                })
-                promises.push(promise)
-            }
-            return Promise.all(promises).then(() => {
-                onAfterLoadProducts(products2)
-            })
-        } catch (e) {
-            return new Promise((resolve, _) => {
-                onAfterLoadProducts([])
-                resolve()
-            })
-        }
-    }
-
-    function onAfterLoadProducts(products) {
-        if (!(window as any).paypal) {
-            setTimeout(() => {
-                onAfterLoadProducts(products)
-            }, 100)
-            return
-        }
-
-        PayPalButton = paypal.Buttons.driver('react', { React, ReactDOM })
-
-        let newProducts = groupProductsByDuration(products)
-        products = newProducts
-        setProducts(products)
-        setIsLoading(false)
-    }
-
-    const createOrder = (product, actions) => {
-        return actions.order.create({
-            purchase_units: [
-                {
-                    amount: {
-                        value: product.price.value
-                    }
-                }
-            ]
+    function onPayPaypal(productId: string, coflCoins?: number) {
+        setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
+        api.paypalPurchase(productId, coflCoins).then(data => {
+            window.open(data.directLink)
+            setLoadingId('')
         })
     }
 
-    const onApprove = (product, actions) => {
-        return actions.order.capture().then(function (details) {
-            if (product.premiumDuration) {
-                api.paypalPurchase(details.id, product.premiumDuration)
-                    .then(response =>
-                        router.push({
-                            pathname: '/success'
-                        })
-                    )
-                    .catch(error => {
-                        let message = error && error.Message ? error.Message : 'An Error occoured while trying to pay with paypal'
-                        toast.error(message)
-                    })
-            } else {
-                router.push({
-                    pathname: '/cancel'
-                })
-            }
+    function onPayStripe(productId: string, coflCoins?: number) {
+        setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
+        api.stripePurchase(productId, coflCoins).then(data => {
+            window.open(data.directLink)
+            setLoadingId('')
         })
     }
 
-    const roundToTwo = (param: number): number => Math.round(param * 10 ** 2) / 10 ** 2
-
-    const onPay = (product: Product) => {
-        let provider = availablePaymentProvider().find(provider => provider?.name === product.paymentProviderName)
-        if (!provider) {
-            provider = availablePaymentProvider()[0]
-        }
-        provider?.pay(product)
-    }
-
-    let planList =
-        products.length === 0 ? (
-            <p>you can not buy premium in the android app. please check the discord server for more information</p>
-        ) : (
-            products.map((productGroup, i) => {
-                return (
-                    <Card key={'product-group-' + i} className={styles.premiumPlanCard}>
-                        <Card.Header>
-                            <h4>{productGroup[0].title}</h4>
-                        </Card.Header>
-                        <Card.Body>
-                            {productGroup.map((product, i) => {
-                                return (
-                                    <div key={product.itemId}>
-                                        <p className={styles.premiumPrice}>
-                                            Price: {roundToTwo(product.price.value)}
-                                            {product?.paymentProviderName === 'paypal' ? (
-                                                <Tooltip
-                                                    content={
-                                                        <span style={{ marginLeft: '5px' }}>
-                                                            <HelpIcon />
-                                                        </span>
-                                                    }
-                                                    type="hover"
-                                                    tooltipContent={<p>Higher price than with credit card due to higher fees</p>}
-                                                />
-                                            ) : (
-                                                ''
-                                            )}
-                                        </p>
-                                        {product?.paymentProviderName === 'paypal' ? (
-                                            <div style={{ position: 'relative', zIndex: 0 }}>
-                                                <PayPalButton
-                                                    createOrder={(data, actions) => createOrder(product, actions)}
-                                                    onApprove={(data, actions) => onApprove(product, actions)}
-                                                />
-                                            </div>
-                                        ) : product?.paymentProviderName === 'stripe' ? (
-                                            <Button
-                                                variant="success"
-                                                onClick={() => {
-                                                    onPay(product)
-                                                }}
-                                            >
-                                                Buy with credit card
-                                            </Button>
-                                        ) : (
-                                            <Button
-                                                variant="success"
-                                                onClick={() => {
-                                                    onPay(product)
-                                                }}
-                                            >
-                                                Buy with Google Pay
-                                            </Button>
-                                        )}
-                                        {i < productGroup.length - 1 ? <hr /> : ''}
-                                    </div>
-                                )
-                            })}
-                        </Card.Body>
-                    </Card>
-                )
-            })
+    function getPaymentElement(title: JSX.Element, stripePrice: number, stripeProductId: string, paypalPrice: number, payPalProductId: string) {
+        return (
+            <Card className={styles.premiumPlanCard}>
+                <Card.Header>
+                    <Card.Title>{title}</Card.Title>
+                </Card.Header>
+                <Card.Body>
+                    <p className={styles.paymentOption}>
+                        <div style={{ width: '50%' }}>
+                            Buy with Paypal{' '}
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Higher price than with credit card due to higher fees</p>}
+                            />
+                        </div>
+                        <Button
+                            variant="success"
+                            onClick={() => {
+                                onPayPaypal(payPalProductId)
+                            }}
+                            style={{ width: '40%' }}
+                        >
+                            {payPalProductId === isLoadingId ? getLoadingElement(<p>Redirecting to checkout...</p>) : `${paypalPrice.toFixed(2)} Euro`}
+                        </Button>
+                    </p>
+                    <p className={styles.paymentOption}>
+                        <div style={{ width: '50%' }}>Buy with Stripe</div>
+                        <Button
+                            variant="success"
+                            onClick={() => {
+                                onPayStripe(stripeProductId)
+                            }}
+                            style={{ width: '40%' }}
+                        >
+                            {stripeProductId === isLoadingId ? getLoadingElement(<p>Redirecting to checkout...</p>) : `${stripePrice.toFixed(2)} Euro`}
+                        </Button>
+                    </p>
+                </Card.Body>
+            </Card>
         )
+    }
+
+    function getNextTo1800PaymentElement() {
+        let coflCoinsToBuy = 1800 + (1800 - (coflCoins % 1800))
+        let payPalProductId = 'p_cc_1800'
+        let stripeProductId = 's_cc_1800'
+
+        return (
+            <Card className={styles.premiumPlanCard} style={{ width: '100%' }}>
+                <Card.Header>
+                    <Card.Title>{numberWithThousandsSeperators(coflCoinsToBuy)} CoflCoins</Card.Title>
+                </Card.Header>
+                <Card.Body>
+                    <p>
+                        We noticed that your CoflCoins are not a multiple of 1.800 and therefore you would not be able to use all of them to buy premium. Here
+                        you can purchase {numberWithThousandsSeperators(coflCoinsToBuy)} CoflCoins to again be able to do that.
+                    </p>
+                    <p>Due to the fees we have to pay to our payment providers we sadly can't provide purchases of less than 1.800 CoflCoins at once.</p>
+                    <hr />
+                    <p className={styles.paymentOption}>
+                        <div style={{ width: '50%' }}>
+                            Buy with Paypal{' '}
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Higher price than with credit card due to higher fees</p>}
+                            />
+                        </div>
+                        <Button
+                            variant="success"
+                            onClick={() => {
+                                onPayPaypal(payPalProductId, coflCoinsToBuy)
+                            }}
+                            style={{ width: '40%' }}
+                        >
+                            {`${payPalProductId}_${coflCoinsToBuy}` === isLoadingId
+                                ? getLoadingElement(<p>Redirecting to checkout...</p>)
+                                : `${((6.99 / 1800) * coflCoinsToBuy).toFixed(2)} Euro`}
+                        </Button>
+                    </p>
+                    <p className={styles.paymentOption}>
+                        <div style={{ width: '50%' }}>Buy with Stripe</div>
+                        <Button
+                            variant="success"
+                            onClick={() => {
+                                onPayStripe(stripeProductId, coflCoinsToBuy)
+                            }}
+                            style={{ width: '40%' }}
+                        >
+                            {`${stripeProductId}_${coflCoinsToBuy}` === isLoadingId
+                                ? getLoadingElement(<p>Redirecting to checkout...</p>)
+                                : `${((6.69 / 1800) * coflCoinsToBuy).toFixed(2)} Euro`}
+                        </Button>
+                    </p>
+                </Card.Body>
+            </Card>
+        )
+    }
 
     return (
         <div>
-            {isLoading ? (
-                getLoadingElement()
-            ) : (
-                <div className="premium-plans">
-                    <h2>Premium-Plans</h2>
-                    {planList}
+            <div>
+                <div className={styles.productGrid}>
+                    {getPaymentElement(<span>1.800 CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
+                    {getPaymentElement(
+                        <span>
+                            5.400 CoflCoins <span className={styles.discount}>~4% off</span>
+                        </span>,
+                        19.69,
+                        's_cc_5400',
+                        19.99,
+                        'p_cc_5400'
+                    )}
+                    {!showAll ? (
+                        <Button
+                            style={{ width: '100%' }}
+                            onClick={() => {
+                                setShowAll(true)
+                            }}
+                        >
+                            Show all CoflCoin Options
+                        </Button>
+                    ) : null}
+                    {showAll ? (
+                        <>
+                            {getPaymentElement(
+                                <span>
+                                    10.800 CoflCoins <span className={styles.discount}>~5% off</span>
+                                </span>,
+                                38.99,
+                                's_cc_10800',
+                                39.69,
+                                'p_cc_10800'
+                            )}
+                            {getPaymentElement(
+                                <span>
+                                    21.600 CoflCoins <span className={styles.discount}>~6% off</span>
+                                </span>,
+                                74.99,
+                                's_cc_21600',
+                                78.69,
+                                'p_cc_21600'
+                            )}
+                            {coflCoins % 1800 != 0 ? getNextTo1800PaymentElement() : null}
+                        </>
+                    ) : null}
                 </div>
-            )}
+            </div>
         </div>
     )
 }

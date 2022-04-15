@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import Script from 'next/script'
 import { MainApp } from '../components/MainApp/MainApp'
 import NextNProgress from 'nextjs-progressbar'
+import { initCoflCoinManager } from '../utils/CoflCoinsUtils'
 import { createInstance, MatomoProvider } from '@datapunt/matomo-tracker-react'
 
 const matomoTrackingInstance = createInstance({
@@ -37,6 +38,7 @@ function MyApp({ Component, pageProps }) {
                 location.reload()
             }
         })
+        initCoflCoinManager()
     }, [])
 
     return (

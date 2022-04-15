@@ -1,0 +1,14 @@
+.border {
+    padding: 0.5rem;
+    width: 420px;
+    background-color: #505050;
+    border-radius: 0.5rem;;
+}
+
+.border > :first-child {
+    margin-top: 0;
+}
+
+.border > :last-child {
+    margin-bottom: 0;
+}

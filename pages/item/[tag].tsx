@@ -77,7 +77,9 @@ export const getStaticProps = async ({ params }) => {
     let api = initAPI(true)
     let apiResponses = await Promise.all(
         [api.getItemDetails(params.tag), api.getItemPriceSummary(params.tag, params.itemFilter ? JSON.parse(atob(params.itemFilter)) : {})].map(p =>
-            p.catch(e => null)
+            p.catch(e => {
+                return {}
+            })
         )
     )
     return {

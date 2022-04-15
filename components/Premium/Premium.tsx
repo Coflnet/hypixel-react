@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import Payment from '../Payment/Payment'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
@@ -13,7 +12,8 @@ import { GoogleLogout } from 'react-google-login'
 import { toast } from 'react-toastify'
 import styles from './Premium.module.css'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
-import { isClientSideRendering } from '../../utils/SSRUtils'
+import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
+import BuyPremium from './BuyPremium/BuyPremium'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -83,9 +83,9 @@ function Premium() {
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
     }
-    
+
     return (
-        <div className="premium">
+        <div>
             <h2>
                 <NavBar />
                 Premium
@@ -110,41 +110,55 @@ function Premium() {
                 ''
             )}
             <hr />
-            {isLoggedIn ? <p>Account: {getAccountString()}</p> : ''}
-            {hasPremium ? (
-                <div>
-                    <OverlayTrigger
-                        overlay={
-                            <Tooltip id={generateUUID()}>
-                                <span>{hasPremiumUntil?.toDateString()}</span>
-                            </Tooltip>
-                        }
-                    >
-                        <span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>
-                    </OverlayTrigger>
-                </div>
-            ) : (
-                ''
-            )}
+            <div style={{ marginBottom: '20px' }}>
+                {isLoggedIn ? <p>Account: {getAccountString()}</p> : ''}
+                {hasPremium ? (
+                    <div>
+                        <OverlayTrigger
+                            overlay={
+                                <Tooltip id={generateUUID()}>
+                                    <span>{hasPremiumUntil?.toDateString()}</span>
+                                </Tooltip>
+                            }
+                        >
+                            <span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>
+                        </OverlayTrigger>
+                    </div>
+                ) : (
+                    ''
+                )}
+                {isLoggedIn ? (
+                    <div style={{ marginTop: '20px' }}>
+                        <GoogleLogout
+                            clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
+                            buttonText="Logout"
+                            onLogoutSuccess={onLogout}
+                        />
+                    </div>
+                ) : (
+                    ''
+                )}
+                {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
+                <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
+                <div>{isLoggingIn ? getLoadingElement() : ''}</div>
+            </div>
             {isLoggedIn ? (
-                <div style={{ marginTop: '20px' }}>
-                    <GoogleLogout
-                        clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                        buttonText="Logout"
-                        onLogoutSuccess={onLogout}
-                    />
+                <div style={{ marginBottom: '20px' }}>
+                    <BuyPremium />
                 </div>
-            ) : (
-                ''
-            )}
-            {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
-            <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
-            {isLoggingIn ? getLoadingElement() : ''}
+            ) : null}
+            {isLoggedIn ? (
+                <div style={{ marginBottom: '20px' }}>
+                    <hr />
+                    <h2>CoflCoins</h2>
+                    <CoflCoinsPurchase/>
+                </div>
+            ) : null}
             <hr />
+            <h2>Features</h2>
             <Card className={styles.premiumCard}>
                 <Card.Header>
-                    <Card.Title>Features</Card.Title>
-                    <Card.Subtitle>
+                    <Card.Title>
                         {hasPremium ? (
                             <p>
                                 Thank you for your support. You have a Premium account. By buying another Premium-Plan you can extend your premium-time. You can
@@ -153,14 +167,12 @@ function Premium() {
                         ) : (
                             <p>Log in and buy Premium to support us and get access to these features</p>
                         )}
-                    </Card.Subtitle>
+                    </Card.Title>
                 </Card.Header>
                 <div style={{ padding: '15px' }}>
                     <PremiumFeatures />
                 </div>
             </Card>
-            <hr />
-            <div id="buyPremium">{isLoggedIn ? <Payment hasPremium={hasPremium || false} /> : ''}</div>
         </div>
     )
 }

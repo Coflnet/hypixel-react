@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ProSidebar, Menu, MenuItem, SidebarHeader } from 'react-pro-sidebar'
+import { ProSidebar, Menu, MenuItem, SidebarHeader, SubMenu } from 'react-pro-sidebar'
 import 'react-pro-sidebar/dist/css/styles.css'
 import {
     Build as BuildIcon,
@@ -12,7 +12,8 @@ import {
     Chat as ChatIcon,
     Menu as MenuIcon,
     ExploreOutlined as ExploreIcon,
-    PetsOutlined as PetsIcon
+    PetsOutlined as PetsIcon,
+    AttachMoneyOutlined as MoneyIcon
 } from '@mui/icons-material'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
@@ -153,7 +154,7 @@ function NavBar(props: Props) {
 
     return (
         <span>
-            <aside onMouseMove={onMouseMove} onMouseOut={onMouseOut} className={styles.navBar} id="navBar">
+            <aside className={styles.navBar} id="navBar" onMouseEnter={onMouseMove} onMouseLeave={onMouseOut}>
                 <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()}>
                     <SidebarHeader>
                         <div style={{ padding: '24px', fontWeight: 'bold', fontSize: '20px', letterSpacing: '1px', overflow: 'hidden', whiteSpace: 'nowrap' }}>
@@ -164,31 +165,31 @@ function NavBar(props: Props) {
                         <MenuItem className="disableLinkStyle" icon={<HomeIcon />}>
                             <Link href={'/'}>Home</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<StorefrontIcon />}>
+                        <MenuItem icon={<StorefrontIcon />}>
                             <Link href={'/flipper'}>Item-Flipper</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<NotificationIcon />}>
+                        <MenuItem icon={<NotificationIcon />}>
                             <Link href={'/subscriptions'}>Notifier</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<BuildIcon />}>
+                        <MenuItem icon={<BuildIcon />}>
                             <Link href={'/crafts'}>Profitable crafts</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<PetsIcon />}>
-                            <Link href={'/kat'}>Kat flips</Link>
+                        <MenuItem icon={<MoneyIcon />}>
+                            <Link href={'/premium'}>Shop</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<AccountBalanceIcon />}>
-                            <Link href={'/premium'}>Premium</Link>
+                        <MenuItem icon={<PetsIcon />}>
+                            <Link href={'/kat'}>Kat flips</Link>
                         </MenuItem>
                         <MenuItem className="disableLinkStyle" icon={<ShareIcon />}>
                             <Link href={'/ref'}>Referral</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<PolicyIcon />}>
+                        <MenuItem icon={<PolicyIcon />}>
                             <Link href={'/about'}>Links / Legal</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<ChatIcon />}>
+                        <MenuItem icon={<ChatIcon />}>
                             <Link href={'/feedback'}>Feedback</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<img src="/discord_icon.svg" alt="" height="24"></img>}>
+                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24"></img>}>
                             <a href="https://discord.gg/wvKXfTgCfb">
                                 <div style={{ color: '#7289da' }}>Discord</div>
                             </a>

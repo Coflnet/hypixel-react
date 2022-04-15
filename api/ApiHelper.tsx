@@ -1,6 +1,4 @@
 import {
-    mapStripePrices,
-    mapStripeProducts,
     parseAccountInfo,
     parseAuction,
     parseAuctionDetails,
@@ -16,6 +14,7 @@ import {
     parseKatFlip,
     parseLowSupplyItem,
     parseMinecraftConnectionInfo,
+    parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
     parseProfitableCraft,
@@ -26,12 +25,10 @@ import {
     parseSkyblockProfile,
     parseSubscription
 } from '../utils/Parser/APIResponseParser'
-import { RequestType, SubscriptionType, Subscription } from './ApiTypes.d'
+import { RequestType, SubscriptionType, Subscription, CUSTOM_EVENTS, HttpApi } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
 import { v4 as generateUUID } from 'uuid'
-import { Stripe } from '@stripe/stripe-js'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
-import { googlePlayPackageName } from '../utils/GoogleUtils'
 import { toast } from 'react-toastify'
 import cacheUtils from '../utils/CacheUtils'
 import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
@@ -43,7 +40,7 @@ import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSe
 import { initHttpHelper } from './HttpHelper'
 
 export function initAPI(returnSSRResponse: boolean = false): API {
-    let httpApi
+    let httpApi: HttpApi
     if (isClientSideRendering()) {
         httpApi = initHttpHelper()
     } else {
@@ -441,27 +438,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let pay = (stripePromise: Promise<Stripe | null>, product: Product): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
-                type: RequestType.PAYMENT_SESSION,
-                data: product.itemId,
-                resolve: (sessionId: any) => {
-                    stripePromise.then(stripe => {
-                        if (stripe) {
-                            stripe.redirectToCheckout({ sessionId })
-                            resolve()
-                        }
-                    })
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.PAYMENT_SESSION, error)
-                    reject()
-                }
-            })
-        })
-    }
-
     let setGoogle = (id: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
@@ -492,52 +468,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.FCM_TOKEN, error, token)
                     reject()
-                }
-            })
-        })
-    }
-
-    let getStripeProducts = (): Promise<Product[]> => {
-        return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
-                type: RequestType.GET_STRIPE_PRODUCTS,
-                data: null,
-                resolve: (products: any) => {
-                    getStripePrices().then((prices: Price[]) => {
-                        resolve(mapStripeProducts(products, prices))
-                    })
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_STRIPE_PRODUCTS, error)
-                    reject()
-                }
-            })
-        })
-    }
-
-    let getStripePrices = (): Promise<Price[]> => {
-        return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
-                type: RequestType.GET_STRIPE_PRICES,
-                data: null,
-                resolve: (prices: any) => resolve(mapStripePrices(prices)),
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_STRIPE_PRICES, error)
-                    reject()
-                }
-            })
-        })
-    }
-
-    let validatePaymentToken = (token: string, productId: string, packageName = googlePlayPackageName): Promise<boolean> => {
-        return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
-                type: RequestType.VALIDATE_PAYMENT_TOKEN,
-                data: { token, productId, packageName },
-                resolve: (data: any) => resolve(true),
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.VALIDATE_PAYMENT_TOKEN, error)
-                    reject(false)
                 }
             })
         })
@@ -843,20 +773,152 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let paypalPurchase = (orderId: string, days: number): Promise<any> => {
-        let requestData = {
-            orderId,
-            days
-        }
+    let stripePurchase = (productId: string, coinAmount?: number): Promise<PaymentResponse> => {
+        return new Promise((resolve, reject) => {
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to purchase something.')
+                reject()
+                return
+            }
+
+            let data = {
+                userId: googleId,
+                productId: productId
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.STRIPE_PAYMENT_SESSION,
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        GoogleToken: data.userId,
+                        'Content-Type': 'application/json'
+                    },
+                    data: data.productId,
+                    resolve: (data: any) => {
+                        resolve(parsePaymentResponse(data))
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.STRIPE_PAYMENT_SESSION, error, data)
+                        reject()
+                    }
+                },
+                JSON.stringify({
+                    coinAmount
+                })
+            )
+        })
+    }
+
+    let paypalPurchase = (productId: string, coinAmount?: number): Promise<PaymentResponse> => {
+        return new Promise((resolve, reject) => {
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to purchase something.')
+                reject()
+                return
+            }
+
+            let data = {
+                userId: googleId,
+                productId: productId
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.PAYPAL_PAYMENT,
+                    requestMethod: 'POST',
+                    data: data.productId,
+                    requestHeader: {
+                        GoogleToken: data.userId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: (response: any) => {
+                        resolve(parsePaymentResponse(response))
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.PAYPAL_PAYMENT, error, data)
+                        reject(error)
+                    }
+                },
+                JSON.stringify({
+                    coinAmount
+                })
+            )
+        })
+    }
+
+    let purchaseWithCoflcoins = (productId: string, count?: number): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to purchase something.')
+                reject()
+                return
+            }
+
+            let data = {
+                userId: googleId,
+                productId: productId
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.PURCHASE_WITH_COFLCOiNS,
+                    data: '',
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        GoogleToken: data.userId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: function () {
+                        resolve()
+                    },
+                    reject: function (error) {
+                        apiErrorHandler(RequestType.PURCHASE_WITH_COFLCOiNS, error, data)
+                        reject()
+                    }
+                },
+                JSON.stringify({
+                    count: count,
+                    slug: productId
+                })
+            )
+        })
+    }
+
+    let subscribeCoflCoinChange = () => {
+        // TODO: Has yet to be implemented by the backend
+
+        /*
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_COFLCOINS,
+            data: '',
+            callback: function (response) {
+                switch (response.type) {
+                    case 'coflCoinUpdate':
+                        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: response.data } }))
+                        break
+                    default:
+                        break
+                }
+            }
+        })
+        */
+    }
+
+    let getCoflcoinBalance = (): Promise<number> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
-                type: RequestType.PAYPAL_PAYMENT,
-                data: requestData,
-                resolve: (response: any) => {
-                    resolve(response)
+                type: RequestType.GET_COFLCOIN_BALANCE,
+                data: '',
+                resolve: function (response) {
+                    resolve(parseInt(response))
                 },
-                reject: (error: any) => {
-                    reject(error)
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_COFLCOIN_BALANCE, error, '')
+                    reject()
                 }
             })
         })
@@ -1334,11 +1396,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getSubscriptions,
         setGoogle,
         hasPremium,
-        pay,
+        stripePurchase,
         setToken,
-        getStripeProducts,
-        getStripePrices,
-        validatePaymentToken,
         getRecentAuctions,
         getFlips,
         subscribeFlips,
@@ -1372,6 +1431,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getBazaarTags,
         getPreloadFlips,
         getItemPriceSummary,
+        purchaseWithCoflcoins,
+        subscribeCoflCoinChange,
+        getCoflcoinBalance,
         setFlipSetting,
         getKatFlips,
         getTrackedFlipsForPlayer

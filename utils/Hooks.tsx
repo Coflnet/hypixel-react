@@ -1,4 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import api from '../api/ApiHelper'
+import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
+import { getCurrentCoflCoins, subscribeToCoflcoinChange } from './CoflCoinsUtils'
 import { isClientSideRendering } from './SSRUtils'
 
 export function useForceUpdate() {
@@ -73,6 +76,20 @@ export function useSwipe(onSwipeUp?: Function, onSwipeRight?: Function, onSwipeD
         document.removeEventListener('touchstart', handleTouchStart, false)
         document.removeEventListener('touchmove', handleTouchMove, false)
     }
+}
+
+export function useCoflCoins() {
+    const [coflCoins, setCoflCoins] = useState(getCurrentCoflCoins())
+
+    useEffect(() => {
+        let unsubscribe = subscribeToCoflcoinChange(setCoflCoins)
+
+        return () => {
+            unsubscribe()
+        }
+    }, [])
+
+    return coflCoins
 }
 
 export function useWasAlreadyLoggedIn() {

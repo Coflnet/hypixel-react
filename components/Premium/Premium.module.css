@@ -1,3 +1,50 @@
 .premiumPayment {
-    margin-top: ""
+    margin-top: '';
+}
+
+.label {
+    width: 300px;
+    float: left;
+    margin: 0;
+}
+
+.premiumProducts {
+    display: flex;
+    justify-content: space-around;
+    align-content: center;
+}
+
+.premiumProduct {
+    width: calc(25% - 10px);
+}
+
+.premiumProductLabel {
+    text-align: center;
+}
+
+.premiumPrice {
+    text-align: center;
+    font-size: x-large;
+    font-weight: bold;
+    margin: 0px;
+}
+
+@media all and (max-width: 1024px) {
+    .premiumPrice {
+        font-size: medium;
+    }
+    .premiumProductLabel {
+        font-size: x-large;
+    }
+    .premiumProduct {
+        width: auto;
+        margin-bottom: 20px;
+    }
+    .premiumProducts {
+        display: block;
+    }
+}
+
+.purchaseCard {
+    margin-left: 50px;
 }

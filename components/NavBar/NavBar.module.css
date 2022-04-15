@@ -27,3 +27,7 @@
 .navBar :global(.pro-icon-wrapper){
     background-color: #1d1d1d !important;
 }
+
+.navBar :global(.pro-sidebar) :global(.pro-menu) > :global(ul) > :global(.pro-sub-menu) > :global(.pro-inner-list-item) :global(.pro-icon-wrapper) {
+    background: none !important;
+}

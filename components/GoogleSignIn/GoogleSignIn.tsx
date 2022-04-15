@@ -6,6 +6,7 @@ import { refreshTokenSetup } from '../../utils/GoogleUtils'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 
 interface Props {
     onAfterLogin(): void
@@ -55,12 +56,13 @@ function GoogleSignIn(props: Props) {
         setIsLoggedIn(true)
         api.setGoogle(response.tokenId)
             .then(() => {
-                ;(window as any).googleAuthObj = response
+                (window as any).googleAuthObj = response
                 let refId = (window as any).refId
                 if (refId) {
                     api.setRef(refId)
                 }
                 refreshTokenSetup(response)
+                document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.GOOGLE_LOGIN))
                 props.onAfterLogin()
             })
             .catch(() => {

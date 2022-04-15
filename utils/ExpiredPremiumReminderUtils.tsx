@@ -23,5 +23,3 @@ export function checkForExpiredPremium(premiumExpirationDate: Date) {
         })
     }
 }
-
-export const googlePlayPackageName = 'de.flou.hypixel.skyblock'

@@ -39,7 +39,7 @@ function FlipCustomize() {
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
         _setFlipCustomizeSettings({ ...settings })
-        document.dispatchEvent(new CustomEvent('flipSettingsChange'))
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
     }
 
     function updateApiSetting(key: string, value: boolean) {

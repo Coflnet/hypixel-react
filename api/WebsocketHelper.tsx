@@ -9,7 +9,6 @@ import { refreshToken} from "../utils/GoogleUtils";
 
 let requests: ApiRequest[] = []
 let websocket: WebSocket
-let tempOldWebsocket: WebSocket
 
 let isConnectionIdSet: boolean = false
 
@@ -98,10 +97,6 @@ function initWebsocket(): void {
             return
         }
 
-        if (request?.type === RequestType.SET_GOOGLE && (e.target as any).url === tempOldWebsocket.url) {
-            return
-        }
-
         if (request) {
             _handleRequestOnMessage(response, request)
         }
@@ -119,22 +114,7 @@ function initWebsocket(): void {
         return websocket
     }
 
-    let getNewOldWebsocket = (): WebSocket => {
-        tempOldWebsocket = new WebSocket(getProperty('websocketOldEndpoint'))
-        tempOldWebsocket.onclose = function () {
-            var timeout = Math.random() * (5000 - 0) + 0
-            setTimeout(() => {
-                tempOldWebsocket = getNewOldWebsocket()
-            }, timeout)
-        }
-        tempOldWebsocket.onerror = onWebsocketError
-        tempOldWebsocket.onmessage = onWebsocketMessage
-        tempOldWebsocket.onopen = onOpen
-        return tempOldWebsocket
-    }
-
     websocket = getNewWebsocket()
-    tempOldWebsocket = getNewOldWebsocket()
 }
 
 function sendRequest(request: ApiRequest): Promise<void> {
@@ -148,64 +128,23 @@ function sendRequest(request: ApiRequest): Promise<void> {
             return
         }
 
-        let paymentRequests = [
-            RequestType.PAYMENT_SESSION,
-            RequestType.GET_STRIPE_PRODUCTS,
-            RequestType.GET_STRIPE_PRICES,
-            RequestType.VALIDATE_PAYMENT_TOKEN,
-            RequestType.PAYPAL_PAYMENT,
-            RequestType.SET_REF
-        ]
-        if (paymentRequests.findIndex(p => p === request.type) !== -1) {
-            if (_isWebsocketReady(request.type, tempOldWebsocket)) {
-                request.mId = getNextMessageId()
-                let equals = findForEqualSentRequest(request)
-                if (equals.length > 0) {
-                    requests.push(request)
-                    return
-                }
+        if (_isWebsocketReady(request.type, websocket)) {
+            request.mId = getNextMessageId()
+            let equals = findForEqualSentRequest(request)
+            if (equals.length > 0) {
                 requests.push(request)
-                prepareDataBeforeSend(request)
-                tempOldWebsocket.send(JSON.stringify(request))
-            } else {
-                setTimeout(() => {
-                    sendRequest(request)
-                }, 500)
                 return
             }
+            requests.push(request)
+            prepareDataBeforeSend(request)
+            websocket.send(JSON.stringify(request))
         } else {
-            if (_isWebsocketReady(request.type, websocket)) {
-                request.mId = getNextMessageId()
-                let equals = findForEqualSentRequest(request)
-                if (equals.length > 0) {
-                    requests.push(request)
-                    return
-                }
-                requests.push(request)
-                prepareDataBeforeSend(request)
-                websocket.send(JSON.stringify(request))
-            } else {
-                setTimeout(() => {
-                    sendRequest(request)
-                }, 500)
-                return
-            }
-
-            if (request.type === RequestType.SET_GOOGLE) {
-                retrySend(tempOldWebsocket, request)
-            }
+            setTimeout(() => {
+                sendRequest(request)
+            }, 500)
+            return
         }
     })
-}
-
-function retrySend(websocket, request) {
-    if (_isWebsocketReady(request.type, websocket)) {
-        websocket.send(JSON.stringify(request))
-    } else {
-        setTimeout(() => {
-            retrySend(websocket, request)
-        }, 500)
-    }
 }
 
 function prepareDataBeforeSend(request: ApiRequest) {

@@ -174,11 +174,9 @@ interface API {
     getSubscriptions(): Promise<Subscription[]>
     setGoogle(id: string): Promise<void>
     hasPremium(googleId: string): Promise<Date>
-    pay(stripePromise: Promise<Stripe | null>, product: Product): Promise<void>
+    stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
-    getStripeProducts(): Promise<Product[]>
-    getStripePrices(): Promise<Price[]>
-    validatePaymentToken(token: string, productId: string, packageName: string = packageName): Promise<boolean>
+    setToken(token: string): Promise<void>
     getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>
     getFlips(): Promise<FlipAuction[]>
     subscribeFlips(
@@ -197,7 +195,7 @@ interface API {
     getNewItems(): Promise<Item[]>
     getNewPlayers(): Promise<Player[]>
     getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>
-    paypalPurchase(orderId: string, days: number): Promise<any>
+    paypalPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     getRefInfo(): Promise<RefInfo>
     setRef(refId: string): Promise<void>
     getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>
@@ -220,6 +218,9 @@ interface API {
     getBazaarTags(): Promise<string[]>
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
+    purchaseWithCoflcoins(productId: string, count?: number): Promise<void>
+    subscribeCoflCoinChange()
+    getCoflcoinBalance(): Promise<number>
     setFlipSetting(identifier: string, value: any): Promise<void>
     getKatFlips(): Promise<KatFlip[]>
     getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
@@ -240,50 +241,11 @@ interface ApiResponse {
 }
 
 interface Product {
-    itemId: string
+    productId: string
     title: string
     description: string
-    price: Price
-    introductoryPrice: Price
-    paymentProviderName?: string
-    /** duration in days */
-    premiumDuration?: number
-}
-
-interface Price {
-    productId: string | null
-    currency: string
-    value: number
-}
-
-interface PaymentMethod {
-    supportedMethods: string
-    data: PaymentMethodDataSku
-}
-
-interface PaymentMethodDataSku {
-    sku: string
-}
-
-interface PaymentDetails {
-    total: PaymentDetailsTotal
-}
-
-interface PaymentDetailsTotal {
-    label: string
-    amount: PaymentDetailTotalAmount
-}
-
-interface PaymentDetailTotalAmount {
-    currency: string
-    value: string
-}
-
-interface AbstractPaymentProvider {
-    name: string
-    getProducts(): Promise<Product[]>
-    pay(product: Product): Promise<Product>
-    checkIfPaymentIsPossible(): boolean
+    cost: number
+    ownershipSeconds?: number
 }
 
 interface PopularSearch {
@@ -420,6 +382,10 @@ interface ItemPriceSummary {
     max: number
 }
 
+interface PaymentResponse {
+    id: string
+    directLink: string
+}
 interface KatFlipCoreData {
     hours: number
     material?: string
