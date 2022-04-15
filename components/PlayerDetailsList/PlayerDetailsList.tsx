@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Badge, Button, ListGroup } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
@@ -40,6 +40,7 @@ function PlayerDetailsList(props: Props) {
     let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [playerName, setPlayerName] = useState('')
+    let isLoadingElements = useRef(false)
 
     useEffect(() => {
         mounted = true
@@ -91,9 +92,14 @@ function PlayerDetailsList(props: Props) {
     }
 
     let loadNewElements = (reset?: boolean): void => {
+        if (isLoadingElements.current) {
+            return
+        }
+        isLoadingElements.current = true
         props
             .loadingDataFunction(props.playerUUID, 12, reset ? 0 : listElements.length)
             .then(newListElements => {
+                isLoadingElements.current = false
                 if (!mounted) {
                     return
                 }
@@ -282,9 +288,24 @@ function PlayerDetailsList(props: Props) {
                 <InfiniteScroll
                     style={{ overflow: 'hidden' }}
                     dataLength={listElements.length}
-                    next={loadNewElements}
+                    next={() => {
+                        loadNewElements()
+                    }}
                     hasMore={!allElementsLoaded}
-                    loader={getLoadingElement()}
+                    loader={
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <div>
+                                <div>{getLoadingElement()}</div>
+                                <Button
+                                    onClick={() => {
+                                        loadNewElements()
+                                    }}
+                                >
+                                    Click here to manually load new data...
+                                </Button>
+                            </div>
+                        </div>
+                    }
                 >
                     <ListGroup className={styles.list}>{list}</ListGroup>
                 </InfiniteScroll>
