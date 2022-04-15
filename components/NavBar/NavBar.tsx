@@ -12,8 +12,7 @@ import {
     Chat as ChatIcon,
     Menu as MenuIcon,
     ExploreOutlined as ExploreIcon,
-    PetsOutlined as PetsIcon,
-    AttachMoneyOutlined as MoneyIcon
+    PetsOutlined as PetsIcon
 } from '@mui/icons-material'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
@@ -174,8 +173,8 @@ function NavBar(props: Props) {
                         <MenuItem icon={<BuildIcon />}>
                             <Link href={'/crafts'}>Profitable crafts</Link>
                         </MenuItem>
-                        <MenuItem icon={<MoneyIcon />}>
-                            <Link href={'/premium'}>Shop</Link>
+                        <MenuItem icon={<AccountBalanceIcon />}>
+                            <Link href={'/premium'}>Premium / Shop</Link>
                         </MenuItem>
                         <MenuItem icon={<PetsIcon />}>
                             <Link href={'/kat'}>Kat flips</Link>
