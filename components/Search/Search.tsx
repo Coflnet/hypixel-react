@@ -27,6 +27,7 @@ const SEARCH_CONEXT_MENU_ID = 'search-context-menu'
 
 function Search(props: Props) {
     let router = useRouter()
+    let [uuid] = useState(generateUUID())
     let [searchText, setSearchText] = useState('')
     let [results, setResults] = useState<SearchResultItem[]>([])
     let [isLoading, setIsLoading] = useState(false)

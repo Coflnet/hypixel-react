@@ -186,7 +186,8 @@ interface API {
         restrictionList: FlipRestriction[],
         filter: FlipperFilter,
         soldCallback?: Function,
-        nextUpdateNotificationCallback?: Function
+        nextUpdateNotificationCallback?: Function,
+        forceSettingsUpdate: boolean = false
     ): void
     unsubscribeFlips(): Promise<void>
     getFilter(name: string): Promise<FilterOptions>
@@ -219,6 +220,7 @@ interface API {
     getBazaarTags(): Promise<string[]>
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
+    setFlipSetting(identifier: string, value: any): Promise<void>
     getKatFlips(): Promise<KatFlip[]>
     getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
 }
@@ -333,6 +335,7 @@ interface FlipCustomizeSettings {
     hideSellerOpenBtn?: boolean
     hideLore?: boolean
     modFormat?: string
+    modCountdown?: boolean
 }
 
 interface FlipRestriction {
@@ -433,8 +436,8 @@ interface KatFlip {
     coreData: KatFlipCoreData
     targetRarity: string
     profit: number
-    referenceAuctionUUID: string,
-    purchaseCost: number,
+    referenceAuctionUUID: string
+    purchaseCost: number
     cost: number
 }
 interface FlipTrackingFlip {
@@ -445,7 +448,7 @@ interface FlipTrackingFlip {
     soldAuction: string
     finder: FlipFinder
     item: Item
-    sellTime: Date,
+    sellTime: Date
     profit: number
 }
 

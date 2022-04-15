@@ -10,6 +10,8 @@ import { toast } from 'react-toastify'
 import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
 import styles from './FlipCustomize.module.css'
+import api from '../../../api/ApiHelper'
+import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 
 const customSelectStyle = {
     option: provided => ({
@@ -26,71 +28,46 @@ function FlipCustomize() {
         _setFlipCustomizeSettings(getFlipCustomizeSettings())
     }, [])
 
+    function setFlipCustomizeSetting(key: string, value: any) {
+        flipCustomizeSettings[key] = value
+        _setFlipCustomizeSettings(flipCustomizeSettings)
+        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
+        _setFlipCustomizeSettings({ ...flipCustomizeSettings })
+    }
+    
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
         _setFlipCustomizeSettings({ ...settings })
         document.dispatchEvent(new CustomEvent('flipSettingsChange'))
     }
 
-    function onChangeBoolean(key: string, value: boolean) {
-        flipCustomizeSettings[key] = value
-        setFlipCustomizeSettings(flipCustomizeSettings)
+    function updateApiSetting(key: string, value: boolean) {
+        api.setFlipSetting(key, value)
         trackChange(key)
     }
 
     function onMaxExtraInfoFieldsChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.maxExtraInfoFields = event.target.valueAsNumber
-        setFlipCustomizeSettings(flipCustomizeSettings)
-
+        setFlipCustomizeSetting('maxExtraInfoFields', event.target.valueAsNumber)
+        api.setFlipSetting('showExtraFields', event.target.valueAsNumber)
         trackChange('maxExtraInfoFields')
     }
 
-    function onUseLowestBinForProfitChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.useLowestBinForProfit = event.target.checked
-        setFlipCustomizeSettings(flipCustomizeSettings)
-
-        trackChange('useLowestBinForProfit')
-    }
-
-    function onDisableLinksChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.disableLinks = event.target.checked
-        setFlipCustomizeSettings(flipCustomizeSettings)
-
-        trackChange('disableLinks')
-    }
-
-    function onJustProfitChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.justProfit = event.target.checked
-        setFlipCustomizeSettings(flipCustomizeSettings)
-
-        trackChange('justProfit')
-    }
-
-    function onSoundOnFlipChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.soundOnFlip = event.target.checked
-        setFlipCustomizeSettings(flipCustomizeSettings)
-
-        trackChange('soundOnFlip')
-    }
-
-    function onShortNumbersChange(event: ChangeEvent<HTMLInputElement>) {
-        flipCustomizeSettings.shortNumbers = event.target.checked
-        setFlipCustomizeSettings(flipCustomizeSettings)
-
-        trackChange('shortNumbers')
-    }
-
     function onFindersChange(newValue) {
-        flipCustomizeSettings.finders = newValue.map(value => value.value)
-        setFlipCustomizeSettings(flipCustomizeSettings)
-
+        setFlipCustomizeSetting(
+            'finders',
+            newValue.map(value => value.value)
+        )
+        api.setFlipSetting(
+            'finders',
+            flipCustomizeSettings.finders?.reduce((a, b) => +a + +b, 0)
+        )
         trackChange('finders')
     }
 
     function onModFormatChange(value: string) {
-        flipCustomizeSettings.modFormat = value
-        setFlipCustomizeSettings(flipCustomizeSettings)
-
+        setFlipCustomizeSetting('modFormat', value)
+        api.setFlipSetting('modFormat', value)
         trackChange('modFormat')
     }
 
@@ -215,7 +192,10 @@ function FlipCustomize() {
                                 Cost
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideCost', !event.target.checked)}
+                                onChange={event => {
+                                    updateApiSetting('showCost', event.target.checked)
+                                    setFlipCustomizeSetting('hideCost', !event.target.checked)
+                                }}
                                 defaultChecked={!flipCustomizeSettings.hideCost}
                                 id="hideCost"
                                 style={{ display: 'inline' }}
@@ -227,7 +207,10 @@ function FlipCustomize() {
                                 Estimated Profit
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideEstimatedProfit', !event.target.checked)}
+                                onChange={event => {
+                                    updateApiSetting('showEstProfit', event.target.checked)
+                                    setFlipCustomizeSetting('hideEstimatedProfit', !event.target.checked)
+                                }}
                                 defaultChecked={!flipCustomizeSettings.hideEstimatedProfit}
                                 id="hideEstimatedProfit"
                                 style={{ display: 'inline' }}
@@ -239,7 +222,10 @@ function FlipCustomize() {
                                 Second lowest BIN
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideSecondLowestBin', !event.target.checked)}
+                                onChange={event => {
+                                    updateApiSetting('showSlbin', event.target.checked)
+                                    setFlipCustomizeSetting('hideSecondLowestBin', !event.target.checked)
+                                }}
                                 defaultChecked={!flipCustomizeSettings.hideSecondLowestBin}
                                 id="hideSecondLowestBin"
                                 style={{ display: 'inline' }}
@@ -251,7 +237,10 @@ function FlipCustomize() {
                                 Volume
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideVolume', !event.target.checked)}
+                                onChange={event => {
+                                    updateApiSetting('showVolume', event.target.checked)
+                                    setFlipCustomizeSetting('hideVolume', !event.target.checked)
+                                }}
                                 defaultChecked={!flipCustomizeSettings.hideVolume}
                                 id="hideVolume"
                                 style={{ display: 'inline' }}
@@ -263,7 +252,10 @@ function FlipCustomize() {
                                 Shorten numbers?
                             </Form.Label>
                             <Form.Check
-                                onChange={onShortNumbersChange}
+                                onChange={event => {
+                                    updateApiSetting('modShortNumbers', event.target.checked)
+                                    setFlipCustomizeSetting('shortNumbers', event.target.checked)
+                                }}
                                 defaultChecked={flipCustomizeSettings.shortNumbers}
                                 id="shortNumbers"
                                 style={{ display: 'inline' }}
@@ -275,9 +267,12 @@ function FlipCustomize() {
                                 Profit percent?
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideProfitPercent', !event.target.checked)}
+                                onChange={event => {
+                                    updateApiSetting('showProfitPercent', event.target.checked)
+                                    setFlipCustomizeSetting('hideProfitPercent', !event.target.checked)
+                                }}
                                 defaultChecked={!flipCustomizeSettings.hideProfitPercent}
-                                id="profitPercent"
+                                id="hideProfitPercent"
                                 style={{ display: 'inline' }}
                                 type="checkbox"
                             />
@@ -302,7 +297,10 @@ function FlipCustomize() {
                                 Median price
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideMedianPrice', !event.target.checked)}
+                                onChange={event => {
+                                    updateApiSetting('showMedPrice', event.target.checked)
+                                    setFlipCustomizeSetting('hideMedianPrice', !event.target.checked)
+                                }}
                                 defaultChecked={!flipCustomizeSettings.hideMedianPrice}
                                 id="hideMedianPrice"
                                 style={{ display: 'inline' }}
@@ -314,7 +312,10 @@ function FlipCustomize() {
                                 Lowest BIN
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideLowestBin', !event.target.checked)}
+                                onChange={event => {
+                                    updateApiSetting('showLbin', event.target.checked)
+                                    setFlipCustomizeSetting('hideLowestBin', !event.target.checked)
+                                }}
                                 defaultChecked={!flipCustomizeSettings.hideLowestBin}
                                 id="hideLowestBin"
                                 style={{ display: 'inline' }}
@@ -326,7 +327,10 @@ function FlipCustomize() {
                                 Seller
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideSeller', !event.target.checked)}
+                                onChange={event => {
+                                    updateApiSetting('showSeller', event.target.checked)
+                                    setFlipCustomizeSetting('hideSeller', !event.target.checked)
+                                }}
                                 defaultChecked={!flipCustomizeSettings.hideSeller}
                                 id="hideSeller"
                                 style={{ display: 'inline' }}
@@ -338,7 +342,10 @@ function FlipCustomize() {
                                 Show copy message
                             </Form.Label>
                             <Form.Check
-                                onChange={event => onChangeBoolean('hideCopySuccessMessage', !event.target.checked)}
+                                onChange={event => {
+                                    updateApiSetting('showCopySuccessMessage', event.target.checked)
+                                    setFlipCustomizeSetting('hideCopySuccessMessage', !event.target.checked)
+                                }}
                                 defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage}
                                 id="hideCopySuccessMessage"
                                 style={{ display: 'inline' }}
@@ -350,9 +357,12 @@ function FlipCustomize() {
                                 Disable links
                             </Form.Label>
                             <Form.Check
-                                onChange={onDisableLinksChange}
+                                onChange={event => {
+                                    updateApiSetting('showLinks', !event.target.checked)
+                                    setFlipCustomizeSetting('disableLinks', event.target.checked)
+                                }}
                                 defaultChecked={flipCustomizeSettings.disableLinks}
-                                id="hideCopyMessage"
+                                id="disableLinks"
                                 style={{ display: 'inline' }}
                                 type="checkbox"
                             />
@@ -367,7 +377,10 @@ function FlipCustomize() {
                                 />
                             </Form.Label>
                             <Form.Check
-                                onChange={onUseLowestBinForProfitChange}
+                                onChange={event => {
+                                    updateApiSetting('lbin', event.target.checked)
+                                    setFlipCustomizeSetting('useLowestBinForProfit', event.target.checked)
+                                }}
                                 defaultChecked={flipCustomizeSettings.useLowestBinForProfit}
                                 id="useLowestBinForProfit"
                                 style={{ display: 'inline' }}
@@ -402,7 +415,10 @@ function FlipCustomize() {
                                     Just show profit
                                 </Form.Label>
                                 <Form.Check
-                                    onChange={onJustProfitChange}
+                                    onChange={event => {
+                                        updateApiSetting('modJustProfit', event.target.checked)
+                                        setFlipCustomizeSetting('justProfit', event.target.checked)
+                                    }}
                                     defaultChecked={flipCustomizeSettings.justProfit}
                                     id="justProfit"
                                     style={{ display: 'inline' }}
@@ -414,7 +430,10 @@ function FlipCustomize() {
                                     "Flips in 10 seconds"
                                 </Form.Label>
                                 <Form.Check
-                                    onChange={event => onChangeBoolean('blockTenSecMsg', !event.target.checked)}
+                                    onChange={event => {
+                                        updateApiSetting('modBlockTenSecMsg', !event.target.checked)
+                                        setFlipCustomizeSetting('blockTenSecMsg', !event.target.checked)
+                                    }}
                                     defaultChecked={!flipCustomizeSettings.blockTenSecMsg}
                                     id="blockTenSecMsg"
                                     style={{ display: 'inline' }}
@@ -426,9 +445,27 @@ function FlipCustomize() {
                                     Seller AH Button
                                 </Form.Label>
                                 <Form.Check
-                                    onChange={event => onChangeBoolean('hideSellerOpenBtn', !event.target.checked)}
+                                    onChange={event => {
+                                        updateApiSetting('showSellerOpenBtn', event.target.checked)
+                                        setFlipCustomizeSetting('hideSellerOpenBtn', !event.target.checked)
+                                    }}
                                     defaultChecked={!flipCustomizeSettings.hideSellerOpenBtn}
                                     id="hideSellerOpenBtn"
+                                    style={{ display: 'inline' }}
+                                    type="checkbox"
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label className={styles.label} htmlFor="modCountdown">
+                                    Countdown
+                                </Form.Label>
+                                <Form.Check
+                                    onChange={event => {
+                                        updateApiSetting('modCountdown', event.target.checked)
+                                        setFlipCustomizeSetting('modCountdown', event.target.checked)
+                                    }}
+                                    defaultChecked={flipCustomizeSettings.modCountdown}
+                                    id="modCountdown"
                                     style={{ display: 'inline' }}
                                     type="checkbox"
                                 />
@@ -440,7 +477,10 @@ function FlipCustomize() {
                                     Play flip sound
                                 </Form.Label>
                                 <Form.Check
-                                    onChange={onSoundOnFlipChange}
+                                    onChange={event => {
+                                        updateApiSetting('modSoundOnFlip', event.target.checked)
+                                        setFlipCustomizeSetting('soundOnFlip', event.target.checked)
+                                    }}
                                     defaultChecked={flipCustomizeSettings.soundOnFlip}
                                     id="soundOnFlip"
                                     style={{ display: 'inline' }}
@@ -452,7 +492,10 @@ function FlipCustomize() {
                                     Mod Chat
                                 </Form.Label>
                                 <Form.Check
-                                    onChange={event => onChangeBoolean('hideModChat', !event.target.checked)}
+                                    onChange={event => {
+                                        updateApiSetting('modChat', event.target.checked)
+                                        setFlipCustomizeSetting('hideModChat', !event.target.checked)
+                                    }}
                                     defaultChecked={!flipCustomizeSettings.hideModChat}
                                     id="hideModChat"
                                     style={{ display: 'inline' }}
@@ -464,7 +507,10 @@ function FlipCustomize() {
                                     Item lore (on hover)
                                 </Form.Label>
                                 <Form.Check
-                                    onChange={event => onChangeBoolean('hideLore', !event.target.checked)}
+                                    onChange={event => {
+                                        updateApiSetting('showLore', event.target.checked)
+                                        setFlipCustomizeSetting('hideLore', !event.target.checked)
+                                    }}
                                     defaultChecked={!flipCustomizeSettings.hideLore}
                                     id="hideLore"
                                     style={{ display: 'inline' }}

@@ -39,6 +39,7 @@ import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { Base64 } from 'js-base64'
 import { isClientSideRendering } from '../utils/SSRUtils'
+import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
 
 export function initAPI(returnSSRResponse: boolean = false): API {
@@ -304,18 +305,20 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let connectionId = null
+
     let setConnectionId = (): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let websocketUUID = generateUUID()
+            connectionId = connectionId || generateUUID()
 
             websocketHelper.sendRequest({
                 type: RequestType.SET_CONNECTION_ID,
-                data: websocketUUID,
+                data: connectionId,
                 resolve: () => {
                     resolve()
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.SET_CONNECTION_ID, error, websocketUUID)
+                    apiErrorHandler(RequestType.SET_CONNECTION_ID, error, connectionId)
                     reject()
                 }
             })
@@ -601,7 +604,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         restrictionList: FlipRestriction[],
         filter: FlipperFilter,
         soldCallback?: Function,
-        nextUpdateNotificationCallback?: Function
+        nextUpdateNotificationCallback?: Function,
+        forceSettingsUpdate: boolean = false
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
 
@@ -622,7 +626,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             minProfitPercent: filter.minProfitPercent || 0,
             minVolume: filter.minVolume || 0,
             maxCost: filter.maxCost || 0,
-            filters: {},
+            onlyBin: filter.onlyBin,
             lbin: flipSettings.useLowestBinForProfit,
             mod: {
                 justProfit: flipSettings.justProfit,
@@ -643,18 +647,19 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 extraFields: flipSettings.maxExtraInfoFields,
                 profitPercent: !flipSettings.hideProfitPercent,
                 sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
-                lore: !flipSettings.hideLore
+                lore: !flipSettings.hideLore,
+                copySuccessMessage: !flipSettings.hideCopySuccessMessage,
+                links: !flipSettings.disableLinks
             },
-            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0)
+            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
+            changer: window.sessionStorage.getItem('sessionId')
         }
 
-        if (filter.onlyBin) {
-            requestData.filters = { Bin: 'true' }
-        }
+        let isCheckingForServerSettings = !!(window as any).googleAuthObj && !forceSettingsUpdate
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
-            data: requestData,
+            data: isCheckingForServerSettings ? null : requestData,
             callback: function (response) {
                 switch (response.type) {
                     case 'flip':
@@ -670,9 +675,28 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                             soldCallback(response.data)
                         }
                         break
+                    case 'flipSettings':
+                        if (!response.data) {
+                            api.subscribeFlips(flipCallback, restrictionList, filter, soldCallback, nextUpdateNotificationCallback, true)
+                        } else {
+                            setSettingsChangedData(response.data)
+                        }
+                        break
+                    case 'settingsUpdate':
+                        let data = response.data as any
+                        if (data.changer === window.sessionStorage.getItem('sessionId')) {
+                            return
+                        }
+                        setSettingsChangedData(response.data)
+                        break
                     default:
                         break
                 }
+            },
+            resubscribe: function (subscription) {
+                let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
+                filter.restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+                subscribeFlips(flipCallback, filter.restrictions, filter, soldCallback, nextUpdateNotificationCallback, false)
             }
         })
     }
@@ -1236,6 +1260,30 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let setFlipSetting = (key: string, value: any): Promise<void> => {
+        if (localStorage.getItem('googleId') === null) {
+            return Promise.resolve()
+        }
+        return new Promise((resolve, reject) => {
+            let data = {
+                key,
+                value: typeof value === 'object' ? JSON.stringify(value) : value.toString(),
+                changer: window.sessionStorage.getItem('sessionId')
+            }
+
+            websocketHelper.sendRequest({
+                type: RequestType.SET_FLIP_SETTING,
+                data: data,
+                resolve: () => {
+                    resolve()
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.SET_FLIP_SETTING, error, data)
+                }
+            })
+        })
+    }
+
     let getKatFlips = (): Promise<KatFlip[]> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
@@ -1324,6 +1372,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getBazaarTags,
         getPreloadFlips,
         getItemPriceSummary,
+        setFlipSetting,
         getKatFlips,
         getTrackedFlipsForPlayer
     }
