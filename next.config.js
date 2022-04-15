@@ -5,6 +5,7 @@ module.exports = {
         locales: ['en'],
         defaultLocale: 'en'
     },
+    swcMinify: false,
     async redirects() {
         return [
           {
