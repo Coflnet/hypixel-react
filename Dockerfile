@@ -1,11 +1,11 @@
 # Install dependencies only when needed
-FROM node:lts-alpine AS deps
+FROM node:17-bullseye AS deps
 
 WORKDIR /opt/app
 COPY package*.json ./
 RUN npm ci
 
-FROM node:lts-alpine AS builder
+FROM node:17-bullseye AS builder
 
 ENV NODE_ENV=production
 WORKDIR /opt/app
@@ -14,7 +14,7 @@ COPY --from=deps /opt/app/node_modules ./node_modules
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:lts-alpine AS runner
+FROM node:17-bullseye AS runner
 
 ARG X_TAG
 WORKDIR /opt/app
