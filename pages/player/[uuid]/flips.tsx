@@ -6,6 +6,7 @@ import Search from '../../../components/Search/Search'
 import { numberWithThousandsSeperators } from '../../../utils/Formatter'
 import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '../../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../../utils/SSRUtils'
+import moment from 'moment'
 
 interface Props {
     flipTrackingResponse: any
@@ -63,10 +64,11 @@ function Flipper(props: Props) {
     }
 
     function getTargetFlipEmbedDescription(targetFlip: FlipTrackingFlip) {
-        return `💰 Profit:  ${numberWithThousandsSeperators(targetFlip.profit)} Coins
+        return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeperators(targetFlip.profit)} Coins
         💸 Purchase: ${numberWithThousandsSeperators(targetFlip.pricePaid)} Coins
-        📝Sold: ${numberWithThousandsSeperators(targetFlip.soldFor)} Coins
-        😀 Player: ${player.name}`
+        💰 Sold: ${numberWithThousandsSeperators(targetFlip.soldFor)} Coins
+        🕑 Sold at ${moment(targetFlip.sellTime).format('MMMM Do YYYY, h:mm:ss a')}
+        ${targetFlip.profit > 0 ? '😀' : '😭'} IGN: ${player.name}`
     }
 
     function _getHeadElement() {

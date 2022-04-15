@@ -28,7 +28,14 @@ export function FlipTracking(props: Props) {
         .sort((a, b) => b.sellTime.getTime() - a.sellTime.getTime())
         .map((trackedFlip, i) => {
             return (
-                <ListGroup.Item className={styles.listGroupItem} id={trackedFlip.uId.toString(16)}>
+                <ListGroup.Item
+                    className={styles.listGroupItem}
+                    id={trackedFlip.uId.toString(16)}
+                    style={{
+                        borderColor: router.query.targetFlip === trackedFlip.uId.toString(16) ? 'cornflowerblue' : undefined,
+                        borderWidth: router.query.targetFlip === trackedFlip.uId.toString(16) ? 5 : undefined
+                    }}
+                >
                     <h1 style={{ padding: '10px', display: 'flex', justifyContent: 'space-between', fontSize: 'x-large' }}>
                         <div
                             className="ellipse"
