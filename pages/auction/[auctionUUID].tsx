@@ -10,7 +10,7 @@ import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../utils/SSRUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import moment from 'moment'
-import { RttTwoTone } from '@mui/icons-material'
+import { ConstructionOutlined, RttTwoTone } from '@mui/icons-material'
 
 interface Props {
     auctionDetails: any
@@ -91,7 +91,8 @@ export const getStaticProps = async ({ params }) => {
     let auctionDetails: any
     try {
         auctionDetails = await api.getAuctionDetails(auctionUUID)
-    } catch {
+    } catch (e) {
+        console.log('ERROR: ' + JSON.stringify(e))
         return {
             props: {}
         }
@@ -105,38 +106,54 @@ export const getStaticProps = async ({ params }) => {
     }
 
     auctionDetails.bids.sort((a, b) => b.amount - a.amount)
-    let item = await api.getItemDetails(auctionDetails.tag)
+
+    let item
+    try {
+        item = await api.getItemDetails(auctionDetails.tag)
+    } catch (e) {
+        console.log('ERROR: ' + JSON.stringify(e))
+        return {
+            props: {}
+        }
+    }
+
     if (!item) {
         console.log('itemDetails not found (tag=' + auctionDetails.tag + ')')
         return {
             notFound: true
         }
     }
-    auctionDetails.description = item.description
-    auctionDetails.iconUrl = api.getItemImageUrl(auctionDetails)
-    if (!auctionDetails.name) {
-        auctionDetails.name = auctionDetails.itemName
+
+    try {
+        auctionDetails.description = item.description
+        auctionDetails.iconUrl = api.getItemImageUrl(auctionDetails)
+        if (!auctionDetails.name) {
+            auctionDetails.name = auctionDetails.itemName
+        }
+
+        let namePromises: Promise<void>[] = []
+        auctionDetails.bids.forEach(bid => {
+            let promise = api.getPlayerName(bid.bidder).then(name => {
+                let newBidder = {
+                    name: name,
+                    uuid: bid.bidder
+                }
+                bid.bidder = newBidder
+            })
+            namePromises.push(promise)
+        })
+        namePromises.push(
+            api.getPlayerName(auctionDetails.auctioneerId).then(name => {
+                auctionDetails.auctioneer = {
+                    name: name,
+                    uuid: auctionDetails.auctioneerId
+                }
+            })
+        )
+    } catch (e) {
+        console.log('ERROR: ' + JSON.stringify(e))
     }
 
-    let namePromises: Promise<void>[] = []
-    auctionDetails.bids.forEach(bid => {
-        let promise = api.getPlayerName(bid.bidder).then(name => {
-            let newBidder = {
-                name: name,
-                uuid: bid.bidder
-            }
-            bid.bidder = newBidder
-        })
-        namePromises.push(promise)
-    })
-    namePromises.push(
-        api.getPlayerName(auctionDetails.auctioneerId).then(name => {
-            auctionDetails.auctioneer = {
-                name: name,
-                uuid: auctionDetails.auctioneerId
-            }
-        })
-    )
     await Promise.all(namePromises)
 
     return {

@@ -122,6 +122,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 try {
                     parsed = response.json()
                     console.log('Received Response: ' + JSON.stringify(parsed))
+                    console.log('------------------------')
                 } catch (error) {
                     request.reject({ Message: 'Unnown error' })
                 }
