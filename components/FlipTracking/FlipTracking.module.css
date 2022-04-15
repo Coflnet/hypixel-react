@@ -20,13 +20,18 @@
 }
 
 .profitNumberCard {
-    width: '45%';
-    text-align: 'center';
-    border-color: 'transparent';
+    width: 45%;
+    text-align: center;
+    border-color: transparent !important;
+    cursor: pointer
 }
 
 .profitNumberHeader {
-    border-radius: 20px;
+    border-radius: 20px !important;
+}
+
+.profitNumberHeader:hover {
+    background-color: #3a3a3a;
 }
 
 @media all and (min-width: 1200px) {
