@@ -1,7 +1,7 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Button, Card, Form, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
@@ -11,14 +11,9 @@ import { v4 as generateUUID } from 'uuid'
 import { GoogleLogout } from 'react-google-login'
 import { toast } from 'react-toastify'
 import styles from './Premium.module.css'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
-import { CoflCoinsDisplay } from '../CoflCoins/CoflCoinsDisplay'
-import { useCoflCoins } from '../../utils/Hooks'
-import NumberFormat, { NumberFormatValues } from 'react-number-format'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
-import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
-
-let PREMIUM_PRICE_MONTH = 1800
+import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
+import BuyPremium from './BuyPremium/BuyPremium'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -26,11 +21,7 @@ function Premium() {
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
     let [isLoading, setIsLoading] = useState(false)
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
-    let [coflCoins] = useCoflCoins()
-    let [purchasePremiumDuration, setPurchasePremiumDuration] = useState(1)
     let [isLoggingIn, setIsLoggingIn] = useState(false)
-    let [purchaseSuccessfulMonths, setPurchaseSuccessfulMonths] = useState<number>()
-    let [isPurchasing, setIsPurchasing] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
@@ -42,18 +33,6 @@ function Premium() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    function onPremiumBuy(productId) {
-        setIsPurchasing(true)
-        api.purchaseWithCoflcoins(productId, purchasePremiumDuration).then(() => {
-            document.dispatchEvent(
-                new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: coflCoins - PREMIUM_PRICE_MONTH * purchasePremiumDuration } })
-            )
-            setPurchaseSuccessfulMonths(purchasePremiumDuration)
-            setIsPurchasing(false)
-            toast.success('Purchase successful')
-        })
-    }
 
     function loadHasPremiumUntil(): Promise<void> {
         let googleId = localStorage.getItem('googleId')
@@ -105,10 +84,6 @@ function Premium() {
         toast.warn('Successfully logged out')
     }
 
-    function onDurationChange(event: ChangeEvent<HTMLSelectElement>) {
-        setPurchasePremiumDuration(parseInt(event.target.value) || 1)
-    }
-
     return (
         <div>
             <h2>
@@ -135,103 +110,50 @@ function Premium() {
                 ''
             )}
             <hr />
-            {isLoggedIn ? <p>Account: {getAccountString()}</p> : ''}
-            {hasPremium ? (
-                <div>
-                    <OverlayTrigger
-                        overlay={
-                            <Tooltip id={generateUUID()}>
-                                <span>{hasPremiumUntil?.toDateString()}</span>
-                            </Tooltip>
-                        }
-                    >
-                        <span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>
-                    </OverlayTrigger>
-                </div>
-            ) : (
-                ''
-            )}
+            <div style={{ marginBottom: '20px' }}>
+                {isLoggedIn ? <p>Account: {getAccountString()}</p> : ''}
+                {hasPremium ? (
+                    <div>
+                        <OverlayTrigger
+                            overlay={
+                                <Tooltip id={generateUUID()}>
+                                    <span>{hasPremiumUntil?.toDateString()}</span>
+                                </Tooltip>
+                            }
+                        >
+                            <span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>
+                        </OverlayTrigger>
+                    </div>
+                ) : (
+                    ''
+                )}
+                {isLoggedIn ? (
+                    <div style={{ marginTop: '20px' }}>
+                        <GoogleLogout
+                            clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
+                            buttonText="Logout"
+                            onLogoutSuccess={onLogout}
+                        />
+                    </div>
+                ) : (
+                    ''
+                )}
+                {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
+                <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
+                <div>{isLoggingIn ? getLoadingElement() : ''}</div>
+            </div>
             {isLoggedIn ? (
-                <div style={{ marginTop: '20px' }}>
-                    <GoogleLogout
-                        clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                        buttonText="Logout"
-                        onLogoutSuccess={onLogout}
-                    />
+                <div style={{ marginBottom: '20px' }}>
+                    <BuyPremium />
                 </div>
-            ) : (
-                ''
-            )}
-            {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
-            <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
-            {isLoggingIn ? getLoadingElement() : ''}
+            ) : null}
             {isLoggedIn ? (
-                <div>
+                <div style={{ marginBottom: '20px' }}>
                     <hr />
-                    <h2>Purchase</h2>
-                    <Card className="purchase-card">
-                        <Card.Header>
-                            <Card.Title>Buy premium for a certain duration with your CoflCoins. The premium activate shortly after your purchase.</Card.Title>
-                        </Card.Header>
-                        <div style={{ padding: '15px' }}>
-                            {!purchaseSuccessfulMonths ? (
-                                <div>
-                                    <div style={{ marginBottom: '15px' }}>
-                                        <label className={styles.label}>Purchase Duration:</label>
-                                        <Form.Control as="select" onChange={onDurationChange} style={{ width: '100px', display: 'inline' }}>
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option>
-                                            <option value={4}>4</option>
-                                            <option value={5}>5</option>
-                                            <option value={6}>6</option>
-                                            <option value={7}>7</option>
-                                            <option value={8}>8</option>
-                                            <option value={9}>9</option>
-                                            <option value={10}>10</option>
-                                            <option value={11}>11</option>
-                                            <option value={12}>12</option>
-                                        </Form.Control>
-                                        <span style={{ marginLeft: '20px' }}>Month(s)</span>
-                                        <div style={{ float: 'right' }}>
-                                            <CoflCoinsDisplay />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className={styles.label}>Price:</label>
-                                        <span>{numberWithThousandsSeperators(purchasePremiumDuration * PREMIUM_PRICE_MONTH)} Coins</span>
-                                    </div>
-                                    <hr />
-                                    <Button
-                                        style={{ marginTop: '10px' }}
-                                        variant="success"
-                                        onClick={() => {
-                                            onPremiumBuy('premium')
-                                        }}
-                                        disabled={purchasePremiumDuration * PREMIUM_PRICE_MONTH > coflCoins || isPurchasing}
-                                    >
-                                        Confirm purchase
-                                    </Button>
-                                    {purchasePremiumDuration * PREMIUM_PRICE_MONTH > coflCoins && !isPurchasing ? (
-                                        <span>
-                                            <p><span style={{ color: 'red' }}>You don't have enough CoflCoins to buy this.</span> <a href="/coflcoins">Click here to buy CoflCoins.</a></p>
-                                        </span>
-                                    ) : (
-                                        ''
-                                    )}
-                                </div>
-                            ) : (
-                                <p style={{ color: 'lime' }}>
-                                    You successfully bought {purchaseSuccessfulMonths} {purchaseSuccessfulMonths === 1 ? 'Month' : 'Months'} of Premium for{' '}
-                                    {numberWithThousandsSeperators(purchasePremiumDuration * PREMIUM_PRICE_MONTH)} CoflCoins!
-                                </p>
-                            )}
-                        </div>
-                    </Card>
+                    <h2>CoflCoins</h2>
+                    <CoflCoinsPurchase/>
                 </div>
-            ) : (
-                ''
-            )}
+            ) : null}
             <hr />
             <h2>Features</h2>
             <Card className={styles.premiumCard}>

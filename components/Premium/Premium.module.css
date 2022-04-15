@@ -1,5 +1,5 @@
 .premiumPayment {
-    margin-top: ""
+    margin-top: '';
 }
 
 .label {
@@ -43,4 +43,8 @@
     .premiumProducts {
         display: block;
     }
-} 
+}
+
+.purchaseCard {
+    margin-left: 50px;
+}

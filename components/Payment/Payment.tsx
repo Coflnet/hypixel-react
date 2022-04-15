@@ -8,6 +8,7 @@ import { Help as HelpIcon } from '@mui/icons-material'
 
 function Payment() {
     let [isLoadingId, setLoadingId] = useState('')
+    let [showAll, setShowAll] = useState(false)
 
     function onPayPaypal(productId: string) {
         setLoadingId(productId)
@@ -25,11 +26,11 @@ function Payment() {
         })
     }
 
-    function getPaymentElement(title: string, stripePrice: number, stripeProductId: string, paypalPrice: number, payPalProductId: string) {
+    function getPaymentElement(title: JSX.Element, stripePrice: number, stripeProductId: string, paypalPrice: number, payPalProductId: string) {
         return (
             <Card className={styles.premiumPlanCard}>
                 <Card.Header>
-                    <h3 className={styles.premiumProductLabel}>{title}</h3>
+                    <Card.Title>{title}</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     <p className={styles.paymentOption}>
@@ -76,10 +77,48 @@ function Payment() {
         <div>
             <div>
                 <div className={styles.productGrid}>
-                    {getPaymentElement('1.800 CoflCoins', 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
-                    {getPaymentElement('5.400 CoflCoins', 19.69, 's_cc_5400', 19.99, 'p_cc_5400')}
-                    {getPaymentElement('10.800 CoflCoins', 38.99, 's_cc_10800', 39.69, 'p_cc_10800')}
-                    {getPaymentElement('21.600 CoflCoins', 74.99, 's_cc_21600', 78.69, 'p_cc_21600')}
+                    {getPaymentElement(<span>1.800 CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
+                    {getPaymentElement(
+                        <span>
+                            5.400 CoflCoins <span className={styles.discount}>~4% off</span>
+                        </span>,
+                        19.69,
+                        's_cc_5400',
+                        19.99,
+                        'p_cc_5400'
+                    )}
+                    {!showAll ? (
+                        <Button
+                            style={{ width: '100%' }}
+                            onClick={() => {
+                                setShowAll(true)
+                            }}
+                        >
+                            Show all CoflCoin Options
+                        </Button>
+                    ) : null}
+                    {showAll ? (
+                        <>
+                            {getPaymentElement(
+                                <span>
+                                    10.800 CoflCoins <span className={styles.discount}>~5% off</span>
+                                </span>,
+                                38.99,
+                                's_cc_10800',
+                                39.69,
+                                'p_cc_10800'
+                            )}
+                            {getPaymentElement(
+                                <span>
+                                    21.600 CoflCoins <span className={styles.discount}>~6% off</span>
+                                </span>,
+                                74.99,
+                                's_cc_21600',
+                                78.69,
+                                'p_cc_21600'
+                            )}
+                        </>
+                    ) : null}
                 </div>
             </div>
         </div>

@@ -175,10 +175,7 @@ function NavBar(props: Props) {
                             <Link href={'/crafts'}>Profitable crafts</Link>
                         </MenuItem>
                         <MenuItem icon={<MoneyIcon />}>
-                            <Link href={'/coflcoins'}>CoflCoins</Link>
-                        </MenuItem>
-                        <MenuItem icon={<AccountBalanceIcon />}>
-                            <Link href={'/premium'}>Premium</Link>
+                            <Link href={'/premium'}>Shop</Link>
                         </MenuItem>
                         <MenuItem icon={<PetsIcon />}>
                             <Link href={'/kat'}>Kat flips</Link>
