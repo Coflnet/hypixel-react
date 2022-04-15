@@ -7,7 +7,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import styles from './CoflCoinsDisplay.module.css'
 
 export function CoflCoinsDisplay() {
-    let [coflCoins] = useCoflCoins()
+    let coflCoins = useCoflCoins()
     let [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {

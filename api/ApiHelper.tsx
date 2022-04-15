@@ -749,7 +749,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let stripePurchase = (productId: string): Promise<PaymentResponse> => {
+    let stripePurchase = (productId: string, coinAmount?: number): Promise<PaymentResponse> => {
         return new Promise((resolve, reject) => {
             let googleId = localStorage.getItem('googleId')
             if (!googleId) {
@@ -763,25 +763,31 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 productId: productId
             }
 
-            httpApi.sendApiRequest({
-                type: RequestType.STRIPE_PAYMENT_SESSION,
-                requestMethod: 'POST',
-                requestHeader: {
-                    GoogleToken: data.userId
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.STRIPE_PAYMENT_SESSION,
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        GoogleToken: data.userId,
+                        'Content-Type': 'application/json'
+                    },
+                    data: data.productId,
+                    resolve: (data: any) => {
+                        resolve(parsePaymentResponse(data))
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.STRIPE_PAYMENT_SESSION, error, data)
+                        reject()
+                    }
                 },
-                data: data.productId,
-                resolve: (data: any) => {
-                    resolve(parsePaymentResponse(data))
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.STRIPE_PAYMENT_SESSION, error, data)
-                    reject()
-                }
-            })
+                JSON.stringify({
+                    coinAmount
+                })
+            )
         })
     }
 
-    let paypalPurchase = (productId: string): Promise<PaymentResponse> => {
+    let paypalPurchase = (productId: string, coinAmount?: number): Promise<PaymentResponse> => {
         return new Promise((resolve, reject) => {
             let googleId = localStorage.getItem('googleId')
             if (!googleId) {
@@ -795,21 +801,27 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 productId: productId
             }
 
-            httpApi.sendApiRequest({
-                type: RequestType.PAYPAL_PAYMENT,
-                requestMethod: 'POST',
-                data: data.productId,
-                requestHeader: {
-                    GoogleToken: data.userId
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.PAYPAL_PAYMENT,
+                    requestMethod: 'POST',
+                    data: data.productId,
+                    requestHeader: {
+                        GoogleToken: data.userId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: (response: any) => {
+                        resolve(parsePaymentResponse(response))
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.PAYPAL_PAYMENT, error, data)
+                        reject(error)
+                    }
                 },
-                resolve: (response: any) => {
-                    resolve(parsePaymentResponse(response))
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.PAYPAL_PAYMENT, error, data)
-                    reject(error)
-                }
-            })
+                JSON.stringify({
+                    coinAmount
+                })
+            )
         })
     }
 

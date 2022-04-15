@@ -14,7 +14,7 @@ function BuyPremium() {
     let [purchaseSuccessfulMonths, setPurchaseSuccessfulMonths] = useState<number>()
     let [isPurchasing, setIsPurchasing] = useState(false)
     let [purchasePremiumDuration, setPurchasePremiumDuration] = useState(1)
-    let [coflCoins] = useCoflCoins()
+    let coflCoins = useCoflCoins()
 
     function onDurationChange(event: ChangeEvent<HTMLSelectElement>) {
         setPurchasePremiumDuration(parseInt(event.target.value) || 1)

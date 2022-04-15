@@ -174,7 +174,7 @@ interface API {
     getSubscriptions(): Promise<Subscription[]>
     setGoogle(id: string): Promise<void>
     hasPremium(googleId: string): Promise<Date>
-    stripePurchase(productId: string): Promise<PaymentResponse>
+    stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
     setToken(token: string): Promise<void>
     getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>
@@ -194,7 +194,7 @@ interface API {
     getNewItems(): Promise<Item[]>
     getNewPlayers(): Promise<Player[]>
     getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>
-    paypalPurchase(productId: string): Promise<PaymentResponse>
+    paypalPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     getRefInfo(): Promise<RefInfo>
     setRef(refId: string): Promise<void>
     getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>
@@ -399,8 +399,8 @@ interface KatFlip {
     coreData: KatFlipCoreData
     targetRarity: string
     profit: number
-    referenceAuctionUUID: string,
-    purchaseCost: number,
+    referenceAuctionUUID: string
+    purchaseCost: number
     cost: number
 }
 interface FlipTrackingFlip {
@@ -411,7 +411,7 @@ interface FlipTrackingFlip {
     soldAuction: string
     finder: FlipFinder
     item: Item
-    sellTime: Date,
+    sellTime: Date
     profit: number
 }
 

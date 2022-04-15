@@ -89,7 +89,7 @@ export function useCoflCoins() {
         }
     }, [])
 
-    return [coflCoins]
+    return coflCoins
 }
 
 export function useWasAlreadyLoggedIn() {
