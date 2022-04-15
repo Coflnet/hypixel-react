@@ -440,7 +440,7 @@ interface KatFlip {
 interface FlipTrackingFlip {
     pricePaid: number
     soldFor: number
-    uId: string
+    uId: number
     originAuction: string
     soldAuction: string
     finder: FlipFinder

@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { CopyButton } from '../CopyButton/CopyButton'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import Tooltip from '../Tooltip/Tooltip'
 
 interface Props {
     totalProfit?: number
@@ -27,10 +28,7 @@ export function FlipTracking(props: Props) {
         .sort((a, b) => b.sellTime.getTime() - a.sellTime.getTime())
         .map((trackedFlip, i) => {
             return (
-                <ListGroup.Item
-                    className={styles.listGroupItem}
-                    id={trackedFlip.uId}
-                >
+                <ListGroup.Item className={styles.listGroupItem} id={trackedFlip.uId.toString(16)}>
                     <h1 style={{ padding: '10px', display: 'flex', justifyContent: 'space-between', fontSize: 'x-large' }}>
                         <div
                             className="ellipse"
@@ -81,7 +79,20 @@ export function FlipTracking(props: Props) {
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <div>
                             <p style={{ marginTop: '10px' }}>
-                                Finder: <Badge variant="dark">{trackedFlip.finder.shortLabel}</Badge>
+                                <Tooltip
+                                    content={
+                                        <span>
+                                            Finder: <Badge variant="dark">{trackedFlip.finder.shortLabel}</Badge>
+                                        </span>
+                                    }
+                                    tooltipContent={
+                                        <span>
+                                            This is the first flip finder algorithm that reported this flip. \nIts possible that you used another one or even
+                                            found this flip on your own
+                                        </span>
+                                    }
+                                    type={'hover'}
+                                />
                             </p>
                             <p style={{ marginTop: '10px' }}>
                                 Sell: {trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}
@@ -89,10 +100,14 @@ export function FlipTracking(props: Props) {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'end' }}>
                             <CopyButton
-                                copyValue={isClientSideRendering() ? `${window.location.origin}${window.location.pathname}?targetFlip=${trackedFlip.uId}#${trackedFlip.uId}` : ''}
-                                successMessage={
-                                    isClientSideRendering() ? <span>{`Copied link to flip!`}</span> : <span />
+                                copyValue={
+                                    isClientSideRendering()
+                                        ? `${window.location.origin}${window.location.pathname}?targetFlip=${trackedFlip.uId.toString(
+                                              16
+                                          )}#${trackedFlip.uId.toString(16)}`
+                                        : ''
                                 }
+                                successMessage={isClientSideRendering() ? <span>{`Copied link to flip!`}</span> : <span />}
                             />
                         </div>
                     </div>

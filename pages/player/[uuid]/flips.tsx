@@ -128,7 +128,7 @@ export const getServerSideProps = async ({ query }) => {
                 name: apiResponses[0]
             },
             flipTrackingResponse: apiResponses[1],
-            targetFlip: query.targetFlip ? (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString() === query.targetFlip) : null
+            targetFlip: query.targetFlip ? (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString(16) === query.targetFlip) : null
         }
     }
 }
