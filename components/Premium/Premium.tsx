@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Button, Card, Form, OverlayTrigger, Tooltip } from 'react-bootstrap'
@@ -105,8 +105,8 @@ function Premium() {
         toast.warn('Successfully logged out')
     }
 
-    function onDurationChange(number: NumberFormatValues) {
-        setPurchasePremiumDuration(number.floatValue || 1)
+    function onDurationChange(event: ChangeEvent<HTMLSelectElement>) {
+        setPurchasePremiumDuration(parseInt(event.target.value) || 1)
     }
 
     return (
@@ -165,25 +165,6 @@ function Premium() {
             {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
             {isLoggingIn ? getLoadingElement() : ''}
-            <hr />
-            <h2>Features</h2>
-            <Card className={styles.premiumCard}>
-                <Card.Header>
-                    <Card.Title>
-                        {hasPremium ? (
-                            <p>
-                                Thank you for your support. You have a Premium account. By buying another Premium-Plan you can extend your premium-time. You can
-                                use the following premium-features:
-                            </p>
-                        ) : (
-                            <p>Log in and buy Premium to support us and get access to these features</p>
-                        )}
-                    </Card.Title>
-                </Card.Header>
-                <div style={{ padding: '15px' }}>
-                    <PremiumFeatures />
-                </div>
-            </Card>
             {isLoggedIn ? (
                 <div>
                     <hr />
@@ -197,21 +178,20 @@ function Premium() {
                                 <div>
                                     <div style={{ marginBottom: '15px' }}>
                                         <label className={styles.label}>Purchase Duration:</label>
-                                        <NumberFormat
-                                            onValueChange={onDurationChange}
-                                            className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
-                                            isAllowed={value => {
-                                                return (value.floatValue || 0) <= 12
-                                            }}
-                                            customInput={Form.Control}
-                                            defaultValue={purchasePremiumDuration}
-                                            thousandSeparator="."
-                                            decimalSeparator=","
-                                            allowNegative={false}
-                                            decimalScale={0}
-                                            step={1}
-                                            style={{ width: '100px', display: 'inline' }}
-                                        />
+                                        <Form.Control as="select" onChange={onDurationChange} style={{ width: '100px', display: 'inline' }}>
+                                            <option value={1}>1</option>
+                                            <option value={2}>2</option>
+                                            <option value={3}>3</option>
+                                            <option value={4}>4</option>
+                                            <option value={5}>5</option>
+                                            <option value={6}>6</option>
+                                            <option value={7}>7</option>
+                                            <option value={8}>8</option>
+                                            <option value={9}>9</option>
+                                            <option value={10}>10</option>
+                                            <option value={11}>11</option>
+                                            <option value={12}>12</option>
+                                        </Form.Control>
                                         <span style={{ marginLeft: '20px' }}>Month(s)</span>
                                         <div style={{ float: 'right' }}>
                                             <CoflCoinsDisplay />
@@ -232,6 +212,13 @@ function Premium() {
                                     >
                                         Confirm purchase
                                     </Button>
+                                    {purchasePremiumDuration * PREMIUM_PRICE_MONTH > coflCoins && !isPurchasing ? (
+                                        <span>
+                                            <p><span style={{ color: 'red' }}>You don't have enough CoflCoins to buy this.</span> <a href="/coflcoins">Click here to buy CoflCoins.</a></p>
+                                        </span>
+                                    ) : (
+                                        ''
+                                    )}
                                 </div>
                             ) : (
                                 <p style={{ color: 'lime' }}>
@@ -245,6 +232,25 @@ function Premium() {
             ) : (
                 ''
             )}
+            <hr />
+            <h2>Features</h2>
+            <Card className={styles.premiumCard}>
+                <Card.Header>
+                    <Card.Title>
+                        {hasPremium ? (
+                            <p>
+                                Thank you for your support. You have a Premium account. By buying another Premium-Plan you can extend your premium-time. You can
+                                use the following premium-features:
+                            </p>
+                        ) : (
+                            <p>Log in and buy Premium to support us and get access to these features</p>
+                        )}
+                    </Card.Title>
+                </Card.Header>
+                <div style={{ padding: '15px' }}>
+                    <PremiumFeatures />
+                </div>
+            </Card>
         </div>
     )
 }

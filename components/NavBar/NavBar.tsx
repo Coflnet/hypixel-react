@@ -12,7 +12,8 @@ import {
     Chat as ChatIcon,
     Menu as MenuIcon,
     ExploreOutlined as ExploreIcon,
-    PetsOutlined as PetsIcon
+    PetsOutlined as PetsIcon,
+    AttachMoneyOutlined as MoneyIcon
 } from '@mui/icons-material'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
@@ -154,7 +155,7 @@ function NavBar(props: Props) {
     return (
         <span>
             <aside className={styles.navBar} id="navBar" onMouseEnter={onMouseMove} onMouseLeave={onMouseOut}>
-                <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()} >
+                <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()}>
                     <SidebarHeader>
                         <div style={{ padding: '24px', fontWeight: 'bold', fontSize: '20px', letterSpacing: '1px', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                             <ExploreIcon /> {!isCollapsed() ? 'Navigation' : ''}
@@ -173,19 +174,14 @@ function NavBar(props: Props) {
                         <MenuItem icon={<BuildIcon />}>
                             <Link href={'/crafts'}>Profitable crafts</Link>
                         </MenuItem>
-                        <SubMenu title="Shop" open={true} icon={<AccountBalanceIcon />} firstchild={false}>
-                            <MenuItem icon={<AccountBalanceIcon />}>
-                                <Link href={'/coflcoins'}>CoflCoins</Link>
-                            </MenuItem>
-                            <MenuItem icon={<AccountBalanceIcon />}>
-                                <Link href={'/premium'}>Premium</Link>
-                            </MenuItem>
-                        </SubMenu>
-                        <MenuItem className="disableLinkStyle" icon={<PetsIcon />}>
-                            <Link href={'/kat'}>Kat flips</Link>
+                        <MenuItem icon={<MoneyIcon />}>
+                            <Link href={'/coflcoins'}>CoflCoins</Link>
                         </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<AccountBalanceIcon />}>
+                        <MenuItem icon={<AccountBalanceIcon />}>
                             <Link href={'/premium'}>Premium</Link>
+                        </MenuItem>
+                        <MenuItem icon={<PetsIcon />}>
+                            <Link href={'/kat'}>Kat flips</Link>
                         </MenuItem>
                         <MenuItem className="disableLinkStyle" icon={<ShareIcon />}>
                             <Link href={'/ref'}>Referral</Link>
