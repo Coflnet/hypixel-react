@@ -11,6 +11,7 @@ import ReloadDialog from '../ReloadDialog/ReloadDialog'
 import { startMigrations } from '../../migrations/MigrationUtils'
 import { useRouter } from 'next/router'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import { v4 as generateUUID } from 'uuid'
 
 export function MainApp(props: any) {
     const [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false)
@@ -18,28 +19,8 @@ export function MainApp(props: any) {
     const router = useRouter()
 
     useEffect(() => {
-        let preventReloadDialog = localStorage.getItem('rememberHideReloadDialog') === 'true'
-        if (preventReloadDialog) {
-            return
-        }
-
-        // check if page was reloaded
-        if (
-            window.performance &&
-            window.performance.getEntriesByType('navigation')[0] &&
-            (window.performance.getEntriesByType('navigation')[0] as any).type === 'reload'
-        ) {
-            let lastReloadTime = localStorage.getItem('lastReloadTime')
-            // Check if the last reload was less than 30 seconds ago
-            if (lastReloadTime && 30_000 > new Date().getTime() - Number(lastReloadTime)) {
-                setTimeout(() => {
-                    setShowRefreshFeedbackDialog(true)
-                }, 1000)
-            } else {
-                localStorage.setItem('lastReloadTime', new Date().getTime().toString())
-            }
-        }
-
+        window.sessionStorage.setItem('sessionId', generateUUID())
+        initReloadListener()
         startMigrations()
     }, [])
 
@@ -65,6 +46,29 @@ export function MainApp(props: any) {
         trackPageView({})
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isClientSideRendering() ? document.title : null])
+
+    function initReloadListener() {
+        let preventReloadDialog = localStorage.getItem('rememberHideReloadDialog') === 'true'
+        if (preventReloadDialog) {
+            return
+        }
+        // check if page was reloaded
+        if (
+            window.performance &&
+            window.performance.getEntriesByType('navigation')[0] &&
+            (window.performance.getEntriesByType('navigation')[0] as any).type === 'reload'
+        ) {
+            let lastReloadTime = localStorage.getItem('lastReloadTime')
+            // Check if the last reload was less than 30 seconds ago
+            if (lastReloadTime && 30_000 > new Date().getTime() - Number(lastReloadTime)) {
+                setTimeout(() => {
+                    setShowRefreshFeedbackDialog(true)
+                }, 1000)
+            } else {
+                localStorage.setItem('lastReloadTime', new Date().getTime().toString())
+            }
+        }
+    }
 
     function setTrackingAllowed() {
         pushInstruction('rememberConsentGiven')

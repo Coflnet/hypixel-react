@@ -21,13 +21,14 @@ import Flip from './Flip/Flip'
 import FlipCustomize from './FlipCustomize/FlipCustomize'
 import { calculateProfit, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
 import { Menu, Item, useContextMenu, theme } from 'react-contexify'
-import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils'
+import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting, setSettingsChangedData } from '../../utils/SettingsUtils'
 import Countdown, { zeroPad } from 'react-countdown'
 import styles from './Flipper.module.css'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
+import { v4 as generateUUID } from 'uuid'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 
@@ -67,6 +68,9 @@ function Flipper(props: Props) {
     let [isSSR, setIsSSR] = useState(true)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
+    let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID())
+    let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(generateUUID())
+
     let router = useRouter()
 
     const { show } = useContextMenu({
@@ -90,9 +94,13 @@ function Flipper(props: Props) {
         api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification)
         getLastFlipFetchTime()
 
-        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, () => {
-            api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification)
+        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
+            if ((e as any).detail?.apiUpdate) {
+                setFlipperFilterKey(generateUUID())
+                setFlipCustomizeKey(generateUUID())
+            }
         })
+
         setIsSmall(document.body.clientWidth < 1000)
 
         return () => {
@@ -122,7 +130,6 @@ function Flipper(props: Props) {
         api.hasPremium(googleId!).then(hasPremiumUntil => {
             if (hasPremiumUntil > new Date()) {
                 setHasPremium(true)
-
                 // subscribe to the premium flips
                 api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification)
             }
@@ -301,7 +308,6 @@ function Flipper(props: Props) {
                 }
             })
         })
-        api.subscribeFlips(onNewFlip, newFilter.restrictions || [], newFilter, uuid => onAuctionSold(uuid), onNextFlipNotification)
     }
 
     function onCopyFlip(flip: FlipAuction) {
@@ -400,7 +406,7 @@ function Flipper(props: Props) {
                 <Modal.Title>Customize the style of flips</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <FlipCustomize />
+                <FlipCustomize key={flipCustomizeKey} />
             </Modal.Body>
         </Modal>
     )
@@ -457,7 +463,7 @@ function Flipper(props: Props) {
                 </Card.Header>
                 <Card.Body>
                     <div id="flipper-card-body">
-                        <FlipperFilter onChange={onFilterChange} isLoggedIn={isLoggedIn} isPremium={hasPremium} />
+                        <FlipperFilter key={flipperFilterKey} onChange={onFilterChange} isLoggedIn={isLoggedIn} isPremium={hasPremium} />
                         <hr />
                         <Form className={styles.flipperSettingsForm}>
                             <Form.Group>

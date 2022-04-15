@@ -184,7 +184,8 @@ interface API {
         restrictionList: FlipRestriction[],
         filter: FlipperFilter,
         soldCallback?: Function,
-        nextUpdateNotificationCallback?: Function
+        nextUpdateNotificationCallback?: Function,
+        forceSettingsUpdate: boolean = false
     ): void
     unsubscribeFlips(): Promise<void>
     getFilter(name: string): Promise<FilterOptions>
@@ -220,6 +221,7 @@ interface API {
     purchaseWithCoflcoins(productId: string, count?: number): Promise<void>
     subscribeCoflCoinChange()
     getCoflcoinBalance(): Promise<number>
+    setFlipSetting(identifier: string, value: any): Promise<void>
     getKatFlips(): Promise<KatFlip[]>
     getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
 }
@@ -295,6 +297,7 @@ interface FlipCustomizeSettings {
     hideSellerOpenBtn?: boolean
     hideLore?: boolean
     modFormat?: string
+    modCountdown?: boolean
 }
 
 interface FlipRestriction {

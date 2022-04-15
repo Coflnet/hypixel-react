@@ -96,10 +96,10 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
 
     function handleServerRequest(request: ApiRequest, url: string, body?: any): Promise<void> {
         if (!isClientSideRendering()) {
-            console.log('------------------------')
-            console.log('url: ' + url)
-            console.log('request: ' + JSON.stringify(request))
-            console.log('body: ' + JSON.stringify(body))
+            console.log('Sending Request...')
+            console.log('URL: ' + url)
+            console.log('Request: ' + JSON.stringify(request))
+            console.log('Body: ' + JSON.stringify(body))
             console.log('------------------------')
         }
         return fetch(url, {
@@ -121,6 +121,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 let parsed
                 try {
                     parsed = response.json()
+                    console.log('Received Response: ' + JSON.stringify(parsed))
                 } catch (error) {
                     request.reject({ Message: 'Unnown error' })
                 }

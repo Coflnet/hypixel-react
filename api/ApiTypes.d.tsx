@@ -60,6 +60,8 @@ export enum RequestType {
     PURCHASE_WITH_COFLCOiNS = 'service/purchase',
     SUBSCRIBE_COFLCOINS = 'subscribeCoflCoins',
     GET_COFLCOIN_BALANCE = 'getCoflBalance',
+    GET_FLIP_SETTINGS = 'getFlipSettings',
+    SET_FLIP_SETTING = 'setFlipSetting'
 }
 
 export enum SubscriptionType {
@@ -89,6 +91,7 @@ export interface ApiSubscription {
     type: RequestType
     data: any
     callback(request: ApiResponse)
+    resubscribe(subscription: ApiSubscription)
 }
 
 export interface Subscription {

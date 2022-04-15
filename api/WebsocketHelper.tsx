@@ -29,7 +29,7 @@ function initWebsocket(): void {
     let onOpen = (e: Event): void => {
         let _reconnect = function () {
             apiSubscriptions.forEach(subscription => {
-                subscribe(subscription, true)
+                subscription.resubscribe(subscription)
             })
         }
 
@@ -164,21 +164,19 @@ function removeOldSubscriptionByType(type: RequestType) {
     }
 }
 
-function subscribe(subscription: ApiSubscription, resub?: boolean): void {
+function subscribe(subscription: ApiSubscription): void {
     if (!websocket) {
         initWebsocket()
     }
     let requestString = JSON.stringify(subscription.data)
     if (_isWebsocketReady(subscription.type, websocket)) {
         subscription.mId = getNextMessageId()
-        if (!resub) {
-            try {
-                subscription.data = Base64.encode(requestString)
-            } catch (error) {
-                throw new Error('couldnt btoa this data: ' + subscription.data)
-            }
-            apiSubscriptions.push(subscription)
+        try {
+            subscription.data = Base64.encode(requestString)
+        } catch (error) {
+            throw new Error('couldnt btoa this data: ' + subscription.data)
         }
+        apiSubscriptions.push(subscription)
         websocket.send(JSON.stringify(subscription))
     } else {
         setTimeout(() => {
