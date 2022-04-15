@@ -475,7 +475,8 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
     let flipTrackingFlip = {
         item: {
             tag: flip.itemTag,
-            name: flip.itemName || flip.itemTag
+            name: flip.itemName || flip.itemTag,
+            tier: flip.tier
         },
         originAuction: flip.originAuction,
         pricePaid: flip.pricePaid,
