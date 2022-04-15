@@ -3,6 +3,11 @@ import { Badge, Card, ListGroup } from 'react-bootstrap'
 import { ArrowRightAlt as ArrowRightIcon } from '@mui/icons-material'
 import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './FlipTracking.module.css'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { CopyButton } from '../CopyButton/CopyButton'
+import { isClientSideRendering } from '../../utils/SSRUtils'
+import Tooltip from '../Tooltip/Tooltip'
 
 interface Props {
     totalProfit?: number
@@ -12,14 +17,33 @@ interface Props {
 export function FlipTracking(props: Props) {
     let [totalProfit, setTotalProfit] = useState(props.totalProfit || 0)
     let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
+    let router = useRouter()
+
+    useEffect(() => {
+        let toFlip = router.query.flip
+        router.replace(router)
+    }, [])
 
     let list = trackedFlips
         .sort((a, b) => b.sellTime.getTime() - a.sellTime.getTime())
         .map((trackedFlip, i) => {
             return (
-                <ListGroup.Item className={styles.listGroupItem}>
+                <ListGroup.Item
+                    className={styles.listGroupItem}
+                    id={trackedFlip.uId.toString(16)}
+                    style={{
+                        borderColor: router.query.targetFlip === trackedFlip.uId.toString(16) ? 'cornflowerblue' : undefined,
+                        borderWidth: router.query.targetFlip === trackedFlip.uId.toString(16) ? 5 : undefined
+                    }}
+                >
                     <h1 style={{ padding: '10px', display: 'flex', justifyContent: 'space-between', fontSize: 'x-large' }}>
-                        <div className="ellipse">
+                        <div
+                            className="ellipse"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                                router.push(`/item/${trackedFlip.item.tag}`)
+                            }}
+                        >
                             <img
                                 crossOrigin="anonymous"
                                 src={trackedFlip.item.iconUrl}
@@ -44,21 +68,56 @@ export function FlipTracking(props: Props) {
                     <hr />
                     <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
                         <Card className={styles.profitNumberCard}>
-                            <Card.Header className={styles.profitNumberHeader}>
-                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.pricePaid)} Coins</Card.Title>
-                            </Card.Header>
+                            <a href={`/auction/${trackedFlip.originAuction}`} target={'_blank'} className="disableLinkStyle">
+                                <Card.Header className={styles.profitNumberHeader}>
+                                    <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.pricePaid)} Coins</Card.Title>
+                                </Card.Header>
+                            </a>
                         </Card>
                         <ArrowRightIcon style={{ fontSize: '50px' }} />
                         <Card className={styles.profitNumberCard}>
-                            <Card.Header className={styles.profitNumberHeader}>
-                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.soldFor)} Coins</Card.Title>
-                            </Card.Header>
+                            <a href={`/auction/${trackedFlip.soldAuction}`} target={'_blank'} className="disableLinkStyle">
+                                <Card.Header className={styles.profitNumberHeader}>
+                                    <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.soldFor)} Coins</Card.Title>
+                                </Card.Header>
+                            </a>
                         </Card>
                     </div>
-                    <p style={{ marginTop: '10px' }}>
-                        Finder: <Badge variant="dark">{trackedFlip.finder.shortLabel}</Badge>
-                    </p>
-                    <p style={{ marginTop: '10px' }}>Sell: {trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <div>
+                            <p style={{ marginTop: '10px' }}>
+                                <Tooltip
+                                    content={
+                                        <span>
+                                            Finder: <Badge variant="dark">{trackedFlip.finder.shortLabel}</Badge>
+                                        </span>
+                                    }
+                                    tooltipContent={
+                                        <span>
+                                            This is the first flip finder algorithm that reported this flip. \nIts possible that you used another one or even
+                                            found this flip on your own
+                                        </span>
+                                    }
+                                    type={'hover'}
+                                />
+                            </p>
+                            <p style={{ marginTop: '10px' }}>
+                                Sell: {trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}
+                            </p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'end' }}>
+                            <CopyButton
+                                copyValue={
+                                    isClientSideRendering()
+                                        ? `${window.location.origin}${window.location.pathname}?targetFlip=${trackedFlip.uId.toString(
+                                              16
+                                          )}#${trackedFlip.uId.toString(16)}`
+                                        : ''
+                                }
+                                successMessage={isClientSideRendering() ? <span>{`Copied link to flip!`}</span> : <span />}
+                            />
+                        </div>
+                    </div>
                 </ListGroup.Item>
             )
         })
@@ -73,7 +132,7 @@ export function FlipTracking(props: Props) {
             {trackedFlips.length === 0 ? (
                 <div className={styles.noAuctionFound}>
                     <img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
-                    <p>We couldn't find any tracked flips.</p>
+                    <p>We couldn't find any flips.</p>
                 </div>
             ) : (
                 <ListGroup className={styles.list}>{list}</ListGroup>
