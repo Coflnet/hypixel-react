@@ -132,7 +132,7 @@ export function FlipTracking(props: Props) {
             {trackedFlips.length === 0 ? (
                 <div className={styles.noAuctionFound}>
                     <img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
-                    <p>We couldn't find any tracked flips.</p>
+                    <p>We couldn't find any flips.</p>
                 </div>
             ) : (
                 <ListGroup className={styles.list}>{list}</ListGroup>

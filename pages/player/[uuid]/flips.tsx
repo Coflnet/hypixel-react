@@ -21,7 +21,7 @@ function Flipper(props: Props) {
 
     function getEmbedDescription() {
         if (!flipTrackingResponse.flips || flipTrackingResponse.flips.length === 0) {
-            return `There were no tracked flips found for ${player.name}`
+            return `There were no flips found for ${player.name}`
         }
 
         let profitByFinder = {}
