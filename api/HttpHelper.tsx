@@ -121,8 +121,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 let parsed
                 try {
                     parsed = response.json()
-                    console.log('Received Response: ' + JSON.stringify(parsed))
-                    console.log('------------------------')
                 } catch (error) {
                     request.reject({ Message: 'Unnown error' })
                 }
@@ -135,6 +133,12 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 return parsed
             })
             .then(parsedResponse => {
+                if (!isClientSideRendering()) {
+                    console.log('Received Response: ')
+                    console.log('mId: ' + request.mId)
+                    console.log('data: ' + JSON.stringify(parsedResponse))
+                    console.log('------------------------')
+                }
                 if (!parsedResponse || parsedResponse.Slug !== undefined) {
                     request.reject(parsedResponse)
                     return
