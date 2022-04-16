@@ -890,7 +890,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let subscribeCoflCoinChange = () => {
         // TODO: Has yet to be implemented by the backend
-
         /*
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_COFLCOINS,
@@ -926,9 +925,19 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getRefInfo = (): Promise<RefInfo> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to use the ref system something.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
                 type: RequestType.GET_REF_INFO,
                 data: '',
+                requestHeader: {
+                    GoogleToken: googleId
+                },
                 resolve: (response: any) => {
                     resolve(parseRefInfo(response))
                 },
@@ -942,17 +951,33 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let setRef = (refId: string): Promise<void> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
-                type: RequestType.SET_REF,
-                data: refId,
-                resolve: () => {
-                    resolve()
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to use the ref system something.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.SET_REF,
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.SET_REF, error, '')
+                        reject(error)
+                    }
                 },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.SET_REF, error, '')
-                    reject(error)
+                {
+                    refCode: refId
                 }
-            })
+            )
         })
     }
 
