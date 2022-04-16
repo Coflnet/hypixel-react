@@ -975,9 +975,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         reject(error)
                     }
                 },
-                {
+                JSON.stringify({
                     refCode: refId
-                }
+                })
             )
         })
     }
