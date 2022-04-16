@@ -396,7 +396,7 @@ function FlipCustomize() {
                     <Select
                         id="finders"
                         isMulti
-                        options={FLIP_FINDERS}
+                        options={FLIP_FINDERS.filter(finder => finder.selectable)}
                         defaultValue={getFlipFinders(flipCustomizeSettings.finders || [])}
                         styles={customSelectStyle}
                         onChange={onFindersChange}
