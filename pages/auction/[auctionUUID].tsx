@@ -93,6 +93,7 @@ export const getStaticProps = async ({ params }) => {
         auctionDetails = await api.getAuctionDetails(auctionUUID)
     } catch (e) {
         console.log('ERROR: ' + JSON.stringify(e))
+        console.log('------------------------')
         return {
             props: {}
         }
@@ -100,6 +101,7 @@ export const getStaticProps = async ({ params }) => {
 
     if (!auctionDetails) {
         console.log('auctionDetails not found (auctionUUID=' + auctionUUID + ')')
+        console.log('------------------------')
         return {
             notFound: true
         }
@@ -112,6 +114,7 @@ export const getStaticProps = async ({ params }) => {
         item = await api.getItemDetails(auctionDetails.tag)
     } catch (e) {
         console.log('ERROR: ' + JSON.stringify(e))
+        console.log('------------------------')
         return {
             props: {}
         }
@@ -119,6 +122,7 @@ export const getStaticProps = async ({ params }) => {
 
     if (!item) {
         console.log('itemDetails not found (tag=' + auctionDetails.tag + ')')
+        console.log('------------------------')
         return {
             notFound: true
         }
@@ -152,6 +156,7 @@ export const getStaticProps = async ({ params }) => {
         )
     } catch (e) {
         console.log('ERROR: ' + JSON.stringify(e))
+        console.log('------------------------')
     }
 
     await Promise.all(namePromises)
