@@ -962,6 +962,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 {
                     type: RequestType.SET_REF,
                     data: '',
+                    requestMethod: 'POST',
                     requestHeader: {
                         GoogleToken: googleId,
                         'Content-Type': 'application/json'

@@ -255,11 +255,17 @@ interface PopularSearch {
 }
 
 interface RefInfo {
-    refId: string
-    count: number
-    receivedTime: number
-    receivedHours: number
-    bougthPremium: number
+    oldInfo: {
+        refId: string
+        count: number
+        receivedTime: number
+        receivedHours: number
+        bougthPremium: number
+    }
+    purchasedCoins: number
+    referedCount: number
+    referredBy?: string
+    validatedMinecraft: number
 }
 
 interface FreeFlipperMissInformation {
