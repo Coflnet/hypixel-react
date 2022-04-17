@@ -5,7 +5,7 @@ import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } fro
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import Flip from '../Flip/Flip'
-import { Help as HelpIcon } from '@mui/icons-material'
+import { Help as HelpIcon, Refresh as RefreshIcon } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
@@ -49,7 +49,7 @@ function FlipCustomize() {
 
     function onMaxExtraInfoFieldsChange(event: ChangeEvent<HTMLInputElement>) {
         setFlipCustomizeSetting('maxExtraInfoFields', event.target.valueAsNumber)
-        api.setFlipSetting('showExtraFields', event.target.valueAsNumber)
+        api.setFlipSetting('showExtraFields', event.target.valueAsNumber || 0)
         trackChange('maxExtraInfoFields')
     }
 
@@ -547,12 +547,17 @@ function FlipCustomize() {
                         <Button onClick={exportFilter} style={{ width: '40%' }}>
                             Export
                         </Button>
-
                         {/* This is the "true" upload field. It is called by the "Import"-Button */}
                         <input onChange={readImportFile} style={{ display: 'none' }} type="file" id="fileUpload" />
                     </div>
                 </div>
                 <hr />
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <Button onClick={exportFilter} variant="danger" style={{ width: '95%' }}>
+                        <RefreshIcon />
+                        Reset to all settings to default
+                    </Button>
+                </div>
             </div>
             <div className={styles.verticalLine}></div>
             <div className={`${styles.sectionRight} ${styles.section}`}>
