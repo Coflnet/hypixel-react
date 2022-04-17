@@ -224,7 +224,7 @@ function Flipper(props: Props) {
     function getLastFlipFetchTime() {
         setLastFlipFetchTimeLoading(true)
         api.getFlipUpdateTime().then(date => {
-            setLastFlipFetchTimeSeconds((date.getSeconds() + 10) % 60)
+            setLastFlipFetchTimeSeconds((date.getSeconds()) % 60)
             setLastFlipFetchTimeLoading(false)
         })
     }
