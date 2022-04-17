@@ -5,7 +5,7 @@ import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } fro
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import Flip from '../Flip/Flip'
-import { Help as HelpIcon, Refresh as RefreshIcon } from '@mui/icons-material'
+import { Help as HelpIcon } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
@@ -552,12 +552,6 @@ function FlipCustomize() {
                     </div>
                 </div>
                 <hr />
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <Button onClick={exportFilter} variant="danger" style={{ width: '95%' }}>
-                        <RefreshIcon />
-                        Reset to all settings to default
-                    </Button>
-                </div>
             </div>
             <div className={styles.verticalLine}></div>
             <div className={`${styles.sectionRight} ${styles.section}`}>
