@@ -148,14 +148,7 @@ function Startpage(props: Props) {
                         <Card>
                             <Card.Header style={{ height: '100%', padding: '20px' }}>
                                 <div style={{ float: 'left' }}>
-                                    <img
-                                        crossOrigin="anonymous"
-                                        src={newItem.iconUrl}
-                                        height="32"
-                                        alt=""
-                                        style={{ marginRight: '5px' }}
-                                        loading="lazy"
-                                    />
+                                    <img crossOrigin="anonymous" src={newItem.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                                 </div>
                                 <Card.Title className={styles.ellipsis}>{newItem.name}</Card.Title>
                             </Card.Header>
@@ -315,23 +308,14 @@ function Startpage(props: Props) {
                             <AnnouncementIcon />
                             <span className={styles.statusTitle}> News / Announcements</span>
                         </Card.Title>
-                        <Card.Subtitle>Minecraft Mod (Alpha release)</Card.Subtitle>
+                        <Card.Subtitle>Flip Tracking</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        <p>
-                            We created a Minecraft mod as a QoL-Feature. It connects to the website and shows the flips you get there in your Minecraft chat for
-                            you to click.
-                        </p>
-                        <p>
-                            The mod can be downloaded on our{' '}
-                            <a target="_blank" rel="noreferrer" href="https://discord.gg/wNRgeCYmW9">
-                                discord
-                            </a>{' '}
-                            in the channel "mod-releases".
-                        </p>
+                        <p>You can now look up the profit of your flips (last 7 days).</p>
+                        <p>To look up your (or someone elses) flips, just search the player and click the blue "Check tracked flips" button.</p>
                         <hr />
                         <div style={{ marginTop: '20px' }}>
-                            <p>Recent changes (last change: 23.10.2021):</p>
+                            <p>Recent changes (last change: 18.94.2022):</p>
                             <Tooltip
                                 onClick={onRecentChangesClick}
                                 content={
@@ -341,10 +325,15 @@ function Startpage(props: Props) {
                                 }
                                 tooltipContent={
                                     <ul key="changelogList">
-                                        <li className={styles.changelogItem}>Integration of the alpha mod</li>
-                                        <li className={styles.changelogItem}>Import/Export flipper settings</li>
-                                        <li className={styles.changelogItem}>Context menu in the flipper</li>
-                                        <li className={styles.changelogItem}>Lots of UI improvements</li>
+                                        <li className={styles.changelogItem}>
+                                            Settings are now stored on the server. That means you have the same settings on different devices and can change
+                                            them ingame.
+                                        </li>
+                                        <li className={styles.changelogItem}>Multiple tabs dont overwrite each others settings anymore but sync up</li>
+                                        <li className={styles.changelogItem}>
+                                            Added a new payment system and CoflCoins as a way to easier reward/compensate user
+                                        </li>
+                                        <li className={styles.changelogItem}>Added Kat flips</li>
                                     </ul>
                                 }
                                 type="click"
