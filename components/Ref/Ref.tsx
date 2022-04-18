@@ -64,11 +64,26 @@ function Ref(props: Props) {
                                 </span>
                             </div>
                             <hr />
-                            <p>Share your Ref-Link with people which might find skyblock AH history useful.</p>
+                            <p>Share your Ref-Link with people which might find Cofnet useful.</p>
+                            <p>Rewards per invited person:</p>
+                            <ul>
+                                <li>
+                                    You receive <b>100 CoflCoins</b>
+                                </li>
+                                <li>
+                                    The invited person on gets <b>1 day of premium</b> to test our services
+                                </li>
+                                <li>
+                                    The first time a invited person buys CofCoins, you get <b>25%</b> of the purchased amount
+                                </li>
+                            </ul>
                             <p>
-                                <b>If the invited person buys premium, you get 20% of the purchased premium time.</b>
+                                <span style={{ color: 'yellow' }}>
+                                    The rewards are only given out after the invited person logged in with their Google account and verified their
+                                    Minecraft account.
+                                </span>
                             </p>
-                            <p>Share your Ref-Link with people which might find skyblock AH history useful.</p>
+                            <hr />
                             <p>
                                 The default referral page contains some facts about this site. You are also able to share another page and still get the
                                 Referral-Bonus. All you have to do is adding <b style={{ whiteSpace: 'nowrap' }}>?refId={refInfo?.refId}</b> to any link. For
