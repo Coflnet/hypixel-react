@@ -71,7 +71,7 @@ function Ref(props: Props) {
                                     You receive <b>100 CoflCoins</b>
                                 </li>
                                 <li>
-                                    The invited person on gets <b>1 day of premium</b> to test our services
+                                    The invited person gets <b>1 day of premium</b> to test our services
                                 </li>
                                 <li>
                                     The first time a invited person buys CofCoins, you get <b>25%</b> of the purchased amount
