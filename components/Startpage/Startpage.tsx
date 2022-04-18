@@ -311,7 +311,7 @@ function Startpage(props: Props) {
                         <Card.Subtitle>Flip Tracking</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        <p>You can now look up the profit of your flips (last 7 days).</p>
+                        <p>You can now look up a detailed breakdown of your flips in the last week.</p>
                         <p>To look up your (or someone elses) flips, just search the player and click the blue "Check tracked flips" button.</p>
                         <hr />
                         <div style={{ marginTop: '20px' }}>
