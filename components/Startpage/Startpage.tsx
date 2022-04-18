@@ -329,7 +329,7 @@ function Startpage(props: Props) {
                                             Settings are now stored on the server. That means you have the same settings on different devices and can change
                                             them in game.
                                         </li>
-                                        <li className={styles.changelogItem}>Multiple tabs dont overwrite each others settings anymore but sync up</li>
+                                        <li className={styles.changelogItem}>Multiple tabs dont overwrite each others anymore</li>
                                         <li className={styles.changelogItem}>
                                             Added a new payment system and CoflCoins as a way to easier reward/compensate user
                                         </li>
