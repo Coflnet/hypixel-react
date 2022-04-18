@@ -327,7 +327,7 @@ function Startpage(props: Props) {
                                     <ul key="changelogList">
                                         <li className={styles.changelogItem}>
                                             Settings are now stored on the server. That means you have the same settings on different devices and can change
-                                            them ingame.
+                                            them in game.
                                         </li>
                                         <li className={styles.changelogItem}>Multiple tabs dont overwrite each others settings anymore but sync up</li>
                                         <li className={styles.changelogItem}>
