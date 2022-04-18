@@ -49,7 +49,7 @@ function FlipCustomize() {
 
     function onMaxExtraInfoFieldsChange(event: ChangeEvent<HTMLInputElement>) {
         setFlipCustomizeSetting('maxExtraInfoFields', event.target.valueAsNumber)
-        api.setFlipSetting('showExtraFields', event.target.valueAsNumber)
+        api.setFlipSetting('showExtraFields', event.target.valueAsNumber || 0)
         trackChange('maxExtraInfoFields')
     }
 
@@ -547,7 +547,6 @@ function FlipCustomize() {
                         <Button onClick={exportFilter} style={{ width: '40%' }}>
                             Export
                         </Button>
-
                         {/* This is the "true" upload field. It is called by the "Import"-Button */}
                         <input onChange={readImportFile} style={{ display: 'none' }} type="file" id="fileUpload" />
                     </div>
