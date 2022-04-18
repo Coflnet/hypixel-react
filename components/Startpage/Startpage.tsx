@@ -315,7 +315,7 @@ function Startpage(props: Props) {
                         <p>To look up your (or someone elses) flips, just search the player and click the blue "Check tracked flips" button.</p>
                         <hr />
                         <div style={{ marginTop: '20px' }}>
-                            <p>Recent changes (last change: 18.94.2022):</p>
+                            <p>Recent changes (last change: 18. April 2022):</p>
                             <Tooltip
                                 onClick={onRecentChangesClick}
                                 content={
