@@ -109,7 +109,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         })
             .then(response => {
                 if (!response.ok) {
-                    request.resolve()
+                    request.reject()
                     return
                 }
 
