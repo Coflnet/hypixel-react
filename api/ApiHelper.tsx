@@ -530,16 +530,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let subscribeFlips = (
-        flipCallback: Function,
         restrictionList: FlipRestriction[],
         filter: FlipperFilter,
+        flipSettings: FlipCustomizeSettings,
+        flipCallback?: Function,
         soldCallback?: Function,
         nextUpdateNotificationCallback?: Function,
+        onSubscribeSuccessCallback?: Function,
         forceSettingsUpdate: boolean = false
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
-
-        let flipSettings = getFlipCustomizeSettings()
 
         let requestData = {
             whitelist: restrictionList
@@ -593,7 +593,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             callback: function (response) {
                 switch (response.type) {
                     case 'flip':
-                        flipCallback(parseFlipAuction(response.data))
+                        if (flipCallback) {
+                            flipCallback(parseFlipAuction(response.data))
+                        }
                         break
                     case 'nextUpdate':
                         if (nextUpdateNotificationCallback) {
@@ -607,7 +609,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         break
                     case 'flipSettings':
                         if (!response.data) {
-                            api.subscribeFlips(flipCallback, restrictionList, filter, soldCallback, nextUpdateNotificationCallback, true)
+                            api.subscribeFlips(
+                                restrictionList,
+                                filter,
+                                flipSettings,
+                                flipCallback,
+                                soldCallback,
+                                nextUpdateNotificationCallback,
+                                undefined,
+                                true
+                            )
                         } else {
                             setSettingsChangedData(response.data)
                         }
@@ -619,6 +630,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         }
                         setSettingsChangedData(response.data)
                         break
+                    case 'ok':
+                        if (onSubscribeSuccessCallback) {
+                            onSubscribeSuccessCallback()
+                        }
+                        break
                     default:
                         break
                 }
@@ -626,7 +642,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             resubscribe: function (subscription) {
                 let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
                 filter.restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-                subscribeFlips(flipCallback, filter.restrictions, filter, soldCallback, nextUpdateNotificationCallback, false)
+                subscribeFlips(
+                    filter.restrictions,
+                    filter,
+                    getFlipCustomizeSettings(),
+                    flipCallback,
+                    soldCallback,
+                    nextUpdateNotificationCallback,
+                    undefined,
+                    false
+                )
             }
         })
     }
@@ -890,7 +915,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let subscribeCoflCoinChange = () => {
         // TODO: Has yet to be implemented by the backend
-
         /*
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_COFLCOINS,
