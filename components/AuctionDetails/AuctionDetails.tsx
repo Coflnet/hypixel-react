@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import Countdown from 'react-countdown'
 import api from '../../api/ApiHelper'
-import { Badge, Button, Card, ListGroup, OverlayTrigger, Tooltip as TooltipBootstrap } from 'react-bootstrap'
+import { Badge, Button, Card, ListGroup, Modal, OverlayTrigger, Tooltip as TooltipBootstrap } from 'react-bootstrap'
 import { getStyleForTier, numberWithThousandsSeperators, convertTagToName } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { useForceUpdate } from '../../utils/Hooks'
@@ -15,6 +15,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import Link from 'next/link'
 import styles from './AuctionDetails.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import FlipBased from '../Flipper/FlipBased/FlipBased'
 
 interface Props {
     auctionDetails?: AuctionDetails
@@ -26,6 +27,7 @@ function AuctionDetails(props: Props) {
     let [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails)
     let [isLoading, setIsLoading] = useState(false)
+    let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
@@ -197,6 +199,23 @@ function AuctionDetails(props: Props) {
     const binBadgeVariant = 'success'
     const countBadgeVariant = 'dark'
 
+    let basedOnDialog = (
+        <Modal
+            size={'xl'}
+            show={showBasedOnDialog}
+            onHide={() => {
+                setShowBasedOnDialog(null)
+            }}
+        >
+            <Modal.Header closeButton>
+                <Modal.Title>Similar auctions from the past</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <FlipBased auctionUUID={props.auctionUUID} item={props.auctionDetails.auction.item} />
+            </Modal.Body>
+        </Modal>
+    )
+
     let auctionCardContent = !auctionDetails ? (
         getLoadingElement()
     ) : (
@@ -278,6 +297,13 @@ function AuctionDetails(props: Props) {
                             )
                         }
                     />
+                    <Button
+                        onClick={() => {
+                            setShowBasedOnDialog(true)
+                        }}
+                    >
+                        Compare to ended auctions
+                    </Button>
                 </div>
             </Card.Header>
             <Card.Body>
@@ -420,6 +446,7 @@ function AuctionDetails(props: Props) {
                     </div>
                 </div>
             )}
+            {basedOnDialog}
         </div>
     )
 }

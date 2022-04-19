@@ -224,7 +224,7 @@ function Flipper(props: Props) {
     function getLastFlipFetchTime() {
         setLastFlipFetchTimeLoading(true)
         api.getFlipUpdateTime().then(date => {
-            setLastFlipFetchTimeSeconds((date.getSeconds()) % 60)
+            setLastFlipFetchTimeSeconds(date.getSeconds() % 60)
             setLastFlipFetchTimeLoading(false)
         })
     }
@@ -389,7 +389,7 @@ function Flipper(props: Props) {
                     <Modal.Title>Auctions used for calculating the median price</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <FlipBased flip={basedOnAuction} />
+                    <FlipBased auctionUUID={basedOnAuction.uuid} item={basedOnAuction.item} />
                 </Modal.Body>
             </Modal>
         )
