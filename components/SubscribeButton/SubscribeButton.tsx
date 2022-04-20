@@ -20,13 +20,14 @@ interface Props {
     topic: string
     type: 'player' | 'item' | 'auction'
     hideText?: boolean
+    buttonContent?: JSX.Element
 }
 
 const MAX_FILTERS = 5
 
 function SubscribeButton(props: Props) {
     let { trackEvent } = useMatomo()
-    let router = useRouter();
+    let router = useRouter()
     let [showDialog, setShowDialog] = useState(false)
     let [price, setPrice] = useState('')
     let [isPriceAbove, setIsPriceAbove] = useState(true)
@@ -35,7 +36,7 @@ function SubscribeButton(props: Props) {
     let [isSold, setIsSold] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn();
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     function onSubscribe() {
         trackEvent({ action: 'subscribed', category: 'subscriptions' })
@@ -166,7 +167,7 @@ function SubscribeButton(props: Props) {
         <div className={styles.subscribeButton}>
             {dialog}
             <Button style={{ width: 'max-content' }} onClick={openDialog}>
-                <NotificationIcon /> {props.hideText ? '' : ' Notify'}
+                <NotificationIcon />{props.buttonContent || ' Notify'}
             </Button>
         </div>
     )

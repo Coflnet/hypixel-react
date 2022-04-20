@@ -231,11 +231,10 @@ function AuctionDetails(props: Props) {
                                     src={auctionDetails?.auction.item.iconUrl}
                                     height="48"
                                     alt="item icon"
-                                    style={{ marginRight: '5px' }}
                                     loading="lazy"
                                 />
                             </span>
-                            <span>
+                            <span style={{ paddingLeft: '10px' }}>
                                 <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
                                 <Badge variant={countBadgeVariant} style={{ marginLeft: '5px' }}>
                                     x{auctionDetails?.count}
@@ -276,7 +275,7 @@ function AuctionDetails(props: Props) {
                             <SubscribeButton
                                 type="auction"
                                 topic={auctionDetails.auction.uuid}
-                                hideText={isClientSideRendering() ? document.body.clientWidth <= 480 : false}
+                                buttonContent={<span className={styles.topRowButtonContent}>Notify</span>}
                             />
                         </div>
                     ) : (
@@ -297,14 +296,15 @@ function AuctionDetails(props: Props) {
                                 <p>Copied link to clipboard</p>
                             )
                         }
+                        buttonContent={<span className={styles.topRowButtonContent}>Copy</span>}
                     />
                     <Button
                         onClick={() => {
                             setShowBasedOnDialog(true)
                         }}
                     >
-                        <HelpIcon style={{ marginRight: '5px' }} />
-                        {isClientSideRendering() && document.body.clientWidth > 480 ? 'Compare to ended auctions' : null}
+                        <HelpIcon/>
+                        <span className={styles.topRowButtonContent}>Compare to ended auctions</span>
                     </Button>
                 </div>
             </Card.Header>

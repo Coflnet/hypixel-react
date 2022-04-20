@@ -85,8 +85,8 @@
 }
 
 @media all and (min-width: 481px) {
-    .cardHeadSubtext>* {
-        margin-right: 25px
+    .cardHeadSubtext > * {
+        margin-right: 25px;
     }
 }
 
@@ -96,4 +96,14 @@
         align-items: center;
         justify-content: space-evenly;
     }
+    .compareButtonLabel {
+        display: none;
+    }
+    .topRowButtonContent {
+        display: none;
+    }
+}
+
+.topRowButtonContent {
+    margin-left: 10px;
 }
