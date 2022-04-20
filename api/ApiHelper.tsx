@@ -59,8 +59,13 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         if (!error || !error.Message) {
             return
         }
-
         toast.error(error.Message)
+        console.log('------------------------------')
+        console.log('RequestType: ' + requestType)
+        console.log('ErrorMessage: ' + error.Message)
+        console.log('RequestData: ')
+        console.log(requestData)
+        console.log('------------------------------')
     }
 
     let search = (searchText: string): Promise<SearchResultItem[]> => {
@@ -890,7 +895,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let subscribeCoflCoinChange = () => {
         // TODO: Has yet to be implemented by the backend
-
         /*
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_COFLCOINS,
@@ -1377,6 +1381,29 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let transferCoflCoins = (email: string, mcId: string, amount: number, reference: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let data = {
+                email: email,
+                mcId: mcId,
+                amount: amount,
+                reference: reference
+            }
+
+            websocketHelper.sendRequest({
+                type: RequestType.TRASFER_COFLCOINS,
+                data: data,
+                resolve: function () {
+                    resolve()
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.TRASFER_COFLCOINS, error, data)
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1436,7 +1463,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getCoflcoinBalance,
         setFlipSetting,
         getKatFlips,
-        getTrackedFlipsForPlayer
+        getTrackedFlipsForPlayer,
+        transferCoflCoins
     }
 }
 

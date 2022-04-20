@@ -48,3 +48,13 @@
 .purchaseCard {
     margin-left: 50px;
 }
+
+.sendCoflCoinsButton {
+    float: right;
+}
+
+@media all and (max-width: 480px) {
+    .sendCoflCoinsButton {
+        float: none;
+    }
+}

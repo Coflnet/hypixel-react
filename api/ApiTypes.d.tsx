@@ -61,7 +61,8 @@ export enum RequestType {
     SUBSCRIBE_COFLCOINS = 'subscribeCoflCoins',
     GET_COFLCOIN_BALANCE = 'getCoflBalance',
     GET_FLIP_SETTINGS = 'getFlipSettings',
-    SET_FLIP_SETTING = 'setFlipSetting'
+    SET_FLIP_SETTING = 'setFlipSetting',
+    TRASFER_COFLCOINS = 'transferCofl'
 }
 
 export enum SubscriptionType {
