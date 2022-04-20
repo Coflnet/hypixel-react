@@ -16,6 +16,7 @@ import Link from 'next/link'
 import styles from './AuctionDetails.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import FlipBased from '../Flipper/FlipBased/FlipBased'
+import { Help as HelpIcon } from '@mui/icons-material'
 
 interface Props {
     auctionDetails?: AuctionDetails
@@ -302,7 +303,8 @@ function AuctionDetails(props: Props) {
                             setShowBasedOnDialog(true)
                         }}
                     >
-                        Compare to ended auctions
+                        <HelpIcon style={{ marginRight: '5px' }} />
+                        {isClientSideRendering() && document.body.clientWidth > 480 ? 'Compare to ended auctions' : null}
                     </Button>
                 </div>
             </Card.Header>
