@@ -308,11 +308,17 @@ export function parsePopularSearch(search): PopularSearch {
 
 export function parseRefInfo(refInfo): RefInfo {
     return {
-        refId: refInfo.refId,
-        count: refInfo.count,
-        receivedHours: refInfo.receivedHours,
-        receivedTime: refInfo.receivedTime,
-        bougthPremium: refInfo.bougthPremium
+        oldInfo: {
+            refId: refInfo.oldInfo.refId,
+            count: refInfo.oldInfo.count,
+            receivedHours: refInfo.oldInfo.receivedHours,
+            receivedTime: refInfo.oldInfo.receivedTime,
+            bougthPremium: refInfo.oldInfo.bougthPremium
+        },
+        purchasedCoins: refInfo.purchasedCoins,
+        referedCount: refInfo.referedCount,
+        validatedMinecraft: refInfo.validatedMinecraft,
+        referredBy: refInfo.referredBy
     }
 }
 

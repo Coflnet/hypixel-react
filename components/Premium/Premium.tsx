@@ -16,6 +16,7 @@ import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
 import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
+import { CopyButton } from '../CopyButton/CopyButton'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -25,6 +26,7 @@ function Premium() {
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [isLoggingIn, setIsLoggingIn] = useState(false)
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
+    let [hasWrongFormattedGoogleToken, setHasWrongFormattedGoogleToken] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
@@ -70,10 +72,13 @@ function Premium() {
     function getAccountString() {
         let googleId = localStorage.getItem('googleId')
         if (googleId) {
-            let parts = googleId.split('.')
-            if (parts.length > 2) {
+            try {
+                let parts = googleId.split('.')
                 let obj = JSON.parse(Base64.atob(parts[1]))
-                return `${obj.name} (${obj.email})`
+                let imageElement = obj.picture ? <img src={obj.picture} height={24} width={24} alt="" /> : <span />
+                return <span style={{ marginLeft: "10px" }}>{imageElement} {`${obj.name} (${obj.email})`}</span>;
+            } catch {
+                setHasWrongFormattedGoogleToken(true)
             }
         }
         return ''
@@ -114,7 +119,7 @@ function Premium() {
             )}
             <hr />
             <div style={{ marginBottom: '20px' }}>
-                {isLoggedIn ? <p>Account: {getAccountString()}</p> : ''}
+                {isLoggedIn && !hasWrongFormattedGoogleToken ? <p>Account: {getAccountString()}</p> : ''}
                 {hasPremium ? (
                     <div>
                         <Tooltip
@@ -122,6 +127,34 @@ function Premium() {
                             content={<span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>}
                             tooltipContent={<span>{hasPremiumUntil?.toDateString()}</span>}
                         />
+                    </div>
+                ) : (
+                    ''
+                )}
+                {isLoggedIn && hasWrongFormattedGoogleToken ? (
+                    <div>
+                        <hr />
+                        <p>
+                            Some problem occured while processing your Google login. Everything should still work as expected, but we cant display certain
+                            information like your username or profile picture.
+                        </p>
+                        <p style={{ color: 'red', fontWeight: 'bold' }}>
+                            IMPORTANT: Do not give out the following information to a untrusted third party. This token could be used to access your google
+                            account!
+                        </p>
+                        <p>
+                            Your Goolge token:{' '}
+                            <CopyButton
+                                copyValue={localStorage.getItem('googleId')}
+                                successMessage={
+                                    <div>
+                                        Copied your Google token.
+                                        <br />
+                                        <b>Be careful who you trust with this!</b>
+                                    </div>
+                                }
+                            />
+                        </p>
                     </div>
                 ) : (
                     ''
