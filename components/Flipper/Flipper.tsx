@@ -650,10 +650,10 @@ function Flipper(props: Props) {
                                     <p>
                                         Your Link to invite people:{' '}
                                         <span style={{ fontStyle: 'italic', color: 'skyblue' }}>
-                                            {!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.refId : ''}
+                                            {!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.oldInfo.refId : ''}
                                         </span>{' '}
                                         <CopyButton
-                                            copyValue={!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.refId : ''}
+                                            copyValue={!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.oldInfo.refId : ''}
                                             successMessage={<span>Copied Ref-Link</span>}
                                         />
                                     </p>

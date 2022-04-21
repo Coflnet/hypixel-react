@@ -72,7 +72,7 @@ function Ref(props: Props) {
                             <p>Share your Ref-Link with people which might find skyblock AH history useful.</p>
                             <p>
                                 The default referral page contains some facts about this site. You are also able to share another page and still get the
-                                Referral-Bonus. All you have to do is adding <b style={{ whiteSpace: 'nowrap' }}>?refId={refInfo?.refId}</b> to any link. For
+                                Referral-Bonus. All you have to do is adding <b style={{ whiteSpace: 'nowrap' }}>?refId={refInfo?.oldInfo.refId}</b> to any link. For
                                 example
                             </p>
                             <ul>
