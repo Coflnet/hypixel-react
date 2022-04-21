@@ -95,7 +95,8 @@ export const getStaticProps = async ({ params }) => {
         console.log('ERROR: ' + JSON.stringify(e))
         console.log('------------------------')
         return {
-            props: {}
+            props: {},
+            revalidate: 60
         }
     }
 
@@ -116,7 +117,8 @@ export const getStaticProps = async ({ params }) => {
         console.log('ERROR: ' + JSON.stringify(e))
         console.log('------------------------')
         return {
-            props: {}
+            props: {},
+            revalidate: 60
         }
     }
 
@@ -124,7 +126,8 @@ export const getStaticProps = async ({ params }) => {
         console.log('itemDetails not found (tag=' + auctionDetails.tag + ')')
         console.log('------------------------')
         return {
-            notFound: true
+            notFound: true,
+            revalidate: 60
         }
     }
 
