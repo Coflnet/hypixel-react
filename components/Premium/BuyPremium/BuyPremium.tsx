@@ -35,7 +35,7 @@ function BuyPremium() {
     return (
         <Card className="purchase-card">
             <Card.Header>
-                <Card.Title>Buy premium for a certain duration with your CoflCoins. The premium activate shortly after your purchase.</Card.Title>
+                <Card.Title>Buy premium for a certain duration with your CoflCoins. Your premium time starts shortly after your purchase.</Card.Title>
             </Card.Header>
             <div style={{ padding: '15px' }}>
                 {!purchaseSuccessfulMonths ? (
