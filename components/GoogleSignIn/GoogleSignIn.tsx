@@ -7,6 +7,7 @@ import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
+import { Form } from 'react-bootstrap'
 
 interface Props {
     onAfterLogin(): void
@@ -19,6 +20,7 @@ let gotResponse = false
 function GoogleSignIn(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [privacyPolicyAccepted, setPrivacyPolicyAccepted] = useState(false)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 
@@ -47,6 +49,7 @@ function GoogleSignIn(props: Props) {
     useEffect(() => {
         forceUpdate()
         setIsLoggedIn(localStorage.getItem('googleId') !== null)
+        setPrivacyPolicyAccepted(false)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.rerenderFlip])
 
@@ -56,7 +59,7 @@ function GoogleSignIn(props: Props) {
         setIsLoggedIn(true)
         api.setGoogle(response.tokenId)
             .then(() => {
-                (window as any).googleAuthObj = response
+                ;(window as any).googleAuthObj = response
                 let refId = (window as any).refId
                 if (refId) {
                     api.setRef(refId)
@@ -112,12 +115,24 @@ function GoogleSignIn(props: Props) {
             <GoogleLogin
                 clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
                 buttonText="Login"
+                disabled={!privacyPolicyAccepted}
                 onSuccess={onLoginSucces}
                 onFailure={onLoginFail}
                 isSignedIn={isClientSideRendering() ? localStorage.getItem('googleId') !== null : false}
                 theme="dark"
                 cookiePolicy={'single_host_origin'}
             />
+            <p>
+                <Form.Check
+                    style={{ position: 'relative !important' }}
+                    onChange={e => {
+                        setPrivacyPolicyAccepted(e.target.checked)
+                    }}
+                />
+                <span>
+                    I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
+                </span>
+            </p>
         </div>
     )
 }

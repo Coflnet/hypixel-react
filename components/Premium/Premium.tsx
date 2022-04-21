@@ -184,6 +184,7 @@ function Premium() {
                 <div style={{ marginBottom: '20px' }}>
                     <hr />
                     <h2>CoflCoins</h2>
+                    <p>By buying one of the following products, you confirm the immediate execution of the contract, hereby losing your cancellation right.</p>
                     <CoflCoinsPurchase />
                 </div>
             ) : null}
