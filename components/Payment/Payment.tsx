@@ -56,7 +56,9 @@ function Payment() {
                             }}
                             style={{ width: '40%' }}
                         >
-                            {payPalProductId === isLoadingId ? getLoadingElement(<p>Redirecting to checkout...</p>) : `${paypalPrice.toFixed(2)} Euro`}
+                            {payPalProductId === isLoadingId
+                                ? getLoadingElement(<p>Redirecting to checkout...</p>)
+                                : `${numberWithThousandsSeperators(Math.round(paypalPrice * 100) / 100)} Euro`}
                         </Button>
                     </p>
                     <p className={styles.paymentOption}>
@@ -68,7 +70,9 @@ function Payment() {
                             }}
                             style={{ width: '40%' }}
                         >
-                            {stripeProductId === isLoadingId ? getLoadingElement(<p>Redirecting to checkout...</p>) : `${stripePrice.toFixed(2)} Euro`}
+                            {stripeProductId === isLoadingId
+                                ? getLoadingElement(<p>Redirecting to checkout...</p>)
+                                : `${numberWithThousandsSeperators(Math.round(stripePrice * 100) / 100)} Euro`}
                         </Button>
                     </p>
                 </Card.Body>
@@ -141,10 +145,10 @@ function Payment() {
         <div>
             <div>
                 <div className={styles.productGrid}>
-                    {getPaymentElement(<span>1.800 CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
+                    {getPaymentElement(<span>{numberWithThousandsSeperators(1800)} CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
                     {getPaymentElement(
                         <span>
-                            5.400 CoflCoins <span className={styles.discount}>~4% off</span>
+                            {numberWithThousandsSeperators(5400)} CoflCoins <span className={styles.discount}>~4% off</span>
                         </span>,
                         19.69,
                         's_cc_5400',
@@ -165,7 +169,7 @@ function Payment() {
                         <>
                             {getPaymentElement(
                                 <span>
-                                    10.800 CoflCoins <span className={styles.discount}>~5% off</span>
+                                    {numberWithThousandsSeperators(10800)} CoflCoins <span className={styles.discount}>~5% off</span>
                                 </span>,
                                 38.99,
                                 's_cc_10800',
@@ -174,7 +178,7 @@ function Payment() {
                             )}
                             {getPaymentElement(
                                 <span>
-                                    21.600 CoflCoins <span className={styles.discount}>~6% off</span>
+                                    {numberWithThousandsSeperators(21600)} CoflCoins <span className={styles.discount}>~6% off</span>
                                 </span>,
                                 74.99,
                                 's_cc_21600',
