@@ -2,7 +2,7 @@ import { toast } from 'react-toastify'
 import api from '../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
 import { hasFlag } from '../components/FilterElement/FilterType'
-import { FLIP_FINDERS, getFlipFinders } from './FlipUtils'
+import { DEFAULT_FLIP_SETTINGS, FLIP_FINDERS, getFlipCustomizeSettings, getFlipFinders } from './FlipUtils'
 import { isClientSideRendering } from './SSRUtils'
 import toml from 'toml'
 import { getNumberFromShortenString } from './Formatter'
@@ -174,9 +174,9 @@ export function setSettingsChangedData(data: any): Promise<void> {
 }
 
 export async function handleSettingsImport(importString: string) {
-    let filter: FlipperFilter = {}
-    let flipCustomizeSettings: FlipCustomizeSettings = {}
-    let restrictions: FlipRestriction[] = []
+    let filter: FlipperFilter = DEFAULT_FLIP_SETTINGS.FILTER
+    let flipCustomizeSettings: FlipCustomizeSettings = DEFAULT_FLIP_SETTINGS.FLIP_CUSTOMIZE
+    let restrictions: FlipRestriction[] = DEFAULT_FLIP_SETTINGS.RESTRICTIONS
     let promises: Promise<any>[] = []
 
     try {
@@ -203,7 +203,7 @@ export async function handleSettingsImport(importString: string) {
                 restrictions.push({
                     type: 'whitelist',
                     itemFilter: {
-                        MinProfit: json.thresholds.blacklist.blacklist_bypass_profit
+                        MinProfit: json.thresholds.blacklist.blacklist_bypass_profit.toString()
                     }
                 })
             }
@@ -212,7 +212,7 @@ export async function handleSettingsImport(importString: string) {
                 restrictions.push({
                     type: 'whitelist',
                     itemFilter: {
-                        Volume: json.thresholds.blacklist.blacklist_bypass_volume
+                        Volume: json.thresholds.blacklist.blacklist_bypass_volume.toString()
                     }
                 })
             }
@@ -282,7 +282,18 @@ export async function handleSettingsImport(importString: string) {
     setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
     setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(restrictions))
 
-    api.subscribeFlips(() => {}, restrictions || [], filter, undefined, undefined, true)
+    api.subscribeFlips(
+        restrictions || [],
+        filter,
+        getFlipCustomizeSettings(),
+        undefined,
+        undefined,
+        undefined,
+        () => {
+            window.location.reload()
+        },
+        true
+    )
 
     setTimeout(() => {
         window.location.reload()
