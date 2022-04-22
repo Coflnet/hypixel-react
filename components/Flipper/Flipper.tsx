@@ -631,7 +631,7 @@ function Flipper(props: Props) {
                     {isLoggedIn ? (
                         ''
                     ) : (
-                        <>
+                        <div>
                             <span>
                                 These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit. Keep in
                                 mind that these are delayed to protect our paying supporters. If you want more recent flips purchase our{' '}
@@ -640,7 +640,7 @@ function Flipper(props: Props) {
                                 </a>
                             </span>
                             <hr />
-                        </>
+                        </div>
                     )}
                     {resetSettingsElement}
                 </Card.Footer>
