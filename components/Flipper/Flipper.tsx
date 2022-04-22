@@ -224,7 +224,7 @@ function Flipper(props: Props) {
     function getLastFlipFetchTime() {
         setLastFlipFetchTimeLoading(true)
         api.getFlipUpdateTime().then(date => {
-            setLastFlipFetchTimeSeconds((date.getSeconds()) % 60)
+            setLastFlipFetchTimeSeconds(date.getSeconds() % 60)
             setLastFlipFetchTimeLoading(false)
         })
     }
@@ -326,6 +326,8 @@ function Flipper(props: Props) {
     }
 
     function addItemToBlacklist(flip: FlipAuction) {
+        console.log(flip.props)
+
         let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY, '[]')
         let parsed: FlipRestriction[]
         try {
