@@ -132,11 +132,18 @@ function FlipCustomize() {
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(restrictions))
 
-        api.subscribeFlips(() => {}, restrictions || [], filter, undefined, undefined, true)
-
-        setTimeout(() => {
-            window.location.reload()
-        }, 1000)
+        api.subscribeFlips(
+            restrictions || [],
+            filter,
+            getFlipCustomizeSettings(),
+            undefined,
+            undefined,
+            undefined,
+            () => {
+                window.location.reload()
+            },
+            true
+        )
     }
 
     function getFlipFinderWarningElement(): JSX.Element {

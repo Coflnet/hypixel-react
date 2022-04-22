@@ -10,6 +10,7 @@ import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSe
 import styles from './FlipperFilter.module.css'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
 import api from '../../../api/ApiHelper'
+import { DEFAULT_FLIP_SETTINGS } from '../../../utils/FlipUtils'
 
 interface Props {
     onChange(filter: FlipperFilter)
@@ -24,14 +25,14 @@ let FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN
 let FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN
 
 function FlipperFilter(props: Props) {
-    let defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
+    let defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, DEFAULT_FLIP_SETTINGS.FILTER)
 
-    let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin)
-    let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium == null ? false : defaultFilter.onlyUnsold || false)
-    let [minProfit, setMinProfit] = useState(defaultFilter.minProfit || 0)
-    let [minProfitPercent, setMinProfitPercent] = useState(defaultFilter.minProfitPercent || 0)
-    let [minVolume, setMinVolume] = useState(defaultFilter.minVolume || 0)
-    let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || 2147483647)
+    let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin || DEFAULT_FLIP_SETTINGS.FILTER.onlyBin)
+    let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium == null ? false : defaultFilter.onlyUnsold || DEFAULT_FLIP_SETTINGS.FILTER.onlyUnsold)
+    let [minProfit, setMinProfit] = useState(defaultFilter.minProfit || DEFAULT_FLIP_SETTINGS.FILTER.minProfit)
+    let [minProfitPercent, setMinProfitPercent] = useState(defaultFilter.minProfitPercent || DEFAULT_FLIP_SETTINGS.FILTER.minProfitPercent)
+    let [minVolume, setMinVolume] = useState(defaultFilter.minVolume || DEFAULT_FLIP_SETTINGS.FILTER.minVolume)
+    let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || DEFAULT_FLIP_SETTINGS.FILTER.maxCost)
     let [freePremiumFilters, setFreePremiumFilters] = useState(false)
     let [freeLoginFilters, setFreeLoginFilters] = useState(false)
     let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []))
