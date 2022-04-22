@@ -106,7 +106,8 @@ export const getStaticProps = async ({ params }) => {
                 name: apiResponses[0]
             },
             flipTrackingResponse: apiResponses[1]
-        }
+        },
+        revalidate: 60
     }
 }
 

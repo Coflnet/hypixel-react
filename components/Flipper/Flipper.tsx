@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import api from '../../api/ApiHelper'
-import { Card, Form, Modal } from 'react-bootstrap'
+import { Button, Card, Form, Modal } from 'react-bootstrap'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import FlipperFilter from './FlipperFilter/FlipperFilter'
@@ -19,7 +19,7 @@ import { FixedSizeList as List } from 'react-window'
 import Tooltip from '../Tooltip/Tooltip'
 import Flip from './Flip/Flip'
 import FlipCustomize from './FlipCustomize/FlipCustomize'
-import { calculateProfit, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
+import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
 import { Menu, Item, useContextMenu, theme } from 'react-contexify'
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting, setSettingsChangedData } from '../../utils/SettingsUtils'
 import Countdown, { zeroPad } from 'react-countdown'
@@ -31,6 +31,7 @@ import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { v4 as generateUUID } from 'uuid'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -66,6 +67,7 @@ function Flipper(props: Props) {
     let [isSmall, setIsSmall] = useState(false)
     let [selectedAuctionUUID, setSelectedAuctionUUID] = useState('')
     let [isSSR, setIsSSR] = useState(true)
+    let [showResetToDefaultDialog, setShowResetToDefaultDialog] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID())
@@ -91,7 +93,7 @@ function Flipper(props: Props) {
         _setAutoScroll(true)
         attachScrollEvent()
         isSSR = false
-        api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification)
+        api.subscribeFlips(flipperFilter.restrictions || [], flipperFilter, getFlipCustomizeSettings(), onNewFlip, onAuctionSold, onNextFlipNotification)
         getLastFlipFetchTime()
 
         document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
@@ -131,7 +133,14 @@ function Flipper(props: Props) {
             if (hasPremiumUntil > new Date()) {
                 setHasPremium(true)
                 // subscribe to the premium flips
-                api.subscribeFlips(onNewFlip, flipperFilter.restrictions || [], flipperFilter, uuid => onAuctionSold(uuid), onNextFlipNotification)
+                api.subscribeFlips(
+                    flipperFilter.restrictions || [],
+                    flipperFilter,
+                    getFlipCustomizeSettings(),
+                    onNewFlip,
+                    onAuctionSold,
+                    onNextFlipNotification
+                )
             }
             setIsLoading(false)
         })
@@ -356,6 +365,22 @@ function Flipper(props: Props) {
         })
     }
 
+    function resetSettingsToDefault() {
+        api.subscribeFlips(
+            DEFAULT_FLIP_SETTINGS.RESTRICTIONS,
+            DEFAULT_FLIP_SETTINGS.FILTER,
+            DEFAULT_FLIP_SETTINGS.FLIP_CUSTOMIZE,
+            undefined,
+            undefined,
+            undefined,
+            () => {
+                window.location.reload()
+            },
+            true
+        )
+        localStorage.removeItem('userSettings')
+    }
+
     let getFlipElement = (flipAuction: FlipAuction, style) => {
         if (!flipAuction) {
             return <div />
@@ -433,6 +458,49 @@ function Flipper(props: Props) {
                 </Item>
             </Menu>
         </div>
+    )
+
+    let resetSettingsElement = (
+        <span>
+            Reset Flipper settings back to default
+            <Button
+                style={{ marginLeft: '5px' }}
+                onClick={() => {
+                    setShowResetToDefaultDialog(true)
+                }}
+            >
+                Reset
+            </Button>
+            <Modal
+                show={showResetToDefaultDialog}
+                onHide={() => {
+                    setShowResetToDefaultDialog(false)
+                }}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirmation</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to reset all the flipper settings?</p>
+                    <p>
+                        <b>This will delete all your filter, settings and black-/whitelist.</b>
+                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Button variant="danger" style={{ width: '45%' }} onClick={resetSettingsToDefault}>
+                            RESET <DeleteIcon />
+                        </Button>
+                        <Button
+                            style={{ width: '45%' }}
+                            onClick={() => {
+                                setShowResetToDefaultDialog(false)
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </Modal.Body>
+            </Modal>
+        </span>
     )
 
     return (
@@ -565,14 +633,18 @@ function Flipper(props: Props) {
                     {isLoggedIn ? (
                         ''
                     ) : (
-                        <span>
-                            These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit. Keep in mind
-                            that these are delayed to protect our paying supporters. If you want more recent flips purchase our{' '}
-                            <a target="_blank" rel="noreferrer" href="/premium">
-                                premium plan.
-                            </a>
-                        </span>
+                        <div>
+                            <span>
+                                These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit. Keep in
+                                mind that these are delayed to protect our paying supporters. If you want more recent flips purchase our{' '}
+                                <a target="_blank" rel="noreferrer" href="/premium">
+                                    premium plan.
+                                </a>
+                            </span>
+                            <hr />
+                        </div>
                     )}
+                    {resetSettingsElement}
                 </Card.Footer>
             </Card>
             {selectedAuctionUUID ? (
@@ -652,10 +724,10 @@ function Flipper(props: Props) {
                                     <p>
                                         Your Link to invite people:{' '}
                                         <span style={{ fontStyle: 'italic', color: 'skyblue' }}>
-                                            {!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.refId : ''}
+                                            {!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.oldInfo.refId : ''}
                                         </span>{' '}
                                         <CopyButton
-                                            copyValue={!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.refId : ''}
+                                            copyValue={!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.oldInfo.refId : ''}
                                             successMessage={<span>Copied Ref-Link</span>}
                                         />
                                     </p>
@@ -665,87 +737,8 @@ function Flipper(props: Props) {
                     </Card.Body>
                 </Card>
             </div>
-
             <hr />
-            <Card>
-                <Card.Header>
-                    <Card.Title>
-                        <h2>FAQ</h2>
-                    </Card.Title>
-                </Card.Header>
-                <Card.Body>
-                    <h3>How are profitable flips found?</h3>
-                    <p>
-                        New flips are found by comparing every new auction with the sell price of already finished auctions of the same item with the same or
-                        similar modifiers (e.g. enchantments) and/or comparing to lowest bin.
-                    </p>
-                    <h3>What auctions are new auctions compared with?</h3>
-                    <p>
-                        Reference auctions depend on the individual item, its modifiers, and how often it is sold. The algorithm to determine which auctions can
-                        be used as reference is changing frequently.
-                        <br />
-                        You can see the auctions used for reference by clicking on the (?) next to <code>Estimated Profit</code>
-                    </p>
-                    <h3>How reliable is the flipper?</h3>
-                    <p>
-                        Statistically very reliable. Still, some flips might not sell as fast as others or at all. If you encounter a flip that can not be sold,
-                        please post a link to it in the skyblock channel on our discord so we can improve the flipper further.
-                    </p>
-                    <h3>Why is there a "premium" version?</h3>
-                    <p>
-                        TLDR: Servercosts and compensation for development.
-                        <br />
-                        To run the flipper and the auction explorer we have to pay for servers to run it on. While we work hard to keep the cost down they are
-                        currently up to about 200$ per month. And will increase further the more auctions we save and the the more users are using the site.
-                        Furthermore we collectively spent more than 2000 hours of our spare time developing it and would like to get a some compensation for our
-                        efforts. The best case would be to develop this and similar projects full time if we could.
-                    </p>
-                    <h3>What can the free version do?</h3>
-                    <p>
-                        The free version of the auction flipper can be used if you just got started with ah-flipping. It displays flips with a delay and has
-                        some features deactivated. Other than that, there are no limitations. <b>No cap on profit</b>, no need to do anything. (although we
-                        would appreciate it, if you support us, either with feedback or money) The more users we have the more feedback we can get and the
-                        better the flips will become.
-                    </p>
-                    <h3>What do I get if I buy premium?</h3>
-                    <p>
-                        You get flips as soon as they are found. That allows you to buy up the most profitable flips before anyone else. Furthermore you get
-                        more filter options. Which allow yous to only see flips that you are actually interested in. For a full list see{' '}
-                        <a target="_blank" href="/premium" rel="noreferrer">
-                            the premium page
-                        </a>
-                    </p>
-                    <h3>What do these labels mean?</h3>
-                    <h4>Cost</h4>
-                    <p>Cost is the auction price that you would have to pay. </p>
-                    <h4>Median Price</h4>
-                    <p>
-                        Median Price is the median price for that item. Taking into account ultimate enchantments, valuable enchantments (eg. snipe 4), price
-                        paid at dark auctions, Pet level, Pet item, Reforges, Cake years, Kill counts, Rarity and stars. (basically everything that could change
-                        the price)
-                    </p>
-                    <h4>Volume</h4>
-                    <p>Volume is the number of auctions that were sold in a 24 hour window. It is capped at 60 to keep the flipper fast.</p>
-                    <h4>Lowest bin</h4>
-                    <p>
-                        The lowest bin gives you an indication how much this item type is worth. It displays the lowest price for a given item type and ignores
-                        modifiers. You can click it.
-                    </p>
-                    <h3>Should I flip an item with low volume?</h3>
-                    <p>
-                        If you have to ask this question, the answer probably no. Low volume items require some user expertise to determine if the item actually
-                        is a good flip or not. However since its sold so infrequently it may be a niche item that has a higher profit margin.
-                    </p>
-                    <h3>I have another question/ Bug report</h3> Ask via{' '}
-                    <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                        discord
-                    </a>{' '}
-                    or{' '}
-                    <a target="_blank" href="/feedback" rel="noreferrer">
-                        feedback site
-                    </a>
-                </Card.Body>
-            </Card>
+            <FlipperFAQ />
             <div id="maxHeightDummyFlip" style={{ position: 'absolute', top: -1000, padding: '20px', zIndex: -1 }}>
                 <Flip flip={DEMO_FLIP} />
             </div>

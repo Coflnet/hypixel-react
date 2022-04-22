@@ -77,7 +77,8 @@ export const getStaticProps = async ({ params }) => {
             },
             flipTrackingResponse: apiResponses[1],
             targetFlip: (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString(16) === params.flipUid)
-        }
+        },
+        revalidate: 60
     }
 }
 

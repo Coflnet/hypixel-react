@@ -72,41 +72,10 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
             settings.finders = FLIP_FINDERS.map(finder => +finder.value)
         }
     } catch {
-        settings = {
-            hideCost: false,
-            hideEstimatedProfit: false,
-            hideLowestBin: false,
-            hideMedianPrice: false,
-            hideSeller: false,
-            hideVolume: false,
-            maxExtraInfoFields: 3,
-            hideCopySuccessMessage: false,
-            hideSecondLowestBin: true,
-            useLowestBinForProfit: false,
-            disableLinks: false,
-            justProfit: false,
-            soundOnFlip: true,
-            shortNumbers: false,
-            hideProfitPercent: false,
-            blockTenSecMsg: false,
-            finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value),
-            hideLore: true,
-            hideModChat: false,
-            hideSellerOpenBtn: false,
-            modFormat: ''
-        }
-
-        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
+        settings = DEFAULT_FLIP_SETTINGS.FLIP_CUSTOMIZE
+        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(DEFAULT_FLIP_SETTINGS.FLIP_CUSTOMIZE))
     }
     return settings
-}
-
-export function calculateProfit(flip: FlipAuction, useLowestBinForProfit?: boolean) {
-    if (useLowestBinForProfit) {
-        return flip.lowestBin - flip.cost
-    } else {
-        return flip.median - flip.cost
-    }
 }
 
 export const FLIP_FINDERS = [
@@ -152,6 +121,50 @@ export function getFlipFinders(finderValues: number[]) {
         description: '',
         selectable: false
     }
-
     return finders.length > 0 ? finders : [notFoundFinder]
+}
+
+export const DEFAULT_FLIP_SETTINGS = {
+    FLIP_CUSTOMIZE: {
+        hideCost: false,
+        hideEstimatedProfit: false,
+        hideLowestBin: false,
+        hideMedianPrice: false,
+        hideSeller: false,
+        hideVolume: false,
+        maxExtraInfoFields: 3,
+        hideCopySuccessMessage: false,
+        hideSecondLowestBin: true,
+        useLowestBinForProfit: false,
+        disableLinks: false,
+        justProfit: false,
+        soundOnFlip: true,
+        shortNumbers: false,
+        hideProfitPercent: false,
+        blockTenSecMsg: false,
+        finders: FLIP_FINDERS.filter(finder => finder.default).map(finder => +finder.value),
+        hideLore: true,
+        hideModChat: false,
+        hideSellerOpenBtn: false,
+        modFormat: '',
+        modCountdown: false
+    } as FlipCustomizeSettings,
+    RESTRICTIONS: [] as FlipRestriction[],
+    FILTER: {
+        onlyBin: false,
+        maxCost: 2147483647,
+        minProfit: 0,
+        minProfitPercent: 0,
+        minVolume: 0,
+        onlyUnsold: false,
+        restrictions: []
+    } as FlipperFilter
+}
+
+export function calculateProfit(flip: FlipAuction, useLowestBinForProfit?: boolean) {
+    if (useLowestBinForProfit) {
+        return flip.lowestBin - flip.cost
+    } else {
+        return flip.median - flip.cost
+    }
 }
