@@ -13,28 +13,6 @@ interface Props {
 }
 
 function Flipper(props: Props) {
-    let dragCounter = useRef(0)
-
-    function onDragStart(e) {
-        e.preventDefault()
-        dragCounter.current++
-        console.log('on drag start')
-    }
-
-    function onDragEnd(e) {
-        e.preventDefault()
-        dragCounter.current--
-        if (dragCounter.current === 0) {
-            console.log('on drag end')
-        }
-    }
-
-    function onDragOver(e) {
-        let event = e as Event
-        event.stopPropagation()
-        event.preventDefault()
-    }
-
     function onDrop(e) {
         e.preventDefault()
         var output = '' //placeholder for text output
@@ -51,8 +29,12 @@ function Flipper(props: Props) {
         return true
     }
 
+    function onDragOver(e) {
+        e.preventDefault()
+    }
+
     return (
-        <div className="page" onDragEnter={onDragStart} onDragOver={onDragOver} onDragLeave={onDragEnd} onDrop={onDrop}>
+        <div className="page" onDragOver={onDragOver} onDrop={onDrop}>
             {getHeadElement(undefined, 'Free auction house item flipper for Hypixel Skyblock', undefined, ['flipper'])}
             <Container>
                 <Search />

@@ -335,8 +335,6 @@ function Flipper(props: Props) {
     }
 
     function addItemToBlacklist(flip: FlipAuction) {
-        console.log(flip.props)
-
         let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY, '[]')
         let parsed: FlipRestriction[]
         try {
