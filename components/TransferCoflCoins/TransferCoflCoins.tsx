@@ -33,6 +33,7 @@ function TransferCoflCoins(props: Props) {
                         <b>By Minecraft name:</b> Search the players Minecraft name (only works if they linked their Minecraft account on the website)
                     </li>
                 </ul>
+                <p>Info: We set a limit, so you can only send CoflCoins 42 times a month, to prevent abuse.</p>
                 <hr />
                 <div style={{ padding: '0 50px 0 50px' }}>
                     <div>

@@ -60,7 +60,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             return
         }
         toast.error(error.Message)
-        console.log('------------------------------')
         console.log('RequestType: ' + requestType)
         console.log('ErrorMessage: ' + error.Message)
         console.log('RequestData: ')
