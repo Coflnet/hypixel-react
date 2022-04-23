@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { Card, Form, Table } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { ArrowDownward as ArrowDownIcon, ArrowUpward as ArrowUpIcon } from '@mui/icons-material'
+import { ArrowDownward as ArrowDownIcon, ArrowUpward as ArrowUpIcon, Sort as SortIcon } from '@mui/icons-material'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './LowSupplyList.module.css'
+import NumberFormat from 'react-number-format'
 
 let mounted = true
 
-interface Props{
+interface Props {
     lowSupplyItems?: LowSupplyItem[]
 }
 
@@ -16,6 +17,8 @@ function LowSupplyList(props: Props) {
     let [lowSupplyItems, setLowSupplyItems] = useState<LowSupplyItem[]>(props.lowSupplyItems || [])
     let [orderBy, setOrderBy] = useState('-supply')
     let [nameFilter, setNameFilter] = useState<string | null>()
+    let [volumeFilter, setVolumeFilter] = useState<number | null>()
+    let [medianPriceFilter, setMedianPriceFilter] = useState<number | null>()
 
     useEffect(() => {
         mounted = true
@@ -40,14 +43,30 @@ function LowSupplyList(props: Props) {
         onOrderChange(o)
     }
 
+    function onNameClick() {
+        let o = orderBy === 'name' ? '-name' : 'name'
+        onOrderChange(o)
+    }
+
     function onOrderChange(order) {
         if (!lowSupplyItems) {
             return
         }
-
         let key = order.startsWith('-') ? order.substring(1) : order
 
-        let compareFunction = order.startsWith('-') ? (a, b) => a[key] - b[key] : (a, b) => b[key] - a[key]
+        let compareFunction = (a, b) => {
+            let erg = 0
+            if (a[key] < b[key]) {
+                erg = -1
+            }
+            if (a[key] > b[key]) {
+                erg = 1
+            }
+            if (order.startsWith('-')) {
+                erg *= -1
+            }
+            return erg
+        }
         let ordered = lowSupplyItems.sort(compareFunction)
         setLowSupplyItems(ordered)
         setOrderBy(order)
@@ -64,6 +83,12 @@ function LowSupplyList(props: Props) {
     let lowSupplyItemsTableBody = lowSupplyItems
         ? lowSupplyItems.map((item, i) => {
               if (nameFilter && item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
+                  return ''
+              }
+              if (volumeFilter && item.volume.toString().indexOf(volumeFilter.toString()) === -1) {
+                  return ''
+              }
+              if (medianPriceFilter && item.medianPrice.toString().indexOf(medianPriceFilter.toString()) === -1) {
                   return ''
               }
               return (
@@ -91,16 +116,55 @@ function LowSupplyList(props: Props) {
                             <tr>
                                 <th>Icon</th>
                                 <th>
-                                    <Form.Control style={{ width: 'auto' }} placeholder="Name" onChange={onNameChange} />
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <Form.Control style={{ width: 'auto' }} placeholder="Name" onChange={onNameChange} />
+                                        <span style={{ cursor: 'pointer' }} onClick={onNameClick}>
+                                            {orderBy === 'name' ? <ArrowDownIcon /> : orderBy === '-name' ? <ArrowUpIcon /> : <SortIcon />}
+                                        </span>
+                                    </div>
                                 </th>
                                 <th style={{ cursor: 'pointer' }} onClick={onSupplyClick}>
-                                    Supply {orderBy === 'supply' ? <ArrowDownIcon /> : orderBy === '-supply' ? <ArrowUpIcon /> : null}
+                                    Supply {orderBy === 'supply' ? <ArrowDownIcon /> : orderBy === '-supply' ? <ArrowUpIcon /> : <SortIcon />}
                                 </th>
-                                <th style={{ cursor: 'pointer' }} onClick={onVolumeClick}>
-                                    Volume {orderBy === 'volume' ? <ArrowDownIcon /> : orderBy === '-volume' ? <ArrowUpIcon /> : null}
+                                <th>
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <NumberFormat
+                                            id="volume"
+                                            onValueChange={numberObject => {
+                                                setVolumeFilter(numberObject.floatValue)
+                                            }}
+                                            placeholder={'Volume'}
+                                            type="text"
+                                            customInput={Form.Control}
+                                            thousandSeparator="."
+                                            decimalSeparator=","
+                                            allowNegative={false}
+                                            decimalScale={0}
+                                        />
+                                        <span style={{ cursor: 'pointer' }} onClick={onVolumeClick}>
+                                            {orderBy === 'volume' ? <ArrowDownIcon /> : orderBy === '-volume' ? <ArrowUpIcon /> : <SortIcon />}
+                                        </span>
+                                    </div>
                                 </th>
-                                <th style={{ cursor: 'pointer' }} onClick={onMedianClick}>
-                                    Median price {orderBy === 'medianPrice' ? <ArrowDownIcon /> : orderBy === '-medianPrice' ? <ArrowUpIcon /> : null}
+                                <th>
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <NumberFormat
+                                            id="median-price"
+                                            onValueChange={numberObject => {
+                                                setMedianPriceFilter(numberObject.floatValue)
+                                            }}
+                                            placeholder={'Median price'}
+                                            type="text"
+                                            customInput={Form.Control}
+                                            thousandSeparator="."
+                                            decimalSeparator=","
+                                            allowNegative={false}
+                                            decimalScale={0}
+                                        />
+                                        <span style={{ cursor: 'pointer' }} onClick={onMedianClick}>
+                                            {orderBy === 'medianPrice' ? <ArrowDownIcon /> : orderBy === '-medianPrice' ? <ArrowUpIcon /> : <SortIcon />}
+                                        </span>
+                                    </div>
                                 </th>
                             </tr>
                         </thead>
