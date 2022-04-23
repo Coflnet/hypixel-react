@@ -9,7 +9,8 @@ import Link from 'next/link'
 import styles from './FlipBased.module.css'
 
 interface Props {
-    flip: FlipAuction
+    auctionUUID: string
+    item: Item
 }
 
 function FlipBased(props: Props) {
@@ -19,16 +20,16 @@ function FlipBased(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        api.getFlipBasedAuctions(props.flip.uuid).then(auctions => {
+        api.getFlipBasedAuctions(props.auctionUUID).then(auctions => {
             setAuctions(auctions.sort((a, b) => b.end.getTime() - a.end.getTime()))
             setIsLoading(false)
         })
-    }, [props.flip.uuid])
+    }, [props.auctionUUID])
 
     useEffect(() => {
         forceUpdate()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.flip.item.iconUrl, props.flip.item.name])
+    }, [props.item.iconUrl, props.item.name])
 
     let auctionsElement = auctions.map(auction => {
         return (
@@ -41,7 +42,7 @@ function FlipBased(props: Props) {
                                     <p className="ellipsis" style={{ width: '180px' }}>
                                         <img
                                             crossOrigin="anonymous"
-                                            src={props.flip.item.iconUrl}
+                                            src={props.item.iconUrl}
                                             height="32"
                                             alt=""
                                             style={{ marginRight: '5px' }}
@@ -79,8 +80,10 @@ function FlipBased(props: Props) {
         <div>
             {isLoading ? (
                 getLoadingElement()
-            ) : (
+            ) : auctions.length > 0 ? (
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch' }}>{auctionsElement}</div>
+            ) : (
+                <p>No auctions found</p>
             )}
         </div>
     )

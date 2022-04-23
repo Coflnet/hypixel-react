@@ -414,7 +414,7 @@ function Flipper(props: Props) {
                     <Modal.Title>Auctions used for calculating the median price</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <FlipBased flip={basedOnAuction} />
+                    <FlipBased auctionUUID={basedOnAuction.uuid} item={basedOnAuction.item} />
                 </Modal.Body>
             </Modal>
         )
