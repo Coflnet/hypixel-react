@@ -226,6 +226,7 @@ interface API {
     setFlipSetting(identifier: string, value: any): Promise<void>
     getKatFlips(): Promise<KatFlip[]>
     getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
+    transferCoflCoins(email: string, mcId: string, amount: number, reference: string): Promise<void>
 }
 
 interface CacheUtils {

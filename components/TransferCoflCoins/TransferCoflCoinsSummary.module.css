@@ -1,0 +1,15 @@
+.label {
+    float: left;
+    width: 150px;
+    font-weight: bold;
+}
+
+.returnButton {
+    float: left;
+    width: 40%;
+}
+
+.sendButton {
+    float: right;
+    width: 40%;
+}
