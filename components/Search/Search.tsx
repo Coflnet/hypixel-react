@@ -10,7 +10,6 @@ import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
 import { useRouter } from 'next/router'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
 
 interface Props {
     selected?: Player | Item
@@ -33,7 +32,6 @@ function Search(props: Props) {
     let [isLoading, setIsLoading] = useState(false)
     let [noResultsFound, setNoResultsFound] = useState(false)
     let [isSmall, setIsSmall] = useState(true)
-    const { trackEvent } = useMatomo()
     const { show } = useContextMenu({
         id: PLAYER_SEARCH_CONEXT_MENU_ID
     })
@@ -238,19 +236,9 @@ function Search(props: Props) {
             <Menu id={SEARCH_RESULT_CONTEXT_MENU_ID} theme={theme.dark}>
                 <Item
                     onClick={() => {
-                        trackEvent({
-                            category: 'report',
-                            action: 'badSearchResults',
-                            customDimensions: [
-                                {
-                                    id: 1,
-                                    value: searchText
-                                },
-                                {
-                                    id: 2,
-                                    value: results ? JSON.stringify(results) : '[]'
-                                }
-                            ]
+                        api.sendFeedback('badSearchResults', {
+                            searchText: searchText,
+                            results: results
                         })
                     }}
                 >
