@@ -152,7 +152,6 @@ interface FlipperFilter {
     minVolume?: number
     maxCost?: number
     onlyUnsold?: boolean
-    restrictions?: FlipRestriction[]
 }
 
 interface API {

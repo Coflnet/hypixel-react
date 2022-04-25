@@ -53,7 +53,7 @@ interface Props {
 function Flipper(props: Props) {
     let [flips, setFlips] = useState<FlipAuction[]>(props.flips || [])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getInitialFlipperFilter())
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
     let [autoscroll, setAutoscroll] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [enabledScroll, setEnabledScroll] = useState(false)
@@ -93,7 +93,14 @@ function Flipper(props: Props) {
         _setAutoScroll(true)
         attachScrollEvent()
         isSSR = false
-        api.subscribeFlips(flipperFilter.restrictions || [], flipperFilter, getFlipCustomizeSettings(), onNewFlip, onAuctionSold, onNextFlipNotification)
+        api.subscribeFlips(
+            getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
+            flipperFilter,
+            getFlipCustomizeSettings(),
+            onNewFlip,
+            onAuctionSold,
+            onNextFlipNotification
+        )
         getLastFlipFetchTime()
 
         document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
@@ -134,7 +141,7 @@ function Flipper(props: Props) {
                 setHasPremium(true)
                 // subscribe to the premium flips
                 api.subscribeFlips(
-                    flipperFilter.restrictions || [],
+                    getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
                     flipperFilter,
                     getFlipCustomizeSettings(),
                     onNewFlip,
@@ -144,12 +151,6 @@ function Flipper(props: Props) {
             }
             setIsLoading(false)
         })
-    }
-
-    function getInitialFlipperFilter(): FlipperFilter {
-        let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
-        filter.restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-        return filter
     }
 
     function onLogin() {
@@ -348,13 +349,8 @@ function Flipper(props: Props) {
             itemFilter: {}
         })
 
-        if (flipperFilter) {
-            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(parsed))
-            flipperFilter.restrictions = parsed
-            onFilterChange(flipperFilter)
-        } else {
-            setTimeout(addItemToBlacklist, 500)
-        }
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(parsed))
+        onFilterChange(flipperFilter)
     }
 
     function redirectToSeller(sellerName: string) {
