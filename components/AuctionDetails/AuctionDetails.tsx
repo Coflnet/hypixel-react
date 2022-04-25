@@ -19,8 +19,8 @@ import FlipBased from '../Flipper/FlipBased/FlipBased'
 import { Help as HelpIcon } from '@mui/icons-material'
 
 interface Props {
+    auctionUUID: string
     auctionDetails?: AuctionDetails
-    auctionUUID?: string
     retryCounter?: number
 }
 
@@ -200,7 +200,7 @@ function AuctionDetails(props: Props) {
     const binBadgeVariant = 'success'
     const countBadgeVariant = 'dark'
 
-    let basedOnDialog = (
+    let basedOnDialog = showBasedOnDialog ? (
         <Modal
             size={'xl'}
             show={showBasedOnDialog}
@@ -212,10 +212,10 @@ function AuctionDetails(props: Props) {
                 <Modal.Title>Similar auctions from the past</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <FlipBased auctionUUID={props.auctionUUID} item={props.auctionDetails.auction.item} />
+                {auctionDetails ? <FlipBased auctionUUID={auctionDetails.auction.uuid} item={auctionDetails.auction.item} /> : null}
             </Modal.Body>
         </Modal>
-    )
+    ) : null
 
     let auctionCardContent = !auctionDetails ? (
         getLoadingElement()
@@ -226,13 +226,7 @@ function AuctionDetails(props: Props) {
                     <a className="disableLinkStyle">
                         <h1>
                             <span className={styles.itemIcon}>
-                                <img
-                                    crossOrigin="anonymous"
-                                    src={auctionDetails?.auction.item.iconUrl}
-                                    height="48"
-                                    alt="item icon"
-                                    loading="lazy"
-                                />
+                                <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
                             </span>
                             <span style={{ paddingLeft: '10px' }}>
                                 <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
@@ -303,7 +297,7 @@ function AuctionDetails(props: Props) {
                             setShowBasedOnDialog(true)
                         }}
                     >
-                        <HelpIcon/>
+                        <HelpIcon />
                         <span className={styles.topRowButtonContent}>Compare to ended auctions</span>
                     </Button>
                 </div>
