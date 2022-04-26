@@ -60,8 +60,7 @@ function FlipperFilter(props: Props) {
             maxCost: maxCost,
             minProfitPercent: minProfitPercent,
             onlyUnsold: onlyUnsold,
-            minVolume: minVolume,
-            restrictions: restrictions
+            minVolume: minVolume
         }
     }
 
@@ -139,8 +138,6 @@ function FlipperFilter(props: Props) {
     }
 
     function onRestrictionsChange(restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') {
-        let filter = getCurrentFilter()
-        filter.restrictions = restrictions
         setRestrictions(restrictions)
         api.setFlipSetting(
             type,
@@ -150,7 +147,6 @@ function FlipperFilter(props: Props) {
                     return { tag: restriction.item?.tag, filter: restriction.itemFilter }
                 })
         )
-        onFilterChange(filter)
     }
 
     function onFreePremiumComplete() {

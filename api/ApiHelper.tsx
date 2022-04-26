@@ -645,9 +645,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             },
             resubscribe: function (subscription) {
                 let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
-                filter.restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+                let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
                 subscribeFlips(
-                    filter.restrictions,
+                    restrictions,
                     filter,
                     getFlipCustomizeSettings(),
                     flipCallback,
