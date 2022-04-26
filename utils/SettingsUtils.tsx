@@ -217,6 +217,17 @@ export async function handleSettingsImport(importString: string) {
                 })
             }
 
+            if (json.thresholds.blacklist.user_blacklist) {
+                json.thresholds.blacklist.user_blacklist.split(',').forEach(user => {
+                    restrictions.push({
+                        type: 'blacklist',
+                        itemFilter: {
+                            Seller: user
+                        }
+                    })
+                })
+            }
+
             json.thresholds.blacklist.enchant_blacklist.split(',').forEach(item => {
                 let restriction: FlipRestriction = {
                     type: 'blacklist'
