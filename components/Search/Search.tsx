@@ -144,7 +144,6 @@ function Search(props: Props) {
                     height="32"
                     alt=""
                     style={{ marginRight: '10px' }}
-                    loading="lazy"
                 />
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
             </h1>
@@ -275,7 +274,6 @@ function Search(props: Props) {
                                       width={32}
                                       src={result.dataItem.iconUrl}
                                       alt=""
-                                      loading="lazy"
                                   />
                               ) : (
                                   <Spinner animation="border" role="status" variant="primary" />
