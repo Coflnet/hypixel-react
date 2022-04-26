@@ -8,8 +8,8 @@ import { BallotOutlined as FilterIcon } from '@mui/icons-material'
 import NumberFormat, { NumberFormatValues } from 'react-number-format'
 import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import styles from './FlipperFilter.module.css'
-import { isClientSideRendering } from '../../../utils/SSRUtils'
 import api from '../../../api/ApiHelper'
+import { getDecimalSeperator, getThousandSeperator } from '../../../utils/Formatter'
 import { DEFAULT_FLIP_SETTINGS } from '../../../utils/FlipUtils'
 
 interface Props {
@@ -262,8 +262,8 @@ function FlipperFilter(props: Props) {
                     }}
                     customInput={Form.Control}
                     defaultValue={minProfit}
-                    thousandSeparator="."
-                    decimalSeparator=","
+                    thousandSeparator={getThousandSeperator()}
+                    decimalSeparator={getDecimalSeperator()}
                     allowNegative={false}
                     decimalScale={0}
                 />
@@ -282,8 +282,8 @@ function FlipperFilter(props: Props) {
                     }}
                     customInput={Form.Control}
                     defaultValue={minProfitPercent}
-                    thousandSeparator="."
-                    decimalSeparator=","
+                    thousandSeparator={getThousandSeperator()}
+                    decimalSeparator={getDecimalSeperator()}
                     allowNegative={false}
                     decimalScale={0}
                 />
@@ -302,8 +302,8 @@ function FlipperFilter(props: Props) {
                     }}
                     customInput={Form.Control}
                     defaultValue={minVolume}
-                    thousandSeparator="."
-                    decimalSeparator=","
+                    thousandSeparator={getThousandSeperator()}
+                    decimalSeparator={getDecimalSeperator()}
                     allowNegative={false}
                     decimalScale={1}
                 />
@@ -322,8 +322,8 @@ function FlipperFilter(props: Props) {
                     }}
                     customInput={Form.Control}
                     defaultValue={maxCost}
-                    thousandSeparator="."
-                    decimalSeparator=","
+                    thousandSeparator={getThousandSeperator()}
+                    decimalSeparator={getDecimalSeperator()}
                     allowNegative={false}
                     decimalScale={0}
                 />
