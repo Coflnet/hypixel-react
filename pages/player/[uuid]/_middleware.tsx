@@ -7,10 +7,8 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
         let split = url.pathname.split('/')
         if (split[2].length < 30) {
             await api.playerSearch(split[2]).then(players => {
-                console.log("promise finished")
                 split[2] = players[0].uuid
             })
-            console.log(split.join('/'))
             url.pathname = split.join('/')
             return NextResponse.redirect(url)
         }
