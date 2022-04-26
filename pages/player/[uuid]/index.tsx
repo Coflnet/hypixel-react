@@ -126,7 +126,6 @@ function PlayerDetails(props: Props) {
                                 height="32"
                                 alt=""
                                 style={{ marginRight: '10px' }}
-                                loading="lazy"
                             />
                             <span>{selectedPlayer?.name}</span>
                             {claimAccountElement}
