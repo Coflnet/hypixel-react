@@ -126,6 +126,7 @@ interface SearchResultItem {
     route: string
     urlSearchParams?: URLSearchParams
     id: string
+    isPreviousSearch?: boolean
 }
 
 interface FlipAuction {

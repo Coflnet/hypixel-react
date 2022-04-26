@@ -24,6 +24,9 @@ interface Props {
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
 const SEARCH_RESULT_CONTEXT_MENU_ID = 'search-result-context-menu'
+const PREVIOUS_SEARCHES_KEY = 'lastSearches'
+const MAX_PREVIOUS_SEARCHES_TO_DISPLAY = 3
+const MAX_PREVIOUS_SEARCHES_TO_STORE = 100
 
 function Search(props: Props) {
     let router = useRouter()
@@ -61,6 +64,24 @@ function Search(props: Props) {
                 searchElement.current !== null &&
                 searchFor === ((searchElement.current as HTMLDivElement).querySelector('#search-bar') as HTMLInputElement).value
             ) {
+                let previousSearchesString = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
+                let previousSearches: SearchResultItem[] = previousSearchesString ? JSON.parse(previousSearchesString) : []
+                let matches = 0
+                previousSearches.forEach(prevSearch => {
+                    if (prevSearch.dataItem.name.indexOf(searchFor) !== -1 && matches < 3) {
+                        prevSearch.isPreviousSearch = true
+                        matches++
+
+                        let alreadyFoundIndex = searchResults.findIndex(r => r.dataItem.name === prevSearch.dataItem.name)
+
+                        if (alreadyFoundIndex !== -1) {
+                            searchResults[alreadyFoundIndex].isPreviousSearch = true
+                        } else {
+                            searchResults.unshift(prevSearch)
+                        }
+                    }
+                })
+
                 setNoResultsFound(searchResults.length === 0)
                 setResults(searchResults)
                 setIsLoading(false)
@@ -101,10 +122,24 @@ function Search(props: Props) {
             setResults([])
         }
 
-        if (props.onSearchresultClick) {
-            props.onSearchresultClick(item)
-            return
+        let previousSearchesString = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
+        let previousSearches: SearchResultItem[] = previousSearchesString ? JSON.parse(previousSearchesString) : []
+
+        let alreadyFoundIndex = previousSearches.findIndex(r => r.dataItem.name === item.dataItem.name)
+        if (alreadyFoundIndex === -1) {
+            previousSearches.push(item)
+            if (previousSearches.length > MAX_PREVIOUS_SEARCHES_TO_STORE) {
+                previousSearches.shift()
+            }
+            console.log(previousSearches)
+            localStorage.setItem(PREVIOUS_SEARCHES_KEY, JSON.stringify(previousSearches))
+
+            if (props.onSearchresultClick) {
+                props.onSearchresultClick(item)
+                return
+            }
         }
+
         api.trackSearch(item.id, item.type)
         router.push({
             pathname: item.route,
@@ -291,6 +326,7 @@ function Search(props: Props) {
                                   onItemClick(result)
                               }}
                               style={getListItemStyle(i)}
+                              className={result.isPreviousSearch ? styles.previousSearch : null}
                           >
                               {result.dataItem.iconUrl ? (
                                   <img
