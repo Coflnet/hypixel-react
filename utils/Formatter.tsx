@@ -1,18 +1,17 @@
 import { CSSProperties } from 'react'
+import { isClientSideRendering } from './SSRUtils'
 
 /*
  Returns a given number as string with thousands-seperators. Example:
  1234567 => 1.234.567
-
- Default-Seperator: '.'
 */
-export function numberWithThousandsSeperators(number?: number, seperator?: string): string {
+export function numberWithThousandsSeperators(number?: number): string {
     if (!number) {
         return '0'
     }
     var parts = number.toString().split('.')
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, seperator || '.')
-    return parts.join(',')
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeperator())
+    return parts.join(getDecimalSeperator())
 }
 
 /**
@@ -135,6 +134,24 @@ export function formatToPriceToShorten(num: number, decimals: number = 0): strin
     if (num >= 1_000) return (num / 1_000).toFixed(decimals) + 'k'
 
     return num.toFixed(0)
+}
+
+export function getThousandSeperator() {
+    let langTag = isClientSideRendering() ? navigator.language : 'en'
+    if (langTag.startsWith('en')) {
+        return ','
+    } else {
+        return '.'
+    }
+}
+
+export function getDecimalSeperator() {
+    let langTag = isClientSideRendering() ? navigator.language : 'en'
+    if (langTag.startsWith('en')) {
+        return '.'
+    } else {
+        return ','
+    }
 }
 
 /**
