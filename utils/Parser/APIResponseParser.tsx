@@ -85,16 +85,6 @@ export function parseItemPrice(priceData: any): ItemPrice {
     } as ItemPrice
 }
 
-export function parseItemPriceData(priceData: any): ItemPriceData {
-    return {
-        filterable: priceData.filterable,
-        prices: priceData.prices?.map(price => {
-            return parseItemPrice(price)
-        }),
-        filters: priceData.filters
-    }
-}
-
 export function parseItem(item: any): Item {
     return {
         tag: item.tag,
