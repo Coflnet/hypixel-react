@@ -111,12 +111,6 @@ interface ItemPrice {
     time: Date
 }
 
-interface ItemPriceData {
-    filterable: boolean
-    prices: Array<ItemPrice>
-    filters: Array<string>
-}
-
 interface SearchResultItem {
     dataItem: {
         iconUrl: string
@@ -160,7 +154,7 @@ interface API {
     trackSearch(fullSearchId: string, fullSearchType: string): void
     getItemImageUrl(item: Item): string
     getItemDetails(itemTagOrName: string): Promise<Item>
-    getItemPrices(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<ItemPriceData>
+    getItemPrices(itemTagOrName: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]>
     getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>
     getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>
     getEnchantments(): Promise<Enchantment[]>
@@ -177,7 +171,7 @@ interface API {
     stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
     setToken(token: string): Promise<void>
-    getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>
+    getRecentAuctions(itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]>
     getFlips(): Promise<FlipAuction[]>
     subscribeFlips(
         restrictionList: FlipRestriction[],
@@ -430,4 +424,12 @@ interface FlipTrackingFlip {
 interface FlipTrackingResponse {
     flips: FlipTrackingFlip[]
     totalProfit: number
+}
+
+enum DateRange {
+    ACTIVE = 'active',
+    DAY = 'day',
+    MONTH = 'month',
+    WEEK = 'week',
+    ALL = 'ALL'
 }
