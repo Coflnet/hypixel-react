@@ -49,7 +49,6 @@ function Flipper(props: Props) {
                                 height="32"
                                 alt=""
                                 style={{ marginRight: '10px' }}
-                                loading="lazy"
                             />
                             <span>{player.name}</span>
                         </p>
@@ -77,7 +76,8 @@ export const getStaticProps = async ({ params }) => {
             },
             flipTrackingResponse: apiResponses[1],
             targetFlip: (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString(16) === params.flipUid)
-        }
+        },
+        revalidate: 60
     }
 }
 

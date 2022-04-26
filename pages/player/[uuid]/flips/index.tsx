@@ -83,7 +83,6 @@ function Flipper(props: Props) {
                                 height="32"
                                 alt=""
                                 style={{ marginRight: '10px' }}
-                                loading="lazy"
                             />
                             <span>{player.name}</span>
                         </p>
@@ -106,7 +105,8 @@ export const getStaticProps = async ({ params }) => {
                 name: apiResponses[0]
             },
             flipTrackingResponse: apiResponses[1]
-        }
+        },
+        revalidate: 60
     }
 }
 

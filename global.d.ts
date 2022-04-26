@@ -152,7 +152,6 @@ interface FlipperFilter {
     minVolume?: number
     maxCost?: number
     onlyUnsold?: boolean
-    restrictions?: FlipRestriction[]
 }
 
 interface API {
@@ -180,11 +179,13 @@ interface API {
     getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>
     getFlips(): Promise<FlipAuction[]>
     subscribeFlips(
-        flipCallback: Function,
         restrictionList: FlipRestriction[],
         filter: FlipperFilter,
+        flipSettings: FlipCustomizeSettings,
+        flipCallback?: Function,
         soldCallback?: Function,
         nextUpdateNotificationCallback?: Function,
+        onSubscribeSuccessCallback?: Function,
         forceSettingsUpdate: boolean = false
     ): void
     unsubscribeFlips(): Promise<void>
@@ -224,6 +225,7 @@ interface API {
     setFlipSetting(identifier: string, value: any): Promise<void>
     getKatFlips(): Promise<KatFlip[]>
     getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
+    transferCoflCoins(email: string, mcId: string, amount: number, reference: string): Promise<void>
 }
 
 interface CacheUtils {

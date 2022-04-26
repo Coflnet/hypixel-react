@@ -2,11 +2,10 @@ import { useMatomo } from '@datapunt/matomo-tracker-react'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
-import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
+import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, handleSettingsImport, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import Flip from '../Flip/Flip'
 import { Help as HelpIcon } from '@mui/icons-material'
-import { toast } from 'react-toastify'
 import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
 import styles from './FlipCustomize.module.css'
@@ -107,36 +106,11 @@ function FlipCustomize() {
         if (e.target.files && e.target.files[0]) {
             reader.onload = function (e) {
                 output = e.target!.result!.toString()
-                handleFilterImport(output)
+                handleSettingsImport(output)
             } //end onload()
             reader.readAsText(e.target.files[0])
         }
         return true
-    }
-
-    function handleFilterImport(importString: string) {
-        let filter: FlipperFilter
-        let flipCustomizeSettings: FlipCustomizeSettings
-        let restrictions: FlipRestriction[]
-        try {
-            let importObject = JSON.parse(importString)
-            filter = importObject[FLIPPER_FILTER_KEY] ? JSON.parse(importObject[FLIPPER_FILTER_KEY]) : {}
-            flipCustomizeSettings = importObject[FLIP_CUSTOMIZING_KEY] ? JSON.parse(importObject[FLIP_CUSTOMIZING_KEY]) : {}
-            restrictions = importObject[RESTRICTIONS_SETTINGS_KEY] ? JSON.parse(importObject[RESTRICTIONS_SETTINGS_KEY]) : []
-        } catch {
-            toast.error('The import of the filter settings failed. Please make sure this is a valid filter file.')
-            return
-        }
-
-        setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
-        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(restrictions))
-
-        api.subscribeFlips(() => {}, restrictions || [], filter, undefined, undefined, true)
-
-        setTimeout(() => {
-            window.location.reload()
-        }, 1000)
     }
 
     function getFlipFinderWarningElement(): JSX.Element {

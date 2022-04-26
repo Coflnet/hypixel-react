@@ -153,3 +153,35 @@ export function getDecimalSeperator() {
         return ','
     }
 }
+
+/**
+ * Returs a number from a short represantation string of a price (e.g. 12M => 12_000_000)
+ * @param shortString A string representing a larger number (e.g. 12M)
+ * @returns The number represented by the string (e.g. 12_000_000)
+ */
+export function getNumberFromShortenString(shortString?: string): number | undefined {
+    if (!shortString) {
+        return
+    }
+    let split
+    let multiplier
+    if (shortString.indexOf('B') !== -1) {
+        split = shortString.split('B')
+        multiplier = 1000000000
+    }
+    if (shortString.indexOf('M') !== -1) {
+        split = shortString.split('M')
+        multiplier = 1000000
+    }
+    if (shortString.indexOf('K') !== -1) {
+        split = shortString.split('K')
+        multiplier = 1000
+    }
+    if (!split) {
+        split = [shortString]
+        multiplier = 1
+    }
+    if (split[0] && !isNaN(+split[0])) {
+        return parseInt(split[0]) * multiplier
+    }
+}
