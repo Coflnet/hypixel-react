@@ -9,7 +9,7 @@ import {
     parseFlipTrackingResponse,
     parseItem,
     parseItemBidForList,
-    parseItemPriceData,
+    parseItemPrice,
     parseItemSummary,
     parseKatFlip,
     parseLowSupplyItem,
@@ -109,25 +109,34 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getItemPrices = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<ItemPriceData> => {
+    let getItemPrices = (itemTag: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]> => {
         return new Promise((resolve, reject) => {
+            let query = ''
             if (!itemFilter || Object.keys(itemFilter).length === 0) {
                 itemFilter = undefined
+            } else {
+                Object.keys(itemFilter).forEach(key => {
+                    query += `${key}=${itemFilter[key]}&`
+                })
             }
 
-            let requestData = {
-                name: itemTagOrName,
-                start: Math.round(fetchStart / 100000) * 100,
-                filter: itemFilter
-            }
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.ITEM_PRICES,
-                data: requestData,
+                data: '',
+                customRequestURL: getProperty('apiEndpoint') + `/item/price/${itemTag}/history/${fetchSpan}?${query}`,
+                requestMethod: 'GET',
+                requestHeader: {
+                    'Content-Type': 'application/json'
+                },
                 resolve: (data: any) => {
-                    resolve(parseItemPriceData(data))
+                    resolve(data.map(parseItemPrice))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
+                    apiErrorHandler(RequestType.ITEM_PRICES, error, {
+                        itemTag,
+                        fetchSpan,
+                        itemFilter
+                    })
                     reject()
                 }
             })
@@ -477,25 +486,26 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getRecentAuctions = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]> => {
+    let getRecentAuctions = (itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
+            let query = ''
             if (!itemFilter || Object.keys(itemFilter).length === 0) {
                 itemFilter = undefined
+            } else {
+                Object.keys(itemFilter).forEach(key => {
+                    query += `${key}=${itemFilter[key]}&`
+                })
             }
 
-            let requestData = {
-                name: itemTagOrName,
-                start: Math.round(fetchStart / 100000) * 100,
-                filter: itemFilter
-            }
-            httpApi.sendLimitedCacheRequest({
+            httpApi.sendLimitedCacheApiRequest({
                 type: RequestType.RECENT_AUCTIONS,
-                data: requestData,
+                customRequestURL: getProperty('apiEndpoint') + `/auctions/tag/${itemTag}/recent/overview?${query}`,
+                data: '',
                 resolve: (data: any) => {
                     resolve(data.map(a => parseRecentAuction(a)))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData)
+                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, itemTag)
                     reject()
                 }
             })

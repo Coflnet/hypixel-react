@@ -164,8 +164,8 @@ function PlayerDetails(props: Props) {
 
 export const getStaticProps = async ({ params }) => {
     let api = initAPI(true)
-    let auctions = await api.getAuctions(params.uuid, 12, 0)
     let playerName = await api.getPlayerName(params.uuid)
+    let auctions = await api.getAuctions(params.uuid, 12, 0)
     return {
         props: {
             auctions: auctions,

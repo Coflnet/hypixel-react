@@ -69,7 +69,11 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         }
 
         if (cacheInvalidationGrouping) {
-            url += `?t=${cacheInvalidationGrouping}`
+            if (url.indexOf('?') !== -1) {
+                url += `&t=${cacheInvalidationGrouping}`
+            } else {
+                url += `?t=${cacheInvalidationGrouping}`
+            }
         }
 
         return cacheUtils.getFromCache(request.customRequestURL || request.type, requestString).then(cacheValue => {

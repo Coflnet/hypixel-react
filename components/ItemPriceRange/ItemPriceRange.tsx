@@ -10,43 +10,18 @@ export enum DateRange {
     DAY = 'day',
     MONTH = 'month',
     WEEK = 'week',
-    ALL = 'ALL'
+    ALL = 'full'
 }
 
-export let DEFAULT_DATE_RANGE = DateRange.DAY
-
 interface Props {
-    onRangeChange?(timespan: number): void
+    onRangeChange?(timespan: DateRange): void
     item: Item
     disabled?: boolean
     disableAllTime?: boolean
     setToDefaultRangeSwitch?: boolean
 }
 
-export let getTimeSpanFromDateRange = (range: DateRange): number => {
-    let timespan: number = -1
-    let currDate: Date = new Date()
-    switch (range) {
-        case DateRange.ACTIVE:
-            timespan = -1
-            break
-        case DateRange.DAY:
-            timespan = currDate.setUTCDate(currDate.getUTCDate() - 1)
-            break
-        case DateRange.WEEK:
-            timespan = currDate.setUTCDate(currDate.getUTCDate() - 7)
-            break
-        case DateRange.MONTH:
-            timespan = currDate.setUTCMonth(currDate.getUTCMonth() - 1)
-            break
-        case DateRange.ALL:
-            timespan = new Date(0).getDate()
-            break
-        default:
-            throw new Error("TimeRange not supported '" + range + "'")
-    }
-    return timespan
-}
+export let DEFAULT_DATE_RANGE = DateRange.DAY
 
 export function ItemPriceRange(props: Props) {
     const { trackEvent } = useMatomo()
@@ -57,7 +32,7 @@ export function ItemPriceRange(props: Props) {
     if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
         setSelectedDateRange(DateRange.MONTH)
         if (props.onRangeChange) {
-            props.onRangeChange(getTimeSpanFromDateRange(DateRange.MONTH))
+            props.onRangeChange(DateRange.MONTH)
         }
     }
 
@@ -100,7 +75,7 @@ export function ItemPriceRange(props: Props) {
 
         setSelectedDateRange(newRange)
         if (props.onRangeChange) {
-            props.onRangeChange(getTimeSpanFromDateRange(newRange))
+            props.onRangeChange(newRange)
         }
     }
 
