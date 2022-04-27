@@ -3,6 +3,7 @@ import { FormControl, InputGroup } from 'react-bootstrap'
 import { Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import ItemFilter from '../../ItemFilter/ItemFilter'
+import styles from './SubscribeItemContent.module.css'
 
 interface Props {
     onPriceChange(value: string)
@@ -40,7 +41,7 @@ function SubscribeItemContent(props: Props) {
                         id="priceAboveCheckbox"
                         name="priceState"
                         onChange={e => props.onIsPriceAboveChange(false)}
-                        style={{ display: 'inline' }}
+                        className={styles.checkBox}
                     />
                 </Form.Group>
                 <Form.Group>
@@ -50,13 +51,13 @@ function SubscribeItemContent(props: Props) {
                         id="priceBelowCheckbox"
                         name="priceState"
                         onChange={e => props.onIsPriceAboveChange(false)}
-                        style={{ display: 'inline' }}
+                        className={styles.checkBox}
                     />
                 </Form.Group>
                 <Form.Group>
                     <Form.Label htmlFor="onlyIstantBuy">only for instant buy</Form.Label>
                     <Form.Check
-                        style={{ display: 'inline' }}
+                        className={styles.checkBox}
                         type="checkbox"
                         id="onlyIstantBuy"
                         onClick={e => {
