@@ -68,7 +68,7 @@ function Search(props: Props) {
                 let previousSearches: SearchResultItem[] = previousSearchesString ? JSON.parse(previousSearchesString) : []
                 let matches = 0
                 previousSearches.forEach(prevSearch => {
-                    if (prevSearch.dataItem.name.indexOf(searchFor) !== -1 && matches < 3) {
+                    if (prevSearch.dataItem.name.indexOf(searchFor) !== -1 && matches < MAX_PREVIOUS_SEARCHES_TO_DISPLAY) {
                         prevSearch.isPreviousSearch = true
                         matches++
 
