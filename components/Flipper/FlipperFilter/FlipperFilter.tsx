@@ -11,6 +11,7 @@ import styles from './FlipperFilter.module.css'
 import api from '../../../api/ApiHelper'
 import { getDecimalSeperator, getThousandSeperator } from '../../../utils/Formatter'
 import { DEFAULT_FLIP_SETTINGS } from '../../../utils/FlipUtils'
+import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 
 interface Props {
     onChange(filter: FlipperFilter)
@@ -19,7 +20,7 @@ interface Props {
 }
 
 let FREE_PREMIUM_SPAN = 1000 * 60 * 5
-let FREE_LOGIN_SPAN = 1000 * 60 * 6
+let FREE_LOGIN_SPAN = 1000 * 1 * 6
 
 let FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN
 let FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN
@@ -71,12 +72,12 @@ function FlipperFilter(props: Props) {
                 filterToSave.onlyBin = undefined
                 filterToSave.onlyUnsold = undefined
             }
-
             setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
         } else {
-            setSetting(FLIPPER_FILTER_KEY, JSON.stringify({}))
+            setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
         }
 
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
         props.onChange(filter)
     }
 
