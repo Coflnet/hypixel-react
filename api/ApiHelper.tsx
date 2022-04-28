@@ -93,16 +93,17 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return 'https://sky.coflnet.com/static/icon/' + item.tag
     }
 
-    let getItemDetails = (itemTagOrName: string): Promise<Item> => {
+    let getItemDetails = (itemTag: string): Promise<Item> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.ITEM_DETAILS,
-                data: itemTagOrName,
+                customRequestURL: `${getProperty('apiEndpoint')}/item/${itemTag}/details`,
+                data: '',
                 resolve: (item: any) => {
                     returnSSRResponse ? resolve(item) : resolve(parseItem(item))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTagOrName)
+                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTag)
                     reject()
                 }
             })
@@ -656,16 +657,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             resubscribe: function (subscription) {
                 let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
                 let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-                subscribeFlips(
-                    restrictions,
-                    filter,
-                    getFlipCustomizeSettings(),
-                    flipCallback,
-                    soldCallback,
-                    nextUpdateNotificationCallback,
-                    undefined,
-                    false
-                )
+                subscribeFlips(restrictions, filter, getFlipCustomizeSettings(), flipCallback, soldCallback, nextUpdateNotificationCallback, undefined, false)
             }
         })
     }

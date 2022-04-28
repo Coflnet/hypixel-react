@@ -153,7 +153,7 @@ interface API {
     search(searchText: string): Promise<SearchResultItem[]>
     trackSearch(fullSearchId: string, fullSearchType: string): void
     getItemImageUrl(item: Item): string
-    getItemDetails(itemTagOrName: string): Promise<Item>
+    getItemDetails(itemTag: string): Promise<Item>
     getItemPrices(itemTagOrName: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]>
     getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>
     getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>
