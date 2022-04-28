@@ -20,6 +20,7 @@ interface Props {
     hideNavbar?: boolean
     placeholder?: string
     type?: 'player' | 'item'
+    preventDisplayOfPreviousSearches?: boolean
 }
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
@@ -67,20 +68,22 @@ function Search(props: Props) {
                 let previousSearchesString = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
                 let previousSearches: SearchResultItem[] = previousSearchesString ? JSON.parse(previousSearchesString) : []
                 let matches = 0
-                previousSearches.forEach(prevSearch => {
-                    if (prevSearch.dataItem.name.indexOf(searchFor) !== -1 && matches < MAX_PREVIOUS_SEARCHES_TO_DISPLAY) {
-                        prevSearch.isPreviousSearch = true
-                        matches++
+                if (!props.preventDisplayOfPreviousSearches) {
+                    previousSearches.forEach(prevSearch => {
+                        if (prevSearch.dataItem.name.indexOf(searchFor) !== -1 && matches < MAX_PREVIOUS_SEARCHES_TO_DISPLAY) {
+                            prevSearch.isPreviousSearch = true
+                            matches++
 
-                        let alreadyFoundIndex = searchResults.findIndex(r => r.dataItem.name === prevSearch.dataItem.name)
+                            let alreadyFoundIndex = searchResults.findIndex(r => r.dataItem.name === prevSearch.dataItem.name)
 
-                        if (alreadyFoundIndex !== -1) {
-                            searchResults[alreadyFoundIndex].isPreviousSearch = true
-                        } else {
-                            searchResults.unshift(prevSearch)
+                            if (alreadyFoundIndex !== -1) {
+                                searchResults[alreadyFoundIndex].isPreviousSearch = true
+                            } else {
+                                searchResults.unshift(prevSearch)
+                            }
                         }
-                    }
-                })
+                    })
+                }
 
                 setNoResultsFound(searchResults.length === 0)
                 setResults(searchResults)
@@ -117,6 +120,11 @@ function Search(props: Props) {
     }
 
     let onItemClick = (item: SearchResultItem) => {
+        if (props.onSearchresultClick) {
+            props.onSearchresultClick(item)
+            return
+        }
+
         if (item.urlSearchParams && new URLSearchParams(window.location.search).toString() !== item.urlSearchParams.toString()) {
             setSearchText('')
             setResults([])
@@ -131,13 +139,7 @@ function Search(props: Props) {
             if (previousSearches.length > MAX_PREVIOUS_SEARCHES_TO_STORE) {
                 previousSearches.shift()
             }
-            console.log(previousSearches)
             localStorage.setItem(PREVIOUS_SEARCHES_KEY, JSON.stringify(previousSearches))
-
-            if (props.onSearchresultClick) {
-                props.onSearchresultClick(item)
-                return
-            }
         }
 
         api.trackSearch(item.id, item.type)
@@ -174,14 +176,7 @@ function Search(props: Props) {
         }
         return (
             <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
-                <img
-                    crossOrigin="anonymous"
-                    className="playerHeadIcon"
-                    src={props.selected.iconUrl}
-                    height="32"
-                    alt=""
-                    style={{ marginRight: '10px' }}
-                />
+                <img crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" alt="" style={{ marginRight: '10px' }} />
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
             </h1>
         )
