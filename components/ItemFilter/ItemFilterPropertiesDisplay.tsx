@@ -15,16 +15,16 @@ const SELLER_FORMAT_FILTER = 'Seller'
 function ItemFilterPropertiesDisplay(props: Props) {
     let [localFilter, setLocalFilter] = useState(props.filter)
 
-    let forceUpdate = useForceUpdate();
+    let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if(!props.filter){
-            return;
+        if (!props.filter) {
+            return
         }
-        let localFilter = JSON.parse(JSON.stringify(props.filter));
+        let localFilter = JSON.parse(JSON.stringify(props.filter))
         setLocalFilter(localFilter)
         checkForSellerName(localFilter)
-    }, [props.filter])
+    }, [JSON.stringify(props.filter)])
 
     function checkForSellerName(filter: ItemFilter) {
         if (filter) {
@@ -33,9 +33,9 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     filter!._hide = true
                     api.getPlayerName(filter![key]).then(name => {
                         filter!._hide = false
-                        filter!._label = name
-                        setLocalFilter(filter);
-                        forceUpdate();
+                        filter!._sellerName = name
+                        setLocalFilter(filter)
+                        forceUpdate()
                     })
                 }
             })
@@ -64,8 +64,8 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     }
 
                     // Special case if the restriction has a special label
-                    if (localFilter._label) {
-                        display = localFilter._label
+                    if (localFilter._sellerName && key === SELLER_FORMAT_FILTER) {
+                        display = localFilter._sellerName
                     }
 
                     return (

@@ -18,6 +18,8 @@ interface Props {
     isPrefill?: boolean
     forceOpen?: boolean
     ignoreURL?: boolean
+    autoSelect?: boolean
+    defaultFilter?: ItemFilter
 }
 
 const groupedFilter = [
@@ -26,7 +28,7 @@ const groupedFilter = [
 ]
 
 function ItemFilter(props: Props) {
-    let [itemFilter, _setItemFilter] = useState<ItemFilter>({})
+    let [itemFilter, _setItemFilter] = useState<ItemFilter>(props.defaultFilter || {})
     let [expanded, setExpanded] = useState(props.forceOpen || false)
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
@@ -60,10 +62,10 @@ function ItemFilter(props: Props) {
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
-        if (props.ignoreURL) {
+        if (props.ignoreURL && !props.defaultFilter) {
             return
         }
-        itemFilter = getItemFilterFromUrl()
+        itemFilter = props.defaultFilter ? props.defaultFilter : getItemFilterFromUrl()
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
@@ -310,8 +312,8 @@ function ItemFilter(props: Props) {
                                 {props?.filters && props.filters?.length > 0 ? (
                                     <Typeahead
                                         id="add-filter-typeahead"
-                                        autoFocus={Object.keys(getItemFilterFromUrl()).length === 0}
-                                        defaultOpen={Object.keys(getItemFilterFromUrl()).length === 0}
+                                        autoFocus={props.autoSelect === undefined ? Object.keys(getItemFilterFromUrl()).length === 0 : props.autoSelect}
+                                        defaultOpen={props.autoSelect === undefined ? Object.keys(getItemFilterFromUrl()).length === 0 : props.autoSelect}
                                         ref={typeaheadRef}
                                         placeholder="Add filter"
                                         className={styles.addFilterSelect}

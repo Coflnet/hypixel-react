@@ -94,7 +94,7 @@ interface PlayerDetails {
 interface ItemFilter {
     [key: string]: string
     _hide?: boolean
-    _label?: string
+    _sellerName?: string
 }
 
 interface FilterOptions {
@@ -307,6 +307,7 @@ interface FlipRestriction {
     type: 'blacklist' | 'whitelist'
     item?: Item
     itemFilter?: ItemFilter
+    isEdited?: boolean
 }
 
 interface MinecraftConnectionInfo {

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Badge, Card, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
+import { Badge, Card } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { getStyleForTier } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
 import { getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
-import ItemFilter from '../../ItemFilter/ItemFilter'
-import Search from '../../Search/Search'
-import { Delete as DeleteIcon } from '@mui/icons-material'
+import { Delete as DeleteIcon, Edit as EditIcon, Cancel as CancelIcon } from '@mui/icons-material'
 import ItemFilterPropertiesDisplay from '../../ItemFilter/ItemFilterPropertiesDisplay'
 import styles from './FlipRestrictionList.module.css'
-import priceRangeStyles from '../../ItemPriceRange/ItemPriceRange.module.css'
+import EditRestriction from './EditRestriction/EditRestriction'
+import NewRestriction from './NewRestriction/NewRestriction'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist')
@@ -20,6 +19,7 @@ function FlipRestrictionList(props: Props) {
     let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(false)
     let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []))
     let [filters, setFilters] = useState<FilterOptions[]>()
+    let [restrictionInEditModeIndex, setRestrictionsInEditModeIndex] = useState<number[]>([])
 
     let forceUpdate = useForceUpdate()
 
@@ -76,55 +76,52 @@ function FlipRestrictionList(props: Props) {
         setIsNewFlipperExtended(false)
     }
 
-    function onRestrictionTypeChange(value) {
+    function onRestrictionTypeChange(value: 'blacklist' | 'whitelist') {
         let restriction = newRestriction
         restriction.type = value
         setNewRestriction(restriction)
         forceUpdate()
     }
 
-    let getButtonVariant = (range: string): string => {
-        return range === newRestriction.type ? 'primary' : 'secondary'
+    function addEditedFilter(overrideExisting: boolean = false) {
+        restrictionInEditModeIndex.forEach(index => {
+            Object.keys(newRestriction.itemFilter).forEach(key => {
+                if (overrideExisting || restrictions[index].itemFilter[key] === undefined) {
+                    restrictions[index].itemFilter[key] = newRestriction.itemFilter[key]
+                }
+            })
+            restrictions[index].isEdited = false
+        })
+        restrictionInEditModeIndex = []
+
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+        if (props.onRestrictionsChange) {
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
+        }
+
+        setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+        setRestrictions(restrictions)
+        forceUpdate()
     }
 
-    function getNewRestrictionElement() {
-        return (
-            <div>
-                <ToggleButtonGroup
-                    style={{ maxWidth: '200px' }}
-                    className={priceRangeStyles.itemPriceRange}
-                    type="radio"
-                    name="options"
-                    value={newRestriction.type}
-                    onChange={onRestrictionTypeChange}
-                >
-                    <ToggleButton value={'blacklist'} variant={getButtonVariant('blacklist')} size="sm">
-                        Blacklist
-                    </ToggleButton>
-                    <ToggleButton value={'whitelist'} variant={getButtonVariant('whitelist')} size="sm">
-                        Whitelist
-                    </ToggleButton>
-                </ToggleButtonGroup>
-                <Search
-                    selected={newRestriction.item}
-                    type="item"
-                    backgroundColor="#404040"
-                    searchFunction={api.itemSearch}
-                    onSearchresultClick={onSearchResultClick}
-                    hideNavbar={true}
-                    placeholder="Search item"
-                />
-                <ItemFilter filters={filters} forceOpen={true} onFilterChange={onFilterChange} ignoreURL={true} />
-                <span>
-                    <Button variant="success" onClick={addNewRestriction}>
-                        Save new restriction
-                    </Button>
-                    <Button variant="danger" onClick={onNewRestrictionCancel} style={{ marginLeft: '5px' }}>
-                        Cancel
-                    </Button>
-                </span>
-            </div>
-        )
+    function overrideEditedFilter() {
+        restrictionInEditModeIndex.forEach(index => {
+            restrictions[index].itemFilter = newRestriction.itemFilter
+            restrictions[index].isEdited = false
+        })
+
+        restrictionInEditModeIndex = []
+
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+        if (props.onRestrictionsChange) {
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
+        }
+
+        setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+        setRestrictions(restrictions)
+        forceUpdate()
     }
 
     function removeRestrictionByIndex(restriction: FlipRestriction, index: number) {
@@ -137,6 +134,7 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), restriction.type)
         }
 
+        setRestrictions(restrictions)
         forceUpdate()
     }
 
@@ -165,6 +163,42 @@ function FlipRestrictionList(props: Props) {
         })
     }
 
+    function cancelRestrictionEdit(restriction: FlipRestriction, index: number) {
+        restriction.isEdited = false
+        let i = restrictionInEditModeIndex.indexOf(index)
+        restrictionInEditModeIndex.splice(i, 1)
+        setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+        forceUpdate()
+    }
+
+    function editRestriction(restriction: FlipRestriction, index: number) {
+        if (restrictionInEditModeIndex.length === 0) {
+            newRestriction.itemFilter = restriction.itemFilter
+            setNewRestriction(newRestriction)
+        }
+
+        Promise.all([
+            api.filterFor({ tag: restriction.item ? restriction.item.tag : '*' }),
+            api.flipFilters({ tag: restriction.item ? restriction.item.tag : '*' })
+        ]).then(res => {
+            let newFilters = [...res[0], ...res[1]]
+
+            if (restrictionInEditModeIndex.length === 0) {
+                setFilters(filters)
+            } else {
+                // as there is already a restriction selected for edit
+                // we have to remove filters that dont match with the newly selected restriction
+                var intersectingNames = filters.map(f => f.name).filter(x => newFilters.map(f => f.name).includes(x))
+                setFilters(filters.filter(f => intersectingNames.includes(f.name)))
+            }
+
+            restriction.isEdited = true
+            restrictionInEditModeIndex.push(index)
+            setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+            forceUpdate()
+        })
+    }
+
     let addIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle" viewBox="0 0 16 16">
             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
@@ -174,8 +208,26 @@ function FlipRestrictionList(props: Props) {
 
     return (
         <div>
-            {isAddNewFlipperExtended ? (
-                getNewRestrictionElement()
+            {restrictionInEditModeIndex.length > 0 ? (
+                <EditRestriction
+                    addEditedFilter={addEditedFilter}
+                    filters={filters}
+                    newRestriction={newRestriction}
+                    onFilterChange={onFilterChange}
+                    onNewRestrictionCancel={onNewRestrictionCancel}
+                    onSearchResultClick={onSearchResultClick}
+                    overrideEditedFilter={overrideEditedFilter}
+                />
+            ) : isAddNewFlipperExtended ? (
+                <NewRestriction
+                    filters={filters}
+                    newRestriction={newRestriction}
+                    onFilterChange={onFilterChange}
+                    onNewRestrictionCancel={onNewRestrictionCancel}
+                    onRestrictionTypeChange={onRestrictionTypeChange}
+                    onSearchResultClick={onSearchResultClick}
+                    addNewRestriction={addNewRestriction}
+                />
             ) : (
                 <span style={{ cursor: 'pointer' }} onClick={() => setIsNewFlipperExtended(true)}>
                     {addIcon}
@@ -186,7 +238,7 @@ function FlipRestrictionList(props: Props) {
             <div className={styles.restrictionList}>
                 {restrictions.map((restriction, index) => {
                     return (
-                        <Card key={index} className={styles.restriction}>
+                        <Card key={index} className={`${styles.restriction} ${restriction.isEdited ? styles.restrictionMarkedAsEdit : null}`}>
                             <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
                                 <Badge style={{ marginRight: '10px' }} variant={restriction.type === 'blacklist' ? 'danger' : 'success'}>
                                     {restriction.type.toUpperCase()}
@@ -204,19 +256,38 @@ function FlipRestrictionList(props: Props) {
                                         <span style={getStyleForTier(restriction.item?.tier)}>{restriction.item?.name}</span>
                                     </div>
                                 ) : (
-                                    ''
+                                    <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}></div>
                                 )}
-                                <div className={styles.removeFilter} onClick={() => removeRestrictionByIndex(restriction, index)}>
-                                    <DeleteIcon color="error" />
-                                </div>
+                                {restriction.isEdited ? (
+                                    <div
+                                        className={styles.cancelEditButton}
+                                        onClick={() => {
+                                            cancelRestrictionEdit(restriction, index)
+                                        }}
+                                    >
+                                        <CancelIcon />
+                                    </div>
+                                ) : (
+                                    <div
+                                        className={styles.editButton}
+                                        onClick={() => {
+                                            editRestriction(restriction, index)
+                                        }}
+                                    >
+                                        <EditIcon />
+                                    </div>
+                                )}
+                                {restrictionInEditModeIndex.length === 0 ? (
+                                    <div className={styles.removeFilter} onClick={() => removeRestrictionByIndex(restriction, index)}>
+                                        <DeleteIcon color="error" />
+                                    </div>
+                                ) : null}
                             </Card.Header>
                             {restriction.itemFilter ? (
                                 <Card.Body>
                                     <ItemFilterPropertiesDisplay filter={restriction.itemFilter} />
                                 </Card.Body>
-                            ) : (
-                                ''
-                            )}
+                            ) : null}
                         </Card>
                     )
                 })}

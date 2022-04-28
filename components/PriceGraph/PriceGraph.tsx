@@ -89,7 +89,7 @@ function PriceGraph(props: Props) {
             itemFilter
         })
 
-        api.getItemPrices(props.item.tag, fetchspan, itemFilter)
+        api.getItemPrices(props.item.tag, (fetchspan as globalThis.DateRange), itemFilter)
             .then(prices => {
                 if (
                     !mounted ||
