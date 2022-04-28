@@ -17,7 +17,7 @@ interface Props {
 function ItemDetails(props: Props) {
     const router = useRouter()
     let tag = router.query.tag as string
-    let [item, setItem] = useState<Item>(parseItem(props.item))
+    let [item, setItem] = useState<Item>(props.item ? parseItem(props.item) : null)
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -27,9 +27,17 @@ function ItemDetails(props: Props) {
         if (!isClientSideRendering()) {
             return
         }
-        api.getItemDetails(tag).then(detailedItem => {
-            setItem(detailedItem)
-        })
+        api.getItemDetails(tag)
+            .then(detailedItem => {
+                setItem(detailedItem)
+            })
+            .catch(() => {
+                setItem({
+                    tag: tag,
+                    name: convertTagToName(tag),
+                    iconUrl: api.getItemImageUrl({ tag })
+                })
+            })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tag])
 
@@ -75,13 +83,18 @@ function ItemDetails(props: Props) {
 
 export const getStaticProps = async ({ params }) => {
     let api = initAPI(true)
-    let apiResponses = await Promise.all(
-        [api.getItemDetails(params.tag), api.getItemPriceSummary(params.tag, params.itemFilter ? JSON.parse(atob(params.itemFilter)) : {})].map(p =>
-            p.catch(e => {
-                return {}
-            })
-        )
-    )
+    let apiResponses = await Promise.all([
+        api.getItemDetails(params.tag).catch(() => {
+            return {
+                tag: params.tag,
+                name: convertTagToName(params.tag),
+                iconUrl: api.getItemImageUrl({ tag: params.tag })
+            } as Item
+        }),
+        api.getItemPriceSummary(params.tag, params.itemFilter ? JSON.parse(atob(params.itemFilter)) : {}).catch(() => {
+            return {}
+        })
+    ])
     return {
         props: {
             item: apiResponses[0],
