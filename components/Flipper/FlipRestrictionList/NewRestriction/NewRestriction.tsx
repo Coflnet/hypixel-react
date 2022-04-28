@@ -23,7 +23,7 @@ function NewRestriction(props: Props) {
     return (
         <div>
             <ToggleButtonGroup
-                style={{ maxWidth: '200px' }}
+                style={{ maxWidth: '200px', marginBottom: '5px' }}
                 type="radio"
                 name="options"
                 value={props.newRestriction.type}
