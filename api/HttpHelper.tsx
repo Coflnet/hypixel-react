@@ -69,6 +69,9 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         }
 
         if (cacheInvalidationGrouping) {
+            if (url.charAt(url.length - 1) === '&' || url.charAt(url.length - 1) === '?') {
+                url = url.substring(0, url.length - 1)
+            }
             if (url.indexOf('?') !== -1) {
                 url += `&t=${cacheInvalidationGrouping}`
             } else {
