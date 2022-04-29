@@ -15,12 +15,13 @@ import { v4 as generateUUID } from 'uuid'
 
 export function MainApp(props: any) {
     const [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false)
+    const [isReloadTracked, setIsReloadTracked] = useState(false)
     const { trackPageView, trackEvent, pushInstruction } = useMatomo()
     const router = useRouter()
 
     useEffect(() => {
         window.sessionStorage.setItem('sessionId', generateUUID())
-        initReloadListener()
+        checkForReload()
         startMigrations()
     }, [])
 
@@ -47,16 +48,18 @@ export function MainApp(props: any) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isClientSideRendering() ? document.title : null])
 
-    function initReloadListener() {
+    function checkForReload() {
         let preventReloadDialog = localStorage.getItem('rememberHideReloadDialog') === 'true'
-        if (preventReloadDialog) {
+        if (preventReloadDialog || isReloadTracked) {
             return
         }
+
         // check if page was reloaded
         if (
-            window.performance &&
-            window.performance.getEntriesByType('navigation')[0] &&
-            (window.performance.getEntriesByType('navigation')[0] as any).type === 'reload'
+            window.performance
+                .getEntriesByType('navigation')
+                .map(nav => (nav as PerformanceNavigationTiming).type)
+                .includes('reload')
         ) {
             let lastReloadTime = localStorage.getItem('lastReloadTime')
             // Check if the last reload was less than 30 seconds ago
@@ -65,6 +68,7 @@ export function MainApp(props: any) {
                     setShowRefreshFeedbackDialog(true)
                 }, 1000)
             } else {
+                setIsReloadTracked(true)
                 localStorage.setItem('lastReloadTime', new Date().getTime().toString())
             }
         }
