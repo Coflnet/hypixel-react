@@ -270,7 +270,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getAuctionDetails = (auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheApiRequest(
+            httpApi.sendApiRequest(
                 {
                     type: RequestType.AUCTION_DETAILS,
                     data: auctionUUID,
@@ -302,9 +302,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getPlayerName = (uuid: string): Promise<string> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.PLAYER_NAME,
-                data: uuid,
+                customRequestURL: `${getProperty('apiEndpoint')}/player/${uuid}/name`,
+                data: '',
                 resolve: name => {
                     resolve(name)
                 },
