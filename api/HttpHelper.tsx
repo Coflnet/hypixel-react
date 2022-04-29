@@ -181,11 +181,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         return sendRequest(request, group)
     }
 
-    function sendLimitedCacheApiRequest(request: ApiRequest, grouping = 1): Promise<void> {
-        let group = Math.round(new Date().getMinutes() / grouping)
-        return sendApiRequest(request, undefined, group)
-    }
-
     function removeSentRequests(toDelete: ApiRequest[]) {
         requests = requests.filter(request => {
             for (let i = 0; i < toDelete.length; i++) {
@@ -206,7 +201,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
     return {
         sendRequest: sendRequest,
         sendLimitedCacheRequest: sendRequestLimitCache,
-        sendApiRequest: sendApiRequest,
-        sendLimitedCacheApiRequest: sendLimitedCacheApiRequest
+        sendApiRequest: sendApiRequest
     }
 }
