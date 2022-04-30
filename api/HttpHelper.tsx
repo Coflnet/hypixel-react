@@ -94,10 +94,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         })
     }
 
-    function isResponseValid(response: Response) {
-        return response.ok && response.body
-    }
-
     function handleServerRequest(request: ApiRequest, url: string, body?: any): Promise<void> {
         if (!isClientSideRendering()) {
             console.log('Sending Request...')
@@ -112,31 +108,20 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             headers: request.requestHeader
         })
             .then(response => {
-                if (!response.ok) {
-                    request.reject()
+                if (!response.ok || response.status === 204) {
                     return
                 }
 
-                if (response.status === 204) {
-                    request.resolve()
-                    return
-                }
-
-                let parsed
-                try {
-                    parsed = response.json()
-                } catch (error) {
-                    request.reject({ Message: 'Unnown error' })
-                }
-                if (!isResponseValid(response)) {
-                    parsed.then(parsedResponse => {
-                        request.reject(parsedResponse)
-                    })
-                    return
-                }
-                return parsed
+                return response.text()
             })
-            .then(parsedResponse => {
+            .then(responseText => {
+                let parsedResponse: any
+                try {
+                    parsedResponse = JSON.parse(responseText)
+                } catch {
+                    parsedResponse = responseText
+                }
+
                 if (!isClientSideRendering()) {
                     console.log('Received Response: ')
                     console.log('mId: ' + request.mId)

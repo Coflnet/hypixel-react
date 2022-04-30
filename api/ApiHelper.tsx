@@ -270,41 +270,39 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getAuctionDetails = (auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheApiRequest(
-                {
-                    type: RequestType.AUCTION_DETAILS,
-                    data: auctionUUID,
-                    resolve: auctionDetails => {
-                        if (!auctionDetails) {
-                            reject()
-                            return
-                        }
-                        if (!auctionDetails.auctioneer) {
-                            api.getPlayerName(auctionDetails.auctioneerId).then(name => {
-                                auctionDetails.auctioneer = {
-                                    name,
-                                    uuid: auctionDetails.auctioneerId
-                                }
-                                returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
-                            })
-                        } else {
+            httpApi.sendApiRequest({
+                type: RequestType.AUCTION_DETAILS,
+                data: auctionUUID,
+                resolve: auctionDetails => {
+                    if (!auctionDetails) {
+                        reject()
+                        return
+                    }
+                    if (!auctionDetails.auctioneer) {
+                        api.getPlayerName(auctionDetails.auctioneerId).then(name => {
+                            auctionDetails.auctioneer = {
+                                name,
+                                uuid: auctionDetails.auctioneerId
+                            }
                             returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
-                        }
-                    },
-                    reject: (error: any) => {
-                        reject(error)
+                        })
+                    } else {
+                        returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
                     }
                 },
-                ignoreCache ? 3 + ignoreCache : 2
-            )
+                reject: (error: any) => {
+                    reject(error)
+                }
+            })
         })
     }
 
     let getPlayerName = (uuid: string): Promise<string> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.PLAYER_NAME,
-                data: uuid,
+                customRequestURL: `${getProperty('apiEndpoint')}/player/${uuid}/name`,
+                data: '',
                 resolve: name => {
                     resolve(name)
                 },
