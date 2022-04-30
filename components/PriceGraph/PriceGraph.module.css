@@ -17,14 +17,12 @@
     margin-bottom: 10px;
 }
 
-.graphCanvasContainer {
-    margin-top: 20px;
-    height: 50vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
 .bazaarNotice {
     padding-left: 30px;
+}
+
+.chart {
+    height: 50vh !important;
+    margin-top: 10px;
+    width: 100%;
 }
