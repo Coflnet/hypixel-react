@@ -220,7 +220,7 @@ function AccountDetails() {
             <h2 style={{ marginBottom: '30px' }}>Settings</h2>
             <p>
                 <div style={{ display: 'inline-block' }}>
-                    <span className={styles.label}>Allow cookies for tracking: </span>
+                    <span className={styles.label}>Allow cookies for analytics: </span>
                     <Form.Check onChange={setTrackingAllowed} defaultChecked={isTrackingAllowed()} type="checkbox" />
                 </div>
             </p>
