@@ -1,7 +1,7 @@
 import { Base64 } from 'js-base64'
 import moment from 'moment'
 import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Button, Form } from 'react-bootstrap'
+import { Button, Form, Modal } from 'react-bootstrap'
 import Cookies from 'js-cookie'
 import { GoogleLogout } from 'react-google-login'
 import { toast } from 'react-toastify'
@@ -16,6 +16,7 @@ import styles from './AccountDetails.module.css'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useCoflCoins } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -24,6 +25,7 @@ function AccountDetails() {
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
+    let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
     let coflCoins = useCoflCoins()
     let { pushInstruction } = useMatomo()
 
@@ -68,6 +70,7 @@ function AccountDetails() {
 
     function onLogout() {
         setIsLoggedIn(false)
+        setIsLoading(false)
         localStorage.removeItem('googleId')
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
@@ -173,6 +176,32 @@ function AccountDetails() {
                     ) : null}
                     <p>
                         <span className={styles.label}>CoflCoins:</span> {numberWithThousandsSeperators(coflCoins)}
+                        <Button
+                            className={styles.sendCoflCoinsButton}
+                            onClick={() => {
+                                setShowSendCoflcoins(true)
+                            }}
+                        >
+                            Send CoflCoins
+                        </Button>
+                        <Modal
+                            size={'lg'}
+                            show={showSendcoflcoins}
+                            onHide={() => {
+                                setShowSendCoflcoins(false)
+                            }}
+                        >
+                            <Modal.Header closeButton>
+                                <Modal.Title>Send CoflCoins</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <TransferCoflCoins
+                                    onFinish={() => {
+                                        setShowSendCoflcoins(false)
+                                    }}
+                                />
+                            </Modal.Body>
+                        </Modal>
                     </p>
                 </div>
             ) : null}
