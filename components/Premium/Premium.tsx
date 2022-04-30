@@ -76,7 +76,11 @@ function Premium() {
                 let parts = googleId.split('.')
                 let obj = JSON.parse(Base64.atob(parts[1]))
                 let imageElement = obj.picture ? <img src={obj.picture} height={24} width={24} alt="" /> : <span />
-                return <span style={{ marginLeft: "10px" }}>{imageElement} {`${obj.name} (${obj.email})`}</span>;
+                return (
+                    <span style={{ marginLeft: '10px' }}>
+                        {imageElement} {`${obj.name} (${obj.email})`}
+                    </span>
+                )
             } catch {
                 setHasWrongFormattedGoogleToken(true)
             }
