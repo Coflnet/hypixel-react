@@ -72,7 +72,7 @@ function BuyPremium() {
                             </div>
                         ) : null}
                         <p style={{ marginTop: '20px' }}>
-                            This is not a recurring subscription. We won't automatically charge you after your premium time runs out!
+                            This is a prepaid service. We won't automatically charge you after your premium time runs out!
                         </p>
                         <hr />
                         <Button
