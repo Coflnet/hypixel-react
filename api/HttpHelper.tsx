@@ -55,7 +55,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
      * @param request The request-Object
      * @returns A emty promise (the resolve/reject Method of the request-Object is called)
      */
-    function sendApiRequest(request: ApiRequest, body?: any, cacheInvalidationGrouping?: number): Promise<void> {
+    function sendApiRequest(request: ApiRequest, body?: any): Promise<void> {
         request.mId = getNextMessageId()
         let requestString = request.data
         var url = `${apiEndpoint}/${request.type}`
@@ -66,17 +66,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
 
         if (request.customRequestURL) {
             url = request.customRequestURL
-        }
-
-        if (cacheInvalidationGrouping) {
-            if (url.charAt(url.length - 1) === '&' || url.charAt(url.length - 1) === '?') {
-                url = url.substring(0, url.length - 1)
-            }
-            if (url.indexOf('?') !== -1) {
-                url += `&t=${cacheInvalidationGrouping}`
-            } else {
-                url += `?t=${cacheInvalidationGrouping}`
-            }
         }
 
         return cacheUtils.getFromCache(request.customRequestURL || request.type, requestString).then(cacheValue => {
