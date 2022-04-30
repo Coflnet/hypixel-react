@@ -49,7 +49,6 @@ function Flipper(props: Props) {
                                 height="32"
                                 alt=""
                                 style={{ marginRight: '10px' }}
-                                loading="lazy"
                             />
                             <span>{player.name}</span>
                         </p>
@@ -67,7 +66,9 @@ function Flipper(props: Props) {
 
 export const getStaticProps = async ({ params }) => {
     let api = initAPI(true)
-    let apiResponses = await Promise.all([api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null)))
+    let apiResponses = await Promise.all(
+        [api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null))
+    )
 
     return {
         props: {
@@ -77,7 +78,8 @@ export const getStaticProps = async ({ params }) => {
             },
             flipTrackingResponse: apiResponses[1],
             targetFlip: (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString(16) === params.flipUid)
-        }
+        },
+        revalidate: 60
     }
 }
 

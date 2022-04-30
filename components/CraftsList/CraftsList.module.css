@@ -1,4 +1,4 @@
-.craftsList :global(.list-group-item ) {
+.craftsList :global(.list-group-item) {
     width: -webkit-fill-available;
     margin: 5px;
     margin-bottom: 15px;
@@ -20,8 +20,20 @@
     width: calc(100% - 10px);
 }
 
+.craftsList .preventSelect {
+    width: calc(100% - 10px);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
 @media all and (min-width: 768px) {
     .craftsList :global(.tooltipWrapper) {
+        width: calc(50% - 10px);
+    }
+    .craftsList .preventSelect {
         width: calc(50% - 10px);
     }
 }
@@ -30,15 +42,9 @@
     .craftsList :global(.tooltipWrapper) {
         width: calc(33% - 10px);
     }
-}
-
-.craftsList .preventSelect {
-    width: calc(50% - 10px);
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+    .craftsList .preventSelect {
+        width: calc(33% - 10px);
+    }
 }
 
 .craftsList .label {
@@ -54,6 +60,6 @@
     text-align: right;
 }
 
-.craftsList :global(.list-group-item) .craftRequirementLabel{
+.craftsList :global(.list-group-item) .craftRequirementLabel {
     margin-right: 10px;
 }

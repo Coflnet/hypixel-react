@@ -9,8 +9,7 @@ import styles from './RecentAuctions.module.css'
 
 interface Props {
     item: Item
-    fetchspan: number
-    itemFilter?: ItemFilter
+    itemFilter: ItemFilter
 }
 
 let currentLoadingString
@@ -29,22 +28,10 @@ function RecentAuctions(props: Props) {
     useEffect(() => {
         setIsLoading(true)
 
-        currentLoadingString = JSON.stringify({
-            tag: props.item.tag,
-            fetchspan: props.fetchspan,
-            itemFilter: props.itemFilter
-        })
+        currentLoadingString = props.item.tag
 
-        api.getRecentAuctions(props.item.tag, props.fetchspan, props.itemFilter).then(recentAuctions => {
-            if (
-                !mounted ||
-                currentLoadingString !==
-                    JSON.stringify({
-                        tag: props.item.tag,
-                        fetchspan: props.fetchspan,
-                        itemFilter: props.itemFilter
-                    })
-            ) {
+        api.getRecentAuctions(props.item.tag, props.itemFilter).then(recentAuctions => {
+            if (!mounted || currentLoadingString !== props.item.tag) {
                 return
             }
 
@@ -56,7 +43,7 @@ function RecentAuctions(props: Props) {
             mounted = false
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.item, props.fetchspan, JSON.stringify(props.itemFilter)])
+    }, [props.item.tag, JSON.stringify(props.itemFilter)])
 
     let recentAuctionList = recentAuctions.map(recentAuction => {
         return (

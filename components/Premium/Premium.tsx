@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Button, Card, Modal, OverlayTrigger } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
@@ -14,6 +14,8 @@ import styles from './Premium.module.css'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
+import Tooltip from '../Tooltip/Tooltip'
+import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { CopyButton } from '../CopyButton/CopyButton'
 
 function Premium() {
@@ -23,6 +25,7 @@ function Premium() {
     let [isLoading, setIsLoading] = useState(false)
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [isLoggingIn, setIsLoggingIn] = useState(false)
+    let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
     let [hasWrongFormattedGoogleToken, setHasWrongFormattedGoogleToken] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
@@ -73,7 +76,11 @@ function Premium() {
                 let parts = googleId.split('.')
                 let obj = JSON.parse(Base64.atob(parts[1]))
                 let imageElement = obj.picture ? <img src={obj.picture} height={24} width={24} alt="" /> : <span />
-                return <span style={{ marginLeft: "10px" }}>{imageElement} {`${obj.name} (${obj.email})`}</span>;
+                return (
+                    <span style={{ marginLeft: '10px' }}>
+                        {imageElement} {`${obj.name} (${obj.email})`}
+                    </span>
+                )
             } catch {
                 setHasWrongFormattedGoogleToken(true)
             }
@@ -119,15 +126,11 @@ function Premium() {
                 {isLoggedIn && !hasWrongFormattedGoogleToken ? <p>Account: {getAccountString()}</p> : ''}
                 {hasPremium ? (
                     <div>
-                        <OverlayTrigger
-                            overlay={
-                                <Tooltip id={generateUUID()}>
-                                    <span>{hasPremiumUntil?.toDateString()}</span>
-                                </Tooltip>
-                            }
-                        >
-                            <span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>
-                        </OverlayTrigger>
+                        <Tooltip
+                            type="hover"
+                            content={<span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>}
+                            tooltipContent={<span>{hasPremiumUntil?.toDateString()}</span>}
+                        />
                     </div>
                 ) : (
                     ''
@@ -183,7 +186,35 @@ function Premium() {
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>
                     <hr />
-                    <h2>CoflCoins</h2>
+                    <h2>
+                        CoflCoins
+                        <Button
+                            className={styles.sendCoflCoinsButton}
+                            onClick={() => {
+                                setShowSendCoflCoins(true)
+                            }}
+                        >
+                            Send CoflCoins
+                        </Button>
+                        <Modal
+                            size={'lg'}
+                            show={showSendCoflCoins}
+                            onHide={() => {
+                                setShowSendCoflCoins(false)
+                            }}
+                        >
+                            <Modal.Header closeButton>
+                                <Modal.Title>Send CoflCoins</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <TransferCoflCoins
+                                    onFinish={() => {
+                                        setShowSendCoflCoins(false)
+                                    }}
+                                />
+                            </Modal.Body>
+                        </Modal>
+                    </h2>
                     <p>By buying one of the following products, you confirm the immediate execution of the contract, hereby losing your cancellation right.</p>
                     <CoflCoinsPurchase />
                 </div>

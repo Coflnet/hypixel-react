@@ -43,7 +43,8 @@ export const getStaticProps = async () => {
             newPlayers: results[1],
             popularSearches: results[2],
             newItems: results[3]
-        }
+        },
+        revalidate: 60
     }
 }
 
