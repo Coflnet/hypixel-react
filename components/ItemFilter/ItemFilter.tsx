@@ -172,7 +172,7 @@ function ItemFilter(props: Props) {
         let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoa(JSON.stringify(filter))
 
         router.query.itemFilter = filterString || ''
-        router.replace(router)
+        router.replace(router, undefined, { shallow: true })
     }
 
     function onFilterChange(filter: ItemFilter) {
@@ -224,8 +224,7 @@ function ItemFilter(props: Props) {
 
     function getDefaultValue(filterName: string): string {
         let options = props.filters?.find(f => f.name === filterName)
-        console.log(options)
-        let defaultValue: any = 0
+        let defaultValue: any = ''
         if (options && options.options[0] !== null && options.options[0] !== undefined) {
             // dont set the first option for search-selects
             if (!(hasFlag(options.type, FilterType.EQUAL) && !hasFlag(options.type, FilterType.SIMPLE))) {
