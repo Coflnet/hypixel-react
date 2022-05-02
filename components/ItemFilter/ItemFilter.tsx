@@ -104,6 +104,10 @@ function ItemFilter(props: Props) {
         selectedFilters = [...selectedFilters, filterName]
         setSelectedFilters(selectedFilters)
 
+        if (itemFilter[filterName] === undefined) {
+            itemFilter[filterName] = getDefaultValue(filterName)
+        }
+
         updateURLQuery(itemFilter)
         setItemFilter(itemFilter)
     }
@@ -218,8 +222,9 @@ function ItemFilter(props: Props) {
         onFilterChange(newFilter)
     }
 
-    let filterList = selectedFilters.map(filterName => {
+    function getDefaultValue(filterName: string): string {
         let options = props.filters?.find(f => f.name === filterName)
+        console.log(options)
         let defaultValue: any = 0
         if (options && options.options[0] !== null && options.options[0] !== undefined) {
             // dont set the first option for search-selects
@@ -227,9 +232,16 @@ function ItemFilter(props: Props) {
                 defaultValue = options.options[0]
             }
         }
+        return defaultValue
+    }
+
+    let filterList = selectedFilters.map(filterName => {
+        let options = props.filters?.find(f => f.name === filterName)
         if (!options) {
-            return ''
+            return null
         }
+
+        let defaultValue = getDefaultValue(filterName)
         if (itemFilter[filterName]) {
             defaultValue = itemFilter[filterName]
         }
