@@ -118,3 +118,7 @@
     align-items: stretch;
     flex-wrap: nowrap;
 }
+
+.flipCustomizeModal {
+    background-color: red !important;
+}
