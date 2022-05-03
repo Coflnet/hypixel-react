@@ -41,7 +41,7 @@ function AuctionDetails(props: Props) {
     let tryNumber = 1
     function loadAuctionDetails(auctionUUID: string) {
         setIsLoading(true)
-        api.getAuctionDetails(auctionUUID, tryNumber)
+        api.getAuctionDetails(auctionUUID)
             .then(auctionDetails => {
                 auctionDetails.bids.sort((a, b) => b.amount - a.amount)
                 auctionDetails.auction.item.iconUrl = api.getItemImageUrl(auctionDetails.auction.item)
@@ -211,9 +211,7 @@ function AuctionDetails(props: Props) {
             <Modal.Header closeButton>
                 <Modal.Title>Similar auctions from the past</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                {auctionDetails ? <FlipBased auctionUUID={auctionDetails.auction.uuid} item={auctionDetails.auction.item} /> : null}
-            </Modal.Body>
+            <Modal.Body>{auctionDetails ? <FlipBased auctionUUID={auctionDetails.auction.uuid} item={auctionDetails.auction.item} /> : null}</Modal.Body>
         </Modal>
     ) : null
 
