@@ -57,7 +57,7 @@ function RecentAuctions(props: Props) {
                     itemFilter['HighestBid'] = '>0'
                     break
                 case RECENT_AUCTIONS_FETCH_TYPE.UNSOLD:
-                    itemFilter['HighestBid'] = '=0'
+                    itemFilter['HighestBid'] = '0'
                     break
                 case RECENT_AUCTIONS_FETCH_TYPE.ALL:
                 default:
