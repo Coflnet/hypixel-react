@@ -1,18 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react'
-import api from '../../api/ApiHelper'
+import api from '../../../api/ApiHelper'
 import graphConfig from './PriceGraphConfig'
-import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../ItemPriceRange/ItemPriceRange'
-import { getLoadingElement } from '../../utils/LoadingUtils'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
-import ShareButton from '../ShareButton/ShareButton'
-import ItemFilter from '../ItemFilter/ItemFilter'
-import SubscribeButton from '../SubscribeButton/SubscribeButton'
-import RecentAuctions from '../RecentAuctions/RecentAuctions'
-import { getItemFilterFromUrl } from '../../utils/Parser/URLParser'
-import ActiveAuctions from '../ActiveAuctions/ActiveAuctions'
-import { isClientSideRendering } from '../../utils/SSRUtils'
-import styles from './PriceGraph.module.css'
+import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { getLoadingElement } from '../../../utils/LoadingUtils'
+import { numberWithThousandsSeperators } from '../../../utils/Formatter'
+import ShareButton from '../../ShareButton/ShareButton'
+import ItemFilter from '../../ItemFilter/ItemFilter'
+import SubscribeButton from '../../SubscribeButton/SubscribeButton'
+import RecentAuctions from '../../RecentAuctions/RecentAuctions'
+import { getItemFilterFromUrl } from '../../../utils/Parser/URLParser'
+import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
+import { isClientSideRendering } from '../../../utils/SSRUtils'
+import styles from './AuctionHousePriceGraph.module.css'
 import ReactECharts from 'echarts-for-react'
 
 interface Props {
@@ -24,7 +24,7 @@ let currentLoadingString
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true
 
-function PriceGraph(props: Props) {
+function AuctionHousePriceGraph(props: Props) {
     let [fetchspan, setFetchspan] = useState(DEFAULT_DATE_RANGE)
     let [isLoading, setIsLoading] = useState(false)
     let [noDataFound, setNoDataFound] = useState(false)
@@ -40,6 +40,7 @@ function PriceGraph(props: Props) {
 
     useEffect(() => {
         mounted = true
+
         return () => {
             mounted = false
         }
@@ -151,6 +152,16 @@ function PriceGraph(props: Props) {
         })
     }
 
+    let graphOverlayElement = isLoading ? (
+        <div className={styles.graphOverlay}>{getLoadingElement()}</div>
+    ) : noDataFound && !isLoading ? (
+        <div className={styles.graphOverlay}>
+            <div style={{ textAlign: 'center' }}>
+                <p>No data found</p>
+            </div>
+        </div>
+    ) : null
+
     return (
         <div>
             <ItemFilter filters={filters} onFilterChange={onFilterChange} isPrefill={isItemFilterPrefill} />
@@ -159,10 +170,14 @@ function PriceGraph(props: Props) {
                 onRangeChange={onRangeChange}
                 disableAllTime={itemFilter && JSON.stringify(itemFilter) !== '{}'}
                 item={props.item}
+                dateRangesToDisplay={[DateRange.ACTIVE, DateRange.DAY, DateRange.WEEK, DateRange.MONTH, DateRange.ALL]}
             />
 
             <div style={fetchspan === DateRange.ACTIVE ? { display: 'none' } : {}}>
-                {chartOptions.xAxis[0].data.length > 0 ? <ReactECharts option={chartOptions} className={styles.chart} /> : null}
+                <div className={styles.chartWrapper}>
+                    {graphOverlayElement}
+                    {chartOptions.xAxis[0].data.length > 0 ? <ReactECharts option={chartOptions} className={styles.chart} /> : null}
+                </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
                         <b>Avg Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(avgPrice) + ' Coins'}
@@ -178,15 +193,14 @@ function PriceGraph(props: Props) {
                     </div>
                 </div>
                 <hr />
-                {props.item?.bazaar || fetchspan === DateRange.ACTIVE ? (
-                    <p className={styles.bazaarNotice}>This is a bazaar item. There are no recent auctions.</p>
-                ) : (
-                    <RecentAuctions item={props.item} itemFilter={itemFilter} />
-                )}
             </div>
-            {fetchspan === DateRange.ACTIVE ? <ActiveAuctions item={props.item} filter={itemFilter} /> : ''}
+            {fetchspan === DateRange.ACTIVE ? (
+                <ActiveAuctions item={props.item} filter={itemFilter} />
+            ) : (
+                <RecentAuctions item={props.item} itemFilter={itemFilter} />
+            )}
         </div>
     )
 }
 
-export default PriceGraph
+export default AuctionHousePriceGraph

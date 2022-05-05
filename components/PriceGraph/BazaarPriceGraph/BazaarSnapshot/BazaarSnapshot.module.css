@@ -1,0 +1,36 @@
+.flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.informationField {
+    width: 45%;
+}
+
+.label {
+    width: 250px;
+    float: left;
+    font-weight: bold;
+}
+
+.headline {
+    margin-bottom: 15px;
+}
+
+@media all and (max-width: 768px) {
+    .label {
+        width: auto;
+        margin-right: 15px;
+    }
+    .informationField {
+        width: 100%;
+    }
+}
+
+@media all and (max-width: 350px) {
+    .label {
+        width: 100%;
+    }
+}

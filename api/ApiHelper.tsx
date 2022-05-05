@@ -2,6 +2,8 @@ import {
     parseAccountInfo,
     parseAuction,
     parseAuctionDetails,
+    parseBazaarPrice,
+    parseBazaarSnapshot,
     parseCraftingRecipe,
     parseEnchantment,
     parseFilterOption,
@@ -137,6 +139,27 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         itemTag,
                         fetchSpan,
                         itemFilter
+                    })
+                    reject()
+                }
+            })
+        })
+    }
+
+    let getBazaarPrices = (itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.BAZAAR_PRICES,
+                data: '',
+                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/${fetchSpan}`,
+                requestMethod: 'GET',
+                resolve: (data: any) => {
+                    resolve(data.map(parseBazaarPrice))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.BAZAAR_PRICES, error, {
+                        itemTag,
+                        fetchSpan
                     })
                     reject()
                 }
@@ -1457,6 +1480,54 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getBazaarSnapshot = (itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot> => {
+        return new Promise((resolve, reject) => {
+            let isoTimestamp = timestamp
+            if (timestamp && typeof timestamp === 'number') {
+                isoTimestamp = new Date(timestamp).toISOString()
+            }
+            if (timestamp && typeof (timestamp as any).getTime === 'function') {
+                isoTimestamp = new Date((timestamp as Date).getTime()).toISOString()
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_BAZAAR_SNAPSHOT,
+                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/snapshot${isoTimestamp ? `?timestamp=${isoTimestamp}` : ''}`,
+                data: '',
+                resolve: function (data) {
+                    if (!data) {
+                        resolve({
+                            item: {
+                                tag: ''
+                            },
+                            buyData: {
+                                moving: 0,
+                                orderCount: 0,
+                                price: 0,
+                                volume: 0
+                            },
+                            sellData: {
+                                moving: 0,
+                                orderCount: 0,
+                                price: 0,
+                                volume: 0
+                            },
+                            sellOrders: [],
+                            buyOrders: [],
+                            timeStamp: new Date()
+                        })
+                        return
+                    }
+                    resolve(parseBazaarSnapshot(data))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_BAZAAR_SNAPSHOT, error, { itemTag, timestamp: isoTimestamp })
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1517,7 +1588,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         setFlipSetting,
         getKatFlips,
         getTrackedFlipsForPlayer,
-        transferCoflCoins
+        transferCoflCoins,
+        getBazaarSnapshot,
+        getBazaarPrices
     }
 }
 

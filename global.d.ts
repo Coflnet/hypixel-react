@@ -221,6 +221,8 @@ interface API {
     getKatFlips(): Promise<KatFlip[]>
     getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
     transferCoflCoins(email: string, mcId: string, amount: number, reference: string): Promise<void>
+    getBazaarSnapshot(itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot>
+    getBazaarPrices(itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]>
 }
 
 interface CacheUtils {
@@ -424,6 +426,42 @@ interface FlipTrackingFlip {
 interface FlipTrackingResponse {
     flips: FlipTrackingFlip[]
     totalProfit: number
+}
+
+interface BazaarOrder {
+    amount: number
+    pricePerUnit: number
+    orders: number
+}
+
+interface BazaarPriceData {
+    max: number
+    min: number
+    price: number
+    volume: number
+    moving: number
+}
+
+interface BazaarPrice {
+    buyData: BazaarPriceData
+    sellData: BazaarPriceData
+    timestamp: Date
+}
+
+interface BazaarSnapshotData {
+    orderCount: number
+    price: number
+    volume: number
+    moving: number
+}
+
+interface BazaarSnapshot {
+    item: Item
+    buyData: BazaarSnapshotData
+    sellData: BazaarSnapshotData
+    timeStamp: Date
+    buyOrders: BazaarOrder[]
+    sellOrders: BazaarOrder[]
 }
 
 enum DateRange {

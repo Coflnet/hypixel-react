@@ -1,5 +1,6 @@
 import api from '../../api/ApiHelper'
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
+import { hasFlag } from '../../components/FilterElement/FilterType'
 import { getFlipFinders } from '../FlipUtils'
 import { convertTagToName } from '../Formatter'
 
@@ -93,7 +94,7 @@ export function parseItem(item: any): Item {
         iconUrl: item.iconUrl || item.icon || api.getItemImageUrl(item),
         tier: item.tier,
         description: item.description,
-        bazaar: item.bazaar
+        bazaar: hasFlag(item.flags, 1)
     }
 }
 
@@ -487,9 +488,58 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
     return flipTrackingFlip
 }
 
+export function parseBazaarOrder(order): BazaarOrder {
+    return {
+        amount: order.amount,
+        pricePerUnit: order.pricePerUnit,
+        orders: order.orders
+    }
+}
+
+export function parseBazaarSnapshot(snapshot): BazaarSnapshot {
+    return {
+        item: parseItem({ tag: snapshot.productId }),
+        buyData: {
+            orderCount: snapshot.buyOrdersCount,
+            price: snapshot.buyPrice,
+            volume: snapshot.buyVolume,
+            moving: snapshot.buyMovingWeek
+        },
+        sellData: {
+            orderCount: snapshot.sellOrdersCount,
+            price: snapshot.sellPrice,
+            volume: snapshot.sellVolume,
+            moving: snapshot.sellMovingWeek
+        },
+        timeStamp: parseDate(snapshot.timeStamp),
+        buyOrders: snapshot.buyOrders.map(parseBazaarOrder),
+        sellOrders: snapshot.sellOrders.map(parseBazaarOrder)
+    }
+}
+
 export function parseFlipTrackingResponse(flipTrackingResponse): FlipTrackingResponse {
     return {
         flips: flipTrackingResponse.flips.map(parseFlipTrackingFlip),
         totalProfit: flipTrackingResponse.totalProfit
+    }
+}
+
+export function parseBazaarPrice(bazaarPrice): BazaarPrice {
+    return {
+        buyData: {
+            max: bazaarPrice.maxBuy,
+            min: bazaarPrice.minBuy,
+            price: bazaarPrice.buy,
+            volume: bazaarPrice.buyVolume,
+            moving: bazaarPrice.buyMovingWeek
+        },
+        sellData: {
+            max: bazaarPrice.maxSell,
+            min: bazaarPrice.minSell,
+            price: bazaarPrice.sell,
+            volume: bazaarPrice.sellVolume,
+            moving: bazaarPrice.sellMovingWeek
+        },
+        timestamp: parseDate(bazaarPrice.timestamp)
     }
 }
