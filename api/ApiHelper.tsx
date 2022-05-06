@@ -38,13 +38,17 @@ import { isClientSideRendering } from '../utils/SSRUtils'
 import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
 
+function getApiEndpoint() {
+    return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT
+}
+
 export function initAPI(returnSSRResponse: boolean = false): API {
     let httpApi: HttpApi
     if (isClientSideRendering()) {
         httpApi = initHttpHelper()
     } else {
         let commandEndpoint = process.env.COMMAND_ENDPOINT
-        let apiEndpoint = process.env.API_ENDPOINT
+        let apiEndpoint = getApiEndpoint()
         httpApi = initHttpHelper(commandEndpoint, apiEndpoint)
     }
 
@@ -96,7 +100,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_DETAILS,
-                customRequestURL: `${getProperty('apiEndpoint')}/item/${itemTag}/details`,
+                customRequestURL: `${getApiEndpoint()}/item/${itemTag}/details`,
                 data: '',
                 resolve: (item: any) => {
                     returnSSRResponse ? resolve(item) : resolve(parseItem(item))
@@ -123,7 +127,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_PRICES,
                 data: '',
-                customRequestURL: getProperty('apiEndpoint') + `/item/price/${itemTag}/history/${fetchSpan}?${query}`,
+                customRequestURL: getApiEndpoint() + `/item/price/${itemTag}/history/${fetchSpan}?${query}`,
                 requestMethod: 'GET',
                 requestHeader: {
                     'Content-Type': 'application/json'
@@ -300,7 +304,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.PLAYER_NAME,
-                customRequestURL: `${getProperty('apiEndpoint')}/player/${uuid}/name`,
+                customRequestURL: `${getApiEndpoint()}/player/${uuid}/name`,
                 data: '',
                 resolve: name => {
                     resolve(name)
@@ -497,7 +501,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
             httpApi.sendApiRequest({
                 type: RequestType.RECENT_AUCTIONS,
-                customRequestURL: getProperty('apiEndpoint') + `/auctions/tag/${itemTag}/recent/overview?${query}`,
+                customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${query}`,
                 data: '',
                 resolve: (data: any) => {
                     resolve(data.map(a => parseRecentAuction(a)))
@@ -1318,9 +1322,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             httpApi.sendApiRequest({
                 type: RequestType.GET_PROFITABLE_CRAFTS,
                 customRequestURL:
-                    playerId && profileId
-                        ? getProperty('apiEndpoint') + '/' + RequestType.GET_PROFITABLE_CRAFTS + `?profile=${profileId}&player=${playerId}`
-                        : undefined,
+                    playerId && profileId ? getApiEndpoint() + '/' + RequestType.GET_PROFITABLE_CRAFTS + `?profile=${profileId}&player=${playerId}` : undefined,
                 data: '',
                 resolve: function (crafts) {
                     returnSSRResponse ? resolve(crafts) : resolve(crafts.map(parseProfitableCraft))
@@ -1338,7 +1340,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             httpApi.sendApiRequest({
                 type: RequestType.TRIGGER_PLAYER_NAME_CHECK,
                 data: '',
-                customRequestURL: getProperty('apiEndpoint') + '/player/' + playerUUID + '/name',
+                customRequestURL: getApiEndpoint() + '/player/' + playerUUID + '/name',
                 requestMethod: 'POST',
                 resolve: function () {
                     resolve()
@@ -1447,7 +1449,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_PRICE_SUMMARY,
-                customRequestURL: `${getProperty('apiEndpoint')}/${RequestType.ITEM_PRICE_SUMMARY}/${itemTag}?${getParams}`,
+                customRequestURL: `${getApiEndpoint()}/${RequestType.ITEM_PRICE_SUMMARY}/${itemTag}?${getParams}`,
                 data: '',
                 resolve: function (data) {
                     returnSSRResponse ? resolve(data) : resolve(parseItemSummary(data))
