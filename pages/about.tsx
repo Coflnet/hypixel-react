@@ -1,38 +1,9 @@
-import React, { ChangeEvent, useEffect } from 'react'
-import { Button, Card, Container, Form } from 'react-bootstrap'
+import React from 'react'
+import { Card, Container } from 'react-bootstrap'
 import NavBar from '../components/NavBar/NavBar'
-import Cookies from 'js-cookie'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
-import cacheUtils from '../utils/CacheUtils'
 import { getHeadElement } from '../utils/SSRUtils'
 
 function About() {
-    const { pushInstruction } = useMatomo()
-
-    function setTrackingAllowed(event: ChangeEvent<HTMLInputElement>) {
-        let val = event.target.checked
-        if (val) {
-            pushInstruction('rememberConsentGiven')
-            Cookies.set('nonEssentialCookiesAllowed', 'true')
-        } else {
-            pushInstruction('forgetConsentGiven')
-            Cookies.set('nonEssentialCookiesAllowed', false)
-        }
-    }
-
-    function isTrackingAllowed() {
-        let cookie = Cookies.get('nonEssentialCookiesAllowed')
-        return cookie === 'true'
-    }
-
-    function deleteCaches() {
-        cacheUtils.clearAll()
-        document.cookie = ''
-        localStorage.clear()
-        sessionStorage.clear()
-        window.location.reload()
-    }
-
     return (
         <div className="page">
             {getHeadElement('About')}
@@ -133,21 +104,6 @@ function About() {
                     <p>
                         <a href="https://coflnet.com/impressum">Imprint</a>
                     </p>
-                    <hr />
-                    <p style={{ marginBottom: '0px' }}>
-                        <label>Allow cookies for tracking: </label>
-                        <Form.Check
-                            style={{ display: 'inline', marginLeft: '15px' }}
-                            onChange={setTrackingAllowed}
-                            defaultChecked={isTrackingAllowed()}
-                            type="checkbox"
-                        />
-                    </p>
-                    <hr />
-                    <Button variant="danger" onClick={deleteCaches}>
-                        Delete Caches/Cookies and hard refresh.
-                    </Button>
-                    <p style={{ color: 'red' }}>Caution: Deleting your Caches/Cookies will delete all your settings and log you out.</p>
                 </Card>
             </Container>
         </div>

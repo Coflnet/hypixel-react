@@ -174,11 +174,12 @@ function FlipperFilter(props: Props) {
             onHide={() => {
                 setShowRestrictionList(false)
             }}
+            scrollable={true}
         >
             <Modal.Header closeButton>
                 <Modal.Title>Restrict the flip results</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className={styles.restrictionModal}>
                 <FlipRestrictionList onRestrictionsChange={onRestrictionsChange} />
             </Modal.Body>
         </Modal>

@@ -268,7 +268,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctionDetails = (auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails> => {
+    let getAuctionDetails = (auctionUUID: string): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.AUCTION_DETAILS,
@@ -496,7 +496,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 })
             }
 
-            httpApi.sendLimitedCacheApiRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.RECENT_AUCTIONS,
                 customRequestURL: getProperty('apiEndpoint') + `/auctions/tag/${itemTag}/recent/overview?${query}`,
                 data: '',
@@ -1132,19 +1132,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getFlipUpdateTime = (): Promise<Date> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheApiRequest(
-                {
-                    type: RequestType.FLIP_UPDATE_TIME,
-                    data: '',
-                    resolve: function (data) {
-                        resolve(new Date(data))
-                    },
-                    reject: function (error) {
-                        apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, '')
-                    }
+            httpApi.sendApiRequest({
+                type: RequestType.FLIP_UPDATE_TIME,
+                data: '',
+                resolve: function (data) {
+                    resolve(new Date(data))
                 },
-                1
-            )
+                reject: function (error) {
+                    apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, '')
+                }
+            })
         })
     }
     let playerSearch = (playerName: string): Promise<Player[]> => {
@@ -1165,27 +1162,24 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getLowSupplyItems = (): Promise<LowSupplyItem[]> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheApiRequest(
-                {
-                    type: RequestType.GET_LOW_SUPPLY_ITEMS,
-                    data: '',
-                    resolve: function (items) {
-                        returnSSRResponse
-                            ? resolve(items)
-                            : resolve(
-                                  items.map(item => {
-                                      let lowSupplyItem = parseLowSupplyItem(item)
-                                      return lowSupplyItem
-                                  })
-                              )
-                    },
-                    reject: function (error) {
-                        apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
-                        reject()
-                    }
+            httpApi.sendApiRequest({
+                type: RequestType.GET_LOW_SUPPLY_ITEMS,
+                data: '',
+                resolve: function (items) {
+                    returnSSRResponse
+                        ? resolve(items)
+                        : resolve(
+                              items.map(item => {
+                                  let lowSupplyItem = parseLowSupplyItem(item)
+                                  return lowSupplyItem
+                              })
+                          )
                 },
-                1
-            )
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
+                    reject()
+                }
+            })
         })
     }
 
