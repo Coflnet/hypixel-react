@@ -10,22 +10,23 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter'
 
 function Payment() {
     let [isLoadingId, setLoadingId] = useState('')
+    let [currentRedirectLink, setCurrentRedirectLink] = useState('')
     let [showAll, setShowAll] = useState(false)
     let coflCoins = useCoflCoins()
 
     function onPayPaypal(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
         api.paypalPurchase(productId, coflCoins).then(data => {
+            setCurrentRedirectLink(data.directLink)
             window.open(data.directLink)
-            setLoadingId('')
         })
     }
 
     function onPayStripe(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
         api.stripePurchase(productId, coflCoins).then(data => {
+            setCurrentRedirectLink(data.directLink)
             window.open(data.directLink)
-            setLoadingId('')
         })
     }
 
@@ -56,9 +57,17 @@ function Payment() {
                             }}
                             style={{ width: '40%' }}
                         >
-                            {payPalProductId === isLoadingId
-                                ? getLoadingElement(<p>Redirecting to checkout...</p>)
-                                : `${numberWithThousandsSeperators(Math.round(paypalPrice * 100) / 100)} Euro`}
+                            {payPalProductId === isLoadingId ? (
+                                <p className={styles.manualRedirectLink}>
+                                    Redirecting to PayPal...
+                                    <br /> Not working?{' '}
+                                    <a href={currentRedirectLink} target="_blank">
+                                        Click here
+                                    </a>
+                                </p>
+                            ) : (
+                                `${numberWithThousandsSeperators(Math.round(paypalPrice * 100) / 100)} Euro`
+                            )}
                         </Button>
                     </p>
                     <p className={styles.paymentOption}>
@@ -70,9 +79,18 @@ function Payment() {
                             }}
                             style={{ width: '40%' }}
                         >
-                            {stripeProductId === isLoadingId
-                                ? getLoadingElement(<p>Redirecting to checkout...</p>)
-                                : `${numberWithThousandsSeperators(Math.round(stripePrice * 100) / 100)} Euro`}
+                            {stripeProductId === isLoadingId ? (
+                                <p className={styles.manualRedirectLink}>
+                                    Redirecting to Stripe...
+                                    <br />
+                                    Not working?{' '}
+                                    <a href={currentRedirectLink} target="_blank">
+                                        Click here
+                                    </a>
+                                </p>
+                            ) : (
+                                `${numberWithThousandsSeperators(Math.round(stripePrice * 100) / 100)} Euro`
+                            )}
                         </Button>
                     </p>
                 </Card.Body>
