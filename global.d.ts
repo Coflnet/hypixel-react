@@ -25,7 +25,6 @@ interface Item {
     name?: string
     category?: string
     iconUrl?: string
-    description?: string
     bazaar?: boolean
 }
 

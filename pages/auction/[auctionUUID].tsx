@@ -133,7 +133,6 @@ export const getStaticProps = async ({ params }) => {
 
     let namePromises: Promise<void>[] = []
     try {
-        auctionDetails.description = item.description
         auctionDetails.iconUrl = api.getItemImageUrl(auctionDetails)
         if (!auctionDetails.name) {
             auctionDetails.name = auctionDetails.itemName
