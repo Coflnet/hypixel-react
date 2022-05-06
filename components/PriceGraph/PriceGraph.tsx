@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Chart, { ChartConfiguration } from 'chart.js'
 import api from '../../api/ApiHelper'
 import priceConfig from './PriceGraphConfig'
-import { DEFAULT_DATE_RANGE, getTimeSpanFromDateRange, ItemPriceRange } from '../ItemPriceRange/ItemPriceRange'
+import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../ItemPriceRange/ItemPriceRange'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import ShareButton from '../ShareButton/ShareButton'
@@ -12,7 +12,7 @@ import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import RecentAuctions from '../RecentAuctions/RecentAuctions'
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser'
 import ActiveAuctions from '../ActiveAuctions/ActiveAuctions'
-import {isClientSideRendering} from '../../utils/SSRUtils'
+import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './PriceGraph.module.css'
 
 interface Props {
@@ -27,7 +27,7 @@ let mounted = true
 function PriceGraph(props: Props) {
     const priceChartCanvas = useRef<HTMLCanvasElement>(null)
     let [priceChart, setPriceChart] = useState<Chart>()
-    let [fetchspan, setFetchspan] = useState(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE))
+    let [fetchspan, setFetchspan] = useState(DEFAULT_DATE_RANGE)
     let [isLoading, setIsLoading] = useState(false)
     let [noDataFound, setNoDataFound] = useState(false)
     let [avgPrice, setAvgPrice] = useState(0)
@@ -47,15 +47,15 @@ function PriceGraph(props: Props) {
     }, [])
 
     useEffect(() => {
-        if(!isClientSideRendering()){
-            return;
+        if (!isClientSideRendering()) {
+            return
         }
         loadFilters()
     }, [props.item.tag])
 
     useEffect(() => {
-        fetchspan = getTimeSpanFromDateRange(DEFAULT_DATE_RANGE)
-        setFetchspan(getTimeSpanFromDateRange(DEFAULT_DATE_RANGE))
+        fetchspan = DEFAULT_DATE_RANGE
+        setFetchspan(DEFAULT_DATE_RANGE)
         if (priceChartCanvas && priceChartCanvas.current) {
             if (Object.keys(getItemFilterFromUrl()).length === 0) {
                 setIsItemFilterPrefill(false)
@@ -69,10 +69,10 @@ function PriceGraph(props: Props) {
         }
     }, [props.item.tag])
 
-    let updateChart = (priceChart: Chart, fetchspan: number, itemFilter?: ItemFilter) => {
+    let updateChart = (priceChart: Chart, fetchspan: DateRange, itemFilter?: ItemFilter) => {
         // active auction is selected
         // no need to get new price data
-        if (fetchspan <= 0) {
+        if (fetchspan === DateRange.ACTIVE) {
             setIsLoading(false)
             return
         }
@@ -89,8 +89,8 @@ function PriceGraph(props: Props) {
             itemFilter
         })
 
-        api.getItemPrices(props.item.tag, fetchspan, itemFilter)
-            .then(result => {
+        api.getItemPrices(props.item.tag, fetchspan as any, itemFilter)
+            .then(prices => {
                 if (
                     !mounted ||
                     currentLoadingString !==
@@ -103,7 +103,7 @@ function PriceGraph(props: Props) {
                     return
                 }
 
-                priceChart!.data.labels = result.prices.map(item => item.time.getTime())
+                priceChart!.data.labels = prices.map(item => item.time.getTime())
                 priceChart!.data.labels = priceChart!.data!.labels!.sort((a, b) => {
                     return (a as number) - (b as number)
                 })
@@ -114,7 +114,7 @@ function PriceGraph(props: Props) {
                 priceChart!.data.datasets![2].data = []
                 priceChart!.data.datasets![3].data = []
 
-                result.prices.forEach(item => {
+                prices.forEach(item => {
                     priceSum += item.avg
                     priceChart!.data!.datasets![0].data!.push(item.avg)
                     priceChart!.data!.datasets![1].data!.push(item.min)
@@ -123,9 +123,9 @@ function PriceGraph(props: Props) {
                 })
 
                 priceChart.update()
-                setAvgPrice(Math.round(priceSum / result.prices.length))
+                setAvgPrice(Math.round(priceSum / prices.length))
                 setPriceChart(priceChart)
-                setNoDataFound(result.prices.length === 0)
+                setNoDataFound(prices.length === 0)
                 setIsLoading(false)
                 setTimeout(() => {
                     setIsItemFilterPrefill(false)
@@ -142,9 +142,9 @@ function PriceGraph(props: Props) {
         return new Chart(priceChartCanvas.current as HTMLCanvasElement, chartConfig)
     }
 
-    let onRangeChange = (timespan: number) => {
+    let onRangeChange = (timespan: DateRange) => {
         setFetchspan(timespan)
-        if (priceChart && timespan > 0) {
+        if (priceChart && timespan !== DateRange.ACTIVE) {
             updateChart(priceChart!, timespan, itemFilter)
         }
     }
@@ -152,7 +152,7 @@ function PriceGraph(props: Props) {
     let onFilterChange = (filter: ItemFilter) => {
         setItemFilter(filter)
         setDefaultRangeSwitch(!defaultRangeSwitch)
-        if (fetchspanRef.current > 0) {
+        if (fetchspanRef.current !== DateRange.ACTIVE) {
             updateChart(priceChart || createChart(priceConfig), fetchspanRef.current, filter)
         }
     }
@@ -185,7 +185,7 @@ function PriceGraph(props: Props) {
                 item={props.item}
             />
 
-            <div style={fetchspan <= 0 ? { display: 'none' } : {}}>
+            <div style={fetchspan === DateRange.ACTIVE ? { display: 'none' } : {}}>
                 <div className={styles.graphCanvasContainer}>
                     {graphOverlayElement}
                     <canvas ref={priceChartCanvas} />
@@ -205,13 +205,13 @@ function PriceGraph(props: Props) {
                     </div>
                 </div>
                 <hr />
-                {props.item?.bazaar || fetchspan <= 0 ? (
+                {props.item?.bazaar || fetchspan === DateRange.ACTIVE ? (
                     <p className={styles.bazaarNotice}>This is a bazaar item. There are no recent auctions.</p>
                 ) : (
-                    <RecentAuctions fetchspan={fetchspan} item={props.item} itemFilter={itemFilter} />
+                    <RecentAuctions item={props.item} itemFilter={itemFilter} />
                 )}
             </div>
-            {fetchspan <= 0 ? <ActiveAuctions item={props.item} filter={itemFilter} /> : ''}
+            {fetchspan === DateRange.ACTIVE ? <ActiveAuctions item={props.item} filter={itemFilter} /> : ''}
         </div>
     )
 }

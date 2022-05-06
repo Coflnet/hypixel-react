@@ -35,8 +35,8 @@ export enum RequestType {
     ENDED_AUCTIONS = "endedAuctions",
     GET_FLIP_BASED_AUCTIONS = "flipBased",
     PAYPAL_PAYMENT = "topup/paypal",
-    GET_REF_INFO = "getRefInfo",
-    SET_REF = "setRef",
+    GET_REF_INFO = "referral/info",
+    SET_REF = "referral/referred/by",
     ACTIVE_AUCTIONS = "activeAuctions",
     FILTER_FOR = "filterFor",
     FLIP_FILTERS = "flipFilters",
@@ -61,7 +61,8 @@ export enum RequestType {
     SUBSCRIBE_COFLCOINS = 'subscribeCoflCoins',
     GET_COFLCOIN_BALANCE = 'getCoflBalance',
     GET_FLIP_SETTINGS = 'getFlipSettings',
-    SET_FLIP_SETTING = 'setFlipSetting'
+    SET_FLIP_SETTING = 'setFlipSetting',
+    TRASFER_COFLCOINS = 'transferCofl'
 }
 
 export enum SubscriptionType {
@@ -114,8 +115,6 @@ export interface WebsocketHelper extends Connection {
 
 export interface HttpApi extends Connection {
     sendApiRequest(request: ApiRequest, body?: any): Promise<void>
-    sendLimitedCacheApiRequest(request: ApiRequest, grouping: number)
-    sendLimitedCacheApiRequest(request: ApiRequest)
     sendLimitedCacheRequest(request: ApiRequest, grouping: number)
     sendLimitedCacheRequest(request: ApiRequest)
 }

@@ -9,6 +9,7 @@ import { CopyButton } from '../CopyButton/CopyButton'
 import Link from 'next/link'
 import styles from './Ref.module.css'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { numberWithThousandsSeperators } from '../../utils/Formatter'
 
 interface Props {}
 
@@ -32,7 +33,7 @@ function Ref(props: Props) {
     }
 
     function getLink() {
-        return getProperty('refLink') + '?refId=' + refInfo?.refId
+        return getProperty('refLink') + '?refId=' + refInfo?.oldInfo.refId
     }
 
     return (
@@ -64,14 +65,29 @@ function Ref(props: Props) {
                                 </span>
                             </div>
                             <hr />
-                            <p>Share your Ref-Link with people which might find skyblock AH history useful.</p>
+                            <p>Share your Ref-Link with people which might find Cofnet useful.</p>
+                            <p>Rewards per invited person:</p>
+                            <ul>
+                                <li>
+                                    You receive <b>100 CoflCoins</b>
+                                </li>
+                                <li>
+                                    The invited person gets <b>1 day of premium</b> to test our services
+                                </li>
+                                <li>
+                                    The first time a invited person buys CoflCoins, you get <b>25%</b> of the purchased amount
+                                </li>
+                            </ul>
                             <p>
-                                <b>If the invited person buys premium, you get 20% of the purchased premium time.</b>
+                                <span style={{ color: 'yellow' }}>
+                                    The rewards are only given out after the invited person logged in with their Google account and verified their
+                                    Minecraft account.
+                                </span>
                             </p>
-                            <p>Share your Ref-Link with people which might find skyblock AH history useful.</p>
+                            <hr />
                             <p>
                                 The default referral page contains some facts about this site. You are also able to share another page and still get the
-                                Referral-Bonus. All you have to do is adding <b style={{ whiteSpace: 'nowrap' }}>?refId={refInfo?.refId}</b> to any link. For
+                                Referral-Bonus. All you have to do is adding <b style={{ whiteSpace: 'nowrap' }}>?refId={refInfo?.oldInfo.refId}</b> to any link. For
                                 example
                             </p>
                             <ul>
@@ -82,24 +98,47 @@ function Ref(props: Props) {
                             </ul>
                         </Card.Body>
                     </Card>
-                    <Card>
+                    <Card style={{ marginBottom: '15px' }}>
                         <Card.Header>Information</Card.Header>
                         <Card.Body>
                             <p>
-                                <span className={styles.label}>Your Ref-Id:</span> <b>{refInfo?.refId}</b>
+                                <span className={styles.label}>Your Ref-Id:</span> <b>{refInfo?.oldInfo.refId}</b>
                             </p>
                             <p>
                                 <span className={styles.label}>Number of invited users (only after login):</span>
-                                <b>{refInfo?.count}</b>
+                                <b>{refInfo?.referedCount}</b>
                             </p>
                             <p>
-                                <span className={styles.label}>Recieved Premium in hours:</span> <b>{refInfo?.receivedHours}</b>
+                                <span className={styles.label}>Referred user coins purchases:</span>{' '}
+                                <b>{numberWithThousandsSeperators(refInfo?.purchasedCoins)}</b>
                             </p>
                             <p>
-                                <span className={styles.label}>Referred premium users:</span> <b>{refInfo?.bougthPremium}</b>
+                                <span className={styles.label}>Number of validated MC-Accounts:</span> <b>{refInfo?.validatedMinecraft}</b>
                             </p>
                         </Card.Body>
                     </Card>
+                    {refInfo?.oldInfo?.count !== undefined && refInfo?.oldInfo?.count > 0 ? (
+                        <Card>
+                            <Card.Header>
+                                Information <span style={{ color: 'yellow' }}>(old Referral-System)</span>
+                            </Card.Header>
+                            <Card.Body>
+                                <p>
+                                    <span className={styles.label}>Your Ref-Id:</span> <b>{refInfo?.oldInfo.refId}</b>
+                                </p>
+                                <p>
+                                    <span className={styles.label}>Number of invited users (only after login):</span>
+                                    <b>{refInfo?.oldInfo.count}</b>
+                                </p>
+                                <p>
+                                    <span className={styles.label}>Recieved Premium in hours:</span> <b>{refInfo?.oldInfo.receivedHours}</b>
+                                </p>
+                                <p>
+                                    <span className={styles.label}>Referred Premium users:</span> <b>{refInfo?.oldInfo.bougthPremium}</b>
+                                </p>
+                            </Card.Body>
+                        </Card>
+                    ) : null}
                 </div>
             )}
             <div>
@@ -111,11 +150,13 @@ function Ref(props: Props) {
     )
 
     function linkExample(link: string) {
-        let full = link + '?refId=' + refInfo?.refId
+        let full = link + '?refId=' + refInfo?.oldInfo.refId
         return (
             <li>
                 <Link href={full}>{full}</Link>
-                <CopyButton buttonWrapperClass="copy-button" copyValue={full} successMessage={<span>copied Link</span>} />
+                <span style={{ marginLeft: 15 }}>
+                    <CopyButton buttonWrapperClass="copy-button" copyValue={full} successMessage={<span>copied Link</span>} />
+                </span>
             </li>
         )
     }

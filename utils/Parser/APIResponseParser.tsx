@@ -85,16 +85,6 @@ export function parseItemPrice(priceData: any): ItemPrice {
     } as ItemPrice
 }
 
-export function parseItemPriceData(priceData: any): ItemPriceData {
-    return {
-        filterable: priceData.filterable,
-        prices: priceData.prices?.map(price => {
-            return parseItemPrice(price)
-        }),
-        filters: priceData.filters
-    }
-}
-
 export function parseItem(item: any): Item {
     return {
         tag: item.tag,
@@ -308,11 +298,17 @@ export function parsePopularSearch(search): PopularSearch {
 
 export function parseRefInfo(refInfo): RefInfo {
     return {
-        refId: refInfo.refId,
-        count: refInfo.count,
-        receivedHours: refInfo.receivedHours,
-        receivedTime: refInfo.receivedTime,
-        bougthPremium: refInfo.bougthPremium
+        oldInfo: {
+            refId: refInfo.oldInfo.refId,
+            count: refInfo.oldInfo.count,
+            receivedHours: refInfo.oldInfo.receivedHours,
+            receivedTime: refInfo.oldInfo.receivedTime,
+            bougthPremium: refInfo.oldInfo.bougthPremium
+        },
+        purchasedCoins: refInfo.purchasedCoins,
+        referedCount: refInfo.referedCount,
+        validatedMinecraft: refInfo.validatedMinecraft,
+        referredBy: refInfo.referredBy
     }
 }
 
@@ -475,7 +471,8 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
     let flipTrackingFlip = {
         item: {
             tag: flip.itemTag,
-            name: flip.itemName || flip.itemTag
+            name: flip.itemName || flip.itemTag,
+            tier: flip.tier
         },
         originAuction: flip.originAuction,
         pricePaid: flip.pricePaid,

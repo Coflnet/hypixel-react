@@ -35,14 +35,14 @@ function BuyPremium() {
     return (
         <Card className="purchase-card">
             <Card.Header>
-                <Card.Title>Buy premium for a certain duration with your CoflCoins. The premium activate shortly after your purchase.</Card.Title>
+                <Card.Title>Buy premium for a certain duration with your CoflCoins. Your premium time starts shortly after your purchase.</Card.Title>
             </Card.Header>
             <div style={{ padding: '15px' }}>
                 {!purchaseSuccessfulMonths ? (
                     <div>
                         <div style={{ marginBottom: '15px' }}>
                             <label className={styles.label}>Purchase Duration:</label>
-                            <Form.Control as="select" onChange={onDurationChange} style={{ width: '100px', display: 'inline' }}>
+                            <Form.Control as="select" onChange={onDurationChange} style={{ width: '50px', display: 'inline' }}>
                                 <option value={1}>1</option>
                                 <option value={2}>2</option>
                                 <option value={3}>3</option>
@@ -57,7 +57,7 @@ function BuyPremium() {
                                 <option value={12}>12</option>
                             </Form.Control>
                             <span style={{ marginLeft: '20px' }}>Month(s)</span>
-                            <div style={{ float: 'right' }}>
+                            <div className={styles.coinBalance}>
                                 <CoflCoinsDisplay />
                             </div>
                         </div>
@@ -65,11 +65,12 @@ function BuyPremium() {
                             <label className={styles.label}>Price:</label>
                             <span style={{ fontWeight: 'bold' }}>{numberWithThousandsSeperators(purchasePremiumDuration * PREMIUM_PRICE_MONTH)} Coins</span>
                         </div>
-                        { coflCoins > purchasePremiumDuration * PREMIUM_PRICE_MONTH ?
-                        <div>
-                            <label className={styles.label}>Remaining after Purchase:</label>
-                            <span>{numberWithThousandsSeperators(coflCoins - purchasePremiumDuration * PREMIUM_PRICE_MONTH)} Coins</span>
-                        </div> : null}
+                        {coflCoins > purchasePremiumDuration * PREMIUM_PRICE_MONTH ? (
+                            <div>
+                                <label className={styles.label}>Remaining after Purchase:</label>
+                                <span>{numberWithThousandsSeperators(coflCoins - purchasePremiumDuration * PREMIUM_PRICE_MONTH)} Coins</span>
+                            </div>
+                        ) : null}
                         <hr />
                         <Button
                             style={{ marginTop: '10px' }}

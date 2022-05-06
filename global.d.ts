@@ -111,12 +111,6 @@ interface ItemPrice {
     time: Date
 }
 
-interface ItemPriceData {
-    filterable: boolean
-    prices: Array<ItemPrice>
-    filters: Array<string>
-}
-
 interface SearchResultItem {
     dataItem: {
         iconUrl: string
@@ -126,6 +120,7 @@ interface SearchResultItem {
     route: string
     urlSearchParams?: URLSearchParams
     id: string
+    isPreviousSearch?: boolean
 }
 
 interface FlipAuction {
@@ -152,20 +147,19 @@ interface FlipperFilter {
     minVolume?: number
     maxCost?: number
     onlyUnsold?: boolean
-    restrictions?: FlipRestriction[]
 }
 
 interface API {
     search(searchText: string): Promise<SearchResultItem[]>
     trackSearch(fullSearchId: string, fullSearchType: string): void
     getItemImageUrl(item: Item): string
-    getItemDetails(itemTagOrName: string): Promise<Item>
-    getItemPrices(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<ItemPriceData>
+    getItemDetails(itemTag: string): Promise<Item>
+    getItemPrices(itemTagOrName: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]>
     getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>
     getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>
     getEnchantments(): Promise<Enchantment[]>
     getReforges(): Promise<Reforge[]>
-    getAuctionDetails(auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails>
+    getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>
     getPlayerName(uuid: string): Promise<string>
     setConnectionId(): Promise<void>
     getVersion(): Promise<string>
@@ -177,14 +171,16 @@ interface API {
     stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
     setToken(token: string): Promise<void>
-    getRecentAuctions(itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]>
+    getRecentAuctions(itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]>
     getFlips(): Promise<FlipAuction[]>
     subscribeFlips(
-        flipCallback: Function,
         restrictionList: FlipRestriction[],
         filter: FlipperFilter,
+        flipSettings: FlipCustomizeSettings,
+        flipCallback?: Function,
         soldCallback?: Function,
         nextUpdateNotificationCallback?: Function,
+        onSubscribeSuccessCallback?: Function,
         forceSettingsUpdate: boolean = false
     ): void
     unsubscribeFlips(): Promise<void>
@@ -224,6 +220,7 @@ interface API {
     setFlipSetting(identifier: string, value: any): Promise<void>
     getKatFlips(): Promise<KatFlip[]>
     getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
+    transferCoflCoins(email: string, mcId: string, amount: number, reference: string): Promise<void>
 }
 
 interface CacheUtils {
@@ -255,11 +252,17 @@ interface PopularSearch {
 }
 
 interface RefInfo {
-    refId: string
-    count: number
-    receivedTime: number
-    receivedHours: number
-    bougthPremium: number
+    oldInfo: {
+        refId: string
+        count: number
+        receivedTime: number
+        receivedHours: number
+        bougthPremium: number
+    }
+    purchasedCoins: number
+    referedCount: number
+    referredBy?: string
+    validatedMinecraft: number
 }
 
 interface FreeFlipperMissInformation {
@@ -421,4 +424,12 @@ interface FlipTrackingFlip {
 interface FlipTrackingResponse {
     flips: FlipTrackingFlip[]
     totalProfit: number
+}
+
+enum DateRange {
+    ACTIVE = 'active',
+    DAY = 'day',
+    MONTH = 'month',
+    WEEK = 'week',
+    ALL = 'ALL'
 }

@@ -1,16 +1,23 @@
-import React, { useEffect, useState } from 'react'
-import { Card } from 'react-bootstrap'
+import React, { ChangeEvent, useEffect, useState } from 'react'
+import { Card, Form } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import moment from 'moment'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import Link from 'next/link'
 import styles from './RecentAuctions.module.css'
+import { isClientSideRendering } from '../../utils/SSRUtils'
+import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
 
 interface Props {
     item: Item
-    fetchspan: number
-    itemFilter?: ItemFilter
+    itemFilter: ItemFilter
+}
+
+enum RECENT_AUCTIONS_FETCH_TYPE {
+    ALL = 'all',
+    SOLD = 'sold',
+    UNSOLD = 'unsold'
 }
 
 let currentLoadingString
@@ -21,42 +28,57 @@ let mounted = true
 function RecentAuctions(props: Props) {
     let [recentAuctions, setRecentAuctions] = useState<RecentAuction[]>([])
     let [isLoading, setIsLoading] = useState(true)
+    let [isSSR, setIsSSR] = useState(!isClientSideRendering())
 
     useEffect(() => {
         mounted = true
-    })
+        setIsSSR(false)
+        return () => {
+            mounted = false
+        }
+    }, [])
 
     useEffect(() => {
+        loadRecentAuctions()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.item.tag, JSON.stringify(props.itemFilter)])
+
+    function loadRecentAuctions() {
         setIsLoading(true)
+        currentLoadingString = props.item.tag
 
-        currentLoadingString = JSON.stringify({
-            tag: props.item.tag,
-            fetchspan: props.fetchspan,
-            itemFilter: props.itemFilter
-        })
+        let itemFilter = { ...props.itemFilter }
 
-        api.getRecentAuctions(props.item.tag, props.fetchspan, props.itemFilter).then(recentAuctions => {
-            if (
-                !mounted ||
-                currentLoadingString !==
-                    JSON.stringify({
-                        tag: props.item.tag,
-                        fetchspan: props.fetchspan,
-                        itemFilter: props.itemFilter
-                    })
-            ) {
+        if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
+            let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
+
+            switch (fetchType) {
+                case RECENT_AUCTIONS_FETCH_TYPE.SOLD:
+                    itemFilter['HighestBid'] = '>0'
+                    break
+                case RECENT_AUCTIONS_FETCH_TYPE.UNSOLD:
+                    itemFilter['HighestBid'] = '0'
+                    break
+                case RECENT_AUCTIONS_FETCH_TYPE.ALL:
+                default:
+                    break
+            }
+        }
+
+        api.getRecentAuctions(props.item.tag, itemFilter).then(recentAuctions => {
+            if (!mounted || currentLoadingString !== props.item.tag) {
                 return
             }
 
             setIsLoading(false)
             setRecentAuctions(recentAuctions)
         })
+    }
 
-        return () => {
-            mounted = false
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.item, props.fetchspan, JSON.stringify(props.itemFilter)])
+    function onFetchTypeChange(e: ChangeEvent<HTMLInputElement>) {
+        localStorage.setItem(RECENT_AUCTIONS_FETCH_TYPE_KEY, e.target.value)
+        loadRecentAuctions()
+    }
 
     let recentAuctionList = recentAuctions.map(recentAuction => {
         return (
@@ -103,7 +125,21 @@ function RecentAuctions(props: Props) {
 
     return (
         <div className={styles.recentAuctions}>
-            <h3>Recent auctions</h3>
+            <h3>
+                Recent auctions
+                {!isSSR ? (
+                    <Form.Control
+                        as="select"
+                        defaultValue={localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY) || RECENT_AUCTIONS_FETCH_TYPE.ALL}
+                        className={styles.recentAuctionsFetchType}
+                        onChange={onFetchTypeChange}
+                    >
+                        <option value={RECENT_AUCTIONS_FETCH_TYPE.ALL}>ALL</option>
+                        <option value={RECENT_AUCTIONS_FETCH_TYPE.SOLD}>Sold</option>
+                        <option value={RECENT_AUCTIONS_FETCH_TYPE.UNSOLD}>Unsold</option>
+                    </Form.Control>
+                ) : null}
+            </h3>
             <div>
                 {isLoading ? (
                     getLoadingElement()

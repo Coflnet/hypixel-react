@@ -11,6 +11,12 @@
     margin-bottom: 25px;
 }
 
+@media all and (max-width: 768px) {
+    .premiumPlanCard {
+        width: calc(100%);
+    }
+}
+
 .premiumPrice {
     font-size: larger;
 }
@@ -24,4 +30,8 @@
 .discount {
     color: lime;
     float: right;
+}
+
+.manualRedirectLink {
+    margin: 0;
 }

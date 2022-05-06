@@ -1,23 +1,21 @@
 import React, { useEffect } from 'react'
 import { Container } from 'react-bootstrap'
-import { initAPI } from '../../../api/ApiHelper'
-import { FlipTracking } from '../../../components/FlipTracking/FlipTracking'
-import Search from '../../../components/Search/Search'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
-import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '../../../utils/Parser/APIResponseParser'
-import { getHeadElement } from '../../../utils/SSRUtils'
+import { initAPI } from '../../../../api/ApiHelper'
+import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
+import Search from '../../../../components/Search/Search'
+import { numberWithThousandsSeperators } from '../../../../utils/Formatter'
+import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
+import { getHeadElement } from '../../../../utils/SSRUtils'
 import moment from 'moment'
 
 interface Props {
     flipTrackingResponse: any
     player: any
-    targetFlip?: any
 }
 
 function Flipper(props: Props) {
     let flipTrackingResponse = parseFlipTrackingResponse(props.flipTrackingResponse)
     let player = parsePlayer(props.player)
-    let targetFlip = props.targetFlip ? parseFlipTrackingFlip(props.targetFlip) : null
 
     function getEmbedDescription() {
         if (!flipTrackingResponse.flips || flipTrackingResponse.flips.length === 0) {
@@ -63,37 +61,15 @@ function Flipper(props: Props) {
                 ${highestProfitFlipText}`
     }
 
-    function getTargetFlipEmbedDescription(targetFlip: FlipTrackingFlip) {
-        return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeperators(targetFlip.profit)} Coins
-        💸 Purchase: ${numberWithThousandsSeperators(targetFlip.pricePaid)} Coins
-        💰 Sold: ${numberWithThousandsSeperators(targetFlip.soldFor)} Coins
-        🕑 Sold at ${moment(targetFlip.sellTime).format('MMMM Do YYYY, h:mm:ss a')}
-        ${targetFlip.profit > 0 ? '😀' : '😭'} IGN: ${player.name}`
-    }
-
-    function _getHeadElement() {
-        if (targetFlip !== null) {
-            return getHeadElement(
-                `Tracked flips of ${player.name}`,
-                getTargetFlipEmbedDescription(targetFlip!),
-                targetFlip?.item.iconUrl?.split('?')[0],
-                ['tracker'],
-                `Flip: ${targetFlip?.item.name}`
-            )
-        } else {
-            return getHeadElement(
+    return (
+        <div className="page">
+            {getHeadElement(
                 `Tracked flips of ${player.name}`,
                 getEmbedDescription(),
                 player.iconUrl?.split('?')[0],
                 ['tracker'],
                 `Tracked flips of ${player.name}`
-            )
-        }
-    }
-
-    return (
-        <div className="page">
-            {_getHeadElement()}
+            )}
             <Container>
                 <Search
                     type="player"
@@ -107,7 +83,6 @@ function Flipper(props: Props) {
                                 height="32"
                                 alt=""
                                 style={{ marginRight: '10px' }}
-                                loading="lazy"
                             />
                             <span>{player.name}</span>
                         </p>
@@ -119,20 +94,26 @@ function Flipper(props: Props) {
     )
 }
 
-export const getServerSideProps = async ({ query }) => {
+export const getStaticProps = async ({ params }) => {
     let api = initAPI(true)
-    let apiResponses = await Promise.all([api.getPlayerName(query.uuid), api.getTrackedFlipsForPlayer(query.uuid)].map(p => p.catch(e => null)))
+    let apiResponses = await Promise.all(
+        [api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null))
+    )
 
     return {
         props: {
             player: {
-                uuid: query.uuid,
+                uuid: params.uuid,
                 name: apiResponses[0]
             },
-            flipTrackingResponse: apiResponses[1],
-            targetFlip: query.targetFlip ? (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString(16) === query.targetFlip) : null
-        }
+            flipTrackingResponse: apiResponses[1]
+        },
+        revalidate: 60
     }
+}
+
+export async function getStaticPaths() {
+    return { paths: [], fallback: 'blocking' }
 }
 
 export default Flipper

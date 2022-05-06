@@ -2,11 +2,10 @@ import { useMatomo } from '@datapunt/matomo-tracker-react'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
-import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
+import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, handleSettingsImport, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import Flip from '../Flip/Flip'
 import { Help as HelpIcon } from '@mui/icons-material'
-import { toast } from 'react-toastify'
 import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
 import styles from './FlipCustomize.module.css'
@@ -35,7 +34,7 @@ function FlipCustomize() {
         document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
         _setFlipCustomizeSettings({ ...flipCustomizeSettings })
     }
-    
+
     function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
         _setFlipCustomizeSettings({ ...settings })
@@ -49,7 +48,7 @@ function FlipCustomize() {
 
     function onMaxExtraInfoFieldsChange(event: ChangeEvent<HTMLInputElement>) {
         setFlipCustomizeSetting('maxExtraInfoFields', event.target.valueAsNumber)
-        api.setFlipSetting('showExtraFields', event.target.valueAsNumber)
+        api.setFlipSetting('showExtraFields', event.target.valueAsNumber || 0)
         trackChange('maxExtraInfoFields')
     }
 
@@ -107,32 +106,11 @@ function FlipCustomize() {
         if (e.target.files && e.target.files[0]) {
             reader.onload = function (e) {
                 output = e.target!.result!.toString()
-                handleFilterImport(output)
+                handleSettingsImport(output)
             } //end onload()
             reader.readAsText(e.target.files[0])
         }
         return true
-    }
-
-    function handleFilterImport(importString: string) {
-        let filter: FlipperFilter
-        let flipCustomizeSettings: FlipCustomizeSettings
-        let restrictions: FlipRestriction[]
-        try {
-            let importObject = JSON.parse(importString)
-            filter = importObject[FLIPPER_FILTER_KEY] ? JSON.parse(importObject[FLIPPER_FILTER_KEY]) : {}
-            flipCustomizeSettings = importObject[FLIP_CUSTOMIZING_KEY] ? JSON.parse(importObject[FLIP_CUSTOMIZING_KEY]) : {}
-            restrictions = importObject[RESTRICTIONS_SETTINGS_KEY] ? JSON.parse(importObject[RESTRICTIONS_SETTINGS_KEY]) : []
-        } catch {
-            toast.error('The import of the filter settings failed. Please make sure this is a valid filter file.')
-            return
-        }
-
-        setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
-        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(restrictions))
-
-        window.location.reload()
     }
 
     function getFlipFinderWarningElement(): JSX.Element {
@@ -396,7 +374,7 @@ function FlipCustomize() {
                     <Select
                         id="finders"
                         isMulti
-                        options={FLIP_FINDERS}
+                        options={FLIP_FINDERS.filter(finder => finder.selectable)}
                         defaultValue={getFlipFinders(flipCustomizeSettings.finders || [])}
                         styles={customSelectStyle}
                         onChange={onFindersChange}
@@ -543,7 +521,6 @@ function FlipCustomize() {
                         <Button onClick={exportFilter} style={{ width: '40%' }}>
                             Export
                         </Button>
-
                         {/* This is the "true" upload field. It is called by the "Import"-Button */}
                         <input onChange={readImportFile} style={{ display: 'none' }} type="file" id="fileUpload" />
                     </div>

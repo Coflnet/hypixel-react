@@ -1,27 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Button, Card, Modal, OverlayTrigger } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
 import moment from 'moment'
-import { Base64 } from 'js-base64'
-import { v4 as generateUUID } from 'uuid'
-import { GoogleLogout } from 'react-google-login'
-import { toast } from 'react-toastify'
 import styles from './Premium.module.css'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
+import Tooltip from '../Tooltip/Tooltip'
+import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasPremium, setHasPremium] = useState<boolean>()
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
     let [isLoading, setIsLoading] = useState(false)
-    let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [isLoggingIn, setIsLoggingIn] = useState(false)
+    let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
@@ -61,27 +59,6 @@ function Premium() {
         setIsLoggingIn(false)
         setIsLoggedIn(false)
         setHasPremium(false)
-        setRerenderGoogleSignIn(!rerenderGoogleSignIn)
-    }
-
-    function getAccountString() {
-        let googleId = localStorage.getItem('googleId')
-        if (googleId) {
-            let parts = googleId.split('.')
-            if (parts.length > 2) {
-                let obj = JSON.parse(Base64.atob(parts[1]))
-                return `${obj.name} (${obj.email})`
-            }
-        }
-        return ''
-    }
-
-    function onLogout() {
-        setIsLoggedIn(false)
-        setHasPremium(false)
-        localStorage.removeItem('googleId')
-        setRerenderGoogleSignIn(!rerenderGoogleSignIn)
-        toast.warn('Successfully logged out')
     }
 
     return (
@@ -111,35 +88,17 @@ function Premium() {
             )}
             <hr />
             <div style={{ marginBottom: '20px' }}>
-                {isLoggedIn ? <p>Account: {getAccountString()}</p> : ''}
                 {hasPremium ? (
                     <div>
-                        <OverlayTrigger
-                            overlay={
-                                <Tooltip id={generateUUID()}>
-                                    <span>{hasPremiumUntil?.toDateString()}</span>
-                                </Tooltip>
-                            }
-                        >
-                            <span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>
-                        </OverlayTrigger>
-                    </div>
-                ) : (
-                    ''
-                )}
-                {isLoggedIn ? (
-                    <div style={{ marginTop: '20px' }}>
-                        <GoogleLogout
-                            clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                            buttonText="Logout"
-                            onLogoutSuccess={onLogout}
+                        <Tooltip
+                            type="hover"
+                            content={<span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>}
+                            tooltipContent={<span>{hasPremiumUntil?.toDateString()}</span>}
                         />
                     </div>
-                ) : (
-                    ''
-                )}
+                ) : null}
                 {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
-                <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
+                <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 <div>{isLoggingIn ? getLoadingElement() : ''}</div>
             </div>
             {isLoggedIn ? (
@@ -150,8 +109,36 @@ function Premium() {
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>
                     <hr />
-                    <h2>CoflCoins</h2>
-                    <CoflCoinsPurchase/>
+                    <h2>
+                        CoflCoins
+                        <Button
+                            className={styles.sendCoflCoinsButton}
+                            onClick={() => {
+                                setShowSendCoflCoins(true)
+                            }}
+                        >
+                            Send CoflCoins
+                        </Button>
+                        <Modal
+                            size={'lg'}
+                            show={showSendCoflCoins}
+                            onHide={() => {
+                                setShowSendCoflCoins(false)
+                            }}
+                        >
+                            <Modal.Header closeButton>
+                                <Modal.Title>Send CoflCoins</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <TransferCoflCoins
+                                    onFinish={() => {
+                                        setShowSendCoflCoins(false)
+                                    }}
+                                />
+                            </Modal.Body>
+                        </Modal>
+                    </h2>
+                    <CoflCoinsPurchase />
                 </div>
             ) : null}
             <hr />

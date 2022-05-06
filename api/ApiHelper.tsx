@@ -9,7 +9,7 @@ import {
     parseFlipTrackingResponse,
     parseItem,
     parseItemBidForList,
-    parseItemPriceData,
+    parseItemPrice,
     parseItemSummary,
     parseKatFlip,
     parseLowSupplyItem,
@@ -59,8 +59,12 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         if (!error || !error.Message) {
             return
         }
-
         toast.error(error.Message)
+        console.log('RequestType: ' + requestType)
+        console.log('ErrorMessage: ' + error.Message)
+        console.log('RequestData: ')
+        console.log(requestData)
+        console.log('------------------------------')
     }
 
     let search = (searchText: string): Promise<SearchResultItem[]> => {
@@ -89,41 +93,51 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return 'https://sky.coflnet.com/static/icon/' + item.tag
     }
 
-    let getItemDetails = (itemTagOrName: string): Promise<Item> => {
+    let getItemDetails = (itemTag: string): Promise<Item> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.ITEM_DETAILS,
-                data: itemTagOrName,
+                customRequestURL: `${getProperty('apiEndpoint')}/item/${itemTag}/details`,
+                data: '',
                 resolve: (item: any) => {
                     returnSSRResponse ? resolve(item) : resolve(parseItem(item))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTagOrName)
+                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTag)
                     reject()
                 }
             })
         })
     }
 
-    let getItemPrices = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<ItemPriceData> => {
+    let getItemPrices = (itemTag: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]> => {
         return new Promise((resolve, reject) => {
+            let query = ''
             if (!itemFilter || Object.keys(itemFilter).length === 0) {
                 itemFilter = undefined
+            } else {
+                Object.keys(itemFilter).forEach(key => {
+                    query += `${key}=${itemFilter[key]}&`
+                })
             }
 
-            let requestData = {
-                name: itemTagOrName,
-                start: Math.round(fetchStart / 100000) * 100,
-                filter: itemFilter
-            }
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.ITEM_PRICES,
-                data: requestData,
+                data: '',
+                customRequestURL: getProperty('apiEndpoint') + `/item/price/${itemTag}/history/${fetchSpan}?${query}`,
+                requestMethod: 'GET',
+                requestHeader: {
+                    'Content-Type': 'application/json'
+                },
                 resolve: (data: any) => {
-                    resolve(parseItemPriceData(data))
+                    resolve(data.map(parseItemPrice))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
+                    apiErrorHandler(RequestType.ITEM_PRICES, error, {
+                        itemTag,
+                        fetchSpan,
+                        itemFilter
+                    })
                     reject()
                 }
             })
@@ -254,43 +268,41 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctionDetails = (auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails> => {
+    let getAuctionDetails = (auctionUUID: string): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheApiRequest(
-                {
-                    type: RequestType.AUCTION_DETAILS,
-                    data: auctionUUID,
-                    resolve: auctionDetails => {
-                        if (!auctionDetails) {
-                            reject()
-                            return
-                        }
-                        if (!auctionDetails.auctioneer) {
-                            api.getPlayerName(auctionDetails.auctioneerId).then(name => {
-                                auctionDetails.auctioneer = {
-                                    name,
-                                    uuid: auctionDetails.auctioneerId
-                                }
-                                returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
-                            })
-                        } else {
+            httpApi.sendApiRequest({
+                type: RequestType.AUCTION_DETAILS,
+                data: auctionUUID,
+                resolve: auctionDetails => {
+                    if (!auctionDetails) {
+                        reject()
+                        return
+                    }
+                    if (!auctionDetails.auctioneer) {
+                        api.getPlayerName(auctionDetails.auctioneerId).then(name => {
+                            auctionDetails.auctioneer = {
+                                name,
+                                uuid: auctionDetails.auctioneerId
+                            }
                             returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
-                        }
-                    },
-                    reject: (error: any) => {
-                        reject(error)
+                        })
+                    } else {
+                        returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
                     }
                 },
-                ignoreCache ? 3 + ignoreCache : 2
-            )
+                reject: (error: any) => {
+                    reject(error)
+                }
+            })
         })
     }
 
     let getPlayerName = (uuid: string): Promise<string> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.PLAYER_NAME,
-                data: uuid,
+                customRequestURL: `${getProperty('apiEndpoint')}/player/${uuid}/name`,
+                data: '',
                 resolve: name => {
                     resolve(name)
                 },
@@ -473,25 +485,26 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getRecentAuctions = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]> => {
+    let getRecentAuctions = (itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
+            let query = ''
             if (!itemFilter || Object.keys(itemFilter).length === 0) {
                 itemFilter = undefined
+            } else {
+                Object.keys(itemFilter).forEach(key => {
+                    query += `${key}=${itemFilter[key]}&`
+                })
             }
 
-            let requestData = {
-                name: itemTagOrName,
-                start: Math.round(fetchStart / 100000) * 100,
-                filter: itemFilter
-            }
-            httpApi.sendLimitedCacheRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.RECENT_AUCTIONS,
-                data: requestData,
+                customRequestURL: getProperty('apiEndpoint') + `/auctions/tag/${itemTag}/recent/overview?${query}`,
+                data: '',
                 resolve: (data: any) => {
                     resolve(data.map(a => parseRecentAuction(a)))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData)
+                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, itemTag)
                     reject()
                 }
             })
@@ -530,16 +543,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let subscribeFlips = (
-        flipCallback: Function,
         restrictionList: FlipRestriction[],
         filter: FlipperFilter,
+        flipSettings: FlipCustomizeSettings,
+        flipCallback?: Function,
         soldCallback?: Function,
         nextUpdateNotificationCallback?: Function,
+        onSubscribeSuccessCallback?: Function,
         forceSettingsUpdate: boolean = false
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
-
-        let flipSettings = getFlipCustomizeSettings()
 
         let requestData = {
             whitelist: restrictionList
@@ -574,7 +587,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 medPrice: !flipSettings.hideMedianPrice,
                 seller: !flipSettings.hideSeller,
                 volume: !flipSettings.hideVolume,
-                extraFields: flipSettings.maxExtraInfoFields,
+                extraFields: flipSettings.maxExtraInfoFields || 0,
                 profitPercent: !flipSettings.hideProfitPercent,
                 sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
                 lore: !flipSettings.hideLore,
@@ -593,7 +606,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             callback: function (response) {
                 switch (response.type) {
                     case 'flip':
-                        flipCallback(parseFlipAuction(response.data))
+                        if (flipCallback) {
+                            flipCallback(parseFlipAuction(response.data))
+                        }
                         break
                     case 'nextUpdate':
                         if (nextUpdateNotificationCallback) {
@@ -607,7 +622,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         break
                     case 'flipSettings':
                         if (!response.data) {
-                            api.subscribeFlips(flipCallback, restrictionList, filter, soldCallback, nextUpdateNotificationCallback, true)
+                            api.subscribeFlips(
+                                restrictionList,
+                                filter,
+                                flipSettings,
+                                flipCallback,
+                                soldCallback,
+                                nextUpdateNotificationCallback,
+                                undefined,
+                                true
+                            )
                         } else {
                             setSettingsChangedData(response.data)
                         }
@@ -619,14 +643,19 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         }
                         setSettingsChangedData(response.data)
                         break
+                    case 'ok':
+                        if (onSubscribeSuccessCallback) {
+                            onSubscribeSuccessCallback()
+                        }
+                        break
                     default:
                         break
                 }
             },
             resubscribe: function (subscription) {
                 let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
-                filter.restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-                subscribeFlips(flipCallback, filter.restrictions, filter, soldCallback, nextUpdateNotificationCallback, false)
+                let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+                subscribeFlips(restrictions, filter, getFlipCustomizeSettings(), flipCallback, soldCallback, nextUpdateNotificationCallback, undefined, false)
             }
         })
     }
@@ -890,7 +919,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let subscribeCoflCoinChange = () => {
         // TODO: Has yet to be implemented by the backend
-
         /*
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_COFLCOINS,
@@ -926,9 +954,19 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getRefInfo = (): Promise<RefInfo> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to use the ref system.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
                 type: RequestType.GET_REF_INFO,
                 data: '',
+                requestHeader: {
+                    GoogleToken: googleId
+                },
                 resolve: (response: any) => {
                     resolve(parseRefInfo(response))
                 },
@@ -942,17 +980,34 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let setRef = (refId: string): Promise<void> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
-                type: RequestType.SET_REF,
-                data: refId,
-                resolve: () => {
-                    resolve()
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to use the ref system.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.SET_REF,
+                    data: '',
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.SET_REF, error, '')
+                        reject(error)
+                    }
                 },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.SET_REF, error, '')
-                    reject(error)
-                }
-            })
+                JSON.stringify({
+                    refCode: refId
+                })
+            )
         })
     }
 
@@ -1077,19 +1132,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getFlipUpdateTime = (): Promise<Date> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheApiRequest(
-                {
-                    type: RequestType.FLIP_UPDATE_TIME,
-                    data: '',
-                    resolve: function (data) {
-                        resolve(new Date(data))
-                    },
-                    reject: function (error) {
-                        apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, '')
-                    }
+            httpApi.sendApiRequest({
+                type: RequestType.FLIP_UPDATE_TIME,
+                data: '',
+                resolve: function (data) {
+                    resolve(new Date(data))
                 },
-                1
-            )
+                reject: function (error) {
+                    apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, '')
+                }
+            })
         })
     }
     let playerSearch = (playerName: string): Promise<Player[]> => {
@@ -1110,27 +1162,24 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getLowSupplyItems = (): Promise<LowSupplyItem[]> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheApiRequest(
-                {
-                    type: RequestType.GET_LOW_SUPPLY_ITEMS,
-                    data: '',
-                    resolve: function (items) {
-                        returnSSRResponse
-                            ? resolve(items)
-                            : resolve(
-                                  items.map(item => {
-                                      let lowSupplyItem = parseLowSupplyItem(item)
-                                      return lowSupplyItem
-                                  })
-                              )
-                    },
-                    reject: function (error) {
-                        apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
-                        reject()
-                    }
+            httpApi.sendApiRequest({
+                type: RequestType.GET_LOW_SUPPLY_ITEMS,
+                data: '',
+                resolve: function (items) {
+                    returnSSRResponse
+                        ? resolve(items)
+                        : resolve(
+                              items.map(item => {
+                                  let lowSupplyItem = parseLowSupplyItem(item)
+                                  return lowSupplyItem
+                              })
+                          )
                 },
-                1
-            )
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
+                    reject()
+                }
+            })
         })
     }
 
@@ -1377,6 +1426,29 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let transferCoflCoins = (email: string, mcId: string, amount: number, reference: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let data = {
+                email: email,
+                mcId: mcId,
+                amount: amount,
+                reference: reference
+            }
+
+            websocketHelper.sendRequest({
+                type: RequestType.TRASFER_COFLCOINS,
+                data: data,
+                resolve: function () {
+                    resolve()
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.TRASFER_COFLCOINS, error, data)
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1436,7 +1508,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getCoflcoinBalance,
         setFlipSetting,
         getKatFlips,
-        getTrackedFlipsForPlayer
+        getTrackedFlipsForPlayer,
+        transferCoflCoins
     }
 }
 

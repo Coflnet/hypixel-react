@@ -1,5 +1,29 @@
 .label {
-    width: 300px;
+    width: 200px;
     float: left;
     margin: 0;
+}
+
+.coinBalance {
+    float: right;
+}
+
+@media all and (max-width: 768px) {
+    .label {
+        width: auto;
+        margin-right: 15px;
+    }
+    .coinBalance {
+        float: none;
+        margin-top: 20px;
+    }
+    .coinBalance :global(b){
+        font-size: medium !important;
+    }
+}
+
+@media all and (max-width: 350px) {
+    .label {
+        width: 100%;
+    }
 }

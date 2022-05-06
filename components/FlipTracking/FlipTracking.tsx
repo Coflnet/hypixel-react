@@ -3,7 +3,6 @@ import { Badge, Card, ListGroup } from 'react-bootstrap'
 import { ArrowRightAlt as ArrowRightIcon } from '@mui/icons-material'
 import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './FlipTracking.module.css'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { CopyButton } from '../CopyButton/CopyButton'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -12,6 +11,7 @@ import Tooltip from '../Tooltip/Tooltip'
 interface Props {
     totalProfit?: number
     trackedFlips?: FlipTrackingFlip[]
+    highlightedFlipUid?: string
 }
 
 export function FlipTracking(props: Props) {
@@ -20,8 +20,12 @@ export function FlipTracking(props: Props) {
     let router = useRouter()
 
     useEffect(() => {
-        let toFlip = router.query.flip
-        router.replace(router)
+        if (props.highlightedFlipUid && isClientSideRendering()) {
+            let element = document.getElementById(props.highlightedFlipUid) as HTMLElement
+            window.scrollTo({
+                top: element.offsetTop
+            })
+        }
     }, [])
 
     let list = trackedFlips
@@ -32,8 +36,8 @@ export function FlipTracking(props: Props) {
                     className={styles.listGroupItem}
                     id={trackedFlip.uId.toString(16)}
                     style={{
-                        borderColor: router.query.targetFlip === trackedFlip.uId.toString(16) ? 'cornflowerblue' : undefined,
-                        borderWidth: router.query.targetFlip === trackedFlip.uId.toString(16) ? 5 : undefined
+                        borderColor: props.highlightedFlipUid === trackedFlip.uId.toString(16) ? 'cornflowerblue' : undefined,
+                        borderWidth: props.highlightedFlipUid === trackedFlip.uId.toString(16) ? 5 : undefined
                     }}
                 >
                     <h1 style={{ padding: '10px', display: 'flex', justifyContent: 'space-between', fontSize: 'x-large' }}>
@@ -109,9 +113,9 @@ export function FlipTracking(props: Props) {
                             <CopyButton
                                 copyValue={
                                     isClientSideRendering()
-                                        ? `${window.location.origin}${window.location.pathname}?targetFlip=${trackedFlip.uId.toString(
+                                        ? `${window.location.origin}/player/${router.query.uuid}/flips/${trackedFlip.uId.toString(
                                               16
-                                          )}#${trackedFlip.uId.toString(16)}`
+                                          )}`
                                         : ''
                                 }
                                 successMessage={isClientSideRendering() ? <span>{`Copied link to flip!`}</span> : <span />}
