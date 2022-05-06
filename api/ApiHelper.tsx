@@ -34,7 +34,6 @@ import cacheUtils from '../utils/CacheUtils'
 import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
-import { Base64 } from 'js-base64'
 import { isClientSideRendering } from '../utils/SSRUtils'
 import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
@@ -598,11 +597,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             changer: window.sessionStorage.getItem('sessionId')
         }
 
-        let isCheckingForServerSettings = !!(window as any).googleAuthObj && !forceSettingsUpdate
-
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
-            data: isCheckingForServerSettings ? null : requestData,
+            data: forceSettingsUpdate ? requestData : null,
             callback: function (response) {
                 switch (response.type) {
                     case 'flip':
@@ -642,6 +639,98 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                             return
                         }
                         setSettingsChangedData(response.data)
+                        break
+                    case 'ok':
+                        if (onSubscribeSuccessCallback) {
+                            onSubscribeSuccessCallback()
+                        }
+                        break
+                    default:
+                        break
+                }
+            },
+            resubscribe: function (subscription) {
+                let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
+                let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+                subscribeFlips(restrictions, filter, getFlipCustomizeSettings(), flipCallback, soldCallback, nextUpdateNotificationCallback, undefined, false)
+            }
+        })
+    }
+
+    let subscribeFlipsAnonym = (
+        restrictionList: FlipRestriction[],
+        filter: FlipperFilter,
+        flipSettings: FlipCustomizeSettings,
+        flipCallback?: Function,
+        soldCallback?: Function,
+        nextUpdateNotificationCallback?: Function,
+        onSubscribeSuccessCallback?: Function
+    ) => {
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+
+        let requestData = {
+            whitelist: restrictionList
+                .filter(restriction => restriction.type === 'whitelist')
+                .map(restriction => {
+                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
+                }),
+            blacklist: restrictionList
+                .filter(restriction => restriction.type === 'blacklist')
+                .map(restriction => {
+                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
+                }),
+            minProfit: filter.minProfit || 0,
+            minProfitPercent: filter.minProfitPercent || 0,
+            minVolume: filter.minVolume || 0,
+            maxCost: filter.maxCost || 0,
+            onlyBin: filter.onlyBin,
+            lbin: flipSettings.useLowestBinForProfit,
+            mod: {
+                justProfit: flipSettings.justProfit,
+                soundOnFlip: flipSettings.soundOnFlip,
+                shortNumbers: flipSettings.shortNumbers,
+                blockTenSecMsg: flipSettings.blockTenSecMsg,
+                format: flipSettings.modFormat,
+                chat: !flipSettings.hideModChat
+            },
+            visibility: {
+                cost: !flipSettings.hideCost,
+                estProfit: !flipSettings.hideEstimatedProfit,
+                lbin: !flipSettings.hideLowestBin,
+                slbin: !flipSettings.hideSecondLowestBin,
+                medPrice: !flipSettings.hideMedianPrice,
+                seller: !flipSettings.hideSeller,
+                volume: !flipSettings.hideVolume,
+                extraFields: flipSettings.maxExtraInfoFields || 0,
+                profitPercent: !flipSettings.hideProfitPercent,
+                sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
+                lore: !flipSettings.hideLore,
+                copySuccessMessage: !flipSettings.hideCopySuccessMessage,
+                links: !flipSettings.disableLinks
+            },
+            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
+            changer: window.sessionStorage.getItem('sessionId')
+        }
+
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_FLIPS_ANONYM,
+            data: requestData,
+            callback: function (response) {
+                switch (response.type) {
+                    case 'flip':
+                        if (flipCallback) {
+                            flipCallback(parseFlipAuction(response.data))
+                        }
+                        break
+                    case 'nextUpdate':
+                        if (nextUpdateNotificationCallback) {
+                            nextUpdateNotificationCallback()
+                        }
+                        break
+                    case 'sold':
+                        if (soldCallback) {
+                            soldCallback(response.data)
+                        }
                         break
                     case 'ok':
                         if (onSubscribeSuccessCallback) {
@@ -1190,7 +1279,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             if (googleId) {
                 let parts = googleId.split('.')
                 if (parts.length > 2) {
-                    let obj = JSON.parse(Base64.atob(parts[1]))
+                    let obj = JSON.parse(atob(parts[1]))
                     user = obj.sub
                 }
             }
@@ -1509,7 +1598,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         setFlipSetting,
         getKatFlips,
         getTrackedFlipsForPlayer,
-        transferCoflCoins
+        transferCoflCoins,
+        subscribeFlipsAnonym
     }
 }
 
