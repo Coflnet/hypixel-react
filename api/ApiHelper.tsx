@@ -39,7 +39,7 @@ import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSe
 import { initHttpHelper } from './HttpHelper'
 
 function getApiEndpoint() {
-    return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT
+    return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
 }
 
 export function initAPI(returnSSRResponse: boolean = false): API {
