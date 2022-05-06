@@ -135,7 +135,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 try {
                     data = atob(request.data)
                 } catch {}
-
                 cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge)
                 removeSentRequests([...equals, request])
             })
@@ -167,7 +166,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
 
     function findForEqualSentRequest(request: ApiRequest) {
         return requests.filter(r => {
-            return r.type === request.type && r.data === request.data && r.mId !== request.mId
+            return r.type === request.type && r.data === request.data && r.customRequestURL === request.customRequestURL && r.mId !== request.mId
         })
     }
 

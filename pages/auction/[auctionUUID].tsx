@@ -110,27 +110,6 @@ export const getStaticProps = async ({ params }) => {
 
     auctionDetails.bids.sort((a, b) => b.amount - a.amount)
 
-    let item
-    try {
-        item = await api.getItemDetails(auctionDetails.tag)
-    } catch (e) {
-        console.log('ERROR: ' + JSON.stringify(e))
-        console.log('------------------------')
-        return {
-            props: {},
-            revalidate: 60
-        }
-    }
-
-    if (!item) {
-        console.log('itemDetails not found (tag=' + auctionDetails.tag + ')')
-        console.log('------------------------')
-        return {
-            notFound: true,
-            revalidate: 60
-        }
-    }
-
     let namePromises: Promise<void>[] = []
     try {
         auctionDetails.iconUrl = api.getItemImageUrl(auctionDetails)
