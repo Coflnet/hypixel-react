@@ -45,12 +45,6 @@ function MyApp({ Component, pageProps }) {
         <>
             <Script async={true} src={'/preScript.js'} />
             <Script async={true} src={'/MinecraftColorCodes.3.7.js'} />
-            <Script
-                async={true}
-                src={'https://instant.page/5.1.0'}
-                type={'module'}
-                integrity={'sha384-by67kQnR+pyfy8yWP4kPO12fHKRLHZPfEsiSXR8u2IKcTdxD805MGUXBzVPnkLHw'}
-            />
             <MatomoProvider value={matomoTrackingInstance}>
                 <MainApp>
                     <NextNProgress />
