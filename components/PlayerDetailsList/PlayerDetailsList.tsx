@@ -38,7 +38,7 @@ function PlayerDetailsList(props: Props) {
     let router = useRouter()
 
     let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
-    let [allElementsLoaded, setAllElementsLoaded] = useState(false)
+    let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions.length < 12)
     let [playerName, setPlayerName] = useState('')
     let isLoadingElements = useRef(false)
 
