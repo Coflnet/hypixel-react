@@ -34,7 +34,6 @@ import cacheUtils from '../utils/CacheUtils'
 import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
-import { Base64 } from 'js-base64'
 import { isClientSideRendering } from '../utils/SSRUtils'
 import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
@@ -1280,7 +1279,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             if (googleId) {
                 let parts = googleId.split('.')
                 if (parts.length > 2) {
-                    let obj = JSON.parse(Base64.atob(parts[1]))
+                    let obj = JSON.parse(atob(parts[1]))
                     user = obj.sub
                 }
             }
