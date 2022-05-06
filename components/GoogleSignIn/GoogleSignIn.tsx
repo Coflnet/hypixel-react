@@ -21,7 +21,6 @@ let gotResponse = false
 function GoogleSignIn(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [privacyPolicyAccepted, setPrivacyPolicyAccepted] = useState(false)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 
@@ -50,7 +49,6 @@ function GoogleSignIn(props: Props) {
     useEffect(() => {
         forceUpdate()
         setIsLoggedIn(localStorage.getItem('googleId') !== null)
-        setPrivacyPolicyAccepted(false)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.rerenderFlip])
 
@@ -116,7 +114,6 @@ function GoogleSignIn(props: Props) {
             <GoogleLogin
                 clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
                 buttonText="Login"
-                disabled={!privacyPolicyAccepted}
                 onSuccess={onLoginSucces}
                 onFailure={onLoginFail}
                 isSignedIn={isClientSideRendering() ? localStorage.getItem('googleId') !== null : false}
@@ -124,15 +121,7 @@ function GoogleSignIn(props: Props) {
                 cookiePolicy={'single_host_origin'}
             />
             <p>
-                <Form.Check
-                    className={styles.checkbox}
-                    onChange={e => {
-                        setPrivacyPolicyAccepted(e.target.checked)
-                    }}
-                />
-                <span>
-                    I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
-                </span>
+                I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
             </p>
         </div>
     )

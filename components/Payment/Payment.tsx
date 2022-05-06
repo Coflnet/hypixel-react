@@ -8,7 +8,11 @@ import { Help as HelpIcon } from '@mui/icons-material'
 import { useCoflCoins } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 
-function Payment() {
+interface Props {
+    disabled: boolean
+}
+
+function Payment(props: Props) {
     let [isLoadingId, setLoadingId] = useState('')
     let [currentRedirectLink, setCurrentRedirectLink] = useState('')
     let [showAll, setShowAll] = useState(false)
@@ -56,6 +60,7 @@ function Payment() {
                                 onPayPaypal(payPalProductId)
                             }}
                             style={{ width: '40%' }}
+                            disabled={props.disabled}
                         >
                             {payPalProductId === isLoadingId ? (
                                 <p className={styles.manualRedirectLink}>
@@ -78,6 +83,7 @@ function Payment() {
                                 onPayStripe(stripeProductId)
                             }}
                             style={{ width: '40%' }}
+                            disabled={props.disabled}
                         >
                             {stripeProductId === isLoadingId ? (
                                 <p className={styles.manualRedirectLink}>
@@ -134,6 +140,7 @@ function Payment() {
                                 onPayPaypal(payPalProductId, coflCoinsToBuy)
                             }}
                             style={{ width: '40%' }}
+                            disabled={props.disabled}
                         >
                             {`${payPalProductId}_${coflCoinsToBuy}` === isLoadingId
                                 ? getLoadingElement(<p>Redirecting to checkout...</p>)
@@ -148,6 +155,7 @@ function Payment() {
                                 onPayStripe(stripeProductId, coflCoinsToBuy)
                             }}
                             style={{ width: '40%' }}
+                            disabled={props.disabled}
                         >
                             {`${stripeProductId}_${coflCoinsToBuy}` === isLoadingId
                                 ? getLoadingElement(<p>Redirecting to checkout...</p>)
