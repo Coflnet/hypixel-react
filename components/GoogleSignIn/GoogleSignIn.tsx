@@ -8,6 +8,7 @@ import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { Form } from 'react-bootstrap'
+import styles from './GoogleSignIn.module.css'
 
 interface Props {
     onAfterLogin(): void
@@ -124,7 +125,7 @@ function GoogleSignIn(props: Props) {
             />
             <p>
                 <Form.Check
-                    style={{ position: 'relative !important' }}
+                    className={styles.checkbox}
                     onChange={e => {
                         setPrivacyPolicyAccepted(e.target.checked)
                     }}
