@@ -9,7 +9,7 @@ import {
     parseFlipTrackingResponse,
     parseItem,
     parseItemBidForList,
-    parseItemPriceData,
+    parseItemPrice,
     parseItemSummary,
     parseKatFlip,
     parseLowSupplyItem,
@@ -93,41 +93,51 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return 'https://sky.coflnet.com/static/icon/' + item.tag
     }
 
-    let getItemDetails = (itemTagOrName: string): Promise<Item> => {
+    let getItemDetails = (itemTag: string): Promise<Item> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.ITEM_DETAILS,
-                data: itemTagOrName,
+                customRequestURL: `${getProperty('apiEndpoint')}/item/${itemTag}/details`,
+                data: '',
                 resolve: (item: any) => {
                     returnSSRResponse ? resolve(item) : resolve(parseItem(item))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTagOrName)
+                    apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTag)
                     reject()
                 }
             })
         })
     }
 
-    let getItemPrices = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<ItemPriceData> => {
+    let getItemPrices = (itemTag: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]> => {
         return new Promise((resolve, reject) => {
+            let query = ''
             if (!itemFilter || Object.keys(itemFilter).length === 0) {
                 itemFilter = undefined
+            } else {
+                Object.keys(itemFilter).forEach(key => {
+                    query += `${key}=${itemFilter[key]}&`
+                })
             }
 
-            let requestData = {
-                name: itemTagOrName,
-                start: Math.round(fetchStart / 100000) * 100,
-                filter: itemFilter
-            }
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.ITEM_PRICES,
-                data: requestData,
+                data: '',
+                customRequestURL: getProperty('apiEndpoint') + `/item/price/${itemTag}/history/${fetchSpan}?${query}`,
+                requestMethod: 'GET',
+                requestHeader: {
+                    'Content-Type': 'application/json'
+                },
                 resolve: (data: any) => {
-                    resolve(parseItemPriceData(data))
+                    resolve(data.map(parseItemPrice))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.ITEM_PRICES, error, requestData)
+                    apiErrorHandler(RequestType.ITEM_PRICES, error, {
+                        itemTag,
+                        fetchSpan,
+                        itemFilter
+                    })
                     reject()
                 }
             })
@@ -258,43 +268,41 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctionDetails = (auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails> => {
+    let getAuctionDetails = (auctionUUID: string): Promise<AuctionDetails> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheApiRequest(
-                {
-                    type: RequestType.AUCTION_DETAILS,
-                    data: auctionUUID,
-                    resolve: auctionDetails => {
-                        if (!auctionDetails) {
-                            reject()
-                            return
-                        }
-                        if (!auctionDetails.auctioneer) {
-                            api.getPlayerName(auctionDetails.auctioneerId).then(name => {
-                                auctionDetails.auctioneer = {
-                                    name,
-                                    uuid: auctionDetails.auctioneerId
-                                }
-                                returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
-                            })
-                        } else {
+            httpApi.sendApiRequest({
+                type: RequestType.AUCTION_DETAILS,
+                data: auctionUUID,
+                resolve: auctionDetails => {
+                    if (!auctionDetails) {
+                        reject()
+                        return
+                    }
+                    if (!auctionDetails.auctioneer) {
+                        api.getPlayerName(auctionDetails.auctioneerId).then(name => {
+                            auctionDetails.auctioneer = {
+                                name,
+                                uuid: auctionDetails.auctioneerId
+                            }
                             returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
-                        }
-                    },
-                    reject: (error: any) => {
-                        reject(error)
+                        })
+                    } else {
+                        returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
                     }
                 },
-                ignoreCache ? 3 + ignoreCache : 2
-            )
+                reject: (error: any) => {
+                    reject(error)
+                }
+            })
         })
     }
 
     let getPlayerName = (uuid: string): Promise<string> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.PLAYER_NAME,
-                data: uuid,
+                customRequestURL: `${getProperty('apiEndpoint')}/player/${uuid}/name`,
+                data: '',
                 resolve: name => {
                     resolve(name)
                 },
@@ -477,25 +485,26 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getRecentAuctions = (itemTagOrName: string, fetchStart: number, itemFilter?: ItemFilter): Promise<RecentAuction[]> => {
+    let getRecentAuctions = (itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
+            let query = ''
             if (!itemFilter || Object.keys(itemFilter).length === 0) {
                 itemFilter = undefined
+            } else {
+                Object.keys(itemFilter).forEach(key => {
+                    query += `${key}=${itemFilter[key]}&`
+                })
             }
 
-            let requestData = {
-                name: itemTagOrName,
-                start: Math.round(fetchStart / 100000) * 100,
-                filter: itemFilter
-            }
-            httpApi.sendLimitedCacheRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.RECENT_AUCTIONS,
-                data: requestData,
+                customRequestURL: getProperty('apiEndpoint') + `/auctions/tag/${itemTag}/recent/overview?${query}`,
+                data: '',
                 resolve: (data: any) => {
                     resolve(data.map(a => parseRecentAuction(a)))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, requestData)
+                    apiErrorHandler(RequestType.RECENT_AUCTIONS, error, itemTag)
                     reject()
                 }
             })
@@ -1213,19 +1222,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getFlipUpdateTime = (): Promise<Date> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheApiRequest(
-                {
-                    type: RequestType.FLIP_UPDATE_TIME,
-                    data: '',
-                    resolve: function (data) {
-                        resolve(new Date(data))
-                    },
-                    reject: function (error) {
-                        apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, '')
-                    }
+            httpApi.sendApiRequest({
+                type: RequestType.FLIP_UPDATE_TIME,
+                data: '',
+                resolve: function (data) {
+                    resolve(new Date(data))
                 },
-                1
-            )
+                reject: function (error) {
+                    apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, '')
+                }
+            })
         })
     }
     let playerSearch = (playerName: string): Promise<Player[]> => {
@@ -1246,27 +1252,24 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getLowSupplyItems = (): Promise<LowSupplyItem[]> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheApiRequest(
-                {
-                    type: RequestType.GET_LOW_SUPPLY_ITEMS,
-                    data: '',
-                    resolve: function (items) {
-                        returnSSRResponse
-                            ? resolve(items)
-                            : resolve(
-                                  items.map(item => {
-                                      let lowSupplyItem = parseLowSupplyItem(item)
-                                      return lowSupplyItem
-                                  })
-                              )
-                    },
-                    reject: function (error) {
-                        apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
-                        reject()
-                    }
+            httpApi.sendApiRequest({
+                type: RequestType.GET_LOW_SUPPLY_ITEMS,
+                data: '',
+                resolve: function (items) {
+                    returnSSRResponse
+                        ? resolve(items)
+                        : resolve(
+                              items.map(item => {
+                                  let lowSupplyItem = parseLowSupplyItem(item)
+                                  return lowSupplyItem
+                              })
+                          )
                 },
-                1
-            )
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
+                    reject()
+                }
+            })
         })
     }
 

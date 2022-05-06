@@ -116,6 +116,7 @@ function FlipRestrictionList(props: Props) {
                     onSearchresultClick={onSearchResultClick}
                     hideNavbar={true}
                     placeholder="Search item"
+                    preventDisplayOfPreviousSearches={true}
                 />
                 <ItemFilter filters={filters} forceOpen={true} onFilterChange={onFilterChange} ignoreURL={true} />
                 <span>

@@ -116,8 +116,6 @@ export interface WebsocketHelper extends Connection {
 
 export interface HttpApi extends Connection {
     sendApiRequest(request: ApiRequest, body?: any): Promise<void>
-    sendLimitedCacheApiRequest(request: ApiRequest, grouping: number)
-    sendLimitedCacheApiRequest(request: ApiRequest)
     sendLimitedCacheRequest(request: ApiRequest, grouping: number)
     sendLimitedCacheRequest(request: ApiRequest)
 }

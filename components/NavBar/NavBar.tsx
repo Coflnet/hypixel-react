@@ -12,12 +12,14 @@ import {
     Chat as ChatIcon,
     Menu as MenuIcon,
     ExploreOutlined as ExploreIcon,
-    PetsOutlined as PetsIcon
+    PetsOutlined as PetsIcon,
+    AccountCircle as AccountIcon
 } from '@mui/icons-material'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import Link from 'next/link'
+import AccountDetails from '../AccountDetails/AccountDetails'
 
 let resizePromise: NodeJS.Timeout | null = null
 
@@ -166,6 +168,9 @@ function NavBar(props: Props) {
                         </MenuItem>
                         <MenuItem icon={<StorefrontIcon />}>
                             <Link href={'/flipper'}>Item-Flipper</Link>
+                        </MenuItem>
+                        <MenuItem icon={<AccountIcon />}>
+                            <Link href={'/account'}>Account</Link>
                         </MenuItem>
                         <MenuItem icon={<NotificationIcon />}>
                             <Link href={'/subscriptions'}>Notifier</Link>

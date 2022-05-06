@@ -146,7 +146,7 @@ function PlayerDetailsList(props: Props) {
     }
 
     let onImageLoadError = (listElement: Auction | BidForList, data: any) => {
-        api.getItemDetails(listElement.item.tag || listElement.item.name!).then(item => {
+        api.getItemDetails(listElement.item.tag).then(item => {
             listElement.item.iconUrl = item.iconUrl
             setListElements(listElements)
             forceUpdate()
