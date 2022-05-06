@@ -37,17 +37,19 @@ function BazaarSnapshot(props: Props) {
     function onTimestampChangeEvent(e) {
         if ((e as any).detail?.timestamp) {
             let t = (e as any).detail?.timestamp
+            console.log(t)
             setTimestamp(t)
         }
     }
 
     function loadBazaarSnapshot() {
-        let t = typeof timestamp?.getTime === 'function' ? (timestamp as Date).getTime() : timestamp
+        bazaarSnapshotDateRef.current = typeof debouncedTimestamp?.getTime === 'function' ? (debouncedTimestamp as Date).getTime() : debouncedTimestamp
 
-        bazaarSnapshotDateRef.current = timestamp
-
-        api.getBazaarSnapshot(props.item.tag, timestamp).then(snapshot => {
-            if (bazaarSnapshotDateRef.current === (typeof timestamp?.getTime === 'function' ? (timestamp as Date).getTime() : timestamp)) {
+        api.getBazaarSnapshot(props.item.tag, debouncedTimestamp).then(snapshot => {
+            if (
+                bazaarSnapshotDateRef.current ===
+                (typeof debouncedTimestamp?.getTime === 'function' ? (debouncedTimestamp as Date).getTime() : debouncedTimestamp)
+            ) {
                 setBazaarSnapshot(snapshot)
             }
         })

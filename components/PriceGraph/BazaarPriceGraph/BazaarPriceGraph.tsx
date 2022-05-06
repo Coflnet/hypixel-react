@@ -14,7 +14,7 @@ import ReactECharts from 'echarts-for-react'
 import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
 import { getURLSearchParam } from '../../../utils/Parser/URLParser'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { BAZAAR_GRAPH_TYPE, getSetting, setSetting } from '../../../utils/SettingsUtils'
+import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE, getSetting, setSetting } from '../../../utils/SettingsUtils'
 import { Form } from 'react-bootstrap'
 
 interface Props {
@@ -51,8 +51,12 @@ function BazaarPriceGraph(props: Props) {
     useEffect(() => {
         mounted = true
 
+        graphType = (localStorage.getItem(BAZAAR_GRAPH_TYPE) as GRAPH_TYPE) || DEFAULT_GRAPH_TYPE
+        setSelectedLegendOptionsFromLocalStorage()
+        setGraphType(graphType)
+        chartOptionsPrimary = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
+        setChartOptionsPrimary(graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit())
         setIsSSR(false)
-        setGraphType((localStorage.getItem(BAZAAR_GRAPH_TYPE) as GRAPH_TYPE) || DEFAULT_GRAPH_TYPE)
 
         return () => {
             mounted = false
@@ -71,9 +75,12 @@ function BazaarPriceGraph(props: Props) {
 
     useEffect(() => {
         if (prices.length > 0) {
-            let chartOptions = graphType === GRAPH_TYPE.SINGLE ? chartOptionsSingle : chartOptionsSplit
-            setChartOptionsPrimary(chartOptions)
+            let chartOptions = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
+
             chartOptionsPrimary = chartOptions
+            setSelectedLegendOptionsFromLocalStorage()
+
+            setChartOptionsPrimary(chartOptions)
             setChartData(prices)
         }
     }, [graphType])
@@ -114,15 +121,38 @@ function BazaarPriceGraph(props: Props) {
         updateChart(timespan)
     }
 
-    function onChartsEvents(chartOptions): Record<string, Function> {
+    function setSelectedLegendOptionsFromLocalStorage() {
+        let legendSelected = JSON.parse(localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION) || '{}')
+        if (graphType === GRAPH_TYPE.SPLIT) {
+            chartOptionsPrimary.legend.selected = legendSelected[`${GRAPH_TYPE.SPLIT}-primary`]
+            chartOptionsSecondary.legend.selected = legendSelected[`${GRAPH_TYPE.SPLIT}-secondary`]
+        } else {
+            chartOptionsPrimary.legend.selected = legendSelected[`${GRAPH_TYPE.SINGLE}`]
+        }
+        setChartOptionsPrimary(chartOptionsPrimary)
+        setChartOptionsSecondary(chartOptionsSecondary)
+    }
+
+    function onChartsEvents(chartOptions, localStorageKey: string): Record<string, Function> {
         return {
             datazoom: e => {
+                console.log(e)
                 let mid = (e.start + e.end) / 2
+                console.log(Math.ceil(chartOptions.xAxis[0].data.length * (mid / 100)))
+                console.log(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * (mid / 100))])
+                console.log(chartOptions.xAxis[0].data)
                 let midDate = new Date(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * (mid / 100))])
+
+                console.log(midDate)
 
                 setTimeout(() => {
                     document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: midDate } }))
                 }, 1000)
+            },
+            legendselectchanged: e => {
+                let current = JSON.parse(localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION) || '{}')
+                current[localStorageKey] = e.selected
+                localStorage.setItem(BAZAAR_GRAPH_LEGEND_SELECTION, JSON.stringify(current))
             }
         }
     }
@@ -149,7 +179,6 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function setChartData(prices: BazaarPrice[]) {
-
         clearChartData()
 
         setXAxisData(chartOptionsPrimary, prices)
@@ -185,8 +214,6 @@ function BazaarPriceGraph(props: Props) {
                 chartOptionsSecondary.series[4].data.push(item.sellData.moving)
             }
         })
-
-        console.log(chartOptionsPrimary.series[0].data.length)
 
         setChartOptionsPrimary(chartOptionsPrimary)
         setChartOptionsSecondary(chartOptionsSecondary)
@@ -233,13 +260,24 @@ function BazaarPriceGraph(props: Props) {
                             <div className={graphType === GRAPH_TYPE.SINGLE ? styles.chartWrapperSingle : styles.chartWrapperSplit}>
                                 <h3 className={styles.graphHeadline}>Buy data</h3>
                                 {graphOverlayElement}
-                                <ReactECharts option={chartOptionsPrimary} className={styles.chart} onEvents={onChartsEvents(chartOptionsPrimary)} />
+                                <ReactECharts
+                                    option={chartOptionsPrimary}
+                                    className={styles.chart}
+                                    onEvents={onChartsEvents(
+                                        chartOptionsPrimary,
+                                        graphType === GRAPH_TYPE.SINGLE ? GRAPH_TYPE.SINGLE : `${GRAPH_TYPE.SPLIT}-primary`
+                                    )}
+                                />
                             </div>
                             {graphType === GRAPH_TYPE.SPLIT ? (
                                 <div className={styles.chartWrapperSplit}>
                                     <h3 className={styles.graphHeadline}>Sell data</h3>
                                     {graphOverlayElement}
-                                    <ReactECharts option={chartOptionsSecondary} className={styles.chart} onEvents={onChartsEvents(chartOptionsSecondary)} />
+                                    <ReactECharts
+                                        option={chartOptionsSecondary}
+                                        className={styles.chart}
+                                        onEvents={onChartsEvents(chartOptionsSecondary, `${GRAPH_TYPE.SPLIT}-secondary`)}
+                                    />
                                 </div>
                             ) : null}
                         </>

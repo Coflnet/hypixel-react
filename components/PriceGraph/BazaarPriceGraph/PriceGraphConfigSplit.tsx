@@ -39,7 +39,7 @@ function getPriceGraphConfigSplit() {
         dataZoom: [
             {
                 id: 'dataZoomX',
-                type: 'inside',
+                type: 'slider',
                 xAxisIndex: [0],
                 filterMode: 'filter'
             }
