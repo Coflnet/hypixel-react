@@ -25,7 +25,6 @@ interface Item {
     name?: string
     category?: string
     iconUrl?: string
-    description?: string
     bazaar?: boolean
 }
 
@@ -159,7 +158,7 @@ interface API {
     getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>
     getEnchantments(): Promise<Enchantment[]>
     getReforges(): Promise<Reforge[]>
-    getAuctionDetails(auctionUUID: string, ignoreCache?: number): Promise<AuctionDetails>
+    getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>
     getPlayerName(uuid: string): Promise<string>
     setConnectionId(): Promise<void>
     getVersion(): Promise<string>
@@ -182,6 +181,15 @@ interface API {
         nextUpdateNotificationCallback?: Function,
         onSubscribeSuccessCallback?: Function,
         forceSettingsUpdate: boolean = false
+    ): void
+    subscribeFlipsAnonym(
+        restrictionList: FlipRestriction[],
+        filter: FlipperFilter,
+        flipSettings: FlipCustomizeSettings,
+        flipCallback?: Function,
+        soldCallback?: Function,
+        nextUpdateNotificationCallback?: Function,
+        onSubscribeSuccessCallback?: Function
     ): void
     unsubscribeFlips(): Promise<void>
     getFilter(name: string): Promise<FilterOptions>

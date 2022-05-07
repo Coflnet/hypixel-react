@@ -1,5 +1,4 @@
 import { ApiRequest, HttpApi } from './ApiTypes.d'
-import { Base64 } from 'js-base64'
 import cacheUtils from '../utils/CacheUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { getNextMessageId } from '../utils/MessageIdUtils'
@@ -20,7 +19,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
     function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): Promise<void> {
         request.mId = getNextMessageId()
         let requestString = JSON.stringify(request.data)
-        var url = `${commandEndpoint}/${request.type}/${Base64.encode(requestString)}`
+        var url = `${commandEndpoint}/${request.type}/${btoa(requestString)}`
 
         if (cacheInvalidationGrouping) {
             url += `/${cacheInvalidationGrouping}`
@@ -33,7 +32,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             }
 
             try {
-                request.data = Base64.encode(requestString)
+                request.data = btoa(requestString)
             } catch (error) {
                 throw new Error('couldnt btoa this data: ' + request.data)
             }
@@ -55,7 +54,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
      * @param request The request-Object
      * @returns A emty promise (the resolve/reject Method of the request-Object is called)
      */
-    function sendApiRequest(request: ApiRequest, body?: any, cacheInvalidationGrouping?: number): Promise<void> {
+    function sendApiRequest(request: ApiRequest, body?: any): Promise<void> {
         request.mId = getNextMessageId()
         let requestString = request.data
         var url = `${apiEndpoint}/${request.type}`
@@ -66,14 +65,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
 
         if (request.customRequestURL) {
             url = request.customRequestURL
-        }
-
-        if (cacheInvalidationGrouping) {
-            if (url.indexOf('?') !== -1) {
-                url += `&t=${cacheInvalidationGrouping}`
-            } else {
-                url += `?t=${cacheInvalidationGrouping}`
-            }
         }
 
         return cacheUtils.getFromCache(request.customRequestURL || request.type, requestString).then(cacheValue => {
@@ -94,10 +85,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         })
     }
 
-    function isResponseValid(response: Response) {
-        return response.ok && response.body
-    }
-
     function handleServerRequest(request: ApiRequest, url: string, body?: any): Promise<void> {
         if (!isClientSideRendering()) {
             console.log('Sending Request...')
@@ -112,31 +99,20 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             headers: request.requestHeader
         })
             .then(response => {
-                if (!response.ok) {
-                    request.reject()
+                if (!response.ok || response.status === 204) {
                     return
                 }
 
-                if (response.status === 204) {
-                    request.resolve()
-                    return
-                }
-
-                let parsed
-                try {
-                    parsed = response.json()
-                } catch (error) {
-                    request.reject({ Message: 'Unnown error' })
-                }
-                if (!isResponseValid(response)) {
-                    parsed.then(parsedResponse => {
-                        request.reject(parsedResponse)
-                    })
-                    return
-                }
-                return parsed
+                return response.text()
             })
-            .then(parsedResponse => {
+            .then(responseText => {
+                let parsedResponse: any
+                try {
+                    parsedResponse = JSON.parse(responseText)
+                } catch {
+                    parsedResponse = responseText
+                }
+
                 if (!isClientSideRendering()) {
                     console.log('Received Response: ')
                     console.log('mId: ' + request.mId)
@@ -157,9 +133,8 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
 
                 let data = request.data
                 try {
-                    data = Base64.decode(request.data)
+                    data = atob(request.data)
                 } catch {}
-
                 cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge)
                 removeSentRequests([...equals, request])
             })
@@ -178,11 +153,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         return sendRequest(request, group)
     }
 
-    function sendLimitedCacheApiRequest(request: ApiRequest, grouping = 1): Promise<void> {
-        let group = Math.round(new Date().getMinutes() / grouping)
-        return sendApiRequest(request, undefined, group)
-    }
-
     function removeSentRequests(toDelete: ApiRequest[]) {
         requests = requests.filter(request => {
             for (let i = 0; i < toDelete.length; i++) {
@@ -196,14 +166,13 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
 
     function findForEqualSentRequest(request: ApiRequest) {
         return requests.filter(r => {
-            return r.type === request.type && r.data === request.data && r.mId !== request.mId
+            return r.type === request.type && r.data === request.data && r.customRequestURL === request.customRequestURL && r.mId !== request.mId
         })
     }
 
     return {
         sendRequest: sendRequest,
         sendLimitedCacheRequest: sendRequestLimitCache,
-        sendApiRequest: sendApiRequest,
-        sendLimitedCacheApiRequest: sendLimitedCacheApiRequest
+        sendApiRequest: sendApiRequest
     }
 }

@@ -6,27 +6,20 @@ import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
 import moment from 'moment'
-import { Base64 } from 'js-base64'
-import { v4 as generateUUID } from 'uuid'
-import { GoogleLogout } from 'react-google-login'
-import { toast } from 'react-toastify'
 import styles from './Premium.module.css'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
 import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
-import { CopyButton } from '../CopyButton/CopyButton'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasPremium, setHasPremium] = useState<boolean>()
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
     let [isLoading, setIsLoading] = useState(false)
-    let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [isLoggingIn, setIsLoggingIn] = useState(false)
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
-    let [hasWrongFormattedGoogleToken, setHasWrongFormattedGoogleToken] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
@@ -66,30 +59,6 @@ function Premium() {
         setIsLoggingIn(false)
         setIsLoggedIn(false)
         setHasPremium(false)
-        setRerenderGoogleSignIn(!rerenderGoogleSignIn)
-    }
-
-    function getAccountString() {
-        let googleId = localStorage.getItem('googleId')
-        if (googleId) {
-            try {
-                let parts = googleId.split('.')
-                let obj = JSON.parse(Base64.atob(parts[1]))
-                let imageElement = obj.picture ? <img src={obj.picture} height={24} width={24} alt="" /> : <span />
-                return <span style={{ marginLeft: "10px" }}>{imageElement} {`${obj.name} (${obj.email})`}</span>;
-            } catch {
-                setHasWrongFormattedGoogleToken(true)
-            }
-        }
-        return ''
-    }
-
-    function onLogout() {
-        setIsLoggedIn(false)
-        setHasPremium(false)
-        localStorage.removeItem('googleId')
-        setRerenderGoogleSignIn(!rerenderGoogleSignIn)
-        toast.warn('Successfully logged out')
     }
 
     return (
@@ -119,7 +88,6 @@ function Premium() {
             )}
             <hr />
             <div style={{ marginBottom: '20px' }}>
-                {isLoggedIn && !hasWrongFormattedGoogleToken ? <p>Account: {getAccountString()}</p> : ''}
                 {hasPremium ? (
                     <div>
                         <Tooltip
@@ -128,50 +96,9 @@ function Premium() {
                             tooltipContent={<span>{hasPremiumUntil?.toDateString()}</span>}
                         />
                     </div>
-                ) : (
-                    ''
-                )}
-                {isLoggedIn && hasWrongFormattedGoogleToken ? (
-                    <div>
-                        <hr />
-                        <p>
-                            Some problem occured while processing your Google login. Everything should still work as expected, but we cant display certain
-                            information like your username or profile picture.
-                        </p>
-                        <p style={{ color: 'red', fontWeight: 'bold' }}>
-                            IMPORTANT: Do not give out the following information to a untrusted third party. This token could be used to access your google
-                            account!
-                        </p>
-                        <p>
-                            Your Goolge token:{' '}
-                            <CopyButton
-                                copyValue={localStorage.getItem('googleId')}
-                                successMessage={
-                                    <div>
-                                        Copied your Google token.
-                                        <br />
-                                        <b>Be careful who you trust with this!</b>
-                                    </div>
-                                }
-                            />
-                        </p>
-                    </div>
-                ) : (
-                    ''
-                )}
-                {isLoggedIn ? (
-                    <div style={{ marginTop: '20px' }}>
-                        <GoogleLogout
-                            clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                            buttonText="Logout"
-                            onLogoutSuccess={onLogout}
-                        />
-                    </div>
-                ) : (
-                    ''
-                )}
+                ) : null}
                 {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
-                <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
+                <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 <div>{isLoggingIn ? getLoadingElement() : ''}</div>
             </div>
             {isLoggedIn ? (

@@ -93,9 +93,9 @@ function Flipper(props: Props) {
         _setAutoScroll(true)
         attachScrollEvent()
         isSSR = false
-        api.subscribeFlips(
-            getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
-            flipperFilter,
+        api.subscribeFlipsAnonym(
+            getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []),
+            getSettingsObject(FLIPPER_FILTER_KEY, {}),
             getFlipCustomizeSettings(),
             onNewFlip,
             onAuctionSold,
@@ -107,6 +107,16 @@ function Flipper(props: Props) {
             if ((e as any).detail?.apiUpdate) {
                 setFlipperFilterKey(generateUUID())
                 setFlipCustomizeKey(generateUUID())
+            }
+            if (localStorage.getItem('googleId') === null) {
+                api.subscribeFlipsAnonym(
+                    getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
+                    getSettingsObject(FLIPPER_FILTER_KEY, {}),
+                    getFlipCustomizeSettings(),
+                    onNewFlip,
+                    onAuctionSold,
+                    onNextFlipNotification
+                )
             }
         })
 
@@ -702,31 +712,33 @@ function Flipper(props: Props) {
                                     </Card.Body>
                                 </Card>
                             ) : null}
-                            <Card style={{ flexGrow: 2 }} className={styles.flipperSummaryCard}>
-                                <Card.Header>
-                                    {!isLoading && isLoggedIn && hasPremium ? (
-                                        <Card.Title>How to get extra premium time for free</Card.Title>
-                                    ) : (
-                                        <Card.Title>How to get premium for free</Card.Title>
-                                    )}
-                                </Card.Header>
-                                <Card.Body>
-                                    <p>
-                                        Get free premium time by inviting other people to our website. For further information check out our{' '}
-                                        <Link href="/ref">Referral-Program</Link>.
-                                    </p>
-                                    <p>
-                                        Your Link to invite people:{' '}
-                                        <span style={{ fontStyle: 'italic', color: 'skyblue' }}>
-                                            {!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.oldInfo.refId : ''}
-                                        </span>{' '}
-                                        <CopyButton
-                                            copyValue={!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.oldInfo.refId : ''}
-                                            successMessage={<span>Copied Ref-Link</span>}
-                                        />
-                                    </p>
-                                </Card.Body>
-                            </Card>
+                            {isLoggedIn ? (
+                                <Card style={{ flexGrow: 2 }} className={styles.flipperSummaryCard}>
+                                    <Card.Header>
+                                        {!isLoading && isLoggedIn && hasPremium ? (
+                                            <Card.Title>How to get extra premium time for free</Card.Title>
+                                        ) : (
+                                            <Card.Title>How to get premium for free</Card.Title>
+                                        )}
+                                    </Card.Header>
+                                    <Card.Body>
+                                        <p>
+                                            Get free premium time by inviting other people to our website. For further information check out our{' '}
+                                            <Link href="/ref">Referral-Program</Link>.
+                                        </p>
+                                        <p>
+                                            Your Link to invite people:{' '}
+                                            <span style={{ fontStyle: 'italic', color: 'skyblue' }}>
+                                                {!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.oldInfo.refId : ''}
+                                            </span>{' '}
+                                            <CopyButton
+                                                copyValue={!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.oldInfo.refId : ''}
+                                                successMessage={<span>Copied Ref-Link</span>}
+                                            />
+                                        </p>
+                                    </Card.Body>
+                                </Card>
+                            ) : null}
                         </div>
                     </Card.Body>
                 </Card>

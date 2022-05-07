@@ -92,7 +92,6 @@ export function parseItem(item: any): Item {
         category: item.category,
         iconUrl: item.iconUrl || item.icon || api.getItemImageUrl(item),
         tier: item.tier,
-        description: item.description,
         bazaar: item.bazaar
     }
 }
