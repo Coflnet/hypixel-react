@@ -64,6 +64,7 @@ function BazaarPriceGraph(props: Props) {
         if (!isClientSideRendering()) {
             return
         }
+        init()
     }, [props.item.tag])
 
     useEffect(() => {
