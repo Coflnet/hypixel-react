@@ -24,7 +24,7 @@ function getPriceGraphConfigSplit() {
             data: ['Price', 'Min', 'Max', 'Volume', 'Moving'],
             selected: {
                 Price: true,
-                Min: true,
+                Min: false,
                 Max: false,
                 Volume: false,
                 Moving: false
@@ -41,7 +41,8 @@ function getPriceGraphConfigSplit() {
                 id: 'dataZoomX',
                 type: 'slider',
                 xAxisIndex: [0],
-                filterMode: 'filter'
+                filterMode: 'filter',
+                labelFormatter: (index, value) => `${new Date(+value).toLocaleDateString()}`
             }
         ],
         xAxis: [
@@ -64,11 +65,11 @@ function getPriceGraphConfigSplit() {
                 axisLabel: {
                     formatter: value => `${numberWithThousandsSeperators(value)} Coins`
                 },
-                min: function ({ min }) {
-                    return Math.round(min * 0.9)
+                min: function ({ min, max }) {
+                    return Math.floor(min - (max - min) * 0.1)
                 },
-                max: function ({ max }) {
-                    return Math.round(max * 1.1)
+                max: function ({ min, max }) {
+                    return Math.ceil(max + (max - min) * 0.1)
                 }
             },
             {
@@ -83,13 +84,22 @@ function getPriceGraphConfigSplit() {
         series: [
             {
                 name: 'Price',
-                type: 'line',
-                color: '#22A7F0',
+                type: 'k',
+                color: '#32CD32',
                 yAxisIndex: 0,
                 smooth: true,
                 symbol: 'none',
+                lineStyle: {
+                    width: 4
+                },
                 tooltip: {
-                    valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
+                    show: true,
+                    valueFormatter: value => {
+                        if (!value || (value && value.length === 0)) {
+                            return ''
+                        }
+                        return `${numberWithThousandsSeperators(value)} Coins`
+                    }
                 }
             },
             {
@@ -100,6 +110,7 @@ function getPriceGraphConfigSplit() {
                 smooth: true,
                 symbol: 'none',
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
                 },
                 data: []
@@ -112,6 +123,7 @@ function getPriceGraphConfigSplit() {
                 smooth: true,
                 symbol: 'none',
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
                 },
                 data: []
@@ -119,11 +131,12 @@ function getPriceGraphConfigSplit() {
             {
                 name: 'Volume',
                 type: 'line',
-                color: '#545454',
+                color: '#4B0082',
                 yAxisIndex: 1,
                 smooth: true,
                 symbol: 'none',
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)}`
                 },
                 data: []
@@ -135,6 +148,7 @@ function getPriceGraphConfigSplit() {
                 smooth: true,
                 symbol: 'none',
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)}`
                 },
                 data: []

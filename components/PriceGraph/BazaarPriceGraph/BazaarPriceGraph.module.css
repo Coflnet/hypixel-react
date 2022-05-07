@@ -25,22 +25,23 @@
 }
 
 .chartWrapperSingle {
-    height: 50vh;
+    height: 30vh;
     width: 100%;
     margin-top: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 50px;
 }
 
 .chartWrapperSplit {
-    height: 50vh;
-    width: 50%;
+    height: 30vh;
+    width: 100%;
+    margin-bottom: 50px;
 }
 
 .chartsWrapper {
     margin-top: 10px;
-    margin-bottom: 50px;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 .graphHeadline {

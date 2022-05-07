@@ -45,17 +45,10 @@ function BazaarPriceGraph(props: Props) {
     let [prices, setPrices] = useState<BazaarPrice[]>([])
     let [isSSR, setIsSSR] = useState(true)
 
-    let fetchspanRef = useRef(fetchspan)
-    fetchspanRef.current = fetchspan
-
     useEffect(() => {
         mounted = true
 
-        graphType = (localStorage.getItem(BAZAAR_GRAPH_TYPE) as GRAPH_TYPE) || DEFAULT_GRAPH_TYPE
-        setSelectedLegendOptionsFromLocalStorage()
-        setGraphType(graphType)
-        chartOptionsPrimary = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
-        setChartOptionsPrimary(graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit())
+        init()
         setIsSSR(false)
 
         return () => {
@@ -64,13 +57,13 @@ function BazaarPriceGraph(props: Props) {
     }, [])
 
     useEffect(() => {
+        checkForSpecialFetchspanConfiguration()
+    }, [fetchspan])
+
+    useEffect(() => {
         if (!isClientSideRendering()) {
             return
         }
-
-        let f = (getURLSearchParam('range') as DateRange) || DEFAULT_DATE_RANGE
-        setFetchspan(f)
-        updateChart(f)
     }, [props.item.tag])
 
     useEffect(() => {
@@ -78,14 +71,31 @@ function BazaarPriceGraph(props: Props) {
             let chartOptions = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
 
             chartOptionsPrimary = chartOptions
-            setSelectedLegendOptionsFromLocalStorage()
 
+            checkForSpecialFetchspanConfiguration()
+
+            setSelectedLegendOptionsFromLocalStorage()
             setChartOptionsPrimary(chartOptions)
             setChartData(prices)
         }
     }, [graphType])
 
-    let updateChart = (fetchspan: DateRange) => {
+    function init() {
+        fetchspan = (getURLSearchParam('range') as DateRange) || DEFAULT_DATE_RANGE
+        setFetchspan(fetchspan)
+
+        graphType = (localStorage.getItem(BAZAAR_GRAPH_TYPE) as GRAPH_TYPE) || DEFAULT_GRAPH_TYPE
+        setGraphType(graphType)
+        chartOptionsPrimary = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
+        setChartOptionsPrimary(graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit())
+        checkForSpecialFetchspanConfiguration()
+
+        setTimeout(() => {
+            updateChart(fetchspan)
+        }, 100)
+    }
+
+    function updateChart(fetchspan: DateRange) {
         // active auction is selected
         // no need to get new price data
         if (fetchspan === DateRange.ACTIVE) {
@@ -97,7 +107,7 @@ function BazaarPriceGraph(props: Props) {
 
         currentLoadingString = JSON.stringify({ tag: props.item.tag, fetchspan })
 
-        api.getBazaarPrices(props.item.tag, fetchspan as any)
+        loadBazaarPrices(props.item.tag, fetchspan)
             .then(prices => {
                 if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan })) {
                     return
@@ -115,19 +125,73 @@ function BazaarPriceGraph(props: Props) {
             })
     }
 
-    let onRangeChange = (timespan: DateRange) => {
+    function checkForSpecialFetchspanConfiguration() {
+        if (fetchspan === DateRange.HOUR) {
+            chartOptionsPrimary.legend.data = chartOptionsPrimary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
+            chartOptionsSecondary.legend.data = chartOptionsSecondary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
+            chartOptionsPrimary.series.forEach((s, i) => {
+                s.type = 'line'
+                if (s.name === 'Min' || s.name === 'Max') {
+                    s.tooltip.show = false
+                }
+            })
+            chartOptionsSecondary.series.forEach(s => {
+                s.type = 'line'
+                if (s.name.includes('Min') || s.name.includes('Max')) {
+                    s.tooltip.show = false
+                }
+            })
+        } else {
+            chartOptionsPrimary.series[0].type = 'k'
+            chartOptionsSecondary.series[0].type = 'k'
+
+            chartOptionsPrimary.series.forEach(s => {
+                s.tooltip.show = true
+            })
+            chartOptionsSecondary.series.forEach(s => {
+                s.tooltip.show = true
+            })
+
+            if (graphType === GRAPH_TYPE.SINGLE) {
+                chartOptionsPrimary.legend.data = getPriceGraphConfigSingle().legend.data
+                chartOptionsPrimary.series[3].type = 'k'
+            } else {
+                chartOptionsPrimary.legend.data = getPriceGraphConfigSplit().legend.data
+            }
+            chartOptionsSecondary.legend.data = getPriceGraphConfigSplit().legend.data
+        }
+
+        setSelectedLegendOptionsFromLocalStorage()
+        setChartOptionsPrimary(chartOptionsPrimary)
+        setChartOptionsSecondary(chartOptionsSecondary)
+    }
+
+    function loadBazaarPrices(tag: string, fetchspan: DateRange): Promise<BazaarPrice[]> {
+        if (fetchspan === DateRange.ALL) {
+            return api.getBazaarPricesByRange(tag, new Date(0), new Date())
+        } else {
+            return api.getBazaarPrices(tag, fetchspan as any)
+        }
+    }
+
+    function getLegendLocalStorageKey(primary: boolean) {
+        return `${graphType}-${primary ? 'primary' : 'secondary'}${fetchspan === DateRange.HOUR ? '-hour' : ''}`
+    }
+
+    function onRangeChange(timespan: DateRange) {
         setFetchspan(timespan)
         fetchspan = timespan
         updateChart(timespan)
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: new Date() } }))
     }
 
     function setSelectedLegendOptionsFromLocalStorage() {
         let legendSelected = JSON.parse(localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION) || '{}')
         if (graphType === GRAPH_TYPE.SPLIT) {
-            chartOptionsPrimary.legend.selected = legendSelected[`${GRAPH_TYPE.SPLIT}-primary`]
-            chartOptionsSecondary.legend.selected = legendSelected[`${GRAPH_TYPE.SPLIT}-secondary`]
+            chartOptionsPrimary.legend.selected = legendSelected[getLegendLocalStorageKey(true)] || chartOptionsPrimary.legend.selected
+            chartOptionsSecondary.legend.selected = legendSelected[getLegendLocalStorageKey(false)] || chartOptionsSecondary.legend.selected
         } else {
-            chartOptionsPrimary.legend.selected = legendSelected[`${GRAPH_TYPE.SINGLE}`]
+            chartOptionsPrimary.legend.selected = legendSelected[getLegendLocalStorageKey(true)] || chartOptionsPrimary.legend.selected
         }
         setChartOptionsPrimary(chartOptionsPrimary)
         setChartOptionsSecondary(chartOptionsSecondary)
@@ -136,18 +200,26 @@ function BazaarPriceGraph(props: Props) {
     function onChartsEvents(chartOptions, localStorageKey: string): Record<string, Function> {
         return {
             datazoom: e => {
-                console.log(e)
+                /*
+                if (e.preventDefault) {
+                    return
+                }
+                */
                 let mid = (e.start + e.end) / 2
-                console.log(Math.ceil(chartOptions.xAxis[0].data.length * (mid / 100)))
-                console.log(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * (mid / 100))])
-                console.log(chartOptions.xAxis[0].data)
                 let midDate = new Date(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * (mid / 100))])
-
-                console.log(midDate)
 
                 setTimeout(() => {
                     document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: midDate } }))
-                }, 1000)
+
+                    /*
+                        primaryChartRef.current.getEchartsInstance().dispatchAction({
+                            type: 'dataZoom',
+                            start: 0,
+                            end: 90,
+                            preventDefault: true
+                        })
+                    */
+                }, 100)
             },
             legendselectchanged: e => {
                 let current = JSON.parse(localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION) || '{}')
@@ -159,23 +231,17 @@ function BazaarPriceGraph(props: Props) {
 
     function clearChartData() {
         chartOptionsPrimary.xAxis[0].data = []
-        chartOptionsPrimary.series[0].data = []
-        chartOptionsPrimary.series[1].data = []
-        chartOptionsPrimary.series[2].data = []
-        chartOptionsPrimary.series[3].data = []
+        chartOptionsSecondary.xAxis[0].data = []
 
-        if (graphType === GRAPH_TYPE.SINGLE && chartOptionsPrimary.series.length >= 8) {
-            chartOptionsPrimary.series[4].data = []
-            chartOptionsPrimary.series[5].data = []
-            chartOptionsPrimary.series[6].data = []
-            chartOptionsPrimary.series[7].data = []
-        } else {
-            chartOptionsSecondary.xAxis[0].data = []
-            chartOptionsSecondary.series[0].data = []
-            chartOptionsSecondary.series[1].data = []
-            chartOptionsSecondary.series[2].data = []
-            chartOptionsSecondary.series[3].data = []
-        }
+        chartOptionsPrimary.series.forEach(s => {
+            s.data = []
+        })
+
+        chartOptionsSecondary.series.forEach(s => {
+            s.data = []
+        })
+        setChartOptionsPrimary(chartOptionsPrimary)
+        setChartOptionsSecondary(chartOptionsSecondary)
     }
 
     function setChartData(prices: BazaarPrice[]) {
@@ -190,24 +256,42 @@ function BazaarPriceGraph(props: Props) {
         let sellPriceSum = 0
         let buyPriceSum = 0
 
-        prices.forEach(item => {
+        prices.forEach((item, i) => {
             sellPriceSum += item.sellData.price
             buyPriceSum += item.buyData.price
 
-            chartOptionsPrimary.series[0].data.push(item.buyData.price)
-            chartOptionsPrimary.series[1].data.push(item.buyData.min)
-            chartOptionsPrimary.series[2].data.push(item.buyData.max)
-            chartOptionsPrimary.series[3].data.push(item.buyData.volume)
-            chartOptionsPrimary.series[4].data.push(item.buyData.moving)
+            chartOptionsPrimary.series[0].data.push(
+                fetchspan === DateRange.HOUR
+                    ? item.buyData.price
+                    : [item.buyData.price, prices[i + 1] ? prices[i + 1].buyData.price : item.buyData.price, item.buyData.min, item.buyData.max]
+            )
 
             if (graphType === GRAPH_TYPE.SINGLE) {
-                chartOptionsPrimary.series[5].data.push(item.sellData.price)
+                chartOptionsPrimary.series[1].data.push(item.buyData.min)
+                chartOptionsPrimary.series[2].data.push(item.buyData.max)
+                chartOptionsPrimary.series[3].data.push(item.buyData.volume)
+                chartOptionsPrimary.series[4].data.push(item.buyData.moving)
+
+                chartOptionsPrimary.series[5].data.push(
+                    fetchspan === DateRange.HOUR
+                        ? item.sellData.price
+                        : [item.sellData.price, prices[i + 1] ? prices[i + 1].sellData.price : item.sellData.price, item.sellData.min, item.sellData.max]
+                )
                 chartOptionsPrimary.series[6].data.push(item.sellData.min)
                 chartOptionsPrimary.series[7].data.push(item.sellData.max)
                 chartOptionsPrimary.series[8].data.push(item.sellData.volume)
                 chartOptionsPrimary.series[9].data.push(item.sellData.moving)
             } else {
-                chartOptionsSecondary.series[0].data.push(item.sellData.price)
+                chartOptionsPrimary.series[1].data.push(item.buyData.min)
+                chartOptionsPrimary.series[2].data.push(item.buyData.max)
+                chartOptionsPrimary.series[3].data.push(item.buyData.volume)
+                chartOptionsPrimary.series[4].data.push(item.buyData.moving)
+
+                chartOptionsSecondary.series[0].data.push(
+                    fetchspan === DateRange.HOUR
+                        ? item.sellData.price
+                        : [item.sellData.price, prices[i + 1] ? prices[i + 1].sellData.price : item.sellData.price, item.sellData.min, item.sellData.max]
+                )
                 chartOptionsSecondary.series[1].data.push(item.sellData.min)
                 chartOptionsSecondary.series[2].data.push(item.sellData.max)
                 chartOptionsSecondary.series[3].data.push(item.sellData.volume)
@@ -247,7 +331,7 @@ function BazaarPriceGraph(props: Props) {
     return (
         <div>
             <ItemPriceRange
-                dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK]}
+                dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.ALL]}
                 onRangeChange={onRangeChange}
                 disableAllTime={false}
                 item={props.item}
@@ -258,26 +342,29 @@ function BazaarPriceGraph(props: Props) {
                     {!isSSR ? (
                         <>
                             <div className={graphType === GRAPH_TYPE.SINGLE ? styles.chartWrapperSingle : styles.chartWrapperSplit}>
-                                <h3 className={styles.graphHeadline}>Buy data</h3>
-                                {graphOverlayElement}
-                                <ReactECharts
-                                    option={chartOptionsPrimary}
-                                    className={styles.chart}
-                                    onEvents={onChartsEvents(
-                                        chartOptionsPrimary,
-                                        graphType === GRAPH_TYPE.SINGLE ? GRAPH_TYPE.SINGLE : `${GRAPH_TYPE.SPLIT}-primary`
-                                    )}
-                                />
+                                <h3 className={styles.graphHeadline}>{graphType === GRAPH_TYPE.SINGLE ? 'Buy data' : 'Bazaar data'}</h3>
+                                {!isLoading && !noDataFound ? (
+                                    <ReactECharts
+                                        option={chartOptionsPrimary}
+                                        className={styles.chart}
+                                        onEvents={onChartsEvents(chartOptionsPrimary, getLegendLocalStorageKey(true))}
+                                    />
+                                ) : (
+                                    graphOverlayElement
+                                )}
                             </div>
                             {graphType === GRAPH_TYPE.SPLIT ? (
                                 <div className={styles.chartWrapperSplit}>
                                     <h3 className={styles.graphHeadline}>Sell data</h3>
-                                    {graphOverlayElement}
-                                    <ReactECharts
-                                        option={chartOptionsSecondary}
-                                        className={styles.chart}
-                                        onEvents={onChartsEvents(chartOptionsSecondary, `${GRAPH_TYPE.SPLIT}-secondary`)}
-                                    />
+                                    {!isLoading && !noDataFound ? (
+                                        <ReactECharts
+                                            option={chartOptionsSecondary}
+                                            className={styles.chart}
+                                            onEvents={onChartsEvents(chartOptionsSecondary, getLegendLocalStorageKey(false))}
+                                        />
+                                    ) : (
+                                        graphOverlayElement
+                                    )}
                                 </div>
                             ) : null}
                         </>
@@ -285,10 +372,10 @@ function BazaarPriceGraph(props: Props) {
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
-                        <b>Avg Sell price:</b> {isLoading ? '-' : numberWithThousandsSeperators(avgSellPrice) + ' Coins'}
+                        <b>Avg Sell Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(+avgSellPrice.toFixed(1)) + ' Coins'}
                     </span>
                     <span className={styles.avgPrice}>
-                        <b>Avg Buy price:</b> {isLoading ? '-' : numberWithThousandsSeperators(avgBuyPrice) + ' Coins'}
+                        <b>Avg Buy Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(+avgBuyPrice.toFixed(1)) + ' Coins'}
                     </span>
                     <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
                         {!isSSR ? (

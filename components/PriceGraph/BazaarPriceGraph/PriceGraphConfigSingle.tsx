@@ -35,13 +35,13 @@ function getPriceGraphConfigSingle() {
             ],
             selected: {
                 'Price (buy)': true,
-                'Min (buy)': true,
-                'Max (buy)': true,
+                'Min (buy)': false,
+                'Max (buy)': false,
                 'Volume (buy)': false,
                 'Moving (buy)': false,
                 'Price (sell)': true,
-                'Min (sell)': true,
-                'Max (sell)': true,
+                'Min (sell)': false,
+                'Max (sell)': false,
                 'Volume (sell)': false,
                 'Moving (sell)': false
             },
@@ -57,7 +57,8 @@ function getPriceGraphConfigSingle() {
                 id: 'dataZoomX',
                 type: 'slider',
                 xAxisIndex: [0],
-                filterMode: 'filter'
+                filterMode: 'none',
+                labelFormatter: (index, value) => `${new Date(+value).toLocaleDateString()}`
             }
         ],
         xAxis: [
@@ -99,13 +100,22 @@ function getPriceGraphConfigSingle() {
         series: [
             {
                 name: 'Price (buy)',
-                type: 'line',
+                type: 'k',
                 color: '#22A7F0',
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 0,
+                lineStyle: {
+                    width: 4
+                },
                 tooltip: {
-                    valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
+                    show: true,
+                    valueFormatter: value => {
+                        if (!value || (value && value.length === 0)) {
+                            return ''
+                        }
+                        return `${numberWithThousandsSeperators(value)} Coins`
+                    }
                 }
             },
             {
@@ -116,6 +126,7 @@ function getPriceGraphConfigSingle() {
                 symbol: 'none',
                 yAxisIndex: 0,
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
                 },
                 data: []
@@ -127,6 +138,7 @@ function getPriceGraphConfigSingle() {
                 symbol: 'none',
                 yAxisIndex: 0,
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
                 },
                 data: []
@@ -134,10 +146,11 @@ function getPriceGraphConfigSingle() {
             {
                 name: 'Volume (buy)',
                 type: 'line',
-                color: '#545454',
+                color: '#4B0082',
                 symbol: 'none',
                 yAxisIndex: 1,
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)}`
                 },
                 data: []
@@ -146,21 +159,31 @@ function getPriceGraphConfigSingle() {
                 name: 'Moving (buy)',
                 type: 'line',
                 symbol: 'none',
-                yAxisIndex: 0,
+                yAxisIndex: 1,
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)}`
                 },
                 data: []
             },
             {
                 name: 'Price (sell)',
-                type: 'line',
-                color: '#22A7F0',
+                type: 'k',
+                color: '#32CD32',
                 smooth: true,
                 symbol: 'none',
+                lineStyle: {
+                    width: 4
+                },
                 yAxisIndex: 0,
                 tooltip: {
-                    valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
+                    show: true,
+                    valueFormatter: value => {
+                        if (!value || (value && value.length === 0)) {
+                            return ''
+                        }
+                        return `${numberWithThousandsSeperators(value)} Coins`
+                    }
                 }
             },
             {
@@ -171,6 +194,7 @@ function getPriceGraphConfigSingle() {
                 symbol: 'none',
                 yAxisIndex: 0,
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
                 },
                 data: []
@@ -183,6 +207,7 @@ function getPriceGraphConfigSingle() {
                 symbol: 'none',
                 yAxisIndex: 0,
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
                 },
                 data: []
@@ -190,11 +215,12 @@ function getPriceGraphConfigSingle() {
             {
                 name: 'Volume (sell)',
                 type: 'line',
-                color: '#545454',
+                color: '#4B0082',
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 1,
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)}`
                 },
                 data: []
@@ -202,10 +228,11 @@ function getPriceGraphConfigSingle() {
             {
                 name: 'Moving (sell)',
                 type: 'line',
-                yAxisIndex: 0,
+                yAxisIndex: 1,
                 smooth: true,
                 symbol: 'none',
                 tooltip: {
+                    show: true,
                     valueFormatter: value => `${numberWithThousandsSeperators(value)}`
                 },
                 data: []

@@ -15,10 +15,11 @@ function BazaarSnapshot(props: Props) {
     let [timestamp, setTimestamp] = useState(null)
     let [bazaarSnapshot, setBazaarSnapshot] = useState<BazaarSnapshot>()
 
-    let debouncedTimestamp = useDebounce(timestamp, 500)
+    let debouncedTimestamp = useDebounce(timestamp, 100)
     let bazaarSnapshotDateRef = useRef(null)
 
     useEffect(() => {
+        setTimestamp(new Date())
         document.addEventListener(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, onTimestampChangeEvent)
 
         return () => {
@@ -37,7 +38,6 @@ function BazaarSnapshot(props: Props) {
     function onTimestampChangeEvent(e) {
         if ((e as any).detail?.timestamp) {
             let t = (e as any).detail?.timestamp
-            console.log(t)
             setTimestamp(t)
         }
     }

@@ -223,6 +223,7 @@ interface API {
     transferCoflCoins(email: string, mcId: string, amount: number, reference: string): Promise<void>
     getBazaarSnapshot(itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot>
     getBazaarPrices(itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]>
+    getBazaarPricesByRange(itemTag: string, startDate: Date | string | number, endDate: Date | string | number): Promise<BazaarPrice[]>
 }
 
 interface CacheUtils {
