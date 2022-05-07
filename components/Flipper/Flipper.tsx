@@ -93,9 +93,9 @@ function Flipper(props: Props) {
         _setAutoScroll(true)
         attachScrollEvent()
         isSSR = false
-        api.subscribeFlipsAnonym(
-            getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []),
-            getSettingsObject(FLIPPER_FILTER_KEY, {}),
+        api.subscribeFlips(
+            getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
+            flipperFilter,
             getFlipCustomizeSettings(),
             onNewFlip,
             onAuctionSold,
@@ -107,16 +107,6 @@ function Flipper(props: Props) {
             if ((e as any).detail?.apiUpdate) {
                 setFlipperFilterKey(generateUUID())
                 setFlipCustomizeKey(generateUUID())
-            }
-            if (localStorage.getItem('googleId') === null) {
-                api.subscribeFlipsAnonym(
-                    getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
-                    getSettingsObject(FLIPPER_FILTER_KEY, {}),
-                    getFlipCustomizeSettings(),
-                    onNewFlip,
-                    onAuctionSold,
-                    onNextFlipNotification
-                )
             }
         })
 

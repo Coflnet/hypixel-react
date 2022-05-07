@@ -11,7 +11,6 @@ import styles from './FlipperFilter.module.css'
 import api from '../../../api/ApiHelper'
 import { getDecimalSeperator, getThousandSeperator } from '../../../utils/Formatter'
 import { DEFAULT_FLIP_SETTINGS } from '../../../utils/FlipUtils'
-import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 
 interface Props {
     onChange(filter: FlipperFilter)
@@ -72,12 +71,12 @@ function FlipperFilter(props: Props) {
                 filterToSave.onlyBin = undefined
                 filterToSave.onlyUnsold = undefined
             }
+
             setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
         } else {
-            setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
+            setSetting(FLIPPER_FILTER_KEY, JSON.stringify({}))
         }
 
-        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
         props.onChange(filter)
     }
 

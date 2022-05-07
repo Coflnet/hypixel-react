@@ -71,9 +71,6 @@ function BuyPremium() {
                                 <span>{numberWithThousandsSeperators(coflCoins - purchasePremiumDuration * PREMIUM_PRICE_MONTH)} Coins</span>
                             </div>
                         ) : null}
-                        <p style={{ marginTop: '20px' }}>
-                            This is a prepaid service. We won't automatically charge you after your premium time runs out!
-                        </p>
                         <hr />
                         <Button
                             style={{ marginTop: '10px' }}

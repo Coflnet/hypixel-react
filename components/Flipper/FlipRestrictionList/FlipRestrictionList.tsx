@@ -10,7 +10,6 @@ import { Delete as DeleteIcon } from '@mui/icons-material'
 import ItemFilterPropertiesDisplay from '../../ItemFilter/ItemFilterPropertiesDisplay'
 import styles from './FlipRestrictionList.module.css'
 import priceRangeStyles from '../../ItemPriceRange/ItemPriceRange.module.css'
-import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist')
@@ -61,8 +60,6 @@ function FlipRestrictionList(props: Props) {
         let restriction: FlipRestriction = { type: 'blacklist' }
         setNewRestriction(restriction)
         setIsNewFlipperExtended(false)
-
-        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
 
@@ -136,8 +133,6 @@ function FlipRestrictionList(props: Props) {
         setRestrictions(restrictions)
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
-
-        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
 
         if (props.onRestrictionsChange) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), restriction.type)

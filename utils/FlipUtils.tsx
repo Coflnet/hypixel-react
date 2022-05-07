@@ -128,9 +128,9 @@ export const DEFAULT_FLIP_SETTINGS = {
     FLIP_CUSTOMIZE: {
         hideCost: false,
         hideEstimatedProfit: false,
-        hideLowestBin: true,
+        hideLowestBin: false,
         hideMedianPrice: false,
-        hideSeller: true,
+        hideSeller: false,
         hideVolume: false,
         maxExtraInfoFields: 3,
         hideCopySuccessMessage: false,

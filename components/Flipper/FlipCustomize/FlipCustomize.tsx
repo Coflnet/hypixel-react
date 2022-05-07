@@ -20,19 +20,25 @@ const customSelectStyle = {
 }
 
 function FlipCustomize() {
-    let [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
+    let [flipCustomizeSettings, _setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
     let { trackEvent } = useMatomo()
 
     useEffect(() => {
-        setFlipCustomizeSettings(getFlipCustomizeSettings())
+        _setFlipCustomizeSettings(getFlipCustomizeSettings())
     }, [])
 
     function setFlipCustomizeSetting(key: string, value: any) {
         flipCustomizeSettings[key] = value
-        setFlipCustomizeSettings(flipCustomizeSettings)
+        _setFlipCustomizeSettings(flipCustomizeSettings)
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
         document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
-        setFlipCustomizeSettings({ ...flipCustomizeSettings })
+        _setFlipCustomizeSettings({ ...flipCustomizeSettings })
+    }
+
+    function setFlipCustomizeSettings(settings: FlipCustomizeSettings) {
+        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(settings))
+        _setFlipCustomizeSettings({ ...settings })
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
     }
 
     function updateApiSetting(key: string, value: boolean) {

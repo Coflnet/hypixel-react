@@ -182,15 +182,6 @@ interface API {
         onSubscribeSuccessCallback?: Function,
         forceSettingsUpdate: boolean = false
     ): void
-    subscribeFlipsAnonym(
-        restrictionList: FlipRestriction[],
-        filter: FlipperFilter,
-        flipSettings: FlipCustomizeSettings,
-        flipCallback?: Function,
-        soldCallback?: Function,
-        nextUpdateNotificationCallback?: Function,
-        onSubscribeSuccessCallback?: Function
-    ): void
     unsubscribeFlips(): Promise<void>
     getFilter(name: string): Promise<FilterOptions>
     getNewAuctions(): Promise<Auction[]>
