@@ -47,7 +47,6 @@ function AuctionDetails(props: Props) {
                 auctionDetails.auction.item.iconUrl = api.getItemImageUrl(auctionDetails.auction.item)
                 setAuctionDetails(auctionDetails)
                 api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
-                    auctionDetails.auction.item.description = item.description
                     if (!auctionDetails.auction.item.name) {
                         auctionDetails.auction.item.name = item.name
                     }

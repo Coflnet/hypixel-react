@@ -64,7 +64,8 @@ export enum RequestType {
     GET_FLIP_SETTINGS = 'getFlipSettings',
     SET_FLIP_SETTING = 'setFlipSetting',
     TRASFER_COFLCOINS = 'transferCofl',
-    GET_BAZAAR_SNAPSHOT = 'getBazaarSnapshot'
+    GET_BAZAAR_SNAPSHOT = 'getBazaarSnapshot',
+    SUBSCRIBE_FLIPS_ANONYM = 'subFlipAnonym'
 }
 
 export enum SubscriptionType {

@@ -25,7 +25,6 @@ interface Item {
     name?: string
     category?: string
     iconUrl?: string
-    description?: string
     bazaar?: boolean
 }
 
@@ -182,6 +181,15 @@ interface API {
         nextUpdateNotificationCallback?: Function,
         onSubscribeSuccessCallback?: Function,
         forceSettingsUpdate: boolean = false
+    ): void
+    subscribeFlipsAnonym(
+        restrictionList: FlipRestriction[],
+        filter: FlipperFilter,
+        flipSettings: FlipCustomizeSettings,
+        flipCallback?: Function,
+        soldCallback?: Function,
+        nextUpdateNotificationCallback?: Function,
+        onSubscribeSuccessCallback?: Function
     ): void
     unsubscribeFlips(): Promise<void>
     getFilter(name: string): Promise<FilterOptions>

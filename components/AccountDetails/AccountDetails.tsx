@@ -1,4 +1,3 @@
-import { Base64 } from 'js-base64'
 import moment from 'moment'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
@@ -41,7 +40,7 @@ function AccountDetails() {
         if (googleId) {
             try {
                 let parts = googleId.split('.')
-                let obj = JSON.parse(Base64.atob(parts[1]))
+                let obj = JSON.parse(atob(parts[1]))
                 let imageElement = obj.picture ? <img src={obj.picture} height={24} width={24} alt="" /> : <span />
                 return (
                     <span>

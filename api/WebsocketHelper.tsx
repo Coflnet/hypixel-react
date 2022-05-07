@@ -1,5 +1,4 @@
 import { ApiRequest, WebsocketHelper, ApiSubscription, RequestType } from "./ApiTypes.d";
-import { Base64 } from "js-base64";
 import cacheUtils from '../utils/CacheUtils';
 import api from "./ApiHelper";
 import { toast } from "react-toastify";
@@ -70,7 +69,7 @@ function initWebsocket(): void {
             equals.forEach(equal => equal.resolve(parsedResponse))
             // cache the response
             let maxAge = response.maxAge
-            cacheUtils.setIntoCache(request.type, Base64.decode(request.data), parsedResponse, maxAge)
+            cacheUtils.setIntoCache(request.type, atob(request.data), parsedResponse, maxAge)
         }
 
         removeSentRequests([...equals, request])
@@ -149,7 +148,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
 function prepareDataBeforeSend(request: ApiRequest) {
     try {
-        request.data = Base64.encode(JSON.stringify(request.data))
+        request.data = btoa(JSON.stringify(request.data))
     } catch (error) {
         throw new Error('couldnt btoa this data: ' + request.data)
     }
@@ -172,7 +171,7 @@ function subscribe(subscription: ApiSubscription): void {
     if (_isWebsocketReady(subscription.type, websocket)) {
         subscription.mId = getNextMessageId()
         try {
-            subscription.data = Base64.encode(requestString)
+            subscription.data = btoa(requestString)
         } catch (error) {
             throw new Error('couldnt btoa this data: ' + subscription.data)
         }

@@ -110,59 +110,58 @@ export const getStaticProps = async ({ params }) => {
 
     auctionDetails.bids.sort((a, b) => b.amount - a.amount)
 
-    let item
-    try {
-        item = await api.getItemDetails(auctionDetails.tag)
-    } catch (e) {
-        console.log('ERROR: ' + JSON.stringify(e))
-        console.log('------------------------')
-        return {
-            props: {},
-            revalidate: 60
-        }
-    }
-
-    if (!item) {
-        console.log('itemDetails not found (tag=' + auctionDetails.tag + ')')
-        console.log('------------------------')
-        return {
-            notFound: true,
-            revalidate: 60
-        }
-    }
-
     let namePromises: Promise<void>[] = []
     try {
-        auctionDetails.description = item.description
         auctionDetails.iconUrl = api.getItemImageUrl(auctionDetails)
         if (!auctionDetails.name) {
             auctionDetails.name = auctionDetails.itemName
         }
-        
+
         auctionDetails.bids.forEach(bid => {
-            let promise = api.getPlayerName(bid.bidder).then(name => {
-                let newBidder = {
-                    name: name,
-                    uuid: bid.bidder
-                }
-                bid.bidder = newBidder
-            })
+            let promise = api
+                .getPlayerName(bid.bidder)
+                .then(name => {
+                    let newBidder = {
+                        name: name,
+                        uuid: bid.bidder
+                    }
+                    bid.bidder = newBidder
+                })
+                .catch(() => {
+                    let newBidder = {
+                        name: '',
+                        uuid: bid.bidder
+                    }
+                    bid.bidder = newBidder
+                    console.log(`No username for player ${bid.bidder}`)
+                    console.log('------------------------')
+                })
             namePromises.push(promise)
         })
         namePromises.push(
-            api.getPlayerName(auctionDetails.auctioneerId).then(name => {
-                auctionDetails.auctioneer = {
-                    name: name,
-                    uuid: auctionDetails.auctioneerId
-                }
-            })
+            api
+                .getPlayerName(auctionDetails.auctioneerId)
+                .then(name => {
+                    auctionDetails.auctioneer = {
+                        name: name,
+                        uuid: auctionDetails.auctioneerId
+                    }
+                })
+                .catch(() => {
+                    auctionDetails.auctioneer = {
+                        name: name,
+                        uuid: auctionDetails.auctioneerId
+                    }
+                    console.log(`No username for player ${auctionDetails.auctioneerId}`)
+                    console.log('------------------------')
+                })
         )
     } catch (e) {
         console.log('ERROR: ' + JSON.stringify(e))
         console.log('------------------------')
     }
 
-    await Promise.all(namePromises)
+    await Promise.allSettled(namePromises)
 
     return {
         props: {

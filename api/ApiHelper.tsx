@@ -36,10 +36,13 @@ import cacheUtils from '../utils/CacheUtils'
 import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
-import { Base64 } from 'js-base64'
 import { isClientSideRendering } from '../utils/SSRUtils'
 import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
+
+function getApiEndpoint() {
+    return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
+}
 
 export function initAPI(returnSSRResponse: boolean = false): API {
     let httpApi: HttpApi
@@ -47,7 +50,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         httpApi = initHttpHelper()
     } else {
         let commandEndpoint = process.env.COMMAND_ENDPOINT
-        let apiEndpoint = process.env.API_ENDPOINT
+        let apiEndpoint = getApiEndpoint()
         httpApi = initHttpHelper(commandEndpoint, apiEndpoint)
     }
 
@@ -99,7 +102,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_DETAILS,
-                customRequestURL: `${getProperty('apiEndpoint')}/item/${itemTag}/details`,
+                customRequestURL: `${getApiEndpoint()}/item/${itemTag}/details`,
                 data: '',
                 resolve: (item: any) => {
                     returnSSRResponse ? resolve(item) : resolve(parseItem(item))
@@ -126,7 +129,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_PRICES,
                 data: '',
-                customRequestURL: getProperty('apiEndpoint') + `/item/price/${itemTag}/history/${fetchSpan}?${query}`,
+                customRequestURL: getApiEndpoint() + `/item/price/${itemTag}/history/${fetchSpan}?${query}`,
                 requestMethod: 'GET',
                 requestHeader: {
                     'Content-Type': 'application/json'
@@ -370,7 +373,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.PLAYER_NAME,
-                customRequestURL: `${getProperty('apiEndpoint')}/player/${uuid}/name`,
+                customRequestURL: `${getApiEndpoint()}/player/${uuid}/name`,
                 data: '',
                 resolve: name => {
                     resolve(name)
@@ -567,7 +570,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
             httpApi.sendApiRequest({
                 type: RequestType.RECENT_AUCTIONS,
-                customRequestURL: getProperty('apiEndpoint') + `/auctions/tag/${itemTag}/recent/overview?${query}`,
+                customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${query}`,
                 data: '',
                 resolve: (data: any) => {
                     resolve(data.map(a => parseRecentAuction(a)))
@@ -667,11 +670,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             changer: window.sessionStorage.getItem('sessionId')
         }
 
-        let isCheckingForServerSettings = !!(window as any).googleAuthObj && !forceSettingsUpdate
-
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
-            data: isCheckingForServerSettings ? null : requestData,
+            data: forceSettingsUpdate ? requestData : null,
             callback: function (response) {
                 switch (response.type) {
                     case 'flip':
@@ -711,6 +712,98 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                             return
                         }
                         setSettingsChangedData(response.data)
+                        break
+                    case 'ok':
+                        if (onSubscribeSuccessCallback) {
+                            onSubscribeSuccessCallback()
+                        }
+                        break
+                    default:
+                        break
+                }
+            },
+            resubscribe: function (subscription) {
+                let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
+                let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+                subscribeFlips(restrictions, filter, getFlipCustomizeSettings(), flipCallback, soldCallback, nextUpdateNotificationCallback, undefined, false)
+            }
+        })
+    }
+
+    let subscribeFlipsAnonym = (
+        restrictionList: FlipRestriction[],
+        filter: FlipperFilter,
+        flipSettings: FlipCustomizeSettings,
+        flipCallback?: Function,
+        soldCallback?: Function,
+        nextUpdateNotificationCallback?: Function,
+        onSubscribeSuccessCallback?: Function
+    ) => {
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+
+        let requestData = {
+            whitelist: restrictionList
+                .filter(restriction => restriction.type === 'whitelist')
+                .map(restriction => {
+                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
+                }),
+            blacklist: restrictionList
+                .filter(restriction => restriction.type === 'blacklist')
+                .map(restriction => {
+                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
+                }),
+            minProfit: filter.minProfit || 0,
+            minProfitPercent: filter.minProfitPercent || 0,
+            minVolume: filter.minVolume || 0,
+            maxCost: filter.maxCost || 0,
+            onlyBin: filter.onlyBin,
+            lbin: flipSettings.useLowestBinForProfit,
+            mod: {
+                justProfit: flipSettings.justProfit,
+                soundOnFlip: flipSettings.soundOnFlip,
+                shortNumbers: flipSettings.shortNumbers,
+                blockTenSecMsg: flipSettings.blockTenSecMsg,
+                format: flipSettings.modFormat,
+                chat: !flipSettings.hideModChat
+            },
+            visibility: {
+                cost: !flipSettings.hideCost,
+                estProfit: !flipSettings.hideEstimatedProfit,
+                lbin: !flipSettings.hideLowestBin,
+                slbin: !flipSettings.hideSecondLowestBin,
+                medPrice: !flipSettings.hideMedianPrice,
+                seller: !flipSettings.hideSeller,
+                volume: !flipSettings.hideVolume,
+                extraFields: flipSettings.maxExtraInfoFields || 0,
+                profitPercent: !flipSettings.hideProfitPercent,
+                sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
+                lore: !flipSettings.hideLore,
+                copySuccessMessage: !flipSettings.hideCopySuccessMessage,
+                links: !flipSettings.disableLinks
+            },
+            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
+            changer: window.sessionStorage.getItem('sessionId')
+        }
+
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_FLIPS_ANONYM,
+            data: requestData,
+            callback: function (response) {
+                switch (response.type) {
+                    case 'flip':
+                        if (flipCallback) {
+                            flipCallback(parseFlipAuction(response.data))
+                        }
+                        break
+                    case 'nextUpdate':
+                        if (nextUpdateNotificationCallback) {
+                            nextUpdateNotificationCallback()
+                        }
+                        break
+                    case 'sold':
+                        if (soldCallback) {
+                            soldCallback(response.data)
+                        }
                         break
                     case 'ok':
                         if (onSubscribeSuccessCallback) {
@@ -1259,7 +1352,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             if (googleId) {
                 let parts = googleId.split('.')
                 if (parts.length > 2) {
-                    let obj = JSON.parse(Base64.atob(parts[1]))
+                    let obj = JSON.parse(atob(parts[1]))
                     user = obj.sub
                 }
             }
@@ -1298,9 +1391,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             httpApi.sendApiRequest({
                 type: RequestType.GET_PROFITABLE_CRAFTS,
                 customRequestURL:
-                    playerId && profileId
-                        ? getProperty('apiEndpoint') + '/' + RequestType.GET_PROFITABLE_CRAFTS + `?profile=${profileId}&player=${playerId}`
-                        : undefined,
+                    playerId && profileId ? getApiEndpoint() + '/' + RequestType.GET_PROFITABLE_CRAFTS + `?profile=${profileId}&player=${playerId}` : undefined,
                 data: '',
                 resolve: function (crafts) {
                     returnSSRResponse ? resolve(crafts) : resolve(crafts.map(parseProfitableCraft))
@@ -1318,7 +1409,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             httpApi.sendApiRequest({
                 type: RequestType.TRIGGER_PLAYER_NAME_CHECK,
                 data: '',
-                customRequestURL: getProperty('apiEndpoint') + '/player/' + playerUUID + '/name',
+                customRequestURL: getApiEndpoint() + '/player/' + playerUUID + '/name',
                 requestMethod: 'POST',
                 resolve: function () {
                     resolve()
@@ -1427,7 +1518,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_PRICE_SUMMARY,
-                customRequestURL: `${getProperty('apiEndpoint')}/${RequestType.ITEM_PRICE_SUMMARY}/${itemTag}?${getParams}`,
+                customRequestURL: `${getApiEndpoint()}/${RequestType.ITEM_PRICE_SUMMARY}/${itemTag}?${getParams}`,
                 data: '',
                 resolve: function (data) {
                     returnSSRResponse ? resolve(data) : resolve(parseItemSummary(data))
@@ -1623,7 +1714,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         transferCoflCoins,
         getBazaarSnapshot,
         getBazaarPrices,
-        getBazaarPricesByRange
+        getBazaarPricesByRange,
+        subscribeFlipsAnonym
     }
 }
 

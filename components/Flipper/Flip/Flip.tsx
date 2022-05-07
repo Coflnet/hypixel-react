@@ -143,7 +143,7 @@ function Flip(props: Props) {
                     )}
                     {settings.hideMedianPrice ? null : (
                         <p>
-                            <span>Median price: </span>
+                            <span>Target price: </span>
                             <br />
                             <b>{formatPrices(props.flip.median)} Coins</b>
                         </p>

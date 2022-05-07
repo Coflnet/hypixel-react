@@ -1,5 +1,4 @@
 import { ApiRequest, HttpApi } from './ApiTypes.d'
-import { Base64 } from 'js-base64'
 import cacheUtils from '../utils/CacheUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { getNextMessageId } from '../utils/MessageIdUtils'
@@ -20,7 +19,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
     function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): Promise<void> {
         request.mId = getNextMessageId()
         let requestString = JSON.stringify(request.data)
-        var url = `${commandEndpoint}/${request.type}/${Base64.encode(requestString)}`
+        var url = `${commandEndpoint}/${request.type}/${btoa(requestString)}`
 
         if (cacheInvalidationGrouping) {
             url += `/${cacheInvalidationGrouping}`
@@ -33,7 +32,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             }
 
             try {
-                request.data = Base64.encode(requestString)
+                request.data = btoa(requestString)
             } catch (error) {
                 throw new Error('couldnt btoa this data: ' + request.data)
             }
@@ -134,9 +133,8 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
 
                 let data = request.data
                 try {
-                    data = Base64.decode(request.data)
+                    data = atob(request.data)
                 } catch {}
-
                 cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge)
                 removeSentRequests([...equals, request])
             })
@@ -168,7 +166,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
 
     function findForEqualSentRequest(request: ApiRequest) {
         return requests.filter(r => {
-            return r.type === request.type && r.data === request.data && r.mId !== request.mId
+            return r.type === request.type && r.data === request.data && r.customRequestURL === request.customRequestURL && r.mId !== request.mId
         })
     }
 
