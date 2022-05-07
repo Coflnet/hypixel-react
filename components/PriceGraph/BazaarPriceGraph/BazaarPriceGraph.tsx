@@ -7,7 +7,6 @@ import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRa
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { numberWithThousandsSeperators } from '../../../utils/Formatter'
 import ShareButton from '../../ShareButton/ShareButton'
-import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
 import styles from './BazaarPriceGraph.module.css'
 import ReactECharts from 'echarts-for-react'
@@ -16,6 +15,7 @@ import { getURLSearchParam } from '../../../utils/Parser/URLParser'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE, getSetting, setSetting } from '../../../utils/SettingsUtils'
 import { Form } from 'react-bootstrap'
+import { useMatomo } from '@datapunt/matomo-tracker-react'
 
 interface Props {
     item: Item
@@ -44,6 +44,7 @@ function BazaarPriceGraph(props: Props) {
     let [chartOptionsSecondary, setChartOptionsSecondary] = useState(getPriceGraphConfigSplit())
     let [prices, setPrices] = useState<BazaarPrice[]>([])
     let [isSSR, setIsSSR] = useState(true)
+    let { trackEvent } = useMatomo()
 
     useEffect(() => {
         mounted = true
@@ -317,6 +318,11 @@ function BazaarPriceGraph(props: Props) {
         let graphType = e.target.value
         setGraphType(graphType as GRAPH_TYPE)
         localStorage.setItem(BAZAAR_GRAPH_TYPE, graphType)
+
+        trackEvent({
+            category: 'graphTypeChange',
+            action: graphType
+        })
     }
 
     let graphOverlayElement = isLoading ? (

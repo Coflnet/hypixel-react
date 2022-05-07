@@ -20,12 +20,12 @@ let option = {
         }
     },
     legend: {
-        data: ['Price', 'Min', 'Max', 'Number of traded items'],
+        data: ['Price', 'Min', 'Max', 'Volume'],
         selected: {
             Price: true,
             Min: true,
             Max: false,
-            'Number of traded items': false
+            Volume: false
         },
         icon: 'roundRect',
         itemStyle: {},
@@ -37,19 +37,12 @@ let option = {
     dataZoom: [
         {
             id: 'dataZoomX',
-            type: 'inside',
+            type: 'slider',
             xAxisIndex: [0],
-            filterMode: 'filter'
+            filterMode: 'none',
+            labelFormatter: (index, value) => `${new Date(+value).toLocaleDateString()}`
         }
     ],
-    toolbox: {
-        feature: {
-            dataZoom: {},
-            magicType: {
-                type: ['line', 'bar']
-            }
-        }
-    },
     xAxis: [
         {
             type: 'category',
@@ -67,14 +60,16 @@ let option = {
             type: 'value',
             name: 'Price',
             position: 'left',
+            symbol: 'none',
             axisLabel: {
                 formatter: value => `${numberWithThousandsSeperators(value)} Coins`
             }
         },
         {
             type: 'value',
-            name: 'Number of traded items',
+            name: 'Volume',
             position: 'right',
+            symbol: 'none',
             axisLabel: {
                 formatter: value => `${numberWithThousandsSeperators(value)}`
             }
@@ -85,7 +80,10 @@ let option = {
             name: 'Price',
             type: 'line',
             color: '#22A7F0',
-            areaStyle: {},
+            symbol: 'none',
+            lineStyle: {
+                width: 4
+            },
             yAxisIndex: 0,
             smooth: true,
             tooltip: {
@@ -96,7 +94,7 @@ let option = {
             name: 'Min',
             type: 'line',
             color: '#228B22',
-            areaStyle: {},
+            symbol: 'none',
             yAxisIndex: 0,
             smooth: true,
             tooltip: {
@@ -108,7 +106,7 @@ let option = {
             name: 'Max',
             type: 'line',
             color: '#B22222',
-            areaStyle: {},
+            symbol: 'none',
             yAxisIndex: 0,
             smooth: true,
             tooltip: {
@@ -117,10 +115,10 @@ let option = {
             data: []
         },
         {
-            name: 'Number of traded items',
-            type: 'bar',
-            color: '#545454',
-            areaStyle: {},
+            name: 'Volume',
+            type: 'line',
+            color: '#4B0082',
+            symbol: 'none',
             yAxisIndex: 1,
             smooth: true,
             tooltip: {

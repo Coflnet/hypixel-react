@@ -14,6 +14,7 @@ import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
 import styles from './AuctionHousePriceGraph.module.css'
 import ReactECharts from 'echarts-for-react'
+import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
 
 interface Props {
     item: Item
@@ -40,6 +41,8 @@ function AuctionHousePriceGraph(props: Props) {
 
     useEffect(() => {
         mounted = true
+
+        setSelectedLegendOptionsFromLocalStorage()
 
         return () => {
             mounted = false
@@ -152,6 +155,22 @@ function AuctionHousePriceGraph(props: Props) {
         })
     }
 
+    function setSelectedLegendOptionsFromLocalStorage() {
+        let legendSelected = JSON.parse(localStorage.getItem(AUCTION_GRAPH_LEGEND_SELECTION) || '{}')
+        chartOptions.legend.selected = legendSelected || chartOptions.legend.selected
+        setChartOptions(chartOptions)
+    }
+
+    function onChartsEvents(): Record<string, Function> {
+        return {
+            legendselectchanged: e => {
+                let current = JSON.parse(localStorage.getItem(AUCTION_GRAPH_LEGEND_SELECTION) || '{}')
+                current = e.selected
+                localStorage.setItem(AUCTION_GRAPH_LEGEND_SELECTION, JSON.stringify(current))
+            }
+        }
+    }
+
     let graphOverlayElement = isLoading ? (
         <div className={styles.graphOverlay}>{getLoadingElement()}</div>
     ) : noDataFound && !isLoading ? (
@@ -175,8 +194,11 @@ function AuctionHousePriceGraph(props: Props) {
 
             <div style={fetchspan === DateRange.ACTIVE ? { display: 'none' } : {}}>
                 <div className={styles.chartWrapper}>
-                    {graphOverlayElement}
-                    {chartOptions.xAxis[0].data.length > 0 ? <ReactECharts option={chartOptions} className={styles.chart} /> : null}
+                    {!isLoading && !noDataFound ? (
+                        <ReactECharts option={chartOptions} className={styles.chart} onEvents={onChartsEvents()} />
+                    ) : (
+                        graphOverlayElement
+                    )}
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
