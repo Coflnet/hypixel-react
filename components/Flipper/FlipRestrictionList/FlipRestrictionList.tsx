@@ -213,34 +213,36 @@ function FlipRestrictionList(props: Props) {
     )
 
     return (
-        <div>
-            {restrictionInEditModeIndex.length > 0 ? (
-                <EditRestriction
-                    addEditedFilter={addEditedFilter}
-                    filters={filters}
-                    newRestriction={newRestriction}
-                    onFilterChange={onFilterChange}
-                    onNewRestrictionCancel={onNewRestrictionCancel}
-                    onSearchResultClick={onSearchResultClick}
-                    overrideEditedFilter={overrideEditedFilter}
-                />
-            ) : isAddNewFlipperExtended ? (
-                <NewRestriction
-                    filters={filters}
-                    newRestriction={newRestriction}
-                    onFilterChange={onFilterChange}
-                    onNewRestrictionCancel={onNewRestrictionCancel}
-                    onRestrictionTypeChange={onRestrictionTypeChange}
-                    onSearchResultClick={onSearchResultClick}
-                    addNewRestriction={addNewRestriction}
-                />
-            ) : (
-                <span style={{ cursor: 'pointer' }} onClick={() => setIsNewFlipperExtended(true)}>
-                    {addIcon}
-                    <span> Add new restriction</span>
-                </span>
-            )}
-            <hr />
+        <>
+            <div style={{ position: 'sticky', top: 0, backgroundColor: '#303030', margin: '-40px -20px 0 -20px', padding: '10px 20px 0  20px', zIndex: 10 }}>
+                {restrictionInEditModeIndex.length > 0 ? (
+                    <EditRestriction
+                        addEditedFilter={addEditedFilter}
+                        filters={filters}
+                        newRestriction={newRestriction}
+                        onFilterChange={onFilterChange}
+                        onNewRestrictionCancel={onNewRestrictionCancel}
+                        onSearchResultClick={onSearchResultClick}
+                        overrideEditedFilter={overrideEditedFilter}
+                    />
+                ) : isAddNewFlipperExtended ? (
+                    <NewRestriction
+                        filters={filters}
+                        newRestriction={newRestriction}
+                        onFilterChange={onFilterChange}
+                        onNewRestrictionCancel={onNewRestrictionCancel}
+                        onRestrictionTypeChange={onRestrictionTypeChange}
+                        onSearchResultClick={onSearchResultClick}
+                        addNewRestriction={addNewRestriction}
+                    />
+                ) : (
+                    <span style={{ cursor: 'pointer' }} onClick={() => setIsNewFlipperExtended(true)}>
+                        {addIcon}
+                        <span> Add new restriction</span>
+                    </span>
+                )}
+                <hr />
+            </div>
             <div className={styles.restrictionList}>
                 {restrictions.map((restriction, index) => {
                     return (
@@ -298,7 +300,7 @@ function FlipRestrictionList(props: Props) {
                     )
                 })}
             </div>
-        </div>
+        </>
     )
 }
 
