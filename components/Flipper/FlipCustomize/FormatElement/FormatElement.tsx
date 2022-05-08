@@ -100,7 +100,7 @@ function FormatElement(props: Props) {
                 <li>&#123;4&#125; Starting bid</li>
                 <li>&#123;5&#125; Target Price</li>
                 <li>&#123;6&#125; Estimated Profit</li>
-                <li>&#123;7&#125; Provit percentage</li>
+                <li>&#123;7&#125; Profit percentage</li>
                 <li>&#123;8&#125; Median Price</li>
                 <li>&#123;9&#125; Lowest Bin</li>
                 <li>&#123;10&#125; Volume</li>
