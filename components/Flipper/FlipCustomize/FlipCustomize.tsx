@@ -60,7 +60,7 @@ function FlipCustomize() {
 
     function onModFormatChange(value: string) {
         setFlipCustomizeSetting('modFormat', value)
-        api.setFlipSetting('modFormat', value)
+        api.setFlipSetting('modFormat', value.replaceAll('§', '$'))
         trackChange('modFormat')
     }
 
