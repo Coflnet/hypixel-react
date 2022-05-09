@@ -26,7 +26,9 @@ function AuctionDetailsPage(props: Props) {
         window.scrollTo(0, 0)
 
         function reload() {
-            window.location.reload()
+            if (auctionDetails && auctionDetails.auction.uuid !== auctionUUID) {
+                window.location.reload()
+            }
         }
 
         router.events.on('routeChangeComplete', reload)
@@ -34,7 +36,7 @@ function AuctionDetailsPage(props: Props) {
         return () => {
             router.events.off('routeChangeComplete', reload)
         }
-    }, [])
+    }, [auctionUUID])
 
     useEffect(() => {
         forceUpdate()
