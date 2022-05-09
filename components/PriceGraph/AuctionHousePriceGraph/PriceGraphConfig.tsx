@@ -1,4 +1,4 @@
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
 
 let option = {
     tooltip: {
@@ -13,8 +13,7 @@ let option = {
                     if (axisObject.axisDimension === 'y') {
                         return `${numberWithThousandsSeperators(axisObject.value)}`
                     }
-                    let d = new Date(+axisObject.value)
-                    return d.toLocaleTimeString() + ', ' + d.toLocaleDateString()
+                    return getLocalDateAndTime(new Date(+axisObject.value))
                 }
             }
         }
@@ -62,7 +61,7 @@ let option = {
             position: 'left',
             symbol: 'none',
             axisLabel: {
-                formatter: value => `${numberWithThousandsSeperators(value)} Coins`
+                formatter: formatAsCoins
             }
         },
         {
@@ -71,7 +70,7 @@ let option = {
             position: 'right',
             symbol: 'none',
             axisLabel: {
-                formatter: value => `${numberWithThousandsSeperators(value)}`
+                formatter: numberWithThousandsSeperators
             }
         }
     ],
@@ -87,7 +86,7 @@ let option = {
             yAxisIndex: 0,
             smooth: true,
             tooltip: {
-                valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
+                valueFormatter: formatAsCoins
             }
         },
         {
@@ -98,7 +97,7 @@ let option = {
             yAxisIndex: 0,
             smooth: true,
             tooltip: {
-                valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
+                valueFormatter: formatAsCoins
             },
             data: []
         },
@@ -110,7 +109,7 @@ let option = {
             yAxisIndex: 0,
             smooth: true,
             tooltip: {
-                valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
+                valueFormatter: formatAsCoins
             },
             data: []
         },
@@ -122,7 +121,7 @@ let option = {
             yAxisIndex: 1,
             smooth: true,
             tooltip: {
-                valueFormatter: value => `${numberWithThousandsSeperators(value)}`
+                valueFormatter: numberWithThousandsSeperators
             },
             data: []
         }

@@ -164,9 +164,7 @@ function AuctionHousePriceGraph(props: Props) {
     function onChartsEvents(): Record<string, Function> {
         return {
             legendselectchanged: e => {
-                let current = JSON.parse(localStorage.getItem(AUCTION_GRAPH_LEGEND_SELECTION) || '{}')
-                current = e.selected
-                localStorage.setItem(AUCTION_GRAPH_LEGEND_SELECTION, JSON.stringify(current))
+                localStorage.setItem(AUCTION_GRAPH_LEGEND_SELECTION, JSON.stringify(e.selected))
             }
         }
     }

@@ -1,4 +1,6 @@
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
+
+function valueFormatter(coins?: boolean): string {}
 
 function getPriceGraphConfigSplit() {
     return {
@@ -14,8 +16,7 @@ function getPriceGraphConfigSplit() {
                         if (axisObject.axisDimension === 'y') {
                             return `${numberWithThousandsSeperators(axisObject.value)}`
                         }
-                        let d = new Date(+axisObject.value)
-                        return d.toLocaleTimeString() + ', ' + d.toLocaleDateString()
+                        return getLocalDateAndTime(new Date(+axisObject.value))
                     }
                 }
             }
@@ -63,7 +64,7 @@ function getPriceGraphConfigSplit() {
                 name: 'Price',
                 position: 'left',
                 axisLabel: {
-                    formatter: value => `${numberWithThousandsSeperators(value)} Coins`
+                    formatter: formatAsCoins
                 },
                 min: function ({ min, max }) {
                     return Math.floor(min - (max - min) * 0.1)
@@ -77,7 +78,7 @@ function getPriceGraphConfigSplit() {
                 name: 'Number of traded items',
                 position: 'right',
                 axisLabel: {
-                    formatter: value => `${numberWithThousandsSeperators(value)}`
+                    formatter: numberWithThousandsSeperators
                 }
             }
         ],
@@ -98,7 +99,7 @@ function getPriceGraphConfigSplit() {
                         if (!value || (value && value.length === 0)) {
                             return ''
                         }
-                        return `${numberWithThousandsSeperators(value)} Coins`
+                        return formatAsCoins(value)
                     }
                 }
             },
@@ -111,7 +112,7 @@ function getPriceGraphConfigSplit() {
                 symbol: 'none',
                 tooltip: {
                     show: true,
-                    valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
+                    valueFormatter: formatAsCoins
                 },
                 data: []
             },
@@ -124,7 +125,7 @@ function getPriceGraphConfigSplit() {
                 symbol: 'none',
                 tooltip: {
                     show: true,
-                    valueFormatter: value => `${numberWithThousandsSeperators(value)} Coins`
+                    valueFormatter: formatAsCoins
                 },
                 data: []
             },
@@ -137,7 +138,7 @@ function getPriceGraphConfigSplit() {
                 symbol: 'none',
                 tooltip: {
                     show: true,
-                    valueFormatter: value => `${numberWithThousandsSeperators(value)}`
+                    valueFormatter: numberWithThousandsSeperators
                 },
                 data: []
             },
@@ -149,7 +150,7 @@ function getPriceGraphConfigSplit() {
                 symbol: 'none',
                 tooltip: {
                     show: true,
-                    valueFormatter: value => `${numberWithThousandsSeperators(value)}`
+                    valueFormatter: numberWithThousandsSeperators
                 },
                 data: []
             }

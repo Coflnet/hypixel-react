@@ -185,3 +185,21 @@ export function getNumberFromShortenString(shortString?: string): number | undef
         return parseInt(split[0]) * multiplier
     }
 }
+
+export function getLocalDateAndTime(d: Date): string {
+    if (!d) {
+        return ''
+    }
+    return d.toLocaleDateString() + ', ' + d.toLocaleTimeString()
+}
+
+export function formatAsCoins(number: number): string {
+    if (typeof number === 'string') {
+        try {
+            number = parseInt(number)
+        } catch {
+            return ''
+        }
+    }
+    return `${numberWithThousandsSeperators(number)} Coins`
+}

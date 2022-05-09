@@ -349,7 +349,7 @@ function BazaarPriceGraph(props: Props) {
                     {!isSSR ? (
                         <>
                             <div className={graphType === GRAPH_TYPE.SINGLE ? styles.chartWrapperSingle : styles.chartWrapperSplit}>
-                                <h3 className={styles.graphHeadline}>{graphType === GRAPH_TYPE.SINGLE ? 'Buy data' : 'Bazaar data'}</h3>
+                                <h3 className={styles.graphHeadline}>{graphType === GRAPH_TYPE.SINGLE ? 'Bazaar data' : 'Buy data'}</h3>
                                 {!isLoading && !noDataFound ? (
                                     <ReactECharts
                                         option={chartOptionsPrimary}
@@ -398,10 +398,7 @@ function BazaarPriceGraph(props: Props) {
                         ) : null}
                     </div>
                     <div style={{ float: 'right' }}>
-                        <ShareButton
-                            title={'Prices for ' + props.item.name}
-                            text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock"
-                        />
+                        <ShareButton title={'Prices for ' + props.item.name} text="Browse the Bazaar history in Hypixel Skyblock" />
                     </div>
                 </div>
                 <hr />
