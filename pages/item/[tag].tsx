@@ -56,7 +56,6 @@ function ItemDetails(props: Props) {
     }
 
     function getFiltersText() {
-        console.log(filter)
         if (!filter) {
             return ''
         }
