@@ -1,7 +1,8 @@
+import { atobUnicode } from '../Base64Utils'
 import { isClientSideRendering } from '../SSRUtils'
 
 export function parseItemFilter(itemFilterBase64: string): ItemFilter {
-    let itemFilter: any = JSON.parse(atob(itemFilterBase64))
+    let itemFilter: any = JSON.parse(atobUnicode(itemFilterBase64))
     if (!itemFilter) {
         return {}
     }

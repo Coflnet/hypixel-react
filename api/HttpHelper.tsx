@@ -3,6 +3,7 @@ import cacheUtils from '../utils/CacheUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { getNextMessageId } from '../utils/MessageIdUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
+import { atobUnicode, btoaUnicode } from '../utils/Base64Utils'
 
 export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint?: string): HttpApi {
     const commandEndpoint = customCommandEndpoint || getProperty('commandEndpoint')
@@ -19,7 +20,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
     function sendRequest(request: ApiRequest, cacheInvalidationGrouping?: number): Promise<void> {
         request.mId = getNextMessageId()
         let requestString = JSON.stringify(request.data)
-        var url = `${commandEndpoint}/${request.type}/${btoa(requestString)}`
+        var url = `${commandEndpoint}/${request.type}/${btoaUnicode(requestString)}`
 
         if (cacheInvalidationGrouping) {
             url += `/${cacheInvalidationGrouping}`
@@ -32,7 +33,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             }
 
             try {
-                request.data = btoa(requestString)
+                request.data = btoaUnicode(requestString)
             } catch (error) {
                 throw new Error('couldnt btoa this data: ' + request.data)
             }
@@ -133,7 +134,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
 
                 let data = request.data
                 try {
-                    data = atob(request.data)
+                    data = atobUnicode(request.data)
                 } catch {}
                 cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge)
                 removeSentRequests([...equals, request])

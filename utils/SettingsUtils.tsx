@@ -119,7 +119,7 @@ export function setSettingsChangedData(data: any): Promise<void> {
                     let newRestrictions: FlipRestriction[] = []
                     let promises: Promise<void>[] = []
                     list.forEach(item => {
-                        let itemName = itemMap[item.tag]
+                        let itemName = item.displayName || itemMap[item.tag]
                         if (!item.tag) {
                             newRestrictions.push({
                                 type: type,
@@ -309,6 +309,50 @@ export async function handleSettingsImport(importString: string) {
     setTimeout(() => {
         window.location.reload()
     }, 1000)
+}
+
+export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: FlipCustomizeSettings, restrictions: FlipRestriction[]) {
+    return {
+        whitelist: mapRestrictionsToApiFormat(restrictions.filter(restriction => restriction.type === 'whitelist')),
+        blacklist: mapRestrictionsToApiFormat(restrictions.filter(restriction => restriction.type === 'blacklist')),
+        minProfit: filter.minProfit || 0,
+        minProfitPercent: filter.minProfitPercent || 0,
+        minVolume: filter.minVolume || 0,
+        maxCost: filter.maxCost || 0,
+        onlyBin: filter.onlyBin,
+        lbin: flipSettings.useLowestBinForProfit,
+        mod: {
+            justProfit: flipSettings.justProfit,
+            soundOnFlip: flipSettings.soundOnFlip,
+            shortNumbers: flipSettings.shortNumbers,
+            blockTenSecMsg: flipSettings.blockTenSecMsg,
+            format: flipSettings.modFormat,
+            chat: !flipSettings.hideModChat
+        },
+        visibility: {
+            cost: !flipSettings.hideCost,
+            estProfit: !flipSettings.hideEstimatedProfit,
+            lbin: !flipSettings.hideLowestBin,
+            slbin: !flipSettings.hideSecondLowestBin,
+            medPrice: !flipSettings.hideMedianPrice,
+            seller: !flipSettings.hideSeller,
+            volume: !flipSettings.hideVolume,
+            extraFields: flipSettings.maxExtraInfoFields || 0,
+            profitPercent: !flipSettings.hideProfitPercent,
+            sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
+            lore: !flipSettings.hideLore,
+            copySuccessMessage: !flipSettings.hideCopySuccessMessage,
+            links: !flipSettings.disableLinks
+        },
+        finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
+        changer: window.sessionStorage.getItem('sessionId')
+    }
+}
+
+export function mapRestrictionsToApiFormat(restrictions: FlipRestriction[]) {
+    return restrictions.map(restriction => {
+        return { tag: restriction.item?.tag, filter: restriction.itemFilter, displayName: restriction.item?.name }
+    })
 }
 
 export const FLIP_CUSTOMIZING_KEY = 'flipCustomizing'

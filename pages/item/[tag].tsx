@@ -8,6 +8,7 @@ import api, { initAPI } from '../../api/ApiHelper'
 import { Container } from 'react-bootstrap'
 import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
+import { atobUnicode } from '../../utils/Base64Utils'
 import { parseItemFilter } from '../../utils/Parser/URLParser'
 
 interface Props {
@@ -96,7 +97,7 @@ export const getServerSideProps = async ({ res, params, query }) => {
                 iconUrl: api.getItemImageUrl({ tag: params.tag })
             } as Item
         }),
-        api.getItemPriceSummary(params.tag, query.itemFilter ? JSON.parse(atob(query.itemFilter)) : {}).catch(() => {
+        api.getItemPriceSummary(params.tag, params.itemFilter ? JSON.parse(atobUnicode(params.itemFilter)) : {}).catch(() => {
             return {}
         })
     ])
