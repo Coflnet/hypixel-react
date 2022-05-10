@@ -86,7 +86,7 @@ function ItemDetails(props: Props) {
 }
 
 export const getServerSideProps = async ({ res, params, query }) => {
-    res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=59')
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=60, stale-while-revalidate=59')
 
     let api = initAPI(true)
     let apiResponses = await Promise.all([
