@@ -37,7 +37,7 @@ export function convertTagToName(itemTag?: string): string {
         })
     }
 
-    let formatted: string = itemTag.replace(new RegExp('_', 'g'), ' ').toLowerCase()
+    let formatted: string = itemTag.toString().replace(new RegExp('_', 'g'), ' ').toLowerCase()
 
     formatted = capitalizeWords(formatted)
     // special per item Formating
