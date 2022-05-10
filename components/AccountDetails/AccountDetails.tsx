@@ -16,6 +16,7 @@ import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useCoflCoins } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
+import { atobUnicode } from '../../utils/Base64Utils'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -40,7 +41,7 @@ function AccountDetails() {
         if (googleId) {
             try {
                 let parts = googleId.split('.')
-                let obj = JSON.parse(atob(parts[1]))
+                let obj = JSON.parse(atobUnicode(parts[1]))
                 let imageElement = obj.picture ? <img src={obj.picture} height={24} width={24} alt="" /> : <span />
                 return (
                     <span>

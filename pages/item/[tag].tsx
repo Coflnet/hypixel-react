@@ -8,6 +8,7 @@ import api, { initAPI } from '../../api/ApiHelper'
 import { Container } from 'react-bootstrap'
 import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
+import { atobUnicode } from '../../utils/Base64Utils'
 
 interface Props {
     item?: any
@@ -56,7 +57,7 @@ function ItemDetails(props: Props) {
         if (!router.query.itemFilter) {
             return ''
         }
-        let filter = JSON.parse(atob(router.query.itemFilter.toString()))
+        let filter = JSON.parse(atobUnicode(router.query.itemFilter.toString()))
         return ` FILTERS ➡️ ${Object.keys(filter)
             .map(key => `${key}: ${filter[key]}`)
             .toString()}`
@@ -91,7 +92,7 @@ export const getStaticProps = async ({ params }) => {
                 iconUrl: api.getItemImageUrl({ tag: params.tag })
             } as Item
         }),
-        api.getItemPriceSummary(params.tag, params.itemFilter ? JSON.parse(atob(params.itemFilter)) : {}).catch(() => {
+        api.getItemPriceSummary(params.tag, params.itemFilter ? JSON.parse(atobUnicode(params.itemFilter)) : {}).catch(() => {
             return {}
         })
     ])
