@@ -25,7 +25,7 @@ import {
     parseSkyblockProfile,
     parseSubscription
 } from '../utils/Parser/APIResponseParser'
-import { RequestType, SubscriptionType, Subscription, CUSTOM_EVENTS, HttpApi } from './ApiTypes.d'
+import { RequestType, SubscriptionType, Subscription, HttpApi } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
 import { v4 as generateUUID } from 'uuid'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
@@ -35,8 +35,15 @@ import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
-import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
+import {
+    FLIPPER_FILTER_KEY,
+    getSettingsObject,
+    mapSettingsToApiFormat,
+    RESTRICTIONS_SETTINGS_KEY,
+    setSettingsChangedData
+} from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
+import { atobUnicode } from '../utils/Base64Utils'
 
 function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
@@ -557,49 +564,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
 
-        let requestData = {
-            whitelist: restrictionList
-                .filter(restriction => restriction.type === 'whitelist')
-                .map(restriction => {
-                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
-                }),
-            blacklist: restrictionList
-                .filter(restriction => restriction.type === 'blacklist')
-                .map(restriction => {
-                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
-                }),
-            minProfit: filter.minProfit || 0,
-            minProfitPercent: filter.minProfitPercent || 0,
-            minVolume: filter.minVolume || 0,
-            maxCost: filter.maxCost || 0,
-            onlyBin: filter.onlyBin,
-            lbin: flipSettings.useLowestBinForProfit,
-            mod: {
-                justProfit: flipSettings.justProfit,
-                soundOnFlip: flipSettings.soundOnFlip,
-                shortNumbers: flipSettings.shortNumbers,
-                blockTenSecMsg: flipSettings.blockTenSecMsg,
-                format: flipSettings.modFormat,
-                chat: !flipSettings.hideModChat
-            },
-            visibility: {
-                cost: !flipSettings.hideCost,
-                estProfit: !flipSettings.hideEstimatedProfit,
-                lbin: !flipSettings.hideLowestBin,
-                slbin: !flipSettings.hideSecondLowestBin,
-                medPrice: !flipSettings.hideMedianPrice,
-                seller: !flipSettings.hideSeller,
-                volume: !flipSettings.hideVolume,
-                extraFields: flipSettings.maxExtraInfoFields || 0,
-                profitPercent: !flipSettings.hideProfitPercent,
-                sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
-                lore: !flipSettings.hideLore,
-                copySuccessMessage: !flipSettings.hideCopySuccessMessage,
-                links: !flipSettings.disableLinks
-            },
-            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
-            changer: window.sessionStorage.getItem('sessionId')
-        }
+        let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
@@ -672,49 +637,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
 
-        let requestData = {
-            whitelist: restrictionList
-                .filter(restriction => restriction.type === 'whitelist')
-                .map(restriction => {
-                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
-                }),
-            blacklist: restrictionList
-                .filter(restriction => restriction.type === 'blacklist')
-                .map(restriction => {
-                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
-                }),
-            minProfit: filter.minProfit || 0,
-            minProfitPercent: filter.minProfitPercent || 0,
-            minVolume: filter.minVolume || 0,
-            maxCost: filter.maxCost || 0,
-            onlyBin: filter.onlyBin,
-            lbin: flipSettings.useLowestBinForProfit,
-            mod: {
-                justProfit: flipSettings.justProfit,
-                soundOnFlip: flipSettings.soundOnFlip,
-                shortNumbers: flipSettings.shortNumbers,
-                blockTenSecMsg: flipSettings.blockTenSecMsg,
-                format: flipSettings.modFormat,
-                chat: !flipSettings.hideModChat
-            },
-            visibility: {
-                cost: !flipSettings.hideCost,
-                estProfit: !flipSettings.hideEstimatedProfit,
-                lbin: !flipSettings.hideLowestBin,
-                slbin: !flipSettings.hideSecondLowestBin,
-                medPrice: !flipSettings.hideMedianPrice,
-                seller: !flipSettings.hideSeller,
-                volume: !flipSettings.hideVolume,
-                extraFields: flipSettings.maxExtraInfoFields || 0,
-                profitPercent: !flipSettings.hideProfitPercent,
-                sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
-                lore: !flipSettings.hideLore,
-                copySuccessMessage: !flipSettings.hideCopySuccessMessage,
-                links: !flipSettings.disableLinks
-            },
-            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
-            changer: window.sessionStorage.getItem('sessionId')
-        }
+        let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS_ANONYM,
@@ -1283,7 +1206,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             if (googleId) {
                 let parts = googleId.split('.')
                 if (parts.length > 2) {
-                    let obj = JSON.parse(atob(parts[1]))
+                    let obj = JSON.parse(atobUnicode(parts[1]))
                     user = obj.sub
                 }
             }

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { getProperty } from '../utils/PropertiesUtils';
 import { getNextMessageId } from "../utils/MessageIdUtils";
 import { refreshToken} from "../utils/GoogleUtils";
+import { atobUnicode, btoaUnicode } from "../utils/Base64Utils";
 
 let requests: ApiRequest[] = []
 let websocket: WebSocket
@@ -69,7 +70,7 @@ function initWebsocket(): void {
             equals.forEach(equal => equal.resolve(parsedResponse))
             // cache the response
             let maxAge = response.maxAge
-            cacheUtils.setIntoCache(request.type, atob(request.data), parsedResponse, maxAge)
+            cacheUtils.setIntoCache(request.type, atobUnicode(request.data), parsedResponse, maxAge)
         }
 
         removeSentRequests([...equals, request])
@@ -148,7 +149,7 @@ function sendRequest(request: ApiRequest): Promise<void> {
 
 function prepareDataBeforeSend(request: ApiRequest) {
     try {
-        request.data = btoa(JSON.stringify(request.data))
+        request.data = btoaUnicode(JSON.stringify(request.data))
     } catch (error) {
         throw new Error('couldnt btoa this data: ' + request.data)
     }
@@ -171,7 +172,7 @@ function subscribe(subscription: ApiSubscription): void {
     if (_isWebsocketReady(subscription.type, websocket)) {
         subscription.mId = getNextMessageId()
         try {
-            subscription.data = btoa(requestString)
+            subscription.data = btoaUnicode(requestString)
         } catch (error) {
             throw new Error('couldnt btoa this data: ' + subscription.data)
         }

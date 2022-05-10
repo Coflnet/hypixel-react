@@ -11,6 +11,7 @@ import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { btoaUnicode } from '../../utils/Base64Utils'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -169,7 +170,7 @@ function ItemFilter(props: Props) {
             return
         }
 
-        let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoa(JSON.stringify(filter))
+        let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoaUnicode(JSON.stringify(filter))
 
         router.query.itemFilter = filterString || ''
         router.replace(router, undefined, { shallow: true })
