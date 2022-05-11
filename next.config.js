@@ -5,23 +5,24 @@ module.exports = {
         locales: ['en'],
         defaultLocale: 'en'
     },
+    basePath: process.env.BASE_PATH || "/",
     async redirects() {
         return [
-          {
-            source: '/p/:uuid*',
-            destination: '/player/:uuid*',
-            permanent: true,
-          },
-          {
-            source: '/i/:tag*',
-            destination: '/item/:tag*',
-            permanent: true,
-          },
-          {
-            source: '/a/:auctionUUID*',
-            destination: '/auction/:auctionUUID*',
-            permanent: true,
-          },
+            {
+                source: '/p/:uuid*',
+                destination: '/player/:uuid*',
+                permanent: true
+            },
+            {
+                source: '/i/:tag*',
+                destination: '/item/:tag*',
+                permanent: true
+            },
+            {
+                source: '/a/:auctionUUID*',
+                destination: '/auction/:auctionUUID*',
+                permanent: true
+            }
         ]
-      }
+    }
 }
