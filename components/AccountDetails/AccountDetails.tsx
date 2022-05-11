@@ -17,6 +17,7 @@ import { useCoflCoins } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { atobUnicode } from '../../utils/Base64Utils'
+import PrivacySettings from './PrivacySettings/PrivacySettings'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -224,6 +225,19 @@ function AccountDetails() {
                     <Form.Check onChange={setTrackingAllowed} defaultChecked={isTrackingAllowed()} type="checkbox" />
                 </div>
             </p>
+            {isLoggedIn ? (
+                <p>
+                    <div style={{ display: 'inline-block' }}>
+                        <span className={styles.label}>Mod data settings: </span>
+                        <Tooltip
+                            type="click"
+                            content={<span style={{ color: '#007bff' }}>Open</span>}
+                            tooltipContent={<PrivacySettings />}
+                            tooltipTitle={<span>Mod data settings</span>}
+                        />
+                    </div>
+                </p>
+            ) : null}
             <p>
                 <span className={styles.label}>Login problems?</span>
                 <div>

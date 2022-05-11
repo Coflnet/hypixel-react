@@ -229,6 +229,8 @@ interface API {
     getKatFlips(): Promise<KatFlip[]>
     getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
     transferCoflCoins(email: string, mcId: string, amount: number, reference: string): Promise<void>
+    getPrivacySettings(): Promise<PrivacySettings>
+    setPrivacySettings(settings: PrivacySettings): Promise<void>
 }
 
 interface CacheUtils {
@@ -440,4 +442,20 @@ enum DateRange {
     MONTH = 'month',
     WEEK = 'week',
     ALL = 'ALL'
+}
+
+interface PrivacySettings {
+    chatRegex: 'string'
+    collectChat: boolean
+    collectInventory: boolean
+    collectTab: boolean
+    collectScoreboard: boolean
+    allowProxy: boolean
+    collectInvClick: boolean
+    collectChatClicks: boolean
+    collectLobbyChanges: boolean
+    collectEntities: boolean
+    extendDescriptions: boolean
+    commandPrefixes: string[]
+    autoStart: boolean
 }
