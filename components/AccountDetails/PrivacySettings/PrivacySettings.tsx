@@ -31,18 +31,6 @@ function PrivacySettings() {
         return getLoadingElement(<p>Loading settings</p>)
     }
 
-    /**
-     *             <p>
-                <span className={styles.label}>Command prefixes (seperate by comma): </span>
-                <Form.Control
-                    onChange={e => {
-                        onSettingChange('commandPrefixes', e.target.value.split(','))
-                    }}
-                    defaultValue={privacySettings.commandPrefixes.join(',')}
-                />
-            </p>
-     */
-
     return (
         <>
             <p className={styles.settingsLine}>

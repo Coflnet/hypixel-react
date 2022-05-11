@@ -56,7 +56,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
      * @returns A emty promise (the resolve/reject Method of the request-Object is called)
      */
     function sendApiRequest(request: ApiRequest, body?: any): Promise<void> {
-        console.log('in send api request')
         request.mId = getNextMessageId()
         let requestString = request.data
         var url = `${apiEndpoint}/${request.type}`
@@ -69,28 +68,18 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             url = request.customRequestURL
         }
 
-        console.log('before cache')
-        return cacheUtils.getFromCache(request.customRequestURL || request.type, requestString).then(cacheValue => {
-            if (cacheValue) {
-                request.resolve(cacheValue)
-                return
-            }
-            console.log('after cache')
-
-            // don't resend in progress requests
-            let equals = findForEqualSentRequest(request)
-            if (equals.length > 0) {
-                requests.push(request)
-                return
-            }
-
+        // don't resend in progress requests
+        let equals = findForEqualSentRequest(request)
+        if (equals.length > 0) {
             requests.push(request)
-            return handleServerRequest(request, url, body)
-        })
+            return
+        }
+
+        requests.push(request)
+        return handleServerRequest(request, url, body)
     }
 
     function handleServerRequest(request: ApiRequest, url: string, body?: any): Promise<void> {
-        console.log('in handle server request')
         if (!isClientSideRendering()) {
             console.log('Sending Request...')
             console.log('URL: ' + url)

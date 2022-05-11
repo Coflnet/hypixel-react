@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Modal, OverlayTrigger, Tooltip as BootstrapTooltip } from 'react-bootstrap'
 import { v4 as generateUUID } from 'uuid'
 
@@ -33,7 +33,7 @@ function Tooltip(props: Props) {
 
     let clickElement = (
         <span className="tooltipWrapper">
-            <span style={{ cursor: "pointer" }} onClick={onClick}>
+            <span style={{ cursor: 'pointer' }} onClick={onClick}>
                 {props.content}
             </span>
             <Modal

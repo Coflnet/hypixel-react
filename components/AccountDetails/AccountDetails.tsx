@@ -225,19 +225,6 @@ function AccountDetails() {
                     <Form.Check onChange={setTrackingAllowed} defaultChecked={isTrackingAllowed()} type="checkbox" />
                 </div>
             </p>
-            {isLoggedIn ? (
-                <p>
-                    <div style={{ display: 'inline-block' }}>
-                        <span className={styles.label}>Mod data settings: </span>
-                        <Tooltip
-                            type="click"
-                            content={<span style={{ color: '#007bff' }}>Open</span>}
-                            tooltipContent={<PrivacySettings />}
-                            tooltipTitle={<span>Mod data settings</span>}
-                        />
-                    </div>
-                </p>
-            ) : null}
             <p>
                 <span className={styles.label}>Login problems?</span>
                 <div>
@@ -252,11 +239,34 @@ function AccountDetails() {
                     />
                 </div>
             </p>
+            {isLoggedIn ? (
+                <p>
+                    <div style={{ display: 'inline-block' }}>
+                        <span className={styles.label}>Mod data settings: </span>
+                        <Tooltip
+                            type="click"
+                            content={<span className={styles.link}>Open settings</span>}
+                            tooltipContent={<PrivacySettings />}
+                            tooltipTitle={<span>Mod data settings</span>}
+                        />
+                    </div>
+                </p>
+            ) : null}
             <p>
                 <span className={styles.label}>Delete Caches/Cookies and hard refresh:</span>
-                <Button variant="danger" onClick={deleteCaches}>
-                    Warning: Deleting your Caches/Cookies will delete all your settings and log you out.
-                </Button>
+                <Tooltip
+                    type="click"
+                    content={<span className={styles.link}>Delete</span>}
+                    tooltipContent={
+                        <div>
+                            <p>Warning: Deleting your Caches/Cookies will delete all your settings and log you out.</p>
+                            <Button variant="danger" onClick={deleteCaches}>
+                                Confirm deletion
+                            </Button>
+                        </div>
+                    }
+                    tooltipTitle={<span>Are you sure?</span>}
+                />
             </p>
         </>
     )
