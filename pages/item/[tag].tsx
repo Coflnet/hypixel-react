@@ -69,7 +69,7 @@ function ItemDetails(props: Props) {
         <div className="page">
             {getHeadElement(
                 `${getItem().name || convertTagToName(tag)} price`,
-                `💰 Cost: ${numberWithThousandsSeperators(props.mean)}
+                `💰 Price: ${props.mean ? numberWithThousandsSeperators(Math.round(props.mean)) : '---'} Coins
                 
                  Filters:
                  ${getFiltersText()}`,
