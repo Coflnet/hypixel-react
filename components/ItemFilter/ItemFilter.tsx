@@ -12,6 +12,7 @@ import styles from './ItemFilter.module.css'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { btoaUnicode } from '../../utils/Base64Utils'
+import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -61,10 +62,10 @@ function ItemFilter(props: Props) {
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
-        if (props.ignoreURL) {
-            return
+        itemFilter = !props.ignoreURL ? getItemFilterFromUrl() : {}
+        if (Object.keys(itemFilter).length === 0) {
+            itemFilter = getFilterFromLocalStorage() || {}
         }
-        itemFilter = getItemFilterFromUrl()
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
@@ -73,6 +74,24 @@ function ItemFilter(props: Props) {
             })
             setItemFilter(itemFilter)
         }
+    }
+
+    /**
+     * Gets the last used filter from the local storage and removes all properties not available in the allowed filters
+     * @returns the filter or null if no last used filter is found
+     */
+    function getFilterFromLocalStorage(): ItemFilter {
+        let localStorageLastFilter = localStorage.getItem(LAST_USED_FILTER)
+        if (localStorageLastFilter === null) {
+            return null
+        }
+        let filter: ItemFilter = JSON.parse(localStorageLastFilter)
+        Object.keys(filter).forEach(key => {
+            if (props.filters.findIndex(f => f.name === key) === -1) {
+                delete filter[key]
+            }
+        })
+        return filter
     }
 
     function getGroupedFilter(filterName: string): string[] {
@@ -190,6 +209,7 @@ function ItemFilter(props: Props) {
         }
 
         setItemFilter(filter!)
+        localStorage.setItem(LAST_USED_FILTER, JSON.stringify(filter))
         if (props.onFilterChange) {
             props.onFilterChange(filter)
         }
