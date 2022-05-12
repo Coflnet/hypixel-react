@@ -5,7 +5,7 @@ module.exports = {
         locales: ['en'],
         defaultLocale: 'en'
     },
-    basePath: process.env.BASE_PATH || "/",
+    basePath: process.env.BASE_PATH || undefined,
     async redirects() {
         return [
             {
