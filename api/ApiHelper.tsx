@@ -1462,7 +1462,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             let googleId = localStorage.getItem('googleId')
             if (!googleId) {
-                toast.error('You need to be logged in to purchase something.')
+                toast.error('You need to be logged in to configure privacy settings.')
                 reject()
                 return
             }
