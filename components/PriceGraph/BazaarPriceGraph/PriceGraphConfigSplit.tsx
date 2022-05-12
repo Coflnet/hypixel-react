@@ -91,6 +91,7 @@ function getPriceGraphConfigSplit() {
                 lineStyle: {
                     width: 4
                 },
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: value => {
@@ -108,6 +109,7 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 0,
                 smooth: true,
                 symbol: 'none',
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: formatAsCoins
@@ -121,6 +123,7 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 0,
                 smooth: true,
                 symbol: 'none',
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: formatAsCoins
@@ -134,6 +137,7 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 1,
                 smooth: true,
                 symbol: 'none',
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: numberWithThousandsSeperators
@@ -146,6 +150,7 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 0,
                 smooth: true,
                 symbol: 'none',
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: numberWithThousandsSeperators

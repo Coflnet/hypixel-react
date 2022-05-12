@@ -107,6 +107,7 @@ function getPriceGraphConfigSingle() {
                 lineStyle: {
                     width: 4
                 },
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: value => {
@@ -124,6 +125,7 @@ function getPriceGraphConfigSingle() {
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 0,
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: formatAsCoins
@@ -136,6 +138,7 @@ function getPriceGraphConfigSingle() {
                 color: '#B22222',
                 symbol: 'none',
                 yAxisIndex: 0,
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: formatAsCoins
@@ -148,6 +151,7 @@ function getPriceGraphConfigSingle() {
                 color: '#4B0082',
                 symbol: 'none',
                 yAxisIndex: 1,
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: numberWithThousandsSeperators
@@ -159,6 +163,7 @@ function getPriceGraphConfigSingle() {
                 type: 'line',
                 symbol: 'none',
                 yAxisIndex: 1,
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: numberWithThousandsSeperators
@@ -175,6 +180,7 @@ function getPriceGraphConfigSingle() {
                     width: 4
                 },
                 yAxisIndex: 0,
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: value => {
@@ -192,6 +198,7 @@ function getPriceGraphConfigSingle() {
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 0,
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: formatAsCoins
@@ -205,6 +212,7 @@ function getPriceGraphConfigSingle() {
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 0,
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: formatAsCoins
@@ -218,6 +226,7 @@ function getPriceGraphConfigSingle() {
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 1,
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: numberWithThousandsSeperators
@@ -230,6 +239,7 @@ function getPriceGraphConfigSingle() {
                 yAxisIndex: 1,
                 smooth: true,
                 symbol: 'none',
+                animationThreshold: 200,
                 tooltip: {
                     show: true,
                     valueFormatter: numberWithThousandsSeperators
