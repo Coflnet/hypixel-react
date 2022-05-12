@@ -1,7 +1,5 @@
 import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
 
-function valueFormatter(coins?: boolean): string {}
-
 function getPriceGraphConfigSplit() {
     return {
         tooltip: {
