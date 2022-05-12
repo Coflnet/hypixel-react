@@ -7,3 +7,8 @@
 .sendCoflCoinsButton {
     margin-left: 20px;
 }
+
+.link {
+    color: #007bff;
+    cursor: pointer;
+}

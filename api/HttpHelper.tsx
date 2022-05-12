@@ -68,22 +68,15 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             url = request.customRequestURL
         }
 
-        return cacheUtils.getFromCache(request.customRequestURL || request.type, requestString).then(cacheValue => {
-            if (cacheValue) {
-                request.resolve(cacheValue)
-                return
-            }
-
-            // don't resend in progress requests
-            let equals = findForEqualSentRequest(request)
-            if (equals.length > 0) {
-                requests.push(request)
-                return
-            }
-
+        // don't resend in progress requests
+        let equals = findForEqualSentRequest(request)
+        if (equals.length > 0) {
             requests.push(request)
-            return handleServerRequest(request, url, body)
-        })
+            return
+        }
+
+        requests.push(request)
+        return handleServerRequest(request, url, body)
     }
 
     function handleServerRequest(request: ApiRequest, url: string, body?: any): Promise<void> {
@@ -121,7 +114,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                     console.log('------------------------')
                 }
                 if (!parsedResponse || parsedResponse.Slug !== undefined) {
-                    request.reject(parsedResponse)
+                    request.resolve()
                     return
                 }
                 request.resolve(parsedResponse)

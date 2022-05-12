@@ -17,6 +17,7 @@ import {
     parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
+    parsePrivacySettings,
     parseProfitableCraft,
     parseRecentAuction,
     parseRefInfo,
@@ -35,13 +36,7 @@ import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
-import {
-    FLIPPER_FILTER_KEY,
-    getSettingsObject,
-    mapSettingsToApiFormat,
-    RESTRICTIONS_SETTINGS_KEY,
-    setSettingsChangedData
-} from '../utils/SettingsUtils'
+import { FLIPPER_FILTER_KEY, getSettingsObject, mapSettingsToApiFormat, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
 import { atobUnicode } from '../utils/Base64Utils'
 
@@ -1463,6 +1458,65 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getPrivacySettings = (): Promise<PrivacySettings> => {
+        return new Promise((resolve, reject) => {
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to configure privacy settings.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_PRIVACY_SETTINGS,
+                data: '',
+                customRequestURL: `${getApiEndpoint()}/user/privacy`,
+                requestHeader: {
+                    GoogleToken: googleId
+                },
+                resolve: (data: any) => {
+                    resolve(parsePrivacySettings(data))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_PRIVACY_SETTINGS, error, '')
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let setPrivacySettings = (settings: PrivacySettings): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to save privacy settings.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.SET_PRIVACY_SETTINGS,
+                    data: '',
+                    requestMethod: 'POST',
+                    customRequestURL: `${getApiEndpoint()}/user/privacy`,
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.SET_PRIVACY_SETTINGS, error, settings)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(settings)
+            )
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1524,7 +1578,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getKatFlips,
         getTrackedFlipsForPlayer,
         transferCoflCoins,
-        subscribeFlipsAnonym
+        subscribeFlipsAnonym,
+        getPrivacySettings,
+        setPrivacySettings
     }
 }
 

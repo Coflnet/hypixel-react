@@ -492,3 +492,21 @@ export function parseFlipTrackingResponse(flipTrackingResponse): FlipTrackingRes
         totalProfit: flipTrackingResponse.totalProfit
     }
 }
+
+export function parsePrivacySettings(privacySettings): PrivacySettings {
+    return {
+        allowProxy: privacySettings.allowProxy,
+        autoStart: privacySettings.autoStart,
+        chatRegex: privacySettings.chatRegex,
+        collectChat: privacySettings.collectChat,
+        collectChatClicks: privacySettings.collectChatClicks,
+        collectEntities: privacySettings.collectEntities,
+        collectInvClick: privacySettings.collectInvClick,
+        collectInventory: privacySettings.collectInventory,
+        collectLobbyChanges: privacySettings.collectLobbyChanges,
+        collectScoreboard: privacySettings.collectScoreboard,
+        collectTab: privacySettings.collectTab,
+        commandPrefixes: privacySettings.commandPrefixes,
+        extendDescriptions: privacySettings.extendDescriptions
+    }
+}
