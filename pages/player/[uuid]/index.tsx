@@ -37,6 +37,11 @@ function PlayerDetails(props: Props) {
     let removeSwipeListeners = useSwipe(undefined, onSwipeRight, undefined, onSwipeLeft)
 
     useEffect(() => {
+        // special case for people searching hyauctions
+        if (window.document.referrer.includes('google') && uuid === 'be7002531956406d81c535a81fe2833a') {
+            router.push('/')
+            return
+        }
         return () => {
             removeSwipeListeners!()
         }
