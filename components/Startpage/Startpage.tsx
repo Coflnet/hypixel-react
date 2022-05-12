@@ -298,7 +298,7 @@ function Startpage(props: Props) {
             <div style={{ textAlign: 'center' }}>
                 <hr />
                 <h1>Skyblock AH history</h1>
-                <p style={{ fontSize: 'larger' }}>Browse through 250 million auctions, over two million players and the bazaar of hypixel skyblock</p>
+                <p style={{ fontSize: 'larger' }}>Browse through 800 million auctions, over two million players and the bazaar of hypixel skyblock</p>
                 <hr />
             </div>
             <div className={styles.statusElementWrapper}>
