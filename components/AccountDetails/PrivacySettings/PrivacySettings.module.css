@@ -1,0 +1,23 @@
+.label {
+    width: 300px;
+    float: left;
+}
+
+.settingsLine {
+    display: inline-block;
+    width: 50%;
+}
+
+@media all and (max-width: 992px) {
+    .label {
+        width: 100px;
+        margin-right: 15px;
+    }
+}
+
+@media all and (max-width: 350px) {
+    .settingsLine {
+        width: 100%;
+        display: inline-block;
+    }
+}

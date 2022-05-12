@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Button, Card, Modal, OverlayTrigger } from 'react-bootstrap'
+import { Button, Card, Form, Modal, OverlayTrigger } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
@@ -12,6 +12,7 @@ import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
 import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
+import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -20,6 +21,8 @@ function Premium() {
     let [isLoading, setIsLoading] = useState(false)
     let [isLoggingIn, setIsLoggingIn] = useState(false)
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
+    let [cancellationRightLossConfirmed, setCancellationRightLossConfirmed] = useState(false)
+    let [isSSR, setIsSSR] = useState(true)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
@@ -29,6 +32,8 @@ function Premium() {
         if (localStorage.getItem('googleId') !== null) {
             setIsLoggingIn(true)
         }
+        setIsSSR(false)
+        setCancellationRightLossConfirmed(localStorage.getItem(CANCELLATION_RIGHT_CONFIRMED) === 'true')
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -138,7 +143,24 @@ function Premium() {
                             </Modal.Body>
                         </Modal>
                     </h2>
-                    <CoflCoinsPurchase />
+                    {!cancellationRightLossConfirmed ? (
+                        <p>
+                            <Form.Check
+                                id={'cancellationRightCheckbox'}
+                                className={styles.cancellationRightCheckbox}
+                                defaultChecked={isSSR ? false : localStorage.getItem(CANCELLATION_RIGHT_CONFIRMED) === 'true'}
+                                onChange={e => {
+                                    localStorage.setItem(CANCELLATION_RIGHT_CONFIRMED, e.target.checked.toString())
+                                    setCancellationRightLossConfirmed(e.target.checked)
+                                }}
+                            />
+                            <label htmlFor={'cancellationRightCheckbox'}>
+                                By buying one of the following products, you confirm the immediate execution of the contract, hereby losing your cancellation
+                                right.
+                            </label>
+                        </p>
+                    ) : null}
+                    <CoflCoinsPurchase disabled={!cancellationRightLossConfirmed} />
                 </div>
             ) : null}
             <hr />

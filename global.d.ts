@@ -232,6 +232,8 @@ interface API {
     getBazaarSnapshot(itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot>
     getBazaarPrices(itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]>
     getBazaarPricesByRange(itemTag: string, startDate: Date | string | number, endDate: Date | string | number): Promise<BazaarPrice[]>
+    getPrivacySettings(): Promise<PrivacySettings>
+    setPrivacySettings(settings: PrivacySettings): Promise<void>
 }
 
 interface CacheUtils {
@@ -479,4 +481,20 @@ enum DateRange {
     MONTH = 'month',
     WEEK = 'week',
     ALL = 'ALL'
+}
+
+interface PrivacySettings {
+    chatRegex: 'string'
+    collectChat: boolean
+    collectInventory: boolean
+    collectTab: boolean
+    collectScoreboard: boolean
+    allowProxy: boolean
+    collectInvClick: boolean
+    collectChatClicks: boolean
+    collectLobbyChanges: boolean
+    collectEntities: boolean
+    extendDescriptions: boolean
+    commandPrefixes: string[]
+    autoStart: boolean
 }
