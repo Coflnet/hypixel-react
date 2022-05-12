@@ -1,5 +1,7 @@
 import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
 
+const ANIMATION_THRESHOLD = 200
+
 let option = {
     tooltip: {
         trigger: 'axis',
@@ -85,6 +87,7 @@ let option = {
             },
             yAxisIndex: 0,
             smooth: true,
+            animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
                 valueFormatter: formatAsCoins
             }
@@ -96,6 +99,7 @@ let option = {
             symbol: 'none',
             yAxisIndex: 0,
             smooth: true,
+            animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
                 valueFormatter: formatAsCoins
             },
@@ -108,6 +112,7 @@ let option = {
             symbol: 'none',
             yAxisIndex: 0,
             smooth: true,
+            animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
                 valueFormatter: formatAsCoins
             },
@@ -120,6 +125,7 @@ let option = {
             symbol: 'none',
             yAxisIndex: 1,
             smooth: true,
+            animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
                 valueFormatter: numberWithThousandsSeperators
             },

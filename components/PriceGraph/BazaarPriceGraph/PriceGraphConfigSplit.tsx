@@ -1,5 +1,7 @@
 import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
 
+const ANIMATION_THRESHOLD = 200
+
 function getPriceGraphConfigSplit() {
     return {
         tooltip: {
@@ -91,7 +93,7 @@ function getPriceGraphConfigSplit() {
                 lineStyle: {
                     width: 4
                 },
-                animationThreshold: 200,
+                animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
                     valueFormatter: value => {
@@ -109,7 +111,7 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 0,
                 smooth: true,
                 symbol: 'none',
-                animationThreshold: 200,
+                animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
                     valueFormatter: formatAsCoins
@@ -123,7 +125,7 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 0,
                 smooth: true,
                 symbol: 'none',
-                animationThreshold: 200,
+                animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
                     valueFormatter: formatAsCoins
@@ -137,7 +139,7 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 1,
                 smooth: true,
                 symbol: 'none',
-                animationThreshold: 200,
+                animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
                     valueFormatter: numberWithThousandsSeperators
@@ -150,7 +152,7 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 0,
                 smooth: true,
                 symbol: 'none',
-                animationThreshold: 200,
+                animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
                     valueFormatter: numberWithThousandsSeperators
