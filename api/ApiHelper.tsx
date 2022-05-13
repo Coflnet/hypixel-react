@@ -2,6 +2,8 @@ import {
     parseAccountInfo,
     parseAuction,
     parseAuctionDetails,
+    parseBazaarPrice,
+    parseBazaarSnapshot,
     parseCraftingRecipe,
     parseEnchantment,
     parseFilterOption,
@@ -142,6 +144,73 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         itemTag,
                         fetchSpan,
                         itemFilter
+                    })
+                    reject()
+                }
+            })
+        })
+    }
+
+    let getBazaarPrices = (itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.BAZAAR_PRICES,
+                data: '',
+                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/${fetchSpan}`,
+                requestMethod: 'GET',
+                resolve: (data: any) => {
+                    resolve(data.map(parseBazaarPrice))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.BAZAAR_PRICES, error, {
+                        itemTag,
+                        fetchSpan
+                    })
+                    reject()
+                }
+            })
+        })
+    }
+
+    let getBazaarPricesByRange = (itemTag: string, startDate: Date | string | number, endDate: Date | string | number): Promise<BazaarPrice[]> => {
+        return new Promise((resolve, reject) => {
+            let startDateIso = new Date(startDate).toISOString()
+            let endDateIso = new Date(endDate).toISOString()
+
+            httpApi.sendApiRequest({
+                type: RequestType.BAZAAR_PRICES,
+                data: '',
+                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/?start=${startDateIso}&end=${endDateIso}`,
+                requestMethod: 'GET',
+                resolve: (data: any) => {
+                    data = data.filter(d => d.sell !== undefined && d.buy !== undefined)
+
+                    let sumBuy = 0
+                    let sumSell = 0
+                    data.forEach(d => {
+                        sumBuy += d.buy
+                        sumSell += d.sell
+                    })
+                    let avgBuy = sumBuy / data.length
+                    let avgSell = sumSell / data.length
+
+                    let bazaarData: BazaarPrice[] = data.map(parseBazaarPrice)
+                    let normalizer = 8
+                    resolve(
+                        bazaarData.filter(
+                            b =>
+                                b.buyData.max < avgBuy * normalizer &&
+                                b.sellData.max < avgSell * normalizer &&
+                                b.buyData.min > avgBuy / normalizer &&
+                                b.sellData.min > avgSell / normalizer
+                        )
+                    )
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.BAZAAR_PRICES, error, {
+                        itemTag,
+                        startDateIso,
+                        endDateIso
                     })
                     reject()
                 }
@@ -1458,6 +1527,48 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getBazaarSnapshot = (itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot> => {
+        return new Promise((resolve, reject) => {
+            let isoTimestamp = new Date(timestamp).toISOString()
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_BAZAAR_SNAPSHOT,
+                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/snapshot${isoTimestamp ? `?timestamp=${isoTimestamp}` : ''}`,
+                data: '',
+                resolve: function (data) {
+                    if (!data) {
+                        resolve({
+                            item: {
+                                tag: ''
+                            },
+                            buyData: {
+                                moving: 0,
+                                orderCount: 0,
+                                price: 0,
+                                volume: 0
+                            },
+                            sellData: {
+                                moving: 0,
+                                orderCount: 0,
+                                price: 0,
+                                volume: 0
+                            },
+                            sellOrders: [],
+                            buyOrders: [],
+                            timeStamp: new Date()
+                        })
+                        return
+                    }
+                    resolve(parseBazaarSnapshot(data))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_BAZAAR_SNAPSHOT, error, { itemTag, timestamp: isoTimestamp })
+                    reject()
+                }
+            })
+        })
+    }
+    
     let getPrivacySettings = (): Promise<PrivacySettings> => {
         return new Promise((resolve, reject) => {
             let googleId = localStorage.getItem('googleId')
@@ -1578,6 +1689,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getKatFlips,
         getTrackedFlipsForPlayer,
         transferCoflCoins,
+        getBazaarSnapshot,
+        getBazaarPrices,
+        getBazaarPricesByRange,
         subscribeFlipsAnonym,
         getPrivacySettings,
         setPrivacySettings

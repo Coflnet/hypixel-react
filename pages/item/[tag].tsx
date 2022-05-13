@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import Head from 'next/head'
 import Search from '../../components/Search/Search'
-import PriceGraph from '../../components/PriceGraph/PriceGraph'
 import { parseItem } from '../../utils/Parser/APIResponseParser'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
 import api, { initAPI } from '../../api/ApiHelper'
 import { Container } from 'react-bootstrap'
 import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
+import AuctionHousePriceGraph from '../../components/PriceGraph/AuctionHousePriceGraph/AuctionHousePriceGraph'
+import BazaarPriceGraph from '../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'
 import { atobUnicode } from '../../utils/Base64Utils'
 import { parseItemFilter } from '../../utils/Parser/URLParser'
 
@@ -79,7 +79,7 @@ function ItemDetails(props: Props) {
             )}
             <Container>
                 <Search selected={getItem()} type="item" />
-                <PriceGraph item={getItem()} />
+                {item.bazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
             </Container>
         </div>
     )
