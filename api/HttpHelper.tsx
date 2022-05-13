@@ -68,6 +68,10 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             url = request.customRequestURL
         }
 
+        if (url.endsWith('&') || url.endsWith('?')) {
+            url = url.substring(0, url.length - 2)
+        }
+
         return cacheUtils.getFromCache(request.customRequestURL || request.type, requestString).then(cacheValue => {
             if (cacheValue) {
                 request.resolve(cacheValue)

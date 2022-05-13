@@ -7,7 +7,7 @@ import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../ItemPriceRange
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import ShareButton from '../ShareButton/ShareButton'
-import ItemFilter from '../ItemFilter/ItemFilter'
+import ItemFilter, { getPrefillFilter } from '../ItemFilter/ItemFilter'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import RecentAuctions from '../RecentAuctions/RecentAuctions'
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser'
@@ -33,7 +33,6 @@ function PriceGraph(props: Props) {
     let [avgPrice, setAvgPrice] = useState(0)
     let [filters, setFilters] = useState([] as FilterOptions[])
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
-    let [isItemFilterPrefill, setIsItemFilterPrefill] = useState<boolean>(true)
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true)
 
     let fetchspanRef = useRef(fetchspan)
@@ -50,23 +49,21 @@ function PriceGraph(props: Props) {
         if (!isClientSideRendering()) {
             return
         }
-        loadFilters()
-    }, [props.item.tag])
-
-    useEffect(() => {
-        fetchspan = DEFAULT_DATE_RANGE
-        setFetchspan(DEFAULT_DATE_RANGE)
-        if (priceChartCanvas && priceChartCanvas.current) {
-            if (Object.keys(getItemFilterFromUrl()).length === 0) {
-                setIsItemFilterPrefill(false)
-                let chart = priceChart || createChart(priceConfig)
-                priceChart = chart
-                setPriceChart(chart)
-                if (props.item) {
-                    updateChart(chart, fetchspan, undefined)
+        api.filterFor(props.item).then(filters => {
+            fetchspan = DEFAULT_DATE_RANGE
+            setFetchspan(DEFAULT_DATE_RANGE)
+            if (priceChartCanvas && priceChartCanvas.current) {
+                if (Object.keys(getItemFilterFromUrl()).length === 0) {
+                    let chart = priceChart || createChart(priceConfig)
+                    priceChart = chart
+                    setPriceChart(chart)
+                    if (props.item) {
+                        updateChart(chart, fetchspan, getPrefillFilter(filters))
+                    }
                 }
             }
-        }
+            setFilters(filters)
+        })
     }, [props.item.tag])
 
     let updateChart = (priceChart: Chart, fetchspan: DateRange, itemFilter?: ItemFilter) => {
@@ -127,9 +124,6 @@ function PriceGraph(props: Props) {
                 setPriceChart(priceChart)
                 setNoDataFound(prices.length === 0)
                 setIsLoading(false)
-                setTimeout(() => {
-                    setIsItemFilterPrefill(false)
-                }, 100)
             })
             .catch(() => {
                 setIsLoading(false)
@@ -157,12 +151,6 @@ function PriceGraph(props: Props) {
         }
     }
 
-    function loadFilters() {
-        api.filterFor(props.item).then(filters => {
-            setFilters(filters)
-        })
-    }
-
     let graphOverlayElement = isLoading ? (
         <div className={styles.graphOverlay}>{getLoadingElement()}</div>
     ) : noDataFound && !isLoading ? (
@@ -177,7 +165,7 @@ function PriceGraph(props: Props) {
 
     return (
         <div>
-            <ItemFilter filters={filters} onFilterChange={onFilterChange} isPrefill={isItemFilterPrefill} />
+            <ItemFilter filters={filters} onFilterChange={onFilterChange} />
             <ItemPriceRange
                 setToDefaultRangeSwitch={defaultRangeSwitch}
                 onRangeChange={onRangeChange}

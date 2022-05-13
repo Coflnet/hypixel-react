@@ -66,7 +66,7 @@ function SubscribeItemContent(props: Props) {
                     />
                 </Form.Group>
                 <Form.Group>
-                    <ItemFilter filters={filterOptions} ignoreURL={false} isPrefill={true} onFilterChange={props.onFilterChange} />
+                    <ItemFilter filters={filterOptions} ignoreURL={false} onFilterChange={props.onFilterChange} />
                 </Form.Group>
             </div>
         </>

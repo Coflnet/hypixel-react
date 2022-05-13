@@ -17,7 +17,6 @@ import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
     filters?: FilterOptions[]
-    isPrefill?: boolean
     forceOpen?: boolean
     ignoreURL?: boolean
 }
@@ -39,33 +38,10 @@ function ItemFilter(props: Props) {
 
     useEffect(() => {
         initFilter()
-    }, [])
-
-    useEffect(() => {
-        if (props.isPrefill) {
-            return
-        }
-
-        let newSelectedFilters: string[] = []
-        let newItemFilter = {}
-        props.filters?.forEach(filter => {
-            let index = selectedFilters.findIndex(f => f === filter.name)
-            if (index !== -1) {
-                newItemFilter[filter.name] = itemFilter[filter.name]
-                newSelectedFilters.push(filter.name)
-            }
-        })
-
-        setSelectedFilters(newSelectedFilters)
-        setItemFilter(newItemFilter)
-        onFilterChange(newItemFilter)
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
-        itemFilter = !props.ignoreURL ? getItemFilterFromUrl() : {}
-        if (Object.keys(itemFilter).length === 0) {
-            itemFilter = getFilterFromLocalStorage() || {}
-        }
+        itemFilter = getPrefillFilter(props.filters, props.ignoreURL)
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
@@ -73,25 +49,8 @@ function ItemFilter(props: Props) {
                 getGroupedFilter(name).forEach(filter => enableFilter(filter))
             })
             setItemFilter(itemFilter)
+            onFilterChange(itemFilter)
         }
-    }
-
-    /**
-     * Gets the last used filter from the local storage and removes all properties not available in the allowed filters
-     * @returns the filter or null if no last used filter is found
-     */
-    function getFilterFromLocalStorage(): ItemFilter {
-        let localStorageLastFilter = localStorage.getItem(LAST_USED_FILTER)
-        if (localStorageLastFilter === null) {
-            return null
-        }
-        let filter: ItemFilter = JSON.parse(localStorageLastFilter)
-        Object.keys(filter).forEach(key => {
-            if (props.filters.findIndex(f => f.name === key) === -1) {
-                delete filter[key]
-            }
-        })
-        return filter
     }
 
     function getGroupedFilter(filterName: string): string[] {
@@ -150,7 +109,6 @@ function ItemFilter(props: Props) {
         setSelectedFilters([])
         setExpanded(false)
         setItemFilter({})
-        onFilterChange({})
     }
 
     function onFilterRemoveClick(filterName: string) {
@@ -192,7 +150,7 @@ function ItemFilter(props: Props) {
         let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoaUnicode(JSON.stringify(filter))
 
         router.query.itemFilter = filterString || ''
-        router.replace(router, undefined, { shallow: true })
+        router.replace(router.asPath, undefined, { shallow: true })
     }
 
     function onFilterChange(filter: ItemFilter) {
@@ -373,3 +331,29 @@ function ItemFilter(props: Props) {
     )
 }
 export default ItemFilter
+
+export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: boolean = false) {
+    let itemFilter = !ignoreURL ? getItemFilterFromUrl() : {}
+    if (Object.keys(itemFilter).length === 0) {
+        itemFilter = getFilterFromLocalStorage(filterOptions) || {}
+    }
+    return itemFilter
+}
+
+/**
+ * Gets the last used filter from the local storage and removes all properties not available in the allowed filters
+ * @returns the filter or null if no last used filter is found
+ */
+function getFilterFromLocalStorage(filterOptions: FilterOptions[]): ItemFilter {
+    let localStorageLastFilter = localStorage.getItem(LAST_USED_FILTER)
+    if (localStorageLastFilter === null) {
+        return null
+    }
+    let filter: ItemFilter = JSON.parse(localStorageLastFilter)
+    Object.keys(filter).forEach(key => {
+        if (filterOptions.findIndex(f => f.name === key) === -1) {
+            delete filter[key]
+        }
+    })
+    return filter
+}
