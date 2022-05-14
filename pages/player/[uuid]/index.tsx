@@ -12,6 +12,7 @@ import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../../utils/SSRUtils'
 import styles from './index.module.css'
 import Link from 'next/link'
+import Hyauctions from '../../../components/Hyauctions/Hyauctions'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -37,11 +38,6 @@ function PlayerDetails(props: Props) {
     let removeSwipeListeners = useSwipe(undefined, onSwipeRight, undefined, onSwipeLeft)
 
     useEffect(() => {
-        // special case for people searching hyauctions
-        if (window.document.referrer.includes('google') && uuid === 'be7002531956406d81c535a81fe2833a') {
-            router.push('/')
-            return
-        }
         return () => {
             removeSwipeListeners!()
         }
@@ -103,6 +99,19 @@ function PlayerDetails(props: Props) {
     ) : (
         <span style={{ marginLeft: '25px', color: '#007bff' }}>(Your Account)</span>
     )
+
+    // special case for people searching hyauctions
+    // window.document.referrer.includes('google')
+    if (uuid === 'be7002531956406d81c535a81fe2833a') {
+        return (
+            <div className="page">
+                <Container>
+                    <Search />
+                    <Hyauctions />
+                </Container>
+            </div>
+        )
+    }
 
     return (
         <div className="page">
