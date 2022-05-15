@@ -5,7 +5,7 @@ function Hyauctions() {
         <>
             <h2>Coflnet</h2>
             <hr />
-            <p>Seems you were looking for Hyauctions. We also provide a auction history to check prices and player auctions.</p>
+            <p>We provide a hyauctions alternative. That includes player and item history but also bazaar history, notifications, craft & kat flips as well as an advanced ah flipper.</p>
             <p>Just try using the searchbar above.</p>
         </>
     )
