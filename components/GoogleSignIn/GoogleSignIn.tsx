@@ -86,6 +86,8 @@ function GoogleSignIn(props: Props) {
                 toast.success('Common fix: if there is an eye icon with a line through in your url bar, click it', { delay: 1000, autoClose: 20000 })
                 break
             default:
+                console.log('Error: ')
+                console.log(response)
                 toast.error('Something went wrong, please try again.', { autoClose: 20000 })
                 break
         }
