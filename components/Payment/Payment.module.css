@@ -35,3 +35,15 @@
 .manualRedirectLink {
     margin: 0;
 }
+
+.paymentButtonWrapper {
+    width: 40%;
+}
+
+.paymentButton {
+    width: 100%;
+}
+
+.paymentLabel {
+    width: 50%;
+}

@@ -9,7 +9,7 @@ import { useCoflCoins } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 
 interface Props {
-    disabled: boolean
+    cancellationRightLossConfirmed: boolean
 }
 
 function Payment(props: Props) {
@@ -42,7 +42,7 @@ function Payment(props: Props) {
                 </Card.Header>
                 <Card.Body>
                     <p className={styles.paymentOption}>
-                        <div style={{ width: '50%' }}>
+                        <div className={styles.paymentLabel}>
                             Buy with Paypal{' '}
                             <Tooltip
                                 content={
@@ -54,50 +54,70 @@ function Payment(props: Props) {
                                 tooltipContent={<p>Higher price than with credit card due to higher fees</p>}
                             />
                         </div>
-                        <Button
-                            variant="success"
-                            onClick={() => {
-                                onPayPaypal(payPalProductId)
-                            }}
-                            style={{ width: '40%' }}
-                            disabled={props.disabled}
-                        >
-                            {payPalProductId === isLoadingId ? (
-                                <p className={styles.manualRedirectLink}>
-                                    Redirecting to PayPal...
-                                    <br /> Not working?{' '}
-                                    <a href={currentRedirectLink} target="_blank">
-                                        Click here
-                                    </a>
-                                </p>
-                            ) : (
-                                `${numberWithThousandsSeperators(Math.round(paypalPrice * 100) / 100)} Euro`
-                            )}
-                        </Button>
+                        <Tooltip
+                            type="hover"
+                            tooltipContent={
+                                !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
+                            }
+                            content={
+                                <div className={styles.paymentButtonWrapper}>
+                                    <Button
+                                        variant="success"
+                                        onClick={() => {
+                                            onPayPaypal(payPalProductId)
+                                        }}
+                                        className={styles.paymentButton}
+                                        disabled={!props.cancellationRightLossConfirmed}
+                                    >
+                                        {payPalProductId === isLoadingId ? (
+                                            <p className={styles.manualRedirectLink}>
+                                                Redirecting to PayPal...
+                                                <br /> Not working?{' '}
+                                                <a href={currentRedirectLink} target="_blank">
+                                                    Click here
+                                                </a>
+                                            </p>
+                                        ) : (
+                                            `${numberWithThousandsSeperators(Math.round(paypalPrice * 100) / 100)} Euro`
+                                        )}
+                                    </Button>
+                                </div>
+                            }
+                        />
                     </p>
                     <p className={styles.paymentOption}>
-                        <div style={{ width: '50%' }}>Buy with Stripe</div>
-                        <Button
-                            variant="success"
-                            onClick={() => {
-                                onPayStripe(stripeProductId)
-                            }}
-                            style={{ width: '40%' }}
-                            disabled={props.disabled}
-                        >
-                            {stripeProductId === isLoadingId ? (
-                                <p className={styles.manualRedirectLink}>
-                                    Redirecting to Stripe...
-                                    <br />
-                                    Not working?{' '}
-                                    <a href={currentRedirectLink} target="_blank">
-                                        Click here
-                                    </a>
-                                </p>
-                            ) : (
-                                `${numberWithThousandsSeperators(Math.round(stripePrice * 100) / 100)} Euro`
-                            )}
-                        </Button>
+                        <div className={styles.paymentLabel}>Buy with Stripe</div>
+                        <Tooltip
+                            type="hover"
+                            tooltipContent={
+                                !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
+                            }
+                            content={
+                                <div className={styles.paymentButtonWrapper}>
+                                    <Button
+                                        variant="success"
+                                        onClick={() => {
+                                            onPayStripe(stripeProductId)
+                                        }}
+                                        className={styles.paymentButton}
+                                        disabled={!props.cancellationRightLossConfirmed}
+                                    >
+                                        {stripeProductId === isLoadingId ? (
+                                            <p className={styles.manualRedirectLink}>
+                                                Redirecting to Stripe...
+                                                <br />
+                                                Not working?{' '}
+                                                <a href={currentRedirectLink} target="_blank">
+                                                    Click here
+                                                </a>
+                                            </p>
+                                        ) : (
+                                            `${numberWithThousandsSeperators(Math.round(stripePrice * 100) / 100)} Euro`
+                                        )}
+                                    </Button>
+                                </div>
+                            }
+                        />
                     </p>
                 </Card.Body>
             </Card>
@@ -122,7 +142,7 @@ function Payment(props: Props) {
                     <p>Due to the fees we have to pay to our payment providers we sadly can't provide purchases of less than 1.800 CoflCoins at once.</p>
                     <hr />
                     <p className={styles.paymentOption}>
-                        <div style={{ width: '50%' }}>
+                        <div className={styles.paymentLabel}>
                             Buy with Paypal{' '}
                             <Tooltip
                                 content={
@@ -134,33 +154,53 @@ function Payment(props: Props) {
                                 tooltipContent={<p>Higher price than with credit card due to higher fees</p>}
                             />
                         </div>
-                        <Button
-                            variant="success"
-                            onClick={() => {
-                                onPayPaypal(payPalProductId, coflCoinsToBuy)
-                            }}
-                            style={{ width: '40%' }}
-                            disabled={props.disabled}
-                        >
-                            {`${payPalProductId}_${coflCoinsToBuy}` === isLoadingId
-                                ? getLoadingElement(<p>Redirecting to checkout...</p>)
-                                : `${((6.99 / 1800) * coflCoinsToBuy).toFixed(2)} Euro`}
-                        </Button>
+                        <Tooltip
+                            type="hover"
+                            tooltipContent={
+                                !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
+                            }
+                            content={
+                                <div className={styles.paymentButtonWrapper}>
+                                    <Button
+                                        variant="success"
+                                        onClick={() => {
+                                            onPayPaypal(payPalProductId, coflCoinsToBuy)
+                                        }}
+                                        className={styles.paymentButton}
+                                        disabled={!props.cancellationRightLossConfirmed}
+                                    >
+                                        {`${payPalProductId}_${coflCoinsToBuy}` === isLoadingId
+                                            ? getLoadingElement(<p>Redirecting to checkout...</p>)
+                                            : `${((6.99 / 1800) * coflCoinsToBuy).toFixed(2)} Euro`}
+                                    </Button>
+                                </div>
+                            }
+                        />
                     </p>
                     <p className={styles.paymentOption}>
-                        <div style={{ width: '50%' }}>Buy with Stripe</div>
-                        <Button
-                            variant="success"
-                            onClick={() => {
-                                onPayStripe(stripeProductId, coflCoinsToBuy)
-                            }}
-                            style={{ width: '40%' }}
-                            disabled={props.disabled}
-                        >
-                            {`${stripeProductId}_${coflCoinsToBuy}` === isLoadingId
-                                ? getLoadingElement(<p>Redirecting to checkout...</p>)
-                                : `${((6.69 / 1800) * coflCoinsToBuy).toFixed(2)} Euro`}
-                        </Button>
+                        <div className={styles.paymentLabel}>Buy with Stripe</div>
+                        <Tooltip
+                            type="hover"
+                            tooltipContent={
+                                !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
+                            }
+                            content={
+                                <div className={styles.paymentButtonWrapper}>
+                                    <Button
+                                        variant="success"
+                                        onClick={() => {
+                                            onPayStripe(stripeProductId, coflCoinsToBuy)
+                                        }}
+                                        className={styles.paymentButton}
+                                        disabled={!props.cancellationRightLossConfirmed}
+                                    >
+                                        {`${stripeProductId}_${coflCoinsToBuy}` === isLoadingId
+                                            ? getLoadingElement(<p>Redirecting to checkout...</p>)
+                                            : `${((6.69 / 1800) * coflCoinsToBuy).toFixed(2)} Euro`}
+                                    </Button>
+                                </div>
+                            }
+                        />
                     </p>
                 </Card.Body>
             </Card>

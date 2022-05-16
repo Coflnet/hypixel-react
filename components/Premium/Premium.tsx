@@ -160,7 +160,7 @@ function Premium() {
                             </label>
                         </p>
                     ) : null}
-                    <CoflCoinsPurchase disabled={!cancellationRightLossConfirmed} />
+                    <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
                 </div>
             ) : null}
             <hr />
