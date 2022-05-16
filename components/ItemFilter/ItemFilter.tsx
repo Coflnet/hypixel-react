@@ -300,8 +300,8 @@ function ItemFilter(props: Props) {
                                 {props?.filters && props.filters?.length > 0 ? (
                                     <Typeahead
                                         id="add-filter-typeahead"
-                                        autoFocus={Object.keys(getItemFilterFromUrl()).length === 0}
-                                        defaultOpen={Object.keys(getItemFilterFromUrl()).length === 0}
+                                        autoFocus={Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0}
+                                        defaultOpen={Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0}
                                         ref={typeaheadRef}
                                         placeholder="Add filter"
                                         className={styles.addFilterSelect}
