@@ -3,7 +3,9 @@ import { Button, Container, Card } from 'react-bootstrap'
 import Link from 'next/link'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'
 import Search from '../components/Search/Search'
+import { Help as HelpIcon } from '@mui/icons-material'
 import { getHeadElement } from '../utils/SSRUtils'
+import Tooltip from '../components/Tooltip/Tooltip'
 
 function Refed() {
     return (
@@ -18,8 +20,23 @@ function Refed() {
                     <Card.Body>
                         <p>You were invited to use this application because someone thought it would be interesting and helpful to you.</p>
                         <p>
-                            After you are logged in with Google you can verify your Minecraft account to get 1 hour of <Link href="/premium">premium</Link> for
-                            free to test our service including our <Link href="/flipper">auction flipper</Link>.
+                            After you are logged in with Google you can verify your Minecraft account{' '}
+                            <Tooltip
+                                content={
+                                    <span>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={
+                                    <p>
+                                        To connect your Minecraft account, search and click yourself in the search bar. Afterwards click "Your? Claim account."
+                                        to get a full explanation.{' '}
+                                    </p>
+                                }
+                            />{' '}
+                            to get 1 hour of <Link href="/premium">premium</Link> for free to test our service including our{' '}
+                            <Link href="/flipper">auction flipper</Link>.
                         </p>
                         <p>
                             We also provide a mod to use the flipper ingame. You can download it in the <b>#mod-releases</b> channel on our{' '}
