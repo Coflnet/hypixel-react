@@ -1230,7 +1230,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 type: RequestType.PLAYER_SEARCH,
                 data: playerName,
                 resolve: function (players) {
-                    resolve(players.map(parsePlayer))
+                    resolve(players ? players.map(parsePlayer) : [])
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName)
