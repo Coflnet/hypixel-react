@@ -105,6 +105,13 @@ function PlayerDetails(props: Props) {
     if (uuid === 'be7002531956406d81c535a81fe2833a') {
         return (
             <div className="page">
+                {getHeadElement(
+                    `${selectedPlayer?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`,
+                    `Auctions and bids for ${selectedPlayer?.name} in Hypixel Skyblock.`,
+                    selectedPlayer?.iconUrl?.split('?')[0],
+                    [selectedPlayer?.name || ''],
+                    `${selectedPlayer?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`
+                )}
                 <Container>
                     <Search />
                     <Hyauctions />
