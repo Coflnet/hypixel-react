@@ -2,6 +2,7 @@ export enum RequestType {
     SEARCH = 'search',
     PLAYER_DETAIL = 'playerDetails',
     ITEM_PRICES = 'pricerdicer',
+    BAZAAR_PRICES = 'bazaarPrices',
     AUCTION_DETAILS = 'auction',
     ITEM_DETAILS = 'itemDetails',
     PLAYER_AUCTION = 'playerAuctions',
@@ -63,7 +64,10 @@ export enum RequestType {
     GET_FLIP_SETTINGS = 'getFlipSettings',
     SET_FLIP_SETTING = 'setFlipSetting',
     TRASFER_COFLCOINS = 'transferCofl',
-    SUBSCRIBE_FLIPS_ANONYM = 'subFlipAnonym'
+    GET_BAZAAR_SNAPSHOT = 'getBazaarSnapshot',
+    SUBSCRIBE_FLIPS_ANONYM = 'subFlipAnonym',
+    GET_PRIVACY_SETTINGS = 'getPrivacySettings',
+    SET_PRIVACY_SETTINGS = 'setPrivacySettings'
 }
 
 export enum SubscriptionType {
@@ -123,5 +127,6 @@ export interface HttpApi extends Connection {
 export let CUSTOM_EVENTS = {
     FLIP_SETTINGS_CHANGE: 'flipSettingsChange',
     COFLCOIN_UPDATE: 'coflCoinRefresh',
-    GOOGLE_LOGIN: 'googleLogin'
+    GOOGLE_LOGIN: 'googleLogin',
+    BAZAAR_SNAPSHOT_UPDATE: 'bazaarSnapshotUpdate'
 }

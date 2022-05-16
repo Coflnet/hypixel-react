@@ -13,7 +13,7 @@ let settings = getInitUserSettings()
 
 function getInitUserSettings(): any {
     if (!isClientSideRendering()) {
-        return
+        return {}
     }
 
     let item = localStorage.getItem(LOCAL_STORAGE_SETTINGS_KEY)
@@ -359,6 +359,9 @@ export const FLIP_CUSTOMIZING_KEY = 'flipCustomizing'
 export const RESTRICTIONS_SETTINGS_KEY = 'flipRestrictions'
 export const FLIPPER_FILTER_KEY = 'flipperFilters'
 export const PREMIUM_EXPIRATION_NOFIFY_DATE_KEY = 'premiumExpirationNotifyDate'
+export const BAZAAR_GRAPH_TYPE = 'bazaarGraphType'
+export const BAZAAR_GRAPH_LEGEND_SELECTION = 'bazaarGraphLegendSelection'
+export const AUCTION_GRAPH_LEGEND_SELECTION = 'auctionGraphLegendSelection'
 export const RECENT_AUCTIONS_FETCH_TYPE_KEY = 'recentAuctionsFetchType'
 export const CANCELLATION_RIGHT_CONFIRMED = 'cancellationRightConfirmed'
 export const LAST_USED_FILTER = 'lastUsedFilter'
