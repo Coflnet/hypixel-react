@@ -39,7 +39,7 @@ function Refed() {
                             <Link href="/flipper">advanced auction flipper</Link>.
                         </p>
                         <p>
-                            We also provide a mod to use the flipper ingame. You can download it in the <b>#mod-releases</b> channel on our{' '}
+                            We also provide a Minecraft mod to use the flipper in game. You can download it in the <b>#mod-releases</b> channel on our{' '}
                             <a href="https://discord.gg/wvKXfTgCfb">
                                 <span style={{ color: '#7289da' }}>Discord</span>
                             </a>
