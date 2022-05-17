@@ -6,12 +6,10 @@ import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRa
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { numberWithThousandsSeperators } from '../../../utils/Formatter'
 import ShareButton from '../../ShareButton/ShareButton'
-import ItemFilter from '../../ItemFilter/ItemFilter'
+import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import RecentAuctions from '../../RecentAuctions/RecentAuctions'
-import { getItemFilterFromUrl } from '../../../utils/Parser/URLParser'
 import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
-import { isClientSideRendering } from '../../../utils/SSRUtils'
 import styles from './AuctionHousePriceGraph.module.css'
 import ReactECharts from 'echarts-for-react'
 import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
@@ -32,7 +30,6 @@ function AuctionHousePriceGraph(props: Props) {
     let [avgPrice, setAvgPrice] = useState(0)
     let [filters, setFilters] = useState([] as FilterOptions[])
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
-    let [isItemFilterPrefill, setIsItemFilterPrefill] = useState<boolean>(true)
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true)
     let [chartOptions, setChartOptions] = useState(graphConfig)
 
@@ -50,21 +47,14 @@ function AuctionHousePriceGraph(props: Props) {
     }, [])
 
     useEffect(() => {
-        if (!isClientSideRendering()) {
-            return
-        }
-        loadFilters()
-    }, [props.item.tag])
-
-    useEffect(() => {
-        fetchspan = DEFAULT_DATE_RANGE
-        setFetchspan(DEFAULT_DATE_RANGE)
-        if (Object.keys(getItemFilterFromUrl()).length === 0) {
-            setIsItemFilterPrefill(false)
+        loadFilters().then(filters => {
+            fetchspan = DEFAULT_DATE_RANGE
+            setFetchspan(DEFAULT_DATE_RANGE)
             if (props.item) {
-                updateChart(fetchspan, undefined)
+                updateChart(fetchspan, getPrefillFilter(filters))
             }
-        }
+            setFilters(filters)
+        })
     }, [props.item.tag])
 
     let updateChart = (fetchspan: DateRange, itemFilter?: ItemFilter) => {
@@ -121,10 +111,6 @@ function AuctionHousePriceGraph(props: Props) {
                 setAvgPrice(Math.round(priceSum / prices.length))
                 setNoDataFound(prices.length === 0)
                 setIsLoading(false)
-                setTimeout(() => {
-                    setIsItemFilterPrefill(false)
-                }, 100)
-
                 setChartOptions(chartOptions)
             })
             .catch(() => {
@@ -150,9 +136,7 @@ function AuctionHousePriceGraph(props: Props) {
     }
 
     function loadFilters() {
-        api.filterFor(props.item).then(filters => {
-            setFilters(filters)
-        })
+        return api.filterFor(props.item)
     }
 
     function setSelectedLegendOptionsFromLocalStorage() {
@@ -181,7 +165,7 @@ function AuctionHousePriceGraph(props: Props) {
 
     return (
         <div>
-            <ItemFilter filters={filters} onFilterChange={onFilterChange} isPrefill={isItemFilterPrefill} />
+            <ItemFilter filters={filters} onFilterChange={onFilterChange} />
             <ItemPriceRange
                 setToDefaultRangeSwitch={defaultRangeSwitch}
                 onRangeChange={onRangeChange}

@@ -68,6 +68,10 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             url = request.customRequestURL
         }
 
+        if (url.endsWith('&') || url.endsWith('?')) {
+            url = url.substring(0, url.length - 2)
+        }
+
         // don't resend in progress requests
         let equals = findForEqualSentRequest(request)
         if (equals.length > 0) {
