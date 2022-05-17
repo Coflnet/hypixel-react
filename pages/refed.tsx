@@ -34,16 +34,16 @@ function Refed() {
                                 type="hover"
                                 tooltipContent={
                                     <p>
-                                        To connect your Minecraft account, search and click yourself in the search bar. Afterwards click "Your? Claim account."
+                                        To connect your Minecraft account, search and click yourself in the search bar. Afterwards click "You? Claim account."
                                         to get a full explanation.{' '}
                                     </p>
                                 }
                             />{' '}
-                            to get 1 hour of <Link href="/premium">premium</Link> for free to test our service including our{' '}
-                            <Link href="/flipper">auction flipper</Link>.
+                            to get 24 hours of our <Link href="/premium">premium plan</Link> for free. That includes our{' '}
+                            <Link href="/flipper">advanced auction flipper</Link>.
                         </p>
                         <p>
-                            We also provide a mod to use the flipper ingame. You can download it in the <b>#mod-releases</b> channel on our{' '}
+                            We also provide a Minecraft mod to use the flipper in game. You can download it in the <b>#mod-releases</b> channel on our{' '}
                             <a href="https://discord.gg/wvKXfTgCfb">
                                 <span style={{ color: '#7289da' }}>Discord</span>
                             </a>
