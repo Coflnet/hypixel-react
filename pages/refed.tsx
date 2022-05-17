@@ -35,8 +35,8 @@ function Refed() {
                                     </p>
                                 }
                             />{' '}
-                            to get 1 hour of <Link href="/premium">premium</Link> for free to test our service including our{' '}
-                            <Link href="/flipper">auction flipper</Link>.
+                            to get 24 hours of our <Link href="/premium">premium plan</Link> for free. That includes our{' '}
+                            <Link href="/flipper">advanced auction flipper</Link>.
                         </p>
                         <p>
                             We also provide a mod to use the flipper ingame. You can download it in the <b>#mod-releases</b> channel on our{' '}
