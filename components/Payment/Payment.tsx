@@ -34,6 +34,26 @@ function Payment(props: Props) {
         })
     }
 
+    function getDisabledPaymentTooltip() {
+        return !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
+    }
+
+    function getRoundedPrice(price: number) {
+        return Math.round(price * 100) / 100
+    }
+
+    let paypalHigherPricesTooltip = (
+        <Tooltip
+            content={
+                <span style={{ marginLeft: '5px' }}>
+                    <HelpIcon />
+                </span>
+            }
+            type="hover"
+            tooltipContent={<p>Higher price than with credit card due to higher fees</p>}
+        />
+    )
+
     function getPaymentElement(title: JSX.Element, stripePrice: number, stripeProductId: string, paypalPrice: number, payPalProductId: string) {
         return (
             <Card className={styles.premiumPlanCard}>
@@ -42,23 +62,10 @@ function Payment(props: Props) {
                 </Card.Header>
                 <Card.Body>
                     <p className={styles.paymentOption}>
-                        <div className={styles.paymentLabel}>
-                            Buy with Paypal{' '}
-                            <Tooltip
-                                content={
-                                    <span style={{ marginLeft: '5px' }}>
-                                        <HelpIcon />
-                                    </span>
-                                }
-                                type="hover"
-                                tooltipContent={<p>Higher price than with credit card due to higher fees</p>}
-                            />
-                        </div>
+                        <div className={styles.paymentLabel}>Buy with Paypal {paypalHigherPricesTooltip}</div>
                         <Tooltip
                             type="hover"
-                            tooltipContent={
-                                !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
-                            }
+                            tooltipContent={getDisabledPaymentTooltip()}
                             content={
                                 <div className={styles.paymentButtonWrapper}>
                                     <Button
@@ -78,7 +85,7 @@ function Payment(props: Props) {
                                                 </a>
                                             </p>
                                         ) : (
-                                            `${numberWithThousandsSeperators(Math.round(paypalPrice * 100) / 100)} Euro`
+                                            `${numberWithThousandsSeperators(getRoundedPrice(paypalPrice))} Euro`
                                         )}
                                     </Button>
                                 </div>
@@ -89,9 +96,7 @@ function Payment(props: Props) {
                         <div className={styles.paymentLabel}>Buy with Stripe</div>
                         <Tooltip
                             type="hover"
-                            tooltipContent={
-                                !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
-                            }
+                            tooltipContent={getDisabledPaymentTooltip()}
                             content={
                                 <div className={styles.paymentButtonWrapper}>
                                     <Button
@@ -112,7 +117,7 @@ function Payment(props: Props) {
                                                 </a>
                                             </p>
                                         ) : (
-                                            `${numberWithThousandsSeperators(Math.round(stripePrice * 100) / 100)} Euro`
+                                            `${numberWithThousandsSeperators(getRoundedPrice(stripePrice))} Euro`
                                         )}
                                     </Button>
                                 </div>
@@ -126,6 +131,8 @@ function Payment(props: Props) {
 
     function getNextTo1800PaymentElement() {
         let coflCoinsToBuy = 1800 + (1800 - (coflCoins % 1800))
+        let stripePrice = ((6.69 / 1800) * coflCoinsToBuy).toFixed(2)
+        let paypalPrice = ((6.99 / 1800) * coflCoinsToBuy).toFixed(2)
         let payPalProductId = 'p_cc_1800'
         let stripeProductId = 's_cc_1800'
 
@@ -142,23 +149,10 @@ function Payment(props: Props) {
                     <p>Due to the fees we have to pay to our payment providers we sadly can't provide purchases of less than 1.800 CoflCoins at once.</p>
                     <hr />
                     <p className={styles.paymentOption}>
-                        <div className={styles.paymentLabel}>
-                            Buy with Paypal{' '}
-                            <Tooltip
-                                content={
-                                    <span style={{ marginLeft: '5px' }}>
-                                        <HelpIcon />
-                                    </span>
-                                }
-                                type="hover"
-                                tooltipContent={<p>Higher price than with credit card due to higher fees</p>}
-                            />
-                        </div>
+                        <div className={styles.paymentLabel}>Buy with Paypal {paypalHigherPricesTooltip}</div>
                         <Tooltip
                             type="hover"
-                            tooltipContent={
-                                !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
-                            }
+                            tooltipContent={getDisabledPaymentTooltip()}
                             content={
                                 <div className={styles.paymentButtonWrapper}>
                                     <Button
@@ -171,7 +165,7 @@ function Payment(props: Props) {
                                     >
                                         {`${payPalProductId}_${coflCoinsToBuy}` === isLoadingId
                                             ? getLoadingElement(<p>Redirecting to checkout...</p>)
-                                            : `${((6.99 / 1800) * coflCoinsToBuy).toFixed(2)} Euro`}
+                                            : `${paypalPrice} Euro`}
                                     </Button>
                                 </div>
                             }
@@ -181,9 +175,7 @@ function Payment(props: Props) {
                         <div className={styles.paymentLabel}>Buy with Stripe</div>
                         <Tooltip
                             type="hover"
-                            tooltipContent={
-                                !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
-                            }
+                            tooltipContent={getDisabledPaymentTooltip()}
                             content={
                                 <div className={styles.paymentButtonWrapper}>
                                     <Button
@@ -196,7 +188,7 @@ function Payment(props: Props) {
                                     >
                                         {`${stripeProductId}_${coflCoinsToBuy}` === isLoadingId
                                             ? getLoadingElement(<p>Redirecting to checkout...</p>)
-                                            : `${((6.69 / 1800) * coflCoinsToBuy).toFixed(2)} Euro`}
+                                            : `${stripePrice} Euro`}
                                     </Button>
                                 </div>
                             }
