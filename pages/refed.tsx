@@ -30,7 +30,7 @@ function Refed() {
                                 type="hover"
                                 tooltipContent={
                                     <p>
-                                        To connect your Minecraft account, search and click yourself in the search bar. Afterwards click "Your? Claim account."
+                                        To connect your Minecraft account, search and click yourself in the search bar. Afterwards click "You? Claim account."
                                         to get a full explanation.{' '}
                                     </p>
                                 }
