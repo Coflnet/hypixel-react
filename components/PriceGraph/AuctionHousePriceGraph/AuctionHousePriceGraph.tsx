@@ -156,8 +156,8 @@ function AuctionHousePriceGraph(props: Props) {
     }
 
     function setSelectedLegendOptionsFromLocalStorage() {
-        let legendSelected = JSON.parse(localStorage.getItem(AUCTION_GRAPH_LEGEND_SELECTION) || '{}')
-        chartOptions.legend.selected = legendSelected || chartOptions.legend.selected
+        let legendSelected = localStorage.getItem(AUCTION_GRAPH_LEGEND_SELECTION)
+        chartOptions.legend.selected = legendSelected ? JSON.parse(legendSelected) : chartOptions.legend.selected
         setChartOptions(chartOptions)
     }
 

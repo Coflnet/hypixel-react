@@ -188,12 +188,18 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function setSelectedLegendOptionsFromLocalStorage() {
-        let legendSelected = JSON.parse(localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION) || '{}')
+        let legendSelected = localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION)
         if (graphType === GRAPH_TYPE.SPLIT) {
-            chartOptionsPrimary.legend.selected = legendSelected[getLegendLocalStorageKey(true)] || chartOptionsPrimary.legend.selected
-            chartOptionsSecondary.legend.selected = legendSelected[getLegendLocalStorageKey(false)] || chartOptionsSecondary.legend.selected
+            chartOptionsPrimary.legend.selected = legendSelected
+                ? JSON.parse(legendSelected)[getLegendLocalStorageKey(true)]
+                : chartOptionsPrimary.legend.selected
+            chartOptionsSecondary.legend.selected = legendSelected
+                ? JSON.parse(legendSelected)[getLegendLocalStorageKey(false)]
+                : chartOptionsSecondary.legend.selected
         } else {
-            chartOptionsPrimary.legend.selected = legendSelected[getLegendLocalStorageKey(true)] || chartOptionsPrimary.legend.selected
+            chartOptionsPrimary.legend.selected = legendSelected
+                ? JSON.parse(legendSelected)[getLegendLocalStorageKey(true)]
+                : chartOptionsPrimary.legend.selected
         }
         setChartOptionsPrimary(chartOptionsPrimary)
         setChartOptionsSecondary(chartOptionsSecondary)

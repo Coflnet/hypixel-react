@@ -105,7 +105,7 @@ export const getServerSideProps = async ({ res, params, query }) => {
         props: {
             item: apiResponses[0],
             mean: (apiResponses[1] as ItemPriceSummary).mean,
-            filter: query.itemFilter
+            filter: query.itemFilter || null
         }
     }
 }
