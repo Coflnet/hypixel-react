@@ -137,7 +137,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     'Content-Type': 'application/json'
                 },
                 resolve: (data: any) => {
-                    resolve(data.map(parseItemPrice))
+                    resolve(data ? data.map(parseItemPrice) : [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_PRICES, error, {
@@ -575,7 +575,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${query}`,
                 data: '',
                 resolve: (data: any) => {
-                    resolve(data.map(a => parseRecentAuction(a)))
+                    resolve(data ? data.map(a => parseRecentAuction(a)): [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, itemTag)

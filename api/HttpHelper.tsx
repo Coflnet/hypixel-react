@@ -69,7 +69,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         }
 
         if (url.endsWith('&') || url.endsWith('?')) {
-            url = url.substring(0, url.length - 2)
+            url = url.substring(0, url.length - 1)
         }
 
         // don't resend in progress requests
