@@ -203,38 +203,3 @@ export function formatAsCoins(number: number): string {
     }
     return `${numberWithThousandsSeperators(number)} Coins`
 }
-
-export function formatDungeonStarsInString(stringWithStars: string, style: CSSProperties): JSX.Element {
-    let yellowStarStyle = { color: 'yellow', fontWeight: 'normal', height: '100%' }
-    let redStarStyle = { color: 'red', fontWeight: 'normal', height: '100%' }
-    let itemNameStyle = {
-        height: '32px',
-        marginRight: '-5px'
-    }
-
-    let stars = stringWithStars?.match(/✪.*/gm)
-
-    if (stars.length === 0) {
-        return <span style={style}>{stringWithStars}</span>
-    }
-
-    let starsString = stars[0]
-    let itemName = stringWithStars.split(stars[0])[0]
-
-    let starsLastChar = starsString.charAt(starsString.length - 1)
-    let starWithNumber = starsLastChar === '✪' ? undefined : starsLastChar
-
-    return (
-        <span style={style}>
-            <span style={itemNameStyle}>{itemName}</span>
-            {starWithNumber ? (
-                <span>
-                    <span style={yellowStarStyle}>{starsString.substring(0, starsString.length - 1)}</span>
-                    <span style={redStarStyle}>{starWithNumber}</span>
-                </span>
-            ) : (
-                <span style={yellowStarStyle}>{starsString}</span>
-            )}
-        </span>
-    )
-}

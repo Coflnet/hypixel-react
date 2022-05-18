@@ -3,12 +3,7 @@ import React, { useEffect, useState } from 'react'
 import Countdown from 'react-countdown'
 import api from '../../api/ApiHelper'
 import { Badge, Button, Card, ListGroup, Modal, OverlayTrigger, Tooltip as TooltipBootstrap } from 'react-bootstrap'
-import {
-    getStyleForTier,
-    numberWithThousandsSeperators,
-    convertTagToName,
-    formatDungeonStarsInString as getDungeonStarFormattedItemName
-} from '../../utils/Formatter'
+import { getStyleForTier, numberWithThousandsSeperators, convertTagToName } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { useForceUpdate } from '../../utils/Hooks'
 import moment from 'moment'
@@ -230,10 +225,8 @@ function AuctionDetails(props: Props) {
                             <span className={styles.itemIcon}>
                                 <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
                             </span>
-                            <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
-                                <span style={{ marginRight: '10px' }}>
-                                    {getDungeonStarFormattedItemName(auctionDetails?.auction.item.name, getStyleForTier(auctionDetails.auction.item.tier))}
-                                </span>
+                            <span style={{ paddingLeft: '10px' }}>
+                                <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.name}</span>
                                 <Badge variant={countBadgeVariant} style={{ marginLeft: '5px' }}>
                                     x{auctionDetails?.count}
                                 </Badge>
