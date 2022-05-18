@@ -518,7 +518,7 @@ export function parseBazaarSnapshot(snapshot): BazaarSnapshot {
 
 export function parseFlipTrackingResponse(flipTrackingResponse): FlipTrackingResponse {
     return {
-        flips: flipTrackingResponse.flips.map(parseFlipTrackingFlip),
+        flips: flipTrackingResponse.flips ? flipTrackingResponse.flips.map(parseFlipTrackingFlip) : [],
         totalProfit: flipTrackingResponse.totalProfit
     }
 }

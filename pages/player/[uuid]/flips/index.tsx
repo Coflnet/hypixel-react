@@ -4,9 +4,8 @@ import { initAPI } from '../../../../api/ApiHelper'
 import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
 import { numberWithThousandsSeperators } from '../../../../utils/Formatter'
-import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
+import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../../../utils/SSRUtils'
-import moment from 'moment'
 
 interface Props {
     flipTrackingResponse: any
@@ -76,14 +75,7 @@ function Flipper(props: Props) {
                     currentElement={
                         <p>
                             <span style={{ fontSize: 'larger', marginRight: '20px' }}>Tracked flips of:</span>
-                            <img
-                                crossOrigin="anonymous"
-                                className="playerHeadIcon"
-                                src={player.iconUrl}
-                                height="32"
-                                alt=""
-                                style={{ marginRight: '10px' }}
-                            />
+                            <img crossOrigin="anonymous" className="playerHeadIcon" src={player.iconUrl} height="32" alt="" style={{ marginRight: '10px' }} />
                             <span>{player.name}</span>
                         </p>
                     }
@@ -96,9 +88,7 @@ function Flipper(props: Props) {
 
 export const getStaticProps = async ({ params }) => {
     let api = initAPI(true)
-    let apiResponses = await Promise.all(
-        [api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null))
-    )
+    let apiResponses = await Promise.all([api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null)))
 
     return {
         props: {
@@ -106,7 +96,7 @@ export const getStaticProps = async ({ params }) => {
                 uuid: params.uuid,
                 name: apiResponses[0]
             },
-            flipTrackingResponse: apiResponses[1]
+            flipTrackingResponse: apiResponses[1] || { flips: [], totalProfit: 0 }
         },
         revalidate: 60
     }
