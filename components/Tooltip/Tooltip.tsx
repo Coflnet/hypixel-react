@@ -20,9 +20,16 @@ interface Props {
 
 function Tooltip(props: Props) {
     let [showDialog, setShowDialog] = useState(false)
-    let hoverElement = (
-        <OverlayTrigger overlay={<BootstrapTooltip id={props.id || generateUUID()}>{props.tooltipContent}</BootstrapTooltip>}>{props.content}</OverlayTrigger>
-    )
+
+    function getHoverElement() {
+        return props.tooltipContent ? (
+            <OverlayTrigger overlay={<BootstrapTooltip id={props.id || generateUUID()}>{props.tooltipContent}</BootstrapTooltip>}>
+                {props.content}
+            </OverlayTrigger>
+        ) : (
+            props.content
+        )
+    }
 
     function onClick() {
         setShowDialog(true)
@@ -31,27 +38,31 @@ function Tooltip(props: Props) {
         }
     }
 
-    let clickElement = (
-        <span className="tooltipWrapper">
-            <span style={{ cursor: 'pointer' }} onClick={onClick}>
-                {props.content}
+    function getClickElement() {
+        return props.tooltipContent || props.tooltipTitle ? (
+            <span className="tooltipWrapper">
+                <span style={{ cursor: 'pointer' }} onClick={onClick}>
+                    {props.content}
+                </span>
+                <Modal
+                    size={props.size || 'lg'}
+                    show={showDialog}
+                    onHide={() => {
+                        setShowDialog(false)
+                    }}
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title>{props.tooltipTitle}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>{props.tooltipContent}</Modal.Body>
+                </Modal>
             </span>
-            <Modal
-                size={props.size || 'lg'}
-                show={showDialog}
-                onHide={() => {
-                    setShowDialog(false)
-                }}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>{props.tooltipTitle}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>{props.tooltipContent}</Modal.Body>
-            </Modal>
-        </span>
-    )
+        ) : (
+            props.content
+        )
+    }
 
-    return props.type === 'hover' ? hoverElement : clickElement
+    return props.type === 'hover' ? getHoverElement() : getClickElement()
 }
 
 export default Tooltip

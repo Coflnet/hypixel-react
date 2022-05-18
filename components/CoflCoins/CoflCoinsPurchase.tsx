@@ -3,7 +3,7 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import Payment from '../Payment/Payment'
 
 interface Props {
-    disabled: boolean
+    cancellationRightLossConfirmed: boolean
 }
 
 export default function CoflCoinsPurchase(props: Props) {
@@ -24,7 +24,7 @@ export default function CoflCoinsPurchase(props: Props) {
         <div className="cofl-coins-purchase">
             {!isLoggedIn ? <p>To buy and use CoflCoins you need to be logged in with Google</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
-            {isLoggedIn ? <Payment disabled={props.disabled} /> : ''}
+            {isLoggedIn ? <Payment cancellationRightLossConfirmed={props.cancellationRightLossConfirmed} /> : ''}
         </div>
     )
 }
