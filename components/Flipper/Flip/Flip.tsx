@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Badge, Card } from 'react-bootstrap'
-import { formatToPriceToShorten, getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter'
 import { Help as HelpIcon } from '@mui/icons-material'
 import { CopyButton } from '../../CopyButton/CopyButton'
 import { useForceUpdate } from '../../../utils/Hooks'
@@ -117,7 +117,7 @@ function Flip(props: Props) {
                         <img crossOrigin="anonymous" src={props.flip.item.iconUrl} height="24" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                         <span style={getStyleForTier(props.flip.item.tier)}>{itemName}</span>
                     </div>
-                    <span style={getStyleForTier(props.flip.item.tier)}>{stars ? stars[0] : ''}</span>
+                    {stars ? formatDungeonStarsInString(stars[0]) : null}
                     {props.flip.bin ? (
                         <Badge style={{ marginLeft: '5px' }} variant="success">
                             BIN
