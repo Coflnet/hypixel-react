@@ -131,6 +131,7 @@ export function FlipTracking(props: Props) {
             <b>
                 <p style={{ fontSize: 'x-large' }}>
                     Total Profit: <span style={{ color: 'gold' }}>{numberWithThousandsSeperators(totalProfit)} Coins</span>
+                    <span style={{float: "right", fontSize: "small"}}>Only auctions sold in the last 7 days are displayed here.</span>
                 </p>
             </b>
             {trackedFlips.length === 0 ? (
