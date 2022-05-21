@@ -203,3 +203,60 @@ export function formatAsCoins(number: number): string {
     }
     return `${numberWithThousandsSeperators(number)} Coins`
 }
+export function formatDungeonStarsInString(stringWithStars: string, style: CSSProperties = {}, dungeonItemLevelString?: string): JSX.Element {
+    let yellowStarStyle = { color: 'yellow', fontWeight: 'normal', height: '100%' }
+    let redStarStyle = { color: 'red', fontWeight: 'normal', height: '100%' }
+    let itemNameStyle = {
+        height: '32px',
+        marginRight: '-5px'
+    }
+    let stars = stringWithStars?.match(/✪.*/gm)
+
+    let numberOfMasterstars = undefined
+    if (dungeonItemLevelString) {
+        try {
+            let number = parseInt(dungeonItemLevelString)
+            if (number > 5) {
+                numberOfMasterstars = number - 5
+            }
+        } catch {}
+    }
+
+    if (!stars || stars.length === 0) {
+        return <span style={style}>{stringWithStars}</span>
+    }
+
+    let starsString = stars[0]
+    let itemName = stringWithStars.split(stars[0])[0]
+    let starsLastChar = starsString.charAt(starsString.length - 1)
+    let starWithNumber = starsLastChar === '✪' ? undefined : starsLastChar
+
+    let normalStarElement = <span style={yellowStarStyle}>{starsString}</span>
+    if (!starWithNumber && numberOfMasterstars) {
+        let redStarsString = ''
+        let yellowStarsString = ''
+        for (let index = 0; index < numberOfMasterstars; index++) {
+            redStarsString += '✪'
+        }
+        for (let index = 0; index < starsString.length - numberOfMasterstars; index++) {
+            yellowStarsString += '✪'
+        }
+        normalStarElement = (
+            <span>
+                <span style={redStarStyle}>{redStarsString}</span>
+                <span style={yellowStarStyle}>{yellowStarsString}</span>
+            </span>
+        )
+    }
+    if (starWithNumber) {
+        normalStarElement = <span style={yellowStarStyle}>{starsString.substring(0, starsString.length - 1)}</span>
+    }
+
+    return (
+        <span style={style}>
+            {itemName ? <span style={itemNameStyle}>{itemName}</span> : null}
+            {normalStarElement}
+            {starWithNumber ? <span style={redStarStyle}>{starWithNumber}</span> : null}
+        </span>
+    )
+}
