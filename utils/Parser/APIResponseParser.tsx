@@ -340,6 +340,9 @@ export function parseDate(dateString: string) {
     if (!dateString) {
         return new Date()
     }
+    if (typeof dateString === 'object' && typeof (dateString as any).getTime === 'function') {
+        dateString = (dateString as Date).toISOString()
+    }
     if (dateString.slice(-1) === 'Z') {
         return new Date(dateString)
     }
