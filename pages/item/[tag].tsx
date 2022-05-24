@@ -71,7 +71,7 @@ function ItemDetails(props: Props) {
 
     function getFiltersText() {
         if (!filter) {
-            return ''
+            return ' '
         }
         return `${Object.keys(filter)
             .map(key => `➡️ ${key}: ${filter[key]}`)
