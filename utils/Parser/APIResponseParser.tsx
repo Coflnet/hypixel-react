@@ -470,20 +470,20 @@ export function parseKatFlip(katFlip): KatFlip {
 export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
     let flipTrackingFlip = {
         item: {
-            tag: flip.itemTag,
-            name: flip.itemName || flip.itemTag,
-            tier: flip.tier
+            tag: flip?.itemTag,
+            name: flip?.itemName || flip?.itemTag || '---',
+            tier: flip?.tier
         },
-        originAuction: flip.originAuction,
-        pricePaid: flip.pricePaid,
-        soldAuction: flip.soldAuction,
-        soldFor: flip.soldFor,
-        uId: flip.uId,
-        finder: getFlipFinders([flip.finder])[0],
-        sellTime: parseDate(flip.sellTime),
-        profit: flip.profit
+        originAuction: flip?.originAuction,
+        pricePaid: flip?.pricePaid,
+        soldAuction: flip?.soldAuction,
+        soldFor: flip?.soldFor,
+        uId: flip?.uId,
+        finder: getFlipFinders([flip.finder || 0])[0],
+        sellTime: parseDate(flip?.sellTime),
+        profit: flip?.profit
     } as FlipTrackingFlip
-    flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip.item)
+    flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip?.item)
     return flipTrackingFlip
 }
 
@@ -518,8 +518,8 @@ export function parseBazaarSnapshot(snapshot): BazaarSnapshot {
 
 export function parseFlipTrackingResponse(flipTrackingResponse): FlipTrackingResponse {
     return {
-        flips: flipTrackingResponse.flips ? flipTrackingResponse.flips.map(parseFlipTrackingFlip) : [],
-        totalProfit: flipTrackingResponse.totalProfit
+        flips: flipTrackingResponse?.flips ? flipTrackingResponse.flips.map(parseFlipTrackingFlip) : [],
+        totalProfit: flipTrackingResponse?.totalProfit || 0
     }
 }
 
