@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Search from '../../components/Search/Search'
-import { parseItem } from '../../utils/Parser/APIResponseParser'
+import { parseItem, parseItemPrice } from '../../utils/Parser/APIResponseParser'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
 import api, { initAPI } from '../../api/ApiHelper'
 import { Container } from 'react-bootstrap'
@@ -13,15 +13,18 @@ import { parseItemFilter } from '../../utils/Parser/URLParser'
 
 interface Props {
     item?: any
-    mean?: number
+    prices?: any[]
     filter: any
+    range: string
 }
 
 function ItemDetails(props: Props) {
     const router = useRouter()
     let tag = router.query.tag as string
     let [item, setItem] = useState<Item>(props.item ? parseItem(props.item) : null)
-    let [filter, setFilter] = useState<ItemFilter>(props.filter ? parseItemFilter(props.filter) : null)
+    let [prices] = useState<ItemPrice[]>(props.prices ? props.prices.map(parseItemPrice) : [])
+    let [filter] = useState<ItemFilter>(props.filter ? parseItemFilter(props.filter) : null)
+    let [avgPrice] = useState(getAvgPrice())
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -56,9 +59,19 @@ function ItemDetails(props: Props) {
         )
     }
 
+    function getAvgPrice() {
+        let priceSum = 0
+
+        props.prices.forEach(item => {
+            priceSum += item.avg
+        })
+
+        return Math.round(priceSum / prices.length)
+    }
+
     function getFiltersText() {
         if (!filter) {
-            return ''
+            return ' '
         }
         return `${Object.keys(filter)
             .map(key => `➡️ ${key}: ${filter[key]}`)
@@ -69,7 +82,8 @@ function ItemDetails(props: Props) {
         <div className="page">
             {getHeadElement(
                 `${getItem().name || convertTagToName(tag)} price`,
-                `💰 Price: ${props.mean ? numberWithThousandsSeperators(Math.round(props.mean)) : '---'} Coins
+                `💰 Price: ${avgPrice ? numberWithThousandsSeperators(Math.round(avgPrice)) : '---'} Coins
+                🕑 ${props.range ? `Range: ${props.range}` : null}
                 
                  Filters:
                  ${getFiltersText()}`,
@@ -97,15 +111,16 @@ export const getServerSideProps = async ({ res, params, query }) => {
                 iconUrl: api.getItemImageUrl({ tag: params.tag })
             } as Item
         }),
-        api.getItemPriceSummary(params.tag, params.itemFilter ? JSON.parse(atobUnicode(params.itemFilter)) : {}).catch(() => {
+        api.getItemPrices(params.tag, query.range, query.itemFilter ? JSON.parse(atobUnicode(query.itemFilter)) : {}).catch(() => {
             return {}
         })
     ])
     return {
         props: {
             item: apiResponses[0],
-            mean: (apiResponses[1] as ItemPriceSummary).mean,
-            filter: query.itemFilter || null
+            prices: (apiResponses[1] as ItemPrice[]) || null,
+            range: query.range,
+            filter: query.itemFilter
         }
     }
 }

@@ -124,7 +124,6 @@ export function ItemPriceRange(props: Props) {
     return (
         <ToggleButtonGroup className={styles.itemPriceRange} type="radio" name="options" value={selectedDateRange} onChange={onRangeChangeClick}>
             {Object.keys(DateRange).map(key => {
-                let x = 2
                 let dateRange = DateRange[key]
                 if (props.dateRangesToDisplay.indexOf(dateRange) === -1) {
                     return null
@@ -134,7 +133,7 @@ export function ItemPriceRange(props: Props) {
                         className="price-range-button"
                         value={dateRange}
                         variant={getButtonVariant(dateRange)}
-                        disabled={props.disabled || props.disableAllTime}
+                        disabled={props.disabled || (props.disableAllTime && dateRange === DateRange.ALL)}
                         onChange={removeWrongFocus}
                         size="sm"
                     >
