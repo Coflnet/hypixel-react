@@ -137,6 +137,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     'Content-Type': 'application/json'
                 },
                 resolve: (data: any) => {
+                    if (returnSSRResponse) {
+                        resolve(data)
+                        return
+                    }
                     resolve(data ? data.map(parseItemPrice) : [])
                 },
                 reject: (error: any) => {
@@ -575,7 +579,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${query}`,
                 data: '',
                 resolve: (data: any) => {
-                    resolve(data ? data.map(a => parseRecentAuction(a)): [])
+                    resolve(data ? data.map(a => parseRecentAuction(a)) : [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, itemTag)
@@ -1568,7 +1572,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             })
         })
     }
-    
+
     let getPrivacySettings = (): Promise<PrivacySettings> => {
         return new Promise((resolve, reject) => {
             let googleId = localStorage.getItem('googleId')

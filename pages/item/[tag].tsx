@@ -119,8 +119,8 @@ export const getServerSideProps = async ({ res, params, query }) => {
         props: {
             item: apiResponses[0],
             prices: (apiResponses[1] as ItemPrice[]) || null,
-            range: query.range,
-            filter: query.itemFilter
+            range: query.range || null,
+            filter: query.itemFilter || null
         }
     }
 }
