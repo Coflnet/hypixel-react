@@ -9,8 +9,8 @@ export enum DateRange {
     ACTIVE = 'active',
     HOUR = 'hour',
     DAY = 'day',
-    MONTH = 'month',
     WEEK = 'week',
+    MONTH = 'month',
     ALL = 'full'
 }
 
