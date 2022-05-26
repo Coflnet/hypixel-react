@@ -7,6 +7,8 @@ import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
+import { Form } from 'react-bootstrap'
+import styles from './GoogleSignIn.module.css'
 
 interface Props {
     onAfterLogin(): void
@@ -56,7 +58,7 @@ function GoogleSignIn(props: Props) {
         setIsLoggedIn(true)
         api.setGoogle(response.tokenId)
             .then(() => {
-                (window as any).googleAuthObj = response
+                ;(window as any).googleAuthObj = response
                 let refId = (window as any).refId
                 if (refId) {
                     api.setRef(refId)
@@ -118,6 +120,9 @@ function GoogleSignIn(props: Props) {
                 theme="dark"
                 cookiePolicy={'single_host_origin'}
             />
+            <p>
+                I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
+            </p>
         </div>
     )
 }

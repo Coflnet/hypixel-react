@@ -6,7 +6,7 @@ import { v4 as generateUUID } from 'uuid'
 import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
 import { BallotOutlined as FilterIcon } from '@mui/icons-material'
 import NumberFormat, { NumberFormatValues } from 'react-number-format'
-import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
+import { FLIPPER_FILTER_KEY, getSettingsObject, mapRestrictionsToApiFormat, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import styles from './FlipperFilter.module.css'
 import api from '../../../api/ApiHelper'
 import { getDecimalSeperator, getThousandSeperator } from '../../../utils/Formatter'
@@ -140,14 +140,7 @@ function FlipperFilter(props: Props) {
 
     function onRestrictionsChange(restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') {
         setRestrictions(restrictions)
-        api.setFlipSetting(
-            type,
-            restrictions
-                .filter(restriction => restriction.type === type)
-                .map(restriction => {
-                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
-                })
-        )
+        api.setFlipSetting(type, mapRestrictionsToApiFormat(restrictions.filter(restriction => restriction.type === type)))
     }
 
     function onFreePremiumComplete() {

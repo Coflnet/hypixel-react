@@ -2,6 +2,8 @@ import {
     parseAccountInfo,
     parseAuction,
     parseAuctionDetails,
+    parseBazaarPrice,
+    parseBazaarSnapshot,
     parseCraftingRecipe,
     parseEnchantment,
     parseFilterOption,
@@ -17,6 +19,7 @@ import {
     parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
+    parsePrivacySettings,
     parseProfitableCraft,
     parseRecentAuction,
     parseRefInfo,
@@ -25,7 +28,7 @@ import {
     parseSkyblockProfile,
     parseSubscription
 } from '../utils/Parser/APIResponseParser'
-import { RequestType, SubscriptionType, Subscription, CUSTOM_EVENTS, HttpApi } from './ApiTypes.d'
+import { RequestType, SubscriptionType, Subscription, HttpApi } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
 import { v4 as generateUUID } from 'uuid'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
@@ -35,8 +38,9 @@ import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
-import { FLIPPER_FILTER_KEY, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
+import { FLIPPER_FILTER_KEY, getSettingsObject, mapSettingsToApiFormat, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
+import { atobUnicode } from '../utils/Base64Utils'
 
 function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
@@ -133,13 +137,84 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     'Content-Type': 'application/json'
                 },
                 resolve: (data: any) => {
-                    resolve(data.map(parseItemPrice))
+                    if (returnSSRResponse) {
+                        resolve(data)
+                        return
+                    }
+                    resolve(data ? data.map(parseItemPrice) : [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_PRICES, error, {
                         itemTag,
                         fetchSpan,
                         itemFilter
+                    })
+                    reject()
+                }
+            })
+        })
+    }
+
+    let getBazaarPrices = (itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.BAZAAR_PRICES,
+                data: '',
+                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/${fetchSpan}`,
+                requestMethod: 'GET',
+                resolve: (data: any) => {
+                    resolve(data.map(parseBazaarPrice))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.BAZAAR_PRICES, error, {
+                        itemTag,
+                        fetchSpan
+                    })
+                    reject()
+                }
+            })
+        })
+    }
+
+    let getBazaarPricesByRange = (itemTag: string, startDate: Date | string | number, endDate: Date | string | number): Promise<BazaarPrice[]> => {
+        return new Promise((resolve, reject) => {
+            let startDateIso = new Date(startDate).toISOString()
+            let endDateIso = new Date(endDate).toISOString()
+
+            httpApi.sendApiRequest({
+                type: RequestType.BAZAAR_PRICES,
+                data: '',
+                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/?start=${startDateIso}&end=${endDateIso}`,
+                requestMethod: 'GET',
+                resolve: (data: any) => {
+                    data = data.filter(d => d.sell !== undefined && d.buy !== undefined)
+
+                    let sumBuy = 0
+                    let sumSell = 0
+                    data.forEach(d => {
+                        sumBuy += d.buy
+                        sumSell += d.sell
+                    })
+                    let avgBuy = sumBuy / data.length
+                    let avgSell = sumSell / data.length
+
+                    let bazaarData: BazaarPrice[] = data.map(parseBazaarPrice)
+                    let normalizer = 8
+                    resolve(
+                        bazaarData.filter(
+                            b =>
+                                b.buyData.max < avgBuy * normalizer &&
+                                b.sellData.max < avgSell * normalizer &&
+                                b.buyData.min > avgBuy / normalizer &&
+                                b.sellData.min > avgSell / normalizer
+                        )
+                    )
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.BAZAAR_PRICES, error, {
+                        itemTag,
+                        startDateIso,
+                        endDateIso
                     })
                     reject()
                 }
@@ -504,7 +579,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${query}`,
                 data: '',
                 resolve: (data: any) => {
-                    resolve(data.map(a => parseRecentAuction(a)))
+                    resolve(data ? data.map(a => parseRecentAuction(a)) : [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, itemTag)
@@ -557,49 +632,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
 
-        let requestData = {
-            whitelist: restrictionList
-                .filter(restriction => restriction.type === 'whitelist')
-                .map(restriction => {
-                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
-                }),
-            blacklist: restrictionList
-                .filter(restriction => restriction.type === 'blacklist')
-                .map(restriction => {
-                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
-                }),
-            minProfit: filter.minProfit || 0,
-            minProfitPercent: filter.minProfitPercent || 0,
-            minVolume: filter.minVolume || 0,
-            maxCost: filter.maxCost || 0,
-            onlyBin: filter.onlyBin,
-            lbin: flipSettings.useLowestBinForProfit,
-            mod: {
-                justProfit: flipSettings.justProfit,
-                soundOnFlip: flipSettings.soundOnFlip,
-                shortNumbers: flipSettings.shortNumbers,
-                blockTenSecMsg: flipSettings.blockTenSecMsg,
-                format: flipSettings.modFormat,
-                chat: !flipSettings.hideModChat
-            },
-            visibility: {
-                cost: !flipSettings.hideCost,
-                estProfit: !flipSettings.hideEstimatedProfit,
-                lbin: !flipSettings.hideLowestBin,
-                slbin: !flipSettings.hideSecondLowestBin,
-                medPrice: !flipSettings.hideMedianPrice,
-                seller: !flipSettings.hideSeller,
-                volume: !flipSettings.hideVolume,
-                extraFields: flipSettings.maxExtraInfoFields || 0,
-                profitPercent: !flipSettings.hideProfitPercent,
-                sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
-                lore: !flipSettings.hideLore,
-                copySuccessMessage: !flipSettings.hideCopySuccessMessage,
-                links: !flipSettings.disableLinks
-            },
-            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
-            changer: window.sessionStorage.getItem('sessionId')
-        }
+        let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS,
@@ -672,49 +705,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
 
-        let requestData = {
-            whitelist: restrictionList
-                .filter(restriction => restriction.type === 'whitelist')
-                .map(restriction => {
-                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
-                }),
-            blacklist: restrictionList
-                .filter(restriction => restriction.type === 'blacklist')
-                .map(restriction => {
-                    return { tag: restriction.item?.tag, filter: restriction.itemFilter }
-                }),
-            minProfit: filter.minProfit || 0,
-            minProfitPercent: filter.minProfitPercent || 0,
-            minVolume: filter.minVolume || 0,
-            maxCost: filter.maxCost || 0,
-            onlyBin: filter.onlyBin,
-            lbin: flipSettings.useLowestBinForProfit,
-            mod: {
-                justProfit: flipSettings.justProfit,
-                soundOnFlip: flipSettings.soundOnFlip,
-                shortNumbers: flipSettings.shortNumbers,
-                blockTenSecMsg: flipSettings.blockTenSecMsg,
-                format: flipSettings.modFormat,
-                chat: !flipSettings.hideModChat
-            },
-            visibility: {
-                cost: !flipSettings.hideCost,
-                estProfit: !flipSettings.hideEstimatedProfit,
-                lbin: !flipSettings.hideLowestBin,
-                slbin: !flipSettings.hideSecondLowestBin,
-                medPrice: !flipSettings.hideMedianPrice,
-                seller: !flipSettings.hideSeller,
-                volume: !flipSettings.hideVolume,
-                extraFields: flipSettings.maxExtraInfoFields || 0,
-                profitPercent: !flipSettings.hideProfitPercent,
-                sellerOpenBtn: !flipSettings.hideSellerOpenBtn,
-                lore: !flipSettings.hideLore,
-                copySuccessMessage: !flipSettings.hideCopySuccessMessage,
-                links: !flipSettings.disableLinks
-            },
-            finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
-            changer: window.sessionStorage.getItem('sessionId')
-        }
+        let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
 
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_FLIPS_ANONYM,
@@ -1243,7 +1234,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 type: RequestType.PLAYER_SEARCH,
                 data: playerName,
                 resolve: function (players) {
-                    resolve(players.map(parsePlayer))
+                    resolve(players ? players.map(parsePlayer) : [])
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName)
@@ -1283,7 +1274,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             if (googleId) {
                 let parts = googleId.split('.')
                 if (parts.length > 2) {
-                    let obj = JSON.parse(atob(parts[1]))
+                    let obj = JSON.parse(atobUnicode(parts[1]))
                     user = obj.sub
                 }
             }
@@ -1540,6 +1531,107 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getBazaarSnapshot = (itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot> => {
+        return new Promise((resolve, reject) => {
+            let isoTimestamp = new Date(timestamp).toISOString()
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_BAZAAR_SNAPSHOT,
+                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/snapshot${isoTimestamp ? `?timestamp=${isoTimestamp}` : ''}`,
+                data: '',
+                resolve: function (data) {
+                    if (!data) {
+                        resolve({
+                            item: {
+                                tag: ''
+                            },
+                            buyData: {
+                                moving: 0,
+                                orderCount: 0,
+                                price: 0,
+                                volume: 0
+                            },
+                            sellData: {
+                                moving: 0,
+                                orderCount: 0,
+                                price: 0,
+                                volume: 0
+                            },
+                            sellOrders: [],
+                            buyOrders: [],
+                            timeStamp: new Date()
+                        })
+                        return
+                    }
+                    resolve(parseBazaarSnapshot(data))
+                },
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_BAZAAR_SNAPSHOT, error, { itemTag, timestamp: isoTimestamp })
+                    reject()
+                }
+            })
+        })
+    }
+
+    let getPrivacySettings = (): Promise<PrivacySettings> => {
+        return new Promise((resolve, reject) => {
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to configure privacy settings.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_PRIVACY_SETTINGS,
+                data: '',
+                customRequestURL: `${getApiEndpoint()}/user/privacy`,
+                requestHeader: {
+                    GoogleToken: googleId
+                },
+                resolve: (data: any) => {
+                    resolve(parsePrivacySettings(data))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_PRIVACY_SETTINGS, error, '')
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let setPrivacySettings = (settings: PrivacySettings): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to save privacy settings.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.SET_PRIVACY_SETTINGS,
+                    data: '',
+                    requestMethod: 'POST',
+                    customRequestURL: `${getApiEndpoint()}/user/privacy`,
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.SET_PRIVACY_SETTINGS, error, settings)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(settings)
+            )
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1601,7 +1693,12 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getKatFlips,
         getTrackedFlipsForPlayer,
         transferCoflCoins,
-        subscribeFlipsAnonym
+        getBazaarSnapshot,
+        getBazaarPrices,
+        getBazaarPricesByRange,
+        subscribeFlipsAnonym,
+        getPrivacySettings,
+        setPrivacySettings
     }
 }
 

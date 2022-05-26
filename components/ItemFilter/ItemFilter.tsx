@@ -11,11 +11,12 @@ import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { btoaUnicode } from '../../utils/Base64Utils'
+import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
     filters?: FilterOptions[]
-    isPrefill?: boolean
     forceOpen?: boolean
     ignoreURL?: boolean
     autoSelect?: boolean
@@ -39,33 +40,13 @@ function ItemFilter(props: Props) {
 
     useEffect(() => {
         initFilter()
-    }, [])
-
-    useEffect(() => {
-        if (props.isPrefill) {
-            return
-        }
-
-        let newSelectedFilters: string[] = []
-        let newItemFilter = {}
-        props.filters?.forEach(filter => {
-            let index = selectedFilters.findIndex(f => f === filter.name)
-            if (index !== -1) {
-                newItemFilter[filter.name] = itemFilter[filter.name]
-                newSelectedFilters.push(filter.name)
-            }
-        })
-
-        setSelectedFilters(newSelectedFilters)
-        setItemFilter(newItemFilter)
-        onFilterChange(newItemFilter)
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
         if (props.ignoreURL && !props.defaultFilter) {
             return
         }
-        itemFilter = props.defaultFilter ? props.defaultFilter : getItemFilterFromUrl()
+        itemFilter = props.defaultFilter ? props.defaultFilter : getPrefillFilter(props.filters, props.ignoreURL)
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
@@ -73,6 +54,7 @@ function ItemFilter(props: Props) {
                 getGroupedFilter(name).forEach(filter => enableFilter(filter))
             })
             setItemFilter(itemFilter)
+            onFilterChange(itemFilter)
         }
     }
 
@@ -132,7 +114,6 @@ function ItemFilter(props: Props) {
         setSelectedFilters([])
         setExpanded(false)
         setItemFilter({})
-        onFilterChange({})
     }
 
     function onFilterRemoveClick(filterName: string) {
@@ -171,10 +152,10 @@ function ItemFilter(props: Props) {
             return
         }
 
-        let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoa(JSON.stringify(filter))
+        let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoaUnicode(JSON.stringify(filter))
 
         router.query.itemFilter = filterString || ''
-        router.replace(router, undefined, { shallow: true })
+        router.replace(router.asPath, undefined, { shallow: true })
     }
 
     function onFilterChange(filter: ItemFilter) {
@@ -191,6 +172,7 @@ function ItemFilter(props: Props) {
         }
 
         setItemFilter(filter!)
+        localStorage.setItem(LAST_USED_FILTER, JSON.stringify(filter))
         if (props.onFilterChange) {
             props.onFilterChange(filter)
         }
@@ -323,8 +305,16 @@ function ItemFilter(props: Props) {
                                 {props?.filters && props.filters?.length > 0 ? (
                                     <Typeahead
                                         id="add-filter-typeahead"
-                                        autoFocus={props.autoSelect === undefined ? Object.keys(getItemFilterFromUrl()).length === 0 : props.autoSelect}
-                                        defaultOpen={props.autoSelect === undefined ? Object.keys(getItemFilterFromUrl()).length === 0 : props.autoSelect}
+                                        autoFocus={
+                                            props.autoSelect === undefined
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0
+                                                : props.autoSelect
+                                        }
+                                        defaultOpen={
+                                            props.autoSelect === undefined
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0
+                                                : props.autoSelect
+                                        }
                                         ref={typeaheadRef}
                                         placeholder="Add filter"
                                         className={styles.addFilterSelect}
@@ -354,3 +344,29 @@ function ItemFilter(props: Props) {
     )
 }
 export default ItemFilter
+
+export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: boolean = false) {
+    let itemFilter = !ignoreURL ? getItemFilterFromUrl() : {}
+    if (Object.keys(itemFilter).length === 0) {
+        itemFilter = getFilterFromLocalStorage(filterOptions) || {}
+    }
+    return itemFilter
+}
+
+/**
+ * Gets the last used filter from the local storage and removes all properties not available in the allowed filters
+ * @returns the filter or null if no last used filter is found
+ */
+function getFilterFromLocalStorage(filterOptions: FilterOptions[]): ItemFilter {
+    let localStorageLastFilter = localStorage.getItem(LAST_USED_FILTER)
+    if (localStorageLastFilter === null) {
+        return null
+    }
+    let filter: ItemFilter = JSON.parse(localStorageLastFilter)
+    Object.keys(filter).forEach(key => {
+        if (filterOptions.findIndex(f => f.name === key) === -1) {
+            delete filter[key]
+        }
+    })
+    return filter
+}

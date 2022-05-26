@@ -53,6 +53,10 @@
     float: right;
 }
 
+.cancellationRightCheckbox {
+    position: relative !important;
+}
+
 @media all and (max-width: 480px) {
     .sendCoflCoinsButton {
         float: none;

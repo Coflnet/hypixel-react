@@ -12,6 +12,7 @@ import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../../utils/SSRUtils'
 import styles from './index.module.css'
 import Link from 'next/link'
+import Hyauctions from '../../../components/Hyauctions/Hyauctions'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -98,6 +99,26 @@ function PlayerDetails(props: Props) {
     ) : (
         <span style={{ marginLeft: '25px', color: '#007bff' }}>(Your Account)</span>
     )
+
+    // special case for people searching hyauctions
+    // window.document.referrer.includes('google')
+    if (uuid === 'be7002531956406d81c535a81fe2833a') {
+        return (
+            <div className="page">
+                {getHeadElement(
+                    `${selectedPlayer?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`,
+                    `Auctions and bids for ${selectedPlayer?.name} in Hypixel Skyblock.`,
+                    selectedPlayer?.iconUrl?.split('?')[0],
+                    [selectedPlayer?.name || ''],
+                    `${selectedPlayer?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`
+                )}
+                <Container>
+                    <Search />
+                    <Hyauctions />
+                </Container>
+            </div>
+        )
+    }
 
     return (
         <div className="page">

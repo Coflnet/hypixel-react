@@ -16,6 +16,8 @@ import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useCoflCoins } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
+import { atobUnicode } from '../../utils/Base64Utils'
+import PrivacySettings from './PrivacySettings/PrivacySettings'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -40,7 +42,7 @@ function AccountDetails() {
         if (googleId) {
             try {
                 let parts = googleId.split('.')
-                let obj = JSON.parse(atob(parts[1]))
+                let obj = JSON.parse(atobUnicode(parts[1]))
                 let imageElement = obj.picture ? <img src={obj.picture} height={24} width={24} alt="" /> : <span />
                 return (
                     <span>
@@ -237,11 +239,34 @@ function AccountDetails() {
                     />
                 </div>
             </p>
+            {isLoggedIn ? (
+                <p>
+                    <div style={{ display: 'inline-block' }}>
+                        <span className={styles.label}>Mod data settings: </span>
+                        <Tooltip
+                            type="click"
+                            content={<span className={styles.link}>Open settings</span>}
+                            tooltipContent={<PrivacySettings />}
+                            tooltipTitle={<span>Mod data settings</span>}
+                        />
+                    </div>
+                </p>
+            ) : null}
             <p>
                 <span className={styles.label}>Delete Caches/Cookies and hard refresh:</span>
-                <Button variant="danger" onClick={deleteCaches}>
-                    Warning: Deleting your Caches/Cookies will delete all your settings and log you out.
-                </Button>
+                <Tooltip
+                    type="click"
+                    content={<span className={styles.link}>Delete</span>}
+                    tooltipContent={
+                        <div>
+                            <p>Warning: Deleting your Caches/Cookies will delete all your settings and log you out.</p>
+                            <Button variant="danger" onClick={deleteCaches}>
+                                Confirm deletion
+                            </Button>
+                        </div>
+                    }
+                    tooltipTitle={<span>Are you sure?</span>}
+                />
             </p>
         </>
     )

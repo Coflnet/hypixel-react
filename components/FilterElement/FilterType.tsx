@@ -11,13 +11,12 @@ export enum FilterType {
     PLAYER_WITH_RANK = 512
 }
 
-
 /**
  * Checks an FilterType if a flag is present
  * @param full the enum that should contain the flag
  * @param flag the flag to test against
  * @returns true if the enum contains the flag
  */
-export function hasFlag(full?: FilterType, flag?: FilterType) {
-    return full && flag && (full & flag) === flag;
+export function hasFlag(full?: any, flag?: any) {
+    return full && flag && (full & flag) === flag
 }

@@ -1,23 +1,30 @@
 import React, { useEffect, useState } from 'react'
-import Head from 'next/head'
 import Search from '../../components/Search/Search'
-import PriceGraph from '../../components/PriceGraph/PriceGraph'
-import { parseItem } from '../../utils/Parser/APIResponseParser'
+import { parseItem, parseItemPrice } from '../../utils/Parser/APIResponseParser'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
 import api, { initAPI } from '../../api/ApiHelper'
 import { Container } from 'react-bootstrap'
 import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
+import AuctionHousePriceGraph from '../../components/PriceGraph/AuctionHousePriceGraph/AuctionHousePriceGraph'
+import BazaarPriceGraph from '../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'
+import { atobUnicode } from '../../utils/Base64Utils'
+import { parseItemFilter } from '../../utils/Parser/URLParser'
 
 interface Props {
     item?: any
-    mean?: number
+    prices?: any[]
+    filter: any
+    range: string
 }
 
 function ItemDetails(props: Props) {
     const router = useRouter()
     let tag = router.query.tag as string
     let [item, setItem] = useState<Item>(props.item ? parseItem(props.item) : null)
+    let [prices] = useState<ItemPrice[]>(props.prices ? props.prices.map(parseItemPrice) : [])
+    let [filter] = useState<ItemFilter>(props.filter ? parseItemFilter(props.filter) : null)
+    let [avgPrice] = useState(getAvgPrice())
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -52,36 +59,50 @@ function ItemDetails(props: Props) {
         )
     }
 
+    function getAvgPrice() {
+
+        let priceSum = 0
+
+        props.prices.forEach(item => {
+            priceSum += item.avg
+        })
+
+        return Math.round(priceSum / prices.length)
+    }
+
     function getFiltersText() {
-        if (!router.query.itemFilter) {
-            return ''
+        if (!filter) {
+            return ' '
         }
-        let filter = JSON.parse(atob(router.query.itemFilter.toString()))
-        return ` FILTERS ➡️ ${Object.keys(filter)
-            .map(key => `${key}: ${filter[key]}`)
-            .toString()}`
+        return `${Object.keys(filter)
+            .map(key => `➡️ ${key}: ${filter[key]}`)
+            .join('\n')}`
     }
 
     return (
         <div className="page">
             {getHeadElement(
-                `${getItem().name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`,
-                `Price for ${getItem().name || convertTagToName(tag)} in Hypixel Skyblock is ${numberWithThousandsSeperators(
-                    Math.floor(props.mean || 0)
-                )} Coins on average.${getFiltersText()} | Hypixel SkyBlock AH history tracker`,
+                `${getItem().name || convertTagToName(tag)} price`,
+                `💰 Price: ${avgPrice ? numberWithThousandsSeperators(Math.round(avgPrice)) : '---'} Coins
+                🕑 ${props.range ? `Range: ${props.range}` : null}
+                
+                 Filters:
+                 ${getFiltersText()}`,
                 getItem().iconUrl,
                 [convertTagToName(getItem().tag)],
                 `${getItem().name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`
             )}
             <Container>
                 <Search selected={getItem()} type="item" />
-                <PriceGraph item={getItem()} />
+                {item.bazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
             </Container>
         </div>
     )
 }
 
-export const getStaticProps = async ({ params }) => {
+export const getServerSideProps = async ({ res, params, query }) => {
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=60, stale-while-revalidate=59')
+
     let api = initAPI(true)
     let apiResponses = await Promise.all([
         api.getItemDetails(params.tag).catch(() => {
@@ -91,21 +112,18 @@ export const getStaticProps = async ({ params }) => {
                 iconUrl: api.getItemImageUrl({ tag: params.tag })
             } as Item
         }),
-        api.getItemPriceSummary(params.tag, params.itemFilter ? JSON.parse(atob(params.itemFilter)) : {}).catch(() => {
+        api.getItemPrices(params.tag, query.range, query.itemFilter ? JSON.parse(atobUnicode(query.itemFilter)) : {}).catch(() => {
             return {}
         })
     ])
     return {
         props: {
             item: apiResponses[0],
-            mean: (apiResponses[1] as ItemPriceSummary).mean
-        },
-        revalidate: 60
+            prices: (apiResponses[1] as ItemPrice[]) || [],
+            range: query.range || null,
+            filter: query.itemFilter || null
+        }
     }
-}
-
-export async function getStaticPaths() {
-    return { paths: [], fallback: 'blocking' }
 }
 
 export default ItemDetails

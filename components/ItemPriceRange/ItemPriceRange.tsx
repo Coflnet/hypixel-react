@@ -7,9 +7,10 @@ import styles from './ItemPriceRange.module.css'
 
 export enum DateRange {
     ACTIVE = 'active',
+    HOUR = 'hour',
     DAY = 'day',
-    MONTH = 'month',
     WEEK = 'week',
+    MONTH = 'month',
     ALL = 'full'
 }
 
@@ -19,6 +20,7 @@ interface Props {
     disabled?: boolean
     disableAllTime?: boolean
     setToDefaultRangeSwitch?: boolean
+    dateRangesToDisplay: DateRange[]
 }
 
 export let DEFAULT_DATE_RANGE = DateRange.DAY
@@ -65,6 +67,23 @@ export function ItemPriceRange(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.setToDefaultRangeSwitch])
 
+    let getButtonText = (range: DateRange): string => {
+        switch (range) {
+            case DateRange.ACTIVE:
+                return 'Active'
+            case DateRange.HOUR:
+                return '1 Hour'
+            case DateRange.DAY:
+                return '1 Day'
+            case DateRange.WEEK:
+                return '1 Week'
+            case DateRange.MONTH:
+                return '1 Month'
+            case DateRange.ALL:
+                return 'All Time'
+        }
+    }
+
     let getButtonVariant = (range: DateRange): string => {
         return range === selectedDateRange ? 'primary' : 'secondary'
     }
@@ -104,56 +123,24 @@ export function ItemPriceRange(props: Props) {
 
     return (
         <ToggleButtonGroup className={styles.itemPriceRange} type="radio" name="options" value={selectedDateRange} onChange={onRangeChangeClick}>
-            <ToggleButton
-                className="price-range-button"
-                value={DateRange.ACTIVE}
-                variant={getButtonVariant(DateRange.ACTIVE)}
-                disabled={props.disabled || props.item.bazaar}
-                onChange={removeWrongFocus}
-                size="sm"
-            >
-                Active
-            </ToggleButton>
-            <ToggleButton
-                className="price-range-button"
-                value={DateRange.DAY}
-                variant={getButtonVariant(DateRange.DAY)}
-                disabled={props.disabled}
-                onChange={removeWrongFocus}
-                size="sm"
-            >
-                1 Day
-            </ToggleButton>
-            <ToggleButton
-                className="price-range-button"
-                value={DateRange.WEEK}
-                variant={getButtonVariant(DateRange.WEEK)}
-                disabled={props.disabled}
-                onChange={removeWrongFocus}
-                size="sm"
-            >
-                1 Week
-            </ToggleButton>
-            <ToggleButton
-                className="price-range-button"
-                value={DateRange.MONTH}
-                variant={getButtonVariant(DateRange.MONTH)}
-                disabled={props.disabled}
-                onChange={removeWrongFocus}
-                size="sm"
-            >
-                1 Month
-            </ToggleButton>
-            <ToggleButton
-                className="price-range-button"
-                value={DateRange.ALL}
-                variant={getButtonVariant(DateRange.ALL)}
-                disabled={props.disabled || props.disableAllTime}
-                onChange={removeWrongFocus}
-                size="sm"
-            >
-                All Time
-            </ToggleButton>
+            {Object.keys(DateRange).map(key => {
+                let dateRange = DateRange[key]
+                if (props.dateRangesToDisplay.indexOf(dateRange) === -1) {
+                    return null
+                }
+                return (
+                    <ToggleButton
+                        className="price-range-button"
+                        value={dateRange}
+                        variant={getButtonVariant(dateRange)}
+                        disabled={props.disabled || (props.disableAllTime && dateRange === DateRange.ALL)}
+                        onChange={removeWrongFocus}
+                        size="sm"
+                    >
+                        {getButtonText(dateRange)}
+                    </ToggleButton>
+                )
+            })}
         </ToggleButtonGroup>
     )
 }

@@ -38,11 +38,11 @@ export const getStaticProps = async () => {
     let results = await Promise.all([api.getNewAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => null)))
     return {
         props: {
-            newAuctions: results[0],
+            newAuctions: results[0] || [],
             endedAuctions: [],
-            newPlayers: results[1],
-            popularSearches: results[2],
-            newItems: results[3]
+            newPlayers: results[1] || [],
+            popularSearches: results[2] || [],
+            newItems: results[3] || []
         },
         revalidate: 60
     }
