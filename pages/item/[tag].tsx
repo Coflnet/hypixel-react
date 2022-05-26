@@ -60,6 +60,7 @@ function ItemDetails(props: Props) {
     }
 
     function getAvgPrice() {
+
         let priceSum = 0
 
         props.prices.forEach(item => {
@@ -118,7 +119,7 @@ export const getServerSideProps = async ({ res, params, query }) => {
     return {
         props: {
             item: apiResponses[0],
-            prices: (apiResponses[1] as ItemPrice[]) || null,
+            prices: (apiResponses[1] as ItemPrice[]) || [],
             range: query.range || null,
             filter: query.itemFilter || null
         }
