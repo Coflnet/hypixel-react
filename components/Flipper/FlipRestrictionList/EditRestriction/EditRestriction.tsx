@@ -14,10 +14,6 @@ interface Props {
 }
 
 function EditRestriction(props: Props) {
-    let getButtonVariant = (range: string): string => {
-        return range === props.newRestriction.type ? 'primary' : 'secondary'
-    }
-
     return (
         <div>
             <ItemFilter
@@ -35,7 +31,7 @@ function EditRestriction(props: Props) {
                         <Button
                             variant="success"
                             onClick={() => {
-                                props.addEditedFilter(false)
+                                props.addEditedFilter()
                             }}
                         >
                             Add
@@ -43,26 +39,7 @@ function EditRestriction(props: Props) {
                     }
                     tooltipContent={
                         <span>
-                            Adds the filter to the selected restriction(s). If a specific filter is already present, it is <b>not</b> overwritten.
-                        </span>
-                    }
-                />
-                <Tooltip
-                    type="hover"
-                    content={
-                        <Button
-                            variant="success"
-                            onClick={() => {
-                                props.addEditedFilter(true)
-                            }}
-                            style={{ marginLeft: '20px' }}
-                        >
-                            Add (override existing)
-                        </Button>
-                    }
-                    tooltipContent={
-                        <span>
-                            Adds the filter to the selected restriction(s). If a specific filter is already present, it <b>is overwritten</b>.
+                            Adds all selected filter to the selected restriction(s). If a specific filter is already present, it is <b>not</b> overwritten.
                         </span>
                     }
                 />
@@ -73,8 +50,11 @@ function EditRestriction(props: Props) {
                             Override
                         </Button>
                     }
-                    tooltipContent={<span>Overwrites the entire filter of all the selected restrictions.</span>}
+                    tooltipContent={<span>Overwrites the filter of all the selected restrictions to this.</span>}
                 />
+                <Button variant="danger" onClick={props.overrideEditedFilter} style={{ marginLeft: '20px' }}>
+                    Cancel
+                </Button>
             </span>
         </div>
     )

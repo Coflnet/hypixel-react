@@ -87,10 +87,10 @@ function FlipRestrictionList(props: Props) {
         forceUpdate()
     }
 
-    function addEditedFilter(overrideExisting: boolean = false) {
+    function addEditedFilter() {
         restrictionInEditModeIndex.forEach(index => {
             Object.keys(newRestriction.itemFilter).forEach(key => {
-                if (overrideExisting || restrictions[index].itemFilter[key] === undefined) {
+                if (restrictions[index].itemFilter[key] === undefined) {
                     restrictions[index].itemFilter[key] = newRestriction.itemFilter[key]
                 }
             })
@@ -214,7 +214,7 @@ function FlipRestrictionList(props: Props) {
 
     return (
         <>
-            <div style={{ position: 'sticky', top: 0, backgroundColor: '#303030', margin: '-40px -20px 0 -20px', padding: '10px 20px 0  20px', zIndex: 10 }}>
+            <div style={{ position: 'sticky', top: 0, backgroundColor: '#303030', padding: '10px 20px 0  20px', zIndex: 10 }}>
                 {restrictionInEditModeIndex.length > 0 ? (
                     <EditRestriction
                         addEditedFilter={addEditedFilter}
