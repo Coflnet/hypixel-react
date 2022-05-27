@@ -630,7 +630,7 @@ function Flipper(props: Props) {
                 <Card.Footer>
                     This flipper is work in progress (open beta). Anything you see here is subject to change. Please leave suggestions and opinions on our{' '}
                     <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                        discord
+                        Discord
                     </a>
                     .
                     <hr />
