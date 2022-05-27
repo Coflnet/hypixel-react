@@ -19,7 +19,6 @@ import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import Link from 'next/link'
-import AccountDetails from '../AccountDetails/AccountDetails'
 
 let resizePromise: NodeJS.Timeout | null = null
 
