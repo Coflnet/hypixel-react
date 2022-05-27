@@ -194,8 +194,8 @@ function NavBar(props: Props) {
                             <Link href={'/feedback'}>Feedback</Link>
                         </MenuItem>
                         <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24"></img>}>
-                            <a href="https://discord.gg/wvKXfTgCfb">
-                                <div style={{ color: '#7289da' }}>Discord</div>
+                            <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
+                                Discord
                             </a>
                         </MenuItem>
                     </Menu>
