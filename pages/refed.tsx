@@ -65,7 +65,7 @@ function Refed() {
                             }}
                         />
                         <p>
-                            We use Google accounts because they are more secure than requiring a separate login. We use your Google Id and email. (i.e. to know
+                            Settings you make are tied to your google account to sync across devices and into the Minecraft mod. 
                             what settings you made and contact you in case we need to)
                         </p>
 
