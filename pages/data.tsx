@@ -56,6 +56,12 @@ function ApiInfo() {
                                     SkyHelper Discord Bot
                                 </a>
                             </li>
+                            <li>
+                                <a href="https://discord.gg/uK9csKB9qJ" target="_blank" rel="noreferrer">
+                                    The Exotics Mod
+                                </a>
+                            </li>
+
                             <li>You use the API as well? Tell use and get listed here :)</li>
                         </ul>
                     </Card.Body>
