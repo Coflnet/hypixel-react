@@ -13,6 +13,7 @@ import { PlayerWithRankFilterElement } from './FilterElements/PlayerWithRankFilt
 import { ColorFilterElement } from './FilterElements/ColorFilterElement'
 import { BooleanFilterElement } from './FilterElements/BooleanFilterElement'
 import styles from './FilterElement.module.css'
+import { NumericalFilterElement } from './FilterElements/NumericalFilterElement'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -136,6 +137,9 @@ function FilterElement(props: Props) {
             } else {
                 return <EqualFilterElement key={options.name} options={options} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
             }
+        }
+        if (hasFlag(type, FilterType.NUMERICAL)) {
+            return <NumericalFilterElement key={options.name} defaultValue={props.defaultValue} options={options} onChange={onFilterElementChange} />
         }
         return <div />
     }
