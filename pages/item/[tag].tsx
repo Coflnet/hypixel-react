@@ -10,6 +10,7 @@ import AuctionHousePriceGraph from '../../components/PriceGraph/AuctionHousePric
 import BazaarPriceGraph from '../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'
 import { atobUnicode } from '../../utils/Base64Utils'
 import { parseItemFilter } from '../../utils/Parser/URLParser'
+import { DEFAULT_DATE_RANGE } from '../../components/ItemPriceRange/ItemPriceRange'
 
 interface Props {
     item?: any
@@ -60,7 +61,6 @@ function ItemDetails(props: Props) {
     }
 
     function getAvgPrice() {
-
         let priceSum = 0
 
         props.prices.forEach(item => {
@@ -86,8 +86,7 @@ function ItemDetails(props: Props) {
                 `💰 Price: ${avgPrice ? numberWithThousandsSeperators(Math.round(avgPrice)) : '---'} Coins
                 🕑 ${props.range ? `Range: ${props.range}` : null}
                 
-                 Filters:
-                 ${getFiltersText()}`,
+                 ${filter ? `Filters: \n${getFiltersText()}` : ''}`,
                 getItem().iconUrl,
                 [convertTagToName(getItem().tag)],
                 `${getItem().name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`
@@ -103,6 +102,8 @@ function ItemDetails(props: Props) {
 export const getServerSideProps = async ({ res, params, query }) => {
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=60, stale-while-revalidate=59')
 
+    let range = query.range || DEFAULT_DATE_RANGE
+
     let api = initAPI(true)
     let apiResponses = await Promise.all([
         api.getItemDetails(params.tag).catch(() => {
@@ -112,7 +113,7 @@ export const getServerSideProps = async ({ res, params, query }) => {
                 iconUrl: api.getItemImageUrl({ tag: params.tag })
             } as Item
         }),
-        api.getItemPrices(params.tag, query.range, query.itemFilter ? JSON.parse(atobUnicode(query.itemFilter)) : {}).catch(() => {
+        api.getItemPrices(params.tag, range, query.itemFilter ? JSON.parse(atobUnicode(query.itemFilter)) : {}).catch(() => {
             return {}
         })
     ])
@@ -120,7 +121,7 @@ export const getServerSideProps = async ({ res, params, query }) => {
         props: {
             item: apiResponses[0],
             prices: (apiResponses[1] as ItemPrice[]) || [],
-            range: query.range || null,
+            range: range || null,
             filter: query.itemFilter || null
         }
     }
