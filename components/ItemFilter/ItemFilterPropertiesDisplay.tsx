@@ -33,7 +33,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     filter!._hide = true
                     api.getPlayerName(filter![key]).then(name => {
                         filter!._hide = false
-                        filter!._label = name
+                        filter!._label = name || "-"
                         setLocalFilter(filter);
                         forceUpdate();
                     })
@@ -48,7 +48,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
                 <></>
             ) : (
                 Object.keys(localFilter).map(key => {
-                    if (!localFilter || !localFilter[key] || localFilter._hide) {
+                    if (!localFilter || (!localFilter[key] && !localFilter._label) || localFilter._hide) {
                         return ''
                     }
 
