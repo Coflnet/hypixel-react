@@ -574,7 +574,7 @@ function Flipper(props: Props) {
                             {hasPremium ? (
                                 <span>
                                     Next update:{' '}
-                                    {lastFlipFetchTimeSeconds && !lastFlipFetchTimeLoading ? (
+                                    {lastFlipFetchTimeSeconds !== undefined && !lastFlipFetchTimeLoading ? (
                                         <Countdown
                                             date={getCountdownDateObject()}
                                             onComplete={onCountdownComplete}
