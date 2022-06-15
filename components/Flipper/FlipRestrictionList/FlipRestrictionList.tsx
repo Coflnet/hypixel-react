@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { Badge, Card } from 'react-bootstrap'
+import { Badge, Card, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { getStyleForTier } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
 import { getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
-import { Delete as DeleteIcon, Edit as EditIcon, Cancel as CancelIcon } from '@mui/icons-material'
+import { Delete as DeleteIcon, Edit as EditIcon, Save as SaveIcon, ControlPointDuplicate as DuplicateIcon } from '@mui/icons-material'
 import ItemFilterPropertiesDisplay from '../../ItemFilter/ItemFilterPropertiesDisplay'
 import styles from './FlipRestrictionList.module.css'
 import EditRestriction from './EditRestriction/EditRestriction'
 import NewRestriction from './NewRestriction/NewRestriction'
-import priceRangeStyles from '../../ItemPriceRange/ItemPriceRange.module.css'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
+import Tooltip from '../../Tooltip/Tooltip'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist')
@@ -144,6 +144,12 @@ function FlipRestrictionList(props: Props) {
         forceUpdate()
     }
 
+    function createDuplicate(restriction: FlipRestriction, index: number) {
+        let duplicate = { ...restriction }
+        restrictions.splice(index + 1, 0, duplicate)
+        setRestrictions(restrictions)
+    }
+
     /**
      * Removes private properties starting with a _ from the restrictions, because the backend cant handle these.
      * These also have to be saved into the localStorage because they could get sent to the api from there
@@ -205,6 +211,8 @@ function FlipRestrictionList(props: Props) {
         })
     }
 
+    function changeRestrictionType(restriction: FlipRestriction, type: 'whitelist' | 'blacklist') {}
+
     let addIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle" viewBox="0 0 16 16">
             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
@@ -246,11 +254,32 @@ function FlipRestrictionList(props: Props) {
             <div className={styles.restrictionList}>
                 {restrictions.map((restriction, index) => {
                     return (
-                        <Card key={index} className={`${styles.restriction} ${restriction.isEdited ? styles.restrictionMarkedAsEdit : null}`}>
+                        <Card className={`${styles.restriction} ${restriction.isEdited ? styles.restrictionMarkedAsEdit : null}`}>
                             <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                                <Badge style={{ marginRight: '10px' }} variant={restriction.type === 'blacklist' ? 'danger' : 'success'}>
-                                    {restriction.type.toUpperCase()}
-                                </Badge>
+                                {restriction.isEdited ? (
+                                    <ToggleButtonGroup
+                                        style={{ maxWidth: '200px', marginBottom: '5px' }}
+                                        type="radio"
+                                        name="options"
+                                        value={restriction.type}
+                                        onChange={type => {
+                                            restriction.type = type
+                                            setRestrictions(restrictions)
+                                            forceUpdate()
+                                        }}
+                                    >
+                                        <ToggleButton value={'blacklist'} variant={restriction.type === 'blacklist' ? 'primary' : 'secondary'} size="sm">
+                                            Blacklist
+                                        </ToggleButton>
+                                        <ToggleButton value={'whitelist'} variant={restriction.type === 'whitelist' ? 'primary' : 'secondary'} size="sm">
+                                            Whitelist
+                                        </ToggleButton>
+                                    </ToggleButtonGroup>
+                                ) : (
+                                    <Badge style={{ marginRight: '10px' }} variant={restriction.type === 'blacklist' ? 'danger' : 'success'}>
+                                        {restriction.type.toUpperCase()}
+                                    </Badge>
+                                )}
                                 {restriction.item ? (
                                     <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}>
                                         <img
@@ -273,7 +302,7 @@ function FlipRestrictionList(props: Props) {
                                             cancelRestrictionEdit(restriction, index)
                                         }}
                                     >
-                                        <CancelIcon />
+                                        <Tooltip type="hover" content={<SaveIcon />} tooltipContent={<p>Save</p>} />
                                     </div>
                                 ) : (
                                     <div
@@ -282,18 +311,23 @@ function FlipRestrictionList(props: Props) {
                                             editRestriction(restriction, index)
                                         }}
                                     >
-                                        <EditIcon />
+                                        <Tooltip type="hover" content={<EditIcon />} tooltipContent={<p>Edit restriction</p>} />
                                     </div>
                                 )}
                                 {restrictionInEditModeIndex.length === 0 ? (
-                                    <div className={styles.removeFilter} onClick={() => removeRestrictionByIndex(restriction, index)}>
-                                        <DeleteIcon color="error" />
+                                    <div style={{ display: 'flex' }}>
+                                        <div className={styles.removeFilter} onClick={() => createDuplicate(restriction, index)}>
+                                            <Tooltip type="hover" content={<DuplicateIcon />} tooltipContent={<p>Create duplicate</p>} />
+                                        </div>
+                                        <div className={styles.removeFilter} onClick={() => removeRestrictionByIndex(restriction, index)}>
+                                            <Tooltip type="hover" content={<DeleteIcon color="error" />} tooltipContent={<p>Remove restriction</p>} />
+                                        </div>
                                     </div>
                                 ) : null}
                             </Card.Header>
                             {restriction.itemFilter ? (
                                 <Card.Body>
-                                    <ItemFilterPropertiesDisplay filter={restriction.itemFilter} />
+                                    <ItemFilterPropertiesDisplay filter={restriction.itemFilter} isEdited={true} />
                                 </Card.Body>
                             ) : null}
                         </Card>

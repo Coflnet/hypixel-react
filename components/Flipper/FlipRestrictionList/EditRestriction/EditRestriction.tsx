@@ -34,7 +34,7 @@ function EditRestriction(props: Props) {
                                 props.addEditedFilter()
                             }}
                         >
-                            Add
+                            Add filter(s)
                         </Button>
                     }
                     tooltipContent={

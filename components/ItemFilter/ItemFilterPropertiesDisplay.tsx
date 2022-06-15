@@ -7,6 +7,8 @@ import { useForceUpdate } from '../../utils/Hooks'
 
 interface Props {
     filter?: ItemFilter
+    isEdited?: boolean
+    onAfterEdit?(filter: ItemFilter)
 }
 
 const DATE_FORMAT_FILTER = ['EndBefore', 'EndAfter']
