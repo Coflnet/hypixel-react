@@ -18,7 +18,10 @@ function ApiInfo() {
                     <Card.Body>
                         <p>
                             If you want to make another app yourself take a look at the API docs at{' '}
-                            <a href="https://sky.coflnet.com/api">https://sky.coflnet.com/api</a> (If you do please link this page as well).
+                            <a href="https://sky.coflnet.com/api" target="_blank">
+                                https://sky.coflnet.com/api
+                            </a>{' '}
+                            (If you do please link this page as well).
                         </p>
 
                         <p>Besides providing the data for other projects we also have some useful features:</p>
@@ -35,16 +38,30 @@ function ApiInfo() {
                         <p>These folks use our API:</p>
                         <ul>
                             <li>
-                                <a href="https://discord.com/api/oauth2/authorize?client_id=854722092037701643&permissions=2147601408&scope=bot">
+                                <a
+                                    href="https://discord.com/api/oauth2/authorize?client_id=854722092037701643&permissions=2147601408&scope=bot"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
                                     Hypixel Skyblock Community Discord
                                 </a>
                             </li>
                             <li>
-                                <a href="https://item-value-calculator.bubbleapps.io/version-test">Item Calculator by Froggily</a>
+                                <a href="https://item-value-calculator.bubbleapps.io/version-test" target="_blank" rel="noreferrer">
+                                    Item Calculator by Froggily
+                                </a>
                             </li>
                             <li>
-                                <a href="https://skyhelper.altpapier.dev/">SkyHelper Discord Bot</a>
+                                <a href="https://skyhelper.altpapier.dev/" target="_blank" rel="noreferrer">
+                                    SkyHelper Discord Bot
+                                </a>
                             </li>
+                            <li>
+                                <a href="https://discord.gg/uK9csKB9qJ" target="_blank" rel="noreferrer">
+                                    The Exotics Mod
+                                </a>
+                            </li>
+
                             <li>You use the API as well? Tell use and get listed here :)</li>
                         </ul>
                     </Card.Body>

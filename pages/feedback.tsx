@@ -34,7 +34,7 @@ function Feedback() {
                         </a>
                     </p>
                     <p>
-                        <a href="https://discord.gg/wvKXfTgCfb">
+                        <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
                             <Button>Discord</Button>
                         </a>
                     </p>

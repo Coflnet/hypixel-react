@@ -274,7 +274,11 @@ function ItemFilter(props: Props) {
                             computed a result for your filter.
                         </p>
                         <p>
-                            If you are missing a filter please ask for it on our <Link href="/feedback">Discord</Link>.
+                            If you are missing a filter please ask for it on our{' '}
+                            <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
+                                Discord
+                            </a>
+                            .
                         </p>
                     </Modal.Body>
                 </Modal>

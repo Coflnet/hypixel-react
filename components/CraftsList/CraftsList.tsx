@@ -56,7 +56,7 @@ const SORT_OPTIONS: SortOption[] = [
 let observer: MutationObserver
 
 export function CraftsList(props: Props) {
-    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts ||[])
+    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts || [])
     let [nameFilter, setNameFilter] = useState<string | null>()
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
@@ -165,6 +165,22 @@ export function CraftsList(props: Props) {
     }
 
     function getListElement(craft: ProfitableCraft, blur: boolean) {
+        // set useless data to prevent reports regarding the blured flips being visible
+        if (blur) {
+            craft = {
+                craftCost: -1,
+                ingredients: [],
+                item: {
+                    tag: '',
+                    name: '----------',
+                    iconUrl: '/Barrier.png'
+                },
+                median: -1,
+                sellPrice: -1,
+                volume: -1
+            }
+        }
+
         if (nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
             return <span />
         }
@@ -196,7 +212,7 @@ export function CraftsList(props: Props) {
                     ''
                 )}
                 <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
-                <h4>{getCraftHeader(craft)}</h4>
+                    <h4>{getCraftHeader(craft)}</h4>
                     <p>
                         <span className={styles.label}>Crafting-Cost:</span> {numberWithThousandsSeperators(Math.round(craft.craftCost))} Coins
                     </p>
@@ -208,7 +224,8 @@ export function CraftsList(props: Props) {
                         {craft.median > 0 ? `${numberWithThousandsSeperators(Math.round(craft.median))} Coins` : 'unknown'}
                     </p>
                     <p>
-                        <span className={styles.label}>Volume:</span> {craft.volume > 0 ? `${numberWithThousandsSeperators(Math.round(craft.volume))}` : 'unknown'}
+                        <span className={styles.label}>Volume:</span>{' '}
+                        {craft.volume > 0 ? `${numberWithThousandsSeperators(Math.round(craft.volume))}` : 'unknown'}
                     </p>
                     {craft.requiredCollection ? (
                         <p className={styles.craftRequirement}>
