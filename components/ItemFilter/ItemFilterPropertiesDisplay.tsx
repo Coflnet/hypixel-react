@@ -8,7 +8,6 @@ import { Remove as RemoveIcon } from '@mui/icons-material'
 
 interface Props {
     filter?: ItemFilter
-    isEdited?: boolean
     onAfterEdit?(filter: ItemFilter)
 }
 
@@ -21,13 +20,17 @@ function ItemFilterPropertiesDisplay(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
+        updateLocalFilter()
+    }, [{...props.filter}])
+
+    function updateLocalFilter() {
         if (!props.filter) {
             return
         }
         let localFilter = JSON.parse(JSON.stringify(props.filter))
         setLocalFilter(localFilter)
         checkForSellerName(localFilter)
-    }, [JSON.stringify(props.filter)])
+    }
 
     function checkForSellerName(filter: ItemFilter) {
         if (filter) {
@@ -36,9 +39,9 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     filter!._hide = true
                     api.getPlayerName(filter![key]).then(name => {
                         filter!._hide = false
-                        filter!._label = name || "-"
-                        setLocalFilter(filter);
-                        forceUpdate();
+                        filter!._label = name || '-'
+                        setLocalFilter(filter)
+                        forceUpdate()
                     })
                 }
             })
