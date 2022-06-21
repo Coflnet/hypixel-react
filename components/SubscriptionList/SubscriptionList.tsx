@@ -88,6 +88,9 @@ function SubscriptionList() {
                         case SubscriptionType.SOLD.toString():
                             result = <li key="5">Notify if player sold something</li>
                             break
+                        case SubscriptionType.PLAYER_CREATES_AUCTION.toString():
+                            result = <li key="5">Notify if player creates an auction</li>
+                            break
                     }
                     return result
                 })}
@@ -127,6 +130,7 @@ function SubscriptionList() {
     }
 
     function getSubscriptionTitle(subscription: Subscription): Promise<void> {
+        console.log(subscription)
         return new Promise((resolve, reject) => {
             switch (subscription.type) {
                 case 'item':
