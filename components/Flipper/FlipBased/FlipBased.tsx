@@ -89,7 +89,7 @@ function FlipBased(props: Props) {
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch' }}>{auctionsElement}</div>
             ) : null}
             {!isLoading && !hasLoadingFailed && auctions.length === 0 ? <p>No auctions found</p> : null}
-            {hasLoadingFailed ? <p>An error occured while loading the auctions...</p> : null}
+            {hasLoadingFailed ? <p>An error occured while loading the auctions</p> : null}
         </div>
     )
 }
