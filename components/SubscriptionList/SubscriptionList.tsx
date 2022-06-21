@@ -130,7 +130,6 @@ function SubscriptionList() {
     }
 
     function getSubscriptionTitle(subscription: Subscription): Promise<void> {
-        console.log(subscription)
         return new Promise((resolve, reject) => {
             switch (subscription.type) {
                 case 'item':
