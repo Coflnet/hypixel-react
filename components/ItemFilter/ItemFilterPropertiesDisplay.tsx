@@ -4,9 +4,11 @@ import React, { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
+import { Remove as RemoveIcon } from '@mui/icons-material'
 
 interface Props {
     filter?: ItemFilter
+    onAfterEdit?(filter: ItemFilter)
 }
 
 const DATE_FORMAT_FILTER = ['EndBefore', 'EndAfter']
@@ -15,16 +17,20 @@ const SELLER_FORMAT_FILTER = 'Seller'
 function ItemFilterPropertiesDisplay(props: Props) {
     let [localFilter, setLocalFilter] = useState(props.filter)
 
-    let forceUpdate = useForceUpdate();
+    let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if(!props.filter){
-            return;
+        updateLocalFilter()
+    }, [{...props.filter}])
+
+    function updateLocalFilter() {
+        if (!props.filter) {
+            return
         }
-        let localFilter = JSON.parse(JSON.stringify(props.filter));
+        let localFilter = JSON.parse(JSON.stringify(props.filter))
         setLocalFilter(localFilter)
         checkForSellerName(localFilter)
-    }, [props.filter])
+    }
 
     function checkForSellerName(filter: ItemFilter) {
         if (filter) {
@@ -33,13 +39,18 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     filter!._hide = true
                     api.getPlayerName(filter![key]).then(name => {
                         filter!._hide = false
-                        filter!._label = name || "-"
-                        setLocalFilter(filter);
-                        forceUpdate();
+                        filter!._label = name || '-'
+                        setLocalFilter(filter)
+                        forceUpdate()
                     })
                 }
             })
         }
+    }
+
+    function onRemoveClick(key) {
+        localFilter[key] = undefined
+        props.onAfterEdit(localFilter)
     }
 
     return (
@@ -64,13 +75,23 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     }
 
                     // Special case if the restriction has a special label
-                    if (localFilter._label) {
-                        display = localFilter._label
+                    if (localFilter._sellerName && key === SELLER_FORMAT_FILTER) {
+                        display = localFilter._sellerName
                     }
 
                     return (
                         <p key={key}>
                             {camelCaseToSentenceCase(key)}: {display}
+                            {props.onAfterEdit ? (
+                                <span
+                                    style={{ color: 'red', cursor: 'pointer' }}
+                                    onClick={() => {
+                                        onRemoveClick(key)
+                                    }}
+                                >
+                                    <RemoveIcon />
+                                </span>
+                            ) : null}
                         </p>
                     )
                 })

@@ -13,4 +13,19 @@
 
 .removeFilter {
     cursor: pointer;
+    margin-left: 10px;
+}
+
+.cancelEditButton {
+    cursor: pointer;
+}
+
+.editButton {
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.restrictionMarkedAsEdit {
+    border-width: 3px;
+    border-color: cornflowerblue;
 }

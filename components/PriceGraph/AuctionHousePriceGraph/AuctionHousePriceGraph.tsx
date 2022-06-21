@@ -79,7 +79,7 @@ function AuctionHousePriceGraph(props: Props) {
             itemFilter
         })
 
-        api.getItemPrices(props.item.tag, fetchspan as any, itemFilter)
+        api.getItemPrices(props.item.tag, (fetchspan as globalThis.DateRange), itemFilter)
             .then(prices => {
                 if (
                     !mounted ||
