@@ -52,7 +52,7 @@ function FlipRestrictionList(props: Props) {
 
     function onFilterChange(filter: ItemFilter) {
         let restriction = newRestriction
-        restriction.itemFilter = filter
+        restriction.itemFilter = { ...filter }
         setNewRestriction(restriction)
     }
 
@@ -111,7 +111,7 @@ function FlipRestrictionList(props: Props) {
 
     function overrideEditedFilter() {
         restrictionInEditModeIndex.forEach(index => {
-            restrictions[index].itemFilter = newRestriction.itemFilter
+            restrictions[index].itemFilter = {...newRestriction.itemFilter}
             restrictions[index].isEdited = false
         })
 
@@ -147,6 +147,11 @@ function FlipRestrictionList(props: Props) {
     function createDuplicate(restriction: FlipRestriction, index: number) {
         let duplicate = { ...restriction }
         restrictions.splice(index + 1, 0, duplicate)
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+        if (props.onRestrictionsChange) {
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
+        }
         setRestrictions(restrictions)
     }
 
@@ -175,17 +180,18 @@ function FlipRestrictionList(props: Props) {
         })
     }
 
-    function cancelRestrictionEdit(restriction: FlipRestriction, index: number) {
+    function saveRestrictionEdit(restriction: FlipRestriction, index: number) {
         restriction.isEdited = false
         let i = restrictionInEditModeIndex.indexOf(index)
         restrictionInEditModeIndex.splice(i, 1)
         setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+        setRestrictions(restrictions)
         forceUpdate()
     }
 
     function editRestriction(restriction: FlipRestriction, index: number) {
         if (restrictionInEditModeIndex.length === 0) {
-            newRestriction.itemFilter = restriction.itemFilter
+            newRestriction.itemFilter = {...restriction.itemFilter}
             setNewRestriction(newRestriction)
         }
 
@@ -211,7 +217,15 @@ function FlipRestrictionList(props: Props) {
         })
     }
 
-    function changeRestrictionType(restriction: FlipRestriction, type: 'whitelist' | 'blacklist') {}
+    function changeRestrictionType(restriction: FlipRestriction, type: 'whitelist' | 'blacklist') {
+        restriction.type = type
+        setRestrictions(restrictions)
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+        if (props.onRestrictionsChange) {
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), type)
+        }
+        forceUpdate()
+    }
 
     let addIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle" viewBox="0 0 16 16">
@@ -262,10 +276,8 @@ function FlipRestrictionList(props: Props) {
                                         type="radio"
                                         name="options"
                                         value={restriction.type}
-                                        onChange={type => {
-                                            restriction.type = type
-                                            setRestrictions(restrictions)
-                                            forceUpdate()
+                                        onChange={newValue => {
+                                            changeRestrictionType(restriction, newValue)
                                         }}
                                     >
                                         <ToggleButton value={'blacklist'} variant={restriction.type === 'blacklist' ? 'primary' : 'secondary'} size="sm">
@@ -299,7 +311,7 @@ function FlipRestrictionList(props: Props) {
                                     <div
                                         className={styles.cancelEditButton}
                                         onClick={() => {
-                                            cancelRestrictionEdit(restriction, index)
+                                            saveRestrictionEdit(restriction, index)
                                         }}
                                     >
                                         <Tooltip type="hover" content={<SaveIcon />} tooltipContent={<p>Save</p>} />
@@ -327,7 +339,25 @@ function FlipRestrictionList(props: Props) {
                             </Card.Header>
                             {restriction.itemFilter ? (
                                 <Card.Body>
-                                    <ItemFilterPropertiesDisplay filter={restriction.itemFilter} isEdited={true} />
+                                    <ItemFilterPropertiesDisplay
+                                        filter={restriction.itemFilter}
+                                        isEdited={true}
+                                        onAfterEdit={
+                                            restriction.isEdited
+                                                ? filter => {
+                                                      restriction.itemFilter = { ...filter }
+                                                      setRestrictions(restrictions)
+                                                      setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+
+                                                      if (props.onRestrictionsChange) {
+                                                          props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), newRestriction.type)
+                                                      }
+
+                                                      forceUpdate()
+                                                  }
+                                                : null
+                                        }
+                                    />
                                 </Card.Body>
                             ) : null}
                         </Card>

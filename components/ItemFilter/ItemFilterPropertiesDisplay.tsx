@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
+import { Remove as RemoveIcon } from '@mui/icons-material'
 
 interface Props {
     filter?: ItemFilter
@@ -44,6 +45,11 @@ function ItemFilterPropertiesDisplay(props: Props) {
         }
     }
 
+    function onRemoveClick(key) {
+        localFilter[key] = undefined
+        props.onAfterEdit(localFilter)
+    }
+
     return (
         <div>
             {!localFilter ? (
@@ -73,6 +79,16 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     return (
                         <p key={key}>
                             {camelCaseToSentenceCase(key)}: {display}
+                            {props.onAfterEdit ? (
+                                <span
+                                    style={{ color: 'red', cursor: 'pointer' }}
+                                    onClick={() => {
+                                        onRemoveClick(key)
+                                    }}
+                                >
+                                    <RemoveIcon />
+                                </span>
+                            ) : null}
                         </p>
                     )
                 })
