@@ -31,14 +31,20 @@ function AuthMod() {
         setIsLoggedIn(true)
 
         if (conId) {
-            api.authenticateModConnection(conId)
-                .then(() => {
-                    setIsAuthenticated(true)
-                })
-                .catch(() => {
-                    setHasAuthenticationFailed(true)
-                })
+            authenticateModConnection()
         }
+    }
+
+    function authenticateModConnection() {
+        setIsAuthenticated(false)
+        setHasAuthenticationFailed(false)
+        api.authenticateModConnection(conId)
+            .then(() => {
+                setIsAuthenticated(true)
+            })
+            .catch(() => {
+                setHasAuthenticationFailed(true)
+            })
     }
 
     function onLoginFail() {
@@ -68,9 +74,15 @@ function AuthMod() {
                                 </Link>
                             </div>
                         ) : null}
-                        {isLoggedIn && !isAuthenticated && !hasAuthenticationFailed && conId !== null ? getLoadingElement(<p>Authorizing connection...</p>) : null}
+                        {isLoggedIn && !isAuthenticated && !hasAuthenticationFailed && conId !== null
+                            ? getLoadingElement(<p>Authorizing connection...</p>)
+                            : null}
                         {!isLoggedIn && !hasAuthenticationFailed && conId !== null ? <p>Please log in to authenticate for the mod usage</p> : null}
-                        {hasAuthenticationFailed ? <p>Authentication failed. Please try again...</p> : null}
+                        {hasAuthenticationFailed ? (
+                            <p>
+                                Authentication failed. <Button onClick={authenticateModConnection}>Try again</Button>
+                            </p>
+                        ) : null}
                         {conId === null ? <p>This is an invalid link. There is no connection id present.</p> : null}
                     </div>
                 ) : null}
