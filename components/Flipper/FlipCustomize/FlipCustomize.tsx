@@ -295,9 +295,15 @@ function FlipCustomize() {
                             />
                         </Form.Group>
                         <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideSeller">
-                                Seller
-                            </Form.Label>
+                            <Tooltip
+                                type="hover"
+                                content={
+                                    <Form.Label className={styles.label} htmlFor="hideSeller">
+                                        Seller
+                                    </Form.Label>
+                                }
+                                tooltipContent={<span>Showing the player name might add a bit of a delay for the flips</span>}
+                            />
                             <Form.Check
                                 onChange={event => {
                                     updateApiSetting('showSeller', event.target.checked)
