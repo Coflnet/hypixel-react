@@ -137,11 +137,17 @@ function SubscriptionList() {
                     api.getPlayerName(subscription.topicId).then(playerName => {
                         subscription.title = playerName
                         resolve()
+                    }).catch(() => {
+                        subscription.title = "Player could not be loaded..."
+                        resolve()
                     })
                     break
                 case 'auction':
                     api.getAuctionDetails(subscription.topicId).then(auctionDetails => {
                         subscription.title = auctionDetails.auction.item.name || auctionDetails.auction.item.tag
+                        resolve()
+                    }).catch(() => {
+                        subscription.title = "Auction title could not be loaded..."
                         resolve()
                     })
                     break
