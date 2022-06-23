@@ -1109,7 +1109,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: `${getApiEndpoint()}/auctions/tag/${item.tag}/active/overview?${new URLSearchParams(params).toString()}`,
                 data: '',
                 resolve: function (data) {
-                    console.log(data)
                     resolve(data.map(a => parseRecentAuction(a)))
                 },
                 reject: function (error) {
