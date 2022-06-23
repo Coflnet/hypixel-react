@@ -1,0 +1,12 @@
+.slider {
+    height: 38px;
+    padding-top: 15px;
+}
+
+.slider :global(.rc-slider-mark) {
+    margin-top: 5px;
+}
+
+.slider :global(.rc-slider-mark-text) {
+    cursor: default;
+}

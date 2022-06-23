@@ -14,6 +14,7 @@ import { ColorFilterElement } from './FilterElements/ColorFilterElement'
 import { BooleanFilterElement } from './FilterElements/BooleanFilterElement'
 import styles from './FilterElement.module.css'
 import { NumericalFilterElement } from './FilterElements/NumericalFilterElement'
+import { NumberRangeFilterElement } from './FilterElements/NumberRangeFilterElement'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -107,6 +108,17 @@ function FilterElement(props: Props) {
         // Special case for the color filter, as there is no FilterType on the backend for that
         if (options.name === 'Color') {
             return <ColorFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+        }
+        if (options.name === 'EnchantLvl') {
+            return (
+                <NumberRangeFilterElement
+                    key={options.name}
+                    defaultValue={props.defaultValue}
+                    min={parseInt(props.options.options[0])}
+                    max={parseInt(props.options.options[1])}
+                    onChange={onFilterElementChange}
+                />
+            )
         }
         if (hasFlag(type, FilterType.DATE)) {
             return <DateFilterElement key={options.name} selected={value ? new Date(value * 1000) : new Date()} onChange={onFilterElementChange} />
