@@ -26,11 +26,7 @@ function Payment(props: Props) {
                 setCurrentRedirectLink(data.directLink)
                 window.open(data.directLink)
             })
-            .catch(() => {
-                setCurrentRedirectLink('')
-                setLoadingId('')
-                toast.error('Something went wrong. Please try again.')
-            })
+            .catch(onPaymentRedirectFail)
     }
 
     function onPayStripe(productId: string, coflCoins?: number) {
@@ -40,11 +36,13 @@ function Payment(props: Props) {
                 setCurrentRedirectLink(data.directLink)
                 window.open(data.directLink)
             })
-            .catch(() => {
-                setCurrentRedirectLink('')
-                setLoadingId('')
-                toast.error('Something went wrong. Please try again.')
-            })
+            .catch(onPaymentRedirectFail)
+    }
+
+    function onPaymentRedirectFail() {
+        setCurrentRedirectLink('')
+        setLoadingId('')
+        toast.error('Something went wrong. Please try again.')
     }
 
     function getDisabledPaymentTooltip() {
