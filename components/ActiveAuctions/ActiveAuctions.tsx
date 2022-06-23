@@ -15,9 +15,9 @@ interface Props {
 }
 
 const ORDERS = [
-    { label: 'Lowest price', value: 2 },
-    { label: 'Highest price', value: 1 },
-    { label: 'Ending soon', value: 4 }
+    { label: 'Lowest price', value: "LOWEST_PRICE" },
+    { label: 'Highest price', value: "HIGHEST_PRICE" },
+    { label: 'Ending soon', value: "ENDING_SOON" }
 ]
 
 let currentLoad
@@ -25,14 +25,14 @@ let currentLoad
 function ActiveAuctions(props: Props) {
     let [activeAuctions, setActiveAuctions] = useState<RecentAuction[]>([])
     let [isLoading, setIsLoading] = useState(true)
-    let [order, setOrder] = useState<number>(ORDERS[0].value)
+    let [order, setOrder] = useState<string>(ORDERS[0].value)
 
     useEffect(() => {
         loadActiveAuctions(props.item, order, props.filter)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag, JSON.stringify(props.filter), order])
 
-    function loadActiveAuctions(item: Item, order: number, filter?: ItemFilter) {
+    function loadActiveAuctions(item: Item, order: string, filter?: ItemFilter) {
         setIsLoading(true)
         var filterString = JSON.stringify({
             item,
@@ -57,7 +57,7 @@ function ActiveAuctions(props: Props) {
         let selectedIndex = event.target.options.selectedIndex
         let order = event.target.options[selectedIndex].getAttribute('data-id')!
 
-        setOrder(parseInt(order))
+        setOrder(order)
     }
 
     let activeAuctionList = activeAuctions.map(activeAuction => {

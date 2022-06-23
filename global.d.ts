@@ -202,7 +202,7 @@ interface API {
     paypalPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     getRefInfo(): Promise<RefInfo>
     setRef(refId: string): Promise<void>
-    getActiveAuctions(item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]>
+    getActiveAuctions(item: Item, order: string, filter?: ItemFilter): Promise<RecentAuction[]>
     filterFor(item: Item): Promise<FilterOptions[]>
     connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>
     getAccountInfo(): Promise<AccountInfo>

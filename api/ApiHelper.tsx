@@ -1095,32 +1095,31 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getActiveAuctions = (item: Item, order: number, filter?: ItemFilter): Promise<RecentAuction[]> => {
+    let getActiveAuctions = (item: Item, order: string, filter: ItemFilter = {}): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
-            if (!filter || Object.keys(filter).length === 0) {
-                filter = undefined
+            let params = {
+                orderBy: order
             }
+            Object.keys(filter).forEach(key => {
+                params[key] = filter[key].toString()
+            })
 
-            let requestData = {
-                name: item.tag,
-                filter: filter,
-                order: isNaN(order) ? undefined : order
-            }
-
-            httpApi.sendLimitedCacheRequest(
-                {
-                    type: RequestType.ACTIVE_AUCTIONS,
-                    data: requestData,
-                    resolve: function (data) {
-                        resolve(data.map(a => parseRecentAuction(a)))
-                    },
-                    reject: function (error) {
-                        apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, requestData)
-                        reject()
-                    }
+            httpApi.sendApiRequest({
+                type: RequestType.ACTIVE_AUCTIONS,
+                customRequestURL: `${getApiEndpoint()}/auctions/tag/${item.tag}/active/overview?${new URLSearchParams(params).toString()}`,
+                data: '',
+                resolve: function (data) {
+                    resolve(data.map(a => parseRecentAuction(a)))
                 },
-                1
-            )
+                reject: function (error) {
+                    apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, {
+                        tag: item.tag,
+                        filter,
+                        order
+                    })
+                    reject()
+                }
+            })
         })
     }
 
