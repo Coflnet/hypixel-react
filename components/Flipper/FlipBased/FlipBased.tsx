@@ -16,14 +16,20 @@ interface Props {
 function FlipBased(props: Props) {
     let [auctions, setAuctions] = useState<Auction[]>([])
     let [isLoading, setIsLoading] = useState(true)
+    let [hasLoadingFailed, setHasLoadingFailed] = useState(false)
 
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        api.getFlipBasedAuctions(props.auctionUUID).then(auctions => {
-            setAuctions(auctions.sort((a, b) => b.end.getTime() - a.end.getTime()))
-            setIsLoading(false)
-        })
+        api.getFlipBasedAuctions(props.auctionUUID)
+            .then(auctions => {
+                setAuctions(auctions.sort((a, b) => b.end.getTime() - a.end.getTime()))
+                setIsLoading(false)
+            })
+            .catch(() => {
+                setIsLoading(false)
+                setHasLoadingFailed(true)
+            })
     }, [props.auctionUUID])
 
     useEffect(() => {
@@ -78,13 +84,12 @@ function FlipBased(props: Props) {
 
     return (
         <div>
-            {isLoading ? (
-                getLoadingElement()
-            ) : auctions.length > 0 ? (
+            {isLoading ? getLoadingElement() : null}
+            {!isLoading && !hasLoadingFailed && auctions.length > 0 ? (
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch' }}>{auctionsElement}</div>
-            ) : (
-                <p>No auctions found</p>
-            )}
+            ) : null}
+            {!isLoading && !hasLoadingFailed && auctions.length === 0 ? <p>No auctions found</p> : null}
+            {hasLoadingFailed ? <p>An error occured while loading the auctions</p> : null}
         </div>
     )
 }

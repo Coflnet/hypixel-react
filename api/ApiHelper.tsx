@@ -435,7 +435,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
             if (filter) {
                 filter._hide = undefined
-                filter._label = undefined
+                filter._sellerName = undefined
             }
 
             let requestData = {

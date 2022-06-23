@@ -10,7 +10,6 @@ import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
 import { btoaUnicode } from '../../utils/Base64Utils'
 import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
 
@@ -19,6 +18,8 @@ interface Props {
     filters?: FilterOptions[]
     forceOpen?: boolean
     ignoreURL?: boolean
+    autoSelect?: boolean
+    defaultFilter?: ItemFilter
 }
 
 const groupedFilter = [
@@ -27,7 +28,7 @@ const groupedFilter = [
 ]
 
 function ItemFilter(props: Props) {
-    let [itemFilter, _setItemFilter] = useState<ItemFilter>({})
+    let [itemFilter, _setItemFilter] = useState<ItemFilter>(props.defaultFilter || {})
     let [expanded, setExpanded] = useState(props.forceOpen || false)
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
@@ -41,7 +42,10 @@ function ItemFilter(props: Props) {
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
-        itemFilter = getPrefillFilter(props.filters, props.ignoreURL)
+        if (props.ignoreURL && !props.defaultFilter) {
+            return
+        }
+        itemFilter = props.defaultFilter ? props.defaultFilter : getPrefillFilter(props.filters, props.ignoreURL)
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
@@ -206,7 +210,7 @@ function ItemFilter(props: Props) {
         let defaultValue: any = ''
         if (options && options.options[0] !== null && options.options[0] !== undefined) {
             // dont set the first option for search-selects
-            if (!(hasFlag(options.type, FilterType.EQUAL) && !hasFlag(options.type, FilterType.SIMPLE))) {
+            if (hasFlag(options.type, FilterType.EQUAL)) {
                 defaultValue = options.options[0]
             }
         }
@@ -304,8 +308,16 @@ function ItemFilter(props: Props) {
                                 {props?.filters && props.filters?.length > 0 ? (
                                     <Typeahead
                                         id="add-filter-typeahead"
-                                        autoFocus={Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0}
-                                        defaultOpen={Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0}
+                                        autoFocus={
+                                            props.autoSelect === undefined
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0
+                                                : props.autoSelect
+                                        }
+                                        defaultOpen={
+                                            props.autoSelect === undefined
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0
+                                                : props.autoSelect
+                                        }
                                         ref={typeaheadRef}
                                         placeholder="Add filter"
                                         className={styles.addFilterSelect}

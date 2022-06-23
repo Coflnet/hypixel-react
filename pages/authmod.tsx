@@ -13,7 +13,13 @@ function AuthMod() {
     let [conId] = useState(getURLSearchParam('conId'))
     let [isAuthenticated, setIsAuthenticated] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [hasAuthenticationFailed, setHasAuthenticationFailed] = useState(false)
+    let [isSSR, setIsSSR] = useState(true)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+
+    useEffect(() => {
+        setIsSSR(false)
+    }, [])
 
     useEffect(() => {
         if (wasAlreadyLoggedIn && !isLoggedIn) {
@@ -25,10 +31,20 @@ function AuthMod() {
         setIsLoggedIn(true)
 
         if (conId) {
-            api.authenticateModConnection(conId).then(() => {
+            authenticateModConnection()
+        }
+    }
+
+    function authenticateModConnection() {
+        setIsAuthenticated(false)
+        setHasAuthenticationFailed(false)
+        api.authenticateModConnection(conId)
+            .then(() => {
                 setIsAuthenticated(true)
             })
-        }
+            .catch(() => {
+                setHasAuthenticationFailed(true)
+            })
     }
 
     function onLoginFail() {
@@ -44,25 +60,32 @@ function AuthMod() {
                     Authorize Mod
                 </h2>
                 <hr />
-                <div>
-                    {!isLoggedIn ? (
-                        ''
-                    ) : isAuthenticated ? (
-                        <div>
-                            <p style={{ color: '#40ff00' }}>Your Connection is now authorized</p>
-                            <hr />
-                            <p>Now that the mod is connected with the website you can change the filters/settings here:</p>
-                            <Link href="/flipper">
-                                <a className="disableLinkStyle">
-                                    <Button>To the Flipper</Button>
-                                </a>
-                            </Link>
-                        </div>
-                    ) : (
-                        getLoadingElement(<p>Authorizing connection...</p>)
-                    )}
-                    {!isLoggedIn ? <p>Please log in to authenticate for the mod usage</p> : ''}
-                </div>
+                {!isSSR ? (
+                    <div>
+                        {isLoggedIn && isAuthenticated && conId !== null ? (
+                            <div>
+                                <p style={{ color: '#40ff00' }}>Your Connection is now authorized</p>
+                                <hr />
+                                <p>Now that the mod is connected with the website you can change the filters/settings here:</p>
+                                <Link href="/flipper">
+                                    <a className="disableLinkStyle">
+                                        <Button>To the Flipper</Button>
+                                    </a>
+                                </Link>
+                            </div>
+                        ) : null}
+                        {isLoggedIn && !isAuthenticated && !hasAuthenticationFailed && conId !== null
+                            ? getLoadingElement(<p>Authorizing connection...</p>)
+                            : null}
+                        {!isLoggedIn && !hasAuthenticationFailed && conId !== null ? <p>Please log in to authenticate for the mod usage</p> : null}
+                        {hasAuthenticationFailed ? (
+                            <p>
+                                Authentication failed. <Button onClick={authenticateModConnection}>Try again</Button>
+                            </p>
+                        ) : null}
+                        {conId === null ? <p>This is an invalid link. There is no connection id present.</p> : null}
+                    </div>
+                ) : null}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             </Container>
         </div>

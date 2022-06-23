@@ -40,6 +40,10 @@
     margin-right: 50px;
 }
 
+.restrictionModal {
+    padding-top: 0;
+}
+
 .restrictionModal::-webkit-scrollbar {
     background-color: #272b30;
 }

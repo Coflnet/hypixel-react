@@ -34,6 +34,7 @@ function SubscribeButton(props: Props) {
     let [onlyInstantBuy, setOnlyInstantBuy] = useState(false)
     let [gotOutbid, setGotOutbid] = useState(false)
     let [isSold, setIsSold] = useState(false)
+    let [isPlayerAuctionCreation, setIsPlayerAuctionCreation] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
@@ -87,6 +88,9 @@ function SubscribeButton(props: Props) {
             if (isSold) {
                 types.push(SubscriptionType.SOLD)
             }
+            if (isPlayerAuctionCreation) {
+                types.push(SubscriptionType.PLAYER_CREATES_AUCTION)
+            }
         }
         if (props.type === 'auction') {
             types.push(SubscriptionType.AUCTION)
@@ -114,7 +118,7 @@ function SubscribeButton(props: Props) {
             return itemFilter && Object.keys(itemFilter).length > 0 ? false : price === undefined || price === ''
         }
         if (props.type === 'player') {
-            return !gotOutbid && !isSold
+            return !gotOutbid && !isSold && !isPlayerAuctionCreation
         }
     }
 
@@ -145,7 +149,13 @@ function SubscribeButton(props: Props) {
                                 onPriceChange={setPrice}
                             />
                         ) : null}
-                        {props.type === 'player' ? <SubscribePlayerContent onGotOutbidChange={setGotOutbid} onIsSoldChange={setIsSold} /> : null}
+                        {props.type === 'player' ? (
+                            <SubscribePlayerContent
+                                onGotOutbidChange={setGotOutbid}
+                                onIsSoldChange={setIsSold}
+                                onIsPlayerAuctionCreation={setIsPlayerAuctionCreation}
+                            />
+                        ) : null}
                         {props.type === 'auction' ? <SubscribeAuctionContent /> : null}
                         <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">
                             Notify me
@@ -167,7 +177,8 @@ function SubscribeButton(props: Props) {
         <div className={styles.subscribeButton}>
             {dialog}
             <Button style={{ width: 'max-content' }} onClick={openDialog}>
-                <NotificationIcon />{props.buttonContent || ' Notify'}
+                <NotificationIcon />
+                {props.buttonContent || ' Notify'}
             </Button>
         </div>
     )
