@@ -341,7 +341,6 @@ function FlipRestrictionList(props: Props) {
                                 <Card.Body>
                                     <ItemFilterPropertiesDisplay
                                         filter={restriction.itemFilter}
-                                        isEdited={true}
                                         onAfterEdit={
                                             restriction.isEdited
                                                 ? filter => {
