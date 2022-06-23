@@ -40,7 +40,7 @@ function SubscribeItemContent(props: Props) {
                         type="radio"
                         id="priceAboveCheckbox"
                         name="priceState"
-                        onChange={e => props.onIsPriceAboveChange(false)}
+                        onChange={e => props.onIsPriceAboveChange(true)}
                         className={styles.checkBox}
                     />
                 </Form.Group>
