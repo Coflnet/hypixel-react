@@ -377,6 +377,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getPlayerName = (uuid: string): Promise<string> => {
         return new Promise((resolve, reject) => {
+            if (!uuid) {
+                resolve('')
+                return
+            }
             httpApi.sendApiRequest({
                 type: RequestType.PLAYER_NAME,
                 customRequestURL: `${getApiEndpoint()}/player/${uuid}/name`,

@@ -21,7 +21,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
 
     useEffect(() => {
         updateLocalFilter()
-    }, [{...props.filter}])
+    }, [JSON.stringify(props.filter)])
 
     function updateLocalFilter() {
         if (!props.filter) {
