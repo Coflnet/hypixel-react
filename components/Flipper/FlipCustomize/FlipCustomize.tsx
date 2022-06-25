@@ -138,7 +138,7 @@ function FlipCustomize() {
     const useLowestBinHelpElement = (
         <p>
             By enabling this setting, the lowest BIN is used as the estimated selling price to calculate your profit. That can lead to profitable flips being
-            estimated way too low (even as a loss). We recommend using the median to calculate the profit.
+            estimated way too low (even as a loss). It also add a little time to process the flips. We recommend using the median to calculate the profit.
         </p>
     )
 
@@ -296,7 +296,16 @@ function FlipCustomize() {
                         </Form.Group>
                         <Form.Group>
                             <Form.Label className={styles.label} htmlFor="hideSeller">
-                                Seller
+                                Seller{'  '}
+                                <Tooltip
+                                    type="hover"
+                                    content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />}
+                                    tooltipContent={
+                                        <span>
+                                            Showing the player name takes additional processing time and therefore may add a bit of a delay for the flips.
+                                        </span>
+                                    }
+                                />
                             </Form.Label>
                             <Form.Check
                                 onChange={event => {
