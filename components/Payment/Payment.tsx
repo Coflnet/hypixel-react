@@ -7,6 +7,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import { Help as HelpIcon } from '@mui/icons-material'
 import { useCoflCoins } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { toast } from 'react-toastify'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
@@ -20,18 +21,28 @@ function Payment(props: Props) {
 
     function onPayPaypal(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
-        api.paypalPurchase(productId, coflCoins).then(data => {
-            setCurrentRedirectLink(data.directLink)
-            window.open(data.directLink)
-        })
+        api.paypalPurchase(productId, coflCoins)
+            .then(data => {
+                setCurrentRedirectLink(data.directLink)
+                window.open(data.directLink)
+            })
+            .catch(onPaymentRedirectFail)
     }
 
     function onPayStripe(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
-        api.stripePurchase(productId, coflCoins).then(data => {
-            setCurrentRedirectLink(data.directLink)
-            window.open(data.directLink)
-        })
+        api.stripePurchase(productId, coflCoins)
+            .then(data => {
+                setCurrentRedirectLink(data.directLink)
+                window.open(data.directLink)
+            })
+            .catch(onPaymentRedirectFail)
+    }
+
+    function onPaymentRedirectFail() {
+        setCurrentRedirectLink('')
+        setLoadingId('')
+        toast.error('Something went wrong. Please try again.')
     }
 
     function getDisabledPaymentTooltip() {

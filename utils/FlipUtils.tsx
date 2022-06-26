@@ -102,7 +102,7 @@ export const FLIP_FINDERS = [
         label: 'Sniper (Median)',
         shortLabel: 'MSNIPE',
         default: true,
-        description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 10% below the median sell value.",
+        description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 5% below the median sell value.",
         selectable: true
     },
     { value: '8', label: 'AI', shortLabel: 'AI', default: false, description: '', selectable: false },
