@@ -15,6 +15,7 @@ interface Props {
     selected?: Player | Item
     currentElement?: JSX.Element
     backgroundColor?: string
+    backgroundColorSelected?: string
     searchFunction?(searchText: string)
     onSearchresultClick?(item: SearchResultItem)
     hideNavbar?: boolean
@@ -36,6 +37,7 @@ function Search(props: Props) {
     let [isLoading, setIsLoading] = useState(false)
     let [noResultsFound, setNoResultsFound] = useState(false)
     let [isSmall, setIsSmall] = useState(true)
+    let [selectedIndex, setSelectedIndex] = useState(0)
     const { show } = useContextMenu({
         id: PLAYER_SEARCH_CONEXT_MENU_ID
     })
@@ -85,6 +87,7 @@ function Search(props: Props) {
                     })
                 }
 
+                setSelectedIndex(0)
                 setNoResultsFound(searchResults.length === 0)
                 setResults(searchResults)
                 setIsLoading(false)
@@ -108,15 +111,25 @@ function Search(props: Props) {
     }
 
     let onKeyPress = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            e.preventDefault()
-        } else {
-            return
+        switch (e.key) {
+            case 'Enter':
+                e.preventDefault()
+                if (!results || results.length === 0) {
+                    return
+                }
+                onItemClick(results[selectedIndex])
+                break
+            case 'ArrowDown':
+                if (selectedIndex < results.length - 1) {
+                    setSelectedIndex(selectedIndex + 1)
+                }
+                break
+            case 'ArrowUp':
+                if (selectedIndex > 0) {
+                    setSelectedIndex(selectedIndex - 1)
+                }
+                break
         }
-        if (!results || results.length === 0) {
-            return
-        }
-        onItemClick(results[0])
     }
 
     let onItemClick = (item: SearchResultItem) => {
@@ -199,7 +212,7 @@ function Search(props: Props) {
 
     function getListItemStyle(i: number): React.CSSProperties {
         return {
-            backgroundColor: props.backgroundColor,
+            backgroundColor: i === selectedIndex ? props.backgroundColorSelected || '#444' : props.backgroundColor,
             borderRadius: i === results.length - 1 ? '0 0 10px 10px' : '',
             border: 0,
             borderTop: i === 0 ? '1px solid #444' : 0,
@@ -302,7 +315,7 @@ function Search(props: Props) {
                             className="searchBar"
                             value={searchText}
                             onChange={onSearchChange}
-                            onKeyPress={(e: any) => {
+                            onKeyDown={(e: any) => {
                                 onKeyPress(e)
                             }}
                             onContextMenu={handleSearchContextMenuForSearchResult}
