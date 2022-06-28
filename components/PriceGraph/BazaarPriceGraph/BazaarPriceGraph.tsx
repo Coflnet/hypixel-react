@@ -275,35 +275,35 @@ function BazaarPriceGraph(props: Props) {
             )
 
             if (graphType === GRAPH_TYPE.SINGLE) {
-                chartOptionsPrimary.series[1].data.push(item.buyData.min)
-                chartOptionsPrimary.series[2].data.push(item.buyData.max)
-                chartOptionsPrimary.series[3].data.push(item.buyData.volume)
-                chartOptionsPrimary.series[4].data.push(item.buyData.moving)
+                chartOptionsPrimary.series[1].data.push(item.buyData.min.toFixed(2))
+                chartOptionsPrimary.series[2].data.push(item.buyData.max.toFixed(2))
+                chartOptionsPrimary.series[3].data.push(item.buyData.volume.toFixed(2))
+                chartOptionsPrimary.series[4].data.push(item.buyData.moving.toFixed(2))
 
                 chartOptionsPrimary.series[5].data.push(
                     fetchspan === DateRange.HOUR
-                        ? item.sellData.price
-                        : [item.sellData.price, prices[i + 1] ? prices[i + 1].sellData.price : item.sellData.price, item.sellData.min, item.sellData.max]
+                        ? item.sellData.price.toFixed(2)
+                        : [item.sellData.price.toFixed(2), prices[i + 1] ? prices[i + 1].sellData.price.toFixed(2) : item.sellData.price.toFixed(2), item.sellData.min.toFixed(2), item.sellData.max.toFixed(2)]
                 )
-                chartOptionsPrimary.series[6].data.push(item.sellData.min)
-                chartOptionsPrimary.series[7].data.push(item.sellData.max)
-                chartOptionsPrimary.series[8].data.push(item.sellData.volume)
-                chartOptionsPrimary.series[9].data.push(item.sellData.moving)
+                chartOptionsPrimary.series[6].data.push(item.sellData.min.toFixed(2))
+                chartOptionsPrimary.series[7].data.push(item.sellData.max.toFixed(2))
+                chartOptionsPrimary.series[8].data.push(item.sellData.volume.toFixed(2))
+                chartOptionsPrimary.series[9].data.push(item.sellData.moving.toFixed(2))
             } else {
-                chartOptionsPrimary.series[1].data.push(item.buyData.min)
-                chartOptionsPrimary.series[2].data.push(item.buyData.max)
-                chartOptionsPrimary.series[3].data.push(item.buyData.volume)
-                chartOptionsPrimary.series[4].data.push(item.buyData.moving)
+                chartOptionsPrimary.series[1].data.push(item.buyData.min.toFixed(2))
+                chartOptionsPrimary.series[2].data.push(item.buyData.max.toFixed(2))
+                chartOptionsPrimary.series[3].data.push(item.buyData.volume.toFixed(2))
+                chartOptionsPrimary.series[4].data.push(item.buyData.moving.toFixed(2))
 
                 chartOptionsSecondary.series[0].data.push(
                     fetchspan === DateRange.HOUR
-                        ? item.sellData.price
-                        : [item.sellData.price, prices[i + 1] ? prices[i + 1].sellData.price : item.sellData.price, item.sellData.min, item.sellData.max]
+                        ? item.sellData.price.toFixed(2)
+                        : [item.sellData.price.toFixed(2), prices[i + 1] ? prices[i + 1].sellData.price.toFixed(2) : item.sellData.price.toFixed(2), item.sellData.min.toFixed(2), item.sellData.max.toFixed(2)]
                 )
-                chartOptionsSecondary.series[1].data.push(item.sellData.min)
-                chartOptionsSecondary.series[2].data.push(item.sellData.max)
-                chartOptionsSecondary.series[3].data.push(item.sellData.volume)
-                chartOptionsSecondary.series[4].data.push(item.sellData.moving)
+                chartOptionsSecondary.series[1].data.push(item.sellData.min.toFixed(2))
+                chartOptionsSecondary.series[2].data.push(item.sellData.max.toFixed(2))
+                chartOptionsSecondary.series[3].data.push(item.sellData.volume.toFixed(2))
+                chartOptionsSecondary.series[4].data.push(item.sellData.moving.toFixed(2))
             }
         })
 
