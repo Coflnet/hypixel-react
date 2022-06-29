@@ -41,6 +41,7 @@ function NewRestriction(props: Props) {
                     selected={props.newRestriction.item}
                     type="item"
                     backgroundColor="#404040"
+                    backgroundColorSelected="#222"
                     searchFunction={api.itemSearch}
                     onSearchresultClick={props.onSearchResultClick}
                     hideNavbar={true}
