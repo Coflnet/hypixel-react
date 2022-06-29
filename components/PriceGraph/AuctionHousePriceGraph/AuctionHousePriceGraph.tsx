@@ -79,7 +79,7 @@ function AuctionHousePriceGraph(props: Props) {
             itemFilter
         })
 
-        api.getItemPrices(props.item.tag, (fetchspan as globalThis.DateRange), itemFilter)
+        api.getItemPrices(props.item.tag, fetchspan as globalThis.DateRange, itemFilter)
             .then(prices => {
                 if (
                     !mounted ||
@@ -102,10 +102,10 @@ function AuctionHousePriceGraph(props: Props) {
 
                 prices.forEach(item => {
                     priceSum += item.avg
-                    chartOptions.series[0].data.push(item.avg)
-                    chartOptions.series[1].data.push(item.min)
-                    chartOptions.series[2].data.push(item.max)
-                    chartOptions.series[3].data.push(item.volume)
+                    chartOptions.series[0].data.push(item.avg.toFixed(2))
+                    chartOptions.series[1].data.push(item.min.toFixed(2))
+                    chartOptions.series[2].data.push(item.max.toFixed(2))
+                    chartOptions.series[3].data.push(item.volume.toFixed(2))
                 })
 
                 setAvgPrice(Math.round(priceSum / prices.length))
