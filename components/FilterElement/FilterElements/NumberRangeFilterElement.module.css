@@ -17,6 +17,6 @@
 }
 
 .textField:global(.form-control) {
-    width: 150px;
+    width: 75px;
     margin-right: 15px;
 }
