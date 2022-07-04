@@ -1,0 +1,22 @@
+.slider:global(.rc-slider) {
+    height: 38px;
+    padding-top: 15px;
+    margin-right: 10px;
+}
+
+.slider :global(.rc-slider-mark) {
+    margin-top: 5px;
+}
+
+.slider :global(.rc-slider-mark-text) {
+    cursor: default;
+}
+
+.container {
+    display: flex;
+}
+
+.textField:global(.form-control) {
+    width: 75px;
+    margin-right: 15px;
+}

@@ -232,7 +232,11 @@ function AuctionDetails(props: Props) {
                             </span>
                             <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
                                 <span style={{ marginRight: '10px' }}>
-                                    {getDungeonStarFormattedItemName(auctionDetails?.auction.item.name, getStyleForTier(auctionDetails.auction.item.tier), auctionDetails?.nbtData['dungeon_item_level'])}
+                                    {getDungeonStarFormattedItemName(
+                                        auctionDetails?.auction.item.name,
+                                        getStyleForTier(auctionDetails.auction.item.tier),
+                                        auctionDetails?.nbtData['dungeon_item_level']
+                                    )}
                                 </span>
                                 <Badge variant={countBadgeVariant} style={{ marginLeft: '5px' }}>
                                     x{auctionDetails?.count}
@@ -282,7 +286,11 @@ function AuctionDetails(props: Props) {
                     <CopyButton
                         buttonVariant="primary"
                         copyValue={
-                            isRunning(auctionDetails) ? '/viewauction ' + auctionDetails.auction.uuid : isClientSideRendering() ? document.location.href : ''
+                            isRunning(auctionDetails)
+                                ? '/viewauction ' + auctionDetails.auction.uuid
+                                : isClientSideRendering()
+                                ? `${location.hostname}/auction/${auctionDetails.auction.uuid}`
+                                : ''
                         }
                         successMessage={
                             isRunning(auctionDetails) ? (
