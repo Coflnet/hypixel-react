@@ -212,6 +212,9 @@ function ItemFilter(props: Props) {
             // dont set the first option for search-selects
             if (hasFlag(options.type, FilterType.EQUAL) || hasFlag(options.type, FilterType.BOOLEAN)) {
                 defaultValue = options.options[0]
+                if (options.name === 'Everything') {
+                    defaultValue = 'true'
+                }
             }
         }
         return defaultValue
