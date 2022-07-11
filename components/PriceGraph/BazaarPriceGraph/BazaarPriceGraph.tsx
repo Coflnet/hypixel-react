@@ -253,7 +253,6 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function setChartData(prices: BazaarPrice[]) {
-        console.log(prices)
         clearChartData()
 
         setXAxisData(chartOptionsPrimary, prices)

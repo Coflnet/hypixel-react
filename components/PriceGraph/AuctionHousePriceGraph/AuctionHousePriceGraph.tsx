@@ -93,8 +93,6 @@ function AuctionHousePriceGraph(props: Props) {
                     return
                 }
 
-                console.log(prices)
-
                 chartOptions.xAxis[0].data = prices.map(item => item.time.getTime())
 
                 let priceSum = 0
