@@ -192,7 +192,7 @@ interface API {
         onSubscribeSuccessCallback?: Function
     ): void
     unsubscribeFlips(): Promise<void>
-    getFilter(name: string): Promise<FilterOptions>
+    getFilters(tag: string): Promise<FilterOptions[]>
     getNewAuctions(): Promise<Auction[]>
     getEndedAuctions(): Promise<Auction[]>
     getPopularSearches(): Promise<PopularSearch[]>
@@ -203,7 +203,6 @@ interface API {
     getRefInfo(): Promise<RefInfo>
     setRef(refId: string): Promise<void>
     getActiveAuctions(item: Item, order: string, filter?: ItemFilter): Promise<RecentAuction[]>
-    filterFor(item: Item): Promise<FilterOptions[]>
     connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>
     getAccountInfo(): Promise<AccountInfo>
     itemSearch(searchText: string): Promise<FilterOptions[]>
@@ -218,7 +217,7 @@ interface API {
     getPlayerProfiles(playerUUID): Promise<SkyblockProfile[]>
     getCraftingRecipe(itemTag: string): Promise<CraftingRecipe>
     getLowestBin(itemTag: string): Promise<LowestBin>
-    flipFilters(item: Item): Promise<FilterOptions[]>
+    flipFilters(tag: string): Promise<FilterOptions[]>
     getBazaarTags(): Promise<string[]>
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>

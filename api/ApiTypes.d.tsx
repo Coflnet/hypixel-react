@@ -39,7 +39,6 @@ export enum RequestType {
     GET_REF_INFO = 'referral/info',
     SET_REF = 'referral/referred/by',
     ACTIVE_AUCTIONS = 'activeAuctions',
-    FILTER_FOR = 'filterFor',
     FLIP_FILTERS = 'flipFilters',
     CONNECT_MINECRAFT_ACCOUNT = 'conMc',
     GET_ACCOUNT_INFO = 'accountInfo',

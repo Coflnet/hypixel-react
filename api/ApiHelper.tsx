@@ -621,7 +621,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     returnSSRResponse ? resolve(data) : resolve(data.map(parseFlipAuction))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_FILTER, error, '')
+                    apiErrorHandler(RequestType.GET_FLIPS, error, '')
                 }
             })
         })
@@ -767,16 +767,17 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getFilter = (name: string): Promise<FilterOptions> => {
+    let getFilters = (tag: string): Promise<FilterOptions[]> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.GET_FILTER,
-                data: name,
+                customRequestURL: `${getApiEndpoint()}/filter/options?itemTag=${tag}`,
+                data: '',
                 resolve: (data: any) => {
-                    resolve(data)
+                    resolve(data.map(a => parseFilterOption(a)))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_FILTER, error, name)
+                    apiErrorHandler(RequestType.GET_FILTER, error, tag)
                 }
             })
         })
@@ -1130,25 +1131,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let filterFor = (item: Item): Promise<FilterOptions[]> => {
-        return new Promise((resolve, reject) => {
-            httpApi.sendLimitedCacheRequest(
-                {
-                    type: RequestType.FILTER_FOR,
-                    data: item.tag,
-                    resolve: function (data) {
-                        resolve(data.map(a => parseFilterOption(a)))
-                    },
-                    reject: function (error) {
-                        apiErrorHandler(RequestType.FILTER_FOR, error, item.tag)
-                        reject()
-                    }
-                },
-                1
-            )
-        })
-    }
-
     let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
@@ -1405,17 +1387,17 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let flipFilters = (item: Item): Promise<FilterOptions[]> => {
+    let flipFilters = (tag: string): Promise<FilterOptions[]> => {
         return new Promise((resolve, reject) => {
             httpApi.sendLimitedCacheRequest(
                 {
                     type: RequestType.FLIP_FILTERS,
-                    data: item.tag,
+                    data: tag,
                     resolve: function (data) {
                         resolve(data.map(a => parseFilterOption(a)))
                     },
                     reject: function (error) {
-                        apiErrorHandler(RequestType.FLIP_FILTERS, error, item.tag)
+                        apiErrorHandler(RequestType.FLIP_FILTERS, error, tag)
                         reject()
                     }
                 },
@@ -1662,7 +1644,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getRecentAuctions,
         getFlips,
         subscribeFlips,
-        getFilter,
+        getFilters,
         getNewPlayers,
         getNewItems,
         getPopularSearches,
@@ -1673,7 +1655,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getRefInfo,
         setRef,
         getActiveAuctions,
-        filterFor,
         connectMinecraftAccount,
         getAccountInfo,
         unsubscribeFlips,

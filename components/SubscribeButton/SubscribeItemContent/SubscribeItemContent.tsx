@@ -17,7 +17,7 @@ function SubscribeItemContent(props: Props) {
     let [filterOptions, setFilterOptions] = useState<FilterOptions[]>()
 
     useEffect(() => {
-        api.filterFor({ tag: props.itemTag }).then(options => {
+        api.getFilters(props.itemTag).then(options => {
             setFilterOptions(options)
         })
         // eslint-disable-next-line react-hooks/exhaustive-deps

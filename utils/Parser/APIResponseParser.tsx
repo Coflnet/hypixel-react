@@ -315,7 +315,7 @@ export function parseRefInfo(refInfo): RefInfo {
 
 export function parseFilterOption(filterOption): FilterOptions {
     return {
-        name: filterOption.name,
+        name: convertTagToName(filterOption.name),
         options: filterOption.options,
         type: filterOption.type
     }
