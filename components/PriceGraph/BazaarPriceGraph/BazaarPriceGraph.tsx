@@ -314,10 +314,7 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function setXAxisData(chartOptions, prices: BazaarPrice[]) {
-        chartOptions.xAxis[0].data = prices.map(p => p.timestamp).map(timestamp => timestamp.getTime())
-        chartOptions.xAxis[0].data = chartOptions.xAxis[0].data.sort((a, b) => {
-            return (a as number) - (b as number)
-        })
+        chartOptions.xAxis[0].data = prices.map(p => p.timestamp.getTime())
     }
 
     function onGraphTypeChange(e: ChangeEvent<HTMLInputElement>) {

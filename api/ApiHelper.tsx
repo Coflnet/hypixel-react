@@ -141,7 +141,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         resolve(data)
                         return
                     }
-                    resolve(data ? data.map(parseItemPrice) : [])
+                    resolve(data ? data.map(parseItemPrice).sort((a: ItemPrice, b: ItemPrice) => a.time.getTime() - b.time.getTime()) : [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_PRICES, error, {
@@ -163,7 +163,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/${fetchSpan}`,
                 requestMethod: 'GET',
                 resolve: (data: any) => {
-                    resolve(data.map(parseBazaarPrice))
+                    resolve(data ? data.map(parseBazaarPrice).sort((a: BazaarPrice, b: BazaarPrice) => a.timestamp.getTime() - b.timestamp.getTime()) : [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.BAZAAR_PRICES, error, {
@@ -187,6 +187,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/?start=${startDateIso}&end=${endDateIso}`,
                 requestMethod: 'GET',
                 resolve: (data: any) => {
+
                     data = data.filter(d => d.sell !== undefined && d.buy !== undefined)
 
                     let sumBuy = 0
@@ -198,7 +199,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     let avgBuy = sumBuy / data.length
                     let avgSell = sumSell / data.length
 
-                    let bazaarData: BazaarPrice[] = data.map(parseBazaarPrice)
+                    let bazaarData: BazaarPrice[] = data
+                        .map(parseBazaarPrice)
+                        .sort((a: BazaarPrice, b: BazaarPrice) => a.timestamp.getTime() - b.timestamp.getTime())
                     let normalizer = 8
                     resolve(
                         bazaarData.filter(
