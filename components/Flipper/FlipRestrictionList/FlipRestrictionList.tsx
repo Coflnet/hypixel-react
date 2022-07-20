@@ -32,8 +32,8 @@ function FlipRestrictionList(props: Props) {
 
     function loadFilters() {
         Promise.all([
-            api.filterFor({ tag: newRestriction.item ? newRestriction.item.tag : '*' }),
-            api.flipFilters({ tag: newRestriction.item ? newRestriction.item.tag : '*' })
+            api.getFilters(newRestriction.item ? newRestriction.item.tag : '*'),
+            api.flipFilters(newRestriction.item ? newRestriction.item.tag : '*')
         ]).then(filters => {
             setFilters([...filters[0], ...filters[1]])
         })
@@ -111,7 +111,7 @@ function FlipRestrictionList(props: Props) {
 
     function overrideEditedFilter() {
         restrictionInEditModeIndex.forEach(index => {
-            restrictions[index].itemFilter = {...newRestriction.itemFilter}
+            restrictions[index].itemFilter = { ...newRestriction.itemFilter }
             restrictions[index].isEdited = false
         })
 
@@ -191,30 +191,29 @@ function FlipRestrictionList(props: Props) {
 
     function editRestriction(restriction: FlipRestriction, index: number) {
         if (restrictionInEditModeIndex.length === 0) {
-            newRestriction.itemFilter = {...restriction.itemFilter}
+            newRestriction.itemFilter = { ...restriction.itemFilter }
             setNewRestriction(newRestriction)
         }
 
-        Promise.all([
-            api.filterFor({ tag: restriction.item ? restriction.item.tag : '*' }),
-            api.flipFilters({ tag: restriction.item ? restriction.item.tag : '*' })
-        ]).then(res => {
-            let newFilters = [...res[0], ...res[1]]
+        Promise.all([api.getFilters(restriction.item ? restriction.item.tag : '*'), api.flipFilters(restriction.item ? restriction.item.tag : '*')]).then(
+            res => {
+                let newFilters = [...res[0], ...res[1]]
 
-            if (restrictionInEditModeIndex.length === 0) {
-                setFilters(filters)
-            } else {
-                // as there is already a restriction selected for edit
-                // we have to remove filters that dont match with the newly selected restriction
-                var intersectingNames = filters.map(f => f.name).filter(x => newFilters.map(f => f.name).includes(x))
-                setFilters(filters.filter(f => intersectingNames.includes(f.name)))
+                if (restrictionInEditModeIndex.length === 0) {
+                    setFilters(filters)
+                } else {
+                    // as there is already a restriction selected for edit
+                    // we have to remove filters that dont match with the newly selected restriction
+                    var intersectingNames = filters.map(f => f.name).filter(x => newFilters.map(f => f.name).includes(x))
+                    setFilters(filters.filter(f => intersectingNames.includes(f.name)))
+                }
+
+                restriction.isEdited = true
+                restrictionInEditModeIndex.push(index)
+                setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+                forceUpdate()
             }
-
-            restriction.isEdited = true
-            restrictionInEditModeIndex.push(index)
-            setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
-            forceUpdate()
-        })
+        )
     }
 
     function changeRestrictionType(restriction: FlipRestriction, type: 'whitelist' | 'blacklist') {

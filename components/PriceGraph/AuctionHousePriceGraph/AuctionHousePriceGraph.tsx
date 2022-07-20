@@ -136,7 +136,7 @@ function AuctionHousePriceGraph(props: Props) {
     }
 
     function loadFilters() {
-        return api.filterFor(props.item)
+        return api.getFilters(props.item.tag)
     }
 
     function setSelectedLegendOptionsFromLocalStorage() {
