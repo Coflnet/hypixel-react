@@ -7,6 +7,7 @@ import { numberWithThousandsSeperators } from '../../../../utils/Formatter'
 import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../../../utils/SSRUtils'
 import moment from 'moment'
+import Link from 'next/link'
 
 interface Props {
     flipTrackingResponse: any
@@ -42,15 +43,19 @@ function Flipper(props: Props) {
                     currentElement={
                         <p>
                             <span style={{ fontSize: 'larger', marginRight: '20px' }}>Tracked flips of:</span>
-                            <img
-                                crossOrigin="anonymous"
-                                className="playerHeadIcon"
-                                src={player.iconUrl}
-                                height="32"
-                                alt=""
-                                style={{ marginRight: '10px' }}
-                            />
-                            <span>{player.name}</span>
+                            <Link href={`/player/${player.uuid}`}>
+                                <span style={{ cursor: 'pointer' }}>
+                                    <img
+                                        crossOrigin="anonymous"
+                                        className="playerHeadIcon"
+                                        src={player.iconUrl}
+                                        height="32"
+                                        alt=""
+                                        style={{ marginRight: '10px' }}
+                                    />
+                                    <span>{player.name}</span>
+                                </span>
+                            </Link>
                         </p>
                     }
                 />
@@ -66,9 +71,7 @@ function Flipper(props: Props) {
 
 export const getStaticProps = async ({ params }) => {
     let api = initAPI(true)
-    let apiResponses = await Promise.all(
-        [api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null))
-    )
+    let apiResponses = await Promise.all([api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null)))
 
     return {
         props: {

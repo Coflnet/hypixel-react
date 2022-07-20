@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import React, { useEffect } from 'react'
 import { Container } from 'react-bootstrap'
 import { initAPI } from '../../../../api/ApiHelper'
@@ -75,8 +76,19 @@ function Flipper(props: Props) {
                     currentElement={
                         <p>
                             <span style={{ fontSize: 'larger', marginRight: '20px' }}>Tracked flips of:</span>
-                            <img crossOrigin="anonymous" className="playerHeadIcon" src={player.iconUrl} height="32" alt="" style={{ marginRight: '10px' }} />
-                            <span>{player.name}</span>
+                            <Link href={`/player/${player.uuid}`}>
+                                <span style={{ cursor: 'pointer' }}>
+                                    <img
+                                        crossOrigin="anonymous"
+                                        className="playerHeadIcon"
+                                        src={player.iconUrl}
+                                        height="32"
+                                        alt=""
+                                        style={{ marginRight: '10px' }}
+                                    />
+                                    <span>{player.name}</span>
+                                </span>
+                            </Link>
                         </p>
                     }
                 />
