@@ -109,7 +109,12 @@ function FilterElement(props: Props) {
         if (options.name === 'Color') {
             return <ColorFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
         }
-        if (options.name === 'EnchantLvl') {
+        if (
+            options.options.length === 2 &&
+            !isNaN(parseInt(options.options[0])) &&
+            !isNaN(parseInt(options.options[1])) &&
+            parseInt(options.options[1]) <= 10
+        ) {
             return (
                 <NumberRangeFilterElement
                     key={options.name}
