@@ -5,19 +5,16 @@ import { convertTagToName, getStyleForTier, numberWithThousandsSeperators } from
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import styles from './KatFlips.module.css'
 import { toast } from 'react-toastify'
-import { useRouter } from 'next/router'
 import Link from 'next/link'
 
 interface Props {
     flips: KatFlip[]
 }
-
 interface SortOption {
     label: string
     value: string
     sortFunction(flips: KatFlip[])
 }
-
 const SORT_OPTIONS: SortOption[] = [
     {
         label: 'Profit',
@@ -49,7 +46,6 @@ export function KatFlips(props: Props) {
     let [hasPremium, setHasPremium] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
-    let router = useRouter()
 
     useEffect(() => {
         // reset the blur observer, when something changed
