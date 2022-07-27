@@ -17,6 +17,8 @@ const matomoTrackingInstance = createInstance({
     siteId: 1
 })
 
+initCoflCoinManager()
+
 function MyApp({ Component, pageProps }) {
     useEffect(() => {
         window.addEventListener('error', function (event) {
@@ -38,7 +40,6 @@ function MyApp({ Component, pageProps }) {
                 location.reload()
             }
         })
-        initCoflCoinManager()
     }, [])
 
     return (
