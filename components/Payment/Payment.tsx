@@ -154,10 +154,13 @@ function Payment(props: Props) {
                 </Card.Header>
                 <Card.Body>
                     <p>
-                        We noticed that your CoflCoins are not a multiple of 1.800 and therefore you would not be able to use all of them to buy premium. Here
-                        you can purchase {numberWithThousandsSeperators(coflCoinsToBuy)} CoflCoins to again be able to do that.
+                        We noticed that your CoflCoins are not a multiple of {numberWithThousandsSeperators(1800)} and therefore you would not be able to use
+                        all of them to buy premium. Here you can purchase {numberWithThousandsSeperators(coflCoinsToBuy)} CoflCoins to again be able to do that.
                     </p>
-                    <p>Due to the fees we have to pay to our payment providers we sadly can't provide purchases of less than 1.800 CoflCoins at once.</p>
+                    <p>
+                        Due to the fees we have to pay to our payment providers we sadly can't provide purchases of less than{' '}
+                        {numberWithThousandsSeperators(1800)} CoflCoins at once.
+                    </p>
                     <hr />
                     <p className={styles.paymentOption}>
                         <div className={styles.paymentLabel}>Buy with Paypal {paypalHigherPricesTooltip}</div>
