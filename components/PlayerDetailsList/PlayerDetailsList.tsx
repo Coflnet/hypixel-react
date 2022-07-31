@@ -37,9 +37,9 @@ function PlayerDetailsList(props: Props) {
     let forceUpdate = useForceUpdate()
     let router = useRouter()
 
-    let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
-    let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < 12 : false)
-    let [playerName, setPlayerName] = useState('')
+    let [listElements, setListElements] = useState<(Auction | BidForList)[]>([])
+    let [allElementsLoaded, setAllElementsLoaded] = useState<boolean>()
+    let [playerName, setPlayerName] = useState<string>('')
     let isLoadingElements = useRef(false)
 
     useEffect(() => {
@@ -75,6 +75,9 @@ function PlayerDetailsList(props: Props) {
                 return
             }
             setPlayerName(name)
+            setPlayerName(name)
+            setListElements(props.auctions || [])
+            setAllElementsLoaded(props.auctions ? props.auctions.length < 12 : false)
         })
     }, [props.playerUUID])
 
