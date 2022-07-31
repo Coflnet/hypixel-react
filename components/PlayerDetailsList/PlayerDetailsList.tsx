@@ -14,9 +14,9 @@ import styles from './PlayerDetailsList.module.css'
 
 interface Props {
     playerUUID: string
+    playerName: string
     loadingDataFunction: Function
     type: 'auctions' | 'bids'
-    auctions?: Auction[]
 }
 
 interface ListState {
@@ -43,51 +43,44 @@ function PlayerDetailsList(props: Props) {
     let isLoadingElements = useRef(false)
 
     useEffect(() => {
+
         mounted = true
         router.events.on('routeChangeStart', onRouteChange)
 
+        setPlayerName(props.playerName)
+
         let listState = getListState()
-        if (listState !== undefined) {
+        if (listState) {
             setListElements(listState.listElements)
             setAllElementsLoaded(listState.allElementsLoaded)
-            setTimeout(() => {
-                if (!mounted) {
-                    return
-                }
-                window.scrollTo({
-                    left: 0,
-                    top: listState!.yOffset,
-                    behavior: 'auto'
-                })
-            }, 100)
+            isLoadingElements.current = false
         }
+        else {
+            // We need to set reset to true to remove the previous player's listElements
+            loadNewElements(true)
+        }
+
+        setTimeout(() => {
+            if (!mounted) {
+                return
+            }
+            window.scrollTo({
+                left: 0,
+                top: listState!.yOffset,
+                behavior: 'auto'
+            })
+        }, 100)
 
         return () => {
             mounted = false
             router.events.off('routeChangeStart', onRouteChange)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
 
-    useEffect(() => {
-        api.getPlayerName(props.playerUUID).then(name => {
-            if (!mounted) {
-                return
-            }
-            setPlayerName(name)
-            setPlayerName(name)
-            setListElements(props.auctions || [])
-            setAllElementsLoaded(props.auctions ? props.auctions.length < 12 : false)
-        })
     }, [props.playerUUID])
 
-    useEffect(() => {
-        if (!props.auctions) {
-            loadNewElements()
-        }
-    }, [props.auctions])
 
     let onRouteChange = () => {
+        console.log("list States", listStates)
         let listState = getListState()
         if (listState) {
             listState.yOffset = window.pageYOffset

@@ -23,13 +23,11 @@ enum DetailType {
 let prevDetailType: DetailType
 
 interface Props {
-    auctions?: any[]
     player?: any
 }
 
 function PlayerDetails(props: Props) {
     const router = useRouter()
-    let uuid = router.query.uuid as string
     let [detailType, setDetailType_] = useState<DetailType>(prevDetailType || DetailType.AUCTIONS)
     let [selectedPlayer, setSelectedPlayer] = useState<Player>(parsePlayer(props.player))
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
@@ -48,15 +46,8 @@ function PlayerDetails(props: Props) {
         if (!isClientSideRendering()) {
             return
         }
-        api.getPlayerName(uuid).then(name => {
-            setSelectedPlayer(
-                parsePlayer({
-                    uuid: uuid,
-                    name: name
-                })
-            )
-        })
-    }, [uuid])
+        setSelectedPlayer(parsePlayer(props.player))
+    }, [props.player.uuid])
 
     function onSwipeRight() {
         setDetailType(DetailType.AUCTIONS)
@@ -86,12 +77,12 @@ function PlayerDetails(props: Props) {
         })
     }
 
-    let claimAccountElement = !isLoggedIn ? null : uuid !== accountInfo?.mcId ? (
+    let claimAccountElement = !isLoggedIn ? null : props.player.uuid !== accountInfo?.mcId ? (
         <span style={{ marginLeft: '25px' }}>
             <Tooltip
                 type="click"
                 content={<span style={{ color: '#007bff', cursor: 'pointer' }}>You? Claim account.</span>}
-                tooltipContent={<ClaimAccount playerUUID={uuid} />}
+                tooltipContent={<ClaimAccount playerUUID={props.player.uuid} />}
                 size="xl"
                 tooltipTitle={<span>Claim Minecraft account</span>}
             />
@@ -102,7 +93,7 @@ function PlayerDetails(props: Props) {
 
     // special case for people searching hyauctions
     // window.document.referrer.includes('google')
-    if (uuid === 'be7002531956406d81c535a81fe2833a') {
+    if (props.player.uuid === 'be7002531956406d81c535a81fe2833a') {
         return (
             <div className="page">
                 {getHeadElement(
@@ -150,7 +141,7 @@ function PlayerDetails(props: Props) {
                             />
                             <span>{selectedPlayer?.name}</span>
                             {claimAccountElement}
-                            <Link href={`/player/${uuid}/flips`}>
+                            <Link href={`/player/${props.player.uuid}/flips`}>
                                 <Button style={{ marginLeft: '15px' }} variant="info">
                                     Check tracked flips
                                 </Button>
@@ -170,13 +161,19 @@ function PlayerDetails(props: Props) {
                     <PlayerDetailsList
                         key={'auctions'}
                         type="auctions"
-                        auctions={props.auctions?.map(parseAuction)}
                         loadingDataFunction={api.getAuctions}
-                        playerUUID={uuid}
+                        playerUUID={props.player.uuid}
+                        playerName={props.player.name}
                     />
                 ) : undefined}
                 {detailType === DetailType.BIDS ? (
-                    <PlayerDetailsList key={'bids'} type="bids" loadingDataFunction={api.getBids} playerUUID={uuid} />
+                    <PlayerDetailsList 
+                        key={'bids'} 
+                        type="bids" 
+                        loadingDataFunction={api.getBids} 
+                        playerUUID={props.player.uuid} 
+                        playerName={props.player.name}
+                    />
                 ) : undefined}
             </Container>
         </div>
@@ -186,10 +183,8 @@ function PlayerDetails(props: Props) {
 export const getStaticProps = async ({ params }) => {
     let api = initAPI(true)
     let playerName = await api.getPlayerName(params.uuid)
-    let auctions = await api.getAuctions(params.uuid, 12, 0)
     return {
         props: {
-            auctions: auctions,
             player: {
                 uuid: params.uuid,
                 name: playerName
