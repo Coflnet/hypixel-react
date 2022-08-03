@@ -53,14 +53,15 @@ function RecentAuctions(props: Props) {
             let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
 
             switch (fetchType) {
-                case RECENT_AUCTIONS_FETCH_TYPE.SOLD:
-                    itemFilter['HighestBid'] = '>0'
-                    break
                 case RECENT_AUCTIONS_FETCH_TYPE.UNSOLD:
                     itemFilter['HighestBid'] = '0'
                     break
                 case RECENT_AUCTIONS_FETCH_TYPE.ALL:
+                    break
+                case RECENT_AUCTIONS_FETCH_TYPE.SOLD:
                 default:
+                    itemFilter['HighestBid'] = '>0'
+                    break
                     break
             }
         }
@@ -130,7 +131,7 @@ function RecentAuctions(props: Props) {
                 {!isSSR ? (
                     <Form.Control
                         as="select"
-                        defaultValue={localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY) || RECENT_AUCTIONS_FETCH_TYPE.ALL}
+                        defaultValue={localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY) || RECENT_AUCTIONS_FETCH_TYPE.SOLD}
                         className={styles.recentAuctionsFetchType}
                         onChange={onFetchTypeChange}
                     >
