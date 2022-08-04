@@ -98,7 +98,7 @@ function Flipper(props: Props) {
     )
 }
 
-export const getStaticProps = async ({ params }) => {
+export const getServerSideProps = async ({ params }) => {
     let api = initAPI(true)
     let apiResponses = await Promise.all([api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null)))
 
@@ -109,13 +109,8 @@ export const getStaticProps = async ({ params }) => {
                 name: apiResponses[0]
             },
             flipTrackingResponse: apiResponses[1] || { flips: [], totalProfit: 0 }
-        },
-        revalidate: 60
+        }
     }
-}
-
-export async function getStaticPaths() {
-    return { paths: [], fallback: 'blocking' }
 }
 
 export default Flipper

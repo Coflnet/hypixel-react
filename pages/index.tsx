@@ -32,7 +32,7 @@ const Startpage = (props: Props) => {
     )
 }
 
-export const getStaticProps = async () => {
+export const getServerSideProps = async () => {
     let api = initAPI(true)
     // Dont load ended Auctions, as this is a expensive computation and can take multiple seconds
     let results = await Promise.all([api.getNewAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => null)))
@@ -43,8 +43,7 @@ export const getStaticProps = async () => {
             newPlayers: results[1] || [],
             popularSearches: results[2] || [],
             newItems: results[3] || []
-        },
-        revalidate: 60
+        }
     }
 }
 

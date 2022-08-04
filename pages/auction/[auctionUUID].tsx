@@ -87,7 +87,7 @@ function AuctionDetailsPage(props: Props) {
     )
 }
 
-export const getStaticProps = async ({ params }) => {
+export const getServerSideProps = async ({ params }) => {
     let auctionUUID = params.auctionUUID as string
     let api = initAPI(true)
     let auctionDetails: any
@@ -168,13 +168,8 @@ export const getStaticProps = async ({ params }) => {
     return {
         props: {
             auctionDetails: auctionDetails
-        },
-        revalidate: 60
+        }
     }
-}
-
-export async function getStaticPaths() {
-    return { paths: [], fallback: 'blocking' }
 }
 
 export default AuctionDetailsPage

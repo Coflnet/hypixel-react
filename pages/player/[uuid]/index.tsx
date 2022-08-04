@@ -183,7 +183,7 @@ function PlayerDetails(props: Props) {
     )
 }
 
-export const getStaticProps = async ({ params }) => {
+export const getServerSideProps = async ({ params }) => {
     let api = initAPI(true)
     let playerName = await api.getPlayerName(params.uuid)
     let auctions = await api.getAuctions(params.uuid, 12, 0)
@@ -194,13 +194,8 @@ export const getStaticProps = async ({ params }) => {
                 uuid: params.uuid,
                 name: playerName
             }
-        },
-        revalidate: 60
+        }
     }
-}
-
-export async function getStaticPaths() {
-    return { paths: [], fallback: 'blocking' }
 }
 
 export default PlayerDetails

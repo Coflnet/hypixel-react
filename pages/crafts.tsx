@@ -26,15 +26,14 @@ function Crafts(props: Props) {
     )
 }
 
-export const getStaticProps = async () => {
+export const getServerSideProps = async () => {
     let api = initAPI(true)
     let results = await Promise.all([api.getProfitableCrafts(), api.getBazaarTags()])
     return {
         props: {
             crafts: results[0],
             bazaarTags: results[1]
-        },
-        revalidate: 60
+        }
     }
 }
 

@@ -69,7 +69,7 @@ function Flipper(props: Props) {
     )
 }
 
-export const getStaticProps = async ({ params }) => {
+export const getServerSideProps = async ({ params }) => {
     let api = initAPI(true)
     let apiResponses = await Promise.all([api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null)))
 
@@ -81,13 +81,8 @@ export const getStaticProps = async ({ params }) => {
             },
             flipTrackingResponse: apiResponses[1],
             targetFlip: (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString(16) === params.flipUid)
-        },
-        revalidate: 60
+        }
     }
-}
-
-export async function getStaticPaths() {
-    return { paths: [], fallback: 'blocking' }
 }
 
 export default Flipper
