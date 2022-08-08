@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { Card, Form } from 'react-bootstrap'
 import * as SparkMD5 from 'spark-md5'
+import api from '../../api/ApiHelper'
 
 function RatChecker() {
     let ratFileInput = useRef(null)
@@ -14,7 +15,7 @@ function RatChecker() {
     }, [])
 
     function onFileUpload(e) {
-        var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
+        var blobSlice = File.prototype.slice || (File.prototype as any).mozSlice || (File.prototype as any).webkitSlice,
             file = this.files[0],
             chunkSize = 2097152, // Read in chunks of 2MB
             chunks = Math.ceil(file.size / chunkSize),
@@ -23,15 +24,16 @@ function RatChecker() {
             fileReader = new FileReader()
 
         fileReader.onload = function (e) {
-            console.log('read chunk nr', currentChunk + 1, 'of', chunks)
             spark.append(e.target.result) // Append array buffer
             currentChunk++
 
             if (currentChunk < chunks) {
                 loadNext()
             } else {
-                console.log('finished loading')
-                console.info('computed hash', spark.end()) // Compute hash
+                let hash = spark.end()
+                api.checkRat(hash).then(result => {
+                    console.log(result)
+                })
             }
         }
 

@@ -1621,22 +1621,18 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let checkRat = (hash: string): Promise<RatCheckingResponse> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendApiRequest(
-                {
-                    type: RequestType.CHECK_FOR_RAT,
-                    data: '',
-                    requestMethod: 'POST',
-                    customRequestURL: `https://isthisarat.com/api/signature/`,
-                    resolve: (data: RatCheckingResponse) => {
-                        resolve(data)
-                    },
-                    reject: (error: any) => {
-                        apiErrorHandler(RequestType.CHECK_FOR_RAT, error, hash)
-                        reject(error)
-                    }
+            httpApi.sendApiRequest({
+                type: RequestType.CHECK_FOR_RAT,
+                data: '',
+                customRequestURL: `https://isthisarat.com/api/signature/${hash}`,
+                resolve: (data: RatCheckingResponse) => {
+                    resolve(data)
                 },
-                hash
-            )
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.CHECK_FOR_RAT, error, hash)
+                    reject(error)
+                }
+            })
         })
     }
 
@@ -1705,7 +1701,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getBazaarPricesByRange,
         subscribeFlipsAnonym,
         getPrivacySettings,
-        setPrivacySettings
+        setPrivacySettings,
+        checkRat
     }
 }
 
