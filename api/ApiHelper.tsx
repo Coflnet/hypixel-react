@@ -187,7 +187,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/?start=${startDateIso}&end=${endDateIso}`,
                 requestMethod: 'GET',
                 resolve: (data: any) => {
-
                     data = data.filter(d => d.sell !== undefined && d.buy !== undefined)
 
                     let sumBuy = 0
@@ -1616,6 +1615,27 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     }
                 },
                 JSON.stringify(settings)
+            )
+        })
+    }
+
+    let checkRat = (hash: string): Promise<RatCheckingResponse> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.CHECK_FOR_RAT,
+                    data: '',
+                    requestMethod: 'POST',
+                    customRequestURL: `https://isthisarat.com/api/signature/`,
+                    resolve: (data: RatCheckingResponse) => {
+                        resolve(data)
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.CHECK_FOR_RAT, error, hash)
+                        reject(error)
+                    }
+                },
+                hash
             )
         })
     }
