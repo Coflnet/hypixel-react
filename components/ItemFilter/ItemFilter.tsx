@@ -113,6 +113,7 @@ function ItemFilter(props: Props) {
         setSelectedFilters([])
         setExpanded(false)
         setItemFilter({})
+        onFilterChange({})
     }
 
     function onFilterRemoveClick(filterName: string) {
