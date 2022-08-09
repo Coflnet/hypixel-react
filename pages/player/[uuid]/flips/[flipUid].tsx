@@ -21,7 +21,7 @@ function Flipper(props: Props) {
     let targetFlip = parseFlipTrackingFlip(props.targetFlip)
 
     function getTargetFlipEmbedDescription(targetFlip: FlipTrackingFlip) {
-        return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeperators(targetFlip.profit)} Coins ${targetFlip.profit > 0 ? `(${Math.round((targetFlip.profit / targetFlip.pricePaid) * 100)}%)` : ''}
+        return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeperators(targetFlip.profit)} Coins ${targetFlip.profit > 0 ? `(${Math.round((targetFlip.profit / targetFlip.pricePaid) * 98)}%)` : ''}
         💸 Purchase: ${numberWithThousandsSeperators(targetFlip.pricePaid)} Coins
         💰 Sold: ${numberWithThousandsSeperators(targetFlip.soldFor)} Coins
         🕑 Sold at ${moment(targetFlip.sellTime).format('MMMM Do YYYY, h:mm:ss a')}
