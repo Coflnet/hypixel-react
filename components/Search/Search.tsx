@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
 import { useRouter } from 'next/router'
+import { useForceUpdate } from '../../utils/Hooks'
 
 interface Props {
     selected?: Player | Item
@@ -46,6 +47,7 @@ function Search(props: Props) {
     }).show
 
     let searchElement = useRef(null)
+    let forceUpdate = useForceUpdate()
 
     useEffect(() => {
         if (isClientSideRendering()) {
@@ -341,8 +343,18 @@ function Search(props: Props) {
                                       className={`${styles.searchResultIcon} playerHeadIcon`}
                                       crossOrigin="anonymous"
                                       width={32}
-                                      src={result.dataItem.iconUrl}
+                                      height={32}
+                                      src={
+                                          result.dataItem._imageLoaded
+                                              ? result.dataItem.iconUrl
+                                              : 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPMqAcAAVUA6UpAAT4AAAAASUVORK5CYII='
+                                      }
                                       alt=""
+                                      onLoad={() => {
+                                          result.dataItem._imageLoaded = true
+                                          setResults(results)
+                                          forceUpdate()
+                                      }}
                                   />
                               ) : (
                                   <Spinner animation="border" role="status" variant="primary" />
