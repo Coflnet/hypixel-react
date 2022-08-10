@@ -165,7 +165,7 @@ function BuyPremium() {
                                 onClick={() => {
                                     setShowConfirmationDialog(true)
                                 }}
-                                disabled={purchasePremiumDuration * PREMIUM_PRICE_MONTH > coflCoins || isPurchasing}
+                                disabled={getPurchasePrice() > coflCoins || isPurchasing}
                             >
                                 Purchase
                             </Button>
