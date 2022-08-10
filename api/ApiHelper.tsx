@@ -28,7 +28,7 @@ import {
     parseSkyblockProfile,
     parseSubscription
 } from '../utils/Parser/APIResponseParser'
-import { RequestType, SubscriptionType, Subscription, HttpApi } from './ApiTypes.d'
+import { RequestType, SubscriptionType, Subscription, HttpApi, CUSTOM_EVENTS } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
 import { v4 as generateUUID } from 'uuid'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
@@ -187,7 +187,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/?start=${startDateIso}&end=${endDateIso}`,
                 requestMethod: 'GET',
                 resolve: (data: any) => {
-
                     data = data.filter(d => d.sell !== undefined && d.buy !== undefined)
 
                     let sumBuy = 0
@@ -1010,12 +1009,12 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let subscribeCoflCoinChange = () => {
-        // TODO: Has yet to be implemented by the backend
-        /*
         websocketHelper.subscribe({
-            type: RequestType.SUBSCRIBE_COFLCOINS,
+            type: RequestType.SUB_EVENTS,
             data: '',
             callback: function (response) {
+                console.log(response)
+                return
                 switch (response.type) {
                     case 'coflCoinUpdate':
                         document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: response.data } }))
@@ -1023,9 +1022,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     default:
                         break
                 }
+            },
+            resubscribe(subscription) {
+                subscribeCoflCoinChange()
             }
         })
-        */
     }
 
     let getCoflcoinBalance = (): Promise<number> => {
