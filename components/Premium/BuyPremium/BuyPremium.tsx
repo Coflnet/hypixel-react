@@ -8,10 +8,30 @@ import { useCoflCoins } from '../../../utils/Hooks'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import styles from './BuyPremium.module.css'
 
-const PREMIUM_PRICE_MONTH = 1800
-const PRODUCT_ID = 'premium'
+interface PREMIUM_TYPE {
+    productId: string
+    label: string
+    price: number
+    durationString: string
+}
+
+const PREMIUM_TYPES: PREMIUM_TYPE[] = [
+    {
+        productId: 'premium',
+        label: 'Premium',
+        price: 1800,
+        durationString: 'month'
+    },
+    {
+        productId: 'premium_plus',
+        label: 'Premium+',
+        price: 1800,
+        durationString: 'week'
+    }
+]
 
 function BuyPremium() {
+    let [purchasePremiumType, setPurchasePremiumType] = useState<PREMIUM_TYPE>(PREMIUM_TYPES[0])
     let [purchaseSuccessfulMonths, setPurchaseSuccessfulMonths] = useState<number>()
     let [isPurchasing, setIsPurchasing] = useState(false)
     let [purchasePremiumDuration, setPurchasePremiumDuration] = useState(1)
@@ -22,12 +42,17 @@ function BuyPremium() {
         setPurchasePremiumDuration(parseInt(event.target.value) || 1)
     }
 
+    function onPremiumTypeChange(event: ChangeEvent<HTMLSelectElement>) {
+        let selectedType = PREMIUM_TYPES.find(type => type.productId === event.target.value)
+        setPurchasePremiumType(selectedType)
+    }
+
     function onPremiumBuy() {
         setShowConfirmationDialog(false)
         setIsPurchasing(true)
-        api.purchaseWithCoflcoins(PRODUCT_ID, purchasePremiumDuration).then(() => {
+        api.purchaseWithCoflcoins(purchasePremiumType.productId, purchasePremiumDuration).then(() => {
             document.dispatchEvent(
-                new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: coflCoins - PREMIUM_PRICE_MONTH * purchasePremiumDuration } })
+                new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: coflCoins - purchasePremiumType.price * purchasePremiumDuration } })
             )
             setPurchaseSuccessfulMonths(purchasePremiumDuration)
             setIsPurchasing(false)
@@ -37,6 +62,18 @@ function BuyPremium() {
 
     function onPremiumBuyCancel() {
         setShowConfirmationDialog(false)
+    }
+
+    function getPurchasePrice() {
+        return purchasePremiumDuration * purchasePremiumType.price
+    }
+
+    function getDurationString(): string {
+        let durationString = purchasePremiumType.durationString
+        if (purchasePremiumDuration > 1) {
+            durationString += 's'
+        }
+        return durationString
     }
 
     let confirmationDialog = (
@@ -50,10 +87,16 @@ function BuyPremium() {
                 <Modal.Title>Confirmation</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p>
-                    You are purchasing {purchasePremiumDuration} {purchasePremiumDuration === 1 ? 'month' : 'months'} of premium for{' '}
-                    {numberWithThousandsSeperators(purchasePremiumDuration * PREMIUM_PRICE_MONTH)} CoflCoins.
-                </p>
+                <ul>
+                    <li>
+                        <span className={styles.label}>Duration:</span>
+                        {purchasePremiumDuration} {purchasePremiumDuration === 1 ? 'Month' : 'Months'}
+                    </li>
+                    <li>
+                        <span className={styles.label}>Price:</span>
+                        {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins
+                    </li>
+                </ul>
                 <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
                 <hr />
                 <Button variant="danger" onClick={onPremiumBuyCancel}>
@@ -68,13 +111,24 @@ function BuyPremium() {
 
     return (
         <>
-            <Card className="purchase-card">
+            <Card className={styles.purchaseCard}>
                 <Card.Header>
                     <Card.Title>Buy premium for a certain duration with your CoflCoins. Your premium time starts shortly after your purchase.</Card.Title>
                 </Card.Header>
                 <div style={{ padding: '15px' }}>
                     {!purchaseSuccessfulMonths ? (
                         <div>
+                            <div style={{ marginBottom: '15px' }}>
+                                <label className={styles.label}>Premium type:</label>
+                                <Form.Control as="select" onChange={onPremiumTypeChange} style={{ width: '100px', display: 'inline' }}>
+                                    {PREMIUM_TYPES.map(premiumType => (
+                                        <option value={premiumType.productId}>{premiumType.label}</option>
+                                    ))}
+                                </Form.Control>
+                                <div className={styles.coinBalance}>
+                                    <CoflCoinsDisplay />
+                                </div>
+                            </div>
                             <div style={{ marginBottom: '15px' }}>
                                 <label className={styles.label}>Purchase Duration:</label>
                                 <Form.Control as="select" onChange={onDurationChange} style={{ width: '50px', display: 'inline' }}>
@@ -91,19 +145,16 @@ function BuyPremium() {
                                     <option value={11}>11</option>
                                     <option value={12}>12</option>
                                 </Form.Control>
-                                <span style={{ marginLeft: '20px' }}>Month(s)</span>
-                                <div className={styles.coinBalance}>
-                                    <CoflCoinsDisplay />
-                                </div>
+                                <span style={{ marginLeft: '20px' }}>{getDurationString()}</span>
                             </div>
                             <div>
                                 <label className={styles.label}>Price:</label>
-                                <span style={{ fontWeight: 'bold' }}>{numberWithThousandsSeperators(purchasePremiumDuration * PREMIUM_PRICE_MONTH)} Coins</span>
+                                <span style={{ fontWeight: 'bold' }}>{numberWithThousandsSeperators(getPurchasePrice())} Coins</span>
                             </div>
-                            {coflCoins > purchasePremiumDuration * PREMIUM_PRICE_MONTH ? (
+                            {coflCoins > getPurchasePrice() ? (
                                 <div>
                                     <label className={styles.label}>Remaining after Purchase:</label>
-                                    <span>{numberWithThousandsSeperators(coflCoins - purchasePremiumDuration * PREMIUM_PRICE_MONTH)} Coins</span>
+                                    <span>{numberWithThousandsSeperators(coflCoins - getPurchasePrice())} Coins</span>
                                 </div>
                             ) : null}
                             <p style={{ marginTop: '20px' }}>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
@@ -118,7 +169,7 @@ function BuyPremium() {
                             >
                                 Purchase
                             </Button>
-                            {purchasePremiumDuration * PREMIUM_PRICE_MONTH > coflCoins && !isPurchasing ? (
+                            {getPurchasePrice() > coflCoins && !isPurchasing ? (
                                 <span>
                                     <p>
                                         <span style={{ color: 'red' }}>You don't have enough CoflCoins to buy this.</span>{' '}
@@ -130,8 +181,8 @@ function BuyPremium() {
                         </div>
                     ) : (
                         <p style={{ color: 'lime' }}>
-                            You successfully bought {purchaseSuccessfulMonths} {purchaseSuccessfulMonths === 1 ? 'month' : 'months'} of Premium for{' '}
-                            {numberWithThousandsSeperators(purchasePremiumDuration * PREMIUM_PRICE_MONTH)} CoflCoins!
+                            You successfully bought {purchaseSuccessfulMonths} {getDurationString()} of Premium for{' '}
+                            {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins!
                         </p>
                     )}
                 </div>
