@@ -5,33 +5,12 @@ import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { numberWithThousandsSeperators } from '../../../utils/Formatter'
 import { useCoflCoins } from '../../../utils/Hooks'
+import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import styles from './BuyPremium.module.css'
 
-interface PREMIUM_TYPE {
-    productId: string
-    label: string
-    price: number
-    durationString: string
-}
-
-const PREMIUM_TYPES: PREMIUM_TYPE[] = [
-    {
-        productId: 'premium',
-        label: 'Premium',
-        price: 1800,
-        durationString: 'month'
-    },
-    {
-        productId: 'premium_plus',
-        label: 'Premium+',
-        price: 1800,
-        durationString: 'week'
-    }
-]
-
 function BuyPremium() {
-    let [purchasePremiumType, setPurchasePremiumType] = useState<PREMIUM_TYPE>(PREMIUM_TYPES[0])
+    let [purchasePremiumType, setPurchasePremiumType] = useState<PremiumType>(PREMIUM_TYPES[0])
     let [purchaseSuccessfulMonths, setPurchaseSuccessfulMonths] = useState<number>()
     let [isPurchasing, setIsPurchasing] = useState(false)
     let [purchasePremiumDuration, setPurchasePremiumDuration] = useState(1)

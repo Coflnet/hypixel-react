@@ -166,7 +166,6 @@ interface API {
     unsubscribe(subscription: Subscription): Promise<Number>
     getSubscriptions(): Promise<Subscription[]>
     setGoogle(id: string): Promise<void>
-    hasPremium(googleId: string): Promise<Date>
     stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
     setToken(token: string): Promise<void>
@@ -233,6 +232,7 @@ interface API {
     getBazaarPricesByRange(itemTag: string, startDate: Date | string | number, endDate: Date | string | number): Promise<BazaarPrice[]>
     getPrivacySettings(): Promise<PrivacySettings>
     setPrivacySettings(settings: PrivacySettings): Promise<void>
+    getPremiumProducts(): Promise<PremiumProduct[]>
 }
 
 interface CacheUtils {
@@ -497,4 +497,17 @@ interface PrivacySettings {
     extendDescriptions: boolean
     commandPrefixes: string[]
     autoStart: boolean
+}
+
+interface PremiumProduct {
+    expires: Date
+    productSlug: string
+}
+
+interface PremiumType {
+    productId: string
+    label: string
+    price: number
+    durationString: string
+    priority: number
 }
