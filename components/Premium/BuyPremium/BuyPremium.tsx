@@ -9,7 +9,11 @@ import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import styles from './BuyPremium.module.css'
 
-function BuyPremium() {
+interface Props {
+    activePremiumProduct: PremiumProduct
+}
+
+function BuyPremium(props: Props) {
     let [purchasePremiumType, setPurchasePremiumType] = useState<PremiumType>(PREMIUM_TYPES[0])
     let [purchaseSuccessfulMonths, setPurchaseSuccessfulMonths] = useState<number>()
     let [isPurchasing, setIsPurchasing] = useState(false)
@@ -77,6 +81,14 @@ function BuyPremium() {
                     </li>
                 </ul>
                 <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
+                {props.activePremiumProduct && props.activePremiumProduct.productSlug !== purchasePremiumType.productId ? (
+                    <div>
+                        <hr />
+                        <p style={{ color: 'yellow' }}>
+                            It seems you already have an active premium product. While the 'better' premium is active, the other will get paused.
+                        </p>
+                    </div>
+                ) : null}
                 <hr />
                 <Button variant="danger" onClick={onPremiumBuyCancel}>
                     Cancel

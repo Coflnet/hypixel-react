@@ -118,7 +118,7 @@ function Premium() {
             </div>
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>
-                    <BuyPremium />
+                    <BuyPremium activePremiumProduct={activePremiumProduct} />
                 </div>
             ) : null}
             {isLoggedIn ? (
