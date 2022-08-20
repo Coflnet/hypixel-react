@@ -5,7 +5,7 @@ import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { numberWithThousandsSeperators } from '../../../utils/Formatter'
 import { useCoflCoins } from '../../../utils/Hooks'
-import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
+import { getPremiumTypeOptionLabel, getPremiumTypeOptionValue, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import styles from './BuyPremium.module.css'
 
@@ -15,29 +15,38 @@ interface Props {
 
 function BuyPremium(props: Props) {
     let [purchasePremiumType, setPurchasePremiumType] = useState<PremiumType>(PREMIUM_TYPES[0])
-    let [purchaseSuccessfulMonths, setPurchaseSuccessfulMonths] = useState<number>()
+    let [purchaseSuccessfulDuration, setPurchaseSuccessfulDuration] = useState<number | { label: string; value: number }>()
     let [isPurchasing, setIsPurchasing] = useState(false)
-    let [purchasePremiumDuration, setPurchasePremiumDuration] = useState(1)
+    let [purchasePremiumDuration, setPurchasePremiumDuration] = useState<number | { label: string; value: number }>(
+        getPremiumTypeOptionValue(PREMIUM_TYPES[0].options[0])
+    )
     let [showConfirmationDialog, setShowConfirmationDialog] = useState(false)
     let coflCoins = useCoflCoins()
 
     function onDurationChange(event: ChangeEvent<HTMLSelectElement>) {
-        setPurchasePremiumDuration(parseInt(event.target.value) || 1)
+        if (event.target.options[event.target.selectedIndex].textContent !== event.target.value) {
+            setPurchasePremiumDuration({ label: event.target.options[event.target.selectedIndex].textContent, value: parseInt(event.target.value) })
+        } else {
+            setPurchasePremiumDuration(parseInt(event.target.value))
+        }
     }
 
     function onPremiumTypeChange(event: ChangeEvent<HTMLSelectElement>) {
         let selectedType = PREMIUM_TYPES.find(type => type.productId === event.target.value)
         setPurchasePremiumType(selectedType)
+        setPurchasePremiumDuration(selectedType.options[0])
     }
 
     function onPremiumBuy() {
         setShowConfirmationDialog(false)
         setIsPurchasing(true)
-        api.purchaseWithCoflcoins(purchasePremiumType.productId, purchasePremiumDuration).then(() => {
+        api.purchaseWithCoflcoins(purchasePremiumType.productId, getPremiumTypeOptionValue(purchasePremiumDuration)).then(() => {
             document.dispatchEvent(
-                new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: coflCoins - purchasePremiumType.price * purchasePremiumDuration } })
+                new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, {
+                    detail: { coflCoins: coflCoins - getPurchasePrice() }
+                })
             )
-            setPurchaseSuccessfulMonths(purchasePremiumDuration)
+            setPurchaseSuccessfulDuration(purchasePremiumDuration)
             setIsPurchasing(false)
             toast.success('Purchase successful')
         })
@@ -48,12 +57,13 @@ function BuyPremium(props: Props) {
     }
 
     function getPurchasePrice() {
-        return purchasePremiumDuration * purchasePremiumType.price
+        return getPremiumTypeOptionValue(purchasePremiumDuration) * purchasePremiumType.price
     }
 
     function getDurationString(): string {
         let durationString = purchasePremiumType.durationString
-        if (purchasePremiumDuration > 1) {
+        let duration = +getPremiumTypeOptionLabel(purchasePremiumDuration) || getPremiumTypeOptionValue(purchasePremiumDuration)
+        if (duration > 1) {
             durationString += 's'
         }
         return durationString
@@ -72,8 +82,12 @@ function BuyPremium(props: Props) {
             <Modal.Body>
                 <ul>
                     <li>
+                        <span className={styles.label}>Type:</span>
+                        {purchasePremiumType.label}
+                    </li>
+                    <li>
                         <span className={styles.label}>Duration:</span>
-                        {purchasePremiumDuration} {purchasePremiumDuration === 1 ? 'Month' : 'Months'}
+                        {getPremiumTypeOptionLabel(purchasePremiumDuration)} {getDurationString()}
                     </li>
                     <li>
                         <span className={styles.label}>Price:</span>
@@ -107,11 +121,11 @@ function BuyPremium(props: Props) {
                     <Card.Title>Buy premium for a certain duration with your CoflCoins. Your premium time starts shortly after your purchase.</Card.Title>
                 </Card.Header>
                 <div style={{ padding: '15px' }}>
-                    {!purchaseSuccessfulMonths ? (
+                    {!purchaseSuccessfulDuration ? (
                         <div>
                             <div style={{ marginBottom: '15px' }}>
                                 <label className={styles.label}>Premium type:</label>
-                                <Form.Control as="select" onChange={onPremiumTypeChange} style={{ width: '100px', display: 'inline' }}>
+                                <Form.Control as="select" onChange={onPremiumTypeChange} style={{ width: '250px', display: 'inline' }}>
                                     {PREMIUM_TYPES.map(premiumType => (
                                         <option value={premiumType.productId}>{premiumType.label}</option>
                                     ))}
@@ -122,19 +136,19 @@ function BuyPremium(props: Props) {
                             </div>
                             <div style={{ marginBottom: '15px' }}>
                                 <label className={styles.label}>Purchase Duration:</label>
-                                <Form.Control as="select" onChange={onDurationChange} style={{ width: '50px', display: 'inline' }}>
-                                    <option value={1}>1</option>
-                                    <option value={2}>2</option>
-                                    <option value={3}>3</option>
-                                    <option value={4}>4</option>
-                                    <option value={5}>5</option>
-                                    <option value={6}>6</option>
-                                    <option value={7}>7</option>
-                                    <option value={8}>8</option>
-                                    <option value={9}>9</option>
-                                    <option value={10}>10</option>
-                                    <option value={11}>11</option>
-                                    <option value={12}>12</option>
+                                <Form.Control
+                                    as="select"
+                                    onChange={onDurationChange}
+                                    className={styles.dropdown}
+                                    key={purchasePremiumType.productId}
+                                    defaultValue={getPremiumTypeOptionValue(purchasePremiumDuration)}
+                                >
+                                    {purchasePremiumType.options.map(option => {
+                                        if (typeof option === 'number') {
+                                            return <option value={option}>{option}</option>
+                                        }
+                                        return <option value={option.value}>{option.label}</option>
+                                    })}
                                 </Form.Control>
                                 <span style={{ marginLeft: '20px' }}>{getDurationString()}</span>
                             </div>
@@ -172,7 +186,7 @@ function BuyPremium(props: Props) {
                         </div>
                     ) : (
                         <p style={{ color: 'lime' }}>
-                            You successfully bought {purchaseSuccessfulMonths} {getDurationString()} of Premium for{' '}
+                            You successfully bought {getPremiumTypeOptionLabel(purchaseSuccessfulDuration)} {getDurationString()} of Premium for{' '}
                             {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins!
                         </p>
                     )}

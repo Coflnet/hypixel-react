@@ -98,7 +98,8 @@ function Premium() {
                 {hasPremium && activePremiumProduct ? (
                     <div>
                         <p>
-                            <span className={styles.labelShort}>Premium type:</span>{getPremiumType(activePremiumProduct).label}
+                            <span className={styles.labelShort}>Premium type:</span>
+                            {getPremiumType(activePremiumProduct).label}
                         </p>
                         <Tooltip
                             type="hover"
