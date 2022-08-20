@@ -5,7 +5,7 @@ import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { numberWithThousandsSeperators } from '../../../utils/Formatter'
 import { useCoflCoins } from '../../../utils/Hooks'
-import { getPremiumTypeOptionLabel, getPremiumTypeOptionValue, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
+import { getPremiumType, getPremiumTypeOptionLabel, getPremiumTypeOptionValue, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import styles from './BuyPremium.module.css'
 
@@ -95,7 +95,7 @@ function BuyPremium(props: Props) {
                     </li>
                 </ul>
                 <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
-                {props.activePremiumProduct && props.activePremiumProduct.productSlug !== purchasePremiumType.productId ? (
+                {props.activePremiumProduct && getPremiumType(props.activePremiumProduct).productId !== purchasePremiumType.productId ? (
                     <div>
                         <hr />
                         <p style={{ color: 'yellow' }}>
@@ -186,8 +186,8 @@ function BuyPremium(props: Props) {
                         </div>
                     ) : (
                         <p style={{ color: 'lime' }}>
-                            You successfully bought {getPremiumTypeOptionLabel(purchaseSuccessfulDuration)} {getDurationString()} of Premium for{' '}
-                            {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins!
+                            You successfully bought {getPremiumTypeOptionLabel(purchaseSuccessfulDuration)} {getDurationString()} of {purchasePremiumType.label}{' '}
+                            for {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins!
                         </p>
                     )}
                 </div>
