@@ -52,16 +52,13 @@ function generateNumberArray(start: number, end: number): number[] {
 }
 
 export function getHighestPriorityPremiumProduct(premiumProducts: PremiumProduct[]) {
-    let results: { productSlug: string; productId: string; priority: number }[] = []
-
-    premiumProducts.forEach(product => {
-        let types = [...PREMIUM_TYPES].sort((a, b) => b.productId.localeCompare(a.productId))
-        let type = types.find(type => product.productSlug.startsWith(type.productId))
-        results.push({
+    let results = premiumProducts.map(product => {
+        let type = getPremiumType(product)
+        return {
             productSlug: product.productSlug,
             productId: type.productId,
             priority: type.priority
-        })
+        }
     })
 
     let result = results.sort((a, b) => b.priority - a.priority)[0]
@@ -69,7 +66,7 @@ export function getHighestPriorityPremiumProduct(premiumProducts: PremiumProduct
 }
 
 export function getPremiumType(product: PremiumProduct) {
-    return PREMIUM_TYPES.find(type => type.productId === product.productSlug)
+    return [...PREMIUM_TYPES].sort((a, b) => b.productId.localeCompare(a.productId)).find(type => product.productSlug.startsWith(type.productId))
 }
 
 export function getPremiumTypeOptionValue(option: number | { label: string; value: number }) {
