@@ -38,7 +38,7 @@ function Premium() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    function loadHasPremiumUntil(): Promise<void> {
+    function loadPremiumProducts(): Promise<void> {
         return api.getPremiumProducts().then(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
             let hasPremium = false
@@ -58,7 +58,7 @@ function Premium() {
             setIsLoading(true)
             setIsLoggingIn(false)
             setIsLoggedIn(true)
-            loadHasPremiumUntil()
+            loadPremiumProducts()
         }
     }
 
@@ -119,7 +119,7 @@ function Premium() {
             </div>
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>
-                    <BuyPremium activePremiumProduct={activePremiumProduct} />
+                    <BuyPremium activePremiumProduct={activePremiumProduct} onNewActivePremiumProduct={loadPremiumProducts} />
                 </div>
             ) : null}
             {isLoggedIn ? (

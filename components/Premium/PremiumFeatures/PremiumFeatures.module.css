@@ -2,19 +2,23 @@
     margin-bottom: 20px;
 }
 
-.premiumFeatures :globals(td) {
-    text-align: center;
-}
-
-.premiumFeatures :globals(th) {
-    text-align: center;
-}
-
-.premiumFeatures .featureColumn {
+.featureColumn {
     font-size: larger;
     text-align: left;
 }
 
-.premiumFeatures .featureColumnHeading {
+.featureColumnHeading {
     text-align: left;
+}
+
+.premiumProductHeading {
+    text-align: center;
+}
+
+.premiumProductHeading {
+    text-align: center;
+}
+
+.premiumProductColumn {
+    text-align: center;
 }

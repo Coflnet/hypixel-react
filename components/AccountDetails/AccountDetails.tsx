@@ -18,6 +18,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { atobUnicode } from '../../utils/Base64Utils'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
+import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -56,15 +57,16 @@ function AccountDetails() {
         return <span />
     }
 
-    function loadHasPremiumUntil(): Promise<void> {
-        let googleId = localStorage.getItem('googleId')
-        return api.hasPremium(googleId!).then(hasPremiumUntil => {
+    function loadPremiumProducts(): Promise<void> {
+        return api.getPremiumProducts().then(products => {
+            products = products.filter(product => product.expires.getTime() > new Date().getTime())
             let hasPremium = false
-            if (hasPremiumUntil !== undefined && hasPremiumUntil.getTime() > new Date().getTime()) {
+            if (products.length > 0) {
                 hasPremium = true
             }
+            let activePremiumProduct = getHighestPriorityPremiumProduct(products)
             setHasPremium(hasPremium)
-            setHasPremiumUntil(hasPremiumUntil)
+            setHasPremiumUntil(activePremiumProduct.expires)
             setIsLoading(false)
         })
     }
@@ -81,7 +83,7 @@ function AccountDetails() {
         let googleId = localStorage.getItem('googleId')
         setIsLoading(true)
         if (googleId) {
-            loadHasPremiumUntil()
+            loadPremiumProducts()
             setIsLoggedIn(true)
         }
     }

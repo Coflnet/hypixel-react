@@ -2,6 +2,9 @@ import React from 'react'
 import { Table } from 'react-bootstrap'
 import Link from 'next/link'
 import styles from './PremiumFeatures.module.css'
+import { getDecimalSeperator } from '../../../utils/Formatter'
+import Tooltip from '../../Tooltip/Tooltip'
+import { Help as HelpIcon } from '@mui/icons-material'
 
 function PremiumFeatures() {
     let checkIcon = (
@@ -22,62 +25,114 @@ function PremiumFeatures() {
                 <thead>
                     <tr>
                         <th className={styles.featureColumnHeading}>Feature</th>
-                        <th>Free</th>
-                        <th>Premium</th>
+                        <th className={styles.premiumProductHeading}>Free</th>
+                        <th className={styles.premiumProductHeading}>Starter</th>
+                        <th className={styles.premiumProductHeading}>Premium</th>
+                        <th className={styles.premiumProductHeading}>Premium+</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td className={styles.featureColumn}>Price history</td>
-                        <td>{checkIcon}</td>
-                        <td>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Auction explorer</td>
-                        <td>{checkIcon}</td>
-                        <td>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Player auction history</td>
-                        <td>{checkIcon}</td>
-                        <td>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Display active auctions</td>
-                        <td>{checkIcon}</td>
-                        <td>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Faster Flipper without delay</td>
-                        <td>{xIcon}</td>
-                        <td>{checkIcon}</td>
+                        <td className={styles.featureColumn}>Kat flips</td>
+                        <td className={styles.premiumProductColumn}>{xIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Craft flips</td>
+                        <td className={styles.premiumProductColumn}>{xIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Full access to flipper filters</td>
-                        <td>{xIcon}</td>
-                        <td>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{xIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Up to 100 notifications</td>
-                        <td>{xIcon}</td>
-                        <td>{checkIcon}</td>
-                    </tr>
-                    <tr>
-                        <td className={styles.featureColumn}>Priority feature request</td>
-                        <td>{xIcon}</td>
-                        <td>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{xIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>
                             List of low supply items (<Link href="/lowSupply">here</Link>)
                         </td>
-                        <td>{xIcon}</td>
-                        <td>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{xIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Priority feature request</td>
+                        <td className={styles.premiumProductColumn}>{xIcon}</td>
+                        <td className={styles.premiumProductColumn}>{xIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Discord role "Flipper" (on request)</td>
-                        <td>{xIcon}</td>
-                        <td>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{xIcon}</td>
+                        <td className={styles.premiumProductColumn}>{xIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                        <td className={styles.premiumProductColumn}>{checkIcon}</td>
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>
+                            Average flip receive time
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={
+                                    <p>
+                                        Hypixel updates once every 60 seconds. After the we receive the new auctions this is how long it will take for you to
+                                        get the flips.
+                                    </p>
+                                }
+                            />
+                        </td>
+                        <td className={styles.premiumProductColumn}>2{getDecimalSeperator()}5 min</td>
+                        <td className={styles.premiumProductColumn}>10-20 sec</td>
+                        <td className={styles.premiumProductColumn}>~1 sec</td>
+                        <td className={styles.premiumProductColumn}>&lt; 1 sec</td>
                     </tr>
                 </tbody>
             </Table>

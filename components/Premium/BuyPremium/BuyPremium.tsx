@@ -11,6 +11,7 @@ import styles from './BuyPremium.module.css'
 
 interface Props {
     activePremiumProduct: PremiumProduct
+    onNewActivePremiumProduct()
 }
 
 function BuyPremium(props: Props) {
@@ -49,6 +50,7 @@ function BuyPremium(props: Props) {
             setPurchaseSuccessfulDuration(purchasePremiumDuration)
             setIsPurchasing(false)
             toast.success('Purchase successful')
+            props.onNewActivePremiumProduct()
         })
     }
 
