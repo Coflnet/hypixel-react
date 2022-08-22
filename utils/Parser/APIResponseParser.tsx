@@ -565,9 +565,13 @@ export function parsePrivacySettings(privacySettings): PrivacySettings {
     }
 }
 
-export function parsePremiumProduct(product): PremiumProduct {
-    return {
-        expires: parseDate(product.expires),
-        productSlug: product.productSlug
-    }
+export function parsePremiumProducts(productsObject): PremiumProduct[] {
+    let products: PremiumProduct[] = []
+    Object.keys(productsObject).forEach(key => {
+        products.push({
+            productSlug: key,
+            expires: parseDate(productsObject[key].expiresAt)
+        })
+    })
+    return products
 }
