@@ -131,11 +131,15 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge)
                 removeSentRequests([...equals, request])
             })
-            .catch(responseTextPromise =>
+            .catch(responseTextPromise => {
+                if (!responseTextPromise) {
+                    request.reject()
+                    return
+                }
                 responseTextPromise.then(responseText => {
                     request.reject(parseResponseText(responseText))
                 })
-            )
+            })
             .finally(() => {
                 // when there are still matching request remove them
                 let equals = findForEqualSentRequest(request)

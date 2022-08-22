@@ -19,7 +19,7 @@ import {
     parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
-    parsePremiumProduct,
+    parsePremiumProducts,
     parsePrivacySettings,
     parseProfitableCraft,
     parseRecentAuction,
@@ -1624,7 +1624,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         'Content-Type': 'application/json'
                     },
                     resolve: products => {
-                        resolve(products.map(parsePremiumProduct))
+                        resolve(parsePremiumProducts(products))
                     },
                     reject: (error: any) => {
                         apiErrorHandler(RequestType.GET_PREMIUM_PRODUCTS, error, '')
