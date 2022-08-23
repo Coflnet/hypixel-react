@@ -37,6 +37,13 @@ function ModDetails() {
                             allowFullScreen
                         ></iframe>
                     </div>
+                    <p style={{ marginTop: '50px' }}>
+                        We also have a playlist on how to use different ingame commands:
+                        <br />
+                        <a target="_blank" rel="noreferrer" href="https://www.youtube.com/watch?v=dv66Y_cra8U&list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699">
+                            {'https://www.youtube.com/watch?v=dv66Y_cra8U&list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699'}
+                        </a>
+                    </p>
                 </Card.Body>
             </Card>
         </>

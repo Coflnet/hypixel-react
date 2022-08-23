@@ -9,19 +9,11 @@ function RatChecker() {
     let [checkingResult, setCheckingResult] = useState<RatCheckingResponse>(null)
     let ratFileInput = useRef(null)
 
-    useEffect(() => {
-        ratFileInput.current.addEventListener('change', onFileUpload)
-
-        return () => {
-            ratFileInput.current.removeEventListener('change', onFileUpload)
-        }
-    }, [])
-
     function onFileUpload(e) {
         setIsChecking(true)
 
         var blobSlice = File.prototype.slice || (File.prototype as any).mozSlice || (File.prototype as any).webkitSlice,
-            file = this.files[0],
+            file = e.target.files[0],
             chunkSize = 2097152, // Read in chunks of 2MB
             chunks = Math.ceil(file.size / chunkSize),
             currentChunk = 0,
@@ -39,6 +31,7 @@ function RatChecker() {
                 api.checkRat(hash).then(result => {
                     setIsChecking(false)
                     setCheckingResult(result)
+                    ratFileInput.current.value = ''
                 })
             }
         }
@@ -63,7 +56,7 @@ function RatChecker() {
         }
         if (checkingResult.rat.includes('No matching signature')) {
             return (
-                <p>
+                <p style={{ color: 'white', fontSize: 'larger' }}>
                     This mod file is not known. For further information check{' '}
                     <a target="_blank" rel="noreferrer" href="https://isthisarat.com/">
                         https://isthisarat.com/
@@ -96,21 +89,26 @@ function RatChecker() {
                     {!isChecking ? (
                         <div>
                             <p>If you still want to check if a mod file is a RAT (remote access trojan), you can upload the file here:</p>
-                            <Form.Control type="file" className={'form-control'} ref={ratFileInput} />
+                            <Form.Control type="file" className={'form-control'} ref={ratFileInput} onChange={onFileUpload} />
                         </div>
                     ) : (
                         getLoadingElement(<p>Checking file</p>)
                     )}
                     <hr />
-                    <p style={{ float: 'right' }}>
-                        <small>
-                            Files are checked by{' '}
-                            <a target="_blank" rel="noreferrer" href="https://isthisarat.com/">
-                                isthisarat.com
-                            </a>
-                        </small>
-                    </p>
-                    {getResultElement()}
+                    {checkingResult && !isChecking ? (
+                        <div>
+                            <h5>Result:</h5>
+                            {getResultElement()}
+                            <p style={{ float: 'right' }}>
+                                <small>
+                                    Files are checked by{' '}
+                                    <a target="_blank" rel="noreferrer" href="https://isthisarat.com/">
+                                        isthisarat.com
+                                    </a>
+                                </small>
+                            </p>
+                        </div>
+                    ) : null}
                 </Card.Body>
             </Card>
         </>
