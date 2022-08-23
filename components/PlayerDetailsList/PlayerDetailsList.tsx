@@ -34,8 +34,6 @@ let mounted = true
 let listStates: ListState[] = []
 
 function PlayerDetailsList(props: Props) {
-    console.log(props)
-
     let forceUpdate = useForceUpdate()
     let router = useRouter()
 
