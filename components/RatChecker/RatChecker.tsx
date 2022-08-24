@@ -79,13 +79,6 @@ function RatChecker() {
                     <Card.Title>Rat Checker</Card.Title>
                 </Card.Header>
                 <Card.Body>
-                    <p>
-                        Please only download the mod from our{' '}
-                        <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                            Discord
-                        </a>
-                        . The download link is in the #mod-releases channel.
-                    </p>
                     {!isChecking ? (
                         <div>
                             <p>If you still want to check if a mod file is a RAT (remote access trojan), you can upload the file here:</p>
