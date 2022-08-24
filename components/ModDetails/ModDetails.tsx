@@ -19,16 +19,8 @@ function ModDetails() {
                     </ol>
                     <hr />
                     <p>
-                        The only legit place to download is on our{' '}
-                        <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                            Discord
-                        </a>{' '}
-                        in the #mod-releases channel.
-                    </p>
-                    <p>
-                        The entire mod is open source and you can check/compile it yourself here:{' '}
-                        <a target="_blank" rel="noreferrer" href="https://github.com/Coflnet/SkyblockMod">
-                            https://github.com/Coflnet/SkyblockMod
+                         Mod downloads including source code can be found on the <a target="_blank" rel="noreferrer" href="https://github.com/coflnet/skyblockmod/releases  ">
+                            Cofl Mod Github release page
                         </a>
                     </p>
                     <hr />
