@@ -114,7 +114,7 @@ interface SearchResultItem {
     dataItem: {
         iconUrl: string
         name: string
-        _imageLoaded: boolean
+        _imageLoaded?: boolean
     }
     type: string
     route: string
