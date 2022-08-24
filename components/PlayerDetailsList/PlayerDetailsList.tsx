@@ -13,7 +13,7 @@ import { useRouter } from 'next/router'
 import styles from './PlayerDetailsList.module.css'
 
 interface Props {
-    playerUUID: string
+    player: Player
     loadingDataFunction: Function
     type: 'auctions' | 'bids'
     auctions?: Auction[]
@@ -39,7 +39,6 @@ function PlayerDetailsList(props: Props) {
 
     let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
     let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < 12 : false)
-    let [playerName, setPlayerName] = useState('')
     let isLoadingElements = useRef(false)
 
     useEffect(() => {
@@ -60,6 +59,8 @@ function PlayerDetailsList(props: Props) {
                     behavior: 'auto'
                 })
             }, 100)
+        } else {
+            loadNewElements(true)
         }
 
         return () => {
@@ -67,16 +68,7 @@ function PlayerDetailsList(props: Props) {
             router.events.off('routeChangeStart', onRouteChange)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    useEffect(() => {
-        api.getPlayerName(props.playerUUID).then(name => {
-            if (!mounted) {
-                return
-            }
-            setPlayerName(name)
-        })
-    }, [props.playerUUID])
+    }, [props.player.uuid])
 
     useEffect(() => {
         if (!props.auctions) {
@@ -97,7 +89,7 @@ function PlayerDetailsList(props: Props) {
         }
         isLoadingElements.current = true
         props
-            .loadingDataFunction(props.playerUUID, 12, reset ? 0 : listElements.length)
+            .loadingDataFunction(props.player.uuid, 12, reset ? 0 : listElements.length)
             .then(newListElements => {
                 isLoadingElements.current = false
                 if (!mounted) {
@@ -162,7 +154,7 @@ function PlayerDetailsList(props: Props) {
             listStates.push({
                 type: props.type,
                 listElements: listElements,
-                playerUUID: props.playerUUID,
+                playerUUID: props.player.uuid,
                 yOffset: window.pageYOffset,
                 allElementsLoaded: allElementsLoaded
             })
@@ -171,7 +163,7 @@ function PlayerDetailsList(props: Props) {
 
     let getListState = (): ListState | undefined => {
         return listStates.find(state => {
-            return state.playerUUID === props.playerUUID && state.type === props.type
+            return state.playerUUID === props.player.uuid && state.type === props.type
         })
     }
 
@@ -180,15 +172,15 @@ function PlayerDetailsList(props: Props) {
             {props.type === 'auctions' ? (
                 <>
                     <div className={styles.btnBottom}>
-                        <SubscribeButton type="player" topic={props.playerUUID} />
+                        <SubscribeButton type="player" topic={props.player.uuid} />
                     </div>
                     <CopyButton
                         buttonVariant="primary"
                         buttonWrapperClass={styles.btnBottom}
-                        copyValue={'/ah ' + playerName}
+                        copyValue={'/ah ' + props.player.name}
                         successMessage={
                             <p>
-                                Copied ingame link <br /> <i>/ah {playerName}</i>
+                                Copied ingame link <br /> <i>/ah {props.player.name}</i>
                             </p>
                         }
                     />
@@ -211,7 +203,7 @@ function PlayerDetailsList(props: Props) {
             {props.type === 'bids' ? (
                 <>
                     <div className={styles.btnBottom}>
-                        <SubscribeButton type="player" topic={props.playerUUID} />
+                        <SubscribeButton type="player" topic={props.player.uuid} />
                     </div>
                     <Button
                         type="primary"
