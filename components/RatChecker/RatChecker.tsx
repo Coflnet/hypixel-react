@@ -68,7 +68,7 @@ function RatChecker() {
             return <p style={{ color: 'red', fontSize: 'larger' }}>This mod is a known rat. We recommend against using it!</p>
         }
         if (checkingResult.rat.includes('No')) {
-            return <p style={{ color: 'lime', fontSize: 'larger' }}>This mod file doesn't seem to be a rat.</p>
+            return <p style={{ color: 'lime', fontSize: 'larger' }}>No harmful code was found in this mod. It should be safe to use.</p>
         }
     }
 
