@@ -13,7 +13,7 @@ export default function Mod() {
             <Container>
                 <h2>
                     <NavBar />
-                    Mod
+                    CoflMod
                 </h2>
                 <div style={{ marginBottom: '20px' }}>
                     <ModDetails />
