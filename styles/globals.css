@@ -95,3 +95,8 @@ option {
     position: absolute !important;
     display: inline !important;
 }
+
+[data-darkreader-mode='dynamic'] .form-check-input {
+    background-color: #444;
+    border: 2px solid rgb(84, 91, 94);
+}
