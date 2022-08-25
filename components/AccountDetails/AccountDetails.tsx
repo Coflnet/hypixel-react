@@ -2,7 +2,6 @@ import moment from 'moment'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import Cookies from 'js-cookie'
-import { GoogleLogout } from 'react-google-login'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import cacheUtils from '../../utils/CacheUtils'
@@ -208,15 +207,6 @@ function AccountDetails() {
             ) : null}
             {isLoading ? getLoadingElement() : null}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
-            {isLoggedIn ? (
-                <div style={{ marginTop: '20px' }}>
-                    <GoogleLogout
-                        clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                        buttonText="Logout"
-                        onLogoutSuccess={onLogout}
-                    />
-                </div>
-            ) : null}
             <hr />
             <h2 style={{ marginBottom: '30px' }}>Settings</h2>
             <p>
