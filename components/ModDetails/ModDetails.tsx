@@ -6,7 +6,7 @@ function ModDetails() {
         <>
             <Card>
                 <Card.Header>
-                    <Card.Title>Details</Card.Title>
+                    <Card.Title>Cofl skyblock mod details</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     <p>
