@@ -7,6 +7,7 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 
 interface Props {
     crafts?: ProfitableCraft[]
@@ -107,13 +108,8 @@ export function CraftsList(props: Props) {
     }
 
     function loadHasPremium(): Promise<void> {
-        let googleId = localStorage.getItem('googleId')
-        return api.hasPremium(googleId!).then(hasPremiumUntil => {
-            let hasPremium = false
-            if (hasPremiumUntil !== undefined && hasPremiumUntil.getTime() > new Date().getTime()) {
-                hasPremium = true
-            }
-            setHasPremium(hasPremium)
+        return api.getPremiumProducts().then(products => {
+            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
         })
     }
 

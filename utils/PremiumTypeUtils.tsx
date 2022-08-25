@@ -1,10 +1,16 @@
+export enum PREMIUM_RANK {
+    STARTER = 1,
+    PREMIUM = 2,
+    PREMIUM_PLUS = 3
+}
+
 export const PREMIUM_TYPES: PremiumType[] = [
     {
         productId: 'premium',
         label: 'Premium',
         price: 1800,
         durationString: 'month',
-        priority: 2,
+        priority: PREMIUM_RANK.PREMIUM,
         options: generateNumberArray(1, 12)
     },
     {
@@ -12,7 +18,7 @@ export const PREMIUM_TYPES: PremiumType[] = [
         label: 'Premium+',
         price: 1800,
         durationString: 'week',
-        priority: 3,
+        priority: PREMIUM_RANK.PREMIUM_PLUS,
         options: generateNumberArray(1, 4)
     },
     {
@@ -20,7 +26,7 @@ export const PREMIUM_TYPES: PremiumType[] = [
         label: 'Starter Premium (day)',
         price: 24,
         durationString: 'day',
-        priority: 1,
+        priority: PREMIUM_RANK.STARTER,
         options: generateNumberArray(1, 30)
     },
     {
@@ -28,7 +34,7 @@ export const PREMIUM_TYPES: PremiumType[] = [
         label: 'Starter Premium (week)',
         price: 120,
         durationString: 'week',
-        priority: 1,
+        priority: PREMIUM_RANK.STARTER,
         options: generateNumberArray(1, 12)
     },
     {
@@ -36,7 +42,7 @@ export const PREMIUM_TYPES: PremiumType[] = [
         label: 'Starter Premium (half year)',
         price: 1800,
         durationString: 'month',
-        priority: 1,
+        priority: PREMIUM_RANK.STARTER,
         options: [
             { value: 1, label: '6' },
             { value: 2, label: '12' }
@@ -75,4 +81,15 @@ export function getPremiumTypeOptionValue(option: number | { label: string; valu
 
 export function getPremiumTypeOptionLabel(option: number | { label: string; value: number }) {
     return typeof option === 'number' ? option : option.label
+}
+
+export function hasHighEnoughPremium(products: PremiumProduct[], minPremiumType: PREMIUM_RANK) {
+    let hasHighEnoughPremium = false
+    products.forEach(product => {
+        let type = getPremiumType(product)
+        if (type.priority >= minPremiumType && product.expires > new Date()) {
+            hasHighEnoughPremium = true
+        }
+    })
+    return hasHighEnoughPremium
 }

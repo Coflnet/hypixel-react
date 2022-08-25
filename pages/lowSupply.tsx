@@ -7,6 +7,7 @@ import NavBar from '../components/NavBar/NavBar'
 import { useWasAlreadyLoggedIn } from '../utils/Hooks'
 import { getLoadingElement } from '../utils/LoadingUtils'
 import { parseLowSupplyItem } from '../utils/Parser/APIResponseParser'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../utils/PremiumTypeUtils'
 import { getHeadElement } from '../utils/SSRUtils'
 
 interface Props {
@@ -31,11 +32,8 @@ function LowSupply(props: Props) {
     }
 
     let loadHasPremium = () => {
-        let googleId = localStorage.getItem('googleId')
-        api.hasPremium(googleId!).then(hasPremiumUntil => {
-            if (hasPremiumUntil > new Date()) {
-                setHasPremium(true)
-            }
+        api.getPremiumProducts().then(products => {
+            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
         })
     }
 

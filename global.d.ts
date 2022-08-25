@@ -509,6 +509,6 @@ interface PremiumType {
     label: string
     price: number
     durationString: string
-    priority: number
+    priority: PREMIUM_RANK
     options: number[] | { value: number; label: string }[]
 }
