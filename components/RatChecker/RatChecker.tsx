@@ -87,14 +87,14 @@ function RatChecker() {
                     if (checkingResult[1].rat.includes('Yes')) {
                         return (
                             <li style={{ color: 'red', fontSize: 'large' }}>
-                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: This mod file seems to be a rat. Be careful!
+                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: This mod is a known rat. We recommend against using it!
                             </li>
                         )
                     }
                     if (checkingResult[1].rat.includes('No')) {
                         return (
                             <li style={{ color: 'lime', fontSize: 'large' }}>
-                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: This mod file doesn't seem to be a rat.
+                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: No harmful code was found in this mod. It should be safe to use.
                             </li>
                         )
                     }
@@ -111,13 +111,6 @@ function RatChecker() {
                     <Card.Title>Rat Checker</Card.Title>
                 </Card.Header>
                 <Card.Body>
-                    <p>
-                        Please only download the mod from our{' '}
-                        <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                            Discord
-                        </a>
-                        . The download link is in the #mod-releases channel.
-                    </p>
                     {!isChecking ? (
                         <div>
                             <p>If you still want to check if a mod file is a RAT (remote access trojan), you can upload the file here:</p>

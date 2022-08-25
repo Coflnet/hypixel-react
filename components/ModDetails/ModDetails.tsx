@@ -9,20 +9,18 @@ function ModDetails() {
                     <Card.Title>Details</Card.Title>
                 </Card.Header>
                 <Card.Body>
-                    <p>We provide a mod as a quality of life feature to use the flipper in minecraft directly.</p>
-                    <p>To use the mod you will need to link it to the website and verify your Minecraft account.</p>
+                    <p>Say goodbye to window switching. The cofl mod provides you with data directly in Hypixel Skyblock. You can access price paid, the ah flipper, median, lbin, bazaar prices and more.</p>
+                    <h3>Installation TLDR
+                    <ol>
+                    <li>Get and install Forge 1.8.9 (if you don't have already watch the video below)</li>
+                    <li>Download and put the mod into your mods folder</li>
+                    <li>Launch Minecraft and join Skyblock</li>
+                    <li>Get a list of commands with /cofl help or watch the <a href="https://www.youtube.com/watch?v=dv66Y_cra8U&list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699">YouTube playlist</a> explaining them</li>
+                    </ol>
                     <hr />
                     <p>
-                        The only legit place to download is on our{' '}
-                        <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                            Discord
-                        </a>{' '}
-                        in the #mod-releases channel.
-                    </p>
-                    <p>
-                        The entire mod is open source and you can check/compile it yourself here:{' '}
-                        <a target="_blank" rel="noreferrer" href="https://github.com/Coflnet/SkyblockMod">
-                            https://github.com/Coflnet/SkyblockMod
+                         Mod downloads including source code can be found on the <a target="_blank" rel="noreferrer" href="https://github.com/coflnet/skyblockmod/releases  ">
+                            Cofl Mod Github release page
                         </a>
                     </p>
                     <hr />
@@ -37,13 +35,6 @@ function ModDetails() {
                             allowFullScreen
                         ></iframe>
                     </div>
-                    <p style={{ marginTop: '50px' }}>
-                        We also have a playlist on how to use different ingame commands:
-                        <br />
-                        <a target="_blank" rel="noreferrer" href="https://www.youtube.com/watch?v=dv66Y_cra8U&list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699">
-                            {'https://www.youtube.com/watch?v=dv66Y_cra8U&list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699'}
-                        </a>
-                    </p>
                 </Card.Body>
             </Card>
         </>
