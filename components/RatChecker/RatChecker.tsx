@@ -1,75 +1,107 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Card, Form } from 'react-bootstrap'
 import * as SparkMD5 from 'spark-md5'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import styles from './RatChecker.module.css'
 
 function RatChecker() {
     let [isChecking, setIsChecking] = useState(false)
-    let [checkingResult, setCheckingResult] = useState<RatCheckingResponse>(null)
+    let [checkingResults, setCheckingResults] = useState<[string, RatCheckingResponse][]>(null)
     let ratFileInput = useRef(null)
 
     function onFileUpload(e) {
         setIsChecking(true)
+        let checkingPromises: Promise<[string, RatCheckingResponse]>[] = []
 
-        var blobSlice = File.prototype.slice || (File.prototype as any).mozSlice || (File.prototype as any).webkitSlice,
-            file = e.target.files[0],
-            chunkSize = 2097152, // Read in chunks of 2MB
-            chunks = Math.ceil(file.size / chunkSize),
-            currentChunk = 0,
-            spark = new SparkMD5.ArrayBuffer(),
-            fileReader = new FileReader()
-
-        fileReader.onload = function (e) {
-            spark.append(e.target.result) // Append array buffer
-            currentChunk++
-
-            if (currentChunk < chunks) {
-                loadNext()
-            } else {
-                let hash = spark.end()
-                api.checkRat(hash).then(result => {
-                    setIsChecking(false)
-                    setCheckingResult(result)
-                    ratFileInput.current.value = ''
+        for (const file of e.target.files) {
+            checkingPromises.push(
+                new Promise((resolve, reject) => {
+                    getFileHash(file).then(hash => {
+                        api.checkRat(hash).then(result => resolve([file.name, result]))
+                    })
                 })
+            )
+        }
+
+        Promise.all(checkingPromises).then(results => {
+            setIsChecking(false)
+            setCheckingResults(results)
+            ratFileInput.current.value = ''
+        })
+    }
+
+    function getFileHash(file): Promise<string> {
+        return new Promise((resolve, reject) => {
+            var blobSlice = File.prototype.slice || (File.prototype as any).mozSlice || (File.prototype as any).webkitSlice,
+                chunkSize = 2097152, // Read in chunks of 2MB
+                chunks = Math.ceil(file.size / chunkSize),
+                currentChunk = 0,
+                spark = new SparkMD5.ArrayBuffer(),
+                fileReader = new FileReader()
+
+            fileReader.onload = function (e) {
+                spark.append(e.target.result) // Append array buffer
+                currentChunk++
+
+                if (currentChunk < chunks) {
+                    loadNext()
+                } else {
+                    let hash = spark.end()
+                    resolve(hash)
+                }
             }
-        }
 
-        fileReader.onerror = function () {
-            console.warn('oops, something went wrong.')
-        }
+            fileReader.onerror = function () {
+                console.warn('oops, something went wrong.')
+            }
 
-        function loadNext() {
-            var start = currentChunk * chunkSize,
-                end = start + chunkSize >= file.size ? file.size : start + chunkSize
+            function loadNext() {
+                var start = currentChunk * chunkSize,
+                    end = start + chunkSize >= file.size ? file.size : start + chunkSize
 
-            fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
-        }
+                fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
+            }
 
-        loadNext()
+            loadNext()
+        })
     }
 
     function getResultElement(): JSX.Element {
-        if (!checkingResult || isChecking) {
+        if (!checkingResults || checkingResults.length === 0 || isChecking) {
             return null
         }
-        if (checkingResult.rat.includes('No matching signature')) {
-            return (
-                <p style={{ color: 'white', fontSize: 'larger' }}>
-                    This mod file is not known. For further information check{' '}
-                    <a target="_blank" rel="noreferrer" href="https://isthisarat.com/">
-                        https://isthisarat.com/
-                    </a>
-                </p>
-            )
-        }
-        if (checkingResult.rat.includes('Yes')) {
-            return <p style={{ color: 'red', fontSize: 'larger' }}>This mod file seems to be a rat. Be careful!</p>
-        }
-        if (checkingResult.rat.includes('No')) {
-            return <p style={{ color: 'lime', fontSize: 'larger' }}>This mod file doesn't seem to be a rat.</p>
-        }
+        return (
+            <ul>
+                {checkingResults.map(checkingResult => {
+                    if (checkingResult[1].rat.includes('No matching signature')) {
+                        return (
+                            <li style={{ color: 'white', fontSize: 'large' }}>
+                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: This mod file is not known. For further information check{' '}
+                                <a target="_blank" rel="noreferrer" href="https://isthisarat.com/">
+                                    https://isthisarat.com/
+                                </a>
+                            </li>
+                        )
+                    }
+                    if (checkingResult[1].rat.includes('Yes')) {
+                        return (
+                            <li style={{ color: 'red', fontSize: 'large' }}>
+                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: This mod file seems to be a rat. Be careful!
+                            </li>
+                        )
+                    }
+                    if (checkingResult[1].rat.includes('No')) {
+                        return (
+                            <li style={{ color: 'lime', fontSize: 'large' }}>
+                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: This mod file doesn't seem to be a rat.
+                            </li>
+                        )
+                    }
+                    return null
+                })}
+            </ul>
+        )
     }
 
     return (
@@ -89,13 +121,13 @@ function RatChecker() {
                     {!isChecking ? (
                         <div>
                             <p>If you still want to check if a mod file is a RAT (remote access trojan), you can upload the file here:</p>
-                            <Form.Control type="file" className={'form-control'} ref={ratFileInput} onChange={onFileUpload} />
+                            <Form.Control type="file" className={'form-control'} ref={ratFileInput} onChange={onFileUpload} multiple />
                         </div>
                     ) : (
                         getLoadingElement(<p>Checking file</p>)
                     )}
                     <hr />
-                    {checkingResult && !isChecking ? (
+                    {checkingResults && checkingResults.length > 0 && !isChecking ? (
                         <div>
                             <h5>Result:</h5>
                             {getResultElement()}
