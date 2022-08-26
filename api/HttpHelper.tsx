@@ -149,7 +149,13 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                     })
                     removeSentRequests([...equals, request])
                 })
-        } catch {
+        } catch (e) {
+            console.log('Fetch threw exception...')
+            console.log('URL: ' + url)
+            console.log('Request: ' + JSON.stringify(request))
+            console.log('Body: ' + JSON.stringify(body))
+            console.log('------------------------')
+            
             request.reject()
             return
         }
