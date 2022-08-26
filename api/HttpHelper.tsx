@@ -97,19 +97,14 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             headers: request.requestHeader
         })
             .then(response => {
-                if (!response.ok || response.status === 204) {
-                    return
+                if (!response.ok) {
+                    return Promise.reject(response.text())
                 }
 
                 return response.text()
             })
             .then(responseText => {
-                let parsedResponse: any
-                try {
-                    parsedResponse = JSON.parse(responseText)
-                } catch {
-                    parsedResponse = responseText
-                }
+                let parsedResponse = parseResponseText(responseText)
 
                 if (!isClientSideRendering()) {
                     console.log('Received Response: ')
@@ -135,6 +130,15 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 } catch {}
                 cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge)
                 removeSentRequests([...equals, request])
+            })
+            .catch(responseTextPromise => {
+                if (!responseTextPromise) {
+                    request.reject()
+                    return
+                }
+                responseTextPromise.then(responseText => {
+                    request.reject(parseResponseText(responseText))
+                })
             })
             .finally(() => {
                 // when there are still matching request remove them
@@ -166,6 +170,16 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         return requests.filter(r => {
             return r.type === request.type && r.data === request.data && r.customRequestURL === request.customRequestURL && r.mId !== request.mId
         })
+    }
+
+    function parseResponseText(responseText) {
+        let parsedResponse: any
+        try {
+            parsedResponse = JSON.parse(responseText)
+        } catch {
+            parsedResponse = responseText
+        }
+        return parsedResponse
     }
 
     return {
