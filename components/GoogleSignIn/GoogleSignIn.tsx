@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
-import { refreshTokenSetup } from '../../utils/GoogleUtils'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -52,16 +51,15 @@ function GoogleSignIn(props: Props) {
 
     const onLoginSucces = (response: any) => {
         gotResponse = true
-        localStorage.setItem('googleId', response.tokenId)
+        localStorage.setItem('googleId', response.credential)
         setIsLoggedIn(true)
-        api.setGoogle(response.tokenId)
+        api.setGoogle(response.credential)
             .then(() => {
                 ;(window as any).googleAuthObj = response
                 let refId = (window as any).refId
                 if (refId) {
                     api.setRef(refId)
                 }
-                refreshTokenSetup(response)
                 document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.GOOGLE_LOGIN))
                 props.onAfterLogin()
             })
@@ -83,8 +81,15 @@ function GoogleSignIn(props: Props) {
         })
     }
 
+    let style: React.CSSProperties = isLoggedIn
+        ? {
+              visibility: 'collapse',
+              height: 0
+          }
+        : {}
+
     return (
-        <div onClickCapture={onLoginClick}>
+        <div style={style} onClickCapture={onLoginClick}>
             <div style={{ width: '250px' }}>
                 <GoogleLogin onSuccess={onLoginSucces} onError={onLoginFail} theme={'filled_blue'} size={'large'} auto_select />
             </div>

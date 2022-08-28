@@ -1,11 +1,10 @@
-import { ApiRequest, WebsocketHelper, ApiSubscription, RequestType } from "./ApiTypes.d";
-import cacheUtils from '../utils/CacheUtils';
-import api from "./ApiHelper";
-import { toast } from "react-toastify";
-import { getProperty } from '../utils/PropertiesUtils';
-import { getNextMessageId } from "../utils/MessageIdUtils";
-import { refreshToken} from "../utils/GoogleUtils";
-import { atobUnicode, btoaUnicode } from "../utils/Base64Utils";
+import { ApiRequest, WebsocketHelper, ApiSubscription, RequestType } from './ApiTypes.d'
+import cacheUtils from '../utils/CacheUtils'
+import api from './ApiHelper'
+import { toast } from 'react-toastify'
+import { getProperty } from '../utils/PropertiesUtils'
+import { getNextMessageId } from '../utils/MessageIdUtils'
+import { atobUnicode, btoaUnicode } from '../utils/Base64Utils'
 
 let requests: ApiRequest[] = []
 let websocket: WebSocket
@@ -35,20 +34,12 @@ function initWebsocket(): void {
 
         // set the connection id first
         api.setConnectionId().then(() => {
-            isConnectionIdSet = true;
-            let googleAuthObj = (window as any).googleAuthObj;
+            isConnectionIdSet = true
+            let googleAuthObj = (window as any).googleAuthObj
             if (localStorage.getItem('googleId') !== null && googleAuthObj) {
-                if (new Date(googleAuthObj.tokenObj.expires_at).getTime() <= new Date().getTime()) {
-                    refreshToken(googleAuthObj).then(refreshToken => {
-                        api.setGoogle(refreshToken.id_token).then(() => {
-                            _reconnect()
-                        })
-                    })
-                } else {
-                    api.setGoogle(googleAuthObj.tokenId).then(() => {
-                        _reconnect()
-                    })
-                }
+                api.setGoogle(googleAuthObj.tokenId).then(() => {
+                    _reconnect()
+                })
             } else {
                 _reconnect()
             }
