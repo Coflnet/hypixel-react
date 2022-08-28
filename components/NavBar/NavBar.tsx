@@ -14,7 +14,7 @@ import {
     ExploreOutlined as ExploreIcon,
     PetsOutlined as PetsIcon,
     AccountCircle as AccountIcon,
-    AttachFile as FileIcon
+    Download as DownloadIcon
 } from '@mui/icons-material'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
@@ -184,7 +184,7 @@ function NavBar(props: Props) {
                         <MenuItem icon={<PetsIcon />}>
                             <Link href={'/kat'}>Kat flips</Link>
                         </MenuItem>
-                        <MenuItem icon={<FileIcon />}>
+                        <MenuItem icon={<DownloadIcon />}>
                             <Link href={'/mod'}>Mod</Link>
                         </MenuItem>
                         <MenuItem className="disableLinkStyle" icon={<ShareIcon />}>
