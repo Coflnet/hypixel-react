@@ -86,7 +86,7 @@ function PlayerDetails(props: Props) {
         })
     }
 
-    let claimAccountElement = !isLoggedIn ? null : uuid !== accountInfo?.mcId ? (
+    let claimAccountElement = uuid !== accountInfo?.mcId ? (
         <span style={{ marginLeft: '25px' }}>
             <Tooltip
                 type="click"
