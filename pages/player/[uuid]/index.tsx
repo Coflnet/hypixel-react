@@ -86,7 +86,7 @@ function PlayerDetails(props: Props) {
         })
     }
 
-    let claimAccountElement = !isLoggedIn ? null : uuid !== accountInfo?.mcId ? (
+    let claimAccountElement = uuid !== accountInfo?.mcId ? (
         <span style={{ marginLeft: '25px' }}>
             <Tooltip
                 type="click"
@@ -172,11 +172,11 @@ function PlayerDetails(props: Props) {
                         type="auctions"
                         auctions={props.auctions?.map(parseAuction)}
                         loadingDataFunction={api.getAuctions}
-                        playerUUID={uuid}
+                        player={selectedPlayer}
                     />
                 ) : undefined}
                 {detailType === DetailType.BIDS ? (
-                    <PlayerDetailsList key={'bids'} type="bids" loadingDataFunction={api.getBids} playerUUID={uuid} />
+                    <PlayerDetailsList key={'bids'} type="bids" loadingDataFunction={api.getBids} player={selectedPlayer} />
                 ) : undefined}
             </Container>
         </div>

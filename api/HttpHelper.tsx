@@ -91,63 +91,74 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             console.log('Body: ' + JSON.stringify(body))
             console.log('------------------------')
         }
-        return fetch(url, {
-            body: body,
-            method: request.requestMethod,
-            headers: request.requestHeader
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return Promise.reject(response.text())
-                }
+        try {
+            return fetch(url, {
+                body: body,
+                method: request.requestMethod,
+                headers: request.requestHeader
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return Promise.reject(response.text())
+                    }
 
-                return response.text()
-            })
-            .then(responseText => {
-                let parsedResponse = parseResponseText(responseText)
+                    return response.text()
+                })
+                .then(responseText => {
+                    let parsedResponse = parseResponseText(responseText)
 
-                if (!isClientSideRendering()) {
-                    console.log('Received Response: ')
-                    console.log('mId: ' + request.mId)
-                    console.log('data: ' + JSON.stringify(parsedResponse))
-                    console.log('------------------------')
-                }
-                if (!parsedResponse || parsedResponse.Slug !== undefined) {
-                    request.resolve()
-                    return
-                }
-                request.resolve(parsedResponse)
-                let equals = findForEqualSentRequest(request)
-                equals.forEach(equal => {
-                    equal.resolve(parsedResponse)
-                })
-                // all http answers are valid for 60 sec
-                let maxAge = 60
+                    if (!isClientSideRendering()) {
+                        console.log('Received Response: ')
+                        console.log('mId: ' + request.mId)
+                        console.log('data: ' + JSON.stringify(parsedResponse))
+                        console.log('------------------------')
+                    }
+                    if (!parsedResponse || parsedResponse.Slug !== undefined) {
+                        request.resolve()
+                        return
+                    }
+                    request.resolve(parsedResponse)
+                    let equals = findForEqualSentRequest(request)
+                    equals.forEach(equal => {
+                        equal.resolve(parsedResponse)
+                    })
+                    // all http answers are valid for 60 sec
+                    let maxAge = 60
 
-                let data = request.data
-                try {
-                    data = atobUnicode(request.data)
-                } catch {}
-                cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge)
-                removeSentRequests([...equals, request])
-            })
-            .catch(responseTextPromise => {
-                if (!responseTextPromise) {
-                    request.reject()
-                    return
-                }
-                responseTextPromise.then(responseText => {
-                    request.reject(parseResponseText(responseText))
+                    let data = request.data
+                    try {
+                        data = atobUnicode(request.data)
+                    } catch {}
+                    cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge)
+                    removeSentRequests([...equals, request])
                 })
-            })
-            .finally(() => {
-                // when there are still matching request remove them
-                let equals = findForEqualSentRequest(request)
-                equals.forEach(equal => {
-                    equal.reject()
+                .catch(responseTextPromise => {
+                    if (!responseTextPromise) {
+                        request.reject()
+                        return
+                    }
+                    responseTextPromise.then(responseText => {
+                        request.reject(parseResponseText(responseText))
+                    })
                 })
-                removeSentRequests([...equals, request])
-            })
+                .finally(() => {
+                    // when there are still matching request remove them
+                    let equals = findForEqualSentRequest(request)
+                    equals.forEach(equal => {
+                        equal.reject()
+                    })
+                    removeSentRequests([...equals, request])
+                })
+        } catch (e) {
+            console.log('Fetch threw exception...')
+            console.log('URL: ' + url)
+            console.log('Request: ' + JSON.stringify(request))
+            console.log('Body: ' + JSON.stringify(body))
+            console.log('------------------------')
+
+            request.reject()
+            return
+        }
     }
 
     function sendRequestLimitCache(request: ApiRequest, grouping = 1): Promise<void> {

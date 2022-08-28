@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
 import { useRouter } from 'next/router'
+import { useForceUpdate } from '../../utils/Hooks'
 
 interface Props {
     selected?: Player | Item
@@ -46,6 +47,7 @@ function Search(props: Props) {
     }).show
 
     let searchElement = useRef(null)
+    let forceUpdate = useForceUpdate()
 
     useEffect(() => {
         if (isClientSideRendering()) {
@@ -168,7 +170,7 @@ function Search(props: Props) {
     }
 
     let noResultsFoundElement = (
-        <ListGroup.Item key={-1} style={{ marginBottom: '10px' }}>
+        <ListGroup.Item key={-1} style={getListItemStyle(-1)} onContextMenu={handleSearchContextMenuForSearchResult}>
             <img className={styles.searchResultIcon} height={32} src="/Barrier.png" alt="" />
             No search results
         </ListGroup.Item>
@@ -197,16 +199,16 @@ function Search(props: Props) {
 
     let searchStyle: React.CSSProperties = {
         backgroundColor: props.backgroundColor,
-        borderRadius: results.length > 0 ? '0px 10px 0 0' : '0px 10px 10px 0px',
+        borderRadius: results.length > 0 || noResultsFound ? '0px 10px 0 0' : '0px 10px 10px 0px',
         borderLeftWidth: 0,
-        borderBottomColor: results.length > 0 ? '#444' : undefined
+        borderBottomColor: results.length > 0 || noResultsFound ? '#444' : undefined
     }
 
     let searchIconStyle: React.CSSProperties = {
         width: isSmall ? 'auto' : '58px',
-        borderRadius: results.length > 0 ? '10px 0 0 0' : '10px 0px 0px 10px',
+        borderRadius: results.length > 0 || noResultsFound ? '10px 0 0 0' : '10px 0px 0px 10px',
         backgroundColor: props.backgroundColor || '#303030',
-        borderBottomColor: results.length > 0 ? '#444' : undefined,
+        borderBottomColor: results.length > 0 || noResultsFound ? '#444' : undefined,
         padding: isSmall ? '0px' : undefined
     }
 
@@ -318,7 +320,6 @@ function Search(props: Props) {
                             onKeyDown={(e: any) => {
                                 onKeyPress(e)
                             }}
-                            onContextMenu={handleSearchContextMenuForSearchResult}
                         />
                     </InputGroup>
                 </Form.Group>
@@ -335,14 +336,25 @@ function Search(props: Props) {
                               }}
                               style={getListItemStyle(i)}
                               className={result.isPreviousSearch ? styles.previousSearch : null}
+                              onContextMenu={handleSearchContextMenuForSearchResult}
                           >
                               {result.dataItem.iconUrl ? (
                                   <img
                                       className={`${styles.searchResultIcon} playerHeadIcon`}
                                       crossOrigin="anonymous"
                                       width={32}
-                                      src={result.dataItem.iconUrl}
+                                      height={32}
+                                      src={
+                                          result.dataItem._imageLoaded
+                                              ? result.dataItem.iconUrl
+                                              : 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPMqAcAAVUA6UpAAT4AAAAASUVORK5CYII='
+                                      }
                                       alt=""
+                                      onLoad={() => {
+                                          result.dataItem._imageLoaded = true
+                                          setResults(results)
+                                          forceUpdate()
+                                      }}
                                   />
                               ) : (
                                   <Spinner animation="border" role="status" variant="primary" />

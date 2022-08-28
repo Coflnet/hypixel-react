@@ -114,7 +114,7 @@ export const getServerSideProps = async ({ res, params, query }) => {
             } as Item
         }),
         api.getItemPrices(params.tag, range, query.itemFilter ? JSON.parse(atobUnicode(query.itemFilter)) : {}).catch(() => {
-            return null
+            return []
         })
     ])
     return {
