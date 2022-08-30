@@ -133,7 +133,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                     removeSentRequests([...equals, request])
                 })
                 .catch(responseTextPromise => {
-                    if (!responseTextPromise) {
+                    if (!responseTextPromise || typeof responseTextPromise.then !== 'function') {
                         request.reject()
                         return
                     }
@@ -155,7 +155,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             console.log('Request: ' + JSON.stringify(request))
             console.log('Body: ' + JSON.stringify(body))
             console.log('------------------------')
-            
+
             request.reject()
             return
         }
