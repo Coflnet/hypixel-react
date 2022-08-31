@@ -72,6 +72,10 @@ let cacheUtils: CacheUtils = {
 }
 export default cacheUtils
 
+export function getCacheContolHeader() {
+    return 'public, max-age=300, s-maxage=60, stale-while-revalidate=59'
+}
+
 interface CacheEntry {
     expireTimeStamp: number
     response: ApiResponse

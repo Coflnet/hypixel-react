@@ -4,6 +4,7 @@ import { Container } from 'react-bootstrap'
 import { initAPI } from '../api/ApiHelper'
 import { CraftsList } from '../components/CraftsList/CraftsList'
 import Search from '../components/Search/Search'
+import { getCacheContolHeader } from '../utils/CacheUtils'
 import { parseProfitableCraft } from '../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../utils/SSRUtils'
 
@@ -26,7 +27,9 @@ function Crafts(props: Props) {
     )
 }
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async res => {
+    res.setHeader('Cache-Control', getCacheContolHeader())
+
     let api = initAPI(true)
     let results = await Promise.all([api.getProfitableCrafts(), api.getBazaarTags()])
     return {

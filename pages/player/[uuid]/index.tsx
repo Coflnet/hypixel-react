@@ -13,6 +13,7 @@ import { getHeadElement, isClientSideRendering } from '../../../utils/SSRUtils'
 import styles from './index.module.css'
 import Link from 'next/link'
 import Hyauctions from '../../../components/Hyauctions/Hyauctions'
+import { getCacheContolHeader } from '../../../utils/CacheUtils'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -86,19 +87,20 @@ function PlayerDetails(props: Props) {
         })
     }
 
-    let claimAccountElement = uuid !== accountInfo?.mcId ? (
-        <span style={{ marginLeft: '25px' }}>
-            <Tooltip
-                type="click"
-                content={<span style={{ color: '#007bff', cursor: 'pointer' }}>You? Claim account.</span>}
-                tooltipContent={<ClaimAccount playerUUID={uuid} />}
-                size="xl"
-                tooltipTitle={<span>Claim Minecraft account</span>}
-            />
-        </span>
-    ) : (
-        <span style={{ marginLeft: '25px', color: '#007bff' }}>(Your Account)</span>
-    )
+    let claimAccountElement =
+        uuid !== accountInfo?.mcId ? (
+            <span style={{ marginLeft: '25px' }}>
+                <Tooltip
+                    type="click"
+                    content={<span style={{ color: '#007bff', cursor: 'pointer' }}>You? Claim account.</span>}
+                    tooltipContent={<ClaimAccount playerUUID={uuid} />}
+                    size="xl"
+                    tooltipTitle={<span>Claim Minecraft account</span>}
+                />
+            </span>
+        ) : (
+            <span style={{ marginLeft: '25px', color: '#007bff' }}>(Your Account)</span>
+        )
 
     // special case for people searching hyauctions
     // window.document.referrer.includes('google')
@@ -183,7 +185,9 @@ function PlayerDetails(props: Props) {
     )
 }
 
-export const getServerSideProps = async ({ params }) => {
+export const getServerSideProps = async ({ res, params }) => {
+    res.setHeader('Cache-Control', getCacheContolHeader())
+
     let api = initAPI(true)
     let playerName = await api.getPlayerName(params.uuid)
     let auctions = await api.getAuctions(params.uuid, 12, 0)

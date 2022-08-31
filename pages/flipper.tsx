@@ -7,6 +7,7 @@ import Head from 'next/head'
 import { parseFlipAuction } from '../utils/Parser/APIResponseParser'
 import { initAPI } from '../api/ApiHelper'
 import { handleSettingsImport } from '../utils/SettingsUtils'
+import { getCacheContolHeader } from '../utils/CacheUtils'
 
 interface Props {
     flips?: any[]
@@ -46,7 +47,9 @@ function Flipper(props: Props) {
     )
 }
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async res => {
+    res.setHeader('Cache-Control', getCacheContolHeader())
+
     let api = initAPI(true)
     let flips = await api.getPreloadFlips()
     return {
