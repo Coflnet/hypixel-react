@@ -126,7 +126,7 @@ function RatChecker() {
                             {getResultElement()}
                             <p style={{ float: 'right' }}>
                                 <small>
-                                    Files are checked by{' '}
+                                    File check is provided by{' '}
                                     <a target="_blank" rel="noreferrer" href="https://isthisarat.com/">
                                         isthisarat.com
                                     </a>
