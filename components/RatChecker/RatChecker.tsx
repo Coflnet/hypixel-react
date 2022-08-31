@@ -113,7 +113,7 @@ function RatChecker() {
                 <Card.Body>
                     {!isChecking ? (
                         <div>
-                            <p>If you still want to check if a mod file is a RAT (remote access trojan), you can upload the file here:</p>
+                            <p>Received a suspicious (or any other mod) that you want to check? Select it here and get quick results for known rats or legitimate mods (you can select multiple at once):</p>
                             <Form.Control type="file" className={'form-control'} ref={ratFileInput} onChange={onFileUpload} multiple />
                         </div>
                     ) : (
