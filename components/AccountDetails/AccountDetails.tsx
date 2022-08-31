@@ -17,6 +17,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { atobUnicode } from '../../utils/Base64Utils'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
+import { googleLogout } from '@react-oauth/google'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -71,6 +72,7 @@ function AccountDetails() {
     function onLogout() {
         setIsLoggedIn(false)
         setIsLoading(false)
+        googleLogout()
         localStorage.removeItem('googleId')
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
@@ -207,6 +209,11 @@ function AccountDetails() {
             ) : null}
             {isLoading ? getLoadingElement() : null}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
+            {isLoggedIn ? (
+                <div style={{ marginTop: '20px' }}>
+                    <Button onClick={onLogout}>Logout</Button>
+                </div>
+            ) : null}
             <hr />
             <h2 style={{ marginBottom: '30px' }}>Settings</h2>
             <p>

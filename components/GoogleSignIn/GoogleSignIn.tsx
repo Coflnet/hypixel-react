@@ -91,7 +91,7 @@ function GoogleSignIn(props: Props) {
     return (
         <div style={style} onClickCapture={onLoginClick}>
             <div style={{ width: '250px' }}>
-                <GoogleLogin onSuccess={onLoginSucces} onError={onLoginFail} theme={'filled_blue'} size={'large'} auto_select />
+                <GoogleLogin onSuccess={onLoginSucces} onError={onLoginFail} theme={'filled_blue'} size={'large'} useOneTap auto_select />
             </div>
             <p>
                 I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
