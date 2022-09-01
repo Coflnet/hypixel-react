@@ -72,14 +72,14 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Kat flips</td>
+                        <td className={styles.featureColumn}>Top 3 Kat flips</td>
                         {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Craft flips</td>
+                        <td className={styles.featureColumn}>Top 3 Craft flips</td>
                         {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
