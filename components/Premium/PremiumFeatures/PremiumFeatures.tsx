@@ -68,7 +68,7 @@ function PremiumFeatures() {
                         <td className={styles.premiumProductColumn}>{checkIcon}</td>
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Craft flips</td>
+                        <td className={styles.featureColumn}>Top 3 Craft flips</td>
                         <td className={styles.premiumProductColumn}>{xIcon}</td>
                         <td className={styles.premiumProductColumn}>{checkIcon}</td>
                         <td className={styles.premiumProductColumn}>{checkIcon}</td>
