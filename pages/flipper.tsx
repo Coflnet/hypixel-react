@@ -47,7 +47,7 @@ function Flipper(props: Props) {
     )
 }
 
-export const getServerSideProps = async res => {
+export const getServerSideProps = async ({ res }) => {
     res.setHeader('Cache-Control', getCacheContolHeader())
 
     let api = initAPI(true)
