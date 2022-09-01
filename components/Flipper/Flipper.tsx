@@ -419,21 +419,21 @@ function Flipper(props: Props) {
             if (type.priority === PREMIUM_RANK.STARTER) {
                 return (
                     <span>
-                        You are using starter premium. Check details <Link href="/premium">here</Link>
+                        You are using <Link href="/premium">starter premium</Link>.
                     </span>
                 )
             }
             if (type.priority === PREMIUM_RANK.PREMIUM) {
                 return (
                     <span>
-                        You are using premium. Check details <Link href="/premium">here</Link>
+                        You are using <Link href="/premium">premium</Link>.
                     </span>
                 )
             }
             if (type.priority === PREMIUM_RANK.PREMIUM_PLUS) {
                 return (
                     <span>
-                        You are using premium+. Check details <Link href="/premium">here</Link>
+                        You are using <Link href="/premium">premium+</Link>.
                     </span>
                 )
             }
