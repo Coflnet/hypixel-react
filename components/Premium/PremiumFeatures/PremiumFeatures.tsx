@@ -97,7 +97,7 @@ function PremiumFeatures() {
                             List of low supply items (<Link href="/lowSupply">here</Link>)
                         </td>
                         {xIconElement}
-                        {checkIconElement}
+                        {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
