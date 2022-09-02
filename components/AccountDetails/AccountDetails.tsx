@@ -18,6 +18,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { atobUnicode } from '../../utils/Base64Utils'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
+import { getHighestPriorityPremiumProduct, getPremiumType } from '../../utils/PremiumTypeUtils'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -26,6 +27,7 @@ function AccountDetails() {
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
+    let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
     let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
     let coflCoins = useCoflCoins()
     let { pushInstruction } = useMatomo()
@@ -56,15 +58,17 @@ function AccountDetails() {
         return <span />
     }
 
-    function loadHasPremiumUntil(): Promise<void> {
-        let googleId = localStorage.getItem('googleId')
-        return api.hasPremium(googleId!).then(hasPremiumUntil => {
+    function loadPremiumProducts(): Promise<void> {
+        return api.getPremiumProducts().then(products => {
+            products = products.filter(product => product.expires.getTime() > new Date().getTime())
             let hasPremium = false
-            if (hasPremiumUntil !== undefined && hasPremiumUntil.getTime() > new Date().getTime()) {
+            if (products.length > 0) {
                 hasPremium = true
             }
+            let activeProduct = getHighestPriorityPremiumProduct(products)
             setHasPremium(hasPremium)
-            setHasPremiumUntil(hasPremiumUntil)
+            setHasPremiumUntil(activeProduct.expires)
+            setActivePremiumProduct(activeProduct)
             setIsLoading(false)
         })
     }
@@ -81,7 +85,7 @@ function AccountDetails() {
         let googleId = localStorage.getItem('googleId')
         setIsLoading(true)
         if (googleId) {
-            loadHasPremiumUntil()
+            loadPremiumProducts()
             setIsLoggedIn(true)
         }
     }
@@ -160,7 +164,7 @@ function AccountDetails() {
                         </div>
                     )}
                     <p>
-                        <span className={styles.label}>Premium-Status:</span> {hasPremium ? 'Premium' : 'No Premium'}
+                        <span className={styles.label}>Premium-Status:</span> {getPremiumType(activePremiumProduct).label}
                     </p>
                     {hasPremium ? (
                         <div>

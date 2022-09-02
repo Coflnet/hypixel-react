@@ -8,6 +8,33 @@
     float: right;
 }
 
+.dropdown {
+    display: inline;
+    width: 110px;
+}
+
+.dropdown::-webkit-scrollbar {
+    background-color: #272b30;
+}
+
+.dropdown::-webkit-scrollbar {
+    width: 20px;
+}
+
+.dropdown::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+}
+
+.dropdown::-webkit-scrollbar-thumb {
+    background: #3a3f44;
+    border-radius: 10px;
+}
+
+.dropdown::-webkit-scrollbar-thumb:hover {
+    background: #7a8288;
+}
+
 @media all and (max-width: 768px) {
     .label {
         width: auto;
@@ -17,7 +44,7 @@
         float: none;
         margin-top: 20px;
     }
-    .coinBalance :global(b){
+    .coinBalance :global(b) {
         font-size: medium !important;
     }
 }

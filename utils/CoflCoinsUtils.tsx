@@ -63,6 +63,4 @@ export function initCoflCoinManager() {
         currentCoflCoins = coflCoins
         notifyAboutCoflCoinUpdate(coflCoins)
     })
-
-    initCoflCoinBalanceAndSubscriptions()
 }
