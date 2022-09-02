@@ -18,7 +18,7 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { atobUnicode } from '../../utils/Base64Utils'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
-import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
+import { getHighestPriorityPremiumProduct, getPremiumType } from '../../utils/PremiumTypeUtils'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -27,6 +27,7 @@ function AccountDetails() {
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
+    let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
     let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
     let coflCoins = useCoflCoins()
     let { pushInstruction } = useMatomo()
@@ -64,9 +65,10 @@ function AccountDetails() {
             if (products.length > 0) {
                 hasPremium = true
             }
-            let activePremiumProduct = getHighestPriorityPremiumProduct(products)
+            let activeProduct = getHighestPriorityPremiumProduct(products)
             setHasPremium(hasPremium)
-            setHasPremiumUntil(activePremiumProduct.expires)
+            setHasPremiumUntil(activeProduct.expires)
+            setActivePremiumProduct(activeProduct)
             setIsLoading(false)
         })
     }
@@ -162,7 +164,7 @@ function AccountDetails() {
                         </div>
                     )}
                     <p>
-                        <span className={styles.label}>Premium-Status:</span> {hasPremium ? 'Premium' : 'No Premium'}
+                        <span className={styles.label}>Premium-Status:</span> {getPremiumType(activePremiumProduct).label}
                     </p>
                     {hasPremium ? (
                         <div>

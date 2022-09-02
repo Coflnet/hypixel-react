@@ -8,53 +8,44 @@ export const PREMIUM_TYPES: PremiumType[] = [
     {
         productId: 'premium',
         label: 'Premium',
-        price: 1800,
         durationString: 'month',
         priority: PREMIUM_RANK.PREMIUM,
-        options: generateNumberArray(1, 12)
+        options: generateNumberOptionArray(1, 12, 'premium', 1800)
     },
     {
         productId: 'premium_plus',
         label: 'Premium+',
-        price: 1800,
         durationString: 'week',
         priority: PREMIUM_RANK.PREMIUM_PLUS,
-        options: generateNumberArray(1, 4)
-    },
-    {
-        productId: 'starter_premium-day',
-        label: 'Starter Premium (day)',
-        price: 24,
-        durationString: 'day',
-        priority: PREMIUM_RANK.STARTER,
-        options: generateNumberArray(1, 30)
-    },
-    {
-        productId: 'starter_premium-week',
-        label: 'Starter Premium (week)',
-        price: 120,
-        durationString: 'week',
-        priority: PREMIUM_RANK.STARTER,
-        options: generateNumberArray(1, 12)
+        options: generateNumberOptionArray(1, 4, 'premium_plus', 1800)
     },
     {
         productId: 'starter_premium',
-        label: 'Starter Premium (half year)',
-        price: 1800,
-        durationString: 'month',
+        label: 'Starter Premium',
+        durationString: '',
         priority: PREMIUM_RANK.STARTER,
         options: [
-            { value: 1, label: '6' },
-            { value: 2, label: '12' }
+            { value: 1, label: '1 day', productId: 'starter_premium-day', price: 24 },
+            { value: 1, label: '1 week', productId: 'starter_premium-week', price: 120 },
+            { value: 4, label: '4 weeks', productId: 'starter_premium-week', price: 1201 },
+            { value: 1, label: '6 months', productId: 'starter_premium', price: 1800 },
+            { value: 2, label: '12 months', productId: 'starter_premium', price: 1800 }
         ]
     }
 ]
 
-/**
- * Generates an array containing the numbers from (and including) start and end
- */
-function generateNumberArray(start: number, end: number): number[] {
-    return (Array(end - start + 1) as any).fill().map((_, idx) => start + idx)
+function generateNumberOptionArray(start: number, end: number, productId: string, priceForOption: number): PremiumTypeOption[] {
+    return (Array(end - start + 1) as any)
+        .fill()
+        .map((_, idx) => start + idx)
+        .map(number => {
+            return {
+                value: number,
+                label: number,
+                productId: productId,
+                price: priceForOption
+            }
+        })
 }
 
 export function getHighestPriorityPremiumProduct(premiumProducts: PremiumProduct[]) {
@@ -73,14 +64,6 @@ export function getHighestPriorityPremiumProduct(premiumProducts: PremiumProduct
 
 export function getPremiumType(product: PremiumProduct) {
     return [...PREMIUM_TYPES].sort((a, b) => b.productId.localeCompare(a.productId)).find(type => product.productSlug.startsWith(type.productId))
-}
-
-export function getPremiumTypeOptionValue(option: number | { label: string; value: number }) {
-    return typeof option === 'number' ? option : option.value
-}
-
-export function getPremiumTypeOptionLabel(option: number | { label: string; value: number }) {
-    return typeof option === 'number' ? option : option.label
 }
 
 export function hasHighEnoughPremium(products: PremiumProduct[], minPremiumType: PREMIUM_RANK) {

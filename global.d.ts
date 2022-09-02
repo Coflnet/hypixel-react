@@ -505,11 +505,17 @@ interface PremiumProduct {
     productSlug: string
 }
 
+interface PremiumTypeOption {
+    value: number
+    label: string
+    productId: string
+    price: number
+}
+
 interface PremiumType {
     productId: string
     label: string
-    price: number
     durationString: string
     priority: PREMIUM_RANK
-    options: number[] | { value: number; label: string }[]
+    options: PremiumTypeOption[]
 }

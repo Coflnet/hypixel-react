@@ -1,11 +1,12 @@
 import React, { ChangeEvent, useState } from 'react'
+import { ToggleButtonGroup, ToggleButton } from 'react-bootstrap'
 import { Button, Card, Form, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { numberWithThousandsSeperators } from '../../../utils/Formatter'
 import { useCoflCoins } from '../../../utils/Hooks'
-import { getPremiumType, getPremiumTypeOptionLabel, getPremiumTypeOptionValue, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
+import { getPremiumType, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import styles from './BuyPremium.module.css'
 
@@ -16,38 +17,34 @@ interface Props {
 
 function BuyPremium(props: Props) {
     let [purchasePremiumType, setPurchasePremiumType] = useState<PremiumType>(PREMIUM_TYPES[0])
-    let [purchaseSuccessfulDuration, setPurchaseSuccessfulDuration] = useState<number | { label: string; value: number }>()
+    let [purchaseSuccessfulOption, setPurchaseSuccessfulDuration] = useState<PremiumTypeOption>()
     let [isPurchasing, setIsPurchasing] = useState(false)
-    let [purchasePremiumDuration, setPurchasePremiumDuration] = useState<number | { label: string; value: number }>(
-        getPremiumTypeOptionValue(PREMIUM_TYPES[0].options[0])
-    )
+    let [purchasePremiumOption, setPurchasePremiumOption] = useState<PremiumTypeOption>(PREMIUM_TYPES[0].options[0])
     let [showConfirmationDialog, setShowConfirmationDialog] = useState(false)
     let coflCoins = useCoflCoins()
 
     function onDurationChange(event: ChangeEvent<HTMLSelectElement>) {
-        if (event.target.options[event.target.selectedIndex].textContent !== event.target.value) {
-            setPurchasePremiumDuration({ label: event.target.options[event.target.selectedIndex].textContent, value: parseInt(event.target.value) })
-        } else {
-            setPurchasePremiumDuration(parseInt(event.target.value))
-        }
+        let option = JSON.parse(event.target.value)
+        setPurchasePremiumOption(option)
     }
 
-    function onPremiumTypeChange(event: ChangeEvent<HTMLSelectElement>) {
-        let selectedType = PREMIUM_TYPES.find(type => type.productId === event.target.value)
+    function onPremiumTypeChange(productId) {
+        let selectedType = PREMIUM_TYPES.find(type => type.productId === productId)
         setPurchasePremiumType(selectedType)
-        setPurchasePremiumDuration(selectedType.options[0])
+        setPurchasePremiumOption(selectedType.options[0])
     }
 
     function onPremiumBuy() {
         setShowConfirmationDialog(false)
         setIsPurchasing(true)
-        api.purchaseWithCoflcoins(purchasePremiumType.productId, getPremiumTypeOptionValue(purchasePremiumDuration)).then(() => {
+
+        api.purchaseWithCoflcoins(purchasePremiumOption.productId, purchasePremiumOption.value).then(() => {
             document.dispatchEvent(
                 new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, {
                     detail: { coflCoins: coflCoins - getPurchasePrice() }
                 })
             )
-            setPurchaseSuccessfulDuration(purchasePremiumDuration)
+            setPurchaseSuccessfulDuration(purchasePremiumOption)
             setIsPurchasing(false)
             toast.success('Purchase successful')
             props.onNewActivePremiumProduct()
@@ -59,13 +56,13 @@ function BuyPremium(props: Props) {
     }
 
     function getPurchasePrice() {
-        return getPremiumTypeOptionValue(purchasePremiumDuration) * purchasePremiumType.price
+        return purchasePremiumOption.value * purchasePremiumOption.price
     }
 
     function getDurationString(): string {
         let durationString = purchasePremiumType.durationString
-        let duration = +getPremiumTypeOptionLabel(purchasePremiumDuration) || getPremiumTypeOptionValue(purchasePremiumDuration)
-        if (duration > 1) {
+        let duration = +purchasePremiumOption.value
+        if (durationString && duration > 1) {
             durationString += 's'
         }
         return durationString
@@ -89,7 +86,7 @@ function BuyPremium(props: Props) {
                     </li>
                     <li>
                         <span className={styles.label}>Duration:</span>
-                        {getPremiumTypeOptionLabel(purchasePremiumDuration)} {getDurationString()}
+                        {purchasePremiumOption.label} {getDurationString()}
                     </li>
                     <li>
                         <span className={styles.label}>Price:</span>
@@ -123,15 +120,23 @@ function BuyPremium(props: Props) {
                     <Card.Title>Buy premium for a certain duration with your CoflCoins. Your premium time starts shortly after your purchase.</Card.Title>
                 </Card.Header>
                 <div style={{ padding: '15px' }}>
-                    {!purchaseSuccessfulDuration ? (
+                    {!purchaseSuccessfulOption ? (
                         <div>
                             <div style={{ marginBottom: '15px' }}>
                                 <label className={styles.label}>Premium type:</label>
-                                <Form.Control as="select" onChange={onPremiumTypeChange} style={{ width: '250px', display: 'inline' }}>
+                                <ToggleButtonGroup
+                                    style={{ width: '250px', display: 'inline' }}
+                                    type="radio"
+                                    name="options"
+                                    value={purchasePremiumType.productId}
+                                    onChange={onPremiumTypeChange}
+                                >
                                     {PREMIUM_TYPES.map(premiumType => (
-                                        <option value={premiumType.productId}>{premiumType.label}</option>
+                                        <ToggleButton value={premiumType.productId} className="price-range-button" size="sm">
+                                            {premiumType.label}
+                                        </ToggleButton>
                                     ))}
-                                </Form.Control>
+                                </ToggleButtonGroup>
                                 <div className={styles.coinBalance}>
                                     <CoflCoinsDisplay />
                                 </div>
@@ -143,13 +148,10 @@ function BuyPremium(props: Props) {
                                     onChange={onDurationChange}
                                     className={styles.dropdown}
                                     key={purchasePremiumType.productId}
-                                    defaultValue={getPremiumTypeOptionValue(purchasePremiumDuration)}
+                                    defaultValue={purchasePremiumOption.value}
                                 >
                                     {purchasePremiumType.options.map(option => {
-                                        if (typeof option === 'number') {
-                                            return <option value={option}>{option}</option>
-                                        }
-                                        return <option value={option.value}>{option.label}</option>
+                                        return <option value={JSON.stringify(option)}>{option.label}</option>
                                     })}
                                 </Form.Control>
                                 <span style={{ marginLeft: '20px' }}>{getDurationString()}</span>
@@ -188,8 +190,8 @@ function BuyPremium(props: Props) {
                         </div>
                     ) : (
                         <p style={{ color: 'lime' }}>
-                            You successfully bought {getPremiumTypeOptionLabel(purchaseSuccessfulDuration)} {getDurationString()} of {purchasePremiumType.label}{' '}
-                            for {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins!
+                            You successfully bought {purchaseSuccessfulOption.label} {getDurationString()} of {purchasePremiumType.label} for{' '}
+                            {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins!
                         </p>
                     )}
                 </div>
