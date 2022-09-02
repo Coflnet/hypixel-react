@@ -233,6 +233,7 @@ interface API {
     getBazaarPricesByRange(itemTag: string, startDate: Date | string | number, endDate: Date | string | number): Promise<BazaarPrice[]>
     getPrivacySettings(): Promise<PrivacySettings>
     setPrivacySettings(settings: PrivacySettings): Promise<void>
+    checkRat(hash: string): Promise<RatCheckingResponse>
     getPremiumProducts(): Promise<PremiumProduct[]>
 }
 
@@ -518,4 +519,9 @@ interface PremiumType {
     durationString: string
     priority: PREMIUM_RANK
     options: PremiumTypeOption[]
+}
+
+interface RatCheckingResponse {
+    rat: string
+    md5return: string
 }

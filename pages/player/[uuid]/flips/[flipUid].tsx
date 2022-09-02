@@ -8,6 +8,7 @@ import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '.
 import { getHeadElement } from '../../../../utils/SSRUtils'
 import moment from 'moment'
 import Link from 'next/link'
+import { getCacheContolHeader } from '../../../../utils/CacheUtils'
 
 interface Props {
     flipTrackingResponse: any
@@ -21,7 +22,9 @@ function Flipper(props: Props) {
     let targetFlip = parseFlipTrackingFlip(props.targetFlip)
 
     function getTargetFlipEmbedDescription(targetFlip: FlipTrackingFlip) {
-        return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeperators(targetFlip.profit)} Coins ${targetFlip.profit > 0 ? `(${Math.round((targetFlip.profit / targetFlip.pricePaid) * 98)}%)` : ''}
+        return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeperators(targetFlip.profit)} Coins ${
+            targetFlip.profit > 0 ? `(${Math.round((targetFlip.profit / targetFlip.pricePaid) * 98)}%)` : ''
+        }
         💸 Purchase: ${numberWithThousandsSeperators(targetFlip.pricePaid)} Coins
         💰 Sold: ${numberWithThousandsSeperators(targetFlip.soldFor)} Coins
         🕑 Sold at ${moment(targetFlip.sellTime).format('MMMM Do YYYY, h:mm:ss a')}
@@ -69,7 +72,9 @@ function Flipper(props: Props) {
     )
 }
 
-export const getServerSideProps = async ({ params }) => {
+export const getServerSideProps = async ({ res, params }) => {
+    res.setHeader('Cache-Control', getCacheContolHeader())
+
     let api = initAPI(true)
     let apiResponses = await Promise.all([api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null)))
 
