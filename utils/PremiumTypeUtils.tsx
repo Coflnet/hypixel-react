@@ -27,7 +27,7 @@ export const PREMIUM_TYPES: PremiumType[] = [
         options: [
             { value: 1, label: '1 day', productId: 'starter_premium-day', price: 24 },
             { value: 1, label: '1 week', productId: 'starter_premium-week', price: 120 },
-            { value: 4, label: '4 weeks', productId: 'starter_premium-week', price: 1201 },
+            { value: 4, label: '4 weeks', productId: 'starter_premium-week', price: 120 },
             { value: 1, label: '6 months', productId: 'starter_premium', price: 1800 },
             { value: 2, label: '12 months', productId: 'starter_premium', price: 1800 }
         ]
