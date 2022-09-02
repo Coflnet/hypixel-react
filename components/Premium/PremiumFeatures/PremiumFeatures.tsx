@@ -156,8 +156,8 @@ function PremiumFeatures() {
                                 type="hover"
                                 tooltipContent={
                                     <p>
-                                        Hypixel updates once every 60 seconds. After the we receive the new auctions this is how long it will take for you to
-                                        get the flips.
+                                        The Hypixel Auctions API updates once every 60 seconds. 
+                                        After we were able to load new auctions, this is how long it will take until they are shown to you. (Parsing auctions, finding references, comparing to determine profit, distributing and filtering and seinding to you) 
                                     </p>
                                 }
                             />
