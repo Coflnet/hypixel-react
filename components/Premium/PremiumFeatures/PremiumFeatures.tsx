@@ -120,7 +120,23 @@ function PremiumFeatures() {
                         <td className={styles.premiumProductColumn}>-</td>
                         <td className={styles.premiumProductColumn}>-</td>
                         <td className={styles.premiumProductColumn}>Flipper</td>
-                        <td className={styles.premiumProductColumn}>Sniper</td>
+                        <td className={styles.premiumProductColumn}>
+                            Sniper (coming soon...)
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={
+                                    <p>
+                                        The rank will be given out in the second week of september and then only during the time you have premium+. Currently
+                                        you can't get the role on the discord server.
+                                    </p>
+                                }
+                            />
+                        </td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Max. Notifications</td>
@@ -156,8 +172,9 @@ function PremiumFeatures() {
                                 type="hover"
                                 tooltipContent={
                                     <p>
-                                        The Hypixel Auctions API updates once every 60 seconds. 
-                                        After we were able to load new auctions, this is how long it will take until they are shown to you. (Parsing auctions, finding references, comparing to determine profit, distributing and filtering and seinding to you) 
+                                        The Hypixel Auctions API updates once every 60 seconds. After we were able to load new auctions, this is how long it
+                                        will take until they are shown to you. (Parsing auctions, finding references, comparing to determine profit,
+                                        distributing and filtering and seinding to you)
                                     </p>
                                 }
                             />
