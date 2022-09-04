@@ -16,13 +16,16 @@ interface Props {
 let gotResponse = false
 
 function GoogleSignIn(props: Props) {
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    let [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(
+        isClientSideRendering() ? sessionStorage.getItem('googleId') !== null : false
+    )
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if (wasAlreadyLoggedIn) {
+        if (wasAlreadyLoggedInThisSession) {
+            onLoginSucces({ credential: sessionStorage.getItem('googleId') })
             setTimeout(() => {
                 if (!gotResponse) {
                     toast.error('We had problems authenticating your account with google. Please try to log in again.')
@@ -31,6 +34,7 @@ function GoogleSignIn(props: Props) {
                         props.onLoginFail()
                     }
                     localStorage.removeItem('googleId')
+                    sessionStorage.removeItem('googleId')
                 }
             }, 15000)
         }
@@ -38,10 +42,10 @@ function GoogleSignIn(props: Props) {
     }, [])
 
     useEffect(() => {
-        if (wasAlreadyLoggedIn) {
+        if (wasAlreadyLoggedInThisSession) {
             setIsLoggedIn(true)
         }
-    }, [wasAlreadyLoggedIn])
+    }, [wasAlreadyLoggedInThisSession])
 
     useEffect(() => {
         forceUpdate()
@@ -52,6 +56,7 @@ function GoogleSignIn(props: Props) {
     const onLoginSucces = (response: any) => {
         gotResponse = true
         localStorage.setItem('googleId', response.credential)
+        sessionStorage.setItem('googleId', response.credential)
         setIsLoggedIn(true)
         api.setGoogle(response.credential)
             .then(() => {
@@ -66,7 +71,9 @@ function GoogleSignIn(props: Props) {
             .catch(() => {
                 toast.error('An error occoured while trying to sign in with Google')
                 setIsLoggedIn(false)
+                setWasAlreadyLoggedInThisSession(false)
                 localStorage.removeItem('googleId')
+                sessionStorage.removeItem('googleId')
             })
     }
 
@@ -90,9 +97,11 @@ function GoogleSignIn(props: Props) {
 
     return (
         <div style={style} onClickCapture={onLoginClick}>
-            <div style={{ width: '250px' }}>
-                <GoogleLogin onSuccess={onLoginSucces} onError={onLoginFail} theme={'filled_blue'} size={'large'} useOneTap auto_select />
-            </div>
+            {!wasAlreadyLoggedInThisSession ? (
+                <div style={{ width: '250px' }}>
+                    <GoogleLogin onSuccess={onLoginSucces} onError={onLoginFail} theme={'filled_blue'} size={'large'} useOneTap auto_select />
+                </div>
+            ) : null}
             <p>
                 I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
             </p>

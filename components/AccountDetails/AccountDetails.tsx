@@ -74,6 +74,7 @@ function AccountDetails() {
         setIsLoading(false)
         googleLogout()
         localStorage.removeItem('googleId')
+        sessionStorage.removeItem('googleId')
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
     }
@@ -118,6 +119,7 @@ function AccountDetails() {
 
     function deleteGoogleToken() {
         localStorage.removeItem('googleId')
+        sessionStorage.removeItem('googleId')
         setIsLoggedIn(false)
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
     }
