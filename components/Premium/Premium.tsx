@@ -13,11 +13,12 @@ import BuyPremium from './BuyPremium/BuyPremium'
 import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
+import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_TYPES } from '../../utils/PremiumTypeUtils'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasPremium, setHasPremium] = useState<boolean>()
-    let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
+    let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
     let [isLoading, setIsLoading] = useState(false)
     let [isLoggingIn, setIsLoggingIn] = useState(false)
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
@@ -37,15 +38,16 @@ function Premium() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    function loadHasPremiumUntil(): Promise<void> {
-        let googleId = localStorage.getItem('googleId')
-        return api.hasPremium(googleId!).then(hasPremiumUntil => {
+    function loadPremiumProducts(): Promise<void> {
+        return api.getPremiumProducts().then(products => {
+            products = products.filter(product => product.expires.getTime() > new Date().getTime())
             let hasPremium = false
-            if (hasPremiumUntil !== undefined && hasPremiumUntil.getTime() > new Date().getTime()) {
+            if (products.length > 0) {
                 hasPremium = true
             }
+            let activePremiumProduct = getHighestPriorityPremiumProduct(products)
             setHasPremium(hasPremium)
-            setHasPremiumUntil(hasPremiumUntil)
+            setActivePremiumProduct(activePremiumProduct)
             setIsLoading(false)
         })
     }
@@ -56,7 +58,7 @@ function Premium() {
             setIsLoading(true)
             setIsLoggingIn(false)
             setIsLoggedIn(true)
-            loadHasPremiumUntil()
+            loadPremiumProducts()
         }
     }
 
@@ -93,12 +95,21 @@ function Premium() {
             )}
             <hr />
             <div style={{ marginBottom: '20px' }}>
-                {hasPremium ? (
+                {hasPremium && activePremiumProduct ? (
                     <div>
+                        <p>
+                            <span className={styles.labelShort}>Premium-Status:</span>
+                            {getPremiumType(activePremiumProduct).label}
+                        </p>
                         <Tooltip
                             type="hover"
-                            content={<span>Your premium ends: {moment(hasPremiumUntil).fromNow()}</span>}
-                            tooltipContent={<span>{hasPremiumUntil?.toDateString()}</span>}
+                            content={
+                                <span>
+                                    <span className={styles.labelShort}>Expiration date:</span>
+                                    {moment(activePremiumProduct.expires).fromNow()}
+                                </span>
+                            }
+                            tooltipContent={<span>{activePremiumProduct.expires?.toDateString()}</span>}
                         />
                     </div>
                 ) : null}
@@ -108,7 +119,7 @@ function Premium() {
             </div>
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>
-                    <BuyPremium />
+                    <BuyPremium activePremiumProduct={activePremiumProduct} onNewActivePremiumProduct={loadPremiumProducts} />
                 </div>
             ) : null}
             {isLoggedIn ? (

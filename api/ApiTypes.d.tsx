@@ -66,7 +66,9 @@ export enum RequestType {
     GET_BAZAAR_SNAPSHOT = 'getBazaarSnapshot',
     SUBSCRIBE_FLIPS_ANONYM = 'subFlipAnonym',
     GET_PRIVACY_SETTINGS = 'getPrivacySettings',
-    SET_PRIVACY_SETTINGS = 'setPrivacySettings'
+    SET_PRIVACY_SETTINGS = 'setPrivacySettings',
+    CHECK_FOR_RAT = 'checkForRat',
+    GET_PREMIUM_PRODUCTS = 'premium/user/owns'
 }
 
 export enum SubscriptionType {

@@ -6,6 +6,7 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import styles from './KatFlips.module.css'
 import { toast } from 'react-toastify'
 import Link from 'next/link'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 
 interface Props {
     flips: KatFlip[]
@@ -76,13 +77,8 @@ export function KatFlips(props: Props) {
 
     function onAfterLogin() {
         setIsLoggedIn(true)
-        let googleId = localStorage.getItem('googleId')
-        return api.hasPremium(googleId!).then(hasPremiumUntil => {
-            let hasPremium = false
-            if (hasPremiumUntil !== undefined && hasPremiumUntil.getTime() > new Date().getTime()) {
-                hasPremium = true
-            }
-            setHasPremium(hasPremium)
+        return api.getPremiumProducts().then(products => {
+            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
         })
     }
 

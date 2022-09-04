@@ -11,6 +11,7 @@ import { getHeadElement } from '../../utils/SSRUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import moment from 'moment'
 import { ConstructionOutlined, RttTwoTone } from '@mui/icons-material'
+import { getCacheContolHeader } from '../../utils/CacheUtils'
 
 interface Props {
     auctionDetails: any
@@ -87,7 +88,9 @@ function AuctionDetailsPage(props: Props) {
     )
 }
 
-export const getServerSideProps = async ({ params }) => {
+export const getServerSideProps = async ({ res, params }) => {
+    res.setHeader('Cache-Control', getCacheContolHeader())
+
     let auctionUUID = params.auctionUUID as string
     let api = initAPI(true)
     let auctionDetails: any

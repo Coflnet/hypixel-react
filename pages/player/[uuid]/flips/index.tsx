@@ -4,6 +4,7 @@ import { Container } from 'react-bootstrap'
 import { initAPI } from '../../../../api/ApiHelper'
 import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
+import { getCacheContolHeader } from '../../../../utils/CacheUtils'
 import { numberWithThousandsSeperators } from '../../../../utils/Formatter'
 import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../../../utils/SSRUtils'
@@ -98,7 +99,8 @@ function Flipper(props: Props) {
     )
 }
 
-export const getServerSideProps = async ({ params }) => {
+export const getServerSideProps = async ({ res, params }) => {
+    res.setHeader('Cache-Control', getCacheContolHeader())
     let api = initAPI(true)
     let apiResponses = await Promise.all([api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null)))
 
