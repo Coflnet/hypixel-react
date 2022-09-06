@@ -40,7 +40,7 @@ let option = {
             id: 'dataZoomX',
             type: 'slider',
             xAxisIndex: [0],
-            filterMode: 'none',
+            filterMode: 'filter',
             labelFormatter: (index, value) => `${new Date(+value).toLocaleDateString()}`
         }
     ],
