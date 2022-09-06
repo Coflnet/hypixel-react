@@ -167,17 +167,17 @@ function AccountDetails() {
                         <span className={styles.label}>Premium-Status:</span> {getPremiumType(activePremiumProduct).label}
                     </p>
                     {hasPremium ? (
-                        <div>
+                        <p>
                             <Tooltip
                                 type="hover"
                                 content={
-                                    <p>
+                                    <span>
                                         <span className={styles.label}>Your premium ends:</span> {moment(hasPremiumUntil).fromNow()}
-                                    </p>
+                                    </span>
                                 }
                                 tooltipContent={<span>{hasPremiumUntil?.toDateString()}</span>}
                             />
-                        </div>
+                        </p>
                     ) : null}
                     <p>
                         <span className={styles.label}>CoflCoins:</span> {numberWithThousandsSeperators(coflCoins)}
