@@ -47,7 +47,7 @@ function ApiInfo() {
                                 </a>
                             </li>
                             <li>
-                                <a href="https://item-value-calculator.bubbleapps.io/version-test" target="_blank" rel="noreferrer">
+                                <a href="https://frogpixel.bubbleapps.io/version-test/" target="_blank" rel="noreferrer">
                                     Item Calculator by Froggily
                                 </a>
                             </li>
