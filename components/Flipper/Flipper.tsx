@@ -32,6 +32,7 @@ import { v4 as generateUUID } from 'uuid'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
+import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -56,6 +57,7 @@ function Flipper(props: Props) {
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
     let [autoscroll, setAutoscroll] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
+    let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
     let [enabledScroll, setEnabledScroll] = useState(false)
     let [isLoading, setIsLoading] = useState(false)
     let [refInfo, setRefInfo] = useState<RefInfo>()
@@ -145,20 +147,18 @@ function Flipper(props: Props) {
     }
 
     let loadHasPremium = () => {
-        let googleId = localStorage.getItem('googleId')
-        api.hasPremium(googleId!).then(hasPremiumUntil => {
-            if (hasPremiumUntil > new Date()) {
-                setHasPremium(true)
-                // subscribe to the premium flips
-                api.subscribeFlips(
-                    getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
-                    flipperFilter,
-                    getFlipCustomizeSettings(),
-                    onNewFlip,
-                    onAuctionSold,
-                    onNextFlipNotification
-                )
-            }
+        api.getPremiumProducts().then(products => {
+            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
+            setActivePremiumProduct(getHighestPriorityPremiumProduct(products))
+            // subscribe to the premium flips
+            api.subscribeFlips(
+                getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
+                flipperFilter,
+                getFlipCustomizeSettings(),
+                onNewFlip,
+                onAuctionSold,
+                onNextFlipNotification
+            )
             setIsLoading(false)
         })
     }
@@ -407,6 +407,48 @@ function Flipper(props: Props) {
         )
     }
 
+    function getCardTitleElement() {
+        if (isLoading) {
+            return getLoadingElement(<p>Logging in with Google...</p>)
+        }
+        if (!isLoggedIn) {
+            return <h2>Free Auction Flipper</h2>
+        }
+        if (hasPremium) {
+            let type = getPremiumType(activePremiumProduct)
+            if (type.priority === PREMIUM_RANK.STARTER) {
+                return (
+                    <span>
+                        You are using <Link href="/premium">starter premium</Link>.
+                    </span>
+                )
+            }
+            if (type.priority === PREMIUM_RANK.PREMIUM) {
+                return (
+                    <span>
+                        You are using <Link href="/premium">premium</Link>.
+                    </span>
+                )
+            }
+            if (type.priority === PREMIUM_RANK.PREMIUM_PLUS) {
+                return (
+                    <span>
+                        You are using <Link href="/premium">premium+</Link>.
+                    </span>
+                )
+            }
+        }
+        return (
+            <span>
+                These auctions are delayed by 5 min. Please purchase{' '}
+                <a target="_blank" rel="noreferrer" href="/premium">
+                    premium
+                </a>{' '}
+                if you want real time flips.
+            </span>
+        )
+    }
+
     let basedOnDialog =
         basedOnAuction === null ? null : (
             <Modal
@@ -512,21 +554,7 @@ function Flipper(props: Props) {
             <Card>
                 <Card.Header>
                     <Card.Title>
-                        {isLoading ? (
-                            getLoadingElement(<p>Logging in with Google...</p>)
-                        ) : !isLoggedIn ? (
-                            <h2>Free Auction Flipper</h2>
-                        ) : hasPremium ? (
-                            'You have premium and receive profitable auctions in real time.'
-                        ) : (
-                            <span>
-                                These auctions are delayed by 5 min. Please purchase{' '}
-                                <a target="_blank" rel="noreferrer" href="/premium">
-                                    premium
-                                </a>{' '}
-                                if you want real time flips.
-                            </span>
-                        )}
+                        {getCardTitleElement()}
                         <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                     </Card.Title>
                     {!isLoading && !hasPremium ? (

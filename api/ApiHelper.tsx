@@ -19,6 +19,7 @@ import {
     parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
+    parsePremiumProducts,
     parsePrivacySettings,
     parseProfitableCraft,
     parseRecentAuction,
@@ -41,6 +42,7 @@ import { isClientSideRendering } from '../utils/SSRUtils'
 import { FLIPPER_FILTER_KEY, getSettingsObject, mapSettingsToApiFormat, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
 import { atobUnicode } from '../utils/Base64Utils'
+import { PREMIUM_TYPES } from '../utils/PremiumTypeUtils'
 
 function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
@@ -511,23 +513,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error, '')
-                    reject()
-                }
-            })
-        })
-    }
-
-    let hasPremium = (googleId: string): Promise<Date> => {
-        return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
-                type: RequestType.PREMIUM_EXPIRATION,
-                data: googleId,
-                resolve: premiumUntil => {
-                    checkForExpiredPremium(new Date(premiumUntil))
-                    resolve(new Date(premiumUntil))
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.PREMIUM_EXPIRATION, error, googleId)
                     reject()
                 }
             })
@@ -1621,6 +1606,55 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let checkRat = (hash: string): Promise<RatCheckingResponse> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.CHECK_FOR_RAT,
+                data: '',
+                customRequestURL: `https://isthisarat.com/api/signature/${hash}`,
+                resolve: (data: RatCheckingResponse) => {
+                    resolve(data)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.CHECK_FOR_RAT, error, hash)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let getPremiumProducts = (): Promise<PremiumProduct[]> => {
+        return new Promise((resolve, reject) => {
+            let googleId = localStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to load premium products.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.GET_PREMIUM_PRODUCTS,
+                    data: '',
+                    requestMethod: 'POST',
+                    customRequestURL: `${getApiEndpoint()}/premium/user/owns`,
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: products => {
+                        resolve(parsePremiumProducts(products))
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.GET_PREMIUM_PRODUCTS, error, '')
+                        reject(error)
+                    }
+                },
+                JSON.stringify(PREMIUM_TYPES.map(type => type.productId))
+            )
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1639,7 +1673,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         unsubscribe,
         getSubscriptions,
         setGoogle,
-        hasPremium,
         stripePurchase,
         setToken,
         getRecentAuctions,
@@ -1686,7 +1719,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getBazaarPricesByRange,
         subscribeFlipsAnonym,
         getPrivacySettings,
-        setPrivacySettings
+        setPrivacySettings,
+        checkRat,
+        getPremiumProducts
     }
 }
 

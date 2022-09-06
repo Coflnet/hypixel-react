@@ -4,6 +4,7 @@ import { Container } from 'react-bootstrap'
 import { initAPI } from '../api/ApiHelper'
 import { KatFlips } from '../components/KatFlips/KatFlips'
 import Search from '../components/Search/Search'
+import { getCacheContolHeader } from '../utils/CacheUtils'
 import { parseKatFlip, parseProfitableCraft } from '../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../utils/SSRUtils'
 
@@ -25,7 +26,9 @@ function Kat(props: Props) {
     )
 }
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async ({ res }) => {
+    res.setHeader('Cache-Control', getCacheContolHeader())
+
     let api = initAPI(true)
     let katFlips = await api.getKatFlips()
     return {

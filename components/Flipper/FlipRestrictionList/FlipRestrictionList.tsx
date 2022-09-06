@@ -43,7 +43,7 @@ function FlipRestrictionList(props: Props) {
         if (item.type !== 'item') {
             return
         }
-        newRestriction.item = item.dataItem as Item
+        newRestriction.item = (item.dataItem as unknown) as Item
         newRestriction.item.tag = item.id
         setNewRestriction(newRestriction)
         loadFilters()

@@ -89,7 +89,7 @@ export function parseItemPrice(priceData: any): ItemPrice {
 export function parseItem(item: any): Item {
     return {
         tag: item.tag,
-        name: item.altNames && item.altNames[0] && item.altNames[0].Name ? item.altNames[0].Name : (item.itemName || item.name),
+        name: item.altNames && item.altNames[0] && item.altNames[0].Name ? item.altNames[0].Name : item.itemName || item.name,
         category: item.category,
         iconUrl: item.iconUrl || item.icon || api.getItemImageUrl(item),
         tier: item.tier,
@@ -563,4 +563,15 @@ export function parsePrivacySettings(privacySettings): PrivacySettings {
         commandPrefixes: privacySettings.commandPrefixes,
         extendDescriptions: privacySettings.extendDescriptions
     }
+}
+
+export function parsePremiumProducts(productsObject): PremiumProduct[] {
+    let products: PremiumProduct[] = []
+    Object.keys(productsObject).forEach(key => {
+        products.push({
+            productSlug: key,
+            expires: parseDate(productsObject[key].expiresAt)
+        })
+    })
+    return products
 }

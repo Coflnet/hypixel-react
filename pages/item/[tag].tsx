@@ -11,6 +11,7 @@ import BazaarPriceGraph from '../../components/PriceGraph/BazaarPriceGraph/Bazaa
 import { atobUnicode } from '../../utils/Base64Utils'
 import { parseItemFilter } from '../../utils/Parser/URLParser'
 import { DEFAULT_DATE_RANGE } from '../../components/ItemPriceRange/ItemPriceRange'
+import { getCacheContolHeader } from '../../utils/CacheUtils'
 
 interface Props {
     item?: any
@@ -100,7 +101,7 @@ function ItemDetails(props: Props) {
 }
 
 export const getServerSideProps = async ({ res, params, query }) => {
-    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=60, stale-while-revalidate=59')
+    res.setHeader('Cache-Control', getCacheContolHeader())
 
     let range = query.range || DEFAULT_DATE_RANGE
 
@@ -114,7 +115,7 @@ export const getServerSideProps = async ({ res, params, query }) => {
             } as Item
         }),
         api.getItemPrices(params.tag, range, query.itemFilter ? JSON.parse(atobUnicode(query.itemFilter)) : {}).catch(() => {
-            return {}
+            return []
         })
     ])
     return {
