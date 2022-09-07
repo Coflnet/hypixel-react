@@ -19,6 +19,7 @@ function GoogleSignIn(props: Props) {
     let [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(
         isClientSideRendering() ? sessionStorage.getItem('googleId') !== null : false
     )
+
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
@@ -33,7 +34,6 @@ function GoogleSignIn(props: Props) {
                     if (props.onLoginFail) {
                         props.onLoginFail()
                     }
-                    localStorage.removeItem('googleId')
                     sessionStorage.removeItem('googleId')
                 }
             }, 15000)
@@ -49,7 +49,7 @@ function GoogleSignIn(props: Props) {
 
     useEffect(() => {
         forceUpdate()
-        setIsLoggedIn(localStorage.getItem('googleId') !== null)
+        setIsLoggedIn(sessionStorage.getItem('googleId') !== null)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.rerenderFlip])
 
@@ -72,7 +72,6 @@ function GoogleSignIn(props: Props) {
                 toast.error('An error occoured while trying to sign in with Google')
                 setIsLoggedIn(false)
                 setWasAlreadyLoggedInThisSession(false)
-                localStorage.removeItem('googleId')
                 sessionStorage.removeItem('googleId')
             })
     }
@@ -98,13 +97,22 @@ function GoogleSignIn(props: Props) {
     return (
         <div style={style} onClickCapture={onLoginClick}>
             {!wasAlreadyLoggedInThisSession ? (
-                <div style={{ width: '250px' }}>
-                    <GoogleLogin onSuccess={onLoginSucces} onError={onLoginFail} theme={'filled_blue'} size={'large'} useOneTap auto_select />
-                </div>
+                <>
+                    <div style={{ width: '250px' }}>
+                        <GoogleLogin
+                            onSuccess={onLoginSucces}
+                            onError={onLoginFail}
+                            theme={'filled_blue'}
+                            size={'large'}
+                            useOneTap
+                            auto_select
+                        />
+                    </div>
+                    <p>
+                        I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
+                    </p>
+                </>
             ) : null}
-            <p>
-                I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
-            </p>
         </div>
     )
 }

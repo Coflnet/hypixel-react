@@ -20,7 +20,7 @@ function LowSupply(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     function onLogin() {
-        let googleId = localStorage.getItem('googleId')
+        let googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoggedIn(true)
             loadHasPremium()

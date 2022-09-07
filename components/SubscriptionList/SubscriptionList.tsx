@@ -46,7 +46,7 @@ function SubscriptionList() {
     }
 
     function onLogin() {
-        let googleId = localStorage.getItem('googleId')
+        let googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoggedIn(true)
             loadSubscriptions()

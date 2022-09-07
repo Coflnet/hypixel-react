@@ -33,14 +33,14 @@ function AccountDetails() {
     let { pushInstruction } = useMatomo()
 
     useEffect(() => {
-        if (localStorage.getItem('googleId') === null) {
+        if (sessionStorage.getItem('googleId') === null) {
             setIsLoading(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     function getAccountElement(): JSX.Element {
-        let googleId = localStorage.getItem('googleId')
+        let googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             try {
                 let parts = googleId.split('.')
@@ -77,14 +77,13 @@ function AccountDetails() {
         setIsLoggedIn(false)
         setIsLoading(false)
         googleLogout()
-        localStorage.removeItem('googleId')
         sessionStorage.removeItem('googleId')
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
     }
 
     function onLogin() {
-        let googleId = localStorage.getItem('googleId')
+        let googleId = sessionStorage.getItem('googleId')
         setIsLoading(true)
         if (googleId) {
             loadPremiumProducts()
@@ -122,7 +121,6 @@ function AccountDetails() {
     }
 
     function deleteGoogleToken() {
-        localStorage.removeItem('googleId')
         sessionStorage.removeItem('googleId')
         setIsLoggedIn(false)
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
@@ -154,7 +152,7 @@ function AccountDetails() {
                             <p>
                                 Your Goolge token:{' '}
                                 <CopyButton
-                                    copyValue={localStorage.getItem('googleId')}
+                                    copyValue={sessionStorage.getItem('googleId')}
                                     successMessage={
                                         <div>
                                             Copied your Google token.

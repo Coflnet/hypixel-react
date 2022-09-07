@@ -30,7 +30,7 @@ function Premium() {
         if (!wasAlreadyLoggedIn && !isLoggedIn) {
             setHasPremium(false)
         }
-        if (localStorage.getItem('googleId') !== null) {
+        if (sessionStorage.getItem('googleId') !== null) {
             setIsLoggingIn(true)
         }
         setIsSSR(false)
@@ -53,7 +53,7 @@ function Premium() {
     }
 
     function onLogin() {
-        let googleId = localStorage.getItem('googleId')
+        let googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoading(true)
             setIsLoggingIn(false)
