@@ -73,7 +73,7 @@ let cacheUtils: CacheUtils = {
 export default cacheUtils
 
 export function getCacheContolHeader() {
-    return 'public, max-age=60, s-maxage=20, stale-while-revalidate=19'
+    return 'public, max-age=60, s-maxage=20'
 }
 
 interface CacheEntry {
