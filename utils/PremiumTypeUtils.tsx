@@ -59,7 +59,7 @@ export function getHighestPriorityPremiumProduct(premiumProducts: PremiumProduct
     })
 
     let result = results.sort((a, b) => b.priority - a.priority)[0]
-    return premiumProducts.find(product => product.productSlug === result.productSlug)
+    return premiumProducts.find(product => product.productSlug === result.productSlug && product.expires > new Date())
 }
 
 export function getPremiumType(product: PremiumProduct) {
