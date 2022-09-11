@@ -167,7 +167,7 @@ function AccountDetails() {
                         </div>
                     )}
                     <p>
-                        <span className={styles.label}>Premium-Status:</span> {getPremiumType(activePremiumProduct).label}
+                        <span className={styles.label}>Premium-Status:</span> {activePremiumProduct ? getPremiumType(activePremiumProduct).label : 'No Premium'}
                     </p>
                     {hasPremium ? (
                         <p>
