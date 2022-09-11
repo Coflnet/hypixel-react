@@ -61,18 +61,16 @@ function AccountDetails() {
     function loadPremiumProducts(): Promise<void> {
         return api.getPremiumProducts().then(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
+            let activeProduct = getHighestPriorityPremiumProduct(products)
 
-            if (products.length > 0) {
+            if (!activeProduct) {
                 setHasPremium(false)
-                setIsLoading(false)
-                return
             } else {
-                let activeProduct = getHighestPriorityPremiumProduct(products)
                 setHasPremium(true)
                 setHasPremiumUntil(activeProduct.expires)
                 setActivePremiumProduct(activeProduct)
-                setIsLoading(false)
             }
+            setIsLoading(false)
         })
     }
 

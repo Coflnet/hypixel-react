@@ -48,7 +48,7 @@ function generateNumberOptionArray(start: number, end: number, productId: string
         })
 }
 
-export function getHighestPriorityPremiumProduct(premiumProducts: PremiumProduct[]) {
+export function getHighestPriorityPremiumProduct(premiumProducts: PremiumProduct[] = []) {
     let results = premiumProducts.map(product => {
         let type = getPremiumType(product)
         return {
