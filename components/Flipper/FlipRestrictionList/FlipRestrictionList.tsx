@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Badge, Card, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
+import { Badge, Button, Card, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { getStyleForTier } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
@@ -22,6 +22,7 @@ function FlipRestrictionList(props: Props) {
     let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []))
     let [filters, setFilters] = useState<FilterOptions[]>()
     let [restrictionInEditModeIndex, setRestrictionsInEditModeIndex] = useState<number[]>([])
+    let [showClearListDialog, setShowClearListDialog] = useState(false)
 
     let forceUpdate = useForceUpdate()
 
@@ -43,7 +44,7 @@ function FlipRestrictionList(props: Props) {
         if (item.type !== 'item') {
             return
         }
-        newRestriction.item = (item.dataItem as unknown) as Item
+        newRestriction.item = item.dataItem as unknown as Item
         newRestriction.item.tag = item.id
         setNewRestriction(newRestriction)
         loadFilters()
@@ -226,6 +227,59 @@ function FlipRestrictionList(props: Props) {
         forceUpdate()
     }
 
+    function onClearListClick() {
+        setShowClearListDialog(true)
+    }
+
+    function clearRestrictions() {
+        restrictions = []
+        setRestrictions([])
+        setShowClearListDialog(false)
+
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
+
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+
+        if (props.onRestrictionsChange) {
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
+        }
+
+        forceUpdate()
+    }
+
+    let clearListDialog = (
+        <Modal
+            show={showClearListDialog}
+            onHide={() => {
+                setShowClearListDialog(false)
+            }}
+        >
+            <Modal.Header closeButton>
+                <Modal.Title>Confirmation</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <p>Are you sure?</p>
+                <p>
+                    <b>This will delete all {restrictions?.length || 0} black-/whitelist entries.</b>
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Button variant="danger" style={{ width: '45%' }} onClick={clearRestrictions}>
+                        Clear <DeleteIcon />
+                    </Button>
+                    <Button
+                        style={{ width: '45%' }}
+                        onClick={() => {
+                            setShowClearListDialog(false)
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                </div>
+            </Modal.Body>
+        </Modal>
+    )
+
     let addIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle" viewBox="0 0 16 16">
             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
@@ -257,9 +311,14 @@ function FlipRestrictionList(props: Props) {
                         addNewRestriction={addNewRestriction}
                     />
                 ) : (
-                    <span style={{ cursor: 'pointer' }} onClick={() => setIsNewFlipperExtended(true)}>
-                        {addIcon}
-                        <span> Add new restriction</span>
+                    <span>
+                        <span style={{ cursor: 'pointer' }} onClick={() => setIsNewFlipperExtended(true)}>
+                            {addIcon}
+                            <span> Add new restriction</span>
+                        </span>
+                        <Button variant="danger" style={{ float: 'right' }} onClick={onClearListClick}>
+                            Clear list
+                        </Button>
                     </span>
                 )}
                 <hr />
@@ -362,6 +421,7 @@ function FlipRestrictionList(props: Props) {
                     )
                 })}
             </div>
+            {clearListDialog}
         </>
     )
 }
