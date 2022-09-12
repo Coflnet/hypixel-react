@@ -7,7 +7,13 @@ function Success() {
     let router = useRouter()
 
     useEffect(() => {
-        toast.success('Payment successful')
+        toast.success(
+            <>
+                Payment successful
+                <br />
+                <small>It may take a few minutes until your CoflCoins are updated</small>
+            </>
+        )
         router.push('/premium')
     }, [])
 
