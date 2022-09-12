@@ -11,7 +11,7 @@ function Success() {
             <>
                 Payment successful
                 <br />
-                <small>It may take a few minutes until your CoflCoins are updated</small>
+                <small>Your payment is being handled securely by our payment provider. It may take a few minutes until your CoflCoins are credited</small>
             </>
         )
         router.push('/premium')
