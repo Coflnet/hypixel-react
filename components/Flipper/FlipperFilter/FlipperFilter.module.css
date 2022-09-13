@@ -37,6 +37,10 @@
     margin: 0;
 }
 
+.flipperFilterGroupAdvanced .filterTextfield {
+    margin: 0;
+}
+
 .filterCheckbox :global(.form-check) {
     position: relative !important;
 }
