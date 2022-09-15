@@ -11,6 +11,7 @@ import Link from 'next/link'
 import styles from './SubscriptionList.module.css'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { useForceUpdate } from '../../utils/Hooks'
 
 let mounted = true
 
@@ -18,6 +19,8 @@ function SubscriptionList() {
     let [subscriptions, setSubscriptions] = useState<Subscription[]>([])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+
+    let forceUpdate = useForceUpdate()
 
     useEffect(() => {
         mounted = true
@@ -34,14 +37,17 @@ function SubscriptionList() {
             if (!mounted) {
                 return
             }
-            let promises: Promise<void>[] = []
-            subscriptions.forEach(subscription => {
-                promises.push(getSubscriptionTitle(subscription))
+
+            subscriptions.forEach((subscription, i) => {
+                getSubscriptionTitle(subscription).then(title => {
+                    let newSubscriptions = subscriptions
+                    newSubscriptions[i].title = title
+                    setSubscriptions(newSubscriptions)
+                    forceUpdate()
+                })
             })
 
-            Promise.all(promises).then(() => {
-                setSubscriptions(subscriptions)
-            })
+            setSubscriptions(subscriptions)
         })
     }
 
@@ -103,8 +109,8 @@ function SubscriptionList() {
                 return
             }
             let subs = subscriptions.filter(s => s !== subscription)
-            setSubscriptions(subs)
             subscriptions = subs
+            setSubscriptions(subs)
 
             toast.success(
                 <span>
@@ -123,6 +129,17 @@ function SubscriptionList() {
         })
     }
 
+    function deleteAll() {
+        api.unsubscribeAll()
+            .then(() => {
+                setSubscriptions([])
+                toast.success('All subscriptions were sucessfully removed')
+            })
+            .catch(() => {
+                toast.error('An unexpected error occured')
+            })
+    }
+
     function resubscribe(subscription: Subscription) {
         api.subscribe(subscription.topicId, subscription.types, subscription.price, subscription.filter).then(() => {
             loadSubscriptions()
@@ -137,22 +154,26 @@ function SubscriptionList() {
                     resolve()
                     break
                 case 'player':
-                    api.getPlayerName(subscription.topicId).then(playerName => {
-                        subscription.title = playerName
-                        resolve()
-                    }).catch(() => {
-                        subscription.title = "Player could not be loaded..."
-                        resolve()
-                    })
+                    api.getPlayerName(subscription.topicId)
+                        .then(playerName => {
+                            subscription.title = playerName
+                            resolve()
+                        })
+                        .catch(() => {
+                            subscription.title = 'Player could not be loaded...'
+                            resolve()
+                        })
                     break
                 case 'auction':
-                    api.getAuctionDetails(subscription.topicId).then(auctionDetails => {
-                        subscription.title = auctionDetails.auction.item.name || auctionDetails.auction.item.tag
-                        resolve()
-                    }).catch(() => {
-                        subscription.title = "Auction title could not be loaded..."
-                        resolve()
-                    })
+                    api.getAuctionDetails(subscription.topicId)
+                        .then(auctionDetails => {
+                            subscription.title = auctionDetails.auction.item.name || auctionDetails.auction.item.tag
+                            resolve()
+                        })
+                        .catch(() => {
+                            subscription.title = 'Auction title could not be loaded...'
+                            resolve()
+                        })
                     break
                 default:
                     subscription.title = subscription.topicId
@@ -213,7 +234,14 @@ function SubscriptionList() {
         <div className={styles.subscriptionList}>
             {isLoggedIn ? (
                 subscriptions.length > 0 ? (
-                    <ListGroup style={{ marginTop: '20px' }}>{subscriptionsTableBody}</ListGroup>
+                    <>
+                        <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+                            <Button style={{ backgroundColor: 'red', float: 'right' }} onClick={deleteAll}>
+                                Delete all subscriptions
+                            </Button>
+                        </div>
+                        <ListGroup style={{ marginTop: '20px' }}>{subscriptionsTableBody}</ListGroup>
+                    </>
                 ) : (
                     <p>You dont have any notifiers</p>
                 )

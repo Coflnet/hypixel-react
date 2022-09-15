@@ -1653,6 +1653,22 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let unsubscribeAll = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.UNSUBSCRIBE_ALL,
+                data: '',
+                resolve: () => {
+                    resolve()
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.UNSUBSCRIBE_ALL, error, '')
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1719,7 +1735,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getPrivacySettings,
         setPrivacySettings,
         checkRat,
-        getPremiumProducts
+        getPremiumProducts,
+        unsubscribeAll
     }
 }
 

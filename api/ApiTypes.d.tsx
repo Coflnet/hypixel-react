@@ -68,7 +68,8 @@ export enum RequestType {
     GET_PRIVACY_SETTINGS = 'getPrivacySettings',
     SET_PRIVACY_SETTINGS = 'setPrivacySettings',
     CHECK_FOR_RAT = 'checkForRat',
-    GET_PREMIUM_PRODUCTS = 'premium/user/owns'
+    GET_PREMIUM_PRODUCTS = 'premium/user/owns',
+    UNSUBSCRIBE_ALL = 'unsubscribeAll'
 }
 
 export enum SubscriptionType {
