@@ -146,38 +146,32 @@ function SubscriptionList() {
         })
     }
 
-    function getSubscriptionTitle(subscription: Subscription): Promise<void> {
+    function getSubscriptionTitle(subscription: Subscription): Promise<string> {
         return new Promise((resolve, reject) => {
             switch (subscription.type) {
                 case 'item':
-                    subscription.title = convertTagToName(subscription.topicId)
-                    resolve()
+                    resolve(convertTagToName(subscription.topicId))
                     break
                 case 'player':
                     api.getPlayerName(subscription.topicId)
                         .then(playerName => {
-                            subscription.title = playerName
-                            resolve()
+                            resolve(playerName)
                         })
                         .catch(() => {
-                            subscription.title = 'Player could not be loaded...'
-                            resolve()
+                            resolve('Player could not be loaded...')
                         })
                     break
                 case 'auction':
                     api.getAuctionDetails(subscription.topicId)
                         .then(auctionDetails => {
-                            subscription.title = auctionDetails.auction.item.name || auctionDetails.auction.item.tag
-                            resolve()
+                            resolve(auctionDetails.auction.item.name || auctionDetails.auction.item.tag)
                         })
                         .catch(() => {
-                            subscription.title = 'Auction title could not be loaded...'
-                            resolve()
+                            resolve('Auction title could not be loaded...')
                         })
                     break
                 default:
-                    subscription.title = subscription.topicId
-                    resolve()
+                    resolve(subscription.topicId)
                     break
             }
         })
