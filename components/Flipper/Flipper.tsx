@@ -110,7 +110,7 @@ function Flipper(props: Props) {
                 setFlipperFilterKey(generateUUID())
                 setFlipCustomizeKey(generateUUID())
             }
-            if (localStorage.getItem('googleId') === null) {
+            if (sessionStorage.getItem('googleId') === null) {
                 api.subscribeFlipsAnonym(
                     getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
                     getSettingsObject(FLIPPER_FILTER_KEY, {}),
@@ -132,7 +132,7 @@ function Flipper(props: Props) {
     }, [])
 
     useEffect(() => {
-        if (localStorage.getItem('googleId') !== null && !isLoggedIn) {
+        if (sessionStorage.getItem('googleId') !== null && !isLoggedIn) {
             setIsLoading(true)
         }
     }, [wasAlreadyLoggedIn, isLoggedIn])
