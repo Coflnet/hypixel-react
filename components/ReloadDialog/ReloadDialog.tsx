@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
+import { errorLog } from '../../pages/_app'
 import styles from './ReloadDialog.module.css'
 
 interface Props {
@@ -21,7 +22,10 @@ function ReloadDialog(props: Props) {
     }
 
     function onSubmit() {
-        api.sendFeedback('reload', feedback)
+        let feedbackToSend: any = { ...feedback }
+        feedbackToSend.errorLog = errorLog
+
+        api.sendFeedback('reload', feedbackToSend)
             .then(() => {
                 toast.success('Thank you for your feedback!')
                 props.onClose()

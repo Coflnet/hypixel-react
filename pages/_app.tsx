@@ -12,16 +12,28 @@ import NextNProgress from 'nextjs-progressbar'
 import { initCoflCoinManager } from '../utils/CoflCoinsUtils'
 import { createInstance, MatomoProvider } from '@datapunt/matomo-tracker-react'
 
+interface ErrorLog {
+    error: ErrorEvent
+    timestamp: Date
+}
+
 const matomoTrackingInstance = createInstance({
     urlBase: 'https://track.coflnet.com',
     siteId: 1
 })
+
+export const errorLog: ErrorLog[] = []
 
 initCoflCoinManager()
 
 function MyApp({ Component, pageProps }) {
     useEffect(() => {
         window.addEventListener('error', function (event) {
+            errorLog.push({
+                error: event,
+                timestamp: new Date()
+            })
+
             if (event.error.name === 'ChunkLoadError') {
                 let chunkErrorLocalStorage = window.localStorage.getItem('chunkErrorReload')
                 if (chunkErrorLocalStorage && parseInt(chunkErrorLocalStorage) + 5000 > new Date().getTime()) {
