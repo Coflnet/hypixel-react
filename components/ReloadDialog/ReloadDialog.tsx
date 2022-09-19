@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
+import Tooltip from '../Tooltip/Tooltip'
 import { errorLog } from '../../pages/_app'
 import styles from './ReloadDialog.module.css'
 
@@ -16,6 +17,7 @@ function ReloadDialog(props: Props) {
         somethingBroke: false,
         additionalInformation: ''
     })
+    let [hasUserInput, setHasUserInput] = useState(false)
 
     function onClose() {
         props.onClose()
@@ -39,26 +41,31 @@ function ReloadDialog(props: Props) {
 
     function onRememberHideDialogChange(e: ChangeEvent<HTMLInputElement>) {
         localStorage.setItem('rememberHideReloadDialog', e.target.checked.toString())
+        setHasUserInput(true)
     }
 
     function onLoadNewInformationChange(e: ChangeEvent<HTMLInputElement>) {
         feedback.loadNewInformation = e.target.checked
         setFeedback(feedback)
+        setHasUserInput(true)
     }
 
     function onSomethingBrokeChange(e: ChangeEvent<HTMLInputElement>) {
         feedback.somethingBroke = e.target.checked
         setFeedback(feedback)
+        setHasUserInput(true)
     }
 
     function onOtherIssueChange(e: ChangeEvent<HTMLInputElement>) {
         feedback.otherIssue = e.target.checked
         setFeedback(feedback)
+        setHasUserInput(true)
     }
 
     function onAdditionalInformationChange(e: ChangeEvent<HTMLInputElement>) {
         feedback.additionalInformation = e.target.value
         setFeedback(feedback)
+        setHasUserInput(true)
     }
 
     return (
@@ -119,9 +126,17 @@ function ReloadDialog(props: Props) {
                 <Button variant="danger" onClick={onClose}>
                     Close
                 </Button>
-                <Button variant="success" onClick={onSubmit} style={{ marginLeft: '15px' }}>
-                    Submit
-                </Button>
+                <Tooltip
+                    type={'hover'}
+                    content={
+                        <div>
+                            <Button variant="success" onClick={onSubmit} disabled={!hasUserInput} style={{ marginLeft: '15px' }}>
+                                Submit
+                            </Button>
+                        </div>
+                    }
+                    tooltipContent={!hasUserInput ? <span>Please enter some information before submitting feedback</span> : null}
+                />
             </div>
         </div>
     )

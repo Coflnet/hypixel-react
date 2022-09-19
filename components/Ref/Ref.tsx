@@ -19,7 +19,7 @@ function Ref(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     function onLogin() {
-        let googleId = localStorage.getItem('googleId')
+        let googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoggedIn(true)
             api.getRefInfo().then(refInfo => {

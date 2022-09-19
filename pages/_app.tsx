@@ -11,6 +11,7 @@ import { MainApp } from '../components/MainApp/MainApp'
 import NextNProgress from 'nextjs-progressbar'
 import { initCoflCoinManager } from '../utils/CoflCoinsUtils'
 import { createInstance, MatomoProvider } from '@datapunt/matomo-tracker-react'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 interface ErrorLog {
     error: ErrorEvent
@@ -59,10 +60,12 @@ function MyApp({ Component, pageProps }) {
             <Script async={true} src={'/preScript.js'} />
             <Script async={true} src={'/MinecraftColorCodes.3.7.js'} />
             <MatomoProvider value={matomoTrackingInstance}>
-                <MainApp>
-                    <NextNProgress />
-                    <Component {...pageProps} />
-                </MainApp>
+                <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
+                    <MainApp>
+                        <NextNProgress />
+                        <Component {...pageProps} />
+                    </MainApp>
+                </GoogleOAuthProvider>
             </MatomoProvider>
         </>
     )

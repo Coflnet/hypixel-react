@@ -880,7 +880,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let stripePurchase = (productId: string, coinAmount?: number): Promise<PaymentResponse> => {
         return new Promise((resolve, reject) => {
-            let googleId = localStorage.getItem('googleId')
+            let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
                 toast.error('You need to be logged in to purchase something.')
                 reject()
@@ -918,7 +918,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let paypalPurchase = (productId: string, coinAmount?: number): Promise<PaymentResponse> => {
         return new Promise((resolve, reject) => {
-            let googleId = localStorage.getItem('googleId')
+            let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
                 toast.error('You need to be logged in to purchase something.')
                 reject()
@@ -956,7 +956,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let purchaseWithCoflcoins = (productId: string, count?: number): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let googleId = localStorage.getItem('googleId')
+            let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
                 toast.error('You need to be logged in to purchase something.')
                 reject()
@@ -1030,7 +1030,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getRefInfo = (): Promise<RefInfo> => {
         return new Promise((resolve, reject) => {
-            let googleId = localStorage.getItem('googleId')
+            let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
                 toast.error('You need to be logged in to use the ref system.')
                 reject()
@@ -1056,7 +1056,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let setRef = (refId: string): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let googleId = localStorage.getItem('googleId')
+            let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
                 toast.error('You need to be logged in to use the ref system.')
                 reject()
@@ -1241,7 +1241,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let sendFeedback = (feedbackKey: string, feedback: any): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let googleId = localStorage.getItem('googleId')
+            let googleId = sessionStorage.getItem('googleId')
             let user
             if (googleId) {
                 let parts = googleId.split('.')
@@ -1426,7 +1426,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let setFlipSetting = (key: string, value: any): Promise<void> => {
-        if (localStorage.getItem('googleId') === null) {
+        if (sessionStorage.getItem('googleId') === null) {
             return Promise.resolve()
         }
         return new Promise((resolve, reject) => {
@@ -1547,7 +1547,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getPrivacySettings = (): Promise<PrivacySettings> => {
         return new Promise((resolve, reject) => {
-            let googleId = localStorage.getItem('googleId')
+            let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
                 toast.error('You need to be logged in to configure privacy settings.')
                 reject()
@@ -1574,7 +1574,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let setPrivacySettings = (settings: PrivacySettings): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let googleId = localStorage.getItem('googleId')
+            let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
                 toast.error('You need to be logged in to save privacy settings.')
                 reject()
@@ -1623,7 +1623,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getPremiumProducts = (): Promise<PremiumProduct[]> => {
         return new Promise((resolve, reject) => {
-            let googleId = localStorage.getItem('googleId')
+            let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
                 toast.error('You need to be logged in to load premium products.')
                 reject()
