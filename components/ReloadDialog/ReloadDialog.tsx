@@ -130,7 +130,7 @@ function ReloadDialog(props: Props) {
                             </Button>
                         </div>
                     }
-                    tooltipContent={<span>Please enter some information before submitting feedback</span>}
+                    tooltipContent={!hasUserInput ? <span>Please enter some information before submitting feedback</span> : null}
                 />
             </div>
         </div>
