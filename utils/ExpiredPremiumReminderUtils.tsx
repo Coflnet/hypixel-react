@@ -2,7 +2,7 @@ import { toast } from 'react-toastify'
 import { getSetting, PREMIUM_EXPIRATION_NOFIFY_DATE_KEY, setSetting } from './SettingsUtils'
 
 export function checkForExpiredPremium(premiumExpirationDate: Date) {
-    let googleId = localStorage.getItem('googleId')
+    let googleId = sessionStorage.getItem('googleId')
 
     if (!googleId) {
         return
