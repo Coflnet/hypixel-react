@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Button, Card, Form, Modal, OverlayTrigger } from 'react-bootstrap'
+import { Button, Card, Form, Modal } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
@@ -11,7 +11,7 @@ import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
-import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_TYPES } from '../../utils/PremiumTypeUtils'
+import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import PremiumStatus from './PremiumStatus/PremiumStatus'
 
 function Premium() {

@@ -1,4 +1,3 @@
-import moment from 'moment'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import Cookies from 'js-cookie'
