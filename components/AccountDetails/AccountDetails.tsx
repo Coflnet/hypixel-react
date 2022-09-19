@@ -2,7 +2,6 @@ import moment from 'moment'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import Cookies from 'js-cookie'
-import { GoogleLogout } from 'react-google-login'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import cacheUtils from '../../utils/CacheUtils'
@@ -19,6 +18,7 @@ import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { atobUnicode } from '../../utils/Base64Utils'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
 import { getHighestPriorityPremiumProduct, getPremiumType } from '../../utils/PremiumTypeUtils'
+import { googleLogout } from '@react-oauth/google'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -33,14 +33,14 @@ function AccountDetails() {
     let { pushInstruction } = useMatomo()
 
     useEffect(() => {
-        if (localStorage.getItem('googleId') === null) {
+        if (sessionStorage.getItem('googleId') === null) {
             setIsLoading(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     function getAccountElement(): JSX.Element {
-        let googleId = localStorage.getItem('googleId')
+        let googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             try {
                 let parts = googleId.split('.')
@@ -77,13 +77,14 @@ function AccountDetails() {
     function onLogout() {
         setIsLoggedIn(false)
         setIsLoading(false)
-        localStorage.removeItem('googleId')
+        googleLogout()
+        sessionStorage.removeItem('googleId')
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
     }
 
     function onLogin() {
-        let googleId = localStorage.getItem('googleId')
+        let googleId = sessionStorage.getItem('googleId')
         setIsLoading(true)
         if (googleId) {
             loadPremiumProducts()
@@ -121,7 +122,7 @@ function AccountDetails() {
     }
 
     function deleteGoogleToken() {
-        localStorage.removeItem('googleId')
+        sessionStorage.removeItem('googleId')
         setIsLoggedIn(false)
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
     }
@@ -152,7 +153,7 @@ function AccountDetails() {
                             <p>
                                 Your Goolge token:{' '}
                                 <CopyButton
-                                    copyValue={localStorage.getItem('googleId')}
+                                    copyValue={sessionStorage.getItem('googleId')}
                                     successMessage={
                                         <div>
                                             Copied your Google token.
@@ -215,11 +216,7 @@ function AccountDetails() {
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} rerenderFlip={rerenderGoogleSignIn} />
             {isLoggedIn ? (
                 <div style={{ marginTop: '20px' }}>
-                    <GoogleLogout
-                        clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                        buttonText="Logout"
-                        onLogoutSuccess={onLogout}
-                    />
+                    <Button onClick={onLogout}>Logout</Button>
                 </div>
             ) : null}
             <hr />

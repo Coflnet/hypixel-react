@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { GoogleLogin } from 'react-google-login'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
-import { refreshTokenSetup } from '../../utils/GoogleUtils'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
-import { Form } from 'react-bootstrap'
-import styles from './GoogleSignIn.module.css'
+import { GoogleLogin } from '@react-oauth/google'
 
 interface Props {
     onAfterLogin(): void
@@ -19,13 +16,17 @@ interface Props {
 let gotResponse = false
 
 function GoogleSignIn(props: Props) {
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    let [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(
+        isClientSideRendering() ? sessionStorage.getItem('googleId') !== null : false
+    )
+
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if (wasAlreadyLoggedIn) {
+        if (wasAlreadyLoggedInThisSession) {
+            onLoginSucces({ credential: sessionStorage.getItem('googleId') })
             setTimeout(() => {
                 if (!gotResponse) {
                     toast.error('We had problems authenticating your account with google. Please try to log in again.')
@@ -33,7 +34,7 @@ function GoogleSignIn(props: Props) {
                     if (props.onLoginFail) {
                         props.onLoginFail()
                     }
-                    localStorage.removeItem('googleId')
+                    sessionStorage.removeItem('googleId')
                 }
             }, 15000)
         }
@@ -41,58 +42,42 @@ function GoogleSignIn(props: Props) {
     }, [])
 
     useEffect(() => {
-        if (wasAlreadyLoggedIn) {
+        if (wasAlreadyLoggedInThisSession) {
             setIsLoggedIn(true)
         }
-    }, [wasAlreadyLoggedIn])
+    }, [wasAlreadyLoggedInThisSession])
 
     useEffect(() => {
         forceUpdate()
-        setIsLoggedIn(localStorage.getItem('googleId') !== null)
+        setIsLoggedIn(sessionStorage.getItem('googleId') !== null)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.rerenderFlip])
 
     const onLoginSucces = (response: any) => {
         gotResponse = true
-        localStorage.setItem('googleId', response.tokenId)
+        localStorage.setItem('googleId', response.credential)
+        sessionStorage.setItem('googleId', response.credential)
         setIsLoggedIn(true)
-        api.setGoogle(response.tokenId)
+        api.setGoogle(response.credential)
             .then(() => {
                 ;(window as any).googleAuthObj = response
                 let refId = (window as any).refId
                 if (refId) {
                     api.setRef(refId)
                 }
-                refreshTokenSetup(response)
                 document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.GOOGLE_LOGIN))
                 props.onAfterLogin()
             })
             .catch(() => {
                 toast.error('An error occoured while trying to sign in with Google')
                 setIsLoggedIn(false)
-                localStorage.removeItem('googleId')
+                setWasAlreadyLoggedInThisSession(false)
+                sessionStorage.removeItem('googleId')
             })
     }
 
-    const onLoginFail = (response: { error: string; details: string }) => {
-        gotResponse = true
-        switch (response.error) {
-            case 'access_denied':
-            case 'popup_closed_by_user':
-                toast.warn('You canceled the login')
-                break
-            case 'idpiframe_initialization_failed':
-                toast.error('Cookies for accounts.google.com have to be enabled to login', { autoClose: 20000 })
-                toast.success('Common fix: if there is an eye icon with a line through in your url bar, click it', { delay: 1000, autoClose: 20000 })
-                break
-            default:
-                toast.error('Something went wrong, please try again.', { autoClose: 20000 })
-                break
-        }
-        trackEvent({
-            category: 'login',
-            action: 'error/' + response.error
-        })
+    const onLoginFail = () => {
+        toast.error('Something went wrong, please try again.', { autoClose: 20000 })
     }
 
     const onLoginClick = () => {
@@ -111,18 +96,23 @@ function GoogleSignIn(props: Props) {
 
     return (
         <div style={style} onClickCapture={onLoginClick}>
-            <GoogleLogin
-                clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com"
-                buttonText="Login"
-                onSuccess={onLoginSucces}
-                onFailure={onLoginFail}
-                isSignedIn={isClientSideRendering() ? localStorage.getItem('googleId') !== null : false}
-                theme="dark"
-                cookiePolicy={'single_host_origin'}
-            />
-            <p>
-                I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
-            </p>
+            {!wasAlreadyLoggedInThisSession ? (
+                <>
+                    <div style={{ width: '250px' }}>
+                        <GoogleLogin
+                            onSuccess={onLoginSucces}
+                            onError={onLoginFail}
+                            theme={'filled_blue'}
+                            size={'large'}
+                            useOneTap
+                            auto_select
+                        />
+                    </div>
+                    <p>
+                        I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
+                    </p>
+                </>
+            ) : null}
         </div>
     )
 }
