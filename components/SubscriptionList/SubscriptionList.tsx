@@ -137,7 +137,7 @@ function SubscriptionList() {
                 toast.success('All subscriptions were sucessfully removed')
             })
             .catch(() => {
-                toast.error('An unexpected error occured')
+                toast.error('Could not unsubscribe, please try again in a few minutes')
             })
         setShowDeleteAllSubscriptionDialog(false)
     }
