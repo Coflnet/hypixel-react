@@ -134,7 +134,7 @@ function SubscriptionList() {
         api.unsubscribeAll()
             .then(() => {
                 setSubscriptions([])
-                toast.success('All subscriptions were sucessfully removed')
+                toast.success('All notifiers were sucessfully removed')
             })
             .catch(() => {
                 toast.error('An unexpected error occured')
@@ -270,7 +270,7 @@ function SubscriptionList() {
                                     setShowDeleteAllSubscriptionDialog(true)
                                 }}
                             >
-                                Delete all subscriptions
+                                Delete all notifiers
                             </Button>
                         </div>
                         <ListGroup style={{ marginTop: '20px' }}>{subscriptionsTableBody}</ListGroup>
