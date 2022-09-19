@@ -24,6 +24,7 @@ function ReloadDialog(props: Props) {
     function onSubmit() {
         let feedbackToSend: any = { ...feedback }
         feedbackToSend.errorLog = errorLog
+        feedbackToSend.href = location.href
 
         api.sendFeedback('reload', feedbackToSend)
             .then(() => {
