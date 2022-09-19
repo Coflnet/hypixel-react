@@ -18,10 +18,11 @@ export default function registerNotificationCallback(router) {
     }, 10)
 
     function displayNotification(notification: any) {
+        console.log(notification)
         toast.info(notification.title + '\n' + notification.body, {
             onClick: () => {
                 if (window.navigator.clipboard) {
-                    window.navigator.clipboard.writeText(notification.click_action)
+                    window.navigator.clipboard.writeText('/viewauction ' + notification.click_action.split(/\/auction\//)[1])
                 }
                 router.push('/' + notification.click_action.match(/\/\/[^/]+\/([^.]+)/)[1])
             },
