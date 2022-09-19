@@ -137,7 +137,7 @@ function SubscriptionList() {
                 toast.success('All notifiers were sucessfully removed')
             })
             .catch(() => {
-                toast.error('An unexpected error occured')
+                toast.error('Could not unsubscribe, please try again in a few minutes')
             })
         setShowDeleteAllSubscriptionDialog(false)
     }
@@ -237,7 +237,7 @@ function SubscriptionList() {
                 <Modal.Title>Confirmation</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p>Are you sure you want to delete all your notifier?</p>
+                <p>Are you sure you want to delete all your notifiers?</p>
                 <p>
                     <b>All {subscriptions.length} notifier will be deleted!</b>
                 </p>
