@@ -5,20 +5,20 @@ import { Button, Card, Form, Modal, OverlayTrigger } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
-import moment from 'moment'
 import styles from './Premium.module.css'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
-import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_TYPES } from '../../utils/PremiumTypeUtils'
+import PremiumStatus from './PremiumStatus/PremiumStatus'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasPremium, setHasPremium] = useState<boolean>()
     let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
+    let [products, setProducts] = useState<PremiumProduct[]>([])
     let [isLoading, setIsLoading] = useState(false)
     let [isLoggingIn, setIsLoggingIn] = useState(false)
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
@@ -41,6 +41,7 @@ function Premium() {
     function loadPremiumProducts(): Promise<void> {
         return api.getPremiumProducts().then(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
+            setProducts(products)
             let activePremiumProduct = getHighestPriorityPremiumProduct(products)
 
             if (!activePremiumProduct) {
@@ -96,24 +97,7 @@ function Premium() {
             )}
             <hr />
             <div style={{ marginBottom: '20px' }}>
-                {hasPremium && activePremiumProduct ? (
-                    <div>
-                        <p>
-                            <span className={styles.labelShort}>Premium-Status:</span>
-                            {getPremiumType(activePremiumProduct).label}
-                        </p>
-                        <Tooltip
-                            type="hover"
-                            content={
-                                <span>
-                                    <span className={styles.labelShort}>Expiration date:</span>
-                                    {moment(activePremiumProduct.expires).fromNow()}
-                                </span>
-                            }
-                            tooltipContent={<span>{activePremiumProduct.expires?.toDateString()}</span>}
-                        />
-                    </div>
-                ) : null}
+                <PremiumStatus products={products} />
                 {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 <div>{isLoggingIn ? getLoadingElement() : ''}</div>
