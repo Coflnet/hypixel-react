@@ -237,7 +237,7 @@ function SubscriptionList() {
                 <Modal.Title>Confirmation</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p>Are you sure you want to delete all your notifier?</p>
+                <p>Are you sure you want to delete all your notifiers?</p>
                 <p>
                     <b>All {subscriptions.length} notifier will be deleted!</b>
                 </p>
