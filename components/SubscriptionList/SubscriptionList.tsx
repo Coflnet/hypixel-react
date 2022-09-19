@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Badge, Button, ListGroup } from 'react-bootstrap'
+import { Badge, Button, ListGroup, Modal } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -18,6 +18,7 @@ let mounted = true
 function SubscriptionList() {
     let [subscriptions, setSubscriptions] = useState<Subscription[]>([])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [showDeleteAllSubscriptionDialog, setShowDeleteAllSubscriptionDialog] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     let forceUpdate = useForceUpdate()
@@ -138,6 +139,7 @@ function SubscriptionList() {
             .catch(() => {
                 toast.error('An unexpected error occured')
             })
+        setShowDeleteAllSubscriptionDialog(false)
     }
 
     function resubscribe(subscription: Subscription) {
@@ -224,13 +226,50 @@ function SubscriptionList() {
         </ListGroup.Item>
     ))
 
+    let resetSettingsElement = (
+        <Modal
+            show={showDeleteAllSubscriptionDialog}
+            onHide={() => {
+                setShowDeleteAllSubscriptionDialog(false)
+            }}
+        >
+            <Modal.Header closeButton>
+                <Modal.Title>Confirmation</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <p>Are you sure you want to delete all your notifier?</p>
+                <p>
+                    <b>All {subscriptions.length} notifier will be deleted!</b>
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Button variant="danger" style={{ width: '45%' }} onClick={deleteAll}>
+                        RESET <DeleteIcon />
+                    </Button>
+                    <Button
+                        style={{ width: '45%' }}
+                        onClick={() => {
+                            setShowDeleteAllSubscriptionDialog(false)
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                </div>
+            </Modal.Body>
+        </Modal>
+    )
+
     return (
         <div className={styles.subscriptionList}>
             {isLoggedIn ? (
                 subscriptions.length > 0 ? (
                     <>
                         <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
-                            <Button style={{ backgroundColor: 'red', float: 'right' }} onClick={deleteAll}>
+                            <Button
+                                style={{ backgroundColor: 'red', float: 'right' }}
+                                onClick={() => {
+                                    setShowDeleteAllSubscriptionDialog(true)
+                                }}
+                            >
                                 Delete all subscriptions
                             </Button>
                         </div>
@@ -245,6 +284,7 @@ function SubscriptionList() {
             {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
             {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
+            {resetSettingsElement}
         </div>
     )
 }
