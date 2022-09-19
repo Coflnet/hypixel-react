@@ -18,7 +18,6 @@ export default function registerNotificationCallback(router) {
     }, 10)
 
     function displayNotification(notification: any) {
-        console.log(notification)
         toast.info(notification.title + '\n' + notification.body, {
             onClick: () => {
                 if (window.navigator.clipboard) {
