@@ -1,6 +1,6 @@
 .flipperFilterGroup {
     display: flex;
-    justify-content: right;
+    justify-content: center;
     align-items: center;
     flex-wrap: wrap;
 }
@@ -19,6 +19,8 @@
 .filterCheckbox {
     margin: 0;
     width: 30%;
+    display: flex;
+    justify-content: center;
 }
 
 .flipperFilterGroupAdvanced {
@@ -69,6 +71,9 @@
     .flipperfilter {
         width: 100%;
     }
+    .flipperFilterFormfieldLabel {
+        width: 120px;
+    }
     .flipperFilterGroup {
         flex-wrap: wrap;
         justify-content: left;
@@ -76,7 +81,14 @@
     .filterTextfield {
         width: 100%;
     }
+    .flipperFilterGroupAdvanced .filterTextfield {
+        margin-bottom: 15px;
+    }
+    .flipperFilterGroupAdvanced .checkboxLabel {
+        width: 150px;
+    }
     .filterCheckbox {
+        display: block;
         width: 100%;
         margin-bottom: 15px;
     }
@@ -84,7 +96,10 @@
         flex-wrap: wrap;
     }
     .checkboxLabel {
-        width: auto;
+        width: 150px;
+    }
+    .flipperFilterGroupAdvanced .filterCheckbox {
+        width: 100%;
     }
 }
 
@@ -112,4 +127,10 @@
 
 .restrictionModal .modal-body::-webkit-scrollbar-thumb:hover {
     background: #7a8288;
+}
+
+.filterBorder {
+    border: 3px solid grey;
+    padding: 5px;
+    border-radius: 7px;
 }

@@ -24,6 +24,7 @@ function FlipperFilter(props: Props) {
     let [showRestrictionList, setShowRestrictionList] = useState(false)
     let [isAdvanced, setIsAdvanced] = useState(false)
     let [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
     let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(generateUUID())
 
@@ -31,6 +32,7 @@ function FlipperFilter(props: Props) {
 
     useEffect(() => {
         setFlipCustomizeSettings(getFlipCustomizeSettings())
+        setFlipperFilter(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
         document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
             if ((e as any).detail?.apiUpdate) {
                 setFlipCustomizeKey(generateUUID())
@@ -61,9 +63,10 @@ function FlipperFilter(props: Props) {
     }
 
     function onSettingsChange(key: string, value: any, apiKey?: string) {
-        let filter = getCurrentFilter()
+        let filter = flipperFilter
         filter[key] = value
         api.setFlipSetting(apiKey || key, value)
+        setFlipperFilter(flipperFilter)
         onFilterChange(filter)
     }
 
@@ -177,7 +180,7 @@ function FlipperFilter(props: Props) {
                             return numberFieldMaxValue(value.floatValue, 2147483647)
                         }}
                         customInput={Form.Control}
-                        defaultValue={getCurrentFilter().minProfit}
+                        defaultValue={flipperFilter.minProfit}
                         thousandSeparator={getThousandSeperator()}
                         decimalSeparator={getDecimalSeperator()}
                         allowNegative={false}
@@ -191,34 +194,46 @@ function FlipperFilter(props: Props) {
                     className={styles.filterCheckbox}
                     style={{ cursor: 'pointer' }}
                 >
-                    <Tooltip
-                        type="hover"
-                        content={<span className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Blacklist</span>}
-                        tooltipContent={<span>Make custom rules which items should show up and which should not</span>}
-                    />
-                    <FilterIcon className={styles.flipperFilterFormfield} style={{ marginLeft: '-4px' }} />
+                    <span className={styles.filterBorder}>
+                        <Tooltip
+                            type="hover"
+                            content={<span className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Blacklist</span>}
+                            tooltipContent={<span>Make custom rules which items should show up and which should not</span>}
+                        />
+                        <FilterIcon className={styles.flipperFilterFormfield} style={{ marginLeft: '-4px' }} />
+                    </span>
                 </div>
                 <Form.Group className={styles.filterCheckbox}>
                     <Tooltip
                         type="hover"
                         content={
-                            <Form.Label htmlFor="onlyBinCheckbox" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                            <Form.Label
+                                htmlFor="onlyBinCheckbox"
+                                className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}
+                                defaultChecked={flipperFilter.onlyBin}
+                            >
                                 Only BIN-Auctions
                             </Form.Label>
                         }
-                        tooltipContent={<span>Display auction flips that are about to end and could be profited from with the current bid</span>}
+                        tooltipContent={
+                            flipperFilter.onlyBin ? (
+                                <span>Dont show auction flips that are about to end and could be profited from with the current bid</span>
+                            ) : (
+                                <span>Display auction flips that are about to end and could be profited from with the current bid</span>
+                            )
+                        }
                     />
                     <Form.Check
                         id="onlyBinCheckbox"
                         onChange={e => {
                             onSettingsChange('onlyBin', e.target.checked)
                         }}
-                        defaultChecked={getCurrentFilter().onlyBin}
+                        defaultChecked={flipperFilter.onlyBin}
                         className={styles.flipperFilterFormfield}
                         type="checkbox"
                     />
                 </Form.Group>
-                <Form.Group className={styles.filterCheckbox}>
+                <Form.Group className={styles.filterTextfield}>
                     <Tooltip
                         type="hover"
                         content={<Form.Label className={`${styles.flipperFilterFormfieldLabel}`}>Profit based on</Form.Label>}
@@ -246,14 +261,16 @@ function FlipperFilter(props: Props) {
                     }}
                     className={styles.filterCheckbox}
                 >
-                    <Tooltip
-                        type="hover"
-                        content={<span style={{ cursor: 'pointer', marginRight: '10px' }}>Settings</span>}
-                        tooltipContent={<span>Edit flip appaerance and general settings</span>}
-                    />
-                    <span style={{ cursor: 'pointer' }}>
-                        {' '}
-                        <SettingsIcon />
+                    <span className={styles.filterBorder}>
+                        <Tooltip
+                            type="hover"
+                            content={<span style={{ cursor: 'pointer', marginRight: '10px' }}>Settings</span>}
+                            tooltipContent={<span>Edit flip appaerance and general settings</span>}
+                        />
+                        <span style={{ cursor: 'pointer' }}>
+                            {' '}
+                            <SettingsIcon />
+                        </span>
                     </span>
                 </Form.Group>
                 <Form.Group className={styles.filterCheckbox}>
@@ -295,7 +312,7 @@ function FlipperFilter(props: Props) {
                                     return numberFieldMaxValue(value.floatValue, 2147483647)
                                 }}
                                 customInput={Form.Control}
-                                defaultValue={getCurrentFilter().minProfitPercent}
+                                defaultValue={flipperFilter.minProfitPercent}
                                 thousandSeparator={getThousandSeperator()}
                                 decimalSeparator={getDecimalSeperator()}
                                 allowNegative={false}
@@ -303,9 +320,15 @@ function FlipperFilter(props: Props) {
                             />
                         </Form.Group>
                         <Form.Group className={styles.filterTextfield}>
-                            <Form.Label htmlFor="min-volume" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
-                                Min. Volume:
-                            </Form.Label>
+                            <Tooltip
+                                type="hover"
+                                content={
+                                    <Form.Label htmlFor="min-volume" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                                        Min. Volume:
+                                    </Form.Label>
+                                }
+                                tooltipContent={<span>Minimum amount of sold auctions in the last 24 hours</span>}
+                            />
                             <NumberFormat
                                 id="min-volume"
                                 onValueChange={value => {
@@ -317,7 +340,7 @@ function FlipperFilter(props: Props) {
                                     return numberFieldMaxValue(value.floatValue, 120)
                                 }}
                                 customInput={Form.Control}
-                                defaultValue={getCurrentFilter().minVolume}
+                                defaultValue={flipperFilter.minVolume}
                                 thousandSeparator={getThousandSeperator()}
                                 decimalSeparator={getDecimalSeperator()}
                                 allowNegative={false}
@@ -339,7 +362,7 @@ function FlipperFilter(props: Props) {
                                     return numberFieldMaxValue(value.floatValue, 2147483647)
                                 }}
                                 customInput={Form.Control}
-                                defaultValue={getCurrentFilter().maxCost}
+                                defaultValue={flipperFilter.maxCost}
                                 thousandSeparator={getThousandSeperator()}
                                 decimalSeparator={getDecimalSeperator()}
                                 allowNegative={false}
@@ -356,7 +379,7 @@ function FlipperFilter(props: Props) {
                                 onChange={e => {
                                     onSettingsChange('onlyUnsold', e.target.checked, 'showHideSold')
                                 }}
-                                defaultChecked={getCurrentFilter().onlyUnsold}
+                                defaultChecked={flipperFilter.onlyUnsold}
                                 className={styles.flipperFilterFormfield}
                                 type="checkbox"
                             />
