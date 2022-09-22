@@ -1,0 +1,32 @@
+.inventory {
+    overflow: hidden;
+}
+
+.card {
+    margin-bottom: 30px;
+}
+
+.inventory .grid {
+    width: 100%;
+    height: 100%;
+}
+
+.inventory .gridCell {
+    width: 44px;
+    background-color: #8b8b8b;
+    border-top: thick double #373737;
+    border-left: thick double #373737;
+    border-right: double #ffffff;
+    border-bottom: double #ffffff;
+    float: left;
+}
+
+.inventory .image {
+    display: block;
+    margin: auto;
+    padding: 2px;
+}
+
+.hoverElement li {
+    text-align: left;
+}

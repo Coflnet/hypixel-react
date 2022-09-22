@@ -575,3 +575,75 @@ export function parsePremiumProducts(productsObject): PremiumProduct[] {
     })
     return products
 }
+
+export function parseTEMPlayerIdentification(id): TEM_PlayerIdentification {
+    return {
+        playerUUID: id.playerUuid,
+        profileUUID: id.profileUuid
+    }
+}
+
+export function parseTEMKeyValueObject(object: any[]) {
+    let result = {}
+
+    if (!object) {
+        return null
+    }
+
+    object.forEach(e => {
+        if (Array.isArray(e.Value)) {
+            return
+        }
+        if (typeof e.Value === 'object') {
+            e.Value.forEach(element => {
+                result[element.Key] = element.Value
+            })
+            return
+        }
+        result[e.Key] = e.Value
+    })
+    return result
+}
+
+export function parseTEMItem(item): TEM_Item {
+    return {
+        colour: item.colour,
+        created: item.createdAt,
+        currentOwner: parseTEMPlayerIdentification(item.currentOwner),
+        enchantments: parseTEMKeyValueObject(item.enchantments),
+        previousOwners: item.previousOwners?.map(parseTEMPlayerIdentification) || [],
+        lastChecked: parseDate(item.lastChecked),
+        location: item.location,
+        start: parseDate(item.start),
+        itemId: item.itemId,
+        rarity: item.rarity,
+        reforge: item.reforge,
+        extraAttributes: parseTEMKeyValueObject(item.extraAttributes),
+        icon: api.getItemImageUrl({ tag: item.itemId })
+    }
+}
+
+export function parseTEMPet(pet): TEM_Pet {
+    return {
+        name: pet.name,
+        candy: pet.candy,
+        level: pet.level,
+        rarity: pet.rarity,
+        heldItem: pet.held_item,
+        skin: pet.skin,
+        currentOwner: parseTEMPlayerIdentification(pet.current_owner),
+        id: pet.id,
+        lastChecked: parseDate(pet.lastChecked),
+        location: pet.location,
+        previousOwners: pet.previous_owners?.map(parseTEMPlayerIdentification) || [],
+        start: parseDate(pet.start),
+        icon: api.getItemImageUrl({ tag: `PET_${pet.name}` })
+    }
+}
+
+export function parseTEMPlayer(player): TEM_Player {
+    return {
+        items: player.items?.map(parseTEMItem) || [],
+        pets: player.pets?.map(parseTEMPet) || []
+    }
+}

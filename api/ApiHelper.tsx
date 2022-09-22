@@ -27,7 +27,9 @@ import {
     parseReforge,
     parseSearchResultItem,
     parseSkyblockProfile,
-    parseSubscription
+    parseSubscription,
+    parseTEMItem,
+    parseTEMPlayer
 } from '../utils/Parser/APIResponseParser'
 import { RequestType, SubscriptionType, Subscription, HttpApi } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
@@ -1653,6 +1655,42 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getTEMPlayerData = (playerUUID: string): Promise<TEM_Player> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TEM_PLAYER_DATA,
+                data: '',
+                requestMethod: 'GET',
+                customRequestURL: `${getApiEndpoint()}/tem/player/${playerUUID}`,
+                resolve: player => {
+                    resolve(parseTEMPlayer(player))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_TEM_PLAYER_DATA, error, playerUUID)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let getTEMItemData = (itemUid: string): Promise<TEM_Item> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TEM_PLAYER_DATA,
+                data: '',
+                requestMethod: 'GET',
+                customRequestURL: `${getApiEndpoint()}/tem/item/${itemUid}`,
+                resolve: player => {
+                    resolve(parseTEMItem(player))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_TEM_PLAYER_DATA, error, itemUid)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1719,7 +1757,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getPrivacySettings,
         setPrivacySettings,
         checkRat,
-        getPremiumProducts
+        getPremiumProducts,
+        getTEMItemData,
+        getTEMPlayerData
     }
 }
 

@@ -169,55 +169,33 @@ function PlayerDetailsList(props: Props) {
 
     let bottomElements = (
         <div className={styles.fixedBottom}>
+            <div className={styles.btnBottom}>
+                <SubscribeButton type="player" topic={props.player.uuid} />
+            </div>
             {props.type === 'auctions' ? (
-                <>
-                    <div className={styles.btnBottom}>
-                        <SubscribeButton type="player" topic={props.player.uuid} />
-                    </div>
-                    <CopyButton
-                        buttonVariant="primary"
-                        buttonWrapperClass={styles.btnBottom}
-                        copyValue={'/ah ' + props.player.name}
-                        successMessage={
-                            <p>
-                                Copied ingame link <br /> <i>/ah {props.player.name}</i>
-                            </p>
-                        }
-                    />
-                    <div className={styles.btnBottom}>
-                        <Button
-                            aria-label="up button"
-                            type="primary"
-                            className={styles.upButton}
-                            onClick={() => {
-                                window.scrollTo({ top: 0, behavior: 'smooth' })
-                            }}
-                        >
-                            <ArrowUpIcon />
-                        </Button>
-                    </div>
-                </>
-            ) : (
-                ''
-            )}
-            {props.type === 'bids' ? (
-                <>
-                    <div className={styles.btnBottom}>
-                        <SubscribeButton type="player" topic={props.player.uuid} />
-                    </div>
-                    <Button
-                        type="primary"
-                        className={styles.btnBottom}
-                        onClick={() => {
-                            window.scrollTo({ top: 0, behavior: 'smooth' })
-                        }}
-                    >
-                        <ArrowUpIcon />
-                    </Button>
-                </>
-            ) : (
-                ''
-            )}
+                <CopyButton
+                    buttonVariant="primary"
+                    buttonWrapperClass={styles.btnBottom}
+                    copyValue={'/ah ' + props.player.name}
+                    successMessage={
+                        <p>
+                            Copied ingame link <br /> <i>/ah {props.player.name}</i>
+                        </p>
+                    }
+                />
+            ) : null}
+            <div className={styles.btnBottom}>
+                <Button
+                    aria-label="up button"
+                    type="primary"
+                    className={styles.upButton}
+                    onClick={() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                >
+                    <ArrowUpIcon />
+                </Button>
+            </div>
         </div>
     )
 

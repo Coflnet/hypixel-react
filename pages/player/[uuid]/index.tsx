@@ -14,10 +14,12 @@ import styles from './index.module.css'
 import Link from 'next/link'
 import Hyauctions from '../../../components/Hyauctions/Hyauctions'
 import { getCacheContolHeader } from '../../../utils/CacheUtils'
+import TEMItems from '../../../components/TEMItems/TEMItems'
 
 enum DetailType {
     AUCTIONS = 'auctions',
-    BIDS = 'bids'
+    BIDS = 'bids',
+    ITEMS = 'items'
 }
 
 // save Detailtype for after navigation
@@ -167,6 +169,9 @@ function PlayerDetails(props: Props) {
                     <ToggleButton value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">
                         Bids
                     </ToggleButton>
+                    <ToggleButton value={DetailType.ITEMS} variant={getButtonVariant(DetailType.ITEMS)} size="lg">
+                        Items
+                    </ToggleButton>
                 </ToggleButtonGroup>
                 {detailType === DetailType.AUCTIONS ? (
                     <PlayerDetailsList
@@ -180,6 +185,7 @@ function PlayerDetails(props: Props) {
                 {detailType === DetailType.BIDS ? (
                     <PlayerDetailsList key={'bids'} type="bids" loadingDataFunction={api.getBids} player={selectedPlayer} />
                 ) : undefined}
+                {detailType === DetailType.ITEMS ? <TEMItems playerUUID={uuid} /> : null}
             </Container>
         </div>
     )

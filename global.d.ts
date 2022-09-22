@@ -235,6 +235,8 @@ interface API {
     setPrivacySettings(settings: PrivacySettings): Promise<void>
     checkRat(hash: string): Promise<RatCheckingResponse>
     getPremiumProducts(): Promise<PremiumProduct[]>
+    getTEMPlayerData(playerUUID: string): Promise<TEM_Player>
+    getTEMItemData(itemUid: string): Promise<TEM_Item>
 }
 
 interface CacheUtils {
@@ -524,4 +526,46 @@ interface PremiumType {
 interface RatCheckingResponse {
     rat: string
     md5return: string
+}
+
+interface TEM_PlayerIdentification {
+    playerUUID: string
+    profileUUID: string
+}
+
+interface TEM_Player {
+    items: TEM_GenericItem[]
+    pets: TEM_GenericPet[]
+}
+
+interface TEM_Pet {
+    id: string
+    candy: number
+    currentOwner: TEM_PlayerIdentification
+    heldItem?: string
+    level: number
+    location: string
+    name: string
+    previousOwners: TEM_PlayerIdentification[]
+    rarity: string
+    start: Date
+    lastChecked: Date
+    skin?: string
+    icon: string
+}
+
+interface TEM_Item {
+    created: Date
+    currentOwner: TEM_PlayerIdentification
+    extraAttributes?: any
+    enchantments: any
+    colour: number
+    itemId: string
+    location: string
+    previousOwners: TEM_PlayerIdentification[]
+    rarity: string
+    reforge?: string
+    start: Date
+    lastChecked: Date
+    icon: string
 }
