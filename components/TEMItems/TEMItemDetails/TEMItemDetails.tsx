@@ -52,7 +52,6 @@ function TEMItemDetails(props: Props) {
     }, [])
 
     function getDateString(date: Date) {
-        console.log(typeof date)
         if (!date) {
             return '-'
         }
