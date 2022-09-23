@@ -560,7 +560,7 @@ interface TEM_Item {
     currentOwner: TEM_PlayerIdentification
     extraAttributes?: any
     enchantments: any
-    colour: number
+    colour: string
     itemId: string
     location: string
     previousOwners: TEM_PlayerIdentification[]
