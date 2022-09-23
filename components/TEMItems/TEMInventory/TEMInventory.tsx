@@ -8,6 +8,7 @@ interface Props {
     title: string
     type: 'items' | 'pets'
     entries: TEM_Item[] | TEM_Pet[]
+    onEntryClick?(entry: TEM_Item | TEM_Pet)
 }
 
 function TEMInventory(props: Props) {
@@ -17,7 +18,21 @@ function TEMInventory(props: Props) {
                 <Tooltip
                     type="hover"
                     className={styles.hoverElement}
-                    content={<img title={convertTagToName(pet.name)} className={styles.image} src={pet.icon} alt="" crossOrigin="anonymous" height={36} />}
+                    content={
+                        <img
+                            title={convertTagToName(pet.name)}
+                            className={styles.image}
+                            src={pet.icon}
+                            alt=""
+                            crossOrigin="anonymous"
+                            height={48}
+                            onClick={() => {
+                                if (props.onEntryClick) {
+                                    props.onEntryClick(pet)
+                                }
+                            }}
+                        />
+                    }
                     tooltipContent={
                         <div>
                             <p style={{ ...getStyleForTier(pet.rarity), marginBottom: 5 }}>
@@ -44,7 +59,21 @@ function TEMInventory(props: Props) {
                     type="hover"
                     className={styles.hoverElement}
                     hoverPlacement="bottom"
-                    content={<img title={convertTagToName(item.itemId)} className={styles.image} src={item.icon} alt="" crossOrigin="anonymous" height={36} />}
+                    content={
+                        <img
+                            title={convertTagToName(item.itemId)}
+                            className={styles.image}
+                            src={item.icon}
+                            alt=""
+                            crossOrigin="anonymous"
+                            height={48}
+                            onClick={() => {
+                                if (props.onEntryClick) {
+                                    props.onEntryClick(item)
+                                }
+                            }}
+                        />
+                    }
                     tooltipContent={
                         <div>
                             <p style={{ ...getStyleForTier(item.rarity), marginBottom: 5 }}>

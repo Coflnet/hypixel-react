@@ -12,7 +12,8 @@
 }
 
 .inventory .gridCell {
-    width: 44px;
+    width: 60px;
+    height: 60px;
     background-color: #8b8b8b;
     border-top: thick double #373737;
     border-left: thick double #373737;

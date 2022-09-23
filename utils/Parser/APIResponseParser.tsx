@@ -607,8 +607,9 @@ export function parseTEMKeyValueObject(object: any[]) {
 
 export function parseTEMItem(item): TEM_Item {
     return {
+        id: item.id,
         colour: item.colour,
-        created: item.createdAt,
+        created: parseDate(item.createdAt),
         currentOwner: parseTEMPlayerIdentification(item.currentOwner),
         enchantments: parseTEMKeyValueObject(item.enchantments),
         previousOwners: item.previousOwners?.map(parseTEMPlayerIdentification) || [],

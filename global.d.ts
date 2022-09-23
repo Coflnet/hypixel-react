@@ -555,6 +555,7 @@ interface TEM_Pet {
 }
 
 interface TEM_Item {
+    id: string
     created: Date
     currentOwner: TEM_PlayerIdentification
     extraAttributes?: any
