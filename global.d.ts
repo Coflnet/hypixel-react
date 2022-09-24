@@ -236,6 +236,7 @@ interface API {
     checkRat(hash: string): Promise<RatCheckingResponse>
     getPremiumProducts(): Promise<PremiumProduct[]>
     getTEMPlayerData(playerUUID: string): Promise<TEM_Player>
+    getTEMPlayerDataByProfileUUID(profileUUID: string): Promise<TEM_Player>
     getTEMItemData(itemUid: string): Promise<TEM_Item>
 }
 

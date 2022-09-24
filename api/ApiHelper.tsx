@@ -1673,6 +1673,24 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getTEMPlayerDataByProfileUUID = (profileUUID: string): Promise<TEM_Player> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TEM_PLAYER_DATA_BY_PROFILE,
+                data: '',
+                requestMethod: 'GET',
+                customRequestURL: `${getApiEndpoint()}/tem/playerProfile/${profileUUID}`,
+                resolve: player => {
+                    resolve(parseTEMPlayer(player))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_TEM_PLAYER_DATA_BY_PROFILE, error, profileUUID)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     let getTEMItemData = (itemUid: string): Promise<TEM_Item> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
@@ -1759,7 +1777,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         checkRat,
         getPremiumProducts,
         getTEMItemData,
-        getTEMPlayerData
+        getTEMPlayerData,
+        getTEMPlayerDataByProfileUUID
     }
 }
 

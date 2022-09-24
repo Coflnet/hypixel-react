@@ -70,6 +70,7 @@ export enum RequestType {
     CHECK_FOR_RAT = 'checkForRat',
     GET_PREMIUM_PRODUCTS = 'premium/user/owns',
     GET_TEM_PLAYER_DATA = 'getTemPlayerData',
+    GET_TEM_PLAYER_DATA_BY_PROFILE = 'getTemPlayerDataByProfile',
     GET_TEM_ITEM_DATA = 'getTemItemData'
 }
 
