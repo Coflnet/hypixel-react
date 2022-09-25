@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Badge, Card, Form, ListGroup } from 'react-bootstrap'
-import { ArrowRightAlt as ArrowRightIcon } from '@mui/icons-material'
+import { Badge, Card, Form, ListGroup, Table } from 'react-bootstrap'
+import { ArrowRightAlt as ArrowRightIcon, ArrowDownward as ArrowDownIcon } from '@mui/icons-material'
 import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './FlipTracking.module.css'
 import { useRouter } from 'next/router'
@@ -134,7 +134,7 @@ export function FlipTracking(props: Props) {
                                 }
                                 tooltipContent={
                                     <span>
-                                        This is the first flip finder algorithm that reported this flip. \nIts possible that you used another one or even found
+                                        This is the first flip finder algorithm that reported this flip. Its possible that you used another one or even found
                                         this flip on your own
                                     </span>
                                 }
@@ -143,14 +143,47 @@ export function FlipTracking(props: Props) {
                         </p>
                         <p style={{ marginTop: '10px' }}>Sell: {trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}</p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'end' }}>
-                        <CopyButton
-                            copyValue={
-                                isClientSideRendering() ? `${window.location.origin}/player/${router.query.uuid}/flips/${trackedFlip.uId.toString(16)}` : ''
-                            }
-                            successMessage={isClientSideRendering() ? <span>{`Copied link to flip!`}</span> : <span />}
-                        />
+                </div>
+                <p
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                        let flips = [...trackedFlips]
+                        trackedFlip.showPropertyChanges = !trackedFlip.showPropertyChanges
+                        setTrackedFlips(flips)
+                    }}
+                >
+                    Extra profit calculations: {trackedFlip.showPropertyChanges ? <ArrowDownIcon /> : <ArrowRightIcon />}
+                </p>
+                {trackedFlip.showPropertyChanges ? (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Table>
+                            <tbody>
+                                {trackedFlip.propertyChanges.map(change => (
+                                    <tr>
+                                        <td>{change.description}</td>
+                                        <td>
+                                            {' '}
+                                            {change.effect > 0 ? (
+                                                <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
+                                                    +{numberWithThousandsSeperators(change.effect)} Coins
+                                                </span>
+                                            ) : (
+                                                <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>
+                                                    {numberWithThousandsSeperators(change.effect)} Coins
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
                     </div>
+                ) : null}
+                <div style={{ display: 'flex', justifyContent: 'end' }}>
+                    <CopyButton
+                        copyValue={isClientSideRendering() ? `${window.location.origin}/player/${router.query.uuid}/flips/${trackedFlip.uId.toString(16)}` : ''}
+                        successMessage={isClientSideRendering() ? <span>{`Copied link to flip!`}</span> : <span />}
+                    />
                 </div>
             </ListGroup.Item>
         )

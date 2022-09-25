@@ -424,6 +424,12 @@ interface KatFlip {
     purchaseCost: number
     cost: number
 }
+
+interface FlipTrackingPropertyChange {
+    description: string
+    effect: number
+}
+
 interface FlipTrackingFlip {
     pricePaid: number
     soldFor: number
@@ -434,6 +440,8 @@ interface FlipTrackingFlip {
     item: Item
     sellTime: Date
     profit: number
+    showPropertyChanges?: boolean
+    propertyChanges: FlipTrackingPropertyChange[]
 }
 
 interface FlipTrackingResponse {
