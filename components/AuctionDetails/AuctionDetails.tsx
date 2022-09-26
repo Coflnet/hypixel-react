@@ -22,11 +22,13 @@ import styles from './AuctionDetails.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import FlipBased from '../Flipper/FlipBased/FlipBased'
 import { Help as HelpIcon } from '@mui/icons-material'
+import TEMOwnerHistory from '../TEMItems/TEMOwnerHistory/TEMOwnerHistory'
 
 interface Props {
     auctionUUID: string
     auctionDetails?: AuctionDetails
     retryCounter?: number
+    temItemDetails?: TEM_Item | TEM_Pet
 }
 
 function AuctionDetails(props: Props) {
@@ -34,6 +36,7 @@ function AuctionDetails(props: Props) {
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails)
     let [isLoading, setIsLoading] = useState(false)
     let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
+    let [temItemDetails, setTEMItemDetails] = useState<TEM_Item | TEM_Pet>(props.temItemDetails)
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
@@ -75,6 +78,12 @@ function AuctionDetails(props: Props) {
                     forceUpdate()
                     setIsLoading(false)
                 })
+
+                if (auctionDetails.nbtData.uId) {
+                    api.getTEMItemData(auctionDetails.nbtData.uId).then(details => {
+                        setTEMItemDetails(details)
+                    })
+                }
             })
             .catch(error => {
                 setIsLoading(false)
@@ -451,6 +460,7 @@ function AuctionDetails(props: Props) {
                                 <ListGroup>{bidList || getLoadingElement()}</ListGroup>
                             </Card.Body>
                         </Card>
+                        {temItemDetails ? <TEMOwnerHistory detailEntry={temItemDetails} /> : null}
                     </div>
                 </div>
             )}

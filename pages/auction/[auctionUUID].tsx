@@ -6,7 +6,7 @@ import Search from '../../components/Search/Search'
 import { useRouter } from 'next/router'
 import api, { initAPI } from '../../api/ApiHelper'
 import '../../public/MinecraftColorCodes.3.7'
-import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
+import { parseAuctionDetails, parseTEMItem } from '../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../utils/SSRUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import moment from 'moment'
@@ -15,6 +15,7 @@ import { getCacheContolHeader } from '../../utils/CacheUtils'
 
 interface Props {
     auctionDetails: any
+    temItemDetails: any
 }
 
 function AuctionDetailsPage(props: Props) {
@@ -22,6 +23,7 @@ function AuctionDetailsPage(props: Props) {
     let auctionUUID = router.query.auctionUUID as string
     let forceUpdate = useForceUpdate()
     let [auctionDetails, setAuctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
+    let [temItemDetails, setTemItemDetails] = useState(props.temItemDetails ? parseTEMItem(props.temItemDetails) : undefined)
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -82,7 +84,7 @@ function AuctionDetailsPage(props: Props) {
                 : getHeadElement()}
             <Container>
                 <Search />
-                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} />
+                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} temItemDetails={temItemDetails} />
             </Container>
         </div>
     )
@@ -94,6 +96,7 @@ export const getServerSideProps = async ({ res, params }) => {
     let auctionUUID = params.auctionUUID as string
     let api = initAPI(true)
     let auctionDetails: any
+    let temDetails: TEM_Item | TEM_Pet
     try {
         auctionDetails = await api.getAuctionDetails(auctionUUID)
     } catch (e) {
@@ -115,7 +118,19 @@ export const getServerSideProps = async ({ res, params }) => {
 
     auctionDetails.bids.sort((a, b) => b.amount - a.amount)
 
-    let namePromises: Promise<void>[] = []
+    let promises: Promise<void>[] = []
+    try {
+        if (auctionDetails.flatNbt.uid) {
+            promises.push(
+                api.getTEMItemData(auctionDetails.flatNbt.uid).then(details => {
+                    temDetails = details
+                })
+            )
+        }
+    } catch {
+        console.log('error fetching tem details for uId: ' + auctionDetails.flatNbt.uid)
+        console.log('------------------------')
+    }
     try {
         auctionDetails.iconUrl = api.getItemImageUrl(auctionDetails)
         if (!auctionDetails.name) {
@@ -141,9 +156,9 @@ export const getServerSideProps = async ({ res, params }) => {
                     console.log(`No username for player ${bid.bidder}`)
                     console.log('------------------------')
                 })
-            namePromises.push(promise)
+            promises.push(promise)
         })
-        namePromises.push(
+        promises.push(
             api
                 .getPlayerName(auctionDetails.auctioneerId)
                 .then(name => {
@@ -166,11 +181,12 @@ export const getServerSideProps = async ({ res, params }) => {
         console.log('------------------------')
     }
 
-    await Promise.allSettled(namePromises)
+    await Promise.allSettled(promises)
 
     return {
         props: {
-            auctionDetails: auctionDetails
+            auctionDetails: auctionDetails,
+            temItemDetails: temDetails || null
         }
     }
 }

@@ -1697,9 +1697,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 type: RequestType.GET_TEM_PLAYER_DATA,
                 data: '',
                 requestMethod: 'GET',
-                customRequestURL: `${getApiEndpoint()}/tem/item/${itemUid}`,
+                customRequestURL: `${getApiEndpoint()}/tem/coflItem/${itemUid}`,
                 resolve: player => {
-                    resolve(parseTEMItem(player))
+                    resolve(returnSSRResponse ? player : parseTEMItem(player))
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_TEM_PLAYER_DATA, error, itemUid)
