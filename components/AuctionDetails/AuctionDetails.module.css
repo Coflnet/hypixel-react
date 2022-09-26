@@ -44,6 +44,7 @@
 
 .auctionDetails .label :global(.badge) {
     white-space: normal;
+    user-select: none;
 }
 
 .labelForList {
