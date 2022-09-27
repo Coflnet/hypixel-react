@@ -48,6 +48,7 @@ interface AuctionDetails {
     enchantments: Enchantment[]
     nbtData: any
     itemCreatedAt: Date
+    uuid: string
 }
 
 interface Auction {

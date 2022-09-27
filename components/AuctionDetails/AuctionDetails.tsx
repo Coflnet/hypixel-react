@@ -389,6 +389,12 @@ function AuctionDetails(props: Props) {
                         <p>None</p>
                     )}
                 </div>
+                <p>
+                    <span className={styles.label}>
+                        <Badge variant={labelBadgeVariant}>UUID:</Badge>
+                    </span>
+                    <div className="ellipse">{auctionDetails?.uuid}</div>
+                </p>
                 <div>{getNBTElement()}</div>
             </Card.Body>
         </div>
