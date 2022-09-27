@@ -548,7 +548,11 @@ interface TEM_Pet {
     level: number
     location: string
     name: string
-    previousOwners: TEM_PlayerIdentification[]
+    previousOwners: {
+        start: Date
+        end: Date
+        owner: TEM_PlayerIdentification
+    }[]
     rarity: string
     start: Date
     lastChecked: Date
@@ -565,7 +569,11 @@ interface TEM_Item {
     colour: string
     itemId: string
     location: string
-    previousOwners: TEM_PlayerIdentification[]
+    previousOwners: {
+        start: Date
+        end: Date
+        owner: TEM_PlayerIdentification
+    }[]
     rarity: string
     reforge?: string
     start: Date

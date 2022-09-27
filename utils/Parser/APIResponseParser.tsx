@@ -612,7 +612,14 @@ export function parseTEMItem(item): TEM_Item {
         created: parseDate(item.createdAt),
         currentOwner: parseTEMPlayerIdentification(item.currentOwner),
         enchantments: parseTEMKeyValueObject(item.enchantments),
-        previousOwners: item.previousOwners?.map(parseTEMPlayerIdentification) || [],
+        previousOwners:
+            item.previousOwners?.map(prevOwner => {
+                return {
+                    start: parseDate(prevOwner.start),
+                    end: parseDate(prevOwner.end),
+                    owner: parseTEMPlayerIdentification(prevOwner.owner)
+                }
+            }) || [],
         lastChecked: parseDate(item.lastChecked),
         location: item.location,
         start: parseDate(item.start),
@@ -636,7 +643,14 @@ export function parseTEMPet(pet): TEM_Pet {
         id: pet.id,
         lastChecked: parseDate(pet.lastChecked),
         location: pet.location,
-        previousOwners: pet.previous_owners?.map(parseTEMPlayerIdentification) || [],
+        previousOwners:
+            pet.previousOwners?.map(prevOwner => {
+                return {
+                    start: parseDate(prevOwner.start),
+                    end: parseDate(prevOwner.end),
+                    owner: parseTEMPlayerIdentification(prevOwner.owner)
+                }
+            }) || [],
         start: parseDate(pet.start),
         icon: api.getItemImageUrl({ tag: `PET_${pet.name}` })
     }
