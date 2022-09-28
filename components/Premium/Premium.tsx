@@ -14,6 +14,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_TYPES } from '../../utils/PremiumTypeUtils'
+import { getLocalDateAndTime } from '../../utils/Formatter'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -110,7 +111,7 @@ function Premium() {
                                     {moment(activePremiumProduct.expires).fromNow()}
                                 </span>
                             }
-                            tooltipContent={<span>{activePremiumProduct.expires?.toDateString()}</span>}
+                            tooltipContent={<span>{getLocalDateAndTime(activePremiumProduct.expires)}</span>}
                         />
                     </div>
                 ) : null}
