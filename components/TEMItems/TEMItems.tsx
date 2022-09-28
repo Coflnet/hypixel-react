@@ -28,7 +28,7 @@ function TEMItems(props: Props) {
                 setIsLoading(false)
             })
         })
-    }, [])
+    }, [props.playerUUID])
 
     function groupBy(array: any[], key: string) {
         return array.reduce(function (rv, x) {
@@ -41,6 +41,7 @@ function TEMItems(props: Props) {
         let grouped = groupBy(entries, 'location')
         return Object.keys(grouped).map(location => (
             <TEMInventory
+                playerUUID={props.playerUUID}
                 title={location}
                 type={type}
                 entries={grouped[location]}

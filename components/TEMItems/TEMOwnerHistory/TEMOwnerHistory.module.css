@@ -1,3 +1,15 @@
 .clickable {
     cursor: pointer;
 }
+
+.playerElement {
+    width: 200px;
+    display: inline-block;
+}
+
+@media all and (max-width: 575px) {
+    .playerElement {
+        display: block;
+        width: auto;
+    }
+}

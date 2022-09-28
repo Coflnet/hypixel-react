@@ -2,6 +2,7 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { Card } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
+import { getLocalDateAndTime } from '../../../utils/Formatter'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { parsePlayer } from '../../../utils/Parser/APIResponseParser'
 import styles from './TEMOwnerHistory.module.css'
@@ -10,9 +11,15 @@ interface Props {
     detailEntry: TEM_Item | TEM_Pet
 }
 
+interface PreviousOwner {
+    player: Player
+    start: Date
+    end: Date
+}
+
 function TEMOwnerHistory(props: Props) {
     let [currentOwner, setCurrentOwner] = useState<Player>({ name: '', uuid: '' })
-    let [previousOwners, setPreviousOwners] = useState<Player[]>([])
+    let [previousOwners, setPreviousOwners] = useState<PreviousOwner[]>([])
     let [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
@@ -31,16 +38,19 @@ function TEMOwnerHistory(props: Props) {
             })
         )
 
-        let prevOwners = []
+        let prevOwners: PreviousOwner[] = []
         props.detailEntry.previousOwners.forEach(previousOwner => {
-            api.getPlayerName(previousOwner.playerUUID).then(name => {
-                prevOwners.push(
-                    parsePlayer({
+            let promise = api.getPlayerName(previousOwner.owner.playerUUID).then(name => {
+                prevOwners.push({
+                    player: parsePlayer({
                         name: name,
-                        uuid: previousOwner.playerUUID
-                    })
-                )
+                        uuid: previousOwner.owner.playerUUID
+                    }),
+                    start: previousOwner.start,
+                    end: previousOwner.end
+                })
             })
+            promises.push(promise)
         })
 
         Promise.all(promises).then(() => {
@@ -51,7 +61,7 @@ function TEMOwnerHistory(props: Props) {
 
     function getPlayerElement(player: Player) {
         return (
-            <>
+            <div className={styles.playerElement}>
                 <img
                     crossOrigin="anonymous"
                     className="playerHeadIcon"
@@ -62,7 +72,7 @@ function TEMOwnerHistory(props: Props) {
                     loading="lazy"
                 />
                 {player.name}
-            </>
+            </div>
         )
     }
 
@@ -76,18 +86,23 @@ function TEMOwnerHistory(props: Props) {
                     ) : (
                         <ul>
                             <li>
-                                <Link href={`/player/${currentOwner.uuid}`}>
+                                <a href={`/player/${currentOwner.uuid}`} className="disableLinkStyle">
                                     <div className={styles.clickable}>
                                         {getPlayerElement(currentOwner)} <span style={{ marginLeft: '10px', color: 'lime' }}>(Current)</span>
                                     </div>
-                                </Link>
+                                </a>
                             </li>
                             {previousOwners.map(prevOwner => {
                                 return (
-                                    <li>
-                                        <Link href={`/player/${prevOwner.uuid}`}>
-                                            <div className={styles.clickable}>{getPlayerElement(prevOwner)}</div>
-                                        </Link>
+                                    <li style={{ marginTop: '15px' }}>
+                                        <a href={`/player/${prevOwner.player.uuid}`} className="disableLinkStyle">
+                                            <div className={styles.clickable}>
+                                                {getPlayerElement(prevOwner.player)}{' '}
+                                                <span style={{ marginLeft: '10px', color: 'yellow' }}>
+                                                    ({prevOwner.start.toLocaleDateString()} - {prevOwner.end.toLocaleDateString()})
+                                                </span>
+                                            </div>
+                                        </a>
                                     </li>
                                 )
                             })}

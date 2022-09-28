@@ -29,6 +29,7 @@ import {
     parseSkyblockProfile,
     parseSubscription,
     parseTEMItem,
+    parseTEMPet,
     parseTEMPlayer
 } from '../utils/Parser/APIResponseParser'
 import { RequestType, SubscriptionType, Subscription, HttpApi } from './ApiTypes.d'
@@ -1681,6 +1682,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 requestMethod: 'GET',
                 customRequestURL: `${getApiEndpoint()}/tem/playerProfile/${profileUUID}`,
                 resolve: player => {
+                    console.log(player)
                     resolve(parseTEMPlayer(player))
                 },
                 reject: (error: any) => {
@@ -1703,6 +1705,24 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_TEM_PLAYER_DATA, error, itemUid)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let getTEMPetData = (petUuid: string): Promise<TEM_Pet> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TEM_PET_DATA,
+                data: '',
+                requestMethod: 'GET',
+                customRequestURL: `${getApiEndpoint()}/tem/pet/${petUuid}`,
+                resolve: pet => {
+                    resolve(returnSSRResponse ? pet : parseTEMPet(pet))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_TEM_PLAYER_DATA, error, petUuid)
                     reject(error)
                 }
             })
@@ -1795,7 +1815,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getTEMItemData,
         getTEMPlayerData,
         getTEMPlayerDataByProfileUUID,
-        unsubscribeAll
+        unsubscribeAll,
+        getTEMPetData
     }
 }
 

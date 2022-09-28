@@ -62,11 +62,21 @@ function PlayerDetails(props: Props) {
     }, [uuid])
 
     function onSwipeRight() {
-        setDetailType(DetailType.AUCTIONS)
+        if (detailType === DetailType.BIDS) {
+            setDetailType(DetailType.AUCTIONS)
+        }
+        if (detailType === DetailType.ITEMS) {
+            setDetailType(DetailType.BIDS)
+        }
     }
 
     function onSwipeLeft() {
-        setDetailType(DetailType.BIDS)
+        if (detailType === DetailType.AUCTIONS) {
+            setDetailType(DetailType.BIDS)
+        }
+        if (detailType === DetailType.BIDS) {
+            setDetailType(DetailType.ITEMS)
+        }
     }
 
     let onDetailTypeChange = (newType: DetailType) => {

@@ -1,10 +1,7 @@
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Badge, Card } from 'react-bootstrap'
-import api from '../../../api/ApiHelper'
 import { convertTagToName, getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter'
-import { getLoadingElement } from '../../../utils/LoadingUtils'
-import { parsePlayer } from '../../../utils/Parser/APIResponseParser'
 import TEMOwnerHistory from '../TEMOwnerHistory/TEMOwnerHistory'
 import styles from './TEMItemDetails.module.css'
 

@@ -72,7 +72,8 @@ export enum RequestType {
     UNSUBSCRIBE_ALL = 'unsubscribeAll',
     GET_TEM_PLAYER_DATA = 'getTemPlayerData',
     GET_TEM_PLAYER_DATA_BY_PROFILE = 'getTemPlayerDataByProfile',
-    GET_TEM_ITEM_DATA = 'getTemItemData'
+    GET_TEM_ITEM_DATA = 'getTemItemData',
+    GET_TEM_PET_DATA = 'getTemPetData'
 }
 
 export enum SubscriptionType {

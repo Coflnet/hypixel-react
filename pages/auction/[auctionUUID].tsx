@@ -6,7 +6,7 @@ import Search from '../../components/Search/Search'
 import { useRouter } from 'next/router'
 import api, { initAPI } from '../../api/ApiHelper'
 import '../../public/MinecraftColorCodes.3.7'
-import { parseAuctionDetails, parseTEMItem } from '../../utils/Parser/APIResponseParser'
+import { parseAuctionDetails, parseTEMItem, parseTEMPet } from '../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../utils/SSRUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import moment from 'moment'
@@ -15,7 +15,8 @@ import { getCacheContolHeader } from '../../utils/CacheUtils'
 
 interface Props {
     auctionDetails: any
-    temItemDetails: any
+    temDetails: any
+    temType: 'pet' | 'item'
 }
 
 function AuctionDetailsPage(props: Props) {
@@ -23,7 +24,9 @@ function AuctionDetailsPage(props: Props) {
     let auctionUUID = router.query.auctionUUID as string
     let forceUpdate = useForceUpdate()
     let [auctionDetails, setAuctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
-    let [temItemDetails, setTemItemDetails] = useState(props.temItemDetails ? parseTEMItem(props.temItemDetails) : undefined)
+    let [temDetails, setTemDetails] = useState(
+        props.temDetails ? (props.temType === 'pet' ? parseTEMPet(props.temDetails) : parseTEMItem(props.temDetails)) : undefined
+    )
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -84,7 +87,7 @@ function AuctionDetailsPage(props: Props) {
                 : getHeadElement()}
             <Container>
                 <Search />
-                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} temItemDetails={temItemDetails} />
+                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} temItemDetails={temDetails} />
             </Container>
         </div>
     )
@@ -97,6 +100,7 @@ export const getServerSideProps = async ({ res, params }) => {
     let api = initAPI(true)
     let auctionDetails: any
     let temDetails: TEM_Item | TEM_Pet
+    let temType: 'pet' | 'item'
     try {
         auctionDetails = await api.getAuctionDetails(auctionUUID)
     } catch (e) {
@@ -120,7 +124,15 @@ export const getServerSideProps = async ({ res, params }) => {
 
     let promises: Promise<void>[] = []
     try {
-        if (auctionDetails.flatNbt.uid) {
+        if (auctionDetails.tag.startsWith('PET_')) {
+            temType = 'pet'
+            promises.push(
+                api.getTEMPetData(auctionDetails.flatNbt.uuid).then(details => {
+                    temDetails = details
+                })
+            )
+        } else {
+            temType = 'item'
             promises.push(
                 api.getTEMItemData(auctionDetails.flatNbt.uid).then(details => {
                     temDetails = details
@@ -186,7 +198,8 @@ export const getServerSideProps = async ({ res, params }) => {
     return {
         props: {
             auctionDetails: auctionDetails,
-            temItemDetails: temDetails || null
+            temDetails: temDetails || null,
+            temType: temType
         }
     }
 }

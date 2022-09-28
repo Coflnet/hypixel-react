@@ -5,6 +5,7 @@ import Tooltip from '../../Tooltip/Tooltip'
 import styles from './TEMInventory.module.css'
 
 interface Props {
+    playerUUID: string
     title: string
     type: 'items' | 'pets'
     entries: TEM_Item[] | TEM_Pet[]

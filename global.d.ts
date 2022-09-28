@@ -239,6 +239,7 @@ interface API {
     getTEMPlayerData(playerUUID: string): Promise<TEM_Player>
     getTEMPlayerDataByProfileUUID(profileUUID: string): Promise<TEM_Player>
     getTEMItemData(itemUid: string): Promise<TEM_Item>
+    getTEMPetData(petUuid: string): Promise<TEM_Pet>
 }
 
 interface CacheUtils {
