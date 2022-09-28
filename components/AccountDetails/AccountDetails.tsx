@@ -13,7 +13,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import styles from './AccountDetails.module.css'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { useCoflCoins } from '../../utils/Hooks'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { getLocalDateAndTime, numberWithThousandsSeperators } from '../../utils/Formatter'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { atobUnicode } from '../../utils/Base64Utils'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
@@ -177,7 +177,7 @@ function AccountDetails() {
                                         <span className={styles.label}>Your premium ends:</span> {moment(hasPremiumUntil).fromNow()}
                                     </span>
                                 }
-                                tooltipContent={<span>{hasPremiumUntil?.toDateString()}</span>}
+                                tooltipContent={<span>{getLocalDateAndTime(hasPremiumUntil)}</span>}
                             />
                         </p>
                     ) : null}
