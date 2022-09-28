@@ -15,7 +15,7 @@ import { getCacheContolHeader } from '../../utils/CacheUtils'
 
 interface Props {
     auctionDetails: any
-    temDetails: any
+    temDetails?: any
     temType: 'pet' | 'item'
 }
 
@@ -124,23 +124,35 @@ export const getServerSideProps = async ({ res, params }) => {
 
     let promises: Promise<void>[] = []
     try {
-        if (auctionDetails.tag.startsWith('PET_')) {
+        if (auctionDetails.tag.startsWith('PET_') && auctionDetails.flatNbt.uuid) {
             temType = 'pet'
             promises.push(
-                api.getTEMPetData(auctionDetails.flatNbt.uuid).then(details => {
-                    temDetails = details
-                })
+                api
+                    .getTEMPetData(auctionDetails.flatNbt.uuid)
+                    .then(details => {
+                        temDetails = details
+                    })
+                    .catch(() => {
+                        console.log('TEM details not found for uId: ' + auctionDetails.flatNbt.uid)
+                        console.log('------------------------')
+                    })
             )
-        } else {
+        } else if (auctionDetails.flatNbt.uid) {
             temType = 'item'
             promises.push(
-                api.getTEMItemData(auctionDetails.flatNbt.uid).then(details => {
-                    temDetails = details
-                })
+                api
+                    .getTEMItemData(auctionDetails.flatNbt.uid)
+                    .then(details => {
+                        temDetails = details
+                    })
+                    .catch(() => {
+                        console.log('TEM details not found for uId: ' + auctionDetails.flatNbt.uid)
+                        console.log('------------------------')
+                    })
             )
         }
     } catch {
-        console.log('error fetching tem details for uId: ' + auctionDetails.flatNbt.uid)
+        console.log('error fetching TEM details for uId: ' + auctionDetails.flatNbt.uid)
         console.log('------------------------')
     }
     try {
