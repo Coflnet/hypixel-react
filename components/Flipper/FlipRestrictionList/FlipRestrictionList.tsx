@@ -31,13 +31,38 @@ function FlipRestrictionList(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    function loadFilters() {
-        Promise.all([
-            api.getFilters(newRestriction.item ? newRestriction.item.tag : '*'),
-            api.flipFilters(newRestriction.item ? newRestriction.item.tag : '*')
-        ]).then(filters => {
-            setFilters([...filters[0], ...filters[1]])
-        })
+    function loadFilters(restrictionsInEditMode: FlipRestriction[] = []): Promise<FilterOptions[]> {
+        if (restrictionsInEditMode.length === 0) {
+            return Promise.all([
+                api.getFilters(newRestriction.item ? newRestriction.item.tag : '*'),
+                api.flipFilters(newRestriction.item ? newRestriction.item.tag : '*')
+            ]).then(filters => {
+                let result = [...filters[0], ...filters[1]]
+                setFilters(result)
+                return result
+            })
+        } else {
+            let promises: Promise<FilterOptions[]>[] = []
+            restrictionsInEditMode.forEach(restriction => {
+                promises.push(api.getFilters(restriction.item ? restriction.item.tag : '*'))
+                promises.push(api.flipFilters(restriction.item ? restriction.item.tag : '*'))
+            })
+            return Promise.all(promises).then(filters => {
+                let groupedFilters: FilterOptions[][] = []
+                for (let i = 0; i < filters.length; i += 2) {
+                    groupedFilters.push([...filters[i], ...filters[i + 1]])
+                }
+
+                const intersect2 = (a: FilterOptions[], b: FilterOptions[]) => a.filter(x => b.some(y => y.name === x.name))
+                const intersect = (arrOfArrays: FilterOptions[][]) =>
+                    arrOfArrays[1] === undefined ? arrOfArrays[0] : intersect([intersect2(arrOfArrays[0], arrOfArrays[1]), ...arrOfArrays.slice(2)])
+
+                var intersecting = intersect(groupedFilters)
+                setFilters(intersecting)
+
+                return intersecting
+            })
+        }
     }
 
     function onSearchResultClick(item: SearchResultItem) {
@@ -79,6 +104,7 @@ function FlipRestrictionList(props: Props) {
         let restriction: FlipRestriction = { type: 'blacklist' }
         setNewRestriction(restriction)
         setIsNewFlipperExtended(false)
+        loadFilters()
     }
 
     function onRestrictionTypeChange(value: 'blacklist' | 'whitelist') {
@@ -105,9 +131,11 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
         }
 
-        setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
-        setRestrictions(restrictions)
-        forceUpdate()
+        loadFilters().then(() => {
+            setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+            setRestrictions(restrictions)
+            forceUpdate()
+        })
     }
 
     function overrideEditedFilter() {
@@ -124,9 +152,11 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
         }
 
-        setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
-        setRestrictions(restrictions)
-        forceUpdate()
+        loadFilters().then(() => {
+            setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+            setRestrictions(restrictions)
+            forceUpdate()
+        })
     }
 
     function removeRestrictionByIndex(restriction: FlipRestriction, index: number) {
@@ -185,9 +215,22 @@ function FlipRestrictionList(props: Props) {
         restriction.isEdited = false
         let i = restrictionInEditModeIndex.indexOf(index)
         restrictionInEditModeIndex.splice(i, 1)
-        setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
-        setRestrictions(restrictions)
-        forceUpdate()
+
+        let restrictionsInEditMode: FlipRestriction[] = []
+        restrictionInEditModeIndex.forEach(index => {
+            restrictionsInEditMode.push(restrictions[index])
+        })
+
+        loadFilters(restrictionsInEditMode).then(() => {
+            setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+            setRestrictions(restrictions)
+            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+            if (props.onRestrictionsChange) {
+                props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
+                props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
+            }
+            forceUpdate()
+        })
     }
 
     function editRestriction(restriction: FlipRestriction, index: number) {
@@ -196,25 +239,19 @@ function FlipRestrictionList(props: Props) {
             setNewRestriction(newRestriction)
         }
 
-        Promise.all([api.getFilters(restriction.item ? restriction.item.tag : '*'), api.flipFilters(restriction.item ? restriction.item.tag : '*')]).then(
-            res => {
-                let newFilters = [...res[0], ...res[1]]
+        restrictionInEditModeIndex.push(index)
 
-                if (restrictionInEditModeIndex.length === 0) {
-                    setFilters(filters)
-                } else {
-                    // as there is already a restriction selected for edit
-                    // we have to remove filters that dont match with the newly selected restriction
-                    var intersectingNames = filters.map(f => f.name).filter(x => newFilters.map(f => f.name).includes(x))
-                    setFilters(filters.filter(f => intersectingNames.includes(f.name)))
-                }
+        let restrictionsInEditMode: FlipRestriction[] = []
+        restrictionInEditModeIndex.forEach(index => {
+            restrictionsInEditMode.push(restrictions[index])
+        })
 
-                restriction.isEdited = true
-                restrictionInEditModeIndex.push(index)
-                setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
-                forceUpdate()
-            }
-        )
+        loadFilters(restrictionsInEditMode).then(() => {
+            restriction.isEdited = true
+            setRestrictions(restrictions)
+            setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+            forceUpdate()
+        })
     }
 
     function changeRestrictionType(restriction: FlipRestriction, type: 'whitelist' | 'blacklist') {
