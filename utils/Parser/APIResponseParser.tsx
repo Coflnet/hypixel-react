@@ -190,7 +190,8 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
         profileId: auctionDetails.profileId,
         reforge: auctionDetails.reforge,
         nbtData: auctionDetails.flatNbt ? auctionDetails.flatNbt : undefined,
-        itemCreatedAt: parseDate(auctionDetails.itemCreatedAt)
+        itemCreatedAt: parseDate(auctionDetails.itemCreatedAt),
+        uuid: auctionDetails.uuid
     }
 }
 
