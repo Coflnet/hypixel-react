@@ -4,13 +4,14 @@ import api from '../../../api/ApiHelper'
 import { getStyleForTier } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
 import { getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
-import { Delete as DeleteIcon, Edit as EditIcon, Save as SaveIcon, ControlPointDuplicate as DuplicateIcon } from '@mui/icons-material'
+import { Delete as DeleteIcon, Edit as EditIcon, Save as SaveIcon, ControlPointDuplicate as DuplicateIcon, Refresh } from '@mui/icons-material'
 import ItemFilterPropertiesDisplay from '../../ItemFilter/ItemFilterPropertiesDisplay'
 import styles from './FlipRestrictionList.module.css'
 import EditRestriction from './EditRestriction/EditRestriction'
 import NewRestriction from './NewRestriction/NewRestriction'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import Tooltip from '../../Tooltip/Tooltip'
+import { toast } from 'react-toastify'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist')
@@ -23,6 +24,7 @@ function FlipRestrictionList(props: Props) {
     let [filters, setFilters] = useState<FilterOptions[]>()
     let [restrictionInEditModeIndex, setRestrictionsInEditModeIndex] = useState<number[]>([])
     let [showClearListDialog, setShowClearListDialog] = useState(false)
+    let [isRefreshingItemNames, setIsRefreshingItemNames] = useState(false)
 
     let forceUpdate = useForceUpdate()
 
@@ -285,6 +287,32 @@ function FlipRestrictionList(props: Props) {
         forceUpdate()
     }
 
+    function refreshItemNames() {
+        setIsRefreshingItemNames(true)
+        let promises = []
+        restrictions.forEach(restriction => {
+            if (restriction.item && restriction.item.tag) {
+                let promise = api.getItemDetails(restriction.item.tag).then(details => {
+                    restriction.item.name = details.name
+                })
+                promises.push(promise)
+            }
+        })
+        Promise.all(promises)
+            .then(() => {
+                toast.success('Reloaded all item names')
+            })
+            .catch(() => {
+                toast.error('Error reloaded item names')
+            })
+            .finally(() => {
+                console.log(restrictions.filter(r => r.item?.tag === 'PET_BLAZE'))
+                setIsRefreshingItemNames(false)
+                setRestrictions(restrictions)
+                setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+            })
+    }
+
     let clearListDialog = (
         <Modal
             show={showClearListDialog}
@@ -353,9 +381,14 @@ function FlipRestrictionList(props: Props) {
                             {addIcon}
                             <span> Add new restriction</span>
                         </span>
-                        <Button variant="danger" style={{ float: 'right' }} onClick={onClearListClick}>
-                            Clear list
-                        </Button>
+                        <span style={{ float: 'right' }}>
+                            <Button variant="info" style={{ marginRight: '10px' }} onClick={refreshItemNames} disabled={isRefreshingItemNames}>
+                                <Refresh /> Refresh item names
+                            </Button>
+                            <Button variant="danger" onClick={onClearListClick}>
+                                <DeleteIcon /> Clear list
+                            </Button>
+                        </span>
                     </span>
                 )}
                 <hr />
