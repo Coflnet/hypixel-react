@@ -202,7 +202,7 @@ export function FlipTracking(props: Props) {
                                     type="hover"
                                     content={
                                         <span>
-                                            <span className={styles.label}></span> {moment(trackedFlip.sellTime).fromNow()}
+                                            <span className={styles.label}></span>Sold {moment(trackedFlip.sellTime).fromNow()}
                                         </span>
                                     }
                                     tooltipContent={<span>{trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}</span>}
