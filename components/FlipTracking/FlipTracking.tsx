@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Badge, Button, Card, Form, ListGroup } from 'react-bootstrap'
-import { ArrowRightAlt as ArrowRightIcon, Dangerous as DangerousIcon } from '@mui/icons-material'
+import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
+import { ArrowRightAlt as ArrowRightIcon, ArrowDownward as ArrowDownIcon, Dangerous as DangerousIcon } from '@mui/icons-material'
 import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './FlipTracking.module.css'
 import { useRouter } from 'next/router'
@@ -10,6 +10,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
 import { Item, Menu, theme, useContextMenu } from 'react-contexify'
 import { useForceUpdate } from '../../utils/Hooks'
+import moment from 'moment'
 
 interface Props {
     totalProfit?: number
@@ -190,14 +191,59 @@ export function FlipTracking(props: Props) {
                                 }
                                 tooltipContent={
                                     <span>
-                                        This is the first flip finder algorithm that reported this flip. \nIts possible that you used another one or even found
+                                        This is the first flip finder algorithm that reported this flip. Its possible that you used another one or even found
                                         this flip on your own
                                     </span>
                                 }
                                 type={'hover'}
                             />
+                            <span style={{ marginLeft: '15px' }}>
+                                <Tooltip
+                                    type="hover"
+                                    content={
+                                        <span>
+                                            <span className={styles.label}></span>Sold {moment(trackedFlip.sellTime).fromNow()}
+                                        </span>
+                                    }
+                                    tooltipContent={<span>{trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}</span>}
+                                />
+                            </span>
                         </p>
-                        <p style={{ marginTop: '10px' }}>Sell: {trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}</p>
+                        <p
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                                let flips = [...trackedFlips]
+                                trackedFlip.showPropertyChanges = !trackedFlip.showPropertyChanges
+                                setTrackedFlips(flips)
+                            }}
+                        >
+                            Profit changes: {trackedFlip.showPropertyChanges ? <ArrowDownIcon /> : <ArrowRightIcon />}
+                        </p>
+                        {trackedFlip.showPropertyChanges ? (
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Table>
+                                    <tbody>
+                                        {trackedFlip.propertyChanges.map(change => (
+                                            <tr>
+                                                <td>{change.description}</td>
+                                                <td>
+                                                    {' '}
+                                                    {change.effect > 0 ? (
+                                                        <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
+                                                            +{numberWithThousandsSeperators(change.effect)} Coins
+                                                        </span>
+                                                    ) : (
+                                                        <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>
+                                                            {numberWithThousandsSeperators(change.effect)} Coins
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        ) : null}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'end' }}>
                         <CopyButton
