@@ -124,7 +124,7 @@ function AuctionDetails(props: Props) {
                                 <span className={styles.label}>
                                     <Badge variant={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
                                 </span>
-                                {formatNBTValue(key, currentNBT)}
+                                <div className="ellipse">{formatNBTValue(key, currentNBT)}</div>
                             </p>
                         </div>
                     )

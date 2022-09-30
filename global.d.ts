@@ -48,6 +48,7 @@ interface AuctionDetails {
     enchantments: Enchantment[]
     nbtData: any
     itemCreatedAt: Date
+    uuid: string
 }
 
 interface Auction {
@@ -235,6 +236,7 @@ interface API {
     setPrivacySettings(settings: PrivacySettings): Promise<void>
     checkRat(hash: string): Promise<RatCheckingResponse>
     getPremiumProducts(): Promise<PremiumProduct[]>
+    unsubscribeAll(): Promise<void>
 }
 
 interface CacheUtils {
