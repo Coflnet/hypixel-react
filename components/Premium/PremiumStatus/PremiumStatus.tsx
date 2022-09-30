@@ -1,5 +1,6 @@
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
+import { getLocalDateAndTime } from '../../../utils/Formatter'
 import { getHighestPriorityPremiumProduct, getPremiumType } from '../../../utils/PremiumTypeUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumStatus.module.css'
@@ -25,7 +26,7 @@ function PremiumStatus(props: Props) {
                 <Tooltip
                     type="hover"
                     content={<span> (ends {moment(product.expires).fromNow()})</span>}
-                    tooltipContent={<span>{product.expires?.toDateString()}</span>}
+                    tooltipContent={<span>{getLocalDateAndTime(product.expires)}</span>}
                 />
             </>
         )
