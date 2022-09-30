@@ -152,7 +152,7 @@ export function FlipTracking(props: Props) {
                         setTrackedFlips(flips)
                     }}
                 >
-                    Extra profit calculations: {trackedFlip.showPropertyChanges ? <ArrowDownIcon /> : <ArrowRightIcon />}
+                    Profit changes: {trackedFlip.showPropertyChanges ? <ArrowDownIcon /> : <ArrowRightIcon />}
                 </p>
                 {trackedFlip.showPropertyChanges ? (
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
