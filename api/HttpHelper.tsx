@@ -91,6 +91,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             console.log('Body: ' + JSON.stringify(body))
             console.log('------------------------')
         }
+        let parsedResponse
         try {
             return fetch(url, {
                 body: body,
@@ -105,7 +106,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                     return response.text()
                 })
                 .then(responseText => {
-                    let parsedResponse = parseResponseText(responseText)
+                    parsedResponse = parseResponseText(responseText)
 
                     if (!isClientSideRendering()) {
                         console.log('Received Response: ')
@@ -145,7 +146,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                     // when there are still matching request remove them
                     let equals = findForEqualSentRequest(request)
                     equals.forEach(equal => {
-                        equal.reject()
+                        equal.resolve(parsedResponse)
                     })
                     removeSentRequests([...equals, request])
                 })
