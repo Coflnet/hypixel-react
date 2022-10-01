@@ -306,7 +306,6 @@ function FlipRestrictionList(props: Props) {
                 toast.error('Error reloaded item names')
             })
             .finally(() => {
-                console.log(restrictions.filter(r => r.item?.tag === 'PET_BLAZE'))
                 setIsRefreshingItemNames(false)
                 setRestrictions(restrictions)
                 setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
