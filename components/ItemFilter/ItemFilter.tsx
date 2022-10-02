@@ -364,7 +364,7 @@ export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: bool
  * Gets the last used filter from the local storage and removes all properties not available in the allowed filters
  * @returns the filter or null if no last used filter is found
  */
-function getFilterFromLocalStorage(filterOptions: FilterOptions[]): ItemFilter {
+function getFilterFromLocalStorage(filterOptions: FilterOptions[] = []): ItemFilter {
     let localStorageLastFilter = localStorage.getItem(LAST_USED_FILTER)
     if (localStorageLastFilter === null) {
         return null
