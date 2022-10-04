@@ -129,7 +129,7 @@ function BazaarPriceGraph(props: Props) {
 
     function checkForSpecialFetchspanConfiguration() {
         if (fetchspan === DateRange.HOUR) {
-            // TODO: Fix if switched from day to hour the min max graph musnt be shown
+            // TODO: Fix if switched from day to hour, the min max graph musnt be shown
             chartOptionsPrimary.legend.data = chartOptionsPrimary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
             chartOptionsSecondary.legend.data = chartOptionsSecondary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
             chartOptionsPrimary.series.forEach((s, i) => {
