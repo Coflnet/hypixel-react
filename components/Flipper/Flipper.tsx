@@ -23,8 +23,8 @@ import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { v4 as generateUUID } from 'uuid'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
-import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -322,7 +322,7 @@ function Flipper(props: Props) {
     function onCopyFlip(flip: FlipAuction) {
         let settings = getFlipCustomizeSettings()
         let currentMissedInfo = missedInfo
-        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip, settings.useLowestBinForProfit)
+        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip, settings)
         flip.isCopied = true
         setFlips(flips)
     }

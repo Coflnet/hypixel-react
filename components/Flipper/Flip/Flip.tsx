@@ -78,7 +78,7 @@ function Flip(props: Props) {
 
     function getProfitElement(flip: FlipAuction): JSX.Element {
         let settings = getFlipCustomizeSettings()
-        let profit = calculateProfit(flip, settings.useLowestBinForProfit)
+        let profit = calculateProfit(flip, settings)
         let preSymbol = profit > 0 ? '+' : ''
         let profitPercentElement = <span>({Math.round((profit / flip.cost) * 100)}%)</span>
         return (

@@ -7,7 +7,7 @@ import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSettingsObject, mapRestric
 import styles from './FlipperFilter.module.css'
 import api from '../../../api/ApiHelper'
 import { getDecimalSeperator, getThousandSeperator } from '../../../utils/Formatter'
-import { DEFAULT_FLIP_SETTINGS, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
+import { getFlipCustomizeSettings, isCurrentCalculationBasedOnLbin } from '../../../utils/FlipUtils'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import Tooltip from '../../Tooltip/Tooltip'
 import FlipCustomize from '../FlipCustomize/FlipCustomize'
@@ -37,14 +37,12 @@ function FlipperFilter(props: Props) {
             if ((e as any).detail?.apiUpdate) {
                 setFlipCustomizeKey(generateUUID())
             }
+            setFlipCustomizeSettings(getFlipCustomizeSettings())
+            setFlipperFilter(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
         })
     }, [])
 
     let onlyUnsoldRef = useRef(null)
-
-    function getCurrentFilter(): FlipperFilter {
-        return getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, DEFAULT_FLIP_SETTINGS.FILTER)
-    }
 
     function onFilterChange(filter: FlipperFilter) {
         if (props.isLoggedIn) {
@@ -78,12 +76,8 @@ function FlipperFilter(props: Props) {
         return value <= maxValue
     }
 
-    function isCurrentCalculationBasedOnLbin() {
-        return flipCustomizeSettings.finders?.length === 1 && flipCustomizeSettings.finders[0] === 2
-    }
-
     function onProfitCalculationButtonClick() {
-        if (isCurrentCalculationBasedOnLbin()) {
+        if (isCurrentCalculationBasedOnLbin(flipCustomizeSettings)) {
             flipCustomizeSettings.finders = [1, 4]
             flipCustomizeSettings.useLowestBinForProfit = false
             api.setFlipSetting('lbin', false)
@@ -197,7 +191,7 @@ function FlipperFilter(props: Props) {
                     <span className={styles.filterBorder}>
                         <Tooltip
                             type="hover"
-                            content={<span className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Blacklist</span>}
+                            content={<span className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Filter-Rules</span>}
                             tooltipContent={<span>Make custom rules which items should show up and which should not</span>}
                         />
                         <FilterIcon className={styles.flipperFilterFormfield} style={{ marginLeft: '-4px' }} />
@@ -217,7 +211,7 @@ function FlipperFilter(props: Props) {
                         }
                         tooltipContent={
                             flipperFilter.onlyBin ? (
-                                <span>Dont show auction flips that are about to end and could be profited from with the current bid</span>
+                                <span>Do not show auction flips that are about to end and could be profited from with the current bid</span>
                             ) : (
                                 <span>Display auction flips that are about to end and could be profited from with the current bid</span>
                             )
@@ -238,7 +232,7 @@ function FlipperFilter(props: Props) {
                         type="hover"
                         content={<Form.Label className={`${styles.flipperFilterFormfieldLabel}`}>Profit based on</Form.Label>}
                         tooltipContent={
-                            isCurrentCalculationBasedOnLbin() ? (
+                            isCurrentCalculationBasedOnLbin(flipCustomizeSettings) ? (
                                 <span>
                                     Profit is currently based off the lowest bin of similar items. Lbin Flips (also called snipes) will not show if there is no
                                     similar auction on ah. Auctions shown are expected to sell quickly. There is very high competition for these types of
@@ -253,7 +247,7 @@ function FlipperFilter(props: Props) {
                             )
                         }
                     />
-                    <Button onClick={onProfitCalculationButtonClick}>{isCurrentCalculationBasedOnLbin() ? 'lbin' : 'Median'}</Button>
+                    <Button onClick={onProfitCalculationButtonClick}>{isCurrentCalculationBasedOnLbin(flipCustomizeSettings) ? 'lbin' : 'Median'}</Button>
                 </Form.Group>
                 <Form.Group
                     onClick={() => {
@@ -265,7 +259,7 @@ function FlipperFilter(props: Props) {
                         <Tooltip
                             type="hover"
                             content={<span style={{ cursor: 'pointer', marginRight: '10px' }}>Settings</span>}
-                            tooltipContent={<span>Edit flip appaerance and general settings</span>}
+                            tooltipContent={<span>Edit flip appearance and general settings</span>}
                         />
                         <span style={{ cursor: 'pointer' }}>
                             {' '}
@@ -327,7 +321,7 @@ function FlipperFilter(props: Props) {
                                         Min. Volume:
                                     </Form.Label>
                                 }
-                                tooltipContent={<span>Minimum amount of sold auctions in the last 24 hours</span>}
+                                tooltipContent={<span>Minimum average amount of sells in 24 hours</span>}
                             />
                             <NumberFormat
                                 id="min-volume"
