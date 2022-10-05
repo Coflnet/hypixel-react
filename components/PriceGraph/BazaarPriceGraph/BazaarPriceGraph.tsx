@@ -129,21 +129,23 @@ function BazaarPriceGraph(props: Props) {
 
     function checkForSpecialFetchspanConfiguration() {
         if (fetchspan === DateRange.HOUR) {
-            // TODO: Fix if switched from day to hour, the min max graph musnt be shown
             chartOptionsPrimary.legend.data = chartOptionsPrimary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
             chartOptionsSecondary.legend.data = chartOptionsSecondary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
             chartOptionsPrimary.series.forEach((s, i) => {
                 s.type = 'line'
                 if (s.name === 'Min' || s.name === 'Max') {
                     s.tooltip.show = false
+                    s.data = []
                 }
             })
             chartOptionsSecondary.series.forEach(s => {
                 s.type = 'line'
                 if (s.name.includes('Min') || s.name.includes('Max')) {
                     s.tooltip.show = false
+                    s.data = []
                 }
             })
+            console.log(chartOptionsSecondary)
         } else {
             chartOptionsPrimary.series[0].type = 'k'
             chartOptionsSecondary.series[0].type = 'k'
@@ -284,7 +286,12 @@ function BazaarPriceGraph(props: Props) {
                 chartOptionsPrimary.series[5].data.push(
                     fetchspan === DateRange.HOUR
                         ? item.sellData.price?.toFixed(2)
-                        : [item.sellData.price?.toFixed(2), prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2), item.sellData.min?.toFixed(2), item.sellData.max?.toFixed(2)]
+                        : [
+                              item.sellData.price?.toFixed(2),
+                              prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
+                              item.sellData.min?.toFixed(2),
+                              item.sellData.max?.toFixed(2)
+                          ]
                 )
                 chartOptionsPrimary.series[6].data.push(item.sellData.min?.toFixed(2))
                 chartOptionsPrimary.series[7].data.push(item.sellData.max?.toFixed(2))
@@ -299,7 +306,12 @@ function BazaarPriceGraph(props: Props) {
                 chartOptionsSecondary.series[0].data.push(
                     fetchspan === DateRange.HOUR
                         ? item.sellData.price?.toFixed(2)
-                        : [item.sellData.price?.toFixed(2), prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2), item.sellData.min?.toFixed(2), item.sellData.max?.toFixed(2)]
+                        : [
+                              item.sellData.price?.toFixed(2),
+                              prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
+                              item.sellData.min?.toFixed(2),
+                              item.sellData.max?.toFixed(2)
+                          ]
                 )
                 chartOptionsSecondary.series[1].data.push(item.sellData.min?.toFixed(2))
                 chartOptionsSecondary.series[2].data.push(item.sellData.max?.toFixed(2))
