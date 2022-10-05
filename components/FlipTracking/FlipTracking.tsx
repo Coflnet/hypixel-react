@@ -1,12 +1,16 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Badge, Card, Form, ListGroup } from 'react-bootstrap'
-import { ArrowRightAlt as ArrowRightIcon } from '@mui/icons-material'
+import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
+import { ArrowRightAlt as ArrowRightIcon, ArrowDownward as ArrowDownIcon, Dangerous as DangerousIcon } from '@mui/icons-material'
 import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './FlipTracking.module.css'
 import { useRouter } from 'next/router'
 import { CopyButton } from '../CopyButton/CopyButton'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import Tooltip from '../Tooltip/Tooltip'
+import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
+import { Item, Menu, theme, useContextMenu } from 'react-contexify'
+import { useForceUpdate } from '../../utils/Hooks'
+import moment from 'moment'
 
 interface Props {
     totalProfit?: number
@@ -38,11 +42,19 @@ const SORT_OPTIONS: SortOption[] = [
     }
 ]
 
+const TRACKED_FLIP_CONTEXT_MENU_ID = 'tracked-flip-context-menu'
+
 export function FlipTracking(props: Props) {
     let [totalProfit, setTotalProfit] = useState(props.totalProfit || 0)
     let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
+    let [ignoreProfitMap, setIgnoreProfitMap] = useState(getSettingsObject(IGNORE_FLIP_TRACKING_PROFIT, {}))
     let router = useRouter()
+    let forceUpdate = useForceUpdate()
+
+    const { show } = useContextMenu({
+        id: TRACKED_FLIP_CONTEXT_MENU_ID
+    })
 
     useEffect(() => {
         if (props.highlightedFlipUid && isClientSideRendering()) {
@@ -51,7 +63,26 @@ export function FlipTracking(props: Props) {
                 top: element.offsetTop
             })
         }
+        refreshForIgnoredFlip()
     }, [])
+
+    /**
+     * Checks all flips if they were marked to be ignored for the profit calculation and subtracts it if necessary
+     * Also if flips are marked to be ignored for this player, but aren't there anymore, they are removed from the localStorage
+     */
+    function refreshForIgnoredFlip() {
+        let totalProfit = props.totalProfit || 0
+        let newIgnoreMap = {}
+        trackedFlips.forEach(flip => {
+            if (ignoreProfitMap[flip.uId.toString(16)]) {
+                totalProfit -= flip.profit
+                newIgnoreMap[flip.uId.toString(16)] = true
+            }
+        })
+        setSetting(IGNORE_FLIP_TRACKING_PROFIT, JSON.stringify(newIgnoreMap))
+        setTotalProfit(totalProfit)
+        setIgnoreProfitMap(newIgnoreMap)
+    }
 
     function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
         let selectedIndex = event.target.options.selectedIndex
@@ -62,16 +93,42 @@ export function FlipTracking(props: Props) {
         }
     }
 
+    function handleContextMenuForTrackedFlip(event) {
+        event.preventDefault()
+        show(event, { props: { uid: event.currentTarget.id } })
+    }
+
     let orderedFlips = trackedFlips
     if (orderBy) {
         let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
         orderedFlips = sortOption?.sortFunction(trackedFlips)
     }
 
+    let currentItemContextMenuElement = (
+        <div>
+            <Menu id={TRACKED_FLIP_CONTEXT_MENU_ID} theme={theme.dark}>
+                <Item
+                    onClick={params => {
+                        ignoreProfitMap[params.props.uid] = true
+                        setSetting(IGNORE_FLIP_TRACKING_PROFIT, JSON.stringify(ignoreProfitMap))
+                        setIgnoreProfitMap(ignoreProfitMap)
+                        refreshForIgnoredFlip()
+                        forceUpdate()
+                    }}
+                >
+                    <DangerousIcon style={{ marginRight: '5px' }} />
+                    Ignore flip for profit calculation
+                </Item>
+            </Menu>
+        </div>
+    )
+
     let list = orderedFlips.map((trackedFlip, i) => {
+        let toIgnore = ignoreProfitMap[trackedFlip.uId.toString(16)] || false
         return (
             <ListGroup.Item
                 className={styles.listGroupItem}
+                onContextMenu={handleContextMenuForTrackedFlip}
                 id={trackedFlip.uId.toString(16)}
                 style={{
                     borderColor: props.highlightedFlipUid === trackedFlip.uId.toString(16) ? 'cornflowerblue' : undefined,
@@ -134,14 +191,59 @@ export function FlipTracking(props: Props) {
                                 }
                                 tooltipContent={
                                     <span>
-                                        This is the first flip finder algorithm that reported this flip. \nIts possible that you used another one or even found
+                                        This is the first flip finder algorithm that reported this flip. Its possible that you used another one or even found
                                         this flip on your own
                                     </span>
                                 }
                                 type={'hover'}
                             />
+                            <span style={{ marginLeft: '15px' }}>
+                                <Tooltip
+                                    type="hover"
+                                    content={
+                                        <span>
+                                            <span className={styles.label}></span>Sold {moment(trackedFlip.sellTime).fromNow()}
+                                        </span>
+                                    }
+                                    tooltipContent={<span>{trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}</span>}
+                                />
+                            </span>
                         </p>
-                        <p style={{ marginTop: '10px' }}>Sell: {trackedFlip.sellTime.toLocaleDateString() + ' ' + trackedFlip.sellTime.toLocaleTimeString()}</p>
+                        <p
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                                let flips = [...trackedFlips]
+                                trackedFlip.showPropertyChanges = !trackedFlip.showPropertyChanges
+                                setTrackedFlips(flips)
+                            }}
+                        >
+                            Profit changes: {trackedFlip.showPropertyChanges ? <ArrowDownIcon /> : <ArrowRightIcon />}
+                        </p>
+                        {trackedFlip.showPropertyChanges ? (
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Table>
+                                    <tbody>
+                                        {trackedFlip.propertyChanges.map(change => (
+                                            <tr>
+                                                <td>{change.description}</td>
+                                                <td>
+                                                    {' '}
+                                                    {change.effect > 0 ? (
+                                                        <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
+                                                            +{numberWithThousandsSeperators(change.effect)} Coins
+                                                        </span>
+                                                    ) : (
+                                                        <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>
+                                                            {numberWithThousandsSeperators(change.effect)} Coins
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        ) : null}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'end' }}>
                         <CopyButton
@@ -152,6 +254,27 @@ export function FlipTracking(props: Props) {
                         />
                     </div>
                 </div>
+                {toIgnore ? (
+                    <>
+                        <hr />
+                        <p style={{ color: 'yellow' }}>
+                            <b>This flip is ignored from the profit calculation</b>
+                            <Button
+                                variant="info"
+                                style={{ marginLeft: '10px' }}
+                                onClick={() => {
+                                    delete ignoreProfitMap[trackedFlip.uId.toString(16)]
+                                    setSetting(IGNORE_FLIP_TRACKING_PROFIT, JSON.stringify(ignoreProfitMap))
+                                    setIgnoreProfitMap(ignoreProfitMap)
+                                    refreshForIgnoredFlip()
+                                    forceUpdate()
+                                }}
+                            >
+                                Re-Add
+                            </Button>
+                        </p>
+                    </>
+                ) : null}
             </ListGroup.Item>
         )
     })
@@ -177,6 +300,7 @@ export function FlipTracking(props: Props) {
             ) : (
                 <ListGroup className={styles.list}>{list}</ListGroup>
             )}
+            {currentItemContextMenuElement}
         </div>
     )
 }

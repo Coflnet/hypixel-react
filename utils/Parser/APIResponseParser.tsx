@@ -190,7 +190,8 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
         profileId: auctionDetails.profileId,
         reforge: auctionDetails.reforge,
         nbtData: auctionDetails.flatNbt ? auctionDetails.flatNbt : undefined,
-        itemCreatedAt: parseDate(auctionDetails.itemCreatedAt)
+        itemCreatedAt: parseDate(auctionDetails.itemCreatedAt),
+        uuid: auctionDetails.uuid
     }
 }
 
@@ -485,7 +486,13 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
         uId: flip?.uId,
         finder: getFlipFinders([flip.finder || 0])[0],
         sellTime: parseDate(flip?.sellTime),
-        profit: flip?.profit
+        profit: flip?.profit,
+        propertyChanges: flip.propertyChanges?.map(change => {
+            return {
+                description: change.description,
+                effect: change.effect
+            }
+        })
     } as FlipTrackingFlip
     flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip?.item)
     return flipTrackingFlip

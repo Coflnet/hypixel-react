@@ -1,4 +1,3 @@
-import moment from 'moment'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import Cookies from 'js-cookie'
@@ -19,6 +18,7 @@ import { atobUnicode } from '../../utils/Base64Utils'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
 import { getHighestPriorityPremiumProduct, getPremiumType } from '../../utils/PremiumTypeUtils'
 import { googleLogout } from '@react-oauth/google'
+import PremiumStatus from '../Premium/PremiumStatus/PremiumStatus'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -27,7 +27,7 @@ function AccountDetails() {
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
-    let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
+    let [products, setProducts] = useState<PremiumProduct[]>([])
     let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
     let coflCoins = useCoflCoins()
     let { pushInstruction } = useMatomo()
@@ -61,6 +61,7 @@ function AccountDetails() {
     function loadPremiumProducts(): Promise<void> {
         return api.getPremiumProducts().then(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
+            setProducts(products)
             let activeProduct = getHighestPriorityPremiumProduct(products)
 
             if (!activeProduct) {
@@ -68,7 +69,6 @@ function AccountDetails() {
             } else {
                 setHasPremium(true)
                 setHasPremiumUntil(activeProduct.expires)
-                setActivePremiumProduct(activeProduct)
             }
             setIsLoading(false)
         })
@@ -165,22 +165,7 @@ function AccountDetails() {
                             </p>
                         </div>
                     )}
-                    <p>
-                        <span className={styles.label}>Premium-Status:</span> {activePremiumProduct ? getPremiumType(activePremiumProduct).label : 'No Premium'}
-                    </p>
-                    {hasPremium ? (
-                        <p>
-                            <Tooltip
-                                type="hover"
-                                content={
-                                    <span>
-                                        <span className={styles.label}>Your premium ends:</span> {moment(hasPremiumUntil).fromNow()}
-                                    </span>
-                                }
-                                tooltipContent={<span>{hasPremiumUntil?.toDateString()}</span>}
-                            />
-                        </p>
-                    ) : null}
+                    <PremiumStatus products={products} labelStyle={{ width: '300px', fontWeight: 'bold' }} />
                     <p>
                         <span className={styles.label}>CoflCoins:</span> {numberWithThousandsSeperators(coflCoins)}
                         <Button

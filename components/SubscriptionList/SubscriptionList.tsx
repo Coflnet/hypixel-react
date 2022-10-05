@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Badge, Button, ListGroup } from 'react-bootstrap'
+import { Badge, Button, ListGroup, Modal } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -11,13 +11,17 @@ import Link from 'next/link'
 import styles from './SubscriptionList.module.css'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { useForceUpdate } from '../../utils/Hooks'
 
 let mounted = true
 
 function SubscriptionList() {
     let [subscriptions, setSubscriptions] = useState<Subscription[]>([])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [showDeleteAllSubscriptionDialog, setShowDeleteAllSubscriptionDialog] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+
+    let forceUpdate = useForceUpdate()
 
     useEffect(() => {
         mounted = true
@@ -34,14 +38,17 @@ function SubscriptionList() {
             if (!mounted) {
                 return
             }
-            let promises: Promise<void>[] = []
-            subscriptions.forEach(subscription => {
-                promises.push(getSubscriptionTitle(subscription))
+
+            subscriptions.forEach((subscription, i) => {
+                getSubscriptionTitle(subscription).then(title => {
+                    let newSubscriptions = subscriptions
+                    newSubscriptions[i].title = title
+                    setSubscriptions(newSubscriptions)
+                    forceUpdate()
+                })
             })
 
-            Promise.all(promises).then(() => {
-                setSubscriptions(subscriptions)
-            })
+            setSubscriptions(subscriptions)
         })
     }
 
@@ -103,8 +110,8 @@ function SubscriptionList() {
                 return
             }
             let subs = subscriptions.filter(s => s !== subscription)
-            setSubscriptions(subs)
             subscriptions = subs
+            setSubscriptions(subs)
 
             toast.success(
                 <span>
@@ -123,40 +130,50 @@ function SubscriptionList() {
         })
     }
 
+    function deleteAll() {
+        api.unsubscribeAll()
+            .then(() => {
+                setSubscriptions([])
+                toast.success('All notifiers were sucessfully removed')
+            })
+            .catch(() => {
+                toast.error('Could not unsubscribe, please try again in a few minutes')
+            })
+        setShowDeleteAllSubscriptionDialog(false)
+    }
+
     function resubscribe(subscription: Subscription) {
         api.subscribe(subscription.topicId, subscription.types, subscription.price, subscription.filter).then(() => {
             loadSubscriptions()
         })
     }
 
-    function getSubscriptionTitle(subscription: Subscription): Promise<void> {
+    function getSubscriptionTitle(subscription: Subscription): Promise<string> {
         return new Promise((resolve, reject) => {
             switch (subscription.type) {
                 case 'item':
-                    subscription.title = convertTagToName(subscription.topicId)
-                    resolve()
+                    resolve(convertTagToName(subscription.topicId))
                     break
                 case 'player':
-                    api.getPlayerName(subscription.topicId).then(playerName => {
-                        subscription.title = playerName
-                        resolve()
-                    }).catch(() => {
-                        subscription.title = "Player could not be loaded..."
-                        resolve()
-                    })
+                    api.getPlayerName(subscription.topicId)
+                        .then(playerName => {
+                            resolve(playerName)
+                        })
+                        .catch(() => {
+                            resolve('Player could not be loaded...')
+                        })
                     break
                 case 'auction':
-                    api.getAuctionDetails(subscription.topicId).then(auctionDetails => {
-                        subscription.title = auctionDetails.auction.item.name || auctionDetails.auction.item.tag
-                        resolve()
-                    }).catch(() => {
-                        subscription.title = "Auction title could not be loaded..."
-                        resolve()
-                    })
+                    api.getAuctionDetails(subscription.topicId)
+                        .then(auctionDetails => {
+                            resolve(auctionDetails.auction.item.name || auctionDetails.auction.item.tag)
+                        })
+                        .catch(() => {
+                            resolve('Auction title could not be loaded...')
+                        })
                     break
                 default:
-                    subscription.title = subscription.topicId
-                    resolve()
+                    resolve(subscription.topicId)
                     break
             }
         })
@@ -209,11 +226,55 @@ function SubscriptionList() {
         </ListGroup.Item>
     ))
 
+    let resetSettingsElement = (
+        <Modal
+            show={showDeleteAllSubscriptionDialog}
+            onHide={() => {
+                setShowDeleteAllSubscriptionDialog(false)
+            }}
+        >
+            <Modal.Header closeButton>
+                <Modal.Title>Confirmation</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <p>Are you sure you want to delete all your notifiers?</p>
+                <p>
+                    <b>All {subscriptions.length} notifier will be deleted!</b>
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Button variant="danger" style={{ width: '45%' }} onClick={deleteAll}>
+                        RESET <DeleteIcon />
+                    </Button>
+                    <Button
+                        style={{ width: '45%' }}
+                        onClick={() => {
+                            setShowDeleteAllSubscriptionDialog(false)
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                </div>
+            </Modal.Body>
+        </Modal>
+    )
+
     return (
         <div className={styles.subscriptionList}>
             {isLoggedIn ? (
                 subscriptions.length > 0 ? (
-                    <ListGroup style={{ marginTop: '20px' }}>{subscriptionsTableBody}</ListGroup>
+                    <>
+                        <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+                            <Button
+                                style={{ backgroundColor: 'red', float: 'right' }}
+                                onClick={() => {
+                                    setShowDeleteAllSubscriptionDialog(true)
+                                }}
+                            >
+                                Delete all notifiers
+                            </Button>
+                        </div>
+                        <ListGroup style={{ marginTop: '20px' }}>{subscriptionsTableBody}</ListGroup>
+                    </>
                 ) : (
                     <p>You dont have any notifiers</p>
                 )
@@ -223,6 +284,7 @@ function SubscriptionList() {
             {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
             {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
+            {resetSettingsElement}
         </div>
     )
 }

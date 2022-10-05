@@ -59,7 +59,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
                 <></>
             ) : (
                 Object.keys(localFilter).map(key => {
-                    if (!localFilter || (!localFilter[key] && !localFilter._label) || localFilter._hide) {
+                    if (!localFilter || localFilter._hide) {
                         return ''
                     }
 
@@ -70,13 +70,17 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     }
 
                     // Special case -> display as date
-                    if (DATE_FORMAT_FILTER.findIndex(f => f === key) !== -1) {
+                    if (display && DATE_FORMAT_FILTER.findIndex(f => f === key) !== -1) {
                         display = new Date(Number(display) * 1000).toLocaleDateString()
                     }
 
                     // Special case if the restriction has a special label
                     if (localFilter._sellerName && key === SELLER_FORMAT_FILTER) {
                         display = localFilter._sellerName
+                    }
+
+                    if (!localFilter[key] && !display) {
+                        display = '-'
                     }
 
                     return (

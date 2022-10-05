@@ -48,6 +48,7 @@ interface AuctionDetails {
     enchantments: Enchantment[]
     nbtData: any
     itemCreatedAt: Date
+    uuid: string
 }
 
 interface Auction {
@@ -235,6 +236,7 @@ interface API {
     setPrivacySettings(settings: PrivacySettings): Promise<void>
     checkRat(hash: string): Promise<RatCheckingResponse>
     getPremiumProducts(): Promise<PremiumProduct[]>
+    unsubscribeAll(): Promise<void>
 }
 
 interface CacheUtils {
@@ -424,6 +426,12 @@ interface KatFlip {
     purchaseCost: number
     cost: number
 }
+
+interface FlipTrackingPropertyChange {
+    description: string
+    effect: number
+}
+
 interface FlipTrackingFlip {
     pricePaid: number
     soldFor: number
@@ -434,6 +442,8 @@ interface FlipTrackingFlip {
     item: Item
     sellTime: Date
     profit: number
+    showPropertyChanges?: boolean
+    propertyChanges: FlipTrackingPropertyChange[]
 }
 
 interface FlipTrackingResponse {
