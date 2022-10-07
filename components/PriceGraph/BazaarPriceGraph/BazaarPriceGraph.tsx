@@ -211,25 +211,11 @@ function BazaarPriceGraph(props: Props) {
     function onChartsEvents(chartOptions, localStorageKey: string): Record<string, Function> {
         return {
             datazoom: e => {
-                /*
-                if (e.preventDefault) {
-                    return
-                }
-                */
                 let mid = (e.start + e.end) / 2
                 let midDate = new Date(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * (mid / 100))])
 
                 setTimeout(() => {
                     document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: midDate } }))
-
-                    /*
-                        primaryChartRef.current.getEchartsInstance().dispatchAction({
-                            type: 'dataZoom',
-                            start: 0,
-                            end: 90,
-                            preventDefault: true
-                        })
-                    */
                 }, 100)
             },
             legendselectchanged: e => {
