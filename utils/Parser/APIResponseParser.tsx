@@ -87,7 +87,19 @@ export function parseItemPrice(priceData: any): ItemPrice {
 }
 
 export function parseItem(item: any): Item {
-    return {
+    const CRAB_HAT_IMAGES = {
+        red: 'https://mc-heads.net/head/56b61f826dd6bfc1e3191a8369aeb0435c5a5335563431a538585ad039da1e0c',
+        orange: 'https://mc-heads.net/head/ae38a15704089676a24e9eeccf4c290644d352c7d8f2b4135fa3538625107db',
+        yellow: 'https://mc-heads.net/head/6b92684647051bd27ee04adb4098ee9bccca45a726a7cbf38e98b7e75cb889f4',
+        lime: 'https://mc-heads.net/head/993c60fd0dd130695e378eef010a7d3c5dfde77f6b82b20b8124cfb830017ff',
+        green: 'https://mc-heads.net/head/98d99983ab5986921251a29bba96c8e734f5de084a296cb627bcd64fd0fba593',
+        aqua: 'https://mc-heads.net/head/2e1556958b1df4fd6228c9dcbd8c053f5d8902a41c4a59376bd0df1c60be8369',
+        purple: 'https://mc-heads.net/head/2e3af5824014b57f4a4a84d4bb7fb88cac9e4ac75d00c7adb09dfe5ab737e224',
+        pink: 'https://mc-heads.net/head/effaf0dc89da58bd1ed08f917407853e58d7bcbf5e6b5f33586389eb863a5bbd',
+        black: 'https://mc-heads.net/head/cb85828267e59e83edc3bef235102e43fb70922622ccc3809a326a8c5632199a'
+    }
+
+    let parsed = {
         tag: item.tag,
         name: item.altNames && item.altNames[0] && item.altNames[0].Name ? item.altNames[0].Name : item.itemName || item.name,
         category: item.category,
@@ -95,6 +107,12 @@ export function parseItem(item: any): Item {
         tier: item.tier,
         bazaar: hasFlag(item.flags, 1)
     }
+
+    if (item.flatNbt && item.flatNbt['party_hat_color']) {
+        parsed.iconUrl = CRAB_HAT_IMAGES[item.flatNbt['party_hat_color']] || parsed.iconUrl
+    }
+
+    return parsed
 }
 
 function _formatName(enchantment: string): string {
