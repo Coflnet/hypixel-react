@@ -161,8 +161,12 @@ export const DEFAULT_FLIP_SETTINGS = {
     } as FlipperFilter
 }
 
-export function calculateProfit(flip: FlipAuction, useLowestBinForProfit?: boolean) {
-    if (useLowestBinForProfit) {
+export function isCurrentCalculationBasedOnLbin(flipCustomizeSettings: FlipCustomizeSettings) {
+    return (flipCustomizeSettings.finders?.length === 1 && flipCustomizeSettings.finders[0].toString() === '2') || flipCustomizeSettings.useLowestBinForProfit
+}
+
+export function calculateProfit(flip: FlipAuction, settings?: FlipCustomizeSettings) {
+    if (settings && isCurrentCalculationBasedOnLbin(settings)) {
         return flip.lowestBin - flip.cost
     } else {
         return flip.median - flip.cost

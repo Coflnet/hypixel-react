@@ -1,43 +1,106 @@
+.flipperFilterGroup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
 .flipperFilterFormfieldText {
     text-align: right;
+    width: 50%;
 }
 
 .filterTextfield {
-    width: 25%;
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
-.premiumFilters {
-    margin-top: 20px;
-    margin-left: 10px;
     display: flex;
-    justify-content: left;
+    align-items: center;
+    width: 30%;
 }
 
-.premiumFilters :global(.form-group) {
-    margin-bottom: 0;
+.filterCheckbox {
+    margin: 0;
+    width: 30%;
+    display: flex;
+    justify-content: center;
 }
 
-.formCheck {
-    padding-left: 0;
+.flipperFilterGroupAdvanced {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
 }
 
-.checkboxLabel {
+.flipperFilterGroupAdvanced .filterCheckbox {
+    width: 25%;
+    margin: 0;
+}
+
+.flipperFilterGroupAdvanced .checkboxLabel {
+    width: auto;
+    margin: 0;
+}
+
+.flipperFilterGroupAdvanced .filterTextfield {
+    margin: 0;
+}
+
+.filterCheckbox :global(.form-check) {
+    position: relative !important;
+}
+
+.flipperFilterFormfieldLabel {
+    white-space: nowrap;
     padding-right: 20px;
 }
 
-@media all and (max-width: 480px) {
-    .checkboxLabel {
-        min-width: 100px;
+.checkboxLabel {
+    white-space: nowrap;
+    padding-right: 20px;
+    width: 200px;
+}
+
+@media all and (max-width: 992px) {
+    .filterTextfield {
+        flex-wrap: wrap;
     }
-    .premiumFilters {
+    .filterCheckbox {
         flex-wrap: wrap;
     }
 }
 
-.filterCheckbox {
-    margin-right: 50px;
+@media all and (max-width: 768px) {
+    .flipperfilter {
+        width: 100%;
+    }
+    .flipperFilterFormfieldLabel {
+        width: 120px;
+    }
+    .flipperFilterGroup {
+        flex-wrap: wrap;
+        justify-content: left;
+    }
+    .filterTextfield {
+        width: 100%;
+    }
+    .flipperFilterGroupAdvanced .filterTextfield {
+        margin-bottom: 15px;
+    }
+    .flipperFilterGroupAdvanced .checkboxLabel {
+        width: 150px;
+    }
+    .filterCheckbox {
+        display: block;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    .flipperFilterGroupAdvanced {
+        flex-wrap: wrap;
+    }
+    .checkboxLabel {
+        width: 150px;
+    }
+    .flipperFilterGroupAdvanced .filterCheckbox {
+        width: 100%;
+    }
 }
 
 .restrictionModal {
@@ -64,4 +127,10 @@
 
 .restrictionModal .modal-body::-webkit-scrollbar-thumb:hover {
     background: #7a8288;
+}
+
+.filterBorder {
+    border: 3px solid grey;
+    padding: 5px;
+    border-radius: 7px;
 }

@@ -125,15 +125,26 @@ export function enchantmentAndReforgeCompare(a: Enchantment | Reforge, b: Enchan
 }
 
 export function formatToPriceToShorten(num: number, decimals: number = 0): string {
+    let isNegative = num < 0
+
+    function checkPreviousNegativeSymbol(result: string): string {
+        if (isNegative) {
+            result = `-${result}`
+        }
+        return result
+    }
+
+    num = Math.abs(num)
+
     // Ensure number has max 3 significant digits (no rounding up can happen)
     let i = Math.pow(10, Math.max(0, Math.log10(num) - 2))
     num = (num / i) * i
 
-    if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(decimals) + 'B'
-    if (num >= 1_000_000) return (num / 1_000_000).toFixed(decimals) + 'M'
-    if (num >= 1_000) return (num / 1_000).toFixed(decimals) + 'k'
+    if (num >= 1_000_000_000) return checkPreviousNegativeSymbol((num / 1_000_000_000).toFixed(decimals) + 'B')
+    if (num >= 1_000_000) return checkPreviousNegativeSymbol((num / 1_000_000).toFixed(decimals) + 'M')
+    if (num >= 1_000) return checkPreviousNegativeSymbol((num / 1_000).toFixed(decimals) + 'k')
 
-    return num.toFixed(0)
+    return checkPreviousNegativeSymbol(num.toFixed(0))
 }
 
 export function getThousandSeperator() {

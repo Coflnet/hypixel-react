@@ -5,20 +5,12 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import FlipperFilter from './FlipperFilter/FlipperFilter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import {
-    KeyboardTab as ArrowRightIcon,
-    Delete as DeleteIcon,
-    Help as HelpIcon,
-    Settings as SettingsIcon,
-    PanTool as HandIcon,
-    Search as SearchIcon
-} from '@mui/icons-material'
+import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, PanTool as HandIcon, Search as SearchIcon } from '@mui/icons-material'
 import FlipBased from './FlipBased/FlipBased'
 import { CopyButton } from '../CopyButton/CopyButton'
 import { FixedSizeList as List } from 'react-window'
 import Tooltip from '../Tooltip/Tooltip'
 import Flip from './Flip/Flip'
-import FlipCustomize from './FlipCustomize/FlipCustomize'
 import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
 import { Menu, Item, useContextMenu, theme } from 'react-contexify'
 import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting, setSettingsChangedData } from '../../utils/SettingsUtils'
@@ -31,8 +23,8 @@ import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { v4 as generateUUID } from 'uuid'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
-import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -62,7 +54,6 @@ function Flipper(props: Props) {
     let [isLoading, setIsLoading] = useState(false)
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null)
-    let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
     let [lastFlipFetchTimeSeconds, setLastFlipFetchTimeSeconds] = useState<number>()
     let [lastFlipFetchTimeLoading, setLastFlipFetchTimeLoading] = useState<boolean>(false)
     let [countdownDateObject, setCountdownDateObject] = useState<Date>()
@@ -73,7 +64,6 @@ function Flipper(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID())
-    let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(generateUUID())
 
     let router = useRouter()
 
@@ -108,7 +98,6 @@ function Flipper(props: Props) {
         document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
             if ((e as any).detail?.apiUpdate) {
                 setFlipperFilterKey(generateUUID())
-                setFlipCustomizeKey(generateUUID())
             }
             if (sessionStorage.getItem('googleId') === null) {
                 api.subscribeFlipsAnonym(
@@ -333,7 +322,7 @@ function Flipper(props: Props) {
     function onCopyFlip(flip: FlipAuction) {
         let settings = getFlipCustomizeSettings()
         let currentMissedInfo = missedInfo
-        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip, settings.useLowestBinForProfit)
+        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip, settings)
         flip.isCopied = true
         setFlips(flips)
     }
@@ -467,23 +456,6 @@ function Flipper(props: Props) {
             </Modal>
         )
 
-    let customizeFlipDialog = (
-        <Modal
-            size={'xl'}
-            show={showCustomizeFlip}
-            onHide={() => {
-                setShowCustomizeFlip(false)
-            }}
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>Customize the style of flips</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <FlipCustomize key={flipCustomizeKey} />
-            </Modal.Body>
-        </Modal>
-    )
-
     let flipContextMenu = (
         <div>
             <Menu id={FLIP_CONEXT_MENU_ID} theme={theme.dark}>
@@ -588,17 +560,6 @@ function Flipper(props: Props) {
                                     <DeleteIcon color="error" />
                                 </div>
                             </Form.Group>
-                            <Form.Group
-                                onClick={() => {
-                                    setShowCustomizeFlip(true)
-                                }}
-                            >
-                                <Form.Label style={{ cursor: 'pointer', marginRight: '10px' }}>Settings</Form.Label>
-                                <span style={{ cursor: 'pointer' }}>
-                                    {' '}
-                                    <SettingsIcon />
-                                </span>
-                            </Form.Group>
                             {hasPremium ? (
                                 <span>
                                     Next update:{' '}
@@ -615,13 +576,15 @@ function Flipper(props: Props) {
                             ) : (
                                 ''
                             )}
-                            <Form.Group onClick={onArrowRightClick}>
-                                <Form.Label style={{ cursor: 'pointer', marginRight: '10px' }}>To newest flip</Form.Label>
-                                <span style={{ cursor: 'pointer' }}>
-                                    {' '}
-                                    <ArrowRightIcon />
-                                </span>
-                            </Form.Group>
+                            {!autoscroll ? (
+                                <Form.Group onClick={onArrowRightClick}>
+                                    <Form.Label style={{ cursor: 'pointer', marginRight: '10px' }}>To newest flip</Form.Label>
+                                    <span style={{ cursor: 'pointer' }}>
+                                        {' '}
+                                        <ArrowRightIcon />
+                                    </span>
+                                </Form.Group>
+                            ) : null}
                         </Form>
                         <hr />
                         {!isSSR ? (
@@ -777,7 +740,6 @@ function Flipper(props: Props) {
                 <Flip flip={DEMO_FLIP} />
             </div>
             {basedOnDialog}
-            {customizeFlipDialog}
             {flipContextMenu}
         </div>
     )
