@@ -96,6 +96,7 @@ function Search(props: Props) {
                 setResults(searchResults)
                 setIsSearching(false)
 
+                // TODO: Fix with slow connection and test for race condition
                 if (rememberEnterPressRef.current) {
                     onItemClick(results[0])
                 }
