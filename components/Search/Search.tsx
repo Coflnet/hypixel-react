@@ -96,9 +96,8 @@ function Search(props: Props) {
                 setResults(searchResults)
                 setIsSearching(false)
 
-                // TODO: Fix with slow connection and test for race condition
                 if (rememberEnterPressRef.current) {
-                    onItemClick(results[0])
+                    onItemClick(searchResults[0])
                 }
             }
         })
@@ -108,6 +107,7 @@ function Search(props: Props) {
         let newSearchText: string = (e.target as HTMLInputElement).value
         searchText = newSearchText
         setSearchText(newSearchText)
+        setIsSearching(true)
 
         if (newSearchText === '') {
             setResults([])
@@ -122,6 +122,8 @@ function Search(props: Props) {
     let onKeyPress = (e: KeyboardEvent) => {
         switch (e.key) {
             case 'Enter':
+                console.log('Pressed enter')
+                console.log('IsSearching: ' + isSearching)
                 e.preventDefault()
                 if (isSearching) {
                     rememberEnterPressRef.current = true
