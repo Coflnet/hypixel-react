@@ -35,7 +35,7 @@ function Search(props: Props) {
     let router = useRouter()
     let [searchText, setSearchText] = useState('')
     let [results, setResults] = useState<SearchResultItem[]>([])
-    let [isLoading, setIsLoading] = useState(false)
+    let [isSearching, setIsSearching] = useState(false)
     let [noResultsFound, setNoResultsFound] = useState(false)
     let [isSmall, setIsSmall] = useState(true)
     let [selectedIndex, setSelectedIndex] = useState(0)
@@ -45,6 +45,8 @@ function Search(props: Props) {
     const showSearchItemContextMenu = useContextMenu({
         id: SEARCH_RESULT_CONTEXT_MENU_ID
     }).show
+
+    let rememberEnterPressRef = useRef(false)
 
     let searchElement = useRef(null)
     let forceUpdate = useForceUpdate()
@@ -92,7 +94,11 @@ function Search(props: Props) {
                 setSelectedIndex(0)
                 setNoResultsFound(searchResults.length === 0)
                 setResults(searchResults)
-                setIsLoading(false)
+                setIsSearching(false)
+
+                if (rememberEnterPressRef.current) {
+                    onItemClick(searchResults[0])
+                }
             }
         })
     }
@@ -101,10 +107,11 @@ function Search(props: Props) {
         let newSearchText: string = (e.target as HTMLInputElement).value
         searchText = newSearchText
         setSearchText(newSearchText)
+        setIsSearching(true)
 
         if (newSearchText === '') {
             setResults([])
-            setIsLoading(false)
+            setIsSearching(false)
             return
         }
 
@@ -115,7 +122,13 @@ function Search(props: Props) {
     let onKeyPress = (e: KeyboardEvent) => {
         switch (e.key) {
             case 'Enter':
+                console.log('Pressed enter')
+                console.log('IsSearching: ' + isSearching)
                 e.preventDefault()
+                if (isSearching) {
+                    rememberEnterPressRef.current = true
+                    return
+                }
                 if (!results || results.length === 0) {
                     return
                 }
@@ -365,7 +378,7 @@ function Search(props: Props) {
             </ListGroup>
             <div className={styles.bar} style={{ marginTop: '20px' }}>
                 {getSelectedElement()}
-                {isLoading ? '' : <OptionsMenu selected={props.selected} />}
+                <OptionsMenu selected={props.selected} />
             </div>
             {searchItemContextMenuElement}
             {currentItemContextMenuElement}
