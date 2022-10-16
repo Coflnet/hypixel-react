@@ -1669,6 +1669,26 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getItemNames = (items: Item[]): Promise<{ [key: string]: string }> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.GET_ITEM_NAMES,
+                    requestMethod: 'POST',
+                    data: '',
+                    resolve: data => {
+                        resolve(data)
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.GET_ITEM_NAMES, error, items)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(items.map(item => item.tag))
+            )
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1736,7 +1756,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         setPrivacySettings,
         checkRat,
         getPremiumProducts,
-        unsubscribeAll
+        unsubscribeAll,
+        getItemNames
     }
 }
 

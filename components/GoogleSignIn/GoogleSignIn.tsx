@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
-import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { useForceUpdate } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { GoogleLogin } from '@react-oauth/google'
@@ -99,14 +99,7 @@ function GoogleSignIn(props: Props) {
             {!wasAlreadyLoggedInThisSession ? (
                 <>
                     <div style={{ width: '250px' }}>
-                        <GoogleLogin
-                            onSuccess={onLoginSucces}
-                            onError={onLoginFail}
-                            theme={'filled_blue'}
-                            size={'large'}
-                            useOneTap
-                            auto_select
-                        />
+                        <GoogleLogin onSuccess={onLoginSucces} onError={onLoginFail} theme={'filled_blue'} size={'large'} useOneTap auto_select />
                     </div>
                     <p>
                         I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
