@@ -289,26 +289,26 @@ function FlipRestrictionList(props: Props) {
 
     function refreshItemNames() {
         setIsRefreshingItemNames(true)
-        let promises = []
+        let items: Item[] = []
         restrictions.forEach(restriction => {
             if (restriction.item && restriction.item.tag) {
-                let promise = api.getItemDetails(restriction.item.tag).then(details => {
-                    restriction.item.name = details.name
-                })
-                promises.push(promise)
+                items.push(restriction.item)
             }
         })
-        Promise.all(promises)
-            .then(() => {
+        api.getItemNames(items)
+            .then(itemNameMap => {
+                restrictions.forEach(restriction => {
+                    if (restriction.item && restriction.item.tag) {
+                        restriction.item.name = itemNameMap[restriction.item.tag]
+                    }
+                })
                 toast.success('Reloaded all item names')
-            })
-            .catch(() => {
-                toast.error('Error reloaded item names')
-            })
-            .finally(() => {
                 setIsRefreshingItemNames(false)
                 setRestrictions(restrictions)
                 setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+            })
+            .catch(() => {
+                toast.error('Error reloaded item names')
             })
     }
 
