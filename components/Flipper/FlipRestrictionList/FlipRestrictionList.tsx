@@ -306,6 +306,10 @@ function FlipRestrictionList(props: Props) {
                 setIsRefreshingItemNames(false)
                 setRestrictions(restrictions)
                 setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+                if (props.onRestrictionsChange) {
+                    props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
+                    props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
+                }
             })
             .catch(() => {
                 toast.error('Error reloaded item names')
