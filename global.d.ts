@@ -237,6 +237,7 @@ interface API {
     checkRat(hash: string): Promise<RatCheckingResponse>
     getPremiumProducts(): Promise<PremiumProduct[]>
     unsubscribeAll(): Promise<void>
+    getItemNames(items: Item[]): Promise<{ [key: string]: string }>
 }
 
 interface CacheUtils {
