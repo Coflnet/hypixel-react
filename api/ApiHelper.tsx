@@ -1675,6 +1675,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 {
                     type: RequestType.GET_ITEM_NAMES,
                     requestMethod: 'POST',
+                    requestHeader: {
+                        'Content-Type': 'application/json'
+                    },
                     data: '',
                     resolve: data => {
                         resolve(data)
