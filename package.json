@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "npx next dev",
     "build": "next build",
+    "test": "npm run build & npx playwright test",
     "start": "next start",
     "lint": "next lint"
   },

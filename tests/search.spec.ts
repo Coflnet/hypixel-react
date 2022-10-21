@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
+test('search player technoblade', async ({ page }) => {
   await page.goto('/');
   await page.getByPlaceholder('Search player/item').click();
   await page.getByPlaceholder('Search player/item').fill('technoblade');
