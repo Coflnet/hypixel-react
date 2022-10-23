@@ -156,7 +156,7 @@ interface API {
     getItemImageUrl(item: Item): string
     getItemDetails(itemTag: string): Promise<Item>
     getItemPrices(itemTagOrName: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]>
-    getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>
+    getAuctions(uuid: string, page: number): Promise<Auction[]>
     getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>
     getEnchantments(): Promise<Enchantment[]>
     getReforges(): Promise<Reforge[]>

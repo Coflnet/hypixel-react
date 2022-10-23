@@ -190,7 +190,7 @@ export const getServerSideProps = async ({ res, params }) => {
 
     let api = initAPI(true)
     let playerName = await api.getPlayerName(params.uuid)
-    let auctions = await api.getAuctions(params.uuid, 12, 0)
+    let auctions = await api.getAuctions(params.uuid, 0)
     return {
         props: {
             auctions: auctions,

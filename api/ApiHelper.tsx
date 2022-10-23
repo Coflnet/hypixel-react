@@ -226,17 +226,13 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctions = (uuid: string, amount: number, offset: number): Promise<Auction[]> => {
+    let getAuctions = (uuid: string, page: number = 0): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
-            let requestData = {
-                uuid: uuid,
-                amount: amount,
-                offset: offset
-            }
-            httpApi.sendLimitedCacheRequest(
+            httpApi.sendApiRequest(
                 {
                     type: RequestType.PLAYER_AUCTION,
-                    data: requestData,
+                    customRequestURL: `${getApiEndpoint()}/player/${uuid}/auctions?page=${page}`,
+                    data: '',
                     resolve: (auctions: any) => {
                         returnSSRResponse
                             ? resolve(auctions)
@@ -247,7 +243,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                               )
                     },
                     reject: (error: any) => {
-                        apiErrorHandler(RequestType.PLAYER_AUCTION, error, requestData)
+                        apiErrorHandler(RequestType.PLAYER_AUCTION, error, { uuid, page })
                         reject()
                     }
                 },

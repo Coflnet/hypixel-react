@@ -89,7 +89,7 @@ function PlayerDetailsList(props: Props) {
         }
         isLoadingElements.current = true
         props
-            .loadingDataFunction(props.player.uuid, 12, reset ? 0 : listElements.length)
+            .loadingDataFunction(props.player.uuid, reset ? 0 : Math.ceil(listElements.length / 10))
             .then(newListElements => {
                 isLoadingElements.current = false
                 if (!mounted) {
