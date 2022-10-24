@@ -228,40 +228,33 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getAuctions = (uuid: string, page: number = 0): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendApiRequest(
-                {
-                    type: RequestType.PLAYER_AUCTION,
-                    customRequestURL: `${getApiEndpoint()}/player/${uuid}/auctions?page=${page}`,
-                    data: '',
-                    resolve: (auctions: any) => {
-                        returnSSRResponse
-                            ? resolve(auctions)
-                            : resolve(
-                                  auctions.map((auction: any) => {
-                                      return parseAuction(auction)
-                                  })
-                              )
-                    },
-                    reject: (error: any) => {
-                        apiErrorHandler(RequestType.PLAYER_AUCTION, error, { uuid, page })
-                        reject()
-                    }
+            httpApi.sendApiRequest({
+                type: RequestType.PLAYER_AUCTION,
+                customRequestURL: `${getApiEndpoint()}/player/${uuid}/auctions?page=${page}`,
+                data: '',
+                resolve: (auctions: any) => {
+                    returnSSRResponse
+                        ? resolve(auctions)
+                        : resolve(
+                              auctions.map((auction: any) => {
+                                  return parseAuction(auction)
+                              })
+                          )
                 },
-                2
-            )
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.PLAYER_AUCTION, error, { uuid, page })
+                    reject()
+                }
+            })
         })
     }
 
-    let getBids = (uuid: string, amount: number, offset: number): Promise<BidForList[]> => {
+    let getBids = (uuid: string, page: number = 0): Promise<BidForList[]> => {
         return new Promise((resolve, reject) => {
-            let requestData = {
-                uuid: uuid,
-                amount: amount,
-                offset: offset
-            }
-            httpApi.sendLimitedCacheRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.PLAYER_BIDS,
-                data: requestData,
+                customRequestURL: `${getApiEndpoint()}/player/${uuid}/bids?page=${page}`,
+                data: '',
                 resolve: (bids: any) => {
                     resolve(
                         bids.map((bid: any) => {
@@ -270,7 +263,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     )
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.PLAYER_BIDS, error, requestData)
+                    apiErrorHandler(RequestType.PLAYER_BIDS, error, { uuid, page })
                     reject()
                 }
             })
