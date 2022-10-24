@@ -33,12 +33,14 @@ let mounted = true
 // States, to remember the positions in the list, after coming back
 let listStates: ListState[] = []
 
+const FETCH_RESULT_SIZE = 10
+
 function PlayerDetailsList(props: Props) {
     let forceUpdate = useForceUpdate()
     let router = useRouter()
 
     let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
-    let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < 12 : false)
+    let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < FETCH_RESULT_SIZE : false)
     let isLoadingElements = useRef(false)
 
     useEffect(() => {
@@ -89,7 +91,7 @@ function PlayerDetailsList(props: Props) {
         }
         isLoadingElements.current = true
         props
-            .loadingDataFunction(props.player.uuid, 12, reset ? 0 : listElements.length)
+            .loadingDataFunction(props.player.uuid, reset ? 0 : Math.ceil(listElements.length / FETCH_RESULT_SIZE))
             .then(newListElements => {
                 isLoadingElements.current = false
                 if (!mounted) {
@@ -109,11 +111,12 @@ function PlayerDetailsList(props: Props) {
                 setListElements(listElements)
                 updateListState()
 
-                if (listElements.length < 12 && newListElements.length !== 0) {
+                if (listElements.length < FETCH_RESULT_SIZE && newListElements.length !== 0) {
                     loadNewElements()
                 }
             })
             .catch(() => {
+                console.log('catch')
                 setAllElementsLoaded(true)
             })
     }
@@ -197,9 +200,7 @@ function PlayerDetailsList(props: Props) {
                         </Button>
                     </div>
                 </>
-            ) : (
-                ''
-            )}
+            ) : null}
             {props.type === 'bids' ? (
                 <>
                     <div className={styles.btnBottom}>
@@ -215,9 +216,7 @@ function PlayerDetailsList(props: Props) {
                         <ArrowUpIcon />
                     </Button>
                 </>
-            ) : (
-                ''
-            )}
+            ) : null}
         </div>
     )
 
@@ -272,9 +271,9 @@ function PlayerDetailsList(props: Props) {
     return (
         <div className={styles.playerDetailsList}>
             {listElements.length === 0 && allElementsLoaded ? (
-                <div className="noAuctionFound">
+                <div className={styles.noElementFound}>
                     <img src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
-                    <p>No auctions found</p>
+                    <p>No {props.type} found</p>
                 </div>
             ) : (
                 <InfiniteScroll
