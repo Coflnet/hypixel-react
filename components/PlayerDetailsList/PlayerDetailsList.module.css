@@ -15,7 +15,7 @@
     margin-top: 5vh;
 }
 
-.noAuctionFound {
+.noElementFound {
     margin-right: auto;
     margin-left: auto;
     width: max-content;
@@ -37,6 +37,7 @@
     width: 100%;
     display: flex;
     justify-content: flex-end;
+    pointer-events: none;
 }
 
 .btnBottom {
