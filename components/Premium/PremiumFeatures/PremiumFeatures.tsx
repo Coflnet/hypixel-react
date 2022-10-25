@@ -93,18 +93,18 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
+                        <td className={styles.featureColumn}>Support the project</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
                         <td className={styles.featureColumn}>
                             List of low supply items (<Link href="/lowSupply">here</Link>)
                         </td>
                         {xIconElement}
                         {xIconElement}
-                        {checkIconElement}
-                        {checkIconElement}
-                    </tr>
-                    <tr>
-                        <td className={styles.featureColumn}>Support the project</td>
-                        {xIconElement}
-                        {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
@@ -121,6 +121,13 @@ function PremiumFeatures() {
                         <td className={styles.premiumProductColumn}>-</td>
                         <td className={styles.premiumProductColumn}>Flipper</td>
                         <td className={styles.premiumProductColumn}>Flipper</td>
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Max. recent/active auctions</td>
+                        <td className={styles.premiumProductColumn}>12</td>
+                        <td className={styles.premiumProductColumn}>60</td>
+                        <td className={styles.premiumProductColumn}>120</td>
+                        <td className={styles.premiumProductColumn}>120</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Max. Notifications</td>
