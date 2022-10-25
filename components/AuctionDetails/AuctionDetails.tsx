@@ -289,7 +289,7 @@ function AuctionDetails(props: Props) {
                             isRunning(auctionDetails)
                                 ? '/viewauction ' + auctionDetails.auction.uuid
                                 : isClientSideRendering()
-                                ? `${location.hostname}/auction/${auctionDetails.auction.uuid}`
+                                ? `${location.origin}/auction/${auctionDetails.auction.uuid}`
                                 : ''
                         }
                         successMessage={
