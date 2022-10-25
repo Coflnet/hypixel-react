@@ -561,21 +561,30 @@ function Flipper(props: Props) {
                                 </div>
                             </Form.Group>
                             {hasPremium ? (
-                                <span>
-                                    Next update:{' '}
-                                    {lastFlipFetchTimeSeconds !== undefined && !lastFlipFetchTimeLoading ? (
-                                        <Countdown
-                                            date={getCountdownDateObject()}
-                                            onComplete={onCountdownComplete}
-                                            renderer={({ seconds }) => <span>{zeroPad(seconds)}</span>}
-                                        />
-                                    ) : (
-                                        '...'
-                                    )}
-                                </span>
-                            ) : (
-                                ''
-                            )}
+                                <Tooltip
+                                    type="hover"
+                                    content={
+                                        <span>
+                                            Next update:{' '}
+                                            {lastFlipFetchTimeSeconds !== undefined && !lastFlipFetchTimeLoading ? (
+                                                <Countdown
+                                                    date={getCountdownDateObject()}
+                                                    onComplete={onCountdownComplete}
+                                                    renderer={({ seconds }) => <span>{zeroPad(seconds)}</span>}
+                                                />
+                                            ) : (
+                                                '...'
+                                            )}
+                                        </span>
+                                    }
+                                    tooltipContent={
+                                        <p>
+                                            The Hypixel API updates once a minute. This is the estimated time (in seconds) until the next batch of flips will be
+                                            shown.
+                                        </p>
+                                    }
+                                />
+                            ) : null}
                             {!autoscroll ? (
                                 <Form.Group onClick={onArrowRightClick}>
                                     <Form.Label style={{ cursor: 'pointer', marginRight: '10px' }}>To newest flip</Form.Label>
