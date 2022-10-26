@@ -99,11 +99,11 @@ function RecentAuctions(props: Props) {
         itemFilter['page'] = page.toString()
 
         api.getRecentAuctions(props.item.tag, itemFilter).then(newRecentAuctions => {
-            isLoadingElements.current = false
             if (!mounted || currentLoadingString !== props.item.tag) {
                 return
             }
-            if (newRecentAuctions.length < 12) {
+            isLoadingElements.current = false
+            if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
                 setAllElementsLoaded(true)
             }
             setRecentAuctions([...recentAuctions, ...newRecentAuctions])
@@ -227,9 +227,11 @@ function RecentAuctions(props: Props) {
                     <p>
                         You can see more auctions with{' '}
                         <Link href={'/premium'}>
-                            <a>Premium</a>
+                            <a>Premium:</a>
                         </Link>
-                        <GoogleSignIn onAfterLogin={onAfterLogin} />
+                        <div style={{ marginTop: '15px' }}>
+                            <GoogleSignIn onAfterLogin={onAfterLogin} />
+                        </div>
                     </p>
                 ) : null}
             </div>
