@@ -11,10 +11,12 @@ import { CopyButton } from '../CopyButton/CopyButton'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import styles from './PlayerDetailsList.module.css'
+import Search from '../Search/Search'
+import ItemFilter from '../ItemFilter/ItemFilter'
 
 interface Props {
     player: Player
-    loadingDataFunction: Function
+    loadingDataFunction(uuid: string, page: number, filter: ItemFilter)
     type: 'auctions' | 'bids'
     auctions?: Auction[]
 }
@@ -41,7 +43,14 @@ function PlayerDetailsList(props: Props) {
 
     let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
     let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < FETCH_RESULT_SIZE : false)
+    let [filteredItem, setFilteredItem] = useState<Item>(null)
+    let [filters, setFilters] = useState<FilterOptions[]>()
+    let [itemFilter, setItemFilter] = useState<ItemFilter>()
     let isLoadingElements = useRef(false)
+
+    useEffect(() => {
+        loadFilters()
+    }, [])
 
     useEffect(() => {
         mounted = true
@@ -78,6 +87,18 @@ function PlayerDetailsList(props: Props) {
         }
     }, [props.auctions])
 
+    useEffect(() => {
+        loadNewElements(true)
+        loadFilters()
+    }, [filteredItem])
+
+    function loadFilters() {
+        return Promise.all([api.getFilters(filteredItem ? filteredItem.tag : '*'), api.flipFilters(filteredItem ? filteredItem.tag : '*')]).then(filters => {
+            let result = [...filters[0], ...filters[1]]
+            setFilters(result)
+        })
+    }
+
     let onRouteChange = () => {
         let listState = getListState()
         if (listState) {
@@ -89,9 +110,15 @@ function PlayerDetailsList(props: Props) {
         if (isLoadingElements.current) {
             return
         }
+
+        let filter = { ...itemFilter }
+        if (filteredItem) {
+            filter['tag'] = filteredItem.tag
+        }
+
         isLoadingElements.current = true
         props
-            .loadingDataFunction(props.player.uuid, reset ? 0 : Math.ceil(listElements.length / FETCH_RESULT_SIZE))
+            .loadingDataFunction(props.player.uuid, reset ? 0 : Math.ceil(listElements.length / FETCH_RESULT_SIZE), filter)
             .then(newListElements => {
                 isLoadingElements.current = false
                 if (!mounted) {
@@ -270,6 +297,31 @@ function PlayerDetailsList(props: Props) {
 
     return (
         <div className={styles.playerDetailsList}>
+            <div style={{ marginLeft: '40px', marginRight: '40px' }}>
+                <Search
+                    selected={filteredItem}
+                    type="item"
+                    searchFunction={api.itemSearch}
+                    onSearchresultClick={item => {
+                        setFilteredItem({
+                            ...item.dataItem,
+                            tag: item.id
+                        })
+                    }}
+                    hideNavbar={true}
+                    placeholder="Search item"
+                    enableReset={true}
+                    onResetClick={() => setFilteredItem(null)}
+                />
+            </div>
+            <ItemFilter
+                filters={filters}
+                onFilterChange={filter => {
+                    itemFilter = filter
+                    setItemFilter(filter)
+                    loadNewElements(true)
+                }}
+            />
             {listElements.length === 0 && allElementsLoaded ? (
                 <div className={styles.noElementFound}>
                     <img src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />

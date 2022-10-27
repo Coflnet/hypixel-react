@@ -4,7 +4,7 @@ import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
 import { convertTagToName } from '../../utils/Formatter'
 import NavBar from '../NavBar/NavBar'
 import OptionsMenu from '../OptionsMenu/OptionsMenu'
-import { SearchOutlined as SearchIcon, Dangerous as WrongIcon, Refresh } from '@mui/icons-material'
+import { SearchOutlined as SearchIcon, Dangerous as WrongIcon, Refresh, Clear as ClearIcon } from '@mui/icons-material'
 import { Item, Menu, theme, useContextMenu } from 'react-contexify'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -23,6 +23,8 @@ interface Props {
     placeholder?: string
     type?: 'player' | 'item'
     preventDisplayOfPreviousSearches?: boolean
+    enableReset?: boolean
+    onResetClick?()
 }
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
@@ -206,6 +208,9 @@ function Search(props: Props) {
             <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
                 <img crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" alt="" style={{ marginRight: '10px' }} />
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
+                {props.enableReset ? (
+                    <ClearIcon onClick={props.onResetClick} style={{ cursor: 'pointer', color: 'red', marginLeft: '10px', fontWeight: 'bold' }} />
+                ) : null}
             </h1>
         )
     }
