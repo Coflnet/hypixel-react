@@ -122,8 +122,6 @@ function Search(props: Props) {
     let onKeyPress = (e: KeyboardEvent) => {
         switch (e.key) {
             case 'Enter':
-                console.log('Pressed enter')
-                console.log('IsSearching: ' + isSearching)
                 e.preventDefault()
                 if (isSearching) {
                     rememberEnterPressRef.current = true

@@ -116,7 +116,6 @@ function PlayerDetailsList(props: Props) {
                 }
             })
             .catch(() => {
-                console.log('catch')
                 setAllElementsLoaded(true)
             })
     }
