@@ -312,6 +312,7 @@ function PlayerDetailsList(props: Props) {
                     placeholder="Search item"
                     enableReset={true}
                     onResetClick={() => setFilteredItem(null)}
+                    hideOptions={true}
                 />
             </div>
             <ItemFilter

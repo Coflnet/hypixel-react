@@ -25,6 +25,7 @@ interface Props {
     preventDisplayOfPreviousSearches?: boolean
     enableReset?: boolean
     onResetClick?()
+    hideOptions?: boolean
 }
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
@@ -381,10 +382,12 @@ function Search(props: Props) {
                           </ListGroup.Item>
                       ))}
             </ListGroup>
-            <div className={styles.bar} style={{ marginTop: '20px' }}>
-                {getSelectedElement()}
-                <OptionsMenu selected={props.selected} />
-            </div>
+            {!props.hideOptions ? (
+                <div className={styles.bar} style={{ marginTop: '20px' }}>
+                    {getSelectedElement()}
+                    <OptionsMenu selected={props.selected} />
+                </div>
+            ) : null}
             {searchItemContextMenuElement}
             {currentItemContextMenuElement}
         </div>
