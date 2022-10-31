@@ -3,7 +3,7 @@ import Search from '../../../components/Search/Search'
 import { Button, Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api, { initAPI } from '../../../api/ApiHelper'
 import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponseParser'
-import { useSwipe, useWasAlreadyLoggedIn } from '../../../utils/Hooks'
+import { useSwipe } from '../../../utils/Hooks'
 import Tooltip from '../../../components/Tooltip/Tooltip'
 import ClaimAccount from '../../../components/ClaimAccount/ClaimAccount'
 import PlayerDetailsList from '../../../components/PlayerDetailsList/PlayerDetailsList'
@@ -13,6 +13,8 @@ import styles from './index.module.css'
 import Link from 'next/link'
 import Hyauctions from '../../../components/Hyauctions/Hyauctions'
 import { getCacheContolHeader } from '../../../utils/CacheUtils'
+import { Help as HelpIcon } from '@mui/icons-material'
+import { PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -34,6 +36,7 @@ function PlayerDetails(props: Props) {
     let [selectedPlayer, setSelectedPlayer] = useState<Player>(parsePlayer(props.player))
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
     let removeSwipeListeners = useSwipe(undefined, onSwipeRight, undefined, onSwipeLeft)
+    let [showFilterInfo, setShowFilterInfo] = useState(true)
 
     useEffect(() => {
         return () => {
@@ -77,8 +80,10 @@ function PlayerDetails(props: Props) {
         setDetailType_(type)
     }
 
-    function onAfterLogin() {
+    function onAfterLogin(highestPremiumType: PremiumType) {
+        console.log(highestPremiumType)
         api.getAccountInfo().then(info => {
+            setShowFilterInfo(info.mcId !== selectedPlayer.uuid && !highestPremiumType)
             setAccountInfo(info)
         })
     }
@@ -151,6 +156,23 @@ function PlayerDetails(props: Props) {
                         </span>
                     }
                 />
+                {showFilterInfo ? (
+                    <Tooltip
+                        content={
+                            <span style={{ marginLeft: '5px', float: 'right' }}>
+                                How to filter auctions/bids <HelpIcon style={{ color: '#007bff' }} />
+                            </span>
+                        }
+                        hoverPlacement="bottom"
+                        type="hover"
+                        tooltipContent={
+                            <>
+                                <p>Claim your account to filter your own auctions/bids.</p>
+                                <p>If you have starter premium or above you are able to use the filter for any player.</p>
+                            </>
+                        }
+                    />
+                ) : null}
                 <ToggleButtonGroup className={styles.playerDetailsType} type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
                     <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">
                         Auctions
