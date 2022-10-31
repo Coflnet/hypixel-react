@@ -4,7 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
-import { useForceUpdate } from '../../utils/Hooks'
+import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import { ArrowUpward as ArrowUpIcon } from '@mui/icons-material'
 import { CopyButton } from '../CopyButton/CopyButton'
@@ -13,12 +13,16 @@ import { useRouter } from 'next/router'
 import styles from './PlayerDetailsList.module.css'
 import Search from '../Search/Search'
 import ItemFilter from '../ItemFilter/ItemFilter'
+import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 
 interface Props {
     player: Player
     loadingDataFunction(uuid: string, page: number, filter: ItemFilter)
     type: 'auctions' | 'bids'
     auctions?: Auction[]
+    accountInfo?: AccountInfo
+    onAfterLogin?()
 }
 
 interface ListState {
@@ -46,7 +50,9 @@ function PlayerDetailsList(props: Props) {
     let [filteredItem, setFilteredItem] = useState<Item>(null)
     let [filters, setFilters] = useState<FilterOptions[]>()
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
+    let [premiumRank, setPremiumRank] = useState<PremiumType>()
     let isLoadingElements = useRef(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
         loadFilters()
@@ -92,11 +98,24 @@ function PlayerDetailsList(props: Props) {
         loadFilters()
     }, [filteredItem])
 
+    function onAfterLogin() {
+        api.getPremiumProducts().then(products => {
+            let highestPremium = getPremiumType(getHighestPriorityPremiumProduct(products))
+            premiumRank = highestPremium
+            setPremiumRank(highestPremium)
+        })
+        props.onAfterLogin()
+    }
+
     function loadFilters() {
         return Promise.all([api.getFilters(filteredItem ? filteredItem.tag : '*'), api.flipFilters(filteredItem ? filteredItem.tag : '*')]).then(filters => {
             let result = [...filters[0], ...filters[1]]
             setFilters(result)
         })
+    }
+
+    function showFilter(): boolean {
+        return (props.accountInfo && props.accountInfo?.mcId === props.player.uuid) || (premiumRank && premiumRank.priority > PREMIUM_RANK.STARTER)
     }
 
     let onRouteChange = () => {
@@ -297,32 +316,43 @@ function PlayerDetailsList(props: Props) {
 
     return (
         <div className={styles.playerDetailsList}>
-            <div style={{ marginLeft: '40px', marginRight: '40px' }}>
-                <Search
-                    selected={filteredItem}
-                    type="item"
-                    searchFunction={api.itemSearch}
-                    onSearchresultClick={item => {
-                        setFilteredItem({
-                            ...item.dataItem,
-                            tag: item.id
-                        })
-                    }}
-                    hideNavbar={true}
-                    placeholder="Search item"
-                    enableReset={true}
-                    onResetClick={() => setFilteredItem(null)}
-                    hideOptions={true}
-                />
-            </div>
-            <ItemFilter
-                filters={filters}
-                onFilterChange={filter => {
-                    itemFilter = filter
-                    setItemFilter(filter)
-                    loadNewElements(true)
-                }}
-            />
+            {showFilter() ? (
+                <>
+                    <div style={{ marginLeft: '40px', marginRight: '40px' }}>
+                        <Search
+                            selected={filteredItem}
+                            type="item"
+                            searchFunction={api.itemSearch}
+                            onSearchresultClick={item => {
+                                setFilteredItem({
+                                    ...item.dataItem,
+                                    tag: item.id
+                                })
+                            }}
+                            hideNavbar={true}
+                            placeholder="Search item"
+                            enableReset={true}
+                            onResetClick={() => setFilteredItem(null)}
+                            hideOptions={true}
+                        />
+                    </div>
+                    <ItemFilter
+                        filters={filters}
+                        onFilterChange={filter => {
+                            itemFilter = filter
+                            setItemFilter(filter)
+                            setListElements([])
+                            setAllElementsLoaded(false)
+                            loadNewElements(true)
+                        }}
+                    />
+                </>
+            ) : null}
+            {wasAlreadyLoggedIn ? (
+                <div style={{ visibility: 'collapse' }}>
+                    <GoogleSignIn onAfterLogin={onAfterLogin} />
+                </div>
+            ) : null}
             {listElements.length === 0 && allElementsLoaded ? (
                 <div className={styles.noElementFound}>
                     <img src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
