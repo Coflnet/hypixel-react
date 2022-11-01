@@ -6,6 +6,7 @@ import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { useStateWithRef } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
@@ -28,7 +29,7 @@ let FETCH_RESULT_SIZE = 12
 let currentLoad
 
 function ActiveAuctions(props: Props) {
-    let [activeAuctions, setActiveAuctions] = useState<RecentAuction[]>([])
+    let [activeAuctions, setActiveAuctions, activeAuctionsRef] = useStateWithRef<RecentAuction[]>([])
     let [order, setOrder] = useState<string>(ORDERS[0].value)
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [premiumRank, setPremiumRank] = useState<PremiumType>(null)
@@ -51,7 +52,8 @@ function ActiveAuctions(props: Props) {
         isLoadingElements.current = true
         currentLoad = filterString
 
-        let page = Math.ceil(activeAuctions.length / FETCH_RESULT_SIZE)
+
+        let page = Math.ceil(activeAuctionsRef.current.length / FETCH_RESULT_SIZE)
         let maxPages = 10
         switch (premiumRank?.priority) {
             case PREMIUM_RANK.STARTER:
@@ -74,7 +76,6 @@ function ActiveAuctions(props: Props) {
             return
         }
         filter['page'] = page.toString()
-
         api.getActiveAuctions(props.item, order, filter)
             .then(auctions => {
                 if (currentLoad !== filterString) {
@@ -84,7 +85,7 @@ function ActiveAuctions(props: Props) {
                 if (auctions.length < FETCH_RESULT_SIZE) {
                     setAllElementsLoaded(true)
                 }
-                setActiveAuctions([...activeAuctions, ...auctions])
+                setActiveAuctions([...activeAuctionsRef.current, ...auctions])
             })
             .catch(() => {
                 isLoadingElements.current = false
@@ -107,7 +108,11 @@ function ActiveAuctions(props: Props) {
             setPremiumRank(() => {
                 setAllElementsLoaded(() => {
                     if (highestPremium !== null) {
-                        loadActiveAuctions()
+                        if(activeAuctionList.length === 0){
+                            setTimeout(() => {
+                                loadActiveAuctions()
+                            }, 1000)
+                        }
                     }
                     return false
                 })
