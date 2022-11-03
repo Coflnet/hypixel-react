@@ -8,7 +8,7 @@ import api from '../../api/ApiHelper'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useStateWithRef } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK, PREMIUM_TYPES } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import styles from './ActiveAuctions.module.css'
@@ -32,7 +32,7 @@ function ActiveAuctions(props: Props) {
     let [activeAuctions, setActiveAuctions, activeAuctionsRef] = useStateWithRef<RecentAuction[]>([])
     let [order, setOrder] = useState<string>(ORDERS[0].value)
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
-    let [premiumRank, setPremiumRank] = useState<PremiumType>(null)
+    let [premiumType, setPremiumType] = useState<PremiumType>(null)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let isLoadingElements = useRef(false)
 
@@ -52,10 +52,9 @@ function ActiveAuctions(props: Props) {
         isLoadingElements.current = true
         currentLoad = filterString
 
-
         let page = Math.ceil(activeAuctionsRef.current.length / FETCH_RESULT_SIZE)
         let maxPages = 10
-        switch (premiumRank?.priority) {
+        switch (premiumType?.priority) {
             case PREMIUM_RANK.STARTER:
                 maxPages = 5
                 break
@@ -104,21 +103,44 @@ function ActiveAuctions(props: Props) {
         api.getPremiumProducts().then(products => {
             setIsLoggedIn(true)
             let highestPremium = getPremiumType(getHighestPriorityPremiumProduct(products))
-            premiumRank = highestPremium
-            setPremiumRank(() => {
+            premiumType = highestPremium
+            setPremiumType(() => {
                 setAllElementsLoaded(() => {
                     if (highestPremium !== null) {
-                        if(activeAuctionList.length === 0){
-                            setTimeout(() => {
-                                loadActiveAuctions()
-                            }, 1000)
-                        }
+                        loadActiveAuctions()
                     }
                     return false
                 })
                 return highestPremium
             })
         })
+    }
+
+    function getMoreActiveAuctionsElement() {
+        if (!isLoggedIn || !premiumType) {
+            return (
+                <p>
+                    You can see more auctions with{' '}
+                    <Link href={'/premium'} style={{ marginBottom: '15px' }}>
+                        <a>Premium:</a>
+                    </Link>
+                    <GoogleSignIn onAfterLogin={onAfterLogin} />
+                </p>
+            )
+        }
+        if (premiumType.priority === PREMIUM_RANK.STARTER) {
+            return (
+                <p>
+                    You currently use Starter Premium. You can see up to 120 active auctions with
+                    <Link href={'/premium'}>
+                        <a>Premium:</a>
+                    </Link>
+                    <div style={{ marginTop: '15px' }}>
+                        <GoogleSignIn onAfterLogin={onAfterLogin} />
+                    </div>
+                </p>
+            )
+        }
     }
 
     let activeAuctionList = activeAuctions.map((activeAuction, i) => {
@@ -222,17 +244,7 @@ function ActiveAuctions(props: Props) {
                     <p style={{ textAlign: 'center' }}>No active auctions found</p>
                 )}
             </div>
-            {!isLoggedIn ? (
-                <p>
-                    You can see more auctions with{' '}
-                    <Link href={'/premium'}>
-                        <a>Premium:</a>
-                    </Link>
-                    <div style={{ marginTop: '15px' }}>
-                        <GoogleSignIn onAfterLogin={onAfterLogin} />
-                    </div>
-                </p>
-            ) : null}
+            {getMoreActiveAuctionsElement()}
         </div>
     )
 }

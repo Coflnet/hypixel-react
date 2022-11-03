@@ -11,6 +11,7 @@ import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { useStateWithRef } from '../../utils/Hooks'
 
 interface Props {
     item: Item
@@ -31,10 +32,10 @@ let currentLoadingString
 let mounted = true
 
 function RecentAuctions(props: Props) {
-    let [recentAuctions, setRecentAuctions] = useState<RecentAuction[]>([])
+    let [recentAuctions, setRecentAuctions, recentAuctionsRef] = useStateWithRef<RecentAuction[]>([])
     let [isSSR, setIsSSR] = useState(!isClientSideRendering())
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
-    let [premiumRank, setPremiumRank] = useState<PremiumType>(null)
+    let [premiumType, setPremiumType] = useState<PremiumType>(null)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let isLoadingElements = useRef(false)
 
@@ -76,9 +77,9 @@ function RecentAuctions(props: Props) {
             }
         }
 
-        let page = Math.ceil(recentAuctions.length / FETCH_RESULT_SIZE)
+        let page = Math.ceil(recentAuctionsRef.current.length / FETCH_RESULT_SIZE)
         let maxPages = 10
-        switch (premiumRank?.priority) {
+        switch (premiumType?.priority) {
             case PREMIUM_RANK.STARTER:
                 maxPages = 5
                 break
@@ -106,7 +107,7 @@ function RecentAuctions(props: Props) {
             if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
                 setAllElementsLoaded(true)
             }
-            setRecentAuctions([...recentAuctions, ...newRecentAuctions])
+            setRecentAuctions([...recentAuctionsRef.current, ...newRecentAuctions])
         })
     }
 
@@ -119,8 +120,8 @@ function RecentAuctions(props: Props) {
         api.getPremiumProducts().then(products => {
             setIsLoggedIn(true)
             let highestPremium = getPremiumType(getHighestPriorityPremiumProduct(products))
-            premiumRank = highestPremium
-            setPremiumRank(() => {
+            premiumType = highestPremium
+            setPremiumType(() => {
                 setAllElementsLoaded(() => {
                     if (highestPremium !== null) {
                         loadRecentAuctions()
@@ -130,6 +131,33 @@ function RecentAuctions(props: Props) {
                 return highestPremium
             })
         })
+    }
+
+    function getMoreRecentAuctionsElement() {
+        if (!isLoggedIn || !premiumType) {
+            return (
+                <p>
+                    You can see more auctions with{' '}
+                    <Link href={'/premium'} style={{ marginBottom: '15px' }}>
+                        <a>Premium:</a>
+                    </Link>
+                    <GoogleSignIn onAfterLogin={onAfterLogin} />
+                </p>
+            )
+        }
+        if (premiumType.priority === PREMIUM_RANK.STARTER) {
+            return (
+                <p>
+                    You currently use Starter Premium. You can see up to 120 active auctions with
+                    <Link href={'/premium'}>
+                        <a>Premium:</a>
+                    </Link>
+                    <div style={{ marginTop: '15px' }}>
+                        <GoogleSignIn onAfterLogin={onAfterLogin} />
+                    </div>
+                </p>
+            )
+        }
     }
 
     let recentAuctionList = recentAuctions.map(recentAuction => {
@@ -222,19 +250,7 @@ function RecentAuctions(props: Props) {
                     <p style={{ textAlign: 'center' }}>No recent auctions found</p>
                 )}
             </div>
-            <div>
-                {!isLoggedIn ? (
-                    <p>
-                        You can see more auctions with{' '}
-                        <Link href={'/premium'}>
-                            <a>Premium:</a>
-                        </Link>
-                        <div style={{ marginTop: '15px' }}>
-                            <GoogleSignIn onAfterLogin={onAfterLogin} />
-                        </div>
-                    </p>
-                ) : null}
-            </div>
+            {getMoreRecentAuctionsElement()}
         </div>
     )
 }
