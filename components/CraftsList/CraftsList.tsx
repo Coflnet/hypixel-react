@@ -241,11 +241,11 @@ export function CraftsList(props: Props) {
         )
     }
 
-    function getCraftHeader(craft) {
+    function getCraftHeader(craft: ProfitableCraft) {
         return (
             <span>
                 <img crossOrigin="anonymous" src={craft.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
-                {convertTagToName(craft.item.name)}
+                <span dangerouslySetInnerHTML={{ __html: (craft.item.name as any).replaceColorCodes?.()?.innerHTML }}></span>
             </span>
         )
     }

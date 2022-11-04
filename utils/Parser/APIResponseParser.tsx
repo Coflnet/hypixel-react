@@ -382,7 +382,8 @@ export function parseCraftIngredient(ingredient): CraftingIngredient {
 export function parseProfitableCraft(craft): ProfitableCraft {
     let c = {
         item: {
-            tag: craft.itemId
+            tag: craft.itemId,
+            name: craft.itemName
         },
         craftCost: craft.craftCost,
         sellPrice: craft.sellPrice,
@@ -402,7 +403,6 @@ export function parseProfitableCraft(craft): ProfitableCraft {
               }
             : null
     } as ProfitableCraft
-    c.item.name = convertTagToName(c.item.tag)
     c.ingredients.forEach(i => {
         i.item.name = convertTagToName(i.item.tag)
         i.item.iconUrl = api.getItemImageUrl(i.item)
