@@ -189,7 +189,14 @@ export const getServerSideProps = async ({ res, params }) => {
     res.setHeader('Cache-Control', getCacheContolHeader())
 
     let api = initAPI(true)
-    let playerName = await api.getPlayerName(params.uuid)
+    let playerName = ''
+    try {
+        playerName = await api.getPlayerName(params.uuid)
+    } catch {
+        return {
+            notFound: true
+        }
+    }
     let auctions = await api.getAuctions(params.uuid, 0)
     return {
         props: {
