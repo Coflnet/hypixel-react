@@ -301,6 +301,9 @@ export function getMinecraftColorCodedElement(text: string): JSX.Element {
 
     splits.forEach((split, i) => {
         if (i === 0) {
+            if (split !== '') {
+                elements.push(<span>{split}</span>)
+            }
             return
         }
         let code = split.substring(0, 1)

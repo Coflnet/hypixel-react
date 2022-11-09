@@ -6,6 +6,7 @@ import Tooltip from '../../../Tooltip/Tooltip'
 import { Refresh as RefreshIcon, Help as HelpIcon } from '@mui/icons-material'
 import { useForceUpdate } from '../../../../utils/Hooks'
 import styles from './FormatElement.module.css'
+import { getMinecraftColorCodedElement } from '../../../../utils/Formatter'
 
 interface Props {
     onChange(value: string)
@@ -14,23 +15,14 @@ interface Props {
 }
 
 function FormatElement(props: Props) {
-    let formatExampleRef = useRef(null)
     let formatInputRef = useRef(null)
     let forceUpdate = useForceUpdate()
 
     let { trackEvent } = useMatomo()
 
-    useEffect(() => {
-        renderFormatExampleText()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
     function onChange(value: string) {
         props.onChange(value)
         forceUpdate()
-        setTimeout(() => {
-            renderFormatExampleText()
-        }, 0)
     }
 
     function onModDefaultFormatCheckboxChange(event) {
@@ -56,7 +48,7 @@ function FormatElement(props: Props) {
         onChange(e.target.value)
     }
 
-    function renderFormatExampleText() {
+    function getFormatExampleText() {
         let settings = props.settings
         if (!settings.modFormat) {
             return ''
@@ -80,13 +72,7 @@ function FormatElement(props: Props) {
             return values[match]
         })
 
-        // Timeout, to wait for the react-render, as the modFormat may have been hidden before
-        setTimeout(() => {
-            if (formatExampleRef.current) {
-                ;(formatExampleRef.current! as HTMLElement).innerHTML = ''
-                ;(formatExampleRef.current! as HTMLElement).appendChild((resultText as any).replaceColorCodes())
-            }
-        }, 0)
+        return resultText
     }
 
     const formatHelpTooltip = (
@@ -137,7 +123,7 @@ function FormatElement(props: Props) {
                             Default
                         </Button>
                     </div>
-                    <p ref={formatExampleRef} />
+                    <p>{getMinecraftColorCodedElement(getFormatExampleText())}</p>
                 </div>
             ) : null}
         </div>
