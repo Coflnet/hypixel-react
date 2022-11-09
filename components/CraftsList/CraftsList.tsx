@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
-import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
+import { convertTagToName, getCraftHeaderStyle, getMinecraftColorCodedElement, numberWithThousandsSeperators } from '../../utils/Formatter'
 import Tooltip from '../Tooltip/Tooltip'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -241,11 +241,11 @@ export function CraftsList(props: Props) {
         )
     }
 
-    function getCraftHeader(craft: ProfitableCraft) {
+    function getCraftHeader(craft: ProfitableCraft): JSX.Element {
         return (
             <span>
                 <img crossOrigin="anonymous" src={craft.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
-                <span dangerouslySetInnerHTML={{ __html: (craft.item.name as any).replaceColorCodes?.()?.innerHTML }}></span>
+                {getMinecraftColorCodedElement(craft.item.name)}
             </span>
         )
     }
