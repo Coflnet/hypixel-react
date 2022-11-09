@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
-import { convertTagToName, getCraftHeaderStyle, getMinecraftColorCodedElement, numberWithThousandsSeperators } from '../../utils/Formatter'
+import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSeperators } from '../../utils/Formatter'
 import Tooltip from '../Tooltip/Tooltip'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
