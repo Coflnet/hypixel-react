@@ -322,7 +322,10 @@ function PlayerDetailsList(props: Props) {
                     <Tooltip
                         content={
                             <span>
-                                How to filter auctions/bids <HelpIcon style={{ color: '#007bff' }} />
+                                How to filter auctions/bids{' '}
+                                <Link href="/premium">
+                                    <HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />
+                                </Link>
                             </span>
                         }
                         hoverPlacement="bottom"
