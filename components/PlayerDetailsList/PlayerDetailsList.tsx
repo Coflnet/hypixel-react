@@ -318,21 +318,23 @@ function PlayerDetailsList(props: Props) {
     return (
         <div className={styles.playerDetailsList}>
             {!showFilter() ? (
-                <Tooltip
-                    content={
-                        <p>
-                            How to filter auctions/bids <HelpIcon style={{ color: '#007bff' }} />
-                        </p>
-                    }
-                    hoverPlacement="bottom"
-                    type="hover"
-                    tooltipContent={
-                        <>
-                            <p>Claim your account to filter your own auctions/bids.</p>
-                            <p>If you have starter premium or above you are able to use the filter for any player.</p>
-                        </>
-                    }
-                />
+                <p>
+                    <Tooltip
+                        content={
+                            <span>
+                                How to filter auctions/bids <HelpIcon style={{ color: '#007bff' }} />
+                            </span>
+                        }
+                        hoverPlacement="bottom"
+                        type="hover"
+                        tooltipContent={
+                            <>
+                                <p>Claim your account to filter your own auctions/bids.</p>
+                                <p>If you have starter premium or above you are able to use the filter for any player.</p>
+                            </>
+                        }
+                    />
+                </p>
             ) : null}
             {showFilter() ? (
                 <>
