@@ -6,7 +6,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
-import { ArrowUpward as ArrowUpIcon } from '@mui/icons-material'
+import { ArrowUpward as ArrowUpIcon, Help as HelpIcon } from '@mui/icons-material'
 import { CopyButton } from '../CopyButton/CopyButton'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -15,6 +15,7 @@ import Search from '../Search/Search'
 import ItemFilter from '../ItemFilter/ItemFilter'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import Tooltip from '../Tooltip/Tooltip'
 
 interface Props {
     player: Player
@@ -316,6 +317,23 @@ function PlayerDetailsList(props: Props) {
 
     return (
         <div className={styles.playerDetailsList}>
+            {!showFilter() ? (
+                <Tooltip
+                    content={
+                        <p>
+                            How to filter auctions/bids <HelpIcon style={{ color: '#007bff' }} />
+                        </p>
+                    }
+                    hoverPlacement="bottom"
+                    type="hover"
+                    tooltipContent={
+                        <>
+                            <p>Claim your account to filter your own auctions/bids.</p>
+                            <p>If you have starter premium or above you are able to use the filter for any player.</p>
+                        </>
+                    }
+                />
+            ) : null}
             {showFilter() ? (
                 <>
                     <div style={{ marginLeft: '40px', marginRight: '40px' }}>
