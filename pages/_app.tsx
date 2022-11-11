@@ -58,7 +58,6 @@ function MyApp({ Component, pageProps }) {
     return (
         <>
             <Script async={true} src={'/preScript.js'} />
-            <Script async={true} src={'/MinecraftColorCodes.3.7.js'} />
             <MatomoProvider value={matomoTrackingInstance}>
                 <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
                     <MainApp>

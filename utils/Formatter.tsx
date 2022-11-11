@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react'
+import React, { CSSProperties } from 'react'
 import { isClientSideRendering } from './SSRUtils'
 
 /*
@@ -270,4 +270,46 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
             {starWithNumber ? <span style={redStarStyle}>{starWithNumber}</span> : null}
         </span>
     )
+}
+
+export function getMinecraftColorCodedElement(text: string): JSX.Element {
+    let styleMap: { [key: string]: React.CSSProperties } = {
+        '4': { fontWeight: 'normal', textDecoration: 'none', color: '#be0000' },
+        c: { fontWeight: 'normal', textDecoration: 'none', color: '#fe3f3f' },
+        '6': { fontWeight: 'normal', textDecoration: 'none', color: '#d9a334' },
+        e: { fontWeight: 'normal', textDecoration: 'none', color: '#fefe3f' },
+        '2': { fontWeight: 'normal', textDecoration: 'none', color: '#00be00' },
+        a: { fontWeight: 'normal', textDecoration: 'none', color: '#3ffe3f' },
+        b: { fontWeight: 'normal', textDecoration: 'none', color: '#3ffefe' },
+        '3': { fontWeight: 'normal', textDecoration: 'none', color: '#00bebe' },
+        '1': { fontWeight: 'normal', textDecoration: 'none', color: '#0000be' },
+        '9': { fontWeight: 'normal', textDecoration: 'none', color: '#3f3ffe' },
+        d: { fontWeight: 'normal', textDecoration: 'none', color: '#fe3ffe' },
+        '5': { fontWeight: 'normal', textDecoration: 'none', color: '#be00be' },
+        f: { fontWeight: 'normal', textDecoration: 'none', color: '#ffffff' },
+        '7': { fontWeight: 'normal', textDecoration: 'none', color: '#bebebe' },
+        '8': { fontWeight: 'normal', textDecoration: 'none', color: '#3f3f3f' },
+        '0': { fontWeight: 'normal', textDecoration: 'none', color: '#000000' },
+        l: { fontWeight: 'bold' },
+        n: { textDecorationLine: 'underline', textDecorationSkip: 'spaces' },
+        o: { fontStyle: 'italic' },
+        m: { textDecoration: 'line-through', textDecorationSkip: 'spaces' }
+    }
+
+    let splits = text.split('§')
+    let elements: JSX.Element[] = []
+
+    splits.forEach((split, i) => {
+        if (i === 0) {
+            if (split !== '') {
+                elements.push(<span>{split}</span>)
+            }
+            return
+        }
+        let code = split.substring(0, 1)
+        let text = convertTagToName(split.substring(1, split.length))
+        elements.push(<span style={styleMap[code]}>{text}</span>)
+    })
+
+    return <span>{elements}</span>
 }
