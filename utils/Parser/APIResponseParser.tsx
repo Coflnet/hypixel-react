@@ -6,7 +6,7 @@ import { convertTagToName } from '../Formatter'
 
 export function parseItemBidForList(bid: any): BidForList {
     return {
-        uuid: bid.uuid,
+        uuid: bid.uuid || bid.auctionId,
         end: parseDate(bid.end),
         item: {
             name: bid.itemName,
@@ -31,7 +31,7 @@ export function parseItemBid(bid: any): ItemBid {
 
 export function parseAuction(auction: any): Auction {
     let parsedAuction = {
-        uuid: auction.uuid,
+        uuid: auction.uuid || auction.auctionId,
         end: parseDate(auction.end),
         item: {
             tag: auction.tag,
