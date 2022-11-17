@@ -132,11 +132,9 @@ function PlayerDetails(props: Props) {
                 `${selectedPlayer?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`
             )}
             <Container>
-                {wasAlreadyLoggedIn ? (
-                    <div style={{ visibility: 'collapse' }}>
-                        <GoogleSignIn onAfterLogin={onAfterLogin} />
-                    </div>
-                ) : null}
+                <div style={{ visibility: 'collapse', height: 0 }}>
+                    <GoogleSignIn onAfterLogin={onAfterLogin} />
+                </div>
                 <Search
                     selected={selectedPlayer}
                     type="player"
