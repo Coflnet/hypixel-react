@@ -99,8 +99,7 @@ export const getServerSideProps = async ({ res, params }) => {
         console.log('ERROR: ' + JSON.stringify(e))
         console.log('------------------------')
         return {
-            props: {},
-            revalidate: 60
+            notFound: true
         }
     }
 
