@@ -219,15 +219,42 @@ export function KatFlips(props: Props) {
             return null
         }
         shown++
-        return !hasPremium && shown <= 3 ? (
-            <div className={`${styles.flipCard} ${styles.preventSelect}`} key={flip.originAuctionUUID}>
-                {getListElement(flip, true)}
-            </div>
-        ) : (
-            <div className={styles.flipCard} key={flip.originAuctionUUID}>
-                {getListElement(flip, false)}
-            </div>
-        )
+
+        if (!hasPremium && shown <= 3) {
+            let censoredFlip = { ...flip }
+            censoredFlip.coreData = {
+                amount: -1,
+                hours: 69,
+                item: {
+                    tag: '',
+                    name: 'You cheated the blur ☺',
+                    tier: 'LEGENDARY',
+                    iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
+                },
+                material: '1 CoflCoin'
+            }
+            censoredFlip.cost = 12345
+            censoredFlip.materialCost = 696969
+            censoredFlip.median = 424242
+            censoredFlip.originAuctionUUID = ''
+            censoredFlip.profit = -100000
+            censoredFlip.purchaseCost = 1
+            censoredFlip.referenceAuctionUUID = ''
+            censoredFlip.volume = -1
+            censoredFlip.upgradeCost = 0
+
+            return (
+                <div className={`${styles.flipCard} ${styles.preventSelect}`} key={flip.originAuctionUUID}>
+                    {getListElement(censoredFlip, true)}
+                </div>
+            )
+        } else {
+            return (
+                <div className={styles.flipCard} key={flip.originAuctionUUID}>
+                    {getListElement(flip, false)}
+                </div>
+            )
+        }
     })
 
     return (
