@@ -106,6 +106,20 @@ export const FLIP_FINDERS = [
         selectable: true
     },
     { value: '8', label: 'AI', shortLabel: 'AI', default: false, description: '', selectable: false },
+    {
+        value: '16',
+        label: 'User',
+        shortLabel: 'User',
+        default: false,
+        description: (
+            <span>
+                Forwards all new auctions with a target value set to the starting bid (0 profit)
+                <br /> You can use this together with whitelist/blacklist of <b>Starting Bid</b> and other filters to create your own flip rules.
+                <br /> Different to the other finders this one won't pre-filter auctions its all up to you.",
+            </span>
+        ),
+        selectable: true
+    },
     { value: '32', label: 'TFM', shortLabel: 'TFM', default: false, description: '', selectable: false },
     { value: '64', label: 'Stonks', shortLabel: 'Stonks', default: false, description: '', selectable: false },
     { value: '128', label: 'External', shortLabel: 'External', default: false, description: '', selectable: false }

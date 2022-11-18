@@ -13,6 +13,7 @@ import styles from './index.module.css'
 import Link from 'next/link'
 import Hyauctions from '../../../components/Hyauctions/Hyauctions'
 import { getCacheContolHeader } from '../../../utils/CacheUtils'
+import GoogleSignIn from '../../../components/GoogleSignIn/GoogleSignIn'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -77,8 +78,7 @@ function PlayerDetails(props: Props) {
         setDetailType_(type)
     }
 
-    function onAfterLogin(highestPremiumType: PremiumType) {
-        console.log(highestPremiumType)
+    function onAfterLogin() {
         api.getAccountInfo().then(info => {
             setAccountInfo(info)
         })
@@ -129,6 +129,9 @@ function PlayerDetails(props: Props) {
                 `${selectedPlayer?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`
             )}
             <Container>
+                <div style={{ visibility: 'collapse', height: 0 }}>
+                    <GoogleSignIn onAfterLogin={onAfterLogin} />
+                </div>
                 <Search
                     selected={selectedPlayer}
                     type="player"
@@ -189,7 +192,14 @@ export const getServerSideProps = async ({ res, params }) => {
     res.setHeader('Cache-Control', getCacheContolHeader())
 
     let api = initAPI(true)
-    let playerName = await api.getPlayerName(params.uuid)
+    let playerName = ''
+    try {
+        playerName = await api.getPlayerName(params.uuid)
+    } catch {
+        return {
+            notFound: true
+        }
+    }
     let auctions = await api.getAuctions(params.uuid, 0)
     return {
         props: {

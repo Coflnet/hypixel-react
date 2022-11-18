@@ -6,7 +6,7 @@ import { convertTagToName } from '../Formatter'
 
 export function parseItemBidForList(bid: any): BidForList {
     return {
-        uuid: bid.uuid,
+        uuid: bid.uuid || bid.auctionId,
         end: parseDate(bid.end),
         item: {
             name: bid.itemName,
@@ -31,7 +31,7 @@ export function parseItemBid(bid: any): ItemBid {
 
 export function parseAuction(auction: any): Auction {
     let parsedAuction = {
-        uuid: auction.uuid,
+        uuid: auction.uuid || auction.auctionId,
         end: parseDate(auction.end),
         item: {
             tag: auction.tag,
@@ -382,7 +382,8 @@ export function parseCraftIngredient(ingredient): CraftingIngredient {
 export function parseProfitableCraft(craft): ProfitableCraft {
     let c = {
         item: {
-            tag: craft.itemId
+            tag: craft.itemId,
+            name: craft.itemName
         },
         craftCost: craft.craftCost,
         sellPrice: craft.sellPrice,
@@ -402,7 +403,6 @@ export function parseProfitableCraft(craft): ProfitableCraft {
               }
             : null
     } as ProfitableCraft
-    c.item.name = convertTagToName(c.item.tag)
     c.ingredients.forEach(i => {
         i.item.name = convertTagToName(i.item.tag)
         i.item.iconUrl = api.getItemImageUrl(i.item)

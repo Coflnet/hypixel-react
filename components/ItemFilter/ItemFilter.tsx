@@ -49,9 +49,14 @@ function ItemFilter(props: Props) {
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
+                if (!props.filters?.find(f => f.name === name)) {
+                    itemFilter[name] = undefined
+                    return
+                }
                 enableFilter(name)
                 getGroupedFilter(name).forEach(filter => enableFilter(filter))
             })
+            console.log(itemFilter)
             setItemFilter(itemFilter)
             onFilterChange(itemFilter)
         }

@@ -24,7 +24,7 @@ export function OfflineBanner(props: any) {
         <div>
             {
                 !isOnline ?
-                    <div id="offline-banner" className={styles.OfflineBanner}>
+                    <div id="offline-banner" className={styles.offlineBanner}>
                         <span style={{ color: "white" }}>No connection</span>
                     </div> : ""
             }

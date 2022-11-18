@@ -5,7 +5,6 @@ import { Container } from 'react-bootstrap'
 import Search from '../../components/Search/Search'
 import { useRouter } from 'next/router'
 import api, { initAPI } from '../../api/ApiHelper'
-import '../../public/MinecraftColorCodes.3.7'
 import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../utils/SSRUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
@@ -100,8 +99,7 @@ export const getServerSideProps = async ({ res, params }) => {
         console.log('ERROR: ' + JSON.stringify(e))
         console.log('------------------------')
         return {
-            props: {},
-            revalidate: 60
+            notFound: true
         }
     }
 
