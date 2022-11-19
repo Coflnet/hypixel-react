@@ -121,19 +121,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getItemPrices = (itemTag: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]> => {
         return new Promise((resolve, reject) => {
-            let query = ''
-            if (!itemFilter || Object.keys(itemFilter).length === 0) {
-                itemFilter = undefined
-            } else {
-                Object.keys(itemFilter).forEach(key => {
-                    query += `${key}=${itemFilter[key]}&`
-                })
+            let params = new URLSearchParams()
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                params = new URLSearchParams(itemFilter)
             }
 
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_PRICES,
                 data: '',
-                customRequestURL: getApiEndpoint() + `/item/price/${itemTag}/history/${fetchSpan}?${query}`,
+                customRequestURL: getApiEndpoint() + `/item/price/${itemTag}/history/${fetchSpan}?${params.toString()}`,
                 requestMethod: 'GET',
                 requestHeader: {
                     'Content-Type': 'application/json'
@@ -226,11 +222,20 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctions = (uuid: string, page: number = 0): Promise<Auction[]> => {
+    let getAuctions = (uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
+            let params = new URLSearchParams()
+            params.append('page', page.toString())
+
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                Object.keys(itemFilter).forEach(key => {
+                    params.append(key, itemFilter[key])
+                })
+            }
+
             httpApi.sendApiRequest({
                 type: RequestType.PLAYER_AUCTION,
-                customRequestURL: `${getApiEndpoint()}/player/${uuid}/auctions?page=${page}`,
+                customRequestURL: `${getApiEndpoint()}/player/${uuid}/auctions?${params.toString()}`,
                 data: '',
                 resolve: (auctions: any) => {
                     returnSSRResponse
@@ -249,11 +254,20 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getBids = (uuid: string, page: number = 0): Promise<BidForList[]> => {
+    let getBids = (uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<BidForList[]> => {
         return new Promise((resolve, reject) => {
+            let params = new URLSearchParams()
+            params.append('page', page.toString())
+
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                Object.keys(itemFilter).forEach(key => {
+                    params.append(key, itemFilter[key])
+                })
+            }
+
             httpApi.sendApiRequest({
                 type: RequestType.PLAYER_BIDS,
-                customRequestURL: `${getApiEndpoint()}/player/${uuid}/bids?page=${page}`,
+                customRequestURL: `${getApiEndpoint()}/player/${uuid}/bids?${params.toString()}`,
                 data: '',
                 resolve: (bids: any) => {
                     resolve(
@@ -545,18 +559,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getRecentAuctions = (itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
-            let query = ''
-            if (!itemFilter || Object.keys(itemFilter).length === 0) {
-                itemFilter = undefined
-            } else {
-                Object.keys(itemFilter).forEach(key => {
-                    query += `${key}=${itemFilter[key]}&`
-                })
-            }
+            let params = new URLSearchParams(itemFilter)
 
             httpApi.sendApiRequest({
                 type: RequestType.RECENT_AUCTIONS,
-                customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${query}`,
+                customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${params.toString()}`,
                 data: '',
                 resolve: (data: any) => {
                     resolve(data ? data.map(a => parseRecentAuction(a)) : [])

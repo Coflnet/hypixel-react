@@ -3,17 +3,17 @@ import Search from '../../../components/Search/Search'
 import { Button, Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api, { initAPI } from '../../../api/ApiHelper'
 import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponseParser'
-import { useSwipe, useWasAlreadyLoggedIn } from '../../../utils/Hooks'
+import { useSwipe } from '../../../utils/Hooks'
 import Tooltip from '../../../components/Tooltip/Tooltip'
 import ClaimAccount from '../../../components/ClaimAccount/ClaimAccount'
 import PlayerDetailsList from '../../../components/PlayerDetailsList/PlayerDetailsList'
-import GoogleSignIn from '../../../components/GoogleSignIn/GoogleSignIn'
 import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../../utils/SSRUtils'
 import styles from './index.module.css'
 import Link from 'next/link'
 import Hyauctions from '../../../components/Hyauctions/Hyauctions'
 import { getCacheContolHeader } from '../../../utils/CacheUtils'
+import GoogleSignIn from '../../../components/GoogleSignIn/GoogleSignIn'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -34,8 +34,6 @@ function PlayerDetails(props: Props) {
     let [detailType, setDetailType_] = useState<DetailType>(prevDetailType || DetailType.AUCTIONS)
     let [selectedPlayer, setSelectedPlayer] = useState<Player>(parsePlayer(props.player))
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let removeSwipeListeners = useSwipe(undefined, onSwipeRight, undefined, onSwipeLeft)
 
     useEffect(() => {
@@ -81,7 +79,6 @@ function PlayerDetails(props: Props) {
     }
 
     function onAfterLogin() {
-        setIsLoggedIn(true)
         api.getAccountInfo().then(info => {
             setAccountInfo(info)
         })
@@ -173,10 +170,18 @@ function PlayerDetails(props: Props) {
                         auctions={props.auctions?.map(parseAuction)}
                         loadingDataFunction={api.getAuctions}
                         player={selectedPlayer}
+                        onAfterLogin={onAfterLogin}
                     />
                 ) : undefined}
                 {detailType === DetailType.BIDS ? (
-                    <PlayerDetailsList key={'bids'} type="bids" loadingDataFunction={api.getBids} player={selectedPlayer} />
+                    <PlayerDetailsList
+                        key={'bids'}
+                        type="bids"
+                        loadingDataFunction={api.getBids}
+                        player={selectedPlayer}
+                        accountInfo={accountInfo}
+                        onAfterLogin={onAfterLogin}
+                    />
                 ) : undefined}
             </Container>
         </div>
