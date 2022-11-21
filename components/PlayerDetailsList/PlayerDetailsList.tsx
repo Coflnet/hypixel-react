@@ -23,7 +23,7 @@ interface Props {
     type: 'auctions' | 'bids'
     auctions?: Auction[]
     accountInfo?: AccountInfo
-    onAfterLogin?(highestPremiumType: PremiumType)
+    onAfterLogin?()
 }
 
 interface ListState {
@@ -101,10 +101,13 @@ function PlayerDetailsList(props: Props) {
 
     function onAfterLogin() {
         api.getPremiumProducts().then(products => {
-            let highestPremium = getPremiumType(getHighestPriorityPremiumProduct(products))
-            premiumRank = highestPremium
-            setPremiumRank(highestPremium)
-            props.onAfterLogin(highestPremium)
+            let highestPremium = getHighestPriorityPremiumProduct(products)
+            if (highestPremium) {
+                let highestPremiumType = getPremiumType(highestPremium)
+                premiumRank = highestPremiumType
+                setPremiumRank(highestPremiumType)
+            }
+            props.onAfterLogin()
         })
     }
 
@@ -144,6 +147,8 @@ function PlayerDetailsList(props: Props) {
                 if (!mounted) {
                     return
                 }
+
+                console.log(newListElements)
 
                 if (newListElements.length === 0) {
                     allElementsLoaded = true
