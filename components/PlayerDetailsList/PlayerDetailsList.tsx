@@ -148,8 +148,6 @@ function PlayerDetailsList(props: Props) {
                     return
                 }
 
-                console.log(newListElements)
-
                 if (newListElements.length === 0) {
                     allElementsLoaded = true
                     setAllElementsLoaded(true)

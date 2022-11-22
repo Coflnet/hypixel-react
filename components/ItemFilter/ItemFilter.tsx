@@ -50,13 +50,12 @@ function ItemFilter(props: Props) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
                 if (!props.filters?.find(f => f.name === name)) {
-                    itemFilter[name] = undefined
+                    delete itemFilter[name]
                     return
                 }
                 enableFilter(name)
                 getGroupedFilter(name).forEach(filter => enableFilter(filter))
             })
-            console.log(itemFilter)
             setItemFilter(itemFilter)
             onFilterChange(itemFilter)
         }
