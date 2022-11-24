@@ -105,7 +105,7 @@ function Payment(props: Props) {
                                         ) : (
                                             <span>
                                                 {`${numberWithThousandsSeperators(getRoundedPrice(isBlackfriday ? paypalPrice * 0.8 : paypalPrice))} Euro`}
-                                                {isBlackfriday ? <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>-20%</span> : null}
+                                                {isBlackfriday ? <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>20% OFF</span> : null}
                                                 {isBlackfriday ? (
                                                     <p style={{ fontSize: 'x-small', margin: 0, padding: 0 }}>Original price: {getRoundedPrice(paypalPrice)}</p>
                                                 ) : null}
@@ -143,7 +143,7 @@ function Payment(props: Props) {
                                         ) : (
                                             <span>
                                                 {`${numberWithThousandsSeperators(getRoundedPrice(isBlackfriday ? stripePrice * 0.8 : stripePrice))} Euro`}
-                                                {isBlackfriday ? <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>-20%</span> : null}
+                                                {isBlackfriday ? <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>20% OFF</span> : null}
                                                 {isBlackfriday ? (
                                                     <p style={{ fontSize: 'x-small', margin: 0, padding: 0 }}>Original price: {getRoundedPrice(stripePrice)}</p>
                                                 ) : null}
@@ -240,19 +240,7 @@ function Payment(props: Props) {
             <div>
                 <div className={styles.productGrid}>
                     {getPaymentElement(<span>{numberWithThousandsSeperators(1800)} CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
-                    {getPaymentElement(
-                        <span>
-                            {numberWithThousandsSeperators(5400)} CoflCoins{' '}
-                            <span className={styles.discount}>
-                                ~4% off <span style={{ color: 'red' }}>(+20% Black Friday)</span>
-                            </span>
-                        </span>,
-                        19.69,
-                        's_cc_5400',
-                        19.99,
-                        'p_cc_5400',
-                        true
-                    )}
+                    {getPaymentElement(<span>{numberWithThousandsSeperators(5400)} CoflCoins </span>, 19.69, 's_cc_5400', 19.99, 'p_cc_5400', true)}
                     {!showAll ? (
                         <Button
                             style={{ width: '100%' }}
@@ -265,32 +253,8 @@ function Payment(props: Props) {
                     ) : null}
                     {showAll ? (
                         <>
-                            {getPaymentElement(
-                                <span>
-                                    {numberWithThousandsSeperators(10800)} CoflCoins{' '}
-                                    <span className={styles.discount}>
-                                        ~5% off <span style={{ color: 'red' }}>(+20% Black Friday)</span>
-                                    </span>
-                                </span>,
-                                38.99,
-                                's_cc_10800',
-                                39.69,
-                                'p_cc_10800',
-                                true
-                            )}
-                            {getPaymentElement(
-                                <span>
-                                    {numberWithThousandsSeperators(21600)} CoflCoins{' '}
-                                    <span className={styles.discount}>
-                                        ~6% off <span style={{ color: 'red' }}>(+20% Black Friday)</span>
-                                    </span>
-                                </span>,
-                                74.99,
-                                's_cc_21600',
-                                78.69,
-                                'p_cc_21600',
-                                true
-                            )}
+                            {getPaymentElement(<span>{numberWithThousandsSeperators(10800)} CoflCoins </span>, 38.99, 's_cc_10800', 39.69, 'p_cc_10800', true)}
+                            {getPaymentElement(<span>{numberWithThousandsSeperators(21600)} CoflCoins </span>, 74.99, 's_cc_21600', 78.69, 'p_cc_21600', true)}
                             {coflCoins % 1800 != 0 ? getNextTo1800PaymentElement() : null}
                         </>
                     ) : null}
