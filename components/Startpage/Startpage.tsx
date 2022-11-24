@@ -327,10 +327,9 @@ function Startpage(props: Props) {
                                         <li className={styles.changelogItem}>
                                             General <Link href="/mod">Mod</Link> improvements.
                                         </li>
-                                        <li className={styles.changelogItem}>Website QoL improvements</li>
                                         <li className={styles.changelogItem}>Blacklist name refresh</li>
-                                        <li className={styles.changelogItem}>Multiple tabs dont overwrite each others anymore</li>
                                         <li className={styles.changelogItem}>Ignore tracked flips for profit calculation</li>
+                                        <li className={styles.changelogItem}>QoL improvements</li>
                                     </ul>
                                 }
                                 type="click"
