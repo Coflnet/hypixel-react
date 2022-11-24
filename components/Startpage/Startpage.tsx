@@ -308,14 +308,13 @@ function Startpage(props: Props) {
                             <AnnouncementIcon />
                             <span className={styles.statusTitle}> News / Announcements</span>
                         </Card.Title>
-                        <Card.Subtitle>Flip Tracking</Card.Subtitle>
+                        <Card.Subtitle>Black Friday</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        <p>You can now look up a detailed breakdown of your flips in the last week.</p>
-                        <p>To look up your (or someone elses) flips, just search the player and click the blue "Check tracked flips" button.</p>
+                        <p>Enjoy discounted CoflCoins starting on Friday the 25th of November at 6AM UTC, lasting for 24 hours.</p>
                         <hr />
                         <div style={{ marginTop: '20px' }}>
-                            <p>Recent changes (last change: 18. April 2022):</p>
+                            <p>Recent changes (last change: 24. November 2022):</p>
                             <Tooltip
                                 onClick={onRecentChangesClick}
                                 content={
@@ -326,14 +325,12 @@ function Startpage(props: Props) {
                                 tooltipContent={
                                     <ul key="changelogList">
                                         <li className={styles.changelogItem}>
-                                            Settings are now stored on the server. That means you have the same settings on different devices and can change
-                                            them in game.
+                                            General <Link href="/mod">Mod</Link> improvements.
                                         </li>
+                                        <li className={styles.changelogItem}>Website QoL improvements</li>
+                                        <li className={styles.changelogItem}>Blacklist name refresh</li>
                                         <li className={styles.changelogItem}>Multiple tabs dont overwrite each others anymore</li>
-                                        <li className={styles.changelogItem}>
-                                            Added a new payment system and CoflCoins as a way to easier reward/compensate user
-                                        </li>
-                                        <li className={styles.changelogItem}>Added Kat flips</li>
+                                        <li className={styles.changelogItem}>Ignore tracked flips for profit calculation</li>
                                     </ul>
                                 }
                                 type="click"
@@ -447,9 +444,9 @@ function Startpage(props: Props) {
                     <p>View, search, browse, and filter by reforge or enchantment.</p>
                     <p>You can find all current and historic prices for the auction house and bazaar on this web tracker.</p>
                     <p>
-                        We're tracking over 400 million auctions. We've saved more than 250 million bazaar prices in intervals of 10 seconds. Furthermore,
-                        there are over two million skyblock players that you can search by their Minecraft usernames. You can browse through the auctions they
-                        made over the past two years. New Items are added automatically and available within two miniutes after the first auction is started.
+                        We're tracking over 400 million auctions. We've saved more than 250 million bazaar prices in intervals of 10 seconds. Furthermore, there
+                        are over two million skyblock players that you can search by their Minecraft usernames. You can browse through the auctions they made
+                        over the past two years. New Items are added automatically and available within two miniutes after the first auction is started.
                     </p>
                     <p>
                         The search autocomplete is ranked by popularity and allows you to find whatever item you want faster. Quick urls allow you to link to
