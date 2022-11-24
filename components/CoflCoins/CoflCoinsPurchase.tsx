@@ -242,7 +242,10 @@ function Payment(props: Props) {
                     {getPaymentElement(<span>{numberWithThousandsSeperators(1800)} CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
                     {getPaymentElement(
                         <span>
-                            {numberWithThousandsSeperators(5400)} CoflCoins <span className={styles.discount}>~4% off</span>
+                            {numberWithThousandsSeperators(5400)} CoflCoins{' '}
+                            <span className={styles.discount}>
+                                ~4% off <span style={{ color: 'red' }}>(+20% Black Friday)</span>
+                            </span>
                         </span>,
                         19.69,
                         's_cc_5400',
@@ -264,7 +267,10 @@ function Payment(props: Props) {
                         <>
                             {getPaymentElement(
                                 <span>
-                                    {numberWithThousandsSeperators(10800)} CoflCoins <span className={styles.discount}>~5% off</span>
+                                    {numberWithThousandsSeperators(10800)} CoflCoins{' '}
+                                    <span className={styles.discount}>
+                                        ~5% off <span style={{ color: 'red' }}>(+20% Black Friday)</span>
+                                    </span>
                                 </span>,
                                 38.99,
                                 's_cc_10800',
@@ -274,7 +280,10 @@ function Payment(props: Props) {
                             )}
                             {getPaymentElement(
                                 <span>
-                                    {numberWithThousandsSeperators(21600)} CoflCoins <span className={styles.discount}>~6% off</span>
+                                    {numberWithThousandsSeperators(21600)} CoflCoins{' '}
+                                    <span className={styles.discount}>
+                                        ~6% off <span style={{ color: 'red' }}>(+20% Black Friday)</span>
+                                    </span>
                                 </span>,
                                 74.99,
                                 's_cc_21600',
