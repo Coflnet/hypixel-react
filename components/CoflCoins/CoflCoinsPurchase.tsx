@@ -8,6 +8,7 @@ import { Help as HelpIcon } from '@mui/icons-material'
 import { useCoflCoins } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { toast } from 'react-toastify'
+import Countdown from 'react-countdown'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
@@ -234,8 +235,15 @@ function Payment(props: Props) {
 
     return (
         <div>
-            <span>
-                <span style={{ color: 'red' }}>BLACK FRIDAY:</span> Products over 1.800 CoflCoins are reduced by 20%!
+            <span style={{ fontSize: 'larger' }}>
+                <span style={{ color: 'red' }}>BLACK FRIDAY:</span>
+                <p>Products over 1.800 CoflCoins are reduced by 20%!</p>
+                <p>
+                    End:{' '}
+                    <span style={{ color: 'red' }}>
+                        <Countdown date={new Date('2022-11-26T06:00:00.000Z')} />
+                    </span>
+                </p>
             </span>
             <div>
                 <div className={styles.productGrid}>
