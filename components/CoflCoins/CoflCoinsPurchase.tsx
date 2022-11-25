@@ -104,9 +104,9 @@ function Payment(props: Props) {
                                                 </a>
                                             </p>
                                         ) : (
-                                            <span>
+                                            <span className="ellipse">
                                                 {`${numberWithThousandsSeperators(getRoundedPrice(isBlackfriday ? paypalPrice * 0.8 : paypalPrice))} Euro`}
-                                                {isBlackfriday ? <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>20% OFF</span> : null}
+                                                {isBlackfriday ? <span className={styles.reducedPrice}>20% OFF</span> : null}
                                                 {isBlackfriday ? (
                                                     <p style={{ fontSize: 'x-small', margin: 0, padding: 0 }}>Original price: {getRoundedPrice(paypalPrice)}</p>
                                                 ) : null}
@@ -142,9 +142,9 @@ function Payment(props: Props) {
                                                 </a>
                                             </p>
                                         ) : (
-                                            <span>
+                                            <span className="ellipse">
                                                 {`${numberWithThousandsSeperators(getRoundedPrice(isBlackfriday ? stripePrice * 0.8 : stripePrice))} Euro`}
-                                                {isBlackfriday ? <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>20% OFF</span> : null}
+                                                {isBlackfriday ? <span className={styles.reducedPrice}>20% OFF</span> : null}
                                                 {isBlackfriday ? (
                                                     <p style={{ fontSize: 'x-small', margin: 0, padding: 0 }}>Original price: {getRoundedPrice(stripePrice)}</p>
                                                 ) : null}
