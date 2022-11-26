@@ -145,7 +145,6 @@ function BazaarPriceGraph(props: Props) {
                     s.data = []
                 }
             })
-            console.log(chartOptionsSecondary)
         } else {
             chartOptionsPrimary.series[0].type = 'k'
             chartOptionsSecondary.series[0].type = 'k'

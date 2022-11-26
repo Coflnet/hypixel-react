@@ -4,19 +4,26 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
-import { useForceUpdate } from '../../utils/Hooks'
+import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
-import { ArrowUpward as ArrowUpIcon } from '@mui/icons-material'
+import { ArrowUpward as ArrowUpIcon, Help as HelpIcon } from '@mui/icons-material'
 import { CopyButton } from '../CopyButton/CopyButton'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import styles from './PlayerDetailsList.module.css'
+import Search from '../Search/Search'
+import ItemFilter from '../ItemFilter/ItemFilter'
+import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import Tooltip from '../Tooltip/Tooltip'
 
 interface Props {
     player: Player
-    loadingDataFunction: Function
+    loadingDataFunction(uuid: string, page: number, filter: ItemFilter)
     type: 'auctions' | 'bids'
     auctions?: Auction[]
+    accountInfo?: AccountInfo
+    onAfterLogin?()
 }
 
 interface ListState {
@@ -33,13 +40,24 @@ let mounted = true
 // States, to remember the positions in the list, after coming back
 let listStates: ListState[] = []
 
+const FETCH_RESULT_SIZE = 10
+
 function PlayerDetailsList(props: Props) {
     let forceUpdate = useForceUpdate()
     let router = useRouter()
 
     let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
-    let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < 12 : false)
+    let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < FETCH_RESULT_SIZE : false)
+    let [filteredItem, setFilteredItem] = useState<Item>(null)
+    let [filters, setFilters] = useState<FilterOptions[]>()
+    let [itemFilter, setItemFilter] = useState<ItemFilter>()
+    let [premiumRank, setPremiumRank] = useState<PremiumType>()
     let isLoadingElements = useRef(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+
+    useEffect(() => {
+        loadFilters()
+    }, [])
 
     useEffect(() => {
         mounted = true
@@ -76,6 +94,34 @@ function PlayerDetailsList(props: Props) {
         }
     }, [props.auctions])
 
+    useEffect(() => {
+        loadNewElements(true)
+        loadFilters()
+    }, [filteredItem])
+
+    function onAfterLogin() {
+        api.getPremiumProducts().then(products => {
+            let highestPremium = getHighestPriorityPremiumProduct(products)
+            if (highestPremium) {
+                let highestPremiumType = getPremiumType(highestPremium)
+                premiumRank = highestPremiumType
+                setPremiumRank(highestPremiumType)
+            }
+            props.onAfterLogin()
+        })
+    }
+
+    function loadFilters() {
+        return Promise.all([api.getFilters(filteredItem ? filteredItem.tag : '*'), api.flipFilters(filteredItem ? filteredItem.tag : '*')]).then(filters => {
+            let result = [...filters[0], ...filters[1]]
+            setFilters(result)
+        })
+    }
+
+    function showFilter(): boolean {
+        return (props.accountInfo && props.accountInfo?.mcId === props.player.uuid) || (premiumRank && premiumRank.priority > PREMIUM_RANK.STARTER)
+    }
+
     let onRouteChange = () => {
         let listState = getListState()
         if (listState) {
@@ -87,9 +133,15 @@ function PlayerDetailsList(props: Props) {
         if (isLoadingElements.current) {
             return
         }
+
+        let filter = { ...itemFilter }
+        if (filteredItem) {
+            filter['tag'] = filteredItem.tag
+        }
+
         isLoadingElements.current = true
         props
-            .loadingDataFunction(props.player.uuid, 12, reset ? 0 : listElements.length)
+            .loadingDataFunction(props.player.uuid, reset ? 0 : Math.ceil(listElements.length / FETCH_RESULT_SIZE), filter)
             .then(newListElements => {
                 isLoadingElements.current = false
                 if (!mounted) {
@@ -109,7 +161,7 @@ function PlayerDetailsList(props: Props) {
                 setListElements(listElements)
                 updateListState()
 
-                if (listElements.length < 12 && newListElements.length !== 0) {
+                if (listElements.length < FETCH_RESULT_SIZE && newListElements.length !== 0) {
                     loadNewElements()
                 }
             })
@@ -197,9 +249,7 @@ function PlayerDetailsList(props: Props) {
                         </Button>
                     </div>
                 </>
-            ) : (
-                ''
-            )}
+            ) : null}
             {props.type === 'bids' ? (
                 <>
                     <div className={styles.btnBottom}>
@@ -215,9 +265,7 @@ function PlayerDetailsList(props: Props) {
                         <ArrowUpIcon />
                     </Button>
                 </>
-            ) : (
-                ''
-            )}
+            ) : null}
         </div>
     )
 
@@ -271,10 +319,69 @@ function PlayerDetailsList(props: Props) {
 
     return (
         <div className={styles.playerDetailsList}>
+            {!showFilter() ? (
+                <p>
+                    <Tooltip
+                        content={
+                            <span>
+                                How to filter auctions/bids{' '}
+                                <Link href="/premium">
+                                    <HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />
+                                </Link>
+                            </span>
+                        }
+                        hoverPlacement="bottom"
+                        type="hover"
+                        tooltipContent={
+                            <>
+                                <p>Claim your account to filter your own auctions/bids.</p>
+                                <p>If you have starter premium or above you are able to use the filter for any player.</p>
+                            </>
+                        }
+                    />
+                </p>
+            ) : null}
+            {showFilter() ? (
+                <>
+                    <div style={{ marginLeft: '40px', marginRight: '40px' }}>
+                        <Search
+                            selected={filteredItem}
+                            type="item"
+                            searchFunction={api.itemSearch}
+                            onSearchresultClick={item => {
+                                setFilteredItem({
+                                    ...item.dataItem,
+                                    tag: item.id
+                                })
+                            }}
+                            hideNavbar={true}
+                            placeholder="Search item"
+                            enableReset={true}
+                            onResetClick={() => setFilteredItem(null)}
+                            hideOptions={true}
+                        />
+                    </div>
+                    <ItemFilter
+                        filters={filters}
+                        onFilterChange={filter => {
+                            itemFilter = filter
+                            setItemFilter(filter)
+                            setListElements([])
+                            setAllElementsLoaded(false)
+                            loadNewElements(true)
+                        }}
+                    />
+                </>
+            ) : null}
+            {wasAlreadyLoggedIn ? (
+                <div style={{ visibility: 'collapse' }}>
+                    <GoogleSignIn onAfterLogin={onAfterLogin} />
+                </div>
+            ) : null}
             {listElements.length === 0 && allElementsLoaded ? (
-                <div className="noAuctionFound">
+                <div className={styles.noElementFound}>
                     <img src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
-                    <p>No auctions found</p>
+                    <p>No {props.type} found</p>
                 </div>
             ) : (
                 <InfiniteScroll

@@ -8,6 +8,7 @@ import { Help as HelpIcon } from '@mui/icons-material'
 import { useCoflCoins } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { toast } from 'react-toastify'
+import Countdown from 'react-countdown'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
@@ -218,15 +219,7 @@ function Payment(props: Props) {
             <div>
                 <div className={styles.productGrid}>
                     {getPaymentElement(<span>{numberWithThousandsSeperators(1800)} CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
-                    {getPaymentElement(
-                        <span>
-                            {numberWithThousandsSeperators(5400)} CoflCoins <span className={styles.discount}>~4% off</span>
-                        </span>,
-                        19.69,
-                        's_cc_5400',
-                        19.99,
-                        'p_cc_5400'
-                    )}
+                    {getPaymentElement(<span>{numberWithThousandsSeperators(5400)} CoflCoins </span>, 19.69, 's_cc_5400', 19.99, 'p_cc_5400')}
                     {!showAll ? (
                         <Button
                             style={{ width: '100%' }}
@@ -239,24 +232,8 @@ function Payment(props: Props) {
                     ) : null}
                     {showAll ? (
                         <>
-                            {getPaymentElement(
-                                <span>
-                                    {numberWithThousandsSeperators(10800)} CoflCoins <span className={styles.discount}>~5% off</span>
-                                </span>,
-                                38.99,
-                                's_cc_10800',
-                                39.69,
-                                'p_cc_10800'
-                            )}
-                            {getPaymentElement(
-                                <span>
-                                    {numberWithThousandsSeperators(21600)} CoflCoins <span className={styles.discount}>~6% off</span>
-                                </span>,
-                                74.99,
-                                's_cc_21600',
-                                78.69,
-                                'p_cc_21600'
-                            )}
+                            {getPaymentElement(<span>{numberWithThousandsSeperators(10800)} CoflCoins </span>, 38.99, 's_cc_10800', 39.69, 'p_cc_10800')}
+                            {getPaymentElement(<span>{numberWithThousandsSeperators(21600)} CoflCoins </span>, 74.99, 's_cc_21600', 78.69, 'p_cc_21600')}
                             {coflCoins % 1800 != 0 ? getNextTo1800PaymentElement() : null}
                         </>
                     ) : null}

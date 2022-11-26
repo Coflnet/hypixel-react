@@ -121,19 +121,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getItemPrices = (itemTag: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]> => {
         return new Promise((resolve, reject) => {
-            let query = ''
-            if (!itemFilter || Object.keys(itemFilter).length === 0) {
-                itemFilter = undefined
-            } else {
-                Object.keys(itemFilter).forEach(key => {
-                    query += `${key}=${itemFilter[key]}&`
-                })
+            let params = new URLSearchParams()
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                params = new URLSearchParams(itemFilter)
             }
 
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_PRICES,
                 data: '',
-                customRequestURL: getApiEndpoint() + `/item/price/${itemTag}/history/${fetchSpan}?${query}`,
+                customRequestURL: getApiEndpoint() + `/item/price/${itemTag}/history/${fetchSpan}?${params.toString()}`,
                 requestMethod: 'GET',
                 requestHeader: {
                     'Content-Type': 'application/json'
@@ -226,46 +222,53 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctions = (uuid: string, amount: number, offset: number): Promise<Auction[]> => {
+    let getAuctions = (uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
-            let requestData = {
-                uuid: uuid,
-                amount: amount,
-                offset: offset
+            let params = new URLSearchParams()
+            params.append('page', page.toString())
+
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                Object.keys(itemFilter).forEach(key => {
+                    params.append(key, itemFilter[key])
+                })
             }
-            httpApi.sendLimitedCacheRequest(
-                {
-                    type: RequestType.PLAYER_AUCTION,
-                    data: requestData,
-                    resolve: (auctions: any) => {
-                        returnSSRResponse
-                            ? resolve(auctions)
-                            : resolve(
-                                  auctions.map((auction: any) => {
-                                      return parseAuction(auction)
-                                  })
-                              )
-                    },
-                    reject: (error: any) => {
-                        apiErrorHandler(RequestType.PLAYER_AUCTION, error, requestData)
-                        reject()
-                    }
+
+            httpApi.sendApiRequest({
+                type: RequestType.PLAYER_AUCTION,
+                customRequestURL: `${getApiEndpoint()}/player/${uuid}/auctions?${params.toString()}`,
+                data: '',
+                resolve: (auctions: any) => {
+                    returnSSRResponse
+                        ? resolve(auctions)
+                        : resolve(
+                              auctions.map((auction: any) => {
+                                  return parseAuction(auction)
+                              })
+                          )
                 },
-                2
-            )
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.PLAYER_AUCTION, error, { uuid, page })
+                    reject()
+                }
+            })
         })
     }
 
-    let getBids = (uuid: string, amount: number, offset: number): Promise<BidForList[]> => {
+    let getBids = (uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<BidForList[]> => {
         return new Promise((resolve, reject) => {
-            let requestData = {
-                uuid: uuid,
-                amount: amount,
-                offset: offset
+            let params = new URLSearchParams()
+            params.append('page', page.toString())
+
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                Object.keys(itemFilter).forEach(key => {
+                    params.append(key, itemFilter[key])
+                })
             }
-            httpApi.sendLimitedCacheRequest({
+
+            httpApi.sendApiRequest({
                 type: RequestType.PLAYER_BIDS,
-                data: requestData,
+                customRequestURL: `${getApiEndpoint()}/player/${uuid}/bids?${params.toString()}`,
+                data: '',
                 resolve: (bids: any) => {
                     resolve(
                         bids.map((bid: any) => {
@@ -274,7 +277,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     )
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.PLAYER_BIDS, error, requestData)
+                    apiErrorHandler(RequestType.PLAYER_BIDS, error, { uuid, page })
                     reject()
                 }
             })
@@ -556,18 +559,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getRecentAuctions = (itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
-            let query = ''
-            if (!itemFilter || Object.keys(itemFilter).length === 0) {
-                itemFilter = undefined
-            } else {
-                Object.keys(itemFilter).forEach(key => {
-                    query += `${key}=${itemFilter[key]}&`
-                })
-            }
+            let params = new URLSearchParams(itemFilter)
 
             httpApi.sendApiRequest({
                 type: RequestType.RECENT_AUCTIONS,
-                customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${query}`,
+                customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${params.toString()}`,
                 data: '',
                 resolve: (data: any) => {
                     resolve(data ? data.map(a => parseRecentAuction(a)) : [])

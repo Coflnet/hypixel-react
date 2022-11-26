@@ -7,7 +7,8 @@ import {
     getStyleForTier,
     numberWithThousandsSeperators,
     convertTagToName,
-    formatDungeonStarsInString as getDungeonStarFormattedItemName
+    formatDungeonStarsInString as getDungeonStarFormattedItemName,
+    getMinecraftColorCodedElement
 } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { useForceUpdate } from '../../utils/Hooks'
@@ -289,7 +290,7 @@ function AuctionDetails(props: Props) {
                             isRunning(auctionDetails)
                                 ? '/viewauction ' + auctionDetails.auction.uuid
                                 : isClientSideRendering()
-                                ? `${location.hostname}/auction/${auctionDetails.auction.uuid}`
+                                ? `${location.origin}/auction/${auctionDetails.auction.uuid}`
                                 : ''
                         }
                         successMessage={
@@ -370,17 +371,7 @@ function AuctionDetails(props: Props) {
                             {auctionDetails?.enchantments.map(enchantment => {
                                 let enchantmentString = <span>{enchantment.name}</span>
                                 if (enchantment.color) {
-                                    enchantmentString = (
-                                        <span
-                                            style={{ float: 'left' }}
-                                            ref={node => {
-                                                if (node && enchantment.color) {
-                                                    node.innerHTML = ''
-                                                    node.append(((enchantment.color + enchantment.name + ' ' + enchantment.level) as any).replaceColorCodes())
-                                                }
-                                            }}
-                                        ></span>
-                                    )
+                                    enchantmentString = getMinecraftColorCodedElement(enchantment.color + enchantment.name + ' ' + enchantment.level)
                                 }
                                 return enchantment.name ? <li key={enchantment.name}>{enchantmentString}</li> : ''
                             })}
