@@ -7,10 +7,10 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useStateWithRef } from '../../utils/Hooks'
+import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK, PREMIUM_TYPES } from '../../utils/PremiumTypeUtils'
+import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import styles from './ActiveAuctions.module.css'
 
 interface Props {
@@ -102,7 +102,11 @@ function ActiveAuctions(props: Props) {
     function onAfterLogin() {
         api.getPremiumProducts().then(products => {
             setIsLoggedIn(true)
-            let highestPremium = getPremiumType(getHighestPriorityPremiumProduct(products))
+            let activePremium = getHighestPriorityPremiumProduct(products)
+            if (!activePremium) {
+                return
+            }
+            let highestPremium = getPremiumType(activePremium)
             premiumType = highestPremium
             setPremiumType(() => {
                 setAllElementsLoaded(() => {
@@ -114,33 +118,6 @@ function ActiveAuctions(props: Props) {
                 return highestPremium
             })
         })
-    }
-
-    function getMoreActiveAuctionsElement() {
-        if (!isLoggedIn || !premiumType) {
-            return (
-                <p>
-                    You can see more auctions with{' '}
-                    <Link href={'/premium'} style={{ marginBottom: '15px' }}>
-                        <a>Premium:</a>
-                    </Link>
-                    <GoogleSignIn onAfterLogin={onAfterLogin} />
-                </p>
-            )
-        }
-        if (premiumType.priority === PREMIUM_RANK.STARTER) {
-            return (
-                <p>
-                    You currently use Starter Premium. You can see up to 120 active auctions with
-                    <Link href={'/premium'}>
-                        <a>Premium:</a>
-                    </Link>
-                    <div style={{ marginTop: '15px' }}>
-                        <GoogleSignIn onAfterLogin={onAfterLogin} />
-                    </div>
-                </p>
-            )
-        }
     }
 
     let activeAuctionList = activeAuctions.map((activeAuction, i) => {
@@ -244,7 +221,17 @@ function ActiveAuctions(props: Props) {
                     <p style={{ textAlign: 'center' }}>No active auctions found</p>
                 )}
             </div>
-            {getMoreActiveAuctionsElement()}
+            {getMoreAuctionsElement(
+                isLoggedIn,
+                premiumType,
+                onAfterLogin,
+                <span>
+                    You currently use Starter Premium. You can see up to 120 active auctions with
+                    <Link href={'/premium'}>
+                        <a>Premium</a>
+                    </Link>
+                </span>
+            )}
         </div>
     )
 }

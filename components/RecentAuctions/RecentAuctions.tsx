@@ -10,8 +10,8 @@ import { isClientSideRendering } from '../../utils/SSRUtils'
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { useStateWithRef } from '../../utils/Hooks'
+import { getMoreAuctionsElement } from '../../utils/ListUtils'
 
 interface Props {
     item: Item
@@ -119,7 +119,11 @@ function RecentAuctions(props: Props) {
     function onAfterLogin() {
         api.getPremiumProducts().then(products => {
             setIsLoggedIn(true)
-            let highestPremium = getPremiumType(getHighestPriorityPremiumProduct(products))
+            let activePremium = getHighestPriorityPremiumProduct(products)
+            if (!activePremium) {
+                return
+            }
+            let highestPremium = getPremiumType(activePremium)
             premiumType = highestPremium
             setPremiumType(() => {
                 setAllElementsLoaded(() => {
@@ -131,33 +135,6 @@ function RecentAuctions(props: Props) {
                 return highestPremium
             })
         })
-    }
-
-    function getMoreRecentAuctionsElement() {
-        if (!isLoggedIn || !premiumType) {
-            return (
-                <p>
-                    You can see more auctions with{' '}
-                    <Link href={'/premium'} style={{ marginBottom: '15px' }}>
-                        <a>Premium:</a>
-                    </Link>
-                    <GoogleSignIn onAfterLogin={onAfterLogin} />
-                </p>
-            )
-        }
-        if (premiumType.priority === PREMIUM_RANK.STARTER) {
-            return (
-                <p>
-                    You currently use Starter Premium. You can see up to 120 active auctions with
-                    <Link href={'/premium'}>
-                        <a>Premium:</a>
-                    </Link>
-                    <div style={{ marginTop: '15px' }}>
-                        <GoogleSignIn onAfterLogin={onAfterLogin} />
-                    </div>
-                </p>
-            )
-        }
     }
 
     let recentAuctionList = recentAuctions.map(recentAuction => {
@@ -250,7 +227,17 @@ function RecentAuctions(props: Props) {
                     <p style={{ textAlign: 'center' }}>No recent auctions found</p>
                 )}
             </div>
-            {getMoreRecentAuctionsElement()}
+            {getMoreAuctionsElement(
+                isLoggedIn,
+                premiumType,
+                onAfterLogin,
+                <span>
+                    You currently use Starter Premium. You can see up to 120 recent auctions with
+                    <Link href={'/premium'}>
+                        <a>Premium</a>
+                    </Link>
+                </span>
+            )}
         </div>
     )
 }
