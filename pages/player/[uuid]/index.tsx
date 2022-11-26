@@ -167,6 +167,7 @@ function PlayerDetails(props: Props) {
                     <PlayerDetailsList
                         key={'auctions'}
                         type="auctions"
+                        accountInfo={accountInfo}
                         auctions={props.auctions?.map(parseAuction)}
                         loadingDataFunction={api.getAuctions}
                         player={selectedPlayer}
