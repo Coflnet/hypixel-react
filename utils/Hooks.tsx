@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
 import api from '../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
 import { getCurrentCoflCoins, subscribeToCoflcoinChange } from './CoflCoinsUtils'
@@ -112,4 +112,20 @@ export function useDebounce(value, delay) {
         }
     }, [value, delay])
     return debouncedValue
+}
+
+type ReadonlyRef<T> = {
+    readonly current: T
+}
+
+export function useStateWithRef<T>(defaultValue: T): [T, Dispatch<SetStateAction<T>>, ReadonlyRef<T>] {
+    const [state, _setState] = useState(defaultValue)
+    let stateRef = useRef(state)
+
+    const setState: typeof _setState = useCallback((newState: T) => {
+        stateRef.current = newState
+        _setState(newState)
+    }, [])
+
+    return [state, setState, stateRef]
 }
