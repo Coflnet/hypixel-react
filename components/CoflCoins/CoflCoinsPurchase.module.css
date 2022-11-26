@@ -25,7 +25,6 @@
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    height: 50px;
 }
 
 .discount {
@@ -47,17 +46,4 @@
 
 .paymentLabel {
     width: 50%;
-}
-
-/* Temporary for the black friday styling */
-.reducedPrice {
-    color: red;
-    font-weight: bold;
-    padding-left: 10px;
-}
-
-@media all and (max-width: 992px) {
-    .premiumPlanCard {
-        width: calc(100%);
-    }
 }
