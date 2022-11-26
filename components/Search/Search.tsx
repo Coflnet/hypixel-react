@@ -11,6 +11,7 @@ import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
 import { useRouter } from 'next/router'
 import { useForceUpdate } from '../../utils/Hooks'
+import Image from 'next/image'
 
 interface Props {
     selected?: Player | Item
@@ -185,7 +186,7 @@ function Search(props: Props) {
 
     let noResultsFoundElement = (
         <ListGroup.Item key={-1} style={getListItemStyle(-1)} onContextMenu={handleSearchContextMenuForSearchResult}>
-            <img className={styles.searchResultIcon} height={32} src="/Barrier.png" alt="" />
+            <Image className={styles.searchResultIcon} height={32} src="/Barrier.png" alt="" />
             No search results
         </ListGroup.Item>
     )
@@ -205,7 +206,7 @@ function Search(props: Props) {
         }
         return (
             <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
-                <img crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" alt="" style={{ marginRight: '10px' }} />
+                <Image crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" alt="" style={{ marginRight: '10px' }} />
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
                 {props.enableReset ? (
                     <ClearIcon onClick={props.onResetClick} style={{ cursor: 'pointer', color: 'red', marginLeft: '10px', fontWeight: 'bold' }} />
@@ -303,7 +304,7 @@ function Search(props: Props) {
                         })
                     }}
                 >
-                    <WrongIcon style={{ color: 'red', marginRight: '5px' }} />I didn't find the thing I was looking for!
+                    <WrongIcon style={{ color: 'red', marginRight: '5px' }} />I didn&apos;t find the thing I was looking for!
                 </Item>
             </Menu>
         </div>
@@ -356,7 +357,7 @@ function Search(props: Props) {
                               onContextMenu={handleSearchContextMenuForSearchResult}
                           >
                               {result.dataItem.iconUrl ? (
-                                  <img
+                                  <Image
                                       className={`${styles.searchResultIcon} playerHeadIcon`}
                                       crossOrigin="anonymous"
                                       width={32}

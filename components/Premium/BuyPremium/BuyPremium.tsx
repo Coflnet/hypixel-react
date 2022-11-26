@@ -93,12 +93,12 @@ function BuyPremium(props: Props) {
                         {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins
                     </li>
                 </ul>
-                <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
+                <p>The time will be added to account. After you confirmed the purchase, it can&apos;t be canceled/moved to another account</p>
                 {props.activePremiumProduct && getPremiumType(props.activePremiumProduct).productId !== purchasePremiumType.productId ? (
                     <div>
                         <hr />
                         <p style={{ color: 'yellow' }}>
-                            It seems you already have an active premium product. While the 'better' premium is active, the other will get paused.
+                            It seems you already have an active premium product. While the &apos;better&apos; premium is active, the other will get paused.
                         </p>
                     </div>
                 ) : null}
@@ -132,7 +132,7 @@ function BuyPremium(props: Props) {
                                     onChange={onPremiumTypeChange}
                                 >
                                     {PREMIUM_TYPES.map(premiumType => (
-                                        <ToggleButton value={premiumType.productId} className="price-range-button" size="sm">
+                                        <ToggleButton key={premiumType.productId} value={premiumType.productId} className="price-range-button" size="sm">
                                             {premiumType.label}
                                         </ToggleButton>
                                     ))}
@@ -151,7 +151,11 @@ function BuyPremium(props: Props) {
                                     defaultValue={purchasePremiumOption.value}
                                 >
                                     {purchasePremiumType.options.map(option => {
-                                        return <option value={JSON.stringify(option)}>{option.label}</option>
+                                        return (
+                                            <option key={JSON.stringify(option)} value={JSON.stringify(option)}>
+                                                {option.label}
+                                            </option>
+                                        )
                                     })}
                                 </Form.Control>
                                 <span style={{ marginLeft: '20px' }}>{getDurationString()}</span>
@@ -166,7 +170,9 @@ function BuyPremium(props: Props) {
                                     <span>{numberWithThousandsSeperators(coflCoins - getPurchasePrice())} Coins</span>
                                 </div>
                             ) : null}
-                            <p style={{ marginTop: '20px' }}>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
+                            <p style={{ marginTop: '20px' }}>
+                                This is a prepaid service. We won&apos;t automatically charge you after your premium time runs out!
+                            </p>
                             <hr />
                             <Button
                                 style={{ marginTop: '10px' }}
@@ -181,7 +187,7 @@ function BuyPremium(props: Props) {
                             {getPurchasePrice() > coflCoins && !isPurchasing ? (
                                 <span>
                                     <p>
-                                        <span style={{ color: 'red' }}>You don't have enough CoflCoins to buy this.</span>{' '}
+                                        <span style={{ color: 'red' }}>You don&apos;t have enough CoflCoins to buy this.</span>{' '}
                                     </p>
                                 </span>
                             ) : (

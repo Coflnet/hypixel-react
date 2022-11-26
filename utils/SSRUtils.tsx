@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Image from 'next/image'
 
 export function isClientSideRendering() {
     return typeof window !== 'undefined'
@@ -12,12 +13,12 @@ export function getSSRElement(obj: any): JSX.Element {
                     return null
                 }
                 if (key === 'iconUrl') {
-                    return <img src={obj[key]} />
+                    return <Image key={key} src={obj[key]} alt={key} />
                 }
                 if (typeof obj[key] === 'object') {
                     return getSSRElement(obj[key])
                 }
-                return <li>{`${key}: ${obj[key].toString()}`}</li>
+                return <li key={key}>{`${key}: ${obj[key].toString()}`}</li>
             })}
         </ul>
     )

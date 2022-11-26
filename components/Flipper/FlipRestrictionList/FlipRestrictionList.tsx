@@ -12,6 +12,7 @@ import NewRestriction from './NewRestriction/NewRestriction'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import Tooltip from '../../Tooltip/Tooltip'
 import { toast } from 'react-toastify'
+import Image from 'next/image'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist')
@@ -399,6 +400,7 @@ function FlipRestrictionList(props: Props) {
             <div className={styles.restrictionList}>
                 {restrictions.map((restriction, index) => {
                     return (
+                        // eslint-disable-next-line react/jsx-key
                         <Card className={`${styles.restriction} ${restriction.isEdited ? styles.restrictionMarkedAsEdit : null}`}>
                             <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
                                 {restriction.isEdited ? (
@@ -425,7 +427,7 @@ function FlipRestrictionList(props: Props) {
                                 )}
                                 {restriction.item ? (
                                     <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}>
-                                        <img
+                                        <Image
                                             crossOrigin="anonymous"
                                             src={restriction.item?.iconUrl}
                                             height="24"

@@ -90,7 +90,7 @@ function BazaarSnapshot(props: Props) {
                 </thead>
                 <tbody>
                     {orders.map(order => (
-                        <tr>
+                        <tr key={order.pricePerUnit}>
                             <td>{numberWithThousandsSeperators(order.pricePerUnit)} Coins</td>
                             <td>{order.amount}</td>
                             <td>{order.orders}</td>

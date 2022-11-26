@@ -7,6 +7,7 @@ import styles from './KatFlips.module.css'
 import { toast } from 'react-toastify'
 import Link from 'next/link'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import Image from 'next/image'
 
 interface Props {
     flips: KatFlip[]
@@ -201,7 +202,7 @@ export function KatFlips(props: Props) {
     function getFlipHeader(flip) {
         return (
             <span style={getStyleForTier(flip.coreData.item.tier)}>
-                <img crossOrigin="anonymous" src={flip.coreData.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <Image crossOrigin="anonymous" src={flip.coreData.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                 {convertTagToName(flip.coreData.item.name) || convertTagToName(flip.coreData.item.tag)}
             </span>
         )
@@ -240,7 +241,9 @@ export function KatFlips(props: Props) {
                 <Form.Control style={{ width: '49%' }} placeholder="Item name..." onChange={onNameFilterChange} />
                 <Form.Control style={{ width: '49%' }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
-                        <option value={option.value}>{option.label}</option>
+                        <option key={option.label} value={option.value}>
+                            {option.label}
+                        </option>
                     ))}
                 </Form.Control>
             </div>

@@ -9,6 +9,7 @@ import { getHeadElement } from '../../../../utils/SSRUtils'
 import moment from 'moment'
 import Link from 'next/link'
 import { getCacheContolHeader } from '../../../../utils/CacheUtils'
+import Image from 'next/image'
 
 interface Props {
     flipTrackingResponse: any
@@ -48,7 +49,7 @@ function Flipper(props: Props) {
                             <span style={{ fontSize: 'larger', marginRight: '20px' }}>Tracked flips of:</span>
                             <Link href={`/player/${player.uuid}`}>
                                 <span style={{ cursor: 'pointer' }}>
-                                    <img
+                                    <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
                                         src={player.iconUrl}

@@ -59,7 +59,7 @@ function PremiumStatus(props: Props) {
                         </span>
                         <ul style={{ float: 'left' }}>
                             {productsToShow.map(product => (
-                                <li>{getProductListEntry(product)}</li>
+                                <li key={product.productSlug}>{getProductListEntry(product)}</li>
                             ))}
                         </ul>
                     </div>

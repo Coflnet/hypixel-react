@@ -8,6 +8,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import Image from 'next/image'
 
 interface Props {
     crafts?: ProfitableCraft[]
@@ -244,7 +245,7 @@ export function CraftsList(props: Props) {
     function getCraftHeader(craft: ProfitableCraft): JSX.Element {
         return (
             <span>
-                <img crossOrigin="anonymous" src={craft.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <Image crossOrigin="anonymous" src={craft.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                 {getMinecraftColorCodedElement(craft.item.name)}
             </span>
         )
@@ -286,8 +287,8 @@ export function CraftsList(props: Props) {
             tooltipContent={
                 <div style={{ width: 'max-width' }}>
                     <p>
-                        To connect your Minecraft Account, search your ingame name in the search bar. On the player page you should see a text "You? Claim
-                        account."
+                        To connect your Minecraft Account, search your ingame name in the search bar. On the player page you should see a text &quot;You? Claim
+                        account.&quot;
                     </p>
                 </div>
             }
@@ -317,7 +318,9 @@ export function CraftsList(props: Props) {
                 <Form.Control style={{ width: selectWidth }} placeholder="Item name..." onChange={onNameFilterChange} />
                 <Form.Control style={{ width: selectWidth }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
-                        <option value={option.value}>{option.label}</option>
+                        <option key={option.label} value={option.value}>
+                            {option.label}
+                        </option>
                     ))}
                 </Form.Control>
                 {profiles ? (

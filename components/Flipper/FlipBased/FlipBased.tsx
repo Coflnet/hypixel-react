@@ -7,6 +7,7 @@ import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { useForceUpdate } from '../../../utils/Hooks'
 import Link from 'next/link'
 import styles from './FlipBased.module.css'
+import Image from 'next/image'
 
 interface Props {
     auctionUUID: string
@@ -46,7 +47,7 @@ function FlipBased(props: Props) {
                             <Card className="card">
                                 <Card.Header style={{ padding: '10px' }}>
                                     <p className="ellipsis" style={{ width: '180px' }}>
-                                        <img
+                                        <Image
                                             crossOrigin="anonymous"
                                             src={props.item.iconUrl}
                                             height="32"

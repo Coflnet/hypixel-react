@@ -275,7 +275,7 @@ function FlipperFilter(props: Props) {
                                 Advanced
                             </Form.Label>
                         }
-                        tooltipContent={<span>Get more advanced config options. (You shouldn't need them by default)</span>}
+                        tooltipContent={<span>Get more advanced config options. (You shouldn&apos;t need them by default)</span>}
                     />
                     <Form.Check
                         id="advancedCheckbox"

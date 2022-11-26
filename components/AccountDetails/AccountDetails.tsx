@@ -16,9 +16,10 @@ import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { atobUnicode } from '../../utils/Base64Utils'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
-import { getHighestPriorityPremiumProduct, getPremiumType } from '../../utils/PremiumTypeUtils'
+import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import { googleLogout } from '@react-oauth/google'
 import PremiumStatus from '../Premium/PremiumStatus/PremiumStatus'
+import Image from 'next/image'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -45,7 +46,7 @@ function AccountDetails() {
             try {
                 let parts = googleId.split('.')
                 let obj = JSON.parse(atobUnicode(parts[1]))
-                let imageElement = obj.picture ? <img src={obj.picture} height={24} width={24} alt="" /> : <span />
+                let imageElement = obj.picture ? <Image src={obj.picture} height={24} width={24} alt="" /> : <span />
                 return (
                     <span>
                         {imageElement} {`${obj.name} (${obj.email})`}
@@ -222,7 +223,7 @@ function AccountDetails() {
                                 Reset Google login
                             </Button>
                         }
-                        tooltipContent={<span>Make sure your browser doesn't block popups. Otherwise use this button to reset your Google login</span>}
+                        tooltipContent={<span>Make sure your browser doesn&apos;t block popups. Otherwise use this button to reset your Google login</span>}
                     />
                 </div>
             </p>

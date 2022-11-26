@@ -18,7 +18,7 @@ function ApiInfo() {
                     <Card.Body>
                         <p>
                             If you want to make another app yourself take a look at the API docs at{' '}
-                            <a href="https://sky.coflnet.com/api" target="_blank">
+                            <a href="https://sky.coflnet.com/api" target="_blank" rel="noreferrer">
                                 https://sky.coflnet.com/api
                             </a>{' '}
                             (If you do please link this page as well).

@@ -13,6 +13,7 @@ interface Props {
     placeholder?: string
 }
 
+// eslint-disable-next-line react/display-name
 export let PlayerFilterElement = forwardRef((props: Props, ref) => {
     // for player search
     let [players, setPlayers] = useState<Player[]>([])

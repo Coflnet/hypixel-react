@@ -6,6 +6,7 @@ import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { toast } from 'react-toastify'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import Image from 'next/image'
 
 interface Props {
     receiverType: 'email' | 'mcId'
@@ -46,7 +47,7 @@ function TransferCoflCoinsSummary(props: Props) {
                             <span>{props.email}</span>
                         ) : (
                             <span>
-                                <img
+                                <Image
                                     crossOrigin="anonymous"
                                     className="playerHeadIcon"
                                     src={props.player?.iconUrl}

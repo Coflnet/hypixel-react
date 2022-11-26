@@ -3,6 +3,7 @@ import { numberWithThousandsSeperators } from '../../../utils/Formatter'
 import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import { Badge } from 'react-bootstrap'
 import styles from './CraftDetails.module.css'
+import Image from 'next/image'
 
 interface Props {
     craft: ProfitableCraft
@@ -36,14 +37,7 @@ export function CraftDetails(props: Props) {
                             onItemClick(ingredient.item.tag)
                         }}
                     >
-                        <img
-                            crossOrigin="anonymous"
-                            src={ingredient.item.iconUrl}
-                            height="24"
-                            alt=""
-                            style={{ marginRight: '5px' }}
-                            loading="lazy"
-                        />
+                        <Image crossOrigin="anonymous" src={ingredient.item.iconUrl} height="24" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                         {ingredient.item.name + ' (' + ingredient.count + 'x)'}
                         <Badge style={{ marginLeft: '5px' }} variant="secondary">
                             {numberWithThousandsSeperators(Math.round(ingredient.cost))} Coins

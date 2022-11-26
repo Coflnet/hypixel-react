@@ -6,6 +6,7 @@ import { ArrowDownward as ArrowDownIcon, ArrowUpward as ArrowUpIcon, Sort as Sor
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './LowSupplyList.module.css'
 import NumberFormat from 'react-number-format'
+import Image from 'next/image'
 
 let mounted = true
 
@@ -92,9 +93,9 @@ function LowSupplyList(props: Props) {
                   return ''
               }
               return (
-                  <tr>
+                  <tr key={item.tag}>
                       <td>
-                          <img crossOrigin="anonymous" src={item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                          <Image crossOrigin="anonymous" src={item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                       </td>
                       <td>{item.name}</td>
                       <td>{item.supply}</td>

@@ -8,6 +8,7 @@ import Link from 'next/link'
 import styles from './RecentAuctions.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
+import Image from 'next/image'
 
 interface Props {
     item: Item
@@ -90,7 +91,7 @@ function RecentAuctions(props: Props) {
                             <Card className="card">
                                 <Card.Header style={{ padding: '10px' }}>
                                     <div style={{ float: 'left' }}>
-                                        <img
+                                        <Image
                                             crossOrigin="anonymous"
                                             className="playerHeadIcon"
                                             src={props.item.iconUrl}
@@ -103,7 +104,7 @@ function RecentAuctions(props: Props) {
                                     <div>{numberWithThousandsSeperators(recentAuction.price)} Coins</div>
                                 </Card.Header>
                                 <Card.Body style={{ padding: '10px' }}>
-                                    <img
+                                    <Image
                                         style={{ marginRight: '15px' }}
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"

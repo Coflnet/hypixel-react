@@ -125,8 +125,8 @@ function FlipCustomize() {
             return (
                 <b>
                     <p style={{ color: 'red' }}>
-                        Only use the "Sniper"-Finder with 'Use lbin to calculate profit option'. Using other finders may leed to muliple seconds of delay as
-                        this will require additional calculations.
+                        Only use the &quot;Sniper&quot;-Finder with &apos;Use lbin to calculate profit option&apos;. Using other finders may leed to muliple
+                        seconds of delay as this will require additional calculations.
                     </p>
                 </b>
             )
@@ -408,7 +408,7 @@ function FlipCustomize() {
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label className={styles.label} htmlFor="blockTenSecMsg">
-                                    "Flips in 10 seconds"
+                                    &quot;Flips in 10 seconds&quot;
                                 </Form.Label>
                                 <Form.Check
                                     onChange={event => {

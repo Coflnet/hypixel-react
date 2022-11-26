@@ -15,7 +15,7 @@ function ModDetails() {
                     </p>
                     <h3>Installation</h3>
                     <ol>
-                        <li>Get and install Forge 1.8.9 (if you don't have already watch the video below)</li>
+                        <li>Get and install Forge 1.8.9 (if you don&apos;t have already watch the video below)</li>
                         <li>Download and put the mod into your mods folder</li>
                         <li>Launch Minecraft and join Skyblock</li>
                         <li>

@@ -76,7 +76,7 @@ function RatChecker() {
                 {checkingResults.map(checkingResult => {
                     if (checkingResult[1].rat.includes('No matching signature')) {
                         return (
-                            <li style={{ color: 'white', fontSize: 'large' }}>
+                            <li key={checkingResult[0]} style={{ color: 'white', fontSize: 'large' }}>
                                 <span className={styles.checkedFileName}>{checkingResult[0]}</span>: This mod file is not known. For further information check{' '}
                                 <a target="_blank" rel="noreferrer" href="https://isthisarat.com/">
                                     https://isthisarat.com/
@@ -86,15 +86,16 @@ function RatChecker() {
                     }
                     if (checkingResult[1].rat.includes('Yes')) {
                         return (
-                            <li style={{ color: 'red', fontSize: 'large' }}>
+                            <li key={checkingResult[0]} style={{ color: 'red', fontSize: 'large' }}>
                                 <span className={styles.checkedFileName}>{checkingResult[0]}</span>: This mod is a known rat. We recommend against using it!
                             </li>
                         )
                     }
                     if (checkingResult[1].rat.includes('No')) {
                         return (
-                            <li style={{ color: 'lime', fontSize: 'large' }}>
-                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: No harmful code was found in this mod. It should be safe to use.
+                            <li key={checkingResult[0]} style={{ color: 'lime', fontSize: 'large' }}>
+                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: No harmful code was found in this mod. It should be safe to
+                                use.
                             </li>
                         )
                     }
@@ -113,7 +114,10 @@ function RatChecker() {
                 <Card.Body>
                     {!isChecking ? (
                         <div>
-                            <p>Received a suspicious (or any other mod) that you want to check? Select it here and get quick results for known rats or legitimate mods (you can select multiple at once):</p>
+                            <p>
+                                Received a suspicious (or any other mod) that you want to check? Select it here and get quick results for known rats or
+                                legitimate mods (you can select multiple at once):
+                            </p>
                             <Form.Control type="file" className={'form-control'} ref={ratFileInput} onChange={onFileUpload} multiple />
                         </div>
                     ) : (

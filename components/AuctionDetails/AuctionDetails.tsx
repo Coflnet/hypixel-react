@@ -23,6 +23,7 @@ import styles from './AuctionDetails.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import FlipBased from '../Flipper/FlipBased/FlipBased'
 import { Help as HelpIcon } from '@mui/icons-material'
+import Image from 'next/image'
 
 interface Props {
     auctionUUID: string
@@ -42,6 +43,7 @@ function AuctionDetails(props: Props) {
             return
         }
         loadAuctionDetails(props.auctionUUID!)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.auctionUUID])
 
     let tryNumber = 1
@@ -229,7 +231,7 @@ function AuctionDetails(props: Props) {
                     <a className="disableLinkStyle">
                         <h1>
                             <span className={styles.itemIcon}>
-                                <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
+                                <Image crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
                             </span>
                             <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
                                 <span style={{ marginRight: '10px' }}>
@@ -254,25 +256,22 @@ function AuctionDetails(props: Props) {
                     </a>
                 </Link>
                 <div className={styles.cardHeadSubtext}>
-                    <OverlayTrigger
-                        overlay={<TooltipBootstrap id={generateUUID()}>{getTimeToolTipString()}</TooltipBootstrap>}
-                        children={
-                            <div>
-                                {isRunning(auctionDetails) ? (
-                                    <span>
-                                        End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : '-'}
-                                    </span>
-                                ) : (
-                                    <span>
-                                        Auction ended{' '}
-                                        {auctionDetails.auction.bin && auctionDetails.bids.length > 0
-                                            ? moment(auctionDetails.bids[0].timestamp).fromNow()
-                                            : moment(auctionDetails.auction.end).fromNow()}
-                                    </span>
-                                )}
-                            </div>
-                        }
-                    ></OverlayTrigger>
+                    <OverlayTrigger overlay={<TooltipBootstrap id={generateUUID()}>{getTimeToolTipString()}</TooltipBootstrap>}>
+                        <div>
+                            {isRunning(auctionDetails) ? (
+                                <span>
+                                    End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : '-'}
+                                </span>
+                            ) : (
+                                <span>
+                                    Auction ended{' '}
+                                    {auctionDetails.auction.bin && auctionDetails.bids.length > 0
+                                        ? moment(auctionDetails.bids[0].timestamp).fromNow()
+                                        : moment(auctionDetails.auction.end).fromNow()}
+                                </span>
+                            )}
+                        </div>
+                    </OverlayTrigger>
                     {isRunning(auctionDetails) ? (
                         <div>
                             <SubscribeButton
@@ -342,7 +341,7 @@ function AuctionDetails(props: Props) {
                                 <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
                             </span>
                             {auctionDetails?.auctioneer.name}
-                            <img
+                            <Image
                                 crossOrigin="anonymous"
                                 className="playerHeadIcon"
                                 src={auctionDetails?.auctioneer.iconUrl}
@@ -395,7 +394,7 @@ function AuctionDetails(props: Props) {
                     <Link href={`/player/${bid.bidder.uuid}`} key={'bid-' + i}>
                         <a className="disableLinkStyle">
                             <ListGroup.Item key={bid.amount} action>
-                                <img
+                                <Image
                                     crossOrigin="anonymous"
                                     className="playerHeadIcon"
                                     src={bid.bidder.iconUrl}
@@ -421,7 +420,7 @@ function AuctionDetails(props: Props) {
                 getLoadingElement()
             ) : isNoAuctionFound ? (
                 <div>
-                    <p>The auction you tried to see doesn't seem to exist. Please go back.</p>
+                    <p>The auction you tried to see doesn&apos;t seem to exist. Please go back.</p>
                     <br />
                     <Link href="/">
                         <a className="disableLinkStyle">

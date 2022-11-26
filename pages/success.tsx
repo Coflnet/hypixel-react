@@ -15,6 +15,7 @@ function Success() {
             </>
         )
         router.push('/premium')
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return <div className="page">{getHeadElement('Payment successful')}</div>

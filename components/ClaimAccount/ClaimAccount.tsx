@@ -65,7 +65,7 @@ function ClaimAccount(props: Props) {
                 !isLoading && isLoggedIn && mcInfo && !mcInfo.isConnected ?
                     <div>
                         <h3>How do I claim my Minecraft Account?</h3>
-                        <p><p>To verify that this account is yours, please create a bid or an auction with the last 3 digits set to the number below. After at most 3 minutes your account will automatically be verified by our server. If your account hasn't been verified within 5 minutes please try again.</p></p>
+                        <p><p>To verify that this account is yours, please create a bid or an auction with the last 3 digits set to the number below. After at most 3 minutes your account will automatically be verified by our server. If your account hasn&apos;t been verified within 5 minutes please try again.</p></p>
                         <h4>Your number: <b style={{ color: "lime" }}>{formattedVerificationNumber}</b></h4>
                         <hr />
                         <h3>Example</h3>

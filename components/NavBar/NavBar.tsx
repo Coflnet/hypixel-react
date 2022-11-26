@@ -20,6 +20,7 @@ import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import Link from 'next/link'
+import Image from 'next/image'
 
 let resizePromise: NodeJS.Timeout | null = null
 
@@ -196,7 +197,7 @@ function NavBar(props: Props) {
                         <MenuItem icon={<ChatIcon />}>
                             <Link href={'/feedback'}>Feedback</Link>
                         </MenuItem>
-                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24"></img>}>
+                        <MenuItem icon={<Image src="/discord_icon.svg" alt="" height="24"></Image>}>
                             <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
                                 Discord
                             </a>

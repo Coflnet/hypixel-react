@@ -11,6 +11,7 @@ interface AvailableLinks {
     url: string
 }
 
+// eslint-disable-next-line react/display-name
 const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
     <span
         ref={ref as any}
@@ -25,7 +26,6 @@ const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
 ))
 
 function OptionsMenu(props: Props) {
-    
     let available: AvailableLinks[] = []
     const isItemPage = (props.selected as Item)?.tag !== undefined
     const isPlayerPage = !isItemPage

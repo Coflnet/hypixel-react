@@ -25,7 +25,7 @@ function AuthMod() {
         if (wasAlreadyLoggedIn && !isLoggedIn) {
             setIsLoggedIn(true)
         }
-    }, [wasAlreadyLoggedIn])
+    }, [isLoggedIn, wasAlreadyLoggedIn])
 
     function onLogin() {
         setIsLoggedIn(true)

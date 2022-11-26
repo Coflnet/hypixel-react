@@ -42,7 +42,7 @@ function FlipperFAQ() {
                         Statistically very reliable. Still, some flips might not sell as fast as others or at all. If you encounter a flip that can not be sold,
                         please post a link to it in the skyblock channel on our discord so we can improve the flipper further.
                     </p>
-                    <h3>Why is there a "premium" version?</h3>
+                    <h3>Why is there a &quot;premium&quot; version?</h3>
                     <p>
                         TLDR: Servercosts and compensation for development.
                         <br />

@@ -14,6 +14,7 @@ interface Props {
 export function NumberRangeFilterElement(props: Props) {
     let defaultValue = useMemo(() => {
         return parseValue(props.defaultValue)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.defaultValue])
 
     let [value, setValue] = useState(defaultValue)

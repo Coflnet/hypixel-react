@@ -10,7 +10,7 @@ import { FixedSizeList as List } from 'react-window'
 import Link from 'next/link'
 import styles from './Startpage.module.css'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { getSSRElement, isClientSideRendering } from '../../utils/SSRUtils'
+import Image from 'next/image'
 
 interface Props {
     newAuctions?: Auction[]
@@ -58,7 +58,7 @@ function Startpage(props: Props) {
                         <Card>
                             <Card.Header style={{ padding: '10px' }}>
                                 <p className={styles.ellipsis}>
-                                    <img crossOrigin="anonymous" src={auction.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} />
+                                    <Image crossOrigin="anonymous" src={auction.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} />
                                     {auction.item.name}
                                 </p>
                             </Card.Header>
@@ -94,7 +94,7 @@ function Startpage(props: Props) {
                         <Card>
                             <Card.Header style={{ height: '100%', padding: '20px' }}>
                                 <div style={{ float: 'left' }}>
-                                    <img
+                                    <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
                                         src={newPlayer.iconUrl}
@@ -121,7 +121,7 @@ function Startpage(props: Props) {
                         <Card>
                             <Card.Header style={{ height: '100%' }}>
                                 <div style={{ float: 'left' }}>
-                                    <img
+                                    <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
                                         src={search.url.includes('/player') ? search.img + '?size=8' : search.img}
@@ -148,7 +148,7 @@ function Startpage(props: Props) {
                         <Card>
                             <Card.Header style={{ height: '100%', padding: '20px' }}>
                                 <div style={{ float: 'left' }}>
-                                    <img crossOrigin="anonymous" src={newItem.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                                    <Image crossOrigin="anonymous" src={newItem.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                                 </div>
                                 <Card.Title className={styles.ellipsis}>{newItem.name}</Card.Title>
                             </Card.Header>
@@ -312,7 +312,7 @@ function Startpage(props: Props) {
                     </Card.Header>
                     <Card.Body>
                         <p>You can now look up a detailed breakdown of your flips in the last week.</p>
-                        <p>To look up your (or someone elses) flips, just search the player and click the blue "Check tracked flips" button.</p>
+                        <p>To look up your (or someone elses) flips, just search the player and click the blue &quot;Check tracked flips&quot; button.</p>
                         <hr />
                         <div style={{ marginTop: '20px' }}>
                             <p>Recent changes (last change: 18. April 2022):</p>
@@ -447,9 +447,10 @@ function Startpage(props: Props) {
                     <p>View, search, browse, and filter by reforge or enchantment.</p>
                     <p>You can find all current and historic prices for the auction house and bazaar on this web tracker.</p>
                     <p>
-                        We're tracking over 400 million auctions. We've saved more than 250 million bazaar prices in intervals of 10 seconds. Furthermore,
-                        there are over two million skyblock players that you can search by their Minecraft usernames. You can browse through the auctions they
-                        made over the past two years. New Items are added automatically and available within two miniutes after the first auction is started.
+                        We&apos;re tracking over 400 million auctions. We&apos;ve saved more than 250 million bazaar prices in intervals of 10 seconds.
+                        Furthermore, there are over two million skyblock players that you can search by their Minecraft usernames. You can browse through the
+                        auctions they made over the past two years. New Items are added automatically and available within two miniutes after the first auction
+                        is started.
                     </p>
                     <p>
                         The search autocomplete is ranked by popularity and allows you to find whatever item you want faster. Quick urls allow you to link to

@@ -92,7 +92,7 @@ function Payment(props: Props) {
                                             <p className={styles.manualRedirectLink}>
                                                 Redirecting to PayPal...
                                                 <br /> Not working?{' '}
-                                                <a href={currentRedirectLink} target="_blank">
+                                                <a href={currentRedirectLink} target="_blank" rel="noreferrer">
                                                     Click here
                                                 </a>
                                             </p>
@@ -124,7 +124,7 @@ function Payment(props: Props) {
                                                 Redirecting to Stripe...
                                                 <br />
                                                 Not working?{' '}
-                                                <a href={currentRedirectLink} target="_blank">
+                                                <a href={currentRedirectLink} target="_blank" rel="noreferrer">
                                                     Click here
                                                 </a>
                                             </p>
@@ -159,7 +159,7 @@ function Payment(props: Props) {
                         all of them to buy premium. Here you can purchase {numberWithThousandsSeperators(coflCoinsToBuy)} CoflCoins to again be able to do that.
                     </p>
                     <p>
-                        Due to the fees we have to pay to our payment providers we sadly can't provide purchases of less than{' '}
+                        Due to the fees we have to pay to our payment providers we sadly can&apos;t provide purchases of less than{' '}
                         {numberWithThousandsSeperators(1800)} CoflCoins at once.
                     </p>
                     <hr />

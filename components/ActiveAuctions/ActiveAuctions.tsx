@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import moment from 'moment'
+import Image from 'next/image'
 import Link from 'next/link'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Card, Form } from 'react-bootstrap'
@@ -15,9 +16,9 @@ interface Props {
 }
 
 const ORDERS = [
-    { label: 'Lowest price', value: "LOWEST_PRICE" },
-    { label: 'Highest price', value: "HIGHEST_PRICE" },
-    { label: 'Ending soon', value: "ENDING_SOON" }
+    { label: 'Lowest price', value: 'LOWEST_PRICE' },
+    { label: 'Highest price', value: 'HIGHEST_PRICE' },
+    { label: 'Ending soon', value: 'ENDING_SOON' }
 ]
 
 let currentLoad
@@ -69,7 +70,7 @@ function ActiveAuctions(props: Props) {
                             <a className="disableLinkStyle">
                                 <Card.Header style={{ padding: '10px' }}>
                                     <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'space-between' }}>
-                                        <img
+                                        <Image
                                             crossOrigin="anonymous"
                                             className="playerHeadIcon"
                                             src={props.item.iconUrl}
@@ -97,7 +98,7 @@ function ActiveAuctions(props: Props) {
                         </Link>
                     </span>
                     <Card.Body style={{ padding: '10px' }}>
-                        <img
+                        <Image
                             style={{ marginRight: '15px' }}
                             crossOrigin="anonymous"
                             className="playerHeadIcon"

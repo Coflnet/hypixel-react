@@ -11,6 +11,7 @@ import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../.
 import { Item, Menu, theme, useContextMenu } from 'react-contexify'
 import { useForceUpdate } from '../../utils/Hooks'
 import moment from 'moment'
+import Image from 'next/image'
 
 interface Props {
     totalProfit?: number
@@ -64,6 +65,7 @@ export function FlipTracking(props: Props) {
             })
         }
         refreshForIgnoredFlip()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     /**
@@ -127,6 +129,7 @@ export function FlipTracking(props: Props) {
         let toIgnore = ignoreProfitMap[trackedFlip.uId.toString(16)] || false
         return (
             <ListGroup.Item
+                key={trackedFlip.uId}
                 className={styles.listGroupItem}
                 onContextMenu={handleContextMenuForTrackedFlip}
                 id={trackedFlip.uId.toString(16)}
@@ -143,7 +146,7 @@ export function FlipTracking(props: Props) {
                             router.push(`/item/${trackedFlip.item.tag}`)
                         }}
                     >
-                        <img
+                        <Image
                             crossOrigin="anonymous"
                             src={trackedFlip.item.iconUrl}
                             height="36"
@@ -165,7 +168,7 @@ export function FlipTracking(props: Props) {
                 <hr />
                 <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
                     <Card className={styles.profitNumberCard}>
-                        <a href={`/auction/${trackedFlip.originAuction}`} target={'_blank'} className="disableLinkStyle">
+                        <a href={`/auction/${trackedFlip.originAuction}`} target={'_blank'} className="disableLinkStyle" rel="noreferrer">
                             <Card.Header className={styles.profitNumberHeader}>
                                 <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.pricePaid)} Coins</Card.Title>
                             </Card.Header>
@@ -173,7 +176,7 @@ export function FlipTracking(props: Props) {
                     </Card>
                     <ArrowRightIcon style={{ fontSize: '50px' }} />
                     <Card className={styles.profitNumberCard}>
-                        <a href={`/auction/${trackedFlip.soldAuction}`} target={'_blank'} className="disableLinkStyle">
+                        <a href={`/auction/${trackedFlip.soldAuction}`} target={'_blank'} className="disableLinkStyle" rel="noreferrer">
                             <Card.Header className={styles.profitNumberHeader}>
                                 <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.soldFor)} Coins</Card.Title>
                             </Card.Header>
@@ -224,7 +227,7 @@ export function FlipTracking(props: Props) {
                                 <Table>
                                     <tbody>
                                         {trackedFlip.propertyChanges.map(change => (
-                                            <tr>
+                                            <tr key={change.description}>
                                                 <td>{change.description}</td>
                                                 <td>
                                                     {' '}
@@ -287,15 +290,17 @@ export function FlipTracking(props: Props) {
                     <span style={{ float: 'right', fontSize: 'small' }}>Only auctions sold in the last 7 days are displayed here.</span>
                     <Form.Control style={{ width: 'auto', marginTop: '20px' }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
                         {SORT_OPTIONS.map(option => (
-                            <option value={option.value}>{option.label}</option>
+                            <option key={option.label} value={option.value}>
+                                {option.label}
+                            </option>
                         ))}
                     </Form.Control>
                 </p>
             </b>
             {trackedFlips.length === 0 ? (
                 <div className={styles.noAuctionFound}>
-                    <img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
-                    <p>We couldn't find any flips.</p>
+                    <Image src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
+                    <p>We couldn&apos;t find any flips.</p>
                 </div>
             ) : (
                 <ListGroup className={styles.list}>{list}</ListGroup>

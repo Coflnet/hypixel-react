@@ -16,6 +16,7 @@ import ItemFilter from '../ItemFilter/ItemFilter'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import Tooltip from '../Tooltip/Tooltip'
+import Image from 'next/image'
 
 interface Props {
     player: Player
@@ -171,12 +172,12 @@ function PlayerDetailsList(props: Props) {
     }
 
     let getCoinImage = () => {
-        return <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" loading="lazy" />
+        return <Image src="/Coin.png" height={35} width={35} alt="auction house logo" loading="lazy" />
     }
 
     let getItemImageElement = (listElement: Auction | BidForList) => {
         return listElement.item.iconUrl ? (
-            <img
+            <Image
                 crossOrigin="anonymous"
                 className="auctionItemImage"
                 src={listElement.item.iconUrl}
@@ -380,7 +381,7 @@ function PlayerDetailsList(props: Props) {
             ) : null}
             {listElements.length === 0 && allElementsLoaded ? (
                 <div className={styles.noElementFound}>
-                    <img src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
+                    <Image src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
                     <p>No {props.type} found</p>
                 </div>
             ) : (

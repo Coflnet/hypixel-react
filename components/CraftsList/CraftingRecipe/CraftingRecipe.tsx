@@ -3,6 +3,7 @@ import api from '../../../api/ApiHelper'
 import { convertTagToName } from '../../../utils/Formatter'
 import { ArrowRightAlt as ArrowRightIcon } from '@mui/icons-material'
 import styles from './CraftingRecipe.module.css'
+import Image from 'next/image'
 
 interface Props {
     itemTag: string
@@ -38,7 +39,7 @@ export function CraftingRecipe(props: Props) {
                 className={styles.gridCell}
             >
                 {tag ? (
-                    <img
+                    <Image
                         title={convertTagToName(tag)}
                         className={styles.ingredienceImage}
                         src={api.getItemImageUrl({ tag: tag })}
@@ -77,7 +78,7 @@ export function CraftingRecipe(props: Props) {
                     style={style}
                     className={styles.gridCell}
                 >
-                    <img
+                    <Image
                         title={convertTagToName(props.itemTag)}
                         className={styles.ingredienceImage}
                         src={api.getItemImageUrl({ tag: props.itemTag })}

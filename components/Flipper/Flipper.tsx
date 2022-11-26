@@ -688,7 +688,7 @@ function Flipper(props: Props) {
                             {!isLoading && isLoggedIn && !hasPremium ? (
                                 <Card className={styles.flipperSummaryCard}>
                                     <Card.Header>
-                                        <Card.Title>You don't have Premium</Card.Title>
+                                        <Card.Title>You don&apos;t have Premium</Card.Title>
                                     </Card.Header>
                                     <Card.Body>
                                         <ul>
@@ -701,7 +701,7 @@ function Flipper(props: Props) {
                                                     content={<HelpIcon />}
                                                     tooltipContent={
                                                         <span>
-                                                            This is the sum of the field 'Estimated profit' of the flips that were already sold when you
+                                                            This is the sum of the field &apos;Estimated profit&apos; of the flips that were already sold when you
                                                             received them. It represents the extra coins you could earn if you purchased our premium plan
                                                         </span>
                                                     }

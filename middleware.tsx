@@ -1,5 +1,5 @@
 import { NextFetchEvent, NextRequest, NextResponse } from 'next/server'
-import api from '../../../api/ApiHelper'
+import api from './api/ApiHelper'
 
 export async function middleware(req: NextRequest, ev: NextFetchEvent) {
     if (req.nextUrl.pathname.startsWith('/player')) {

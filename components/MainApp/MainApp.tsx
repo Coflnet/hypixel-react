@@ -23,6 +23,7 @@ export function MainApp(props: any) {
         window.sessionStorage.setItem('sessionId', generateUUID())
         checkForReload()
         startMigrations()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
