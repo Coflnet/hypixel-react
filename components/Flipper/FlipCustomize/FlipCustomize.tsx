@@ -125,7 +125,7 @@ function FlipCustomize() {
             return (
                 <b>
                     <p style={{ color: 'red' }}>
-                        Only use the &quot;Sniper&quot;-Finder with &apos;Use lbin to calculate profit option&apos;. Using other finders may leed to muliple
+                        Only use the &quot;Sniper&quot;-Finder with &apos;Use lbin to calculate profit option&apos;. Using other finders may lead to muliple
                         seconds of delay as this will require additional calculations.
                     </p>
                 </b>

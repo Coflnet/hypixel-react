@@ -2,11 +2,15 @@
 import moment from 'moment'
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Card, Form } from 'react-bootstrap'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { Button, Card, Form } from 'react-bootstrap'
+import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { useStateWithRef } from '../../utils/Hooks'
+import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import styles from './ActiveAuctions.module.css'
 
@@ -21,35 +25,70 @@ const ORDERS = [
     { label: 'Ending soon', value: 'ENDING_SOON' }
 ]
 
+let FETCH_RESULT_SIZE = 12
+
 let currentLoad
 
 function ActiveAuctions(props: Props) {
-    let [activeAuctions, setActiveAuctions] = useState<RecentAuction[]>([])
-    let [isLoading, setIsLoading] = useState(true)
+    let [activeAuctions, setActiveAuctions, activeAuctionsRef] = useStateWithRef<RecentAuction[]>([])
     let [order, setOrder] = useState<string>(ORDERS[0].value)
+    let [allElementsLoaded, setAllElementsLoaded] = useState(false)
+    let [premiumType, setPremiumType] = useState<PremiumType>(null)
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let isLoadingElements = useRef(false)
 
     useEffect(() => {
-        loadActiveAuctions(props.item, order, props.filter)
+        loadActiveAuctions()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag, JSON.stringify(props.filter), order])
 
-    function loadActiveAuctions(item: Item, order: string, filter?: ItemFilter) {
-        setIsLoading(true)
+    function loadActiveAuctions() {
         var filterString = JSON.stringify({
-            item,
-            filter
+            item: props.item,
+            filter: props.filter
         })
+        if (isLoadingElements.current) {
+            return
+        }
+        isLoadingElements.current = true
         currentLoad = filterString
-        api.getActiveAuctions(item, order, filter)
+
+        let page = Math.ceil(activeAuctionsRef.current.length / FETCH_RESULT_SIZE)
+        let maxPages = 10
+        switch (premiumType?.priority) {
+            case PREMIUM_RANK.STARTER:
+                maxPages = 5
+                break
+            case PREMIUM_RANK.PREMIUM:
+            case PREMIUM_RANK.PREMIUM_PLUS:
+                maxPages = 10
+                break
+            default:
+                maxPages = 1
+                break
+        }
+
+        let filter = { ...props.filter }
+
+        if (page >= maxPages) {
+            setAllElementsLoaded(true)
+            isLoadingElements.current = false
+            return
+        }
+        filter['page'] = page.toString()
+        api.getActiveAuctions(props.item, order, filter)
             .then(auctions => {
                 if (currentLoad !== filterString) {
                     return
                 }
-                setIsLoading(false)
-                setActiveAuctions(auctions)
+                isLoadingElements.current = false
+                if (auctions.length < FETCH_RESULT_SIZE) {
+                    setAllElementsLoaded(true)
+                }
+                setActiveAuctions([...activeAuctionsRef.current, ...auctions])
             })
             .catch(() => {
-                setIsLoading(false)
+                isLoadingElements.current = false
                 setActiveAuctions([])
             })
     }
@@ -61,7 +100,28 @@ function ActiveAuctions(props: Props) {
         setOrder(order)
     }
 
-    let activeAuctionList = activeAuctions.map(activeAuction => {
+    function onAfterLogin() {
+        api.getPremiumProducts().then(products => {
+            setIsLoggedIn(true)
+            let activePremium = getHighestPriorityPremiumProduct(products)
+            if (!activePremium) {
+                return
+            }
+            let highestPremium = getPremiumType(activePremium)
+            premiumType = highestPremium
+            setPremiumType(() => {
+                setAllElementsLoaded(() => {
+                    if (highestPremium !== null) {
+                        loadActiveAuctions()
+                    }
+                    return false
+                })
+                return highestPremium
+            })
+        })
+    }
+
+    let activeAuctionList = activeAuctions.map((activeAuction, i) => {
         return (
             <div className={styles.cardWrapper} key={activeAuction.uuid}>
                 <Card>
@@ -132,14 +192,46 @@ function ActiveAuctions(props: Props) {
                         {orderListElement}
                     </Form.Control>
                 </div>
-                {isLoading ? (
-                    <div style={{ marginTop: '20px' }}>{getLoadingElement()}</div>
-                ) : activeAuctions.length > 0 ? (
-                    activeAuctionList
+                {activeAuctions.length > 0 ? (
+                    <InfiniteScroll
+                        style={{ overflow: 'hidden' }}
+                        dataLength={activeAuctionList.length}
+                        next={() => {
+                            loadActiveAuctions()
+                        }}
+                        hasMore={!allElementsLoaded}
+                        loader={
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <div>
+                                    <div>{getLoadingElement()}</div>
+                                    <Button
+                                        onClick={() => {
+                                            loadActiveAuctions()
+                                        }}
+                                    >
+                                        Click here to manually load new data...
+                                    </Button>
+                                </div>
+                            </div>
+                        }
+                    >
+                        {activeAuctionList}
+                    </InfiniteScroll>
                 ) : (
                     <p style={{ textAlign: 'center' }}>No active auctions found</p>
                 )}
             </div>
+            {getMoreAuctionsElement(
+                isLoggedIn,
+                premiumType,
+                onAfterLogin,
+                <span>
+                    You currently use Starter Premium. You can see up to 120 active auctions with
+                    <Link href={'/premium'}>
+                        <a>Premium</a>
+                    </Link>
+                </span>
+            )}
         </div>
     )
 }
