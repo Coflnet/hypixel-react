@@ -85,40 +85,40 @@ function RecentAuctions(props: Props) {
     let recentAuctionList = recentAuctions.map(recentAuction => {
         return (
             <div className={styles.cardWrapper} key={recentAuction.uuid}>
-                <span className="disableLinkStyle">
-                    <Link href={`/auction/${recentAuction.uuid}`}>
-                        <a className="disableLinkStyle">
-                            <Card className="card">
-                                <Card.Header style={{ padding: '10px' }}>
-                                    <div style={{ float: 'left' }}>
-                                        <Image
-                                            crossOrigin="anonymous"
-                                            className="playerHeadIcon"
-                                            src={props.item.iconUrl}
-                                            height="32"
-                                            alt=""
-                                            style={{ marginRight: '5px' }}
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                    <div>{numberWithThousandsSeperators(recentAuction.price)} Coins</div>
-                                </Card.Header>
-                                <Card.Body style={{ padding: '10px' }}>
+                <span>
+                    <Link href={`/auction/${recentAuction.uuid}`} className="disableLinkStyle">
+                        <Card className="card">
+                            <Card.Header style={{ padding: '10px' }}>
+                                <div style={{ float: 'left' }}>
                                     <Image
-                                        style={{ marginRight: '15px' }}
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
-                                        src={recentAuction.seller.iconUrl}
+                                        src={props.item.iconUrl}
+                                        height="32"
+                                        width="32"
                                         alt=""
-                                        height="24"
+                                        style={{ marginRight: '5px' }}
                                         loading="lazy"
                                     />
-                                    <span>{recentAuction.playerName}</span>
-                                    <hr />
-                                    <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
-                                </Card.Body>
-                            </Card>
-                        </a>
+                                </div>
+                                <div>{numberWithThousandsSeperators(recentAuction.price)} Coins</div>
+                            </Card.Header>
+                            <Card.Body style={{ padding: '10px' }}>
+                                <Image
+                                    style={{ marginRight: '15px' }}
+                                    crossOrigin="anonymous"
+                                    className="playerHeadIcon"
+                                    src={recentAuction.seller.iconUrl}
+                                    alt=""
+                                    height="24"
+                                    width="24"
+                                    loading="lazy"
+                                />
+                                <span>{recentAuction.playerName}</span>
+                                <hr />
+                                <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
+                            </Card.Body>
+                        </Card>
                     </Link>
                 </span>
             </div>

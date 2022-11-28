@@ -202,7 +202,7 @@ export function KatFlips(props: Props) {
     function getFlipHeader(flip) {
         return (
             <span style={getStyleForTier(flip.coreData.item.tier)}>
-                <Image crossOrigin="anonymous" src={flip.coreData.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <Image crossOrigin="anonymous" src={flip.coreData.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                 {convertTagToName(flip.coreData.item.name) || convertTagToName(flip.coreData.item.tag)}
             </span>
         )

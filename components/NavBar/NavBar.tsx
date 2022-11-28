@@ -49,6 +49,7 @@ function NavBar(props: Props) {
             }
             window.removeEventListener('resize', resizeHandler)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -197,7 +198,7 @@ function NavBar(props: Props) {
                         <MenuItem icon={<ChatIcon />}>
                             <Link href={'/feedback'}>Feedback</Link>
                         </MenuItem>
-                        <MenuItem icon={<Image src="/discord_icon.svg" alt="" height="24"></Image>}>
+                        <MenuItem icon={<Image src="/discord_icon.svg" alt="" height="24" width="24"></Image>}>
                             <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
                                 Discord
                             </a>

@@ -5,13 +5,13 @@ import { isClientSideRendering } from './SSRUtils'
  Returns a given number as string with thousands-seperators. Example:
  1234567 => 1.234.567
 */
-export function numberWithThousandsSeperators(number?: number): string {
+export function numberWithThousandsSeperators(number?: number): JSX.Element {
     if (!number) {
-        return '0'
+        return <span>0</span>
     }
     var parts = number.toString().split('.')
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeperator())
-    return parts.join(getDecimalSeperator())
+    return <span suppressHydrationWarning>{parts.join(getDecimalSeperator())}</span>
 }
 
 /**

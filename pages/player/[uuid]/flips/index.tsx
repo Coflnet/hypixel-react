@@ -85,6 +85,7 @@ function Flipper(props: Props) {
                                         className="playerHeadIcon"
                                         src={player.iconUrl}
                                         height="32"
+                                        width="32"
                                         alt=""
                                         style={{ marginRight: '10px' }}
                                     />

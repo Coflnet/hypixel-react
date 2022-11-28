@@ -52,6 +52,7 @@ function TransferCoflCoinsSummary(props: Props) {
                                     className="playerHeadIcon"
                                     src={props.player?.iconUrl}
                                     height="32"
+                                    width="32"
                                     alt=""
                                     style={{ marginRight: '10px' }}
                                     loading="lazy"

@@ -95,7 +95,7 @@ function LowSupplyList(props: Props) {
               return (
                   <tr key={item.tag}>
                       <td>
-                          <Image crossOrigin="anonymous" src={item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                          <Image crossOrigin="anonymous" src={item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                       </td>
                       <td>{item.name}</td>
                       <td>{item.supply}</td>

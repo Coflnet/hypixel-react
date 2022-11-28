@@ -46,6 +46,7 @@ export function CraftingRecipe(props: Props) {
                         alt=""
                         crossOrigin="anonymous"
                         height={36}
+                        width={36}
                     />
                 ) : (
                     <div style={{ height: '36px', width: '36px' }} />
@@ -85,6 +86,7 @@ export function CraftingRecipe(props: Props) {
                         alt=""
                         crossOrigin="anonymous"
                         height={36}
+                        width={36}
                     />
                 </div>
             </div>

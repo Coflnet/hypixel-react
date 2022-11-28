@@ -245,7 +245,7 @@ export function CraftsList(props: Props) {
     function getCraftHeader(craft: ProfitableCraft): JSX.Element {
         return (
             <span>
-                <Image crossOrigin="anonymous" src={craft.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <Image crossOrigin="anonymous" src={craft.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                 {getMinecraftColorCodedElement(craft.item.name)}
             </span>
         )

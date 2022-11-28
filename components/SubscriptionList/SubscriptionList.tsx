@@ -183,20 +183,20 @@ function SubscriptionList() {
         switch (subscription.type) {
             case 'item':
                 return (
-                    <Link href={'/item/' + subscription.topicId}>
-                        <a className="disableLinkStyle">{subscription.title}</a>
+                    <Link href={'/item/' + subscription.topicId} className="disableLinkStyle">
+                        {subscription.title}
                     </Link>
                 )
             case 'player':
                 return (
-                    <Link href={'/player/' + subscription.topicId}>
-                        <a className="disableLinkStyle">{subscription.title}</a>
+                    <Link href={'/player/' + subscription.topicId} className="disableLinkStyle">
+                        {subscription.title}
                     </Link>
                 )
             case 'auction':
                 return (
-                    <Link href={'/auction/' + subscription.topicId}>
-                        <a className="disableLinkStyle">{subscription.title}</a>
+                    <Link href={'/auction/' + subscription.topicId} className="disableLinkStyle">
+                        {subscription.title}
                     </Link>
                 )
             default:

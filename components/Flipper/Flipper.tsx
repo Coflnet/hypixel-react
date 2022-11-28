@@ -84,7 +84,6 @@ function Flipper(props: Props) {
         mounted = true
         _setAutoScroll(true)
         attachScrollEvent()
-        isSSR = false
         api.subscribeFlipsAnonym(
             getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []),
             getSettingsObject(FLIPPER_FILTER_KEY, {}),

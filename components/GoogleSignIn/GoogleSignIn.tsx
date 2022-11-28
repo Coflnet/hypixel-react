@@ -16,16 +16,16 @@ interface Props {
 let gotResponse = false
 
 function GoogleSignIn(props: Props) {
-    let [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(
-        isClientSideRendering() ? sessionStorage.getItem('googleId') !== null : false
-    )
+    let [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(false)
 
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if (wasAlreadyLoggedInThisSession) {
+        let sessionAlreadyLoggedIn = isClientSideRendering() ? sessionStorage.getItem('googleId') !== null : false
+        setWasAlreadyLoggedInThisSession(sessionAlreadyLoggedIn)
+        if (sessionAlreadyLoggedIn) {
             onLoginSucces({ credential: sessionStorage.getItem('googleId') })
             setTimeout(() => {
                 if (!gotResponse) {

@@ -58,6 +58,7 @@ function PlayerDetailsList(props: Props) {
 
     useEffect(() => {
         loadFilters()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -93,11 +94,13 @@ function PlayerDetailsList(props: Props) {
         if (!props.auctions) {
             loadNewElements()
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.auctions])
 
     useEffect(() => {
         loadNewElements(true)
         loadFilters()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filteredItem])
 
     function onAfterLogin() {
@@ -184,18 +187,10 @@ function PlayerDetailsList(props: Props) {
                 style={{ marginRight: '10px' }}
                 alt="item icon"
                 height="48"
-                onError={error => onImageLoadError(listElement, error)}
+                width="48"
                 loading="lazy"
             />
         ) : undefined
-    }
-
-    let onImageLoadError = (listElement: Auction | BidForList, data: any) => {
-        api.getItemDetails(listElement.item.tag).then(item => {
-            listElement.item.iconUrl = item.iconUrl
-            setListElements(listElements)
-            forceUpdate()
-        })
     }
 
     let updateListState = () => {
@@ -274,44 +269,42 @@ function PlayerDetailsList(props: Props) {
         return (
             <ListGroup.Item action className={styles.listGroupItem} key={'listItem-' + i}>
                 <span key={listElement.uuid} className={`${styles.disableLinkStyle} ${styles.listItemLink}`}>
-                    <Link href={`/auction/${listElement.uuid}`}>
-                        <a className="disableLinkStyle">
-                            <div>
-                                <h4>
-                                    {getItemImageElement(listElement)}
-                                    {listElement.item.name || convertTagToName(listElement.item.tag)}
-                                    {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
-                                        <Badge variant="danger" style={{ marginLeft: '10px' }}>
-                                            Ended
-                                        </Badge>
-                                    ) : (
-                                        <Badge variant="info" style={{ marginLeft: '10px' }}>
-                                            Running
-                                        </Badge>
-                                    )}
-                                    {listElement.bin ? (
-                                        <Badge style={{ marginLeft: '5px' }} variant="success">
-                                            BIN
-                                        </Badge>
-                                    ) : (
-                                        ''
-                                    )}
-                                </h4>
-                                <p>
-                                    Highest Bid: {numberWithThousandsSeperators(listElement.highestBid)} {getCoinImage()}
-                                </p>
-                                {props.type === 'auctions' ? (
-                                    <p>
-                                        Starting Bid: {numberWithThousandsSeperators((listElement as Auction).startingBid)} {getCoinImage()}
-                                    </p>
+                    <Link href={`/auction/${listElement.uuid}`} className="disableLinkStyle">
+                        <div>
+                            <h4>
+                                {getItemImageElement(listElement)}
+                                {listElement.item.name || convertTagToName(listElement.item.tag)}
+                                {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
+                                    <Badge variant="danger" style={{ marginLeft: '10px' }}>
+                                        Ended
+                                    </Badge>
                                 ) : (
-                                    <p>
-                                        Highest Own: {numberWithThousandsSeperators((listElement as BidForList).highestOwn)} {getCoinImage()}
-                                    </p>
+                                    <Badge variant="info" style={{ marginLeft: '10px' }}>
+                                        Running
+                                    </Badge>
                                 )}
-                                <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
-                            </div>
-                        </a>
+                                {listElement.bin ? (
+                                    <Badge style={{ marginLeft: '5px' }} variant="success">
+                                        BIN
+                                    </Badge>
+                                ) : (
+                                    ''
+                                )}
+                            </h4>
+                            <p>
+                                Highest Bid: {numberWithThousandsSeperators(listElement.highestBid)} {getCoinImage()}
+                            </p>
+                            {props.type === 'auctions' ? (
+                                <p>
+                                    Starting Bid: {numberWithThousandsSeperators((listElement as Auction).startingBid)} {getCoinImage()}
+                                </p>
+                            ) : (
+                                <p>
+                                    Highest Own: {numberWithThousandsSeperators((listElement as BidForList).highestOwn)} {getCoinImage()}
+                                </p>
+                            )}
+                            <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
+                        </div>
                     </Link>
                 </span>
             </ListGroup.Item>
@@ -381,7 +374,7 @@ function PlayerDetailsList(props: Props) {
             ) : null}
             {listElements.length === 0 && allElementsLoaded ? (
                 <div className={styles.noElementFound}>
-                    <Image src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
+                    <Image src="/Barrier.png" height="24" width="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
                     <p>No {props.type} found</p>
                 </div>
             ) : (

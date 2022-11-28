@@ -13,7 +13,7 @@ export function getSSRElement(obj: any): JSX.Element {
                     return null
                 }
                 if (key === 'iconUrl') {
-                    return <Image key={key} src={obj[key]} alt={key} />
+                    return <Image key={key} src={obj[key]} alt={key} fill={true} />
                 }
                 if (typeof obj[key] === 'object') {
                     return getSSRElement(obj[key])

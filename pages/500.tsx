@@ -9,10 +9,8 @@ export default function Custom500() {
             {getHeadElement('Error')}
             <Container>
                 <h1>500 - Server-side error occurred</h1>
-                <Link href="/">
-                    <a className="disableLinkStyle">
-                        <Button>Return to main page</Button>
-                    </a>
+                <Link href="/" className="disableLinkStyle">
+                    <Button>Return to main page</Button>
                 </Link>
             </Container>
         </div>

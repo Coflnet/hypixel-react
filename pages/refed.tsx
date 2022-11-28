@@ -34,8 +34,8 @@ function Refed() {
                                 type="hover"
                                 tooltipContent={
                                     <p>
-                                        To connect your Minecraft account, search and click yourself in the search bar. Afterwards click &quot;You? Claim account.&quot;
-                                        to get a full explanation.{' '}
+                                        To connect your Minecraft account, search and click yourself in the search bar. Afterwards click &quot;You? Claim
+                                        account.&quot; to get a full explanation.{' '}
                                     </p>
                                 }
                             />{' '}
@@ -65,14 +65,12 @@ function Refed() {
                             }}
                         />
                         <p>
-                            Settings you make are tied to your google account to sync across devices and into the Minecraft mod. 
-                            what settings you made and contact you in case we need to)
+                            Settings you make are tied to your google account to sync across devices and into the Minecraft mod. what settings you made and
+                            contact you in case we need to
                         </p>
 
-                        <Link href="/">
-                            <a className="disableLinkStyle">
-                                <Button>Go to main page</Button>
-                            </a>
+                        <Link href="/" className="disableLinkStyle">
+                            <Button>Go to main page</Button>
                         </Link>
                     </Card.Body>
                 </Card>

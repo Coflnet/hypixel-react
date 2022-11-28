@@ -29,10 +29,12 @@ function BazaarSnapshot(props: Props) {
 
     useEffect(() => {
         loadBazaarSnapshot()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag])
 
     useEffect(() => {
         loadBazaarSnapshot()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedTimestamp])
 
     function onTimestampChangeEvent(e) {

@@ -186,7 +186,7 @@ function Search(props: Props) {
 
     let noResultsFoundElement = (
         <ListGroup.Item key={-1} style={getListItemStyle(-1)} onContextMenu={handleSearchContextMenuForSearchResult}>
-            <Image className={styles.searchResultIcon} height={32} src="/Barrier.png" alt="" />
+            <Image className={styles.searchResultIcon} height={32} width={32} src="/Barrier.png" alt="" />
             No search results
         </ListGroup.Item>
     )
@@ -206,7 +206,7 @@ function Search(props: Props) {
         }
         return (
             <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
-                <Image crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" alt="" style={{ marginRight: '10px' }} />
+                <Image crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" width="32" alt="" style={{ marginRight: '10px' }} />
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
                 {props.enableReset ? (
                     <ClearIcon onClick={props.onResetClick} style={{ cursor: 'pointer', color: 'red', marginLeft: '10px', fontWeight: 'bold' }} />
