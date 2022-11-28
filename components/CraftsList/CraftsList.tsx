@@ -161,22 +161,6 @@ export function CraftsList(props: Props) {
     }
 
     function getListElement(craft: ProfitableCraft, blur: boolean) {
-        // set useless data to prevent reports regarding the blured flips being visible
-        if (blur) {
-            craft = {
-                craftCost: -1,
-                ingredients: [],
-                item: {
-                    tag: '',
-                    name: '----------',
-                    iconUrl: '/Barrier.png'
-                },
-                median: -1,
-                sellPrice: -1,
-                volume: -1
-            }
-        }
-
         if (nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
             return <span />
         }
@@ -184,7 +168,7 @@ export function CraftsList(props: Props) {
             <ListGroup.Item action={!blur}>
                 {blur ? (
                     <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
-                        The top 3 crafts can only be seen with premium
+                        The top 3 crafts can only be seen with starter premium or better
                     </p>
                 ) : (
                     ''
@@ -262,19 +246,48 @@ export function CraftsList(props: Props) {
             return null
         }
         shown++
-        return !hasPremium && shown <= 3 ? (
-            <div key={craft.item.tag} className={styles.preventSelect}>
-                {getListElement(craft, true)}
-            </div>
-        ) : (
-            <Tooltip
-                key={craft.item.tag}
-                type="click"
-                content={getListElement(craft, false)}
-                tooltipTitle={getCraftHeader(craft)}
-                tooltipContent={<CraftDetails craft={craft} />}
-            />
-        )
+
+        if (!hasPremium && shown <= 3) {
+            let censoredCraft = { ...craft }
+            censoredCraft.item = {
+                tag: '',
+                name: '§6You cheated the blur ☺',
+                iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
+            }
+            censoredCraft.craftCost = 42
+            censoredCraft.sellPrice = 69
+            censoredCraft.ingredients = [
+                {
+                    cost: 119999545.7,
+                    count: 80,
+                    item: {
+                        tag: 'ASPECT_OF_THE_DRAGONS',
+                        name: 'Sword',
+                        iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
+                    }
+                }
+            ]
+            censoredCraft.median = -1
+            censoredCraft.volume = 123123
+            censoredCraft.requiredCollection = null
+            censoredCraft.requiredSlayer = null
+
+            return (
+                <div key={craft.item.tag} className={styles.preventSelect}>
+                    {getListElement(censoredCraft, true)}
+                </div>
+            )
+        } else {
+            return (
+                <Tooltip
+                    key={craft.item.tag}
+                    type="click"
+                    content={getListElement(craft, false)}
+                    tooltipTitle={getCraftHeader(craft)}
+                    tooltipContent={<CraftDetails craft={craft} />}
+                />
+            )
+        }
     })
 
     const selectWidth = profiles ? '32%' : '49%'
