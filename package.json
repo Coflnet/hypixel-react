@@ -30,7 +30,7 @@
     "react-bootstrap-typeahead": "^5.2.1",
     "react-colorful": "^5.5.1",
     "react-contexify": "^5.0.0",
-    "react-cookie-consent": "^6.4.1",
+    "react-cookie-consent": "^8.0.1",
     "react-countdown": "^2.3.2",
     "react-datepicker": "^4.5.0",
     "react-dom": "^18.2.0",
