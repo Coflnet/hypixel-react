@@ -134,7 +134,7 @@ export function KatFlips(props: Props) {
             >
                 {blur ? (
                     <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
-                        The top 3 flips can only be seen with premium
+                        The top 3 flips can only be seen with starter premium or better
                     </p>
                 ) : (
                     ''

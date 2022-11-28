@@ -168,7 +168,7 @@ export function CraftsList(props: Props) {
             <ListGroup.Item action={!blur}>
                 {blur ? (
                     <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
-                        The top 3 crafts can only be seen with premium
+                        The top 3 crafts can only be seen with starter premium or better
                     </p>
                 ) : (
                     ''
