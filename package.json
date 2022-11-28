@@ -35,7 +35,7 @@
     "react-datepicker": "^4.8.0",
     "react-dom": "^18.2.0",
     "react-infinite-scroll-component": "^5.1.0",
-    "react-number-format": "^4.9.1",
+    "react-number-format": "^5.1.2",
     "react-pro-sidebar": "^0.7.1",
     "react-router-dom": "^5.3.0",
     "react-select": "^5.2.1",
