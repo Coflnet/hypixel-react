@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Card, Form, Table } from 'react-bootstrap'
-import api from '../../api/ApiHelper'
-import { getLoadingElement } from '../../utils/LoadingUtils'
 import { ArrowDownward as ArrowDownIcon, ArrowUpward as ArrowUpIcon, Sort as SortIcon } from '@mui/icons-material'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './LowSupplyList.module.css'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import Image from 'next/image'
+import { getLoadingElement } from '../../utils/LoadingUtils'
 
 let mounted = true
 
@@ -129,7 +128,7 @@ function LowSupplyList(props: Props) {
                                 </th>
                                 <th>
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <NumberFormat
+                                        <NumericFormat
                                             id="volume"
                                             onValueChange={numberObject => {
                                                 setVolumeFilter(numberObject.floatValue)
@@ -149,7 +148,7 @@ function LowSupplyList(props: Props) {
                                 </th>
                                 <th>
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <NumberFormat
+                                        <NumericFormat
                                             id="median-price"
                                             onValueChange={numberObject => {
                                                 setMedianPriceFilter(numberObject.floatValue)

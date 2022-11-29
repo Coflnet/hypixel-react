@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
 import { BallotOutlined as FilterIcon, Settings as SettingsIcon } from '@mui/icons-material'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSettingsObject, mapRestrictionsToApiFormat, setSetting } from '../../../utils/SettingsUtils'
 import styles from './FlipperFilter.module.css'
 import api from '../../../api/ApiHelper'
@@ -162,7 +162,7 @@ function FlipperFilter(props: Props) {
                             </span>
                         }
                     />
-                    <NumberFormat
+                    <NumericFormat
                         id="min-profit"
                         onValueChange={value => {
                             onSettingsChange('minProfit', value.floatValue || 0)
@@ -295,7 +295,7 @@ function FlipperFilter(props: Props) {
                             <Form.Label htmlFor="min-profit-percent" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
                                 Min. Profit (%):
                             </Form.Label>
-                            <NumberFormat
+                            <NumericFormat
                                 id="min-profit-percent"
                                 onValueChange={value => {
                                     onSettingsChange('minProfitPercent', value.floatValue || 0)
@@ -323,7 +323,7 @@ function FlipperFilter(props: Props) {
                                 }
                                 tooltipContent={<span>Minimum average amount of sells in 24 hours</span>}
                             />
-                            <NumberFormat
+                            <NumericFormat
                                 id="min-volume"
                                 onValueChange={value => {
                                     onSettingsChange('minVolume', value.floatValue || 0)
@@ -345,7 +345,7 @@ function FlipperFilter(props: Props) {
                             <Form.Label htmlFor="max-cost" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
                                 Max. Cost:
                             </Form.Label>
-                            <NumberFormat
+                            <NumericFormat
                                 id="max-cost"
                                 onValueChange={value => {
                                     onSettingsChange('maxCost', value.floatValue || 0)
