@@ -41,7 +41,7 @@
     "react-select": "^5.2.1",
     "react-toastify": "^8.1.0",
     "react-virtualized-auto-sizer": "^1.0.7",
-    "react-window": "^1.8.6",
+    "react-window": "^1.8.8",
     "sharp": "^0.31.2",
     "spark-md5": "^3.0.2",
     "toml": "^3.0.0",
