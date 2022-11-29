@@ -77,7 +77,7 @@ export function KatFlips(props: Props) {
 
     function onAfterLogin() {
         setIsLoggedIn(true)
-        return api.getPremiumProducts().then(products => {
+        return api.refreshLoadPremiumProducts(products => {
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
         })
     }

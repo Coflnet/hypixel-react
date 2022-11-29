@@ -100,7 +100,7 @@ function PlayerDetailsList(props: Props) {
     }, [filteredItem])
 
     function onAfterLogin() {
-        api.getPremiumProducts().then(products => {
+        api.refreshLoadPremiumProducts(products => {
             let highestPremium = getHighestPriorityPremiumProduct(products)
             if (highestPremium) {
                 let highestPremiumType = getPremiumType(highestPremium)
