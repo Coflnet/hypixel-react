@@ -1,4 +1,4 @@
-import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators, numberWithThousandsSeperatorsAsString } from '../../../utils/Formatter'
+import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperatorsAsString } from '../../../utils/Formatter'
 
 const ANIMATION_THRESHOLD = 200
 
@@ -94,7 +94,7 @@ function getPriceGraphConfigSingle() {
                 name: 'Number of traded items',
                 position: 'right',
                 axisLabel: {
-                    formatter: numberWithThousandsSeperators
+                    formatter: numberWithThousandsSeperatorsAsString
                 }
             }
         ],
@@ -116,7 +116,7 @@ function getPriceGraphConfigSingle() {
                         if (!value || (value && value.length === 0)) {
                             return ''
                         }
-                        return `${numberWithThousandsSeperators(value)} Coins`
+                        return `${numberWithThousandsSeperatorsAsString(value)} Coins`
                     }
                 }
             },
@@ -156,7 +156,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeperatorsAsString
                 },
                 data: []
             },
@@ -168,7 +168,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeperatorsAsString
                 },
                 data: []
             },
@@ -231,7 +231,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeperatorsAsString
                 },
                 data: []
             },
@@ -244,7 +244,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeperatorsAsString
                 },
                 data: []
             }

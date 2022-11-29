@@ -1,4 +1,4 @@
-import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators, numberWithThousandsSeperatorsAsString } from '../../../utils/Formatter'
+import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperatorsAsString } from '../../../utils/Formatter'
 
 const ANIMATION_THRESHOLD = 200
 
@@ -78,7 +78,7 @@ function getPriceGraphConfigSplit() {
                 name: 'Number of traded items',
                 position: 'right',
                 axisLabel: {
-                    formatter: numberWithThousandsSeperators
+                    formatter: numberWithThousandsSeperatorsAsString
                 }
             }
         ],
@@ -142,7 +142,7 @@ function getPriceGraphConfigSplit() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeperatorsAsString
                 },
                 data: []
             },
@@ -155,7 +155,7 @@ function getPriceGraphConfigSplit() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeperatorsAsString
                 },
                 data: []
             }
