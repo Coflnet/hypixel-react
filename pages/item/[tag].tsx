@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Search from '../../components/Search/Search'
 import { parseItem, parseItemPrice } from '../../utils/Parser/APIResponseParser'
-import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
+import { convertTagToName, numberWithThousandsSeperatorsAsString } from '../../utils/Formatter'
 import api, { initAPI } from '../../api/ApiHelper'
 import { Container } from 'react-bootstrap'
 import { useRouter } from 'next/router'
@@ -84,7 +84,7 @@ function ItemDetails(props: Props) {
         <div className="page">
             {getHeadElement(
                 `${getItem().name || convertTagToName(tag)} price`,
-                `💰 Price: ${avgPrice ? numberWithThousandsSeperators(Math.round(avgPrice)) : '---'} Coins
+                `💰 Price: ${avgPrice ? numberWithThousandsSeperatorsAsString(Math.round(avgPrice)) : '---'} Coins
                 🕑 ${props.range ? `Range: ${props.range}` : null}
                 
                  ${filter ? `Filters: \n${getFiltersText()}` : ''}`,

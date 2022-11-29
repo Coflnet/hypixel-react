@@ -227,9 +227,7 @@ function ActiveAuctions(props: Props) {
                 onAfterLogin,
                 <span>
                     You currently use Starter Premium. You can see up to 120 active auctions with
-                    <Link href={'/premium'}>
-                        <a>Premium</a>
-                    </Link>
+                    <Link href={'/premium'}>Premium</Link>
                 </span>
             )}
         </div>

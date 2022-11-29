@@ -97,7 +97,7 @@ function Payment(props: Props) {
                                                 </a>
                                             </p>
                                         ) : (
-                                            `${numberWithThousandsSeperators(getRoundedPrice(paypalPrice))} Euro`
+                                            <span>{numberWithThousandsSeperators(getRoundedPrice(paypalPrice))} Euro</span>
                                         )}
                                     </Button>
                                 </div>
@@ -129,7 +129,7 @@ function Payment(props: Props) {
                                                 </a>
                                             </p>
                                         ) : (
-                                            `${numberWithThousandsSeperators(getRoundedPrice(stripePrice))} Euro`
+                                            <span>{numberWithThousandsSeperators(getRoundedPrice(stripePrice))} Euro</span>
                                         )}
                                     </Button>
                                 </div>

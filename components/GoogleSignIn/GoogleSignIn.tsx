@@ -17,12 +17,13 @@ let gotResponse = false
 
 function GoogleSignIn(props: Props) {
     let [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(false)
-
+    let [isSSR, setIsSSR] = useState(true)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
+        setIsSSR(false)
         let sessionAlreadyLoggedIn = isClientSideRendering() ? sessionStorage.getItem('googleId') !== null : false
         setWasAlreadyLoggedInThisSession(sessionAlreadyLoggedIn)
         if (sessionAlreadyLoggedIn) {
@@ -96,7 +97,7 @@ function GoogleSignIn(props: Props) {
 
     return (
         <div style={style} onClickCapture={onLoginClick}>
-            {!wasAlreadyLoggedInThisSession ? (
+            {!wasAlreadyLoggedInThisSession && !isSSR ? (
                 <>
                     <div style={{ width: '250px' }}>
                         <GoogleLogin onSuccess={onLoginSucces} onError={onLoginFail} theme={'filled_blue'} size={'large'} useOneTap auto_select />

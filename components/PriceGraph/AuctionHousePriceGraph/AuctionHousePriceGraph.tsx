@@ -181,7 +181,7 @@ function AuctionHousePriceGraph(props: Props) {
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
-                        <b>Avg Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(avgPrice) + ' Coins'}
+                        <b>Avg Price:</b> {isLoading ? '-' : <span>{numberWithThousandsSeperators(avgPrice)} Coins</span>}
                     </span>
                     <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
                         <SubscribeButton type="item" topic={props.item.tag} />

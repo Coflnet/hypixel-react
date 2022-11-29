@@ -162,7 +162,7 @@ export function KatFlips(props: Props) {
                     <h4>{getFlipHeader(flip)}</h4>
                     <p>
                         <span className={styles.label}>Purchase Cost:</span>{' '}
-                        <Link href={'auction/' + flip.originAuctionUUID}>{`${numberWithThousandsSeperators(Math.round(flip.purchaseCost))} Coins`}</Link>
+                        <Link href={'auction/' + flip.originAuctionUUID}>{numberWithThousandsSeperators(Math.round(flip.purchaseCost))} Coins</Link>
                     </p>
                     <p>
                         <span className={styles.label}>Upgrade Cost:</span> {numberWithThousandsSeperators(Math.round(flip.upgradeCost))} Coins
@@ -182,7 +182,7 @@ export function KatFlips(props: Props) {
                     </p>
                     <p>
                         <span className={styles.label}>Profit:</span>{' '}
-                        <Link href={'auction/' + flip.referenceAuctionUUID}>{`${numberWithThousandsSeperators(Math.round(flip.profit))} Coins`}</Link>
+                        <Link href={'auction/' + flip.referenceAuctionUUID}>{numberWithThousandsSeperators(Math.round(flip.profit))} Coins</Link>
                     </p>
                     <hr />
                     <p>

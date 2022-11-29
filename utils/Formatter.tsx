@@ -6,12 +6,16 @@ import { isClientSideRendering } from './SSRUtils'
  1234567 => 1.234.567
 */
 export function numberWithThousandsSeperators(number?: number): JSX.Element {
+    return <span>{numberWithThousandsSeperatorsAsString(number)}</span>
+}
+
+export function numberWithThousandsSeperatorsAsString(number?: number): String {
     if (!number) {
-        return <span>0</span>
+        return '0'
     }
     var parts = number.toString().split('.')
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeperator())
-    return <span suppressHydrationWarning>{parts.join(getDecimalSeperator())}</span>
+    return parts.join(getDecimalSeperator())
 }
 
 /**
@@ -212,7 +216,7 @@ export function formatAsCoins(number: number): string {
             return ''
         }
     }
-    return `${numberWithThousandsSeperators(number)} Coins`
+    return `${numberWithThousandsSeperatorsAsString(number)} Coins`
 }
 export function formatDungeonStarsInString(stringWithStars: string, style: CSSProperties = {}, dungeonItemLevelString?: string): JSX.Element {
     let yellowStarStyle = { color: 'yellow', fontWeight: 'normal', height: '100%' }

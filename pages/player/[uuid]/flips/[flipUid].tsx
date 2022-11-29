@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Container } from 'react-bootstrap'
 import { initAPI } from '../../../../api/ApiHelper'
 import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
-import { numberWithThousandsSeperators } from '../../../../utils/Formatter'
+import { numberWithThousandsSeperatorsAsString } from '../../../../utils/Formatter'
 import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../../../utils/SSRUtils'
 import moment from 'moment'
@@ -23,11 +23,11 @@ function Flipper(props: Props) {
     let targetFlip = parseFlipTrackingFlip(props.targetFlip)
 
     function getTargetFlipEmbedDescription(targetFlip: FlipTrackingFlip) {
-        return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeperators(targetFlip.profit)} Coins ${
+        return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeperatorsAsString(targetFlip.profit)} Coins ${
             targetFlip.profit > 0 ? `(${Math.round((targetFlip.profit / targetFlip.pricePaid) * 98)}%)` : ''
         }
-        💸 Purchase: ${numberWithThousandsSeperators(targetFlip.pricePaid)} Coins
-        💰 Sold: ${numberWithThousandsSeperators(targetFlip.soldFor)} Coins
+        💸 Purchase: ${numberWithThousandsSeperatorsAsString(targetFlip.pricePaid)} Coins
+        💰 Sold: ${numberWithThousandsSeperatorsAsString(targetFlip.soldFor)} Coins
         🕑 Sold at ${moment(targetFlip.sellTime).format('MMMM Do YYYY, h:mm:ss a')}
         ${targetFlip.profit > 0 ? '😀' : '😭'} IGN: ${player.name}`
     }

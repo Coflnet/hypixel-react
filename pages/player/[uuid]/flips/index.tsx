@@ -1,12 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Container } from 'react-bootstrap'
 import { initAPI } from '../../../../api/ApiHelper'
 import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
 import { getCacheContolHeader } from '../../../../utils/CacheUtils'
-import { numberWithThousandsSeperators } from '../../../../utils/Formatter'
+import { numberWithThousandsSeperatorsAsString } from '../../../../utils/Formatter'
 import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../../../utils/SSRUtils'
 
@@ -47,18 +47,18 @@ function Flipper(props: Props) {
         let profitByFinderEmbed = ''
         finderByGroupArray.forEach(finderGroup => {
             if (finderGroup.profit > 0) {
-                profitByFinderEmbed += `${finderGroup.label}: ${numberWithThousandsSeperators(finderGroup.profit)} Coins \n`
+                profitByFinderEmbed += `${finderGroup.label}: ${numberWithThousandsSeperatorsAsString(finderGroup.profit)} Coins \n`
             }
         })
 
-        let highestProfitFlipText = `Highest Profit Flip: ${numberWithThousandsSeperators(
+        let highestProfitFlipText = `Highest Profit Flip: ${numberWithThousandsSeperatorsAsString(
             flipTrackingResponse.flips[0].profit
-        )} Coins \n ${numberWithThousandsSeperators(flipTrackingResponse.flips[0].pricePaid)} Coins ➞ ${numberWithThousandsSeperators(
+        )} Coins \n ${numberWithThousandsSeperatorsAsString(flipTrackingResponse.flips[0].pricePaid)} Coins ➞ ${numberWithThousandsSeperatorsAsString(
             flipTrackingResponse.flips[0].soldFor
         )} Coins (${flipTrackingResponse.flips[0].item.name})`
 
         return `Found Flips: ${flipTrackingResponse.flips.length} 
-                Total Profit: ${numberWithThousandsSeperators(flipTrackingResponse.totalProfit)} Coins
+                Total Profit: ${numberWithThousandsSeperatorsAsString(flipTrackingResponse.totalProfit)} Coins
                 \n ${profitByFinderEmbed} 
                 ${highestProfitFlipText}`
     }

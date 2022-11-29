@@ -1,4 +1,4 @@
-import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators, numberWithThousandsSeperatorsAsString } from '../../../utils/Formatter'
 
 const ANIMATION_THRESHOLD = 200
 
@@ -14,7 +14,7 @@ function getPriceGraphConfigSplit() {
                 label: {
                     formatter: axisObject => {
                         if (axisObject.axisDimension === 'y') {
-                            return `${numberWithThousandsSeperators(axisObject.value)}`
+                            return `${numberWithThousandsSeperatorsAsString(axisObject.value)}`
                         }
                         return getLocalDateAndTime(new Date(+axisObject.value))
                     }

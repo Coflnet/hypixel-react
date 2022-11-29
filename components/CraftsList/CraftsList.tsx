@@ -205,9 +205,7 @@ export function CraftsList(props: Props) {
                     >
                         You seem like a tech savvy person, join our development team to get premium for free. :)
                     </p>
-                ) : (
-                    ''
-                )}
+                ) : null}
                 <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
                     <h4>{getCraftHeader(craft)}</h4>
                     <p>
@@ -218,11 +216,10 @@ export function CraftsList(props: Props) {
                     </p>
                     <p>
                         <span className={styles.label}>Median:</span>{' '}
-                        {craft.median > 0 ? `${numberWithThousandsSeperators(Math.round(craft.median))} Coins` : 'unknown'}
+                        {craft.median > 0 ? <span>{numberWithThousandsSeperators(Math.round(craft.median))} Coins</span> : 'unknown'}
                     </p>
                     <p>
-                        <span className={styles.label}>Volume:</span>{' '}
-                        {craft.volume > 0 ? `${numberWithThousandsSeperators(Math.round(craft.volume))}` : 'unknown'}
+                        <span className={styles.label}>Volume:</span> {craft.volume > 0 ? numberWithThousandsSeperators(Math.round(craft.volume)) : 'unknown'}
                     </p>
                     {craft.requiredCollection ? (
                         <p className={styles.craftRequirement}>

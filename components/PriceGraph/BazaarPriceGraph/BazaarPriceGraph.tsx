@@ -380,10 +380,10 @@ function BazaarPriceGraph(props: Props) {
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
-                        <b>Avg Sell Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(+avgSellPrice.toFixed(1)) + ' Coins'}
+                        <b>Avg Sell Price:</b> {isLoading ? '-' : <span>{numberWithThousandsSeperators(+avgSellPrice.toFixed(1))} Coins</span>}
                     </span>
                     <span className={styles.avgPrice}>
-                        <b>Avg Buy Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(+avgBuyPrice.toFixed(1)) + ' Coins'}
+                        <b>Avg Buy Price:</b> {isLoading ? '-' : <span>{numberWithThousandsSeperators(+avgBuyPrice.toFixed(1))} Coins</span>}
                     </span>
                     <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
                         {!isSSR ? (

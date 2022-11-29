@@ -26,7 +26,9 @@ function TransferCoflCoinsSummary(props: Props) {
         api.transferCoflCoins(props.email, props.player?.uuid, props.coflCoins, reference)
             .then(() => {
                 toast.success(
-                    `Successfuly sent ${numberWithThousandsSeperators(props.coflCoins)} CoflCoins to ${props.email === '' ? props.player.name : props.email}`
+                    <span>
+                        Successfuly sent {numberWithThousandsSeperators(props.coflCoins)} CoflCoins to {props.email === '' ? props.player.name : props.email}
+                    </span>
                 )
                 setIsSending(false)
                 props.onFinish()
