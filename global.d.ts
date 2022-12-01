@@ -239,6 +239,7 @@ interface API {
     getPremiumProducts(): Promise<PremiumProduct[]>
     unsubscribeAll(): Promise<void>
     getItemNames(items: Item[]): Promise<{ [key: string]: string }>
+    checkFilter(auction: AuctionDetails, filter: ItemFilter): Promise<boolean>
 }
 
 interface CacheUtils {

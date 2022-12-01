@@ -1688,6 +1688,29 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let checkFilter = (auction: AuctionDetails, filter: ItemFilter): Promise<boolean> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.CHECK_FILTER,
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: '',
+                    resolve: data => {
+                        resolve(data)
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.CHECK_FILTER, error, { auction, filter })
+                        reject(error)
+                    }
+                },
+                JSON.stringify({ filters: filter, auction: auction })
+            )
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1756,7 +1779,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         checkRat,
         getPremiumProducts,
         unsubscribeAll,
-        getItemNames
+        getItemNames,
+        checkFilter
     }
 }
 

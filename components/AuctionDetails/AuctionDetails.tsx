@@ -23,6 +23,7 @@ import styles from './AuctionDetails.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import FlipBased from '../Flipper/FlipBased/FlipBased'
 import { Help as HelpIcon } from '@mui/icons-material'
+import { FilterChecker } from '../FilterChecker/FilterChecker'
 
 interface Props {
     auctionUUID: string
@@ -451,6 +452,7 @@ function AuctionDetails(props: Props) {
                     </div>
                 </div>
             )}
+            <FilterChecker auctionToCheck={auctionDetails} />
             {basedOnDialog}
         </div>
     )
