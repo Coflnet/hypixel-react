@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
+    output: 'standalone',
     reactStrictMode: true,
     basePath: process.env.BASE_PATH,
     i18n: {
