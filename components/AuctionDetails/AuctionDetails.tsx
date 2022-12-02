@@ -22,7 +22,7 @@ import Link from 'next/link'
 import styles from './AuctionDetails.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import FlipBased from '../Flipper/FlipBased/FlipBased'
-import { Help as HelpIcon } from '@mui/icons-material'
+import { Help as HelpIcon, ArrowDropDown as ArrowDownIcon, ArrowRight as ArrowRightIcon } from '@mui/icons-material'
 import { FilterChecker } from '../FilterChecker/FilterChecker'
 
 interface Props {
@@ -36,6 +36,7 @@ function AuctionDetails(props: Props) {
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails)
     let [isLoading, setIsLoading] = useState(false)
     let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
+    let [showFilterChecker, setShowFilterChecker] = useState(false)
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
@@ -452,7 +453,19 @@ function AuctionDetails(props: Props) {
                     </div>
                 </div>
             )}
-            <FilterChecker auctionToCheck={auctionDetails} />
+            <div
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                    setShowFilterChecker(!showFilterChecker)
+                }}
+            >
+                Show filter checker {showFilterChecker ? <ArrowDownIcon /> : <ArrowRightIcon />}
+            </div>
+            {showFilterChecker ? (
+                <div style={{ minHeight: 400 }}>
+                    <FilterChecker auctionToCheck={auctionDetails} />
+                </div>
+            ) : null}
             {basedOnDialog}
         </div>
     )

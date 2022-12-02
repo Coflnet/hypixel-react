@@ -1694,6 +1694,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 {
                     type: RequestType.CHECK_FILTER,
                     requestMethod: 'POST',
+                    customRequestURL: `${getApiEndpoint()}/Filter`,
                     requestHeader: {
                         'Content-Type': 'application/json'
                     },
