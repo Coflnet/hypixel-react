@@ -39,7 +39,14 @@ import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
-import { FLIPPER_FILTER_KEY, getSettingsObject, mapSettingsToApiFormat, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
+import {
+    FLIPPER_FILTER_KEY,
+    getSettingsObject,
+    LAST_PREMIUM_PRODUCTS,
+    mapSettingsToApiFormat,
+    RESTRICTIONS_SETTINGS_KEY,
+    setSettingsChangedData
+} from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
 import { atobUnicode } from '../utils/Base64Utils'
 import { PREMIUM_TYPES } from '../utils/PremiumTypeUtils'
@@ -1637,6 +1644,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         'Content-Type': 'application/json'
                     },
                     resolve: products => {
+                        localStorage.setItem(LAST_PREMIUM_PRODUCTS, JSON.stringify(products))
                         resolve(parsePremiumProducts(products))
                     },
                     reject: (error: any) => {
@@ -1646,6 +1654,20 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 JSON.stringify(PREMIUM_TYPES.map(type => type.productId))
             )
+        })
+    }
+
+    /**
+     * Uses the last loaded premium products (if available) to instantly call the callback function
+     * The newest premium products are loaded after that and the callback is executed again
+     */
+    let refreshLoadPremiumProducts = (callback: (products: PremiumProduct[]) => void) => {
+        let lastPremiumProducts = localStorage.getItem(LAST_PREMIUM_PRODUCTS)
+        if (lastPremiumProducts) {
+            callback(parsePremiumProducts(JSON.parse(lastPremiumProducts)))
+        }
+        getPremiumProducts().then(prodcuts => {
+            callback(prodcuts)
         })
     }
 
@@ -1756,7 +1778,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         checkRat,
         getPremiumProducts,
         unsubscribeAll,
-        getItemNames
+        getItemNames,
+        refreshLoadPremiumProducts
     }
 }
 
