@@ -21,8 +21,7 @@ export function EqualFilterElement(props: Props) {
             onChange={_onChange}
             options={props.options?.options}
             labelKey={convertTagToName}
-            autoselect={false}
-            selectHintOnEnter={true}
+            selectHint={() => true}
         ></Typeahead>
     )
 }

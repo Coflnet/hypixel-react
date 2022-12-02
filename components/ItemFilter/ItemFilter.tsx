@@ -275,10 +275,10 @@ function ItemFilter(props: Props) {
                             <Badge variant="danger">Caution</Badge>
                         </h4>
                         <p>
-                            Some filter requests take quite some time to process. That&apos;s because we have to search through millions of auctions that potentially
-                            match your filter. This can lead to no auctions being displayed at all because your browser thinks that our server is unavailable.
-                            If that happens please let us know. We may implement scheduled filters where you will get an email or push notification when we
-                            computed a result for your filter.
+                            Some filter requests take quite some time to process. That&apos;s because we have to search through millions of auctions that
+                            potentially match your filter. This can lead to no auctions being displayed at all because your browser thinks that our server is
+                            unavailable. If that happens please let us know. We may implement scheduled filters where you will get an email or push notification
+                            when we computed a result for your filter.
                         </p>
                         <p>
                             If you are missing a filter please ask for it on our{' '}
@@ -332,7 +332,7 @@ function ItemFilter(props: Props) {
                                         onChange={addFilter}
                                         options={props.filters}
                                         labelKey={filter => {
-                                            return camelCaseToSentenceCase(filter.name)
+                                            return camelCaseToSentenceCase(filter['name'])
                                         }}
                                     ></Typeahead>
                                 ) : (
