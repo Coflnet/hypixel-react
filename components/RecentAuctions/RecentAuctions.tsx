@@ -200,7 +200,7 @@ function RecentAuctions(props: Props) {
             <div>
                 {recentAuctions.length > 0 ? (
                     <InfiniteScroll
-                        style={{ overflow: 'hidden' }}
+                        style={{ overflow: 'clip' }}
                         dataLength={recentAuctions.length}
                         next={() => {
                             loadRecentAuctions()
