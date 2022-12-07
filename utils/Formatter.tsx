@@ -6,7 +6,7 @@ import { isClientSideRendering } from './SSRUtils'
  1234567 => 1.234.567
 */
 export function numberWithThousandsSeperators(number?: number): JSX.Element {
-    return <span>{numberWithThousandsSeperatorsAsString(number)}</span>
+    return <span suppressHydrationWarning>{numberWithThousandsSeperatorsAsString(number)}</span>
 }
 
 export function numberWithThousandsSeperatorsAsString(number?: number): String {
