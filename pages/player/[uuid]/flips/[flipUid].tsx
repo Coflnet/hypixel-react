@@ -47,7 +47,7 @@ function Flipper(props: Props) {
                     currentElement={
                         <p>
                             <span style={{ fontSize: 'larger', marginRight: '20px' }}>Tracked flips of:</span>
-                            <Link href={`/player/${player.uuid}`}>
+                            <Link href={`/player/${player.uuid}`} className="disableLinkStyle">
                                 <span style={{ cursor: 'pointer' }}>
                                     <Image
                                         crossOrigin="anonymous"
