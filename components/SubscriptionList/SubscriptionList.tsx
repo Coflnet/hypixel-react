@@ -149,7 +149,6 @@ function SubscriptionList() {
     }
 
     function onAfterSubscribeEdit(oldSubscription: Subscription) {
-        console.log(oldSubscription)
         api.unsubscribe(oldSubscription).then(() => {
             loadSubscriptions()
         })

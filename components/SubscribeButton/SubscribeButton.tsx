@@ -52,7 +52,6 @@ function SubscribeButton(props: Props) {
         if (props.type === 'item' && !price) {
             price = '0'
         }
-        console.log(itemFilter)
         api.subscribe(props.topic, getSubscriptionTypes(), price ? parseInt(price) : undefined, itemFilter)
             .then(() => {
                 toast.success(props.successMessage || 'Notifier successfully created!', {
