@@ -108,7 +108,7 @@ export interface Subscription {
     topicId: string
     price: number
     types: SubscriptionType[]
-    type: string
+    type: 'player' | 'item' | 'auction'
     title?: string
     filter?: ItemFilter
 }
