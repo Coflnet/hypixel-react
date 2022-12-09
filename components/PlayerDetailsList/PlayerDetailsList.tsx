@@ -374,7 +374,7 @@ function PlayerDetailsList(props: Props) {
                 </>
             ) : null}
             {wasAlreadyLoggedIn ? (
-                <div style={{ visibility: 'collapse' }}>
+                <div style={{ visibility: 'collapse', height: 0 }}>
                     <GoogleSignIn onAfterLogin={onAfterLogin} />
                 </div>
             ) : null}
