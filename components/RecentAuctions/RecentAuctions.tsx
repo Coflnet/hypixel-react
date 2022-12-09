@@ -111,7 +111,7 @@ function RecentAuctions(props: Props) {
 
     function onFetchTypeChange(e: ChangeEvent<HTMLInputElement>) {
         localStorage.setItem(RECENT_AUCTIONS_FETCH_TYPE_KEY, e.target.value)
-        loadRecentAuctions()
+        loadRecentAuctions(true)
     }
 
     function onAfterLogin() {
