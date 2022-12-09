@@ -28,7 +28,7 @@ const groupedFilter = [
 ]
 
 function ItemFilter(props: Props) {
-    let [itemFilter, _setItemFilter] = useState<ItemFilter>(props.defaultFilter || {})
+    let [itemFilter, _setItemFilter] = useState<ItemFilter>({})
     let [expanded, setExpanded] = useState(props.forceOpen || false)
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
@@ -45,7 +45,7 @@ function ItemFilter(props: Props) {
         if (props.ignoreURL && !props.defaultFilter) {
             return
         }
-        itemFilter = props.defaultFilter ? props.defaultFilter : getPrefillFilter(props.filters, props.ignoreURL)
+        itemFilter = props.defaultFilter ? JSON.parse(JSON.stringify(props.defaultFilter)) : getPrefillFilter(props.filters, props.ignoreURL)
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {

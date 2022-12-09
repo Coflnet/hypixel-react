@@ -231,8 +231,8 @@ export function parseSubscriptionTypes(typeInNumeric: number): SubscriptionType[
     return subTypes
 }
 
-function _getTypeFromSubTypes(subTypes: SubscriptionType[]): string {
-    let type = ''
+function _getTypeFromSubTypes(subTypes: SubscriptionType[]): 'item' | 'player' | 'auction' {
+    let type = null
     switch (SubscriptionType[subTypes[0].toString()]) {
         case SubscriptionType.BIN:
         case SubscriptionType.PRICE_HIGHER_THAN:

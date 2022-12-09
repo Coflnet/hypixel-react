@@ -12,6 +12,7 @@ import styles from './SubscriptionList.module.css'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { useForceUpdate } from '../../utils/Hooks'
+import SubscribeButton from '../SubscribeButton/SubscribeButton'
 
 let mounted = true
 
@@ -47,7 +48,6 @@ function SubscriptionList() {
                     forceUpdate()
                 })
             })
-
             setSubscriptions(subscriptions)
         })
     }
@@ -148,6 +148,12 @@ function SubscriptionList() {
         })
     }
 
+    function onAfterSubscribeEdit(oldSubscription: Subscription) {
+        api.unsubscribe(oldSubscription).then(() => {
+            loadSubscriptions()
+        })
+    }
+
     function getSubscriptionTitle(subscription: Subscription): Promise<string> {
         return new Promise((resolve, reject) => {
             switch (subscription.type) {
@@ -215,13 +221,25 @@ function SubscriptionList() {
             {getSubTypesAsList(subscription.types, subscription.price)}
             {subscription.filter ? <hr /> : null}
             <ItemFilterPropertiesDisplay filter={subscription.filter} />
-            <div
-                style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer' }}
-                onClick={() => {
-                    onDelete(subscription)
-                }}
-            >
-                <DeleteIcon color="error" />
+            <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
+                <SubscribeButton
+                    topic={subscription.topicId}
+                    type={subscription.type}
+                    isEditButton={true}
+                    onAfterSubscribe={() => {
+                        onAfterSubscribeEdit(subscription)
+                    }}
+                    prefill={subscription}
+                    popupTitle="Update Notifier"
+                    popupButtonText="Update"
+                    successMessage="Notifier successfully updated"
+                />
+                <DeleteIcon
+                    color="error"
+                    onClick={() => {
+                        onDelete(subscription)
+                    }}
+                />
             </div>
         </ListGroup.Item>
     ))
