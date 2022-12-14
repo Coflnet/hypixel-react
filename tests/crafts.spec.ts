@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('Profitable craft page works', async ({ page }) => {
-  await page.goto('https://sky.coflnet.com/');
+  await page.goto('/');
   await page.getByTestId('MenuIcon').click();
   await page.getByRole('link', { name: 'Profitable crafts' }).click();
   await page.getByText('The top 3 crafts can only be seen with starter premium or betterYou Cheated the ').first().click();
