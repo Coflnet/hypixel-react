@@ -112,9 +112,8 @@ function PlayerDetailsList(props: Props) {
     }
 
     function loadFilters() {
-        return Promise.all([api.getFilters(filteredItem ? filteredItem.tag : '*'), api.flipFilters(filteredItem ? filteredItem.tag : '*')]).then(filters => {
-            let result = [...filters[0], ...filters[1]]
-            setFilters(result)
+        return api.getFilters(filteredItem ? filteredItem.tag : '*').then(filters => {
+            setFilters(filters)
         })
     }
 
