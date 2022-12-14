@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 
 test('Player auction opens', async ({ page }) => {
   await page.goto('https://sky.coflnet.com/player/b876ec32e396476ba1158438d83c67d4');
@@ -26,7 +26,7 @@ test('Scroll down to older bid', async ({ page }) => {
   await page.getByRole('link', { name: /.*Cheap Coffee Ended BIN Highest Bid: 6[,\.]000.* Highest Own: 0.* End of Auction: .*2021/ }).click();
 });
 
-async function switchToBids(page) {
+async function switchToBids(page: Page) {
   // forces click to ignore google login popup
-  await page.getByRole('group').getByText('Bids').click({ force: true });
+  await page.getByRole('group').getByText('Bids').click({ force: true, position: { x: 0, y: 0 } });
 }
