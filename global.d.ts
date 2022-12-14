@@ -240,6 +240,7 @@ interface API {
     unsubscribeAll(): Promise<void>
     getItemNames(items: Item[]): Promise<{ [key: string]: string }>
     checkFilter(auction: AuctionDetails, filter: ItemFilter): Promise<boolean>
+    refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void)
 }
 
 interface CacheUtils {

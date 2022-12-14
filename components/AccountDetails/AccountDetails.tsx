@@ -59,7 +59,7 @@ function AccountDetails() {
     }
 
     function loadPremiumProducts(): Promise<void> {
-        return api.getPremiumProducts().then(products => {
+        return api.refreshLoadPremiumProducts(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
             setProducts(products)
             let activeProduct = getHighestPriorityPremiumProduct(products)

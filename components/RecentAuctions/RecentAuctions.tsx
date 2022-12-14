@@ -37,7 +37,9 @@ function RecentAuctions(props: Props) {
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [premiumType, setPremiumType] = useState<PremiumType>(null)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let isLoadingElements = useRef(false)
+
+    let itemFilterRef = useRef<ItemFilter>(null)
+    itemFilterRef.current = props.itemFilter
 
     useEffect(() => {
         mounted = true
@@ -48,18 +50,18 @@ function RecentAuctions(props: Props) {
     }, [])
 
     useEffect(() => {
-        loadRecentAuctions()
+        loadRecentAuctions(true)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag, JSON.stringify(props.itemFilter)])
 
-    function loadRecentAuctions() {
-        if (isLoadingElements.current) {
-            return
+    function loadRecentAuctions(reset: boolean = false) {
+        let recentAuctions = reset ? [] : recentAuctionsRef.current
+        if (reset) {
+            setRecentAuctions([])
         }
-        isLoadingElements.current = true
-        currentLoadingString = props.item.tag
 
-        let itemFilter = { ...props.itemFilter }
+        let itemFilter = { ...itemFilterRef.current }
+        currentLoadingString = JSON.stringify({ tag: props.item.tag, filter: itemFilter })
 
         if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
             let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
@@ -77,7 +79,7 @@ function RecentAuctions(props: Props) {
             }
         }
 
-        let page = Math.ceil(recentAuctionsRef.current.length / FETCH_RESULT_SIZE)
+        let page = Math.ceil(recentAuctions.length / FETCH_RESULT_SIZE)
         let maxPages = 10
         switch (premiumType?.priority) {
             case PREMIUM_RANK.STARTER:
@@ -94,26 +96,24 @@ function RecentAuctions(props: Props) {
 
         if (page >= maxPages) {
             setAllElementsLoaded(true)
-            isLoadingElements.current = false
             return
         }
         itemFilter['page'] = page.toString()
 
         api.getRecentAuctions(props.item.tag, itemFilter).then(newRecentAuctions => {
-            if (!mounted || currentLoadingString !== props.item.tag) {
+            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
                 return
             }
-            isLoadingElements.current = false
             if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
                 setAllElementsLoaded(true)
             }
-            setRecentAuctions([...recentAuctionsRef.current, ...newRecentAuctions])
+            setRecentAuctions([...recentAuctions, ...newRecentAuctions])
         })
     }
 
     function onFetchTypeChange(e: ChangeEvent<HTMLInputElement>) {
         localStorage.setItem(RECENT_AUCTIONS_FETCH_TYPE_KEY, e.target.value)
-        loadRecentAuctions()
+        loadRecentAuctions(true)
     }
 
     function onAfterLogin() {
@@ -139,7 +139,7 @@ function RecentAuctions(props: Props) {
 
     let recentAuctionList = recentAuctions.map(recentAuction => {
         return (
-            <div className={styles.cardWrapper} key={recentAuction.uuid}>
+            <div className={styles.cardWrapper}>
                 <span className="disableLinkStyle">
                     <Link href={`/auction/${recentAuction.uuid}`}>
                         <a className="disableLinkStyle">
@@ -200,7 +200,7 @@ function RecentAuctions(props: Props) {
             <div>
                 {recentAuctions.length > 0 ? (
                     <InfiniteScroll
-                        style={{ overflow: 'hidden' }}
+                        style={{ overflow: 'clip' }}
                         dataLength={recentAuctions.length}
                         next={() => {
                             loadRecentAuctions()

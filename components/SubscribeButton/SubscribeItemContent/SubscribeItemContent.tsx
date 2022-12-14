@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { FormControl, InputGroup } from 'react-bootstrap'
 import { Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
+import { Subscription, SubscriptionType } from '../../../api/ApiTypes.d'
 import ItemFilter from '../../ItemFilter/ItemFilter'
 import styles from './SubscribeItemContent.module.css'
 
@@ -11,6 +12,7 @@ interface Props {
     onOnlyInstantBuyChange(value: boolean)
     onFilterChange(filter: ItemFilter)
     itemTag: string
+    prefill?: Subscription
 }
 
 function SubscribeItemContent(props: Props) {
@@ -30,7 +32,13 @@ function SubscribeItemContent(props: Props) {
                     <InputGroup.Prepend>
                         <InputGroup.Text id="inputGroup-sizing-sm">Item price</InputGroup.Text>
                     </InputGroup.Prepend>
-                    <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm" type="number" onChange={e => props.onPriceChange(e.target.value)} />
+                    <FormControl
+                        aria-label="Small"
+                        aria-describedby="inputGroup-sizing-sm"
+                        type="number"
+                        defaultValue={props.prefill?.price}
+                        onChange={e => props.onPriceChange(e.target.value)}
+                    />
                 </InputGroup>
                 <hr />
                 <h4 style={{ marginBottom: '20px' }}>Notify me...</h4>
@@ -40,6 +48,9 @@ function SubscribeItemContent(props: Props) {
                         type="radio"
                         id="priceAboveCheckbox"
                         name="priceState"
+                        defaultChecked={
+                            props.prefill && (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.PRICE_HIGHER_THAN])
+                        }
                         onChange={e => props.onIsPriceAboveChange(true)}
                         className={styles.checkBox}
                     />
@@ -50,6 +61,9 @@ function SubscribeItemContent(props: Props) {
                         type="radio"
                         id="priceBelowCheckbox"
                         name="priceState"
+                        defaultChecked={
+                            props.prefill && (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.PRICE_LOWER_THAN])
+                        }
                         onChange={e => props.onIsPriceAboveChange(false)}
                         className={styles.checkBox}
                     />
@@ -59,6 +73,7 @@ function SubscribeItemContent(props: Props) {
                     <Form.Check
                         className={styles.checkBox}
                         type="checkbox"
+                        defaultChecked={props.prefill && (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.BIN])}
                         id="onlyIstantBuy"
                         onClick={e => {
                             props.onOnlyInstantBuyChange((e.target as HTMLInputElement).checked)
@@ -66,7 +81,14 @@ function SubscribeItemContent(props: Props) {
                     />
                 </Form.Group>
                 <Form.Group>
-                    <ItemFilter filters={filterOptions} ignoreURL={false} onFilterChange={props.onFilterChange} />
+                    <ItemFilter
+                        defaultFilter={props.prefill?.filter}
+                        autoSelect={false}
+                        filters={filterOptions}
+                        forceOpen={true}
+                        ignoreURL={true}
+                        onFilterChange={props.onFilterChange}
+                    />
                 </Form.Group>
             </div>
         </>

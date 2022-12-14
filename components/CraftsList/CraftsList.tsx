@@ -108,7 +108,7 @@ export function CraftsList(props: Props) {
     }
 
     function loadHasPremium(): Promise<void> {
-        return api.getPremiumProducts().then(products => {
+        return api.refreshLoadPremiumProducts(products => {
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
         })
     }

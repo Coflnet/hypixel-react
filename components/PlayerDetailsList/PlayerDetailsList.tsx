@@ -100,7 +100,7 @@ function PlayerDetailsList(props: Props) {
     }, [filteredItem])
 
     function onAfterLogin() {
-        api.getPremiumProducts().then(products => {
+        api.refreshLoadPremiumProducts(products => {
             let highestPremium = getHighestPriorityPremiumProduct(products)
             if (highestPremium) {
                 let highestPremiumType = getPremiumType(highestPremium)
@@ -112,9 +112,8 @@ function PlayerDetailsList(props: Props) {
     }
 
     function loadFilters() {
-        return Promise.all([api.getFilters(filteredItem ? filteredItem.tag : '*'), api.flipFilters(filteredItem ? filteredItem.tag : '*')]).then(filters => {
-            let result = [...filters[0], ...filters[1]]
-            setFilters(result)
+        return api.getFilters(filteredItem ? filteredItem.tag : '*').then(filters => {
+            setFilters(filters)
         })
     }
 
@@ -374,7 +373,7 @@ function PlayerDetailsList(props: Props) {
                 </>
             ) : null}
             {wasAlreadyLoggedIn ? (
-                <div style={{ visibility: 'collapse' }}>
+                <div style={{ visibility: 'collapse', height: 0 }}>
                     <GoogleSignIn onAfterLogin={onAfterLogin} />
                 </div>
             ) : null}

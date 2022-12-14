@@ -32,7 +32,7 @@ function LowSupply(props: Props) {
     }
 
     let loadHasPremium = () => {
-        api.getPremiumProducts().then(products => {
+        api.refreshLoadPremiumProducts(products => {
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM))
         })
     }
