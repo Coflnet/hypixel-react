@@ -5,7 +5,7 @@ test('auction contains relevant information', async ({ page }) => {
   await page.getByText('Category: Misc').click();
   await page.getByText('Reforge:None').click();
   await page.getByText(/Auction Created:2.26.2022 .*/i).click();
-  await page.getByText(/Item Created:2.24.2022 .*28.*/i).click();
+  await page.getByText(/Item Created:2.2..2022 .*28.*/i).click();
   await page.getByText('None').nth(1).click();
   await page.locator('span').filter({ hasText: 'Captured Player:' }).first().click();
   await page.getByText('§d[MAYOR] Technoblade§f').click();
