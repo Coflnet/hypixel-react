@@ -38,6 +38,9 @@ function RecentAuctions(props: Props) {
     let [premiumType, setPremiumType] = useState<PremiumType>(null)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
 
+    let itemFilterRef = useRef<ItemFilter>(null)
+    itemFilterRef.current = props.itemFilter
+
     useEffect(() => {
         mounted = true
         setIsSSR(false)
@@ -57,9 +60,8 @@ function RecentAuctions(props: Props) {
             setRecentAuctions([])
         }
 
-        currentLoadingString = props.item.tag
-
-        let itemFilter = { ...props.itemFilter }
+        let itemFilter = { ...itemFilterRef.current }
+        currentLoadingString = JSON.stringify({ tag: props.item.tag, filter: itemFilter })
 
         if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
             let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
@@ -99,7 +101,7 @@ function RecentAuctions(props: Props) {
         itemFilter['page'] = page.toString()
 
         api.getRecentAuctions(props.item.tag, itemFilter).then(newRecentAuctions => {
-            if (!mounted || currentLoadingString !== props.item.tag) {
+            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
                 return
             }
             if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
