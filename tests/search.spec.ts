@@ -17,7 +17,7 @@ test('search for grappling hook and open reference', async ({ page }) => {
   await expect(page).toHaveURL(/.*\/auction\/.*/i);
   // loaded item page
   await page.getByText('Enchantments:None').click();
-  await page.getByRole('button', { name: 'Compare to ended auctions' }).click();
+  await page.getByRole('button').filter({ hasText: 'Compare to ended auctions' }).click();
   await page.locator('text=/Ended.*ago/g').nth(3).click();
 });
 
