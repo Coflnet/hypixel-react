@@ -61,7 +61,7 @@ function RecentAuctions(props: Props) {
         }
 
         let itemFilter = { ...itemFilterRef.current }
-        currentLoadingString = JSON.stringify({ tag: props.item.tag, filter: itemFilter })
+        currentLoadingString = JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })
 
         if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
             let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
