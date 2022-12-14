@@ -13,7 +13,8 @@ test('Opens last bid', async ({ page }) => {
   await expect(page).toHaveURL(/.*\/auction\/c5ce8b40320b4b178e53cdfb746d8953/i);
 });
 
-test('Scroll down to older bid', async ({ page }) => {
+test('Scroll down to older bid', async ({ page, isMobile, browserName }) => {
+  test.skip(browserName === 'webkit' && isMobile, 'Scrolling is not supported on mobile safari');;
   await page.goto('https://sky.coflnet.com/player/b876ec32e396476ba1158438d83c67d4');
   await switchToBids(page);
   for (let i = 0; i < 500; i++) {
