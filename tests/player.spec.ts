@@ -28,5 +28,5 @@ test('Scroll down to older bid', async ({ page }) => {
 
 async function switchToBids(page: Page) {
   // forces click to ignore google login popup
-  await page.getByRole('group').getByText('Bids').click({ force: true, position: { x: 0, y: 0 } });
+  await page.getByRole('group').getByText('Bids').click({ force: true, position: { x: 10, y: 10 } });
 }
