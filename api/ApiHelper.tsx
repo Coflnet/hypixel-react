@@ -539,7 +539,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_GOOGLE, error)
-                    reject()
+                    reject(error)
                 }
             })
         })
