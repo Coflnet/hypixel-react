@@ -15,7 +15,7 @@ function About() {
                 <hr />
                 <Card style={{ padding: '30px' }}>
                     <p>
-                        This is an OpenSource project developed on <a href="https://github.com/matthias-luger/hypixel-react">GitHub</a>
+                        This is an OpenSource project developed on <a href="https://github.com/matthias-luger/hypixel-react">GitHub</a>.
                     </p>
                     <hr />
                     <h3>Our API</h3>
