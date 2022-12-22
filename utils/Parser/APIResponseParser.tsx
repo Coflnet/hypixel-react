@@ -13,7 +13,7 @@ export function parseItemBidForList(bid: any): BidForList {
             tag: bid.tag
         },
         highestBid: bid.highestBid,
-        highestOwn: bid.highestOwn,
+        highestOwn: bid.highestOwnBid,
         bin: bid.bin
     } as BidForList
 }
