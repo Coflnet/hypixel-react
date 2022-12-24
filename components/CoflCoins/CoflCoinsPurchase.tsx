@@ -249,7 +249,7 @@ function Payment(props: Props) {
                 <p>
                     End:{' '}
                     <span style={{ color: 'red' }}>
-                        <Countdown date={new Date('2022-12-26T06:00:00.000Z')} />
+                        <Countdown date={new Date('2022-12-27T06:00:00.000Z')} />
                     </span>
                 </p>
             </span>
