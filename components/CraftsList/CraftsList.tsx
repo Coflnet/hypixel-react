@@ -107,15 +107,10 @@ export function CraftsList(props: Props) {
         }
     }
 
-    function loadHasPremium(): Promise<void> {
-        return api.refreshLoadPremiumProducts(products => {
-            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
-        })
-    }
-
     function onAfterLogin() {
         setIsLoggedIn(true)
-        loadHasPremium().then(() => {
+        api.refreshLoadPremiumProducts(products => {
+            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
             api.getAccountInfo().then(info => {
                 setAccountInfo(info)
                 if (info.mcId) {
