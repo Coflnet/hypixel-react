@@ -66,7 +66,14 @@ function Payment(props: Props) {
         />
     )
 
-    function getPaymentElement(title: JSX.Element, stripePrice: number, stripeProductId: string, paypalPrice: number, payPalProductId: string) {
+    function getPaymentElement(
+        title: JSX.Element,
+        stripePrice: number,
+        stripeProductId: string,
+        paypalPrice: number,
+        payPalProductId: string,
+        discount?: number
+    ) {
         return (
             <Card className={styles.premiumPlanCard}>
                 <Card.Header>
@@ -97,7 +104,17 @@ function Payment(props: Props) {
                                                 </a>
                                             </p>
                                         ) : (
-                                            `${numberWithThousandsSeperators(getRoundedPrice(paypalPrice))} Euro`
+                                            <span>
+                                                {`${numberWithThousandsSeperators(getRoundedPrice(discount ? paypalPrice * discount : paypalPrice))} Euro`}
+                                                {discount ? (
+                                                    <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>
+                                                        {Math.round((1 - discount) * 100)}% OFF
+                                                    </span>
+                                                ) : null}
+                                                {discount ? (
+                                                    <p style={{ fontSize: 'x-small', margin: 0, padding: 0 }}>Original price: {getRoundedPrice(paypalPrice)}</p>
+                                                ) : null}
+                                            </span>
                                         )}
                                     </Button>
                                 </div>
@@ -129,7 +146,17 @@ function Payment(props: Props) {
                                                 </a>
                                             </p>
                                         ) : (
-                                            `${numberWithThousandsSeperators(getRoundedPrice(stripePrice))} Euro`
+                                            <span>
+                                                {`${numberWithThousandsSeperators(getRoundedPrice(discount ? stripePrice * discount : stripePrice))} Euro`}
+                                                {discount ? (
+                                                    <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>
+                                                        {Math.round((1 - discount) * 100)}% OFF
+                                                    </span>
+                                                ) : null}
+                                                {discount ? (
+                                                    <p style={{ fontSize: 'x-small', margin: 0, padding: 0 }}>Original price: {getRoundedPrice(stripePrice)}</p>
+                                                ) : null}
+                                            </span>
                                         )}
                                     </Button>
                                 </div>
@@ -216,10 +243,20 @@ function Payment(props: Props) {
 
     return (
         <div>
+            <span style={{ fontSize: 'larger' }}>
+                <span style={{ color: 'red' }}>CHRISTMAS SALE:</span>
+                <p>Products over 1.800 CoflCoins are reduced by up to 20%!</p>
+                <p>
+                    End:{' '}
+                    <span style={{ color: 'red' }}>
+                        <Countdown date={new Date('2022-12-27T06:00:00.000Z')} />
+                    </span>
+                </p>
+            </span>
             <div>
                 <div className={styles.productGrid}>
                     {getPaymentElement(<span>{numberWithThousandsSeperators(1800)} CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
-                    {getPaymentElement(<span>{numberWithThousandsSeperators(5400)} CoflCoins </span>, 19.69, 's_cc_5400', 19.99, 'p_cc_5400')}
+                    {getPaymentElement(<span>{numberWithThousandsSeperators(5400)} CoflCoins </span>, 19.69, 's_cc_5400', 19.99, 'p_cc_5400', 0.9)}
                     {!showAll ? (
                         <Button
                             style={{ width: '100%' }}
@@ -232,8 +269,8 @@ function Payment(props: Props) {
                     ) : null}
                     {showAll ? (
                         <>
-                            {getPaymentElement(<span>{numberWithThousandsSeperators(10800)} CoflCoins </span>, 38.99, 's_cc_10800', 39.69, 'p_cc_10800')}
-                            {getPaymentElement(<span>{numberWithThousandsSeperators(21600)} CoflCoins </span>, 74.99, 's_cc_21600', 78.69, 'p_cc_21600')}
+                            {getPaymentElement(<span>{numberWithThousandsSeperators(10800)} CoflCoins </span>, 38.99, 's_cc_10800', 39.69, 'p_cc_10800', 0.8)}
+                            {getPaymentElement(<span>{numberWithThousandsSeperators(21600)} CoflCoins </span>, 74.99, 's_cc_21600', 78.69, 'p_cc_21600', 0.8)}
                             {coflCoins % 1800 != 0 ? getNextTo1800PaymentElement() : null}
                         </>
                     ) : null}
