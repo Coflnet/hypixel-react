@@ -243,20 +243,10 @@ function Payment(props: Props) {
 
     return (
         <div>
-            <span style={{ fontSize: 'larger' }}>
-                <span style={{ color: 'red' }}>CHRISTMAS SALE:</span>
-                <p>Products over 1.800 CoflCoins are reduced by up to 20%!</p>
-                <p>
-                    End:{' '}
-                    <span style={{ color: 'red' }}>
-                        <Countdown date={new Date('2022-12-27T06:00:00.000Z')} />
-                    </span>
-                </p>
-            </span>
             <div>
                 <div className={styles.productGrid}>
                     {getPaymentElement(<span>{numberWithThousandsSeperators(1800)} CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
-                    {getPaymentElement(<span>{numberWithThousandsSeperators(5400)} CoflCoins </span>, 19.69, 's_cc_5400', 19.99, 'p_cc_5400', 0.9)}
+                    {getPaymentElement(<span>{numberWithThousandsSeperators(5400)} CoflCoins </span>, 19.69, 's_cc_5400', 19.99, 'p_cc_5400')}
                     {!showAll ? (
                         <Button
                             style={{ width: '100%' }}
@@ -269,8 +259,8 @@ function Payment(props: Props) {
                     ) : null}
                     {showAll ? (
                         <>
-                            {getPaymentElement(<span>{numberWithThousandsSeperators(10800)} CoflCoins </span>, 38.99, 's_cc_10800', 39.69, 'p_cc_10800', 0.8)}
-                            {getPaymentElement(<span>{numberWithThousandsSeperators(21600)} CoflCoins </span>, 74.99, 's_cc_21600', 78.69, 'p_cc_21600', 0.8)}
+                            {getPaymentElement(<span>{numberWithThousandsSeperators(10800)} CoflCoins </span>, 38.99, 's_cc_10800', 39.69, 'p_cc_10800')}
+                            {getPaymentElement(<span>{numberWithThousandsSeperators(21600)} CoflCoins </span>, 74.99, 's_cc_21600', 78.69, 'p_cc_21600')}
                             {coflCoins % 1800 != 0 ? getNextTo1800PaymentElement() : null}
                         </>
                     ) : null}

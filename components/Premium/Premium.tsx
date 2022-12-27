@@ -111,7 +111,7 @@ function Premium() {
                 <div style={{ marginBottom: '20px' }}>
                     <hr />
                     <h2>
-                        <img src="/coflcoinsText.png" width={200} />
+                        CoflCoins
                         <Button
                             className={styles.sendCoflCoinsButton}
                             onClick={() => {
