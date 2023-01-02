@@ -123,7 +123,8 @@ export function setSettingsChangedData(data: any): Promise<void> {
                         if (!item.tag) {
                             newRestrictions.push({
                                 type: type,
-                                itemFilter: item.filter
+                                itemFilter: item.filter,
+                                tags: item.tags
                             })
                         } else if (itemName && item.tag) {
                             newRestrictions.push({
@@ -133,7 +134,8 @@ export function setSettingsChangedData(data: any): Promise<void> {
                                     name: itemName,
                                     iconUrl: api.getItemImageUrl(item)
                                 },
-                                itemFilter: item.filter
+                                itemFilter: item.filter,
+                                tags: item.tags
                             })
                         } else {
                             promises.push(
@@ -145,7 +147,8 @@ export function setSettingsChangedData(data: any): Promise<void> {
                                             name: details.name,
                                             iconUrl: api.getItemImageUrl(item)
                                         },
-                                        itemFilter: item.filter
+                                        itemFilter: item.filter,
+                                        tags: item.tags
                                     })
                                 })
                             )
@@ -351,7 +354,7 @@ export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: Flip
 
 export function mapRestrictionsToApiFormat(restrictions: FlipRestriction[]) {
     return restrictions.map(restriction => {
-        return { tag: restriction.item?.tag, filter: restriction.itemFilter, displayName: restriction.item?.name }
+        return { tag: restriction.item?.tag, filter: restriction.itemFilter, displayName: restriction.item?.name, tags: restriction.tags }
     })
 }
 

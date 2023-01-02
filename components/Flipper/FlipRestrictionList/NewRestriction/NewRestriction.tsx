@@ -3,6 +3,7 @@ import { Button, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
 import ItemFilter from '../../../ItemFilter/ItemFilter'
 import Search from '../../../Search/Search'
+import TagSelect from '../TagSelect/TagSelect'
 import styles from './NewRestriction.module.css'
 
 interface Props {
@@ -10,9 +11,9 @@ interface Props {
     onRestrictionTypeChange(value: 'blacklist' | 'whitelist')
     onSearchResultClick(item: SearchResultItem)
     filters: FilterOptions[]
-    onFilterChange(filter?: ItemFilter)
+    onRestrictionChange(restriction?: FlipRestriction)
     addNewRestriction()
-    onNewRestrictionCancel()
+    onCancel()
 }
 
 function NewRestriction(props: Props) {
@@ -48,12 +49,30 @@ function NewRestriction(props: Props) {
                     placeholder="Search item"
                 />
             </div>
-            <ItemFilter filters={props.filters} forceOpen={true} onFilterChange={props.onFilterChange} ignoreURL={true} autoSelect={false} />
+            <ItemFilter
+                filters={props.filters}
+                forceOpen={true}
+                onFilterChange={filter => {
+                    let restriction = props.newRestriction
+                    restriction.itemFilter = filter
+                    props.onRestrictionChange(restriction)
+                }}
+                ignoreURL={true}
+                autoSelect={false}
+            />
+            <TagSelect
+                restriction={props.newRestriction}
+                onTagsChange={tags => {
+                    let restriction = props.newRestriction
+                    restriction.tags = tags
+                    props.onRestrictionChange(restriction)
+                }}
+            />
             <span>
                 <Button variant="success" onClick={props.addNewRestriction}>
                     Save new restriction
                 </Button>
-                <Button variant="danger" onClick={props.onNewRestrictionCancel} style={{ marginLeft: '5px' }}>
+                <Button variant="danger" onClick={props.onCancel} style={{ marginLeft: '5px' }}>
                     Cancel
                 </Button>
             </span>

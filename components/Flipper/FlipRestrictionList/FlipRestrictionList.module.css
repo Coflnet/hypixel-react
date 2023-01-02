@@ -30,6 +30,12 @@
     border-color: cornflowerblue;
 }
 
+.label {
+    width: 300px;
+    float: left;
+    font-weight: bold;
+}
+
 @media all and (max-width: 1024px) {
     .restriction {
         width: 100%;
