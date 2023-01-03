@@ -3,6 +3,7 @@ import { components, MultiValue } from 'react-select'
 import Creatable from 'react-select/creatable'
 import { CURRENTLY_USED_TAGS } from '../../../../utils/SettingsUtils'
 import Tooltip from '../../../Tooltip/Tooltip'
+import { Help as HelpIcon } from '@mui/icons-material'
 
 interface Props {
     restriction: FlipRestriction
@@ -64,7 +65,19 @@ function TagSelect(props: Props) {
     return (
         <div>
             <div style={{ marginBottom: '20px' }}>
-                <label htmlFor="finders">Tags</label>
+                <label htmlFor="finders">
+                    Tags{' '}
+                    <Tooltip
+                        type="hover"
+                        content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />}
+                        tooltipContent={
+                            <span>
+                                Tags are used for you to organize your restrictions and to make it easier to search for specific entries. Tags don't influence
+                                what flips are shown.
+                            </span>
+                        }
+                    />
+                </label>
                 <Creatable
                     isMulti
                     options={getAllUsedOptions()}

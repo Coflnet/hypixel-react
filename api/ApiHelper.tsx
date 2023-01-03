@@ -632,7 +632,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 restriction.tags.forEach(tag => tags.add(tag))
             }
         })
-        console.log(tags)
         localStorage.setItem(CURRENTLY_USED_TAGS, tags.size > 0 ? JSON.stringify(Array.from(tags)) : '[]')
 
         let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)

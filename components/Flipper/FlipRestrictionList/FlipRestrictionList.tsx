@@ -522,7 +522,7 @@ function FlipRestrictionList(props: Props) {
                                     />
                                 ) : null}
                                 {restriction.tags?.map(tag => (
-                                    <Badge variant="dark" style={{ marginRight: '5px' }}>
+                                    <Badge key={tag} variant="dark" style={{ marginRight: '5px' }}>
                                         {tag}
                                     </Badge>
                                 ))}
