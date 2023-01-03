@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { components, MultiValue } from 'react-select'
 import Creatable from 'react-select/creatable'
+import { CURRENTLY_USED_TAGS } from '../../../../utils/SettingsUtils'
 import Tooltip from '../../../Tooltip/Tooltip'
 
 interface Props {
@@ -44,13 +45,29 @@ function TagSelect(props: Props) {
         props.onTagsChange(newTags)
     }
 
+    function getAllUsedOptions(): MultiValue<{
+        value: string
+        label: string
+    }> {
+        let items = localStorage.getItem(CURRENTLY_USED_TAGS)
+        if (!items) {
+            return []
+        }
+        return JSON.parse(items).map(item => {
+            return {
+                value: item,
+                label: item
+            }
+        })
+    }
+
     return (
         <div>
             <div style={{ marginBottom: '20px' }}>
                 <label htmlFor="finders">Tags</label>
                 <Creatable
                     isMulti
-                    options={tagOptions}
+                    options={getAllUsedOptions()}
                     value={tagOptions}
                     styles={customSelectStyle}
                     closeMenuOnSelect={false}

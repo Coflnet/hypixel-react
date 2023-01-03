@@ -252,6 +252,9 @@ function FlipRestrictionList(props: Props) {
     function editRestriction(restriction: FlipRestriction, index: number) {
         if (restrictionInEditModeIndex.length === 0) {
             newRestriction.itemFilter = { ...restriction.itemFilter }
+            if (restriction.tags) {
+                newRestriction.tags = [...restriction.tags]
+            }
             setNewRestriction(newRestriction)
         }
 
@@ -497,8 +500,8 @@ function FlipRestrictionList(props: Props) {
                                     ) : null}
                                 </div>
                             </Card.Header>
-                            {restriction.itemFilter ? (
-                                <Card.Body>
+                            <Card.Body>
+                                {restriction.itemFilter ? (
                                     <ItemFilterPropertiesDisplay
                                         filter={restriction.itemFilter}
                                         onAfterEdit={
@@ -517,9 +520,13 @@ function FlipRestrictionList(props: Props) {
                                                 : null
                                         }
                                     />
-                                    {restriction.tags?.toString()}
-                                </Card.Body>
-                            ) : null}
+                                ) : null}
+                                {restriction.tags?.map(tag => (
+                                    <Badge variant="dark" style={{ marginRight: '5px' }}>
+                                        {tag}
+                                    </Badge>
+                                ))}
+                            </Card.Body>
                         </Card>
                     )
                 })}

@@ -35,11 +35,11 @@ import { v4 as generateUUID } from 'uuid'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
 import { toast } from 'react-toastify'
 import cacheUtils from '../utils/CacheUtils'
-import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
 import {
+    CURRENTLY_USED_TAGS,
     FLIPPER_FILTER_KEY,
     getSettingsObject,
     LAST_PREMIUM_PRODUCTS,
@@ -625,6 +625,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         forceSettingsUpdate: boolean = false
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+
+        let tags: Set<string> = new Set()
+        restrictionList.forEach(restriction => {
+            if (restriction.tags) {
+                restriction.tags.forEach(tag => tags.add(tag))
+            }
+        })
+        console.log(tags)
+        localStorage.setItem(CURRENTLY_USED_TAGS, tags.size > 0 ? JSON.stringify(Array.from(tags)) : '[]')
 
         let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
 
