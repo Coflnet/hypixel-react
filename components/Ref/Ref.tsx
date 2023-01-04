@@ -10,6 +10,7 @@ import Link from 'next/link'
 import styles from './Ref.module.css'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { userInfo } from 'os'
 
 interface Props {}
 
@@ -47,7 +48,7 @@ function Ref(props: Props) {
                 <Card style={{ marginBottom: '15px' }}>
                     <Card.Header>Referral system</Card.Header>
                     <Card.Body>
-                        {isLoggedIn ? (
+                        {isLoggedIn && refInfo ? (
                             <div>
                                 Your Ref-Link: <span style={{ fontStyle: 'italic', color: 'skyblue' }}>{getLink()}</span>
                                 <span style={{ marginLeft: 15 }}>
@@ -83,7 +84,7 @@ function Ref(props: Props) {
                                 account.
                             </span>
                         </p>
-                        {isLoggedIn ? (
+                        {isLoggedIn && refInfo ? (
                             <div>
                                 <hr />
                                 <p>
@@ -107,11 +108,11 @@ function Ref(props: Props) {
                                 </div>
                             ) : null}
                             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
-                            {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
+                            {!refInfo ? getLoadingElement() : ''}
                         </div>
                     </Card.Body>
                 </Card>
-                {isLoggedIn ? (
+                {isLoggedIn && refInfo ? (
                     <Card style={{ marginBottom: '15px' }}>
                         <Card.Header>Information</Card.Header>
                         <Card.Body>
