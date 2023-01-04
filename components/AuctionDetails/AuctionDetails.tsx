@@ -233,11 +233,13 @@ function AuctionDetails(props: Props) {
                             </span>
                             <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
                                 <span style={{ marginRight: '10px' }}>
-                                    {getDungeonStarFormattedItemName(
-                                        auctionDetails?.auction.item.name,
-                                        getStyleForTier(auctionDetails.auction.item.tier),
-                                        auctionDetails?.nbtData['dungeon_item_level']
-                                    )}
+                                    {auctionDetails?.auction.item.name?.includes('§')
+                                        ? getMinecraftColorCodedElement(auctionDetails?.auction.item.name)
+                                        : getDungeonStarFormattedItemName(
+                                              auctionDetails?.auction.item.name,
+                                              getStyleForTier(auctionDetails.auction.item.tier),
+                                              auctionDetails?.nbtData['dungeon_item_level']
+                                          )}
                                 </span>
                                 <Badge variant={countBadgeVariant} style={{ marginLeft: '5px' }}>
                                     x{auctionDetails?.count}

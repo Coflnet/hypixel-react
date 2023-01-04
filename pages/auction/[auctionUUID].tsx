@@ -52,7 +52,7 @@ function AuctionDetailsPage(props: Props) {
         if (auctionDetails.auction.bin) {
             description += 'BIN '
         }
-        description += `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name}`
+        description += `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, "")} by ${auctionDetails?.auctioneer?.name}`
         if (!auctionDetails.auction.bin) {
             description += `| Highest Bid: ${numberWithThousandsSeperators(auctionDetails.auction.highestBid)} Coins with ${auctionDetails.bids.length} Bids`
         } else if (auctionDetails.bids.length > 0) {
@@ -72,7 +72,7 @@ function AuctionDetailsPage(props: Props) {
         <div className="page">
             {auctionDetails
                 ? getHeadElement(
-                      `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`,
+                      `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, "")} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`,
                       getAuctionDescription(),
                       auctionDetails.auction.item.iconUrl,
                       [auctionDetails.auction.item.name || auctionDetails.auction.item.tag, auctionDetails.auctioneer.name],
