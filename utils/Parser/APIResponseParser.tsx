@@ -166,7 +166,8 @@ export function parseSearchResultItem(item: any): SearchResultItem {
         type: item.type,
         route: _getRoute(),
         urlSearchParams: item.type === 'filter' ? new URLSearchParams(item.id.split('?')[1] + '&apply=true') : undefined,
-        id: item.id
+        id: item.id,
+        tier: item.tier
     }
 }
 
