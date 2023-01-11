@@ -123,6 +123,7 @@ interface SearchResultItem {
     urlSearchParams?: URLSearchParams
     id: string
     isPreviousSearch?: boolean
+    tier: string
 }
 
 interface FlipAuction {
