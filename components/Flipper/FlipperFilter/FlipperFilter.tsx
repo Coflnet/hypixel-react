@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
 import { BallotOutlined as FilterIcon, Settings as SettingsIcon } from '@mui/icons-material'
@@ -68,9 +68,9 @@ function FlipperFilter(props: Props) {
         onFilterChange(filter)
     }
 
-    function onRestrictionsChange(restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') {
+    let onRestrictionsChange = useCallback((restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') => {
         api.setFlipSetting(type, mapRestrictionsToApiFormat(restrictions.filter(restriction => restriction.type === type)))
-    }
+    }, [])
 
     function numberFieldMaxValue(value: number = 0, maxValue: number) {
         return value <= maxValue

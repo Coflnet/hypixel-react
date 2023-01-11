@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { Badge, Card } from 'react-bootstrap'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { getMinecraftColorCodedElement, numberWithThousandsSeperators } from '../../utils/Formatter'
 import { Person as PersonIcon, Timer as TimerIcon, FiberNew as NewIcon, Fireplace as FireIcon, Announcement as AnnouncementIcon } from '@mui/icons-material'
 import moment from 'moment'
 import Tooltip from '../Tooltip/Tooltip'
@@ -59,7 +59,7 @@ function Startpage(props: Props) {
                             <Card.Header style={{ padding: '10px' }}>
                                 <p className={styles.ellipsis}>
                                     <img crossOrigin="anonymous" src={auction.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} />
-                                    {auction.item.name}
+                                    {getMinecraftColorCodedElement(auction.item.name)}
                                 </p>
                             </Card.Header>
                             <Card.Body>

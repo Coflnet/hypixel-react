@@ -536,4 +536,4 @@ function FlipRestrictionList(props: Props) {
     )
 }
 
-export default FlipRestrictionList
+export default React.memo(FlipRestrictionList)

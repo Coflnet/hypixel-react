@@ -44,9 +44,15 @@ interface Props {
 }
 
 function Flipper(props: Props) {
-    let [flips, setFlips] = useState<FlipAuction[]>(props.flips || [])
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
+    let [flips, setFlips] = useState<FlipAuction[]>(
+        props.flips
+            ? props.flips.filter(flip => {
+                  return flipperFilter.onlyUnsold ? !flip.sold : true
+              })
+            : []
+    )
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [autoscroll, setAutoscroll] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
