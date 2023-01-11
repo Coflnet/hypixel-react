@@ -84,6 +84,13 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
     }
 
     function handleServerRequest(request: ApiRequest, url: string, body?: any): Promise<void> {
+        if (!isClientSideRendering()) {
+            console.log('Sending Request...')
+            console.log('URL: ' + url)
+            console.log('Request: ' + JSON.stringify(request))
+            console.log('Body: ' + JSON.stringify(body))
+            console.log('------------------------')
+        }
         let parsedResponse
         try {
             return fetch(url, {
@@ -101,6 +108,12 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 .then(responseText => {
                     parsedResponse = parseResponseText(responseText)
 
+                    if (!isClientSideRendering()) {
+                        console.log('Received Response: ')
+                        console.log('mId: ' + request.mId)
+                        console.log('data: ' + JSON.stringify(parsedResponse))
+                        console.log('------------------------')
+                    }
                     if (!parsedResponse || parsedResponse.Slug !== undefined) {
                         request.resolve()
                         return
