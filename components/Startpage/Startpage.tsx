@@ -449,7 +449,7 @@ function Startpage(props: Props) {
                     <p>
                         We're tracking over 400 million auctions. We've saved more than 250 million bazaar prices in intervals of 10 seconds. Furthermore,
                         there are over two million skyblock players that you can search by their Minecraft usernames. You can browse through the auctions they
-                        made over the past two years. New Items are added automatically and available within two miniutes after the first auction is started.
+                        made over the past two years. New Items are added automatically and available within two minutes after the first auction is started.
                     </p>
                     <p>
                         The search autocomplete is ranked by popularity and allows you to find whatever item you want faster. Quick urls allow you to link to
