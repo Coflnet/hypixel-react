@@ -13,6 +13,15 @@ export function EqualFilterElement(props: Props) {
         props.onChange(selected[0] || '')
     }
 
+    function getSelectOptions(option) {
+        // special case for PET_SKIN to avoid confusion
+        if (option === 'PET_SKIN') {
+            return 'Pet Skin (unapplied)'
+        }
+
+        return convertTagToName(option)
+    }
+
     return (
         <Typeahead
             id={props.options.name}
@@ -20,7 +29,7 @@ export function EqualFilterElement(props: Props) {
             defaultSelected={[props.defaultValue]}
             onChange={_onChange}
             options={props.options?.options}
-            labelKey={convertTagToName}
+            labelKey={getSelectOptions}
             autoselect={false}
             selectHintOnEnter={true}
         ></Typeahead>
