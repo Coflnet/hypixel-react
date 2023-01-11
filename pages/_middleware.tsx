@@ -12,7 +12,7 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
         const clientIp = requestIp.getClientIp(req)
         console.log('------------------')
         console.log(clientIp)
-        await limiter.check(100, clientIp) // 200 requests per minute
+        await limiter.check(100, clientIp) // 100 requests per minute
         return NextResponse.next()
     } catch {
         return new NextResponse('Rate limit exceeded', {
