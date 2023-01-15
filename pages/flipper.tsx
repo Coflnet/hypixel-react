@@ -52,9 +52,13 @@ export const getServerSideProps = async ({ res }) => {
 
     let api = initAPI(true)
     let flips = await api.getPreloadFlips()
+    if (!flips || !Array.isArray(flips)) {
+        flips = []
+    }
+    
     return {
         props: {
-            flips: flips || []
+            flips: flips
         }
     }
 }
