@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import FlipperComponent from '../components/Flipper/Flipper'
 import { Container } from 'react-bootstrap'
 import Search from '../components/Search/Search'
@@ -10,10 +10,21 @@ import { handleSettingsImport } from '../utils/SettingsUtils'
 import { getCacheContolHeader } from '../utils/CacheUtils'
 
 interface Props {
-    flips?: any[]
+    flips?: any
 }
 
 function Flipper(props: Props) {
+    let flips = useMemo(() => {
+        try {
+            return JSON.parse(props.flips).map(flip => parseFlipAuction(flip))
+        } catch (e) {
+            console.log('ERROR: Error parsing preFlips')
+            console.log(props.flips)
+            console.log('------------------------')
+            return []
+        }
+    }, [])
+
     function onDrop(e) {
         e.preventDefault()
         var output = '' //placeholder for text output
@@ -41,7 +52,7 @@ function Flipper(props: Props) {
                 <Search />
                 <h2>Item-Flipper (WIP)</h2>
                 <hr />
-                <FlipperComponent flips={props.flips?.map(parseFlipAuction)} />
+                <FlipperComponent flips={flips.map(parseFlipAuction)} />
             </Container>
         </div>
     )
@@ -51,11 +62,14 @@ export const getServerSideProps = async ({ res }) => {
     res.setHeader('Cache-Control', getCacheContolHeader())
 
     let api = initAPI(true)
-    let flips = await api.getPreloadFlips()
-    if (!flips || !Array.isArray(flips)) {
-        flips = []
+    let flips = []
+    try {
+        flips = await api.getPreloadFlips()
+    } catch (e) {
+        console.log('ERROR: Error receiving preFlips')
+        console.log('------------------------')
     }
-    
+
     return {
         props: {
             flips: flips
