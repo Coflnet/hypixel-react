@@ -4,6 +4,7 @@ import { useMatomo } from '@datapunt/matomo-tracker-react'
 
 import { ShareOutlined as ShareIcon } from '@mui/icons-material'
 import styles from './ShareButton.module.css'
+import { v4 as generateUUID } from 'uuid'
 
 interface Props {
     title: string
@@ -57,7 +58,7 @@ function ShareButton(props: Props) {
                 placement="bottom-end"
                 onEntered={() => setTimeout(() => setShowOverlayTrigger(false), 3000)}
                 overlay={
-                    <Popover id={crypto.randomUUID()}>
+                    <Popover id={generateUUID()}>
                         <Popover.Content>
                             <Badge variant="secondary">Copied to clipboard</Badge>
                         </Popover.Content>

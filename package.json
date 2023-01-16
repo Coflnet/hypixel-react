@@ -42,7 +42,8 @@
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6",
     "spark-md5": "^3.0.2",
-    "toml": "^3.0.0"
+    "toml": "^3.0.0",
+    "uuid": "^8.3.1"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^3.1.3",

@@ -37,6 +37,7 @@ import cacheUtils from '../utils/CacheUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
+import { v4 as generateUUID } from 'uuid'
 import {
     CURRENTLY_USED_TAGS,
     FLIPPER_FILTER_KEY,
@@ -414,7 +415,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let setConnectionId = (): Promise<void> => {
         return new Promise((resolve, reject) => {
-            connectionId = connectionId || crypto.randomUUID()
+            connectionId = connectionId || generateUUID()
 
             websocketHelper.sendRequest({
                 type: RequestType.SET_CONNECTION_ID,

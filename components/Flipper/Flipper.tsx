@@ -20,6 +20,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
+import { v4 as generateUUID } from 'uuid'
 
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
@@ -69,7 +70,7 @@ function Flipper(props: Props) {
     let [showResetToDefaultDialog, setShowResetToDefaultDialog] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
-    let [flipperFilterKey, setFlipperFilterKey] = useState<string>(crypto.randomUUID())
+    let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID())
 
     let router = useRouter()
 
@@ -103,7 +104,7 @@ function Flipper(props: Props) {
 
         document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
             if ((e as any).detail?.apiUpdate) {
-                setFlipperFilterKey(crypto.randomUUID())
+                setFlipperFilterKey(generateUUID())
             }
             if (sessionStorage.getItem('googleId') === null) {
                 api.subscribeFlipsAnonym(

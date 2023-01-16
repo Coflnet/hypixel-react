@@ -6,6 +6,7 @@ import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { toast } from 'react-toastify'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { v4 as generateUUID } from 'uuid'
 
 interface Props {
     receiverType: 'email' | 'mcId'
@@ -17,7 +18,7 @@ interface Props {
 }
 
 function TransferCoflCoinsSummary(props: Props) {
-    let [reference] = useState(crypto.randomUUID())
+    let [reference] = useState(generateUUID())
     let [isSending, setIsSending] = useState(false)
 
     function onSend() {

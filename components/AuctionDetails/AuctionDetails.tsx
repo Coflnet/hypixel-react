@@ -22,6 +22,7 @@ import styles from './AuctionDetails.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import FlipBased from '../Flipper/FlipBased/FlipBased'
 import { Help as HelpIcon } from '@mui/icons-material'
+import { v4 as generateUUID } from 'uuid'
 
 interface Props {
     auctionUUID: string
@@ -256,7 +257,7 @@ function AuctionDetails(props: Props) {
                 </Link>
                 <div className={styles.cardHeadSubtext}>
                     <OverlayTrigger
-                        overlay={<TooltipBootstrap id={crypto.randomUUID()}>{getTimeToolTipString()}</TooltipBootstrap>}
+                        overlay={<TooltipBootstrap id={generateUUID()}>{getTimeToolTipString()}</TooltipBootstrap>}
                         children={
                             <div>
                                 {isRunning(auctionDetails) ? (

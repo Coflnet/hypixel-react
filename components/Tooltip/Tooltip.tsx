@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Modal, OverlayTrigger, Tooltip as BootstrapTooltip } from 'react-bootstrap'
+import { v4 as generateUUID } from 'uuid'
 
 
 /**
@@ -25,7 +26,7 @@ function Tooltip(props: Props) {
     function getHoverElement() {
         return props.tooltipContent ? (
             <OverlayTrigger
-                overlay={<BootstrapTooltip id={props.id || crypto.randomUUID()}>{props.tooltipContent}</BootstrapTooltip>}
+                overlay={<BootstrapTooltip id={props.id || generateUUID()}>{props.tooltipContent}</BootstrapTooltip>}
                 placement={props.hoverPlacement}
             >
                 {props.content}

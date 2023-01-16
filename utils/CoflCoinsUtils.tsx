@@ -2,6 +2,7 @@
 import api from '../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
 import { isClientSideRendering } from './SSRUtils'
+import { v4 as generateUUID } from 'uuid'
 
 interface RegisteredCallback {
     uuid: string
@@ -17,7 +18,7 @@ let currentCoflCoins = -1
  * @returns A unsubscribe function
  */
 export function subscribeToCoflcoinChange(callback: (n: number) => void): Function {
-    let uuid = crypto.randomUUID()
+    let uuid = generateUUID()
 
     registeredCallbacks.push({
         uuid: uuid,
