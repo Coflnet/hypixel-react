@@ -358,6 +358,16 @@ export function mapRestrictionsToApiFormat(restrictions: FlipRestriction[]) {
     })
 }
 
+export function storeUsedTagsInLocalStorage(restrictions: FlipRestriction[]) {
+    let tags: Set<string> = new Set()
+    restrictions.forEach(restriction => {
+        if (restriction.tags) {
+            restriction.tags.forEach(tag => tags.add(tag))
+        }
+    })
+    localStorage.setItem(CURRENTLY_USED_TAGS, tags.size > 0 ? JSON.stringify(Array.from(tags)) : '[]')
+}
+
 export const FLIP_CUSTOMIZING_KEY = 'flipCustomizing'
 export const RESTRICTIONS_SETTINGS_KEY = 'flipRestrictions'
 export const FLIPPER_FILTER_KEY = 'flipperFilters'

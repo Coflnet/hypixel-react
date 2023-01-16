@@ -45,7 +45,8 @@ import {
     LAST_PREMIUM_PRODUCTS,
     mapSettingsToApiFormat,
     RESTRICTIONS_SETTINGS_KEY,
-    setSettingsChangedData
+    setSettingsChangedData,
+    storeUsedTagsInLocalStorage
 } from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
 import { atobUnicode } from '../utils/Base64Utils'
@@ -626,13 +627,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
 
-        let tags: Set<string> = new Set()
-        restrictionList.forEach(restriction => {
-            if (restriction.tags) {
-                restriction.tags.forEach(tag => tags.add(tag))
-            }
-        })
-        localStorage.setItem(CURRENTLY_USED_TAGS, tags.size > 0 ? JSON.stringify(Array.from(tags)) : '[]')
+        storeUsedTagsInLocalStorage(restrictionList)
 
         let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
 
@@ -1440,6 +1435,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         if (sessionStorage.getItem('googleId') === null) {
             return Promise.resolve()
         }
+
+        storeUsedTagsInLocalStorage(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []))
+
         return new Promise((resolve, reject) => {
             let data = {
                 key,

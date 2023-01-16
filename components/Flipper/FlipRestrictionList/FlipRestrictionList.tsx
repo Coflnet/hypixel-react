@@ -421,7 +421,7 @@ function FlipRestrictionList(props: Props) {
                         if (restriction.item?.name && restriction.item?.name.toLowerCase().includes(searchText.toLowerCase())) {
                             isValid = true
                         }
-                        if (restriction.tags && restriction.tags.includes(searchText)) {
+                        if (restriction.tags && restriction.tags.findIndex(tag => tag.toLowerCase().includes(searchText.toLowerCase())) !== -1) {
                             isValid = true
                         }
                         if (!isValid) {
