@@ -31,7 +31,6 @@ import {
 } from '../utils/Parser/APIResponseParser'
 import { RequestType, SubscriptionType, Subscription, HttpApi } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
-import { v4 as generateUUID } from 'uuid'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
 import { toast } from 'react-toastify'
 import cacheUtils from '../utils/CacheUtils'
@@ -415,7 +414,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let setConnectionId = (): Promise<void> => {
         return new Promise((resolve, reject) => {
-            connectionId = connectionId || generateUUID()
+            connectionId = connectionId || crypto.randomUUID()
 
             websocketHelper.sendRequest({
                 type: RequestType.SET_CONNECTION_ID,

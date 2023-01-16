@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import styles from './TransferCoflCoinsSummary.module.css'
-import { v4 as generateUUID } from 'uuid'
+
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { toast } from 'react-toastify'
@@ -17,7 +17,7 @@ interface Props {
 }
 
 function TransferCoflCoinsSummary(props: Props) {
-    let [reference] = useState(generateUUID())
+    let [reference] = useState(crypto.randomUUID())
     let [isSending, setIsSending] = useState(false)
 
     function onSend() {

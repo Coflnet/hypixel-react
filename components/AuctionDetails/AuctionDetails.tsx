@@ -13,7 +13,6 @@ import {
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { useForceUpdate } from '../../utils/Hooks'
 import moment from 'moment'
-import { v4 as generateUUID } from 'uuid'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import { CopyButton } from '../CopyButton/CopyButton'
 import { toast } from 'react-toastify'
@@ -257,7 +256,7 @@ function AuctionDetails(props: Props) {
                 </Link>
                 <div className={styles.cardHeadSubtext}>
                     <OverlayTrigger
-                        overlay={<TooltipBootstrap id={generateUUID()}>{getTimeToolTipString()}</TooltipBootstrap>}
+                        overlay={<TooltipBootstrap id={crypto.randomUUID()}>{getTimeToolTipString()}</TooltipBootstrap>}
                         children={
                             <div>
                                 {isRunning(auctionDetails) ? (

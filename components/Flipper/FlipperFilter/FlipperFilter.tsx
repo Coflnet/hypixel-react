@@ -11,7 +11,7 @@ import { getFlipCustomizeSettings, isCurrentCalculationBasedOnLbin } from '../..
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import Tooltip from '../../Tooltip/Tooltip'
 import FlipCustomize from '../FlipCustomize/FlipCustomize'
-import { v4 as generateUUID } from 'uuid'
+
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 
 interface Props {
@@ -26,7 +26,7 @@ function FlipperFilter(props: Props) {
     let [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
-    let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(generateUUID())
+    let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(crypto.randomUUID())
 
     let { trackEvent } = useMatomo()
 
@@ -35,7 +35,7 @@ function FlipperFilter(props: Props) {
         setFlipperFilter(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
         document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
             if ((e as any).detail?.apiUpdate) {
-                setFlipCustomizeKey(generateUUID())
+                setFlipCustomizeKey(crypto.randomUUID())
             }
             setFlipCustomizeSettings(getFlipCustomizeSettings())
             setFlipperFilter(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))

@@ -8,7 +8,7 @@ import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '.
 import { getHeadElement } from '../../../../utils/SSRUtils'
 import moment from 'moment'
 import Link from 'next/link'
-import { getCacheContolHeader } from '../../../../utils/CacheUtils'
+import { getCacheControlHeader } from '../../../../utils/CacheUtils'
 
 interface Props {
     flipTrackingResponse: any
@@ -73,7 +73,7 @@ function Flipper(props: Props) {
 }
 
 export const getServerSideProps = async ({ res, params }) => {
-    res.setHeader('Cache-Control', getCacheContolHeader())
+    res.setHeader('Cache-Control', getCacheControlHeader())
 
     let api = initAPI(true)
     let apiResponses = await Promise.all([api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null)))

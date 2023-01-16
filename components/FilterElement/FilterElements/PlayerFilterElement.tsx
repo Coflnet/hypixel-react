@@ -1,7 +1,7 @@
 import React, { forwardRef, useState } from 'react'
 import { AsyncTypeahead } from 'react-bootstrap-typeahead'
 import api from '../../../api/ApiHelper'
-import { v4 as generateUUID } from 'uuid'
+
 import { parsePlayer } from '../../../utils/Parser/APIResponseParser'
 
 interface Props {
@@ -33,7 +33,7 @@ export let PlayerFilterElement = forwardRef((props: Props, ref) => {
 
     return (
         <AsyncTypeahead
-            id={generateUUID()}
+            id={crypto.randomUUID()}
             disabled={props.disabled}
             filterBy={() => true}
             isLoading={isLoading}
