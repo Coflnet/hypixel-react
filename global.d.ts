@@ -328,6 +328,7 @@ interface FlipRestriction {
     item?: Item
     itemFilter?: ItemFilter
     isEdited?: boolean
+    tags?: string[]
 }
 
 interface MinecraftConnectionInfo {

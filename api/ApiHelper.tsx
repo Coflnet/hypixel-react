@@ -35,17 +35,18 @@ import { v4 as generateUUID } from 'uuid'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
 import { toast } from 'react-toastify'
 import cacheUtils from '../utils/CacheUtils'
-import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
 import {
+    CURRENTLY_USED_TAGS,
     FLIPPER_FILTER_KEY,
     getSettingsObject,
     LAST_PREMIUM_PRODUCTS,
     mapSettingsToApiFormat,
     RESTRICTIONS_SETTINGS_KEY,
-    setSettingsChangedData
+    setSettingsChangedData,
+    storeUsedTagsInLocalStorage
 } from '../utils/SettingsUtils'
 import { initHttpHelper } from './HttpHelper'
 import { atobUnicode } from '../utils/Base64Utils'
@@ -625,6 +626,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         forceSettingsUpdate: boolean = false
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+
+        storeUsedTagsInLocalStorage(restrictionList)
 
         let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
 
@@ -1432,6 +1435,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         if (sessionStorage.getItem('googleId') === null) {
             return Promise.resolve()
         }
+
+        storeUsedTagsInLocalStorage(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []))
+
         return new Promise((resolve, reject) => {
             let data = {
                 key,

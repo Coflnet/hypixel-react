@@ -123,7 +123,8 @@ export function setSettingsChangedData(data: any): Promise<void> {
                         if (!item.tag) {
                             newRestrictions.push({
                                 type: type,
-                                itemFilter: item.filter
+                                itemFilter: item.filter,
+                                tags: item.tags
                             })
                         } else if (itemName && item.tag) {
                             newRestrictions.push({
@@ -133,7 +134,8 @@ export function setSettingsChangedData(data: any): Promise<void> {
                                     name: itemName,
                                     iconUrl: api.getItemImageUrl(item)
                                 },
-                                itemFilter: item.filter
+                                itemFilter: item.filter,
+                                tags: item.tags
                             })
                         } else {
                             promises.push(
@@ -145,7 +147,8 @@ export function setSettingsChangedData(data: any): Promise<void> {
                                             name: details.name,
                                             iconUrl: api.getItemImageUrl(item)
                                         },
-                                        itemFilter: item.filter
+                                        itemFilter: item.filter,
+                                        tags: item.tags
                                     })
                                 })
                             )
@@ -351,8 +354,18 @@ export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: Flip
 
 export function mapRestrictionsToApiFormat(restrictions: FlipRestriction[]) {
     return restrictions.map(restriction => {
-        return { tag: restriction.item?.tag, filter: restriction.itemFilter, displayName: restriction.item?.name }
+        return { tag: restriction.item?.tag, filter: restriction.itemFilter, displayName: restriction.item?.name, tags: restriction.tags }
     })
+}
+
+export function storeUsedTagsInLocalStorage(restrictions: FlipRestriction[]) {
+    let tags: Set<string> = new Set()
+    restrictions.forEach(restriction => {
+        if (restriction.tags) {
+            restriction.tags.forEach(tag => tags.add(tag))
+        }
+    })
+    localStorage.setItem(CURRENTLY_USED_TAGS, tags.size > 0 ? JSON.stringify(Array.from(tags)) : '[]')
 }
 
 export const FLIP_CUSTOMIZING_KEY = 'flipCustomizing'
@@ -367,3 +380,4 @@ export const CANCELLATION_RIGHT_CONFIRMED = 'cancellationRightConfirmed'
 export const LAST_USED_FILTER = 'lastUsedFilter'
 export const IGNORE_FLIP_TRACKING_PROFIT = 'ignoreFlipTrackingProfit'
 export const LAST_PREMIUM_PRODUCTS = 'lastPremiumProducts'
+export const CURRENTLY_USED_TAGS = 'currentlyUsedTags'
