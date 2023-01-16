@@ -317,8 +317,8 @@ function Startpage(props: Props) {
                         <p>You can now look up a detailed breakdown of your flips in the last week.</p>
                         <p>To look up your (or someone elses) flips, just search the player and click the blue "Check tracked flips" button.</p>
                         <hr />
-                        <div style={{ marginTop: '2vh' }}>
-                            <p>Recent changes (last change: 18. April 2022):</p>
+                        <div style={{ marginTop: '20px' }}>
+                            <p>Recent changes (last change: 16. January 2023):</p>
                             <Tooltip
                                 onClick={onRecentChangesClick}
                                 content={
@@ -329,14 +329,14 @@ function Startpage(props: Props) {
                                 tooltipContent={
                                     <ul key="changelogList">
                                         <li className={styles.changelogItem}>
-                                            Settings are now stored on the server. That means you have the same settings on different devices and can change
-                                            them in game.
+                                            Added search to the restriction list
                                         </li>
-                                        <li className={styles.changelogItem}>Multiple tabs dont overwrite each others anymore</li>
                                         <li className={styles.changelogItem}>
-                                            Added a new payment system and CoflCoins as a way to easier reward/compensate user
+                                            Make it possible to differentiate between items with the same name in the search
                                         </li>
-                                        <li className={styles.changelogItem}>Added Kat flips</li>
+                                        <li className={styles.changelogItem}>Made multiple pages more robust if data is not valid or not available</li>
+                                        <li className={styles.changelogItem}>Change the way auction names are colored</li>
+                                        <li className={styles.changelogItem}>Multiple Bugfixes</li>
                                     </ul>
                                 }
                                 type="click"
