@@ -218,9 +218,7 @@ function Search(props: Props) {
         backgroundColor: props.backgroundColor,
         borderRadius: results.length > 0 || noResultsFound ? '0px 10px 0 0' : '0px 10px 10px 0px',
         borderLeftWidth: 0,
-        borderBottomColor: results.length > 0 || noResultsFound ? '#444' : undefined,
-        paddingTop:'0.5vh',
-        paddingBottom:'0.5vh'
+        borderBottomColor: results.length > 0 || noResultsFound ? '#444' : undefined
     }
 
     let searchIconStyle: React.CSSProperties = {
