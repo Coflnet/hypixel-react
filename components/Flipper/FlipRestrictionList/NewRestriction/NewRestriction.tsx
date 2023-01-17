@@ -59,6 +59,7 @@ function NewRestriction(props: Props) {
                 }}
                 ignoreURL={true}
                 autoSelect={false}
+                disableLastUsedFilter={true}
             />
             <TagSelect
                 restriction={props.newRestriction}
