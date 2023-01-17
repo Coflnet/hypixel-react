@@ -45,7 +45,7 @@ export const getServerSideProps = async ({ res }) => {
             endedAuctions: [],
             newPlayers: results[1] || [],
             popularSearches: results[2] || [],
-            newItems: results[3] || []
+            newItems: (results[3] || []).filter((search)=>search.name!='null')
         }
     }
 }

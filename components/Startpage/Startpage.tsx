@@ -141,9 +141,6 @@ function Startpage(props: Props) {
     }
 
     function getNewItemElement(newItem: Item, style: React.CSSProperties) {
-        if (newItem.name == 'null'){
-            return null;
-        }
         return (
             <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newItem.tag} style={style}>
                 <Link href={`/item/${newItem.tag}`}>

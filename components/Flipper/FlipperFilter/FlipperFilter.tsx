@@ -12,7 +12,6 @@ import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import Tooltip from '../../Tooltip/Tooltip'
 import FlipCustomize from '../FlipCustomize/FlipCustomize'
 import { v4 as generateUUID } from 'uuid'
-
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 
 interface Props {

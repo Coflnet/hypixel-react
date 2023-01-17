@@ -11,25 +11,25 @@ body {
     width: 100%;
     overflow-x: hidden;
 }
-body::-webkit-scrollbar {
+::-webkit-scrollbar {
     background-color: #272b30;
 }
 
-body::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 20px;
 }
 
-body::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
     box-shadow: inset 0 0 5px grey;
     border-radius: 10px;
 }
 
-body::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
     background: #3a3f44;
     border-radius: 10px;
 }
 
-body::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
     background: #7a8288;
 }
 code {

@@ -11,12 +11,13 @@ import ReloadDialog from '../ReloadDialog/ReloadDialog'
 import { startMigrations } from '../../migrations/MigrationUtils'
 import { useRouter } from 'next/router'
 import { v4 as generateUUID } from 'uuid'
-import { isClientSideRendering } from '../../utils/SSRUtils';
+import { isClientSideRendering } from '../../utils/SSRUtils'
+
 export function MainApp(props: any) {
     const [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false)
     const [isReloadTracked, setIsReloadTracked] = useState(false)
     const { trackPageView, trackEvent, pushInstruction } = useMatomo()
-    const router = useRouter();
+    const router = useRouter()
 
     useEffect(() => {
         window.sessionStorage.setItem('sessionId', generateUUID())

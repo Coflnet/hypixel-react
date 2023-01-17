@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Modal, OverlayTrigger, Tooltip as BootstrapTooltip } from 'react-bootstrap'
 import { v4 as generateUUID } from 'uuid'
 
-
 /**
  * type: if the tooltip is a regular tooltip or should be clicked at (popup)
  * content: the content that is initally displayed (e.g. a ?-Symbol)
