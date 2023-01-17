@@ -21,7 +21,6 @@ import { useRouter } from 'next/router'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { v4 as generateUUID } from 'uuid'
-
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
