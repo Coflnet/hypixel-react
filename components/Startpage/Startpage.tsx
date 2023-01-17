@@ -274,7 +274,6 @@ function Startpage(props: Props) {
             </AutoSizer>
         </div>
     )
-    newItems = newItems.filter((search)=>search.name!='null');
     let newItemsElement = (
         <div className={`${styles.cardsWrapper} ${styles.newItems}`}>
             <AutoSizer>
