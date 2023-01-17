@@ -109,7 +109,7 @@ export function MainApp(props: any) {
                 declineButtonStyle={{ backgroundColor: 'rgb(65, 65, 65)', borderRadius: '10px', color: 'lightgrey', fontSize: '14px' }}
                 buttonStyle={{ backgroundColor: 'green', borderRadius: '10px', color: 'white', fontSize: '20px' }}
                 contentStyle={{ marginBottom: '0px' }}
-                buttonText="Yes, I Understand"
+                buttonText="Yes, I understand"
                 declineButtonText="Decline"
                 cookieName="nonEssentialCookiesAllowed"
                 data-nosnippet
@@ -120,7 +120,7 @@ export function MainApp(props: any) {
             >
                 <span data-nosnippet>
                     <p style={{ margin: '0' }}>
-                        We use cookies for analytics. By clicking the "Yes, I Understand" button, you consent our use of cookies. View our <a href="https://coflnet.com/privacy" style={{backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius:'3px'}}>Privacy Policy ↗️</a>
+                        We use cookies for analytics. By clicking the "Yes, I understand" button, you consent our use of cookies. View our <a href="https://coflnet.com/privacy" style={{backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius:'3px'}}>Privacy Policy ↗️</a>
                     </p>
                 </span>
             </CookieConsent>
