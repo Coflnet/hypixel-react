@@ -9,6 +9,7 @@ import { getHeadElement } from '../../../../utils/SSRUtils'
 import moment from 'moment'
 import Link from 'next/link'
 import { getCacheControlHeader } from '../../../../utils/CacheUtils'
+import { getEmbedDescription } from '.'
 
 interface Props {
     flipTrackingResponse: any
@@ -19,7 +20,7 @@ interface Props {
 function Flipper(props: Props) {
     let flipTrackingResponse = parseFlipTrackingResponse(props.flipTrackingResponse)
     let player = parsePlayer(props.player)
-    let targetFlip = parseFlipTrackingFlip(props.targetFlip)
+    let targetFlip = props.targetFlip ? parseFlipTrackingFlip(props.targetFlip) : null
 
     function getTargetFlipEmbedDescription(targetFlip: FlipTrackingFlip) {
         return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeperators(targetFlip.profit)} Coins ${
@@ -33,13 +34,21 @@ function Flipper(props: Props) {
 
     return (
         <div className="page">
-            {getHeadElement(
-                `Tracked flips of ${player.name}`,
-                getTargetFlipEmbedDescription(targetFlip!),
-                targetFlip?.item.iconUrl?.split('?')[0],
-                ['tracker'],
-                `Flip: ${targetFlip?.item.name}`
-            )}
+            {props.targetFlip
+                ? getHeadElement(
+                      `Tracked flips of ${player.name}`,
+                      getTargetFlipEmbedDescription(targetFlip!),
+                      targetFlip?.item.iconUrl?.split('?')[0],
+                      ['tracker'],
+                      `Flip: ${targetFlip?.item.name}`
+                  )
+                : getHeadElement(
+                      `Tracked flips of ${player.name}`,
+                      getEmbedDescription(flipTrackingResponse, player),
+                      player.iconUrl?.split('?')[0],
+                      ['tracker'],
+                      `Tracked flips of ${player.name}`
+                  )}
             <Container>
                 <Search
                     type="player"
@@ -85,7 +94,7 @@ export const getServerSideProps = async ({ res, params }) => {
                 name: apiResponses[0]
             },
             flipTrackingResponse: apiResponses[1],
-            targetFlip: (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString(16) === params.flipUid)
+            targetFlip: (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString(16) === params.flipUid) || null
         }
     }
 }
