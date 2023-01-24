@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Container } from 'react-bootstrap'
 import { initAPI } from '../../../../api/ApiHelper'
 import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
-import { getCacheContolHeader } from '../../../../utils/CacheUtils'
+import { getCacheControlHeader } from '../../../../utils/CacheUtils'
 import { numberWithThousandsSeperators, removeMinecraftColorCoding } from '../../../../utils/Formatter'
 import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../../../utils/SSRUtils'
@@ -56,7 +56,7 @@ function Flipper(props: Props) {
 }
 
 export const getServerSideProps = async ({ res, params }) => {
-    res.setHeader('Cache-Control', getCacheContolHeader())
+    res.setHeader('Cache-Control', getCacheControlHeader())
     let api = initAPI(true)
     let apiResponses = await Promise.all([api.getPlayerName(params.uuid), api.getTrackedFlipsForPlayer(params.uuid)].map(p => p.catch(e => null)))
 

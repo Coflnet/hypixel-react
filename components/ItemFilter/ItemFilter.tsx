@@ -20,6 +20,7 @@ interface Props {
     ignoreURL?: boolean
     autoSelect?: boolean
     defaultFilter?: ItemFilter
+    disableLastUsedFilter?: boolean
 }
 
 const groupedFilter = [
@@ -45,7 +46,7 @@ function ItemFilter(props: Props) {
         if (props.ignoreURL && !props.defaultFilter) {
             return
         }
-        itemFilter = props.defaultFilter ? JSON.parse(JSON.stringify(props.defaultFilter)) : getPrefillFilter(props.filters, props.ignoreURL)
+        itemFilter = props.defaultFilter ? JSON.parse(JSON.stringify(props.defaultFilter)) : getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
@@ -176,7 +177,9 @@ function ItemFilter(props: Props) {
         }
 
         setItemFilter(filter!)
-        localStorage.setItem(LAST_USED_FILTER, JSON.stringify(filter))
+        if (!props.disableLastUsedFilter) {
+            localStorage.setItem(LAST_USED_FILTER, JSON.stringify(filter))
+        }
         if (props.onFilterChange) {
             props.onFilterChange(filter)
         }
@@ -318,12 +321,12 @@ function ItemFilter(props: Props) {
                                         id="add-filter-typeahead"
                                         autoFocus={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0
                                                 : props.autoSelect
                                         }
                                         defaultOpen={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0
                                                 : props.autoSelect
                                         }
                                         ref={typeaheadRef}
@@ -356,9 +359,9 @@ function ItemFilter(props: Props) {
 }
 export default ItemFilter
 
-export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: boolean = false) {
+export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: boolean = false, disableLastUsedFilter: boolean = false) {
     let itemFilter = !ignoreURL ? getItemFilterFromUrl() : {}
-    if (Object.keys(itemFilter).length === 0) {
+    if (Object.keys(itemFilter).length === 0 && !disableLastUsedFilter) {
         itemFilter = getFilterFromLocalStorage(filterOptions) || {}
     }
     return itemFilter

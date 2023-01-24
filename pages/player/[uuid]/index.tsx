@@ -11,8 +11,8 @@ import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../../utils/SSRUtils'
 import styles from './index.module.css'
 import Link from 'next/link'
-import Hyauctions from '../../../components/Hyauctions/Hyauctions'
-import { getCacheContolHeader } from '../../../utils/CacheUtils'
+import HyAuctions from '../../../components/HyAuctions/HyAuctions'
+import { getCacheControlHeader } from '../../../utils/CacheUtils'
 import GoogleSignIn from '../../../components/GoogleSignIn/GoogleSignIn'
 
 enum DetailType {
@@ -113,7 +113,7 @@ function PlayerDetails(props: Props) {
                 )}
                 <Container>
                     <Search />
-                    <Hyauctions />
+                    <HyAuctions />
                 </Container>
             </div>
         )
@@ -190,7 +190,7 @@ function PlayerDetails(props: Props) {
 }
 
 export const getServerSideProps = async ({ res, params }) => {
-    res.setHeader('Cache-Control', getCacheContolHeader())
+    res.setHeader('Cache-Control', getCacheControlHeader())
 
     let api = initAPI(true)
     let playerName = ''

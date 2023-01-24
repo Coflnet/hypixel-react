@@ -10,8 +10,8 @@ import { Modal } from 'react-bootstrap'
 import ReloadDialog from '../ReloadDialog/ReloadDialog'
 import { startMigrations } from '../../migrations/MigrationUtils'
 import { useRouter } from 'next/router'
-import { isClientSideRendering } from '../../utils/SSRUtils'
 import { v4 as generateUUID } from 'uuid'
+import { isClientSideRendering } from '../../utils/SSRUtils'
 
 export function MainApp(props: any) {
     const [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false)
@@ -113,14 +113,14 @@ export function MainApp(props: any) {
                 declineButtonText="Decline"
                 cookieName="nonEssentialCookiesAllowed"
                 data-nosnippet
-                style={{ paddingLeft: '40px' }}
+                style={{ paddingLeft: '2vw' }}
                 onAccept={() => {
                     setTrackingAllowed()
                 }}
             >
                 <span data-nosnippet>
-                    <p style={{ margin: '0px' }}>
-                        We use cookies for analytics. <a href="https://coflnet.com/privacy"> privacy policy </a>
+                    <p style={{ margin: '0' }}>
+                        We use cookies for analytics. By clicking the "Yes, I understand" button, you consent our use of cookies. View our <a href="https://coflnet.com/privacy" style={{backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius:'3px'}}>Privacy Policy ↗️</a>
                     </p>
                 </span>
             </CookieConsent>

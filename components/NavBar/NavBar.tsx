@@ -176,13 +176,13 @@ function NavBar(props: Props) {
                             <Link href={'/subscriptions'}>Notifier</Link>
                         </MenuItem>
                         <MenuItem icon={<BuildIcon />}>
-                            <Link href={'/crafts'}>Profitable crafts</Link>
+                            <Link href={'/crafts'}>Profitable Crafts</Link>
                         </MenuItem>
                         <MenuItem icon={<AccountBalanceIcon />}>
                             <Link href={'/premium'}>Premium / Shop</Link>
                         </MenuItem>
                         <MenuItem icon={<PetsIcon />}>
-                            <Link href={'/kat'}>Kat flips</Link>
+                            <Link href={'/kat'}>Kat Flips</Link>
                         </MenuItem>
                         <MenuItem icon={<DownloadIcon />}>
                             <Link href={'/mod'}>Mod</Link>
@@ -196,7 +196,7 @@ function NavBar(props: Props) {
                         <MenuItem icon={<ChatIcon />}>
                             <Link href={'/feedback'}>Feedback</Link>
                         </MenuItem>
-                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24"></img>}>
+                        <MenuItem icon={<img src="/discord_icon.svg" alt="Discord icon" height="24" />}>
                             <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
                                 Discord
                             </a>
@@ -215,4 +215,4 @@ function NavBar(props: Props) {
     )
 }
 
-export default NavBar
+export default NavBar;
