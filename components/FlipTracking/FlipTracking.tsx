@@ -39,6 +39,11 @@ const SORT_OPTIONS: SortOption[] = [
         label: 'Sell price',
         value: 'sellPrice',
         sortFunction: flips => flips.sort((a, b) => b.soldFor - a.soldFor)
+    },
+    {
+        label: 'Profit%',
+        value: 'profitPercent',
+        sortFunction: flips => flips.sort((a, b) => (b.profit / b.pricePaid) - (a.profit / a.pricePaid))
     }
 ]
 
