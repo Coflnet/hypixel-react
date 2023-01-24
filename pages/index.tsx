@@ -5,7 +5,7 @@ import Search from '../components/Search/Search'
 import { initAPI } from '../api/ApiHelper'
 import { parseAuction, parseItem, parsePlayer, parsePopularSearch } from '../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../utils/SSRUtils'
-import { getCacheContolHeader } from '../utils/CacheUtils'
+import { getCacheControlHeader } from '../utils/CacheUtils'
 
 interface Props {
     newAuctions: Auction[]
@@ -34,7 +34,7 @@ const Startpage = (props: Props) => {
 }
 
 export const getServerSideProps = async ({ res }) => {
-    res.setHeader('Cache-Control', getCacheContolHeader())
+    res.setHeader('Cache-Control', getCacheControlHeader())
 
     let api = initAPI(true)
     // Dont load ended Auctions, as this is a expensive computation and can take multiple seconds
@@ -45,7 +45,7 @@ export const getServerSideProps = async ({ res }) => {
             endedAuctions: [],
             newPlayers: results[1] || [],
             popularSearches: results[2] || [],
-            newItems: results[3] || []
+            newItems: (results[3] || []).filter((search)=>search.name!='null')
         }
     }
 }

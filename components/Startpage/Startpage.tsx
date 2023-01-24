@@ -271,7 +271,6 @@ function Startpage(props: Props) {
             </AutoSizer>
         </div>
     )
-
     let newItemsElement = (
         <div className={`${styles.cardsWrapper} ${styles.newItems}`}>
             <AutoSizer>
@@ -297,12 +296,12 @@ function Startpage(props: Props) {
         <div>
             <div style={{ textAlign: 'center' }}>
                 <hr />
-                <h1>Skyblock AH history</h1>
+                <h1>Skyblock Auction House History</h1>
                 <p style={{ fontSize: 'larger' }}>Browse through over 400 million auctions, over two million players and the bazaar of hypixel skyblock</p>
                 <hr />
             </div>
             <div className={styles.statusElementWrapper}>
-                <Card style={{ width: '100%' }}>
+                <Card>
                     <Card.Header>
                         <Card.Title>
                             <AnnouncementIcon />
@@ -347,7 +346,7 @@ function Startpage(props: Props) {
             <Card className={styles.startpageCard}>
                 <Card.Header>
                     <Card.Title>
-                        <NewIcon /> New auctions
+                        <NewIcon /> New Auctions
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-auctions-body">
@@ -366,7 +365,7 @@ function Startpage(props: Props) {
             <Card className={styles.startpageCard}>
                 <Card.Header>
                     <Card.Title>
-                        <TimerIcon /> Ended auctions
+                        <TimerIcon /> Ended Auctions
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="ended-auctions-body">
@@ -385,7 +384,7 @@ function Startpage(props: Props) {
             <Card className={styles.startpageCard}>
                 <Card.Header>
                     <Card.Title>
-                        <PersonIcon /> New players
+                        <PersonIcon /> New Players
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-players-body">
@@ -404,7 +403,7 @@ function Startpage(props: Props) {
             <Card className={styles.startpageCard}>
                 <Card.Header>
                     <Card.Title>
-                        <FireIcon /> Popular searches
+                        <FireIcon /> Popular Searches
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="popular-searches-body">
@@ -423,7 +422,7 @@ function Startpage(props: Props) {
             <Card className={styles.startpageCard}>
                 <Card.Header>
                     <Card.Title>
-                        <NewIcon /> New items
+                        <NewIcon /> New Items
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-items-body">
@@ -431,8 +430,8 @@ function Startpage(props: Props) {
                         newItemsElement
                     ) : (
                         <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
-                            {newItems.map(search => {
-                                return getNewItemElement(search, { height: 70, width: 200 })
+                            {newItems.filter(search=>search.name!='null').map(search => {
+                                return getNewItemElement(search, { height: 70, width: 200 });
                             })}
                         </div>
                     )}
@@ -441,7 +440,7 @@ function Startpage(props: Props) {
 
             <Card className={styles.startpageCard} style={{ marginTop: '40px' }}>
                 <Card.Header>
-                    <Card.Title>Hypixel AH history</Card.Title>
+                    <Card.Title>Hypixel Auction House History</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     <p>View, search, browse, and filter by reforge or enchantment.</p>
@@ -449,19 +448,19 @@ function Startpage(props: Props) {
                     <p>
                         We're tracking over 400 million auctions. We've saved more than 250 million bazaar prices in intervals of 10 seconds. Furthermore,
                         there are over two million skyblock players that you can search by their Minecraft usernames. You can browse through the auctions they
-                        made over the past two years. New Items are added automatically and available within two minutes after the first auction is started.
+                        made over the past two years. New items are added automatically and are available within two minutes after the first auction is started.
                     </p>
                     <p>
-                        The search autocomplete is ranked by popularity and allows you to find whatever item you want faster. Quick urls allow you to link to
+                        The search autocomplete is ranked by popularity and allows you to find whatever item you want faster. Quick URLs allow you to link to
                         specific sites. /p/Steve or /i/Oak allows you to create a link without visiting the site first.
                     </p>
                     <p>
-                        The free accessible <Link href="/flipper">auction house flipper</Link> allows you to find profitable ah flips in no time. It supplements
-                        the option to browse all of the skyblock history on the web tracker. Whats more you can see what auctions were used as reference to
+                        The free accessible <Link href="/flipper" style={{backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius:'3px'}}>auction house flipper ↗️</Link> allows you to find profitable AH flips in no time. It supplements
+                        the option to browse all of the Skyblock history on the web tracker. What's more is that you can see what auctions were used as reference to
                         determine if a flip is profitable.
                     </p>
                     <p>
-                        We allow you to subscribe to auctions, item prices and being outbid with more to come. Please use the contact on the Feedback site to
+                        We allow you to subscribe to auctions, item prices and being outbid with more to come. Please use the contact on the <Link href="/feedback" style={{backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius:'3px'}}>Feedback site ↗️</Link> to
                         send us suggestions or bug reports.
                     </p>
                 </Card.Body>

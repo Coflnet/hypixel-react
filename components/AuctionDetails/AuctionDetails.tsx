@@ -13,7 +13,6 @@ import {
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { useForceUpdate } from '../../utils/Hooks'
 import moment from 'moment'
-import { v4 as generateUUID } from 'uuid'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import { CopyButton } from '../CopyButton/CopyButton'
 import { toast } from 'react-toastify'
@@ -23,6 +22,7 @@ import styles from './AuctionDetails.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import FlipBased from '../Flipper/FlipBased/FlipBased'
 import { Help as HelpIcon } from '@mui/icons-material'
+import { v4 as generateUUID } from 'uuid'
 
 interface Props {
     auctionUUID: string

@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import styles from './TransferCoflCoinsSummary.module.css'
-import { v4 as generateUUID } from 'uuid'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { toast } from 'react-toastify'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { v4 as generateUUID } from 'uuid'
 
 interface Props {
     receiverType: 'email' | 'mcId'

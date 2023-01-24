@@ -31,13 +31,13 @@ import {
 } from '../utils/Parser/APIResponseParser'
 import { RequestType, SubscriptionType, Subscription, HttpApi } from './ApiTypes.d'
 import { websocketHelper } from './WebsocketHelper'
-import { v4 as generateUUID } from 'uuid'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
 import { toast } from 'react-toastify'
 import cacheUtils from '../utils/CacheUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
+import { v4 as generateUUID } from 'uuid'
 import {
     CURRENTLY_USED_TAGS,
     FLIPPER_FILTER_KEY,
