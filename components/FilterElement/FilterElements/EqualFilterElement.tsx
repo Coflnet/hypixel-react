@@ -5,7 +5,7 @@ import { Typeahead } from 'react-bootstrap-typeahead'
 interface Props {
     onChange(n: string)
     options: FilterOptions
-    defaultValue: any
+    defaultValue?: any
 }
 
 export function EqualFilterElement(props: Props) {
@@ -26,7 +26,7 @@ export function EqualFilterElement(props: Props) {
         <Typeahead
             id={props.options.name}
             style={{ display: 'block' }}
-            defaultSelected={[props.defaultValue]}
+            defaultSelected={props.defaultValue ? [props.defaultValue] : undefined}
             onChange={_onChange}
             options={props.options?.options}
             labelKey={getSelectOptions}
