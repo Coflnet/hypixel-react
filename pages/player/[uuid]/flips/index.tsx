@@ -103,11 +103,13 @@ export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, 
         }
     })
 
+    let highestProfitFlip = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)[0]
+
     let highestProfitFlipText = `Highest Profit Flip: ${numberWithThousandsSeperators(
-        flipTrackingResponse.flips[0].profit
-    )} Coins \n ${numberWithThousandsSeperators(flipTrackingResponse.flips[0].pricePaid)} Coins ➞ ${numberWithThousandsSeperators(
-        flipTrackingResponse.flips[0].soldFor
-    )} Coins (${flipTrackingResponse.flips[0].item.name})`
+        highestProfitFlip.profit
+    )} Coins \n ${numberWithThousandsSeperators(highestProfitFlip.pricePaid)} Coins ➞ ${numberWithThousandsSeperators(
+        highestProfitFlip.soldFor
+    )} Coins (${highestProfitFlip.item.name})`
 
     return `Found Flips: ${flipTrackingResponse.flips.length} 
             Total Profit: ${numberWithThousandsSeperators(flipTrackingResponse.totalProfit)} Coins
