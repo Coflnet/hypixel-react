@@ -1,11 +1,11 @@
 import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Container } from 'react-bootstrap'
 import { initAPI } from '../../../../api/ApiHelper'
 import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
 import { getCacheControlHeader } from '../../../../utils/CacheUtils'
-import { numberWithThousandsSeperators } from '../../../../utils/Formatter'
+import { numberWithThousandsSeperators, removeMinecraftColorCoding } from '../../../../utils/Formatter'
 import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../../../utils/SSRUtils'
 
@@ -103,11 +103,13 @@ export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, 
         }
     })
 
+    let highestProfitFlip = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)[0]
+
     let highestProfitFlipText = `Highest Profit Flip: ${numberWithThousandsSeperators(
-        flipTrackingResponse.flips[0].profit
-    )} Coins \n ${numberWithThousandsSeperators(flipTrackingResponse.flips[0].pricePaid)} Coins ➞ ${numberWithThousandsSeperators(
-        flipTrackingResponse.flips[0].soldFor
-    )} Coins (${flipTrackingResponse.flips[0].item.name})`
+        highestProfitFlip.profit
+    )} Coins \n ${numberWithThousandsSeperators(highestProfitFlip.pricePaid)} Coins ➞ ${numberWithThousandsSeperators(
+        highestProfitFlip.soldFor
+    )} Coins (${removeMinecraftColorCoding(highestProfitFlip.item.name)})`
 
     return `Found Flips: ${flipTrackingResponse.flips.length} 
             Total Profit: ${numberWithThousandsSeperators(flipTrackingResponse.totalProfit)} Coins
