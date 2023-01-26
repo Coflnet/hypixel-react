@@ -11,7 +11,7 @@ import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../../utils/SSRUtils'
 import styles from './index.module.css'
 import Link from 'next/link'
-import HyAuctions from '../../../components/HyAuctions/HyAuctions'
+import HyAuctions from '../../../components/Hyauctions/Hyauctions'
 import { getCacheControlHeader } from '../../../utils/CacheUtils'
 import GoogleSignIn from '../../../components/GoogleSignIn/GoogleSignIn'
 
