@@ -152,7 +152,7 @@ function FilterElement(props: Props) {
                     />
                 )
             } else {
-                return <EqualFilterElement key={options.name} options={options} onChange={onFilterElementChange} />
+                return <EqualFilterElement key={options.name} options={options} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
             }
         }
         if (hasFlag(type, FilterType.NUMERICAL)) {
