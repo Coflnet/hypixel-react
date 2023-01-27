@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
 import { ArrowRightAlt as ArrowRightIcon, ArrowDownward as ArrowDownIcon, Dangerous as DangerousIcon } from '@mui/icons-material'
-import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
+import { getMinecraftColorCodedElement, getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './FlipTracking.module.css'
 import { useRouter } from 'next/router'
 import { CopyButton } from '../CopyButton/CopyButton'
@@ -39,6 +39,11 @@ const SORT_OPTIONS: SortOption[] = [
         label: 'Sell price',
         value: 'sellPrice',
         sortFunction: flips => flips.sort((a, b) => b.soldFor - a.soldFor)
+    },
+    {
+        label: 'Profit%',
+        value: 'profitPercent',
+        sortFunction: flips => flips.sort((a, b) => (b.profit / b.pricePaid) - (a.profit / a.pricePaid))
     }
 ]
 
@@ -152,7 +157,7 @@ export function FlipTracking(props: Props) {
                             style={{ marginRight: '5px' }}
                             loading="lazy"
                         />
-                        <span style={{ ...getStyleForTier(trackedFlip.item.tier), whiteSpace: 'nowrap' }}>{trackedFlip.item.name}</span>
+                        <span style={{whiteSpace: 'nowrap' }}>{getMinecraftColorCodedElement(trackedFlip.item.name)}</span>
                     </div>
                     {trackedFlip.profit > 0 ? (
                         <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
