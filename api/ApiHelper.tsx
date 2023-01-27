@@ -76,7 +76,13 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         if (!error || !error.Message) {
             return
         }
-        toast.error(error.Message)
+        toast.error(error.Message, {
+            onClick: () => {
+                if (error.Trace && window.navigator.clipboard) {
+                    window.navigator.clipboard.writeText(error.Trace)
+                }
+            }
+        })
         console.log('RequestType: ' + requestType)
         console.log('ErrorMessage: ' + error.Message)
         console.log('RequestData: ')
