@@ -1,0 +1,284 @@
+import React, { ChangeEvent, useEffect, useState } from 'react'
+import { Form, ListGroup } from 'react-bootstrap'
+import api from '../../api/ApiHelper'
+import { convertTagToName, getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import styles from './KatFlips.module.css'
+import { toast } from 'react-toastify'
+import Link from 'next/link'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+
+interface Props {
+    flips: KatFlip[]
+}
+interface SortOption {
+    label: string
+    value: string
+    sortFunction(flips: KatFlip[])
+}
+const SORT_OPTIONS: SortOption[] = [
+    {
+        label: 'Profit',
+        value: 'profit',
+        sortFunction: crafts => crafts.sort((a, b) => b.profit - a.profit)
+    },
+    {
+        label: 'Time ⇧',
+        value: 'timeAsc',
+        sortFunction: crafts => crafts.sort((a, b) => b.coreData.hours - a.coreData.hours)
+    },
+    {
+        label: 'Time ⇩',
+        value: 'timeDesc',
+        sortFunction: crafts => crafts.sort((a, b) => a.coreData.hours - b.coreData.hours)
+    },
+    {
+        label: 'Profit/Time',
+        value: 'profitPerTime',
+        sortFunction: crafts => crafts.sort((a, b) => b.profit / b.coreData.hours - a.profit / a.coreData.hours)
+    }
+]
+
+let observer: MutationObserver
+
+export function KatFlips(props: Props) {
+    let [nameFilter, setNameFilter] = useState<string | null>()
+    let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
+    let [hasPremium, setHasPremium] = useState(false)
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
+
+    useEffect(() => {
+        // reset the blur observer, when something changed
+        setTimeout(() => {
+            setBlurObserver()
+        }, 100)
+    })
+
+    function setBlurObserver() {
+        if (observer) {
+            observer.disconnect()
+        }
+        observer = new MutationObserver(function () {
+            setShowTechSavvyMessage(true)
+        })
+
+        var targets = document.getElementsByClassName('blur')
+        for (var i = 0; i < targets.length; i++) {
+            var config = {
+                attributes: true,
+                childList: true,
+                characterData: true,
+                attributeFilter: ['style']
+            }
+            observer.observe(targets[i], config)
+        }
+    }
+
+    function onAfterLogin() {
+        setIsLoggedIn(true)
+        return api.refreshLoadPremiumProducts(products => {
+            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
+        })
+    }
+
+    function onNameFilterChange(e: any) {
+        setNameFilter(e.target.value)
+    }
+
+    function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
+        let selectedIndex = event.target.options.selectedIndex
+        let value = event.target.options[selectedIndex].getAttribute('value')!
+        let sortOption = SORT_OPTIONS.find(option => option.value === value)
+        if (sortOption) {
+            setOrderBy(sortOption)
+        }
+    }
+
+    let blurStyle: React.CSSProperties = {
+        WebkitFilter: 'blur(5px)',
+        msFilter: 'blur(5px)',
+        filter: 'blur(5px)',
+        pointerEvents: 'none'
+    }
+
+    function onFlipClick(e, flip: KatFlip) {
+        if (e.defaultPrevented) {
+            return
+        }
+        if (!flip.originAuctionUUID){
+            return;
+        }
+        window.navigator.clipboard.writeText('/viewauction ' + flip.originAuctionUUID)
+
+        toast.success(
+            <p>
+                Copied the origin auction UUID <br />
+                <i>{flip.originAuctionUUID}</i>
+            </p>,
+            {
+                autoClose: 1500,
+                pauseOnFocusLoss: false
+            }
+        )
+    }
+
+    function getListElement(flip: KatFlip, blur: boolean) {
+        if (nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
+            return <span />
+        }
+        return (
+            <ListGroup.Item
+                action={!blur}
+                onClick={e => {
+                    onFlipClick(e, flip)
+                }}
+                style={{ height: '100%', padding: '15px' }}
+            >
+                {blur ? (
+                    <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
+                        The top 3 flips can only be seen with starter premium or better
+                    </p>
+                ) : (
+                    ''
+                )}
+                {showTechSavvyMessage && blur ? (
+                    <p
+                        style={{
+                            position: 'absolute',
+                            top: '25%',
+                            left: '25%',
+                            width: '50%',
+                            fontSize: 'large',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            backgroundColor: 'gray'
+                        }}
+                    >
+                        You seem like a tech savvy person, join our development team to get premium for free. :)
+                    </p>
+                ) : (
+                    ''
+                )}
+                <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
+                    <h4>{getFlipHeader(flip)}</h4>
+                    <p>
+                        <span className={styles.label}>Purchase Cost:</span>{' '}
+                        <Link href={'auction/' + flip.originAuctionUUID}>{`${numberWithThousandsSeperators(Math.round(flip.purchaseCost))} Coins`}</Link>
+                    </p>
+                    <p>
+                        <span className={styles.label}>Upgrade Cost:</span> {numberWithThousandsSeperators(Math.round(flip.upgradeCost))} Coins
+                    </p>
+                    {flip.coreData.material ? (
+                        <span>
+                            <p>
+                                <span className={styles.label}>Material:</span> {`${flip.coreData.amount}x ${convertTagToName(flip.coreData.material)}`}
+                            </p>
+                            <p>
+                                <span className={styles.label}>Material Cost:</span> {numberWithThousandsSeperators(Math.round(flip.materialCost))} Coins
+                            </p>
+                        </span>
+                    ) : null}
+                    <p>
+                        <span className={styles.label}>Median:</span> {numberWithThousandsSeperators(Math.round(flip.median))} Coins
+                    </p>
+                    <p>
+                        <span className={styles.label}>Profit:</span>{' '}
+                        <Link href={'auction/' + flip.referenceAuctionUUID}>{`${numberWithThousandsSeperators(Math.round(flip.profit))} Coins`}</Link>
+                    </p>
+                    <hr />
+                    <p>
+                        <span className={styles.label}>Volume:</span> {numberWithThousandsSeperators(Math.round(flip.volume))}
+                    </p>
+                    <p>
+                        <span className={styles.label}>Target Rarity:</span> <span style={getStyleForTier(flip.targetRarity)}>{flip.targetRarity}</span>
+                    </p>
+                    <p>
+                        <span className={styles.label}>Time:</span> {flip.coreData.hours} Hours
+                    </p>
+                </div>
+            </ListGroup.Item>
+        )
+    }
+
+    function getFlipHeader(flip) {
+        return (
+            <span style={getStyleForTier(flip.coreData.item.tier)}>
+                <img crossOrigin="anonymous" src={flip.coreData.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                {convertTagToName(flip.coreData.item.name) || convertTagToName(flip.coreData.item.tag)}
+            </span>
+        )
+    }
+
+    let orderedFlips = props.flips
+    if (orderBy) {
+        let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
+        orderedFlips = sortOption?.sortFunction(props.flips)
+    }
+
+    let shown = 0
+    let list = orderedFlips.map((flip, i) => {
+        if (nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
+            return null
+        }
+        shown++
+
+        if (!hasPremium && shown <= 3) {
+            let censoredFlip = { ...flip }
+            censoredFlip.coreData = {
+                amount: -1,
+                hours: 69,
+                item: {
+                    tag: '',
+                    name: 'You cheated the blur ☺',
+                    tier: 'LEGENDARY',
+                    iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
+                },
+                material: '1 CoflCoin'
+            }
+            censoredFlip.cost = 12345
+            censoredFlip.materialCost = 696969
+            censoredFlip.median = 424242
+            censoredFlip.originAuctionUUID = ''
+            censoredFlip.profit = -100000
+            censoredFlip.purchaseCost = 1
+            censoredFlip.referenceAuctionUUID = ''
+            censoredFlip.volume = -1
+            censoredFlip.upgradeCost = 0
+
+            return (
+                <div className={`${styles.flipCard} ${styles.preventSelect}`} key={flip.originAuctionUUID}>
+                    {getListElement(censoredFlip, true)}
+                </div>
+            )
+        } else {
+            return (
+                <div className={styles.flipCard} key={flip.originAuctionUUID}>
+                    {getListElement(flip, false)}
+                </div>
+            )
+        }
+    })
+
+    return (
+        <div className={styles.catFlips}>
+            <div>
+                <GoogleSignIn onAfterLogin={onAfterLogin} />
+                {!isLoggedIn ? <hr /> : ''}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Form.Control style={{ width: '49%' }} placeholder="Item name..." onChange={onNameFilterChange} />
+                <Form.Control style={{ width: '49%' }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
+                    {SORT_OPTIONS.map(option => (
+                        <option value={option.value}>{option.label}</option>
+                    ))}
+                </Form.Control>
+            </div>
+            <hr />
+            <p>Click on a craft for further details</p>
+            <div className={styles.craftsList}>
+                <ListGroup className={styles.list}>{list}</ListGroup>
+            </div>
+        </div>
+    )
+}

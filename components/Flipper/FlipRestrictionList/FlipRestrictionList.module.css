@@ -1,0 +1,43 @@
+.restrictionList {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.restriction {
+    margin: 1%;
+    width: 48%;
+    height: fit-content;
+}
+
+.removeFilter {
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.cancelEditButton {
+    cursor: pointer;
+}
+
+.editButton {
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.restrictionMarkedAsEdit {
+    border-width: 3px;
+    border-color: cornflowerblue;
+}
+
+.label {
+    width: 300px;
+    float: left;
+    font-weight: bold;
+}
+
+@media all and (max-width: 1024px) {
+    .restriction {
+        width: 100%;
+    }
+}

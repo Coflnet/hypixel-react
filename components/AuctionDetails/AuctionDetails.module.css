@@ -1,0 +1,110 @@
+.auctionCard {
+    margin-bottom: 20px;
+}
+
+.auctionDetails :global(a) {
+    text-decoration: none;
+}
+
+.firstCard {
+    min-height: 385px;
+}
+
+@media all and (max-width: 480px) {
+    .auctionCardHeader {
+        min-height: 150px;
+    }
+}
+
+.itemIcon {
+    display: inline-block;
+    overflow: hidden;
+    font-size: 5px;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.auctionDetails :global(h1) {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+}
+
+.auctionDetails :global(h2) {
+    font-size: 1.25rem;
+}
+
+.auctionDetails .label {
+    width: 30vw;
+    float: left;
+    padding-right: 5px;
+}
+
+.auctionDetails .label :global(.badge) {
+    white-space: normal;
+    user-select: none;
+}
+
+.labelForList {
+    float: left;
+    width: calc(30vw - 20px);
+}
+
+.auctionDetails .list {
+    float: left;
+}
+
+.auctionDetails .center {
+    text-align: center;
+}
+
+.centerChild {
+    display: inline-block;
+    width: 50%;
+    margin: 0 auto;
+    height: 100%;
+}
+
+.backButton {
+    margin-bottom: 20px;
+}
+
+.fixedBottom {
+    z-index: 10;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 100%;
+}
+
+.cardHeadSubtext {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+
+@media all and (min-width: 481px) {
+    .cardHeadSubtext > * {
+        margin-right: 25px;
+    }
+}
+
+@media all and (max-width: 480px) {
+    .cardHeadSubtext {
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+    }
+    .compareButtonLabel {
+        display: none;
+    }
+    .topRowButtonContent {
+        display: none;
+    }
+}
+
+.topRowButtonContent {
+    margin-left: 10px;
+}

@@ -1,0 +1,5 @@
+@media only screen and (max-height: 500px) {
+    .modDetailsFooter {
+        flex-direction: column;
+    }    
+}

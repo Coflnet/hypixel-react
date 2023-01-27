@@ -1,0 +1,42 @@
+.list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    flex-direction: initial;
+    width: 100%;
+}
+
+.listGroupItem {
+    border-radius: 20px !important;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.noAuctionFound {
+    margin-right: auto;
+    margin-left: auto;
+    width: max-content;
+    text-align: center;
+    margin-top: 5vh;
+}
+
+.profitNumberCard {
+    width: 45%;
+    text-align: center;
+    border-color: transparent !important;
+    cursor: pointer;
+}
+
+.profitNumberHeader {
+    border-radius: 20px !important;
+}
+
+.profitNumberHeader:hover {
+    background-color: #3a3a3a;
+}
+
+@media all and (min-width: 1200px) {
+    .listGroupItem {
+        width: 49%;
+    }
+}

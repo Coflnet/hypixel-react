@@ -1,0 +1,106 @@
+.cardWrapper {
+    padding-right: 20px;
+    /* Make the container element behave like a table */
+    /* Set full-width to expand the whole page */
+}
+
+.flipperScrollList::-webkit-scrollbar {
+    background-color: #272b30;
+}
+
+.flipAuctionCard {
+    height: 100%;
+    width: 300px;
+    padding-right: 20px;
+}
+
+.flipAuctionCard :gobal(p) {
+    margin-bottom: 0;
+}
+
+@media all and (max-width: 480px) {
+    .cardWrapper {
+        width: calc(100vw - 20px - 40px);
+    }
+}
+
+@media all and (min-width: 480px) and (max-width: 768px) {
+    .cardWrapper {
+        width: calc(100vw - 20px - 40px);
+    }
+}
+
+@media all and (min-width: 768px) and (max-width: 1024px) {
+    .cardWrapper {
+        width: calc(50vw - 20px - 40px);
+    }
+}
+
+@media all and (min-width: 1024px) and (max-width: 1400px) {
+    .cardWrapper {
+        width: 25vw;
+    }
+}
+
+@media all and (min-width: 1400px) {
+    .cardWrapper {
+        width: 15vw;
+    }
+}
+
+.flipper :global(fieldset) {
+    background-color: #444;
+    border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+    padding: 5px;
+}
+
+.flipperSummaryCard {
+    flex-grow: 1;
+    margin: 0 5px 0 5px;
+    min-width: 300px;
+}
+
+.flipperSummaryWrapper {
+    display: flex;
+    align-content: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    flex-direction: initial;
+}
+
+.formCheckInput {
+    margin-left: 0;
+}
+
+@media (max-width: 1200px) {
+    .flipperSummaryCard {
+        max-width: 100%;
+        width: 100%;
+        margin-bottom: 15px;
+        min-width: 100%;
+    }
+    .flipperSummaryWrapper {
+        flex-wrap: wrap;
+    }
+}
+
+.flipperSettingsForm {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.flipperSettingsForm :global(.form-group) {
+    margin-bottom: 0;
+}
+
+.SSRcardsWrapper {
+    display: flex;
+    overflow-x: scroll;
+    align-items: stretch;
+    flex-wrap: nowrap;
+}
+
+.flipCustomizeModal {
+    background-color: red !important;
+}

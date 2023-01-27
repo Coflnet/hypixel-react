@@ -1,0 +1,58 @@
+.catFlips :global(.list-group-item) {
+    width: -webkit-fill-available;
+    border-radius: 20px;
+}
+
+.list {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    flex-direction: initial;
+}
+
+#tooltip-container .tooltip-inner {
+    max-width: fit-content;
+}
+
+.catFlips .flipCard {
+    width: calc(100% - 10px);
+    height: auto;
+    padding-bottom: 15px;
+}
+
+@media all and (min-width: 768px) {
+    .catFlips .flipCard {
+        width: calc(50% - 10px);
+    }
+}
+
+@media all and (min-width: 1424px) {
+    .catFlips .flipCard {
+        width: calc(33% - 10px);
+    }
+}
+
+.catFlips .preventSelect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.catFlips .label {
+    width: 150px;
+    float: left;
+}
+
+.catFlips :global(.list-group-item) :global(p) {
+    margin: 0;
+}
+
+.catFlips :global(.list-group-item) .craftRequirement {
+    text-align: right;
+}
+
+.catFlips :global(.list-group-item) .craftRequirementLabel {
+    margin-right: 10px;
+}

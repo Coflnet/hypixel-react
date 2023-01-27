@@ -1,0 +1,53 @@
+{
+  "name": "hypixel-next",
+  "private": true,
+  "scripts": {
+    "dev": "npx next dev",
+    "build": "next build",
+    "test": "npm run build & npx playwright test",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@datapunt/matomo-tracker-react": "^0.5.1",
+    "@mui/icons-material": "^5.5.1",
+    "@react-oauth/google": "^0.2.6",
+    "dotenv": "^16.0.0",
+    "echarts-for-react": "^3.0.2",
+    "idb-keyval": "^3.2.0",
+    "js-cookie": "^3.0.1",
+    "lru-cache": "^7.14.1",
+    "moment": "^2.29.4",
+    "next": "^12.1.6",
+    "nextjs-progressbar": "^0.0.14",
+    "rc-slider": "^10.0.0",
+    "react": "^17.0.2",
+    "react-bootstrap": "^1.6.4",
+    "react-bootstrap-typeahead": "^5.2.1",
+    "react-colorful": "^5.5.1",
+    "react-contexify": "^5.0.0",
+    "react-cookie-consent": "^6.4.1",
+    "react-countdown": "^2.3.2",
+    "react-datepicker": "^4.5.0",
+    "react-dom": "^17.0.0",
+    "react-infinite-scroll-component": "^5.1.0",
+    "react-number-format": "^4.9.1",
+    "react-pro-sidebar": "^0.7.1",
+    "react-router-dom": "^5.3.0",
+    "react-select": "^5.2.1",
+    "react-toastify": "^8.1.0",
+    "react-virtualized-auto-sizer": "^1.0.6",
+    "react-window": "^1.8.6",
+    "request-ip": "^3.3.0",
+    "spark-md5": "^3.0.2",
+    "toml": "^3.0.0",
+    "uuid": "^8.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.30.0-alpha-jan-10-2023",
+    "@types/node": "^12.20.41",
+    "@types/react": "^17.0.0",
+    "@types/react-bootstrap": "^0.32.29",
+    "typescript": "^4.3.2"
+  }
+}

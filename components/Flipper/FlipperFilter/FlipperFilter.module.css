@@ -1,0 +1,136 @@
+.flipperFilterGroup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.flipperFilterFormfieldText {
+    text-align: right;
+    width: 50%;
+}
+
+.filterTextfield {
+    display: flex;
+    align-items: center;
+    width: 30%;
+}
+
+.filterCheckbox {
+    margin: 0;
+    width: 30%;
+    display: flex;
+    justify-content: center;
+}
+
+.flipperFilterGroupAdvanced {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.flipperFilterGroupAdvanced .filterCheckbox {
+    width: 25%;
+    margin: 0;
+}
+
+.flipperFilterGroupAdvanced .checkboxLabel {
+    width: auto;
+    margin: 0;
+}
+
+.flipperFilterGroupAdvanced .filterTextfield {
+    margin: 0;
+}
+
+.filterCheckbox :global(.form-check) {
+    position: relative !important;
+}
+
+.flipperFilterFormfieldLabel {
+    white-space: nowrap;
+    padding-right: 20px;
+}
+
+.checkboxLabel {
+    white-space: nowrap;
+    padding-right: 20px;
+    width: 200px;
+}
+
+@media all and (max-width: 992px) {
+    .filterTextfield {
+        flex-wrap: wrap;
+    }
+    .filterCheckbox {
+        flex-wrap: wrap;
+    }
+}
+
+@media all and (max-width: 768px) {
+    .flipperfilter {
+        width: 100%;
+    }
+    .flipperFilterFormfieldLabel {
+        width: 120px;
+    }
+    .flipperFilterGroup {
+        flex-wrap: wrap;
+        justify-content: left;
+    }
+    .filterTextfield {
+        width: 100%;
+    }
+    .flipperFilterGroupAdvanced .filterTextfield {
+        margin-bottom: 15px;
+    }
+    .flipperFilterGroupAdvanced .checkboxLabel {
+        width: 150px;
+    }
+    .filterCheckbox {
+        display: block;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    .flipperFilterGroupAdvanced {
+        flex-wrap: wrap;
+    }
+    .checkboxLabel {
+        width: 150px;
+    }
+    .flipperFilterGroupAdvanced .filterCheckbox {
+        width: 100%;
+    }
+}
+
+.restrictionModal {
+    padding-top: 0;
+}
+
+.restrictionModal::-webkit-scrollbar {
+    background-color: #272b30;
+}
+
+.restrictionModal::-webkit-scrollbar {
+    width: 20px;
+}
+
+.restrictionModal::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+}
+
+.restrictionModal::-webkit-scrollbar-thumb {
+    background: #3a3f44;
+    border-radius: 10px;
+}
+
+.restrictionModal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #7a8288;
+}
+
+.filterBorder {
+    border: 3px solid grey;
+    padding: 5px;
+    border-radius: 7px;
+}

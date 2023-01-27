@@ -1,0 +1,36 @@
+.graphOverlay {
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.additionalInfos {
+    display: inline-block;
+    text-align: center;
+    margin-top: 10px;
+    width: 90%;
+    margin-left: 5%;
+}
+
+.avgPrice {
+    display: block;
+    text-align: center;
+    min-width: 100%;
+    margin-bottom: 10px;
+}
+
+.bazaarNotice {
+    padding-left: 30px;
+}
+
+.chart {
+    height: 100% !important;
+}
+
+.chartWrapper {
+    height: 50vh;
+    margin-top: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+}

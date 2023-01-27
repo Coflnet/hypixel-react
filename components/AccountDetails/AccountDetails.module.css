@@ -1,0 +1,14 @@
+.label {
+    width: 300px;
+    float: left;
+    font-weight: bold;
+}
+
+.sendCoflCoinsButton {
+    margin-left: 20px;
+}
+
+.link {
+    color: #007bff;
+    cursor: pointer;
+}
