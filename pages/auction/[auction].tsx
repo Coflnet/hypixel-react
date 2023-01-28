@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react'
-import AuctionDetails from '../../components/AuctionDetails/AuctionDetails'
-import { useForceUpdate } from '../../utils/Hooks'
-import { Container } from 'react-bootstrap'
-import Search from '../../components/Search/Search'
+import moment from 'moment'
 import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { Container } from 'react-bootstrap'
 import { initAPI } from '../../api/ApiHelper'
+import AuctionDetails from '../../components/AuctionDetails/AuctionDetails'
+import Search from '../../components/Search/Search'
+import { getCacheControlHeader } from '../../utils/CacheUtils'
+import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { useForceUpdate } from '../../utils/Hooks'
 import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../utils/SSRUtils'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
-import moment from 'moment'
-import { getCacheControlHeader } from '../../utils/CacheUtils'
 
 interface Props {
     auctionDetails: any
@@ -19,7 +19,7 @@ function AuctionDetailsPage(props: Props) {
     const router = useRouter()
     let auctionUUID = router.query.auction as string
     let forceUpdate = useForceUpdate()
-    let [auctionDetails, setAuctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
+    let [auctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -38,7 +38,7 @@ function AuctionDetailsPage(props: Props) {
     }, [auctionUUID])
 
     useEffect(() => {
-        forceUpdate()
+        forceUpdate();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [auctionDetails])
 
@@ -57,13 +57,8 @@ function AuctionDetailsPage(props: Props) {
         } else if (auctionDetails.bids.length > 0) {
             description += `| Bought by ${auctionDetails.bids[0].bidder.name} for  ${numberWithThousandsSeperators(auctionDetails.auction.highestBid)} Coins`
         }
-
-        if (auctionDetails.auction.end > new Date()) {
-            description += ` | Ends on ${moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')}`
-        } else {
-            description += ` | Ended on ${moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')}`
-        }
-
+        
+        description += ` | ${auctionDetails.auction.end > new Date() ? 'Ends' : 'Ended'} on ${moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')}`
         return (description += ` | Category: ${auctionDetails.auction.item.category} | Rarity: ${auctionDetails.auction.item.tier}`)
     }
 
@@ -89,14 +84,14 @@ function AuctionDetailsPage(props: Props) {
 export const getServerSideProps = async ({ res, params }) => {
     res.setHeader('Cache-Control', getCacheControlHeader())
 
-    let auctionUUID = params.auctionUUID as string
+    let auctionUUID = params.auction as string
     let api = initAPI(true)
     let auctionDetails: any
     try {
         auctionDetails = await api.getAuctionDetails(auctionUUID)
     } catch (e) {
         console.log('ERROR: ' + JSON.stringify(e))
-        console.log('------------------------')
+        console.log('------------------------\n')
         return {
             notFound: true
         }
@@ -104,7 +99,7 @@ export const getServerSideProps = async ({ res, params }) => {
 
     if (!auctionDetails) {
         console.log('auctionDetails not found (auctionUUID=' + auctionUUID + ')')
-        console.log('------------------------')
+        console.log('------------------------\n')
         return {
             notFound: true
         }
@@ -136,7 +131,7 @@ export const getServerSideProps = async ({ res, params }) => {
                     }
                     bid.bidder = newBidder
                     console.log(`No username for player ${bid.bidder}`)
-                    console.log('------------------------')
+                    console.log('------------------------\n')
                 })
             namePromises.push(promise)
         })
@@ -155,12 +150,12 @@ export const getServerSideProps = async ({ res, params }) => {
                         uuid: auctionDetails.auctioneerId
                     }
                     console.log(`No username for player ${auctionDetails.auctioneerId}`)
-                    console.log('------------------------')
+                    console.log('------------------------\n')
                 })
         )
     } catch (e) {
         console.log('ERROR: ' + JSON.stringify(e))
-        console.log('------------------------')
+        console.log('------------------------\n')
     }
 
     await Promise.allSettled(namePromises)

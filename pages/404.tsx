@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import React from 'react'
 import { Button, Container } from 'react-bootstrap'
 import { getHeadElement } from '../utils/SSRUtils'
 
-function NotFound({ statusCode }) {
+function NotFound() {
+    
     return (
         <div className="page">
             {getHeadElement('Not found')}

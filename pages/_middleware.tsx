@@ -1,6 +1,6 @@
 import { NextFetchEvent, NextRequest, NextResponse } from 'next/server'
-import rateLimit from '../utils/RateLimitUtils'
 import requestIp from 'request-ip'
+import rateLimit from '../utils/RateLimitUtils'
 
 const limiter = rateLimit({
     interval: 60 * 1000, // 60 seconds
@@ -11,8 +11,10 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
     try {
         const clientIp = requestIp.getClientIp(req)
         console.log('------------------')
-        console.log(clientIp)
+        console.log('IP: '+clientIp)
+        console.log();
         await limiter.check(100, clientIp) // 100 requests per minute
+    
         return NextResponse.next()
     } catch {
         return new NextResponse('Rate limit exceeded', {

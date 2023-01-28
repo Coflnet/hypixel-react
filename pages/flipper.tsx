@@ -1,12 +1,12 @@
-import React, { useMemo } from 'react'
-import FlipperComponent from '../components/Flipper/Flipper'
+import { useMemo } from 'react'
 import { Container } from 'react-bootstrap'
-import Search from '../components/Search/Search'
-import { getHeadElement } from '../utils/SSRUtils'
-import { parseFlipAuction } from '../utils/Parser/APIResponseParser'
 import { initAPI } from '../api/ApiHelper'
-import { handleSettingsImport } from '../utils/SettingsUtils'
+import FlipperComponent from '../components/Flipper/Flipper'
+import Search from '../components/Search/Search'
 import { getCacheControlHeader } from '../utils/CacheUtils'
+import { parseFlipAuction } from '../utils/Parser/APIResponseParser'
+import { handleSettingsImport } from '../utils/SettingsUtils'
+import { getHeadElement } from '../utils/SSRUtils'
 
 interface Props {
     flips?: any
@@ -19,7 +19,7 @@ function Flipper(props: Props) {
         } catch (e) {
             console.log('ERROR: Error parsing preFlips')
             console.log(props.flips)
-            console.log('------------------------')
+            console.log('------------------------\n')
             return []
         }
     }, [])
@@ -66,7 +66,7 @@ export const getServerSideProps = async ({ res }) => {
         flips = await api.getPreloadFlips()
     } catch (e) {
         console.log('ERROR: Error receiving preFlips')
-        console.log('------------------------')
+        console.log('------------------------\n')
     }
 
     return {
