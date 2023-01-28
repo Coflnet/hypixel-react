@@ -4,7 +4,7 @@ import Link from 'next/link'
 import styles from './PremiumFeatures.module.css'
 import { getDecimalSeperator, numberWithThousandsSeperators } from '../../../utils/Formatter'
 import Tooltip from '../../Tooltip/Tooltip'
-import { Help as HelpIcon } from '@mui/icons-material'
+import HelpIcon from '@mui/icons-material/Help'
 
 function PremiumFeatures() {
     let checkIconElement = (

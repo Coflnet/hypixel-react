@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Badge, Card } from 'react-bootstrap'
 import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter'
-import { Help as HelpIcon } from '@mui/icons-material'
+import HelpIcon from '@mui/icons-material/Help'
 import { CopyButton } from '../../CopyButton/CopyButton'
 import { useForceUpdate } from '../../../utils/Hooks'
 import { calculateProfit, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'

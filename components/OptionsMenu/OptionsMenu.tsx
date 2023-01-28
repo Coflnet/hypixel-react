@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MoreVert as MoreVertIcon } from '@mui/icons-material'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import styles from './OptionsMenu.module.css'
 import { Button, Dropdown, DropdownButton } from 'react-bootstrap'
 

@@ -3,7 +3,7 @@ import React from 'react'
 import { Button, Container } from 'react-bootstrap'
 import { getHeadElement } from '../utils/SSRUtils'
 
-function NotFound() {
+function NotFound({ statusCode }) {
     return (
         <div className="page">
             {getHeadElement('Not found')}
@@ -22,5 +22,4 @@ function NotFound() {
         </div>
     )
 }
-
 export default NotFound

@@ -1,6 +1,8 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
-import { ArrowRightAlt as ArrowRightIcon, ArrowDownward as ArrowDownIcon, Dangerous as DangerousIcon } from '@mui/icons-material'
+import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt';
+import ArrowDownIcon from '@mui/icons-material/ArrowDownward';
+import DangerousIcon from '@mui/icons-material/Dangerous';
 import { getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './FlipTracking.module.css'
 import { useRouter } from 'next/router'

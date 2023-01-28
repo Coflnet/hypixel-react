@@ -4,11 +4,10 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import api from '../../api/ApiHelper'
 import styles from './CoflCoinsPurchase.module.css'
 import Tooltip from '../Tooltip/Tooltip'
-import { Help as HelpIcon } from '@mui/icons-material'
+import HelpIcon from '@mui/icons-material/Help';
 import { useCoflCoins } from '../../utils/Hooks'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { toast } from 'react-toastify'
-import Countdown from 'react-countdown'
 
 interface Props {
     cancellationRightLossConfirmed: boolean

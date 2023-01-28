@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
-import { Remove as RemoveIcon } from '@mui/icons-material'
+import RemoveIcon from '@mui/icons-material/Remove'
 
 interface Props {
     filter?: ItemFilter

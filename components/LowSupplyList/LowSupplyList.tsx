@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Card, Form, Table } from 'react-bootstrap'
-import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { ArrowDownward as ArrowDownIcon, ArrowUpward as ArrowUpIcon, Sort as SortIcon } from '@mui/icons-material'
+import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
+import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
+import SortIcon from '@mui/icons-material/Sort'
+
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import styles from './LowSupplyList.module.css'
 import NumberFormat from 'react-number-format'

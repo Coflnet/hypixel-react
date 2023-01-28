@@ -3,7 +3,7 @@ import { components, MultiValue } from 'react-select'
 import Creatable from 'react-select/creatable'
 import { CURRENTLY_USED_TAGS } from '../../../../utils/SettingsUtils'
 import Tooltip from '../../../Tooltip/Tooltip'
-import { Help as HelpIcon } from '@mui/icons-material'
+import HelpIcon from '@mui/icons-material/Help';
 
 interface Props {
     restriction: FlipRestriction

@@ -21,7 +21,7 @@ import Link from 'next/link'
 import styles from './AuctionDetails.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import FlipBased from '../Flipper/FlipBased/FlipBased'
-import { Help as HelpIcon } from '@mui/icons-material'
+import HelpIcon from '@mui/icons-material/Help'
 import { v4 as generateUUID } from 'uuid'
 
 interface Props {

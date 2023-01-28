@@ -4,12 +4,11 @@ import { useForceUpdate } from '../../utils/Hooks'
 import { Container } from 'react-bootstrap'
 import Search from '../../components/Search/Search'
 import { useRouter } from 'next/router'
-import api, { initAPI } from '../../api/ApiHelper'
+import { initAPI } from '../../api/ApiHelper'
 import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../utils/SSRUtils'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import moment from 'moment'
-import { ConstructionOutlined, RttTwoTone } from '@mui/icons-material'
 import { getCacheControlHeader } from '../../utils/CacheUtils'
 
 interface Props {
@@ -18,7 +17,7 @@ interface Props {
 
 function AuctionDetailsPage(props: Props) {
     const router = useRouter()
-    let auctionUUID = router.query.auctionUUID as string
+    let auctionUUID = router.query.auction as string
     let forceUpdate = useForceUpdate()
     let [auctionDetails, setAuctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
 

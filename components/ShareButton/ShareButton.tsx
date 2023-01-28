@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Badge, Button, OverlayTrigger, Popover } from 'react-bootstrap'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
-import { ShareOutlined as ShareIcon } from '@mui/icons-material'
+import ShareIcon from '@mui/icons-material/ShareOutlined'
 import styles from './ShareButton.module.css'
 import { v4 as generateUUID } from 'uuid'
 

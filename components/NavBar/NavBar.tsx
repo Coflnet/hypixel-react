@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { ProSidebar, Menu, MenuItem, SidebarHeader, SubMenu } from 'react-pro-sidebar'
 import 'react-pro-sidebar/dist/css/styles.css'
-import {
-    Build as BuildIcon,
-    ShareOutlined as ShareIcon,
-    NotificationsOutlined as NotificationIcon,
-    Home as HomeIcon,
-    Storefront as StorefrontIcon,
-    AccountBalance as AccountBalanceIcon,
-    Policy as PolicyIcon,
-    Chat as ChatIcon,
-    Menu as MenuIcon,
-    ExploreOutlined as ExploreIcon,
-    PetsOutlined as PetsIcon,
-    AccountCircle as AccountIcon,
-    Download as DownloadIcon
-} from '@mui/icons-material'
+import BuildIcon from '@mui/icons-material/Build'
+import ShareIcon from '@mui/icons-material/ShareOutlined'
+import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
+import HomeIcon from '@mui/icons-material/Home'
+import StorefrontIcon from '@mui/icons-material/Storefront'
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
+import PolicyIcon from '@mui/icons-material/Policy'
+import ChatIcon from '@mui/icons-material/Chat'
+import MenuIcon from '@mui/icons-material/Menu'
+import PetsIcon from '@mui/icons-material/PetsOutlined'
+import AccountIcon from '@mui/icons-material/AccountCircle'
+import DownloadIcon from '@mui/icons-material/Download'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
