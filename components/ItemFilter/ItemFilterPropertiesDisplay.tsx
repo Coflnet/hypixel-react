@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
-import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
+import { camelCaseToSentenceCase, convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import { Remove as RemoveIcon } from '@mui/icons-material'
 
@@ -67,6 +67,14 @@ function ItemFilterPropertiesDisplay(props: Props) {
 
                     if (key.startsWith('_')) {
                         return ''
+                    }
+
+                    let greaterOrLessRegexp = new RegExp(/^[<>=]+/)
+                    if (!isNaN(Number(display.replace(greaterOrLessRegexp, '')))) {
+                        let symbols = display.match(greaterOrLessRegexp)
+                        let number = display.replace(greaterOrLessRegexp, '')
+                        let formattedNumber = numberWithThousandsSeperators(Number(number))
+                        display = symbols ? symbols[0] + formattedNumber : formattedNumber
                     }
 
                     // Special case -> display as date
