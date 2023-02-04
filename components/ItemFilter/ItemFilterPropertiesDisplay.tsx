@@ -69,12 +69,25 @@ function ItemFilterPropertiesDisplay(props: Props) {
                         return ''
                     }
 
-                    let greaterOrLessRegexp = new RegExp(/^[<>=]+/)
-                    if (!isNaN(Number(display.replace(greaterOrLessRegexp, '')))) {
-                        let symbols = display.match(greaterOrLessRegexp)
-                        let number = display.replace(greaterOrLessRegexp, '')
-                        let formattedNumber = numberWithThousandsSeperators(Number(number))
-                        display = symbols ? symbols[0] + formattedNumber : formattedNumber
+                    // finds ">","<","="" and combinations at the beginning and "-" if inbetween 2 numbers
+                    let symbolRegexp = new RegExp(/^[<>=]+|(?<=\d)-(?=\d)/)
+
+                    // finds ">","<","="" and combinations at the beginning
+                    let beginningSymbolRegexp = new RegExp(/^[<>=]+/)
+
+                    if (!isNaN(Number(display.replace(symbolRegexp, '')))) {
+                        let symbols = display.match(beginningSymbolRegexp)
+                        let number = display.replace(beginningSymbolRegexp, '')
+
+                        if (number.indexOf('-') !== -1) {
+                            display = number
+                                .split('-')
+                                .map(numberString => numberWithThousandsSeperators(Number(numberString)))
+                                .join('-')
+                        } else {
+                            display = numberWithThousandsSeperators(Number(number))
+                        }
+                        display = symbols ? symbols[0] + display : display
                     }
 
                     // Special case -> display as date
