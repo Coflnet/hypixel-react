@@ -16,10 +16,10 @@ interface Props {
 function Crafts(props: Props) {
     return (
         <div className="page">
-            {getHeadElement('Crafts', 'List of profitable crafts based on current ah and bazaar prices')}
+            {getHeadElement('Crafts', 'List of profitable craft flips based on current ah and bazaar prices')}
             <Container>
                 <Search />
-                <h2>Profitable Crafts</h2>
+                <h2>Profitable Hypixel Skyblock Craft flips</h2>
                 <hr />
                 <CraftsList crafts={props.crafts?.map(parseProfitableCraft)} bazaarTags={props.bazaarTags} />
             </Container>
