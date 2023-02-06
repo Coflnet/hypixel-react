@@ -392,12 +392,10 @@ function Search(props: Props) {
                           </ListGroup.Item>
                       ))}
             </ListGroup>
-            {!props.hideOptions ? (
-                <div className={styles.bar} style={{ marginTop: '20px' }}>
-                    {getSelectedElement()}
-                    <OptionsMenu selected={props.selected} />
-                </div>
-            ) : null}
+            <div className={styles.bar} style={{ marginTop: '20px' }}>
+                {getSelectedElement()}
+                {!props.hideOptions ? <OptionsMenu selected={props.selected} /> : null}
+            </div>
             {searchItemContextMenuElement}
             {currentItemContextMenuElement}
         </div>
