@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { camelCaseToSentenceCase, convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'

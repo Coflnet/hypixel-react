@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import  { useEffect } from 'react'
 import { Badge, Card } from 'react-bootstrap'
 import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter'
 import { Help as HelpIcon } from '@mui/icons-material'

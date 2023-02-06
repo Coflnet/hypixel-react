@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import  { ChangeEvent, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
 import { ArrowRightAlt as ArrowRightIcon, ArrowDownward as ArrowDownIcon, Dangerous as DangerousIcon } from '@mui/icons-material'
 import { getMinecraftColorCodedElement, getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'

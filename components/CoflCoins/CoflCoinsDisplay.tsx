@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useCoflCoins } from '../../utils/Hooks'

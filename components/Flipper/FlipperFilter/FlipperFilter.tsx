@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import  { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
 import { BallotOutlined as FilterIcon, Settings as SettingsIcon } from '@mui/icons-material'

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { HexColorInput } from "react-colorful";
 
 interface Props {

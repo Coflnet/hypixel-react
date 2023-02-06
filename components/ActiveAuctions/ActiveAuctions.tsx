@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import moment from 'moment'
 import Link from 'next/link'
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import  { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'

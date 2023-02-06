@@ -1,5 +1,5 @@
 import { useMatomo } from '@datapunt/matomo-tracker-react'
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import  { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, handleSettingsImport, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'

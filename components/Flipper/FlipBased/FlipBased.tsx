@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import { Card, Badge } from 'react-bootstrap'
 import moment from 'moment'
 import { numberWithThousandsSeperators } from '../../../utils/Formatter'
