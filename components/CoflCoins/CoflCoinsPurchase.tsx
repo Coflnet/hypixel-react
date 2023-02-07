@@ -122,12 +122,10 @@ function Payment(props: Props) {
                         />
                     </p>
                     <p className={styles.paymentOption}>
-                        <div className={styles.paymentLabel}>
-                            Buy with Stripe <span style={{ color: 'red' }}>(currently not available)</span>
-                        </div>
+                        <div className={styles.paymentLabel}>Buy with Stripe</div>
                         <Tooltip
                             type="hover"
-                            tooltipContent={<span>Stripe is currently not available as we experience problems with this payment provider.</span>}
+                            tooltipContent={getDisabledPaymentTooltip()}
                             content={
                                 <div className={styles.paymentButtonWrapper}>
                                     <Button
@@ -136,7 +134,7 @@ function Payment(props: Props) {
                                             onPayStripe(stripeProductId)
                                         }}
                                         className={styles.paymentButton}
-                                        disabled={true || !props.cancellationRightLossConfirmed}
+                                        disabled={!props.cancellationRightLossConfirmed}
                                     >
                                         {stripeProductId === isLoadingId ? (
                                             <p className={styles.manualRedirectLink}>
@@ -216,12 +214,10 @@ function Payment(props: Props) {
                         />
                     </p>
                     <p className={styles.paymentOption}>
-                        <div className={styles.paymentLabel}>
-                            Buy with Stripe <span style={{ color: 'red' }}>(currently not available)</span>
-                        </div>
+                        <div className={styles.paymentLabel}>Buy with Stripe</div>
                         <Tooltip
                             type="hover"
-                            tooltipContent={<span>Stripe is currently not available as we experience problems with this payment provider.</span>}
+                            tooltipContent={getDisabledPaymentTooltip()}
                             content={
                                 <div className={styles.paymentButtonWrapper}>
                                     <Button
@@ -230,7 +226,7 @@ function Payment(props: Props) {
                                             onPayStripe(stripeProductId, coflCoinsToBuy)
                                         }}
                                         className={styles.paymentButton}
-                                        disabled={true || !props.cancellationRightLossConfirmed}
+                                        disabled={!props.cancellationRightLossConfirmed}
                                     >
                                         {`${stripeProductId}_${coflCoinsToBuy}` === isLoadingId
                                             ? getLoadingElement(<p>Redirecting to checkout...</p>)
