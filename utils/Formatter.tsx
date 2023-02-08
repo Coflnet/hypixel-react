@@ -318,10 +318,8 @@ export function getMinecraftColorCodedElement(text: string, autoFormat = true): 
 
     return <span>{elements}</span>
 }
-<<<<<<< HEAD
-=======
 
 export function removeMinecraftColorCoding(text: string): string {
     return text.replace(/§[0-9a-fk-or]/gi, '')
 }
->>>>>>> 828560f83b10c021ec98fec3ce214081d9584b49
+
