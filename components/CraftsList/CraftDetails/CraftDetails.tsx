@@ -1,7 +1,6 @@
-import React from 'react'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
-import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import { Badge } from 'react-bootstrap'
+import { numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import styles from './CraftDetails.module.css'
 
 interface Props {
@@ -21,7 +20,7 @@ export function CraftDetails(props: Props) {
                 </div>
                 <span style={{ marginLeft: '20px' }}>
                     <Badge style={{ marginLeft: '5px' }} variant="secondary">
-                        {numberWithThousandsSeperators(Math.round(props.craft.sellPrice))} Coins
+                        {numberWithThousandsSeparators(Math.round(props.craft.sellPrice))} Coins
                     </Badge>
                 </span>
             </div>
@@ -46,7 +45,7 @@ export function CraftDetails(props: Props) {
                         />
                         {ingredient.item.name + ' (' + ingredient.count + 'x)'}
                         <Badge style={{ marginLeft: '5px' }} variant="secondary">
-                            {numberWithThousandsSeperators(Math.round(ingredient.cost))} Coins
+                            {numberWithThousandsSeparators(Math.round(ingredient.cost))} Coins
                         </Badge>
                     </div>
                 )

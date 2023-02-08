@@ -1,10 +1,9 @@
-import React from 'react'
-import { Table } from 'react-bootstrap'
-import Link from 'next/link'
-import styles from './PremiumFeatures.module.css'
-import { getDecimalSeperator, numberWithThousandsSeperators } from '../../../utils/Formatter'
-import Tooltip from '../../Tooltip/Tooltip'
 import HelpIcon from '@mui/icons-material/Help'
+import Link from 'next/link'
+import { Table } from 'react-bootstrap'
+import { getDecimalSeparator, numberWithThousandsSeparators } from '../../../utils/Formatter'
+import Tooltip from '../../Tooltip/Tooltip'
+import styles from './PremiumFeatures.module.css'
 
 function PremiumFeatures() {
     let checkIconElement = (
@@ -134,7 +133,7 @@ function PremiumFeatures() {
                         <td className={styles.premiumProductColumn}>3</td>
                         <td className={styles.premiumProductColumn}>10</td>
                         <td className={styles.premiumProductColumn}>100</td>
-                        <td className={styles.premiumProductColumn}>{numberWithThousandsSeperators(1000)}</td>
+                        <td className={styles.premiumProductColumn}>{numberWithThousandsSeparators(1000)}</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Chat colors</td>
@@ -170,7 +169,7 @@ function PremiumFeatures() {
                                 }
                             />
                         </td>
-                        <td className={styles.premiumProductColumn}>2{getDecimalSeperator()}5 min</td>
+                        <td className={styles.premiumProductColumn}>2{getDecimalSeparator()}5 min</td>
                         <td className={styles.premiumProductColumn}>10-20 sec</td>
                         <td className={styles.premiumProductColumn}>~1 sec</td>
                         <td className={styles.premiumProductColumn}>&lt; 1 sec</td>

@@ -2,16 +2,16 @@ import React, { CSSProperties } from 'react'
 import { isClientSideRendering } from './SSRUtils'
 
 /*
- Returns a given number as string with thousands-seperators. Example:
+ Returns a given number as string with thousands-separators. Example:
  1234567 => 1.234.567
 */
-export function numberWithThousandsSeperators(number?: number): string {
+export function numberWithThousandsSeparators(number?: number): string {
     if (!number) {
         return '0'
     }
     var parts = number.toString().split('.')
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeperator())
-    return parts.join(getDecimalSeperator())
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeparator())
+    return parts.join(getDecimalSeparator())
 }
 
 /**
@@ -157,7 +157,7 @@ export function formatToPriceToShorten(num: number, decimals: number = 0): strin
     return checkPreviousNegativeSymbol(num.toFixed(0))
 }
 
-export function getThousandSeperator() {
+export function getThousandSeparator() {
     let langTag = isClientSideRendering() ? navigator.language : 'en'
     if (langTag.startsWith('en')) {
         return ','
@@ -166,7 +166,7 @@ export function getThousandSeperator() {
     }
 }
 
-export function getDecimalSeperator() {
+export function getDecimalSeparator() {
     let langTag = isClientSideRendering() ? navigator.language : 'en'
     if (langTag.startsWith('en')) {
         return '.'
@@ -222,7 +222,7 @@ export function formatAsCoins(number: number): string {
             return ''
         }
     }
-    return `${numberWithThousandsSeperators(number)} Coins`
+    return `${numberWithThousandsSeparators(number)} Coins`
 }
 export function formatDungeonStarsInString(stringWithStars: string, style: CSSProperties = {}, dungeonItemLevelString?: string): JSX.Element {
     let yellowStarStyle = { color: 'yellow', fontWeight: 'normal', height: '100%' }

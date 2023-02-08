@@ -6,7 +6,7 @@ import { initAPI } from '../../api/ApiHelper'
 import AuctionDetails from '../../components/AuctionDetails/AuctionDetails'
 import Search from '../../components/Search/Search'
 import { getCacheControlHeader } from '../../utils/CacheUtils'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../utils/SSRUtils'
@@ -53,9 +53,9 @@ function AuctionDetailsPage(props: Props) {
         }
         description += `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, "")} by ${auctionDetails?.auctioneer?.name}`
         if (!auctionDetails.auction.bin) {
-            description += `| Highest Bid: ${numberWithThousandsSeperators(auctionDetails.auction.highestBid)} Coins with ${auctionDetails.bids.length} Bids`
+            description += `| Highest Bid: ${numberWithThousandsSeparators(auctionDetails.auction.highestBid)} Coins with ${auctionDetails.bids.length} Bids`
         } else if (auctionDetails.bids.length > 0) {
-            description += `| Bought by ${auctionDetails.bids[0].bidder.name} for  ${numberWithThousandsSeperators(auctionDetails.auction.highestBid)} Coins`
+            description += `| Bought by ${auctionDetails.bids[0].bidder.name} for  ${numberWithThousandsSeparators(auctionDetails.auction.highestBid)} Coins`
         }
         
         description += ` | ${auctionDetails.auction.end > new Date() ? 'Ends' : 'Ended'} on ${moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')}`

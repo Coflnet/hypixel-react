@@ -1,12 +1,12 @@
+import Link from 'next/link'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
+import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
-import { convertTagToName, getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
+import { convertTagToName, getStyleForTier, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import styles from './KatFlips.module.css'
-import { toast } from 'react-toastify'
-import Link from 'next/link'
-import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 
 interface Props {
     flips: KatFlip[]
@@ -164,10 +164,10 @@ export function KatFlips(props: Props) {
                     <h4>{getFlipHeader(flip)}</h4>
                     <p>
                         <span className={styles.label}>Purchase Cost:</span>{' '}
-                        <Link href={'auction/' + flip.originAuctionUUID}>{`${numberWithThousandsSeperators(Math.round(flip.purchaseCost))} Coins`}</Link>
+                        <Link href={'auction/' + flip.originAuctionUUID}>{`${numberWithThousandsSeparators(Math.round(flip.purchaseCost))} Coins`}</Link>
                     </p>
                     <p>
-                        <span className={styles.label}>Upgrade Cost:</span> {numberWithThousandsSeperators(Math.round(flip.upgradeCost))} Coins
+                        <span className={styles.label}>Upgrade Cost:</span> {numberWithThousandsSeparators(Math.round(flip.upgradeCost))} Coins
                     </p>
                     {flip.coreData.material ? (
                         <span>
@@ -175,20 +175,20 @@ export function KatFlips(props: Props) {
                                 <span className={styles.label}>Material:</span> {`${flip.coreData.amount}x ${convertTagToName(flip.coreData.material)}`}
                             </p>
                             <p>
-                                <span className={styles.label}>Material Cost:</span> {numberWithThousandsSeperators(Math.round(flip.materialCost))} Coins
+                                <span className={styles.label}>Material Cost:</span> {numberWithThousandsSeparators(Math.round(flip.materialCost))} Coins
                             </p>
                         </span>
                     ) : null}
                     <p>
-                        <span className={styles.label}>Median:</span> {numberWithThousandsSeperators(Math.round(flip.median))} Coins
+                        <span className={styles.label}>Median:</span> {numberWithThousandsSeparators(Math.round(flip.median))} Coins
                     </p>
                     <p>
                         <span className={styles.label}>Profit:</span>{' '}
-                        <Link href={'auction/' + flip.referenceAuctionUUID}>{`${numberWithThousandsSeperators(Math.round(flip.profit))} Coins`}</Link>
+                        <Link href={'auction/' + flip.referenceAuctionUUID}>{`${numberWithThousandsSeparators(Math.round(flip.profit))} Coins`}</Link>
                     </p>
                     <hr />
                     <p>
-                        <span className={styles.label}>Volume:</span> {numberWithThousandsSeperators(Math.round(flip.volume))}
+                        <span className={styles.label}>Volume:</span> {numberWithThousandsSeparators(Math.round(flip.volume))}
                     </p>
                     <p>
                         <span className={styles.label}>Target Rarity:</span> <span style={getStyleForTier(flip.targetRarity)}>{flip.targetRarity}</span>

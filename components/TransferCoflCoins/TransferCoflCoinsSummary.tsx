@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button } from 'react-bootstrap'
-import styles from './TransferCoflCoinsSummary.module.css'
-import api from '../../api/ApiHelper'
-import { getLoadingElement } from '../../utils/LoadingUtils'
 import { toast } from 'react-toastify'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { v4 as generateUUID } from 'uuid'
+import api from '../../api/ApiHelper'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
+import { getLoadingElement } from '../../utils/LoadingUtils'
+import styles from './TransferCoflCoinsSummary.module.css'
 
 interface Props {
     receiverType: 'email' | 'mcId'
@@ -25,7 +25,7 @@ function TransferCoflCoinsSummary(props: Props) {
         api.transferCoflCoins(props.email, props.player?.uuid, props.coflCoins, reference)
             .then(() => {
                 toast.success(
-                    `Successfuly sent ${numberWithThousandsSeperators(props.coflCoins)} CoflCoins to ${props.email === '' ? props.player.name : props.email}`
+                    `Successfuly sent ${numberWithThousandsSeparators(props.coflCoins)} CoflCoins to ${props.email === '' ? props.player.name : props.email}`
                 )
                 setIsSending(false)
                 props.onFinish()

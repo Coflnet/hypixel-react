@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import NumberFormat from 'react-number-format'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useCoflCoins } from '../../utils/Hooks'
 import { PlayerFilterElement } from '../FilterElement/FilterElements/PlayerFilterElement'
 import TransferCoflCoinsSummary from './TransferCoflCoinsSummary'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
 
 interface Props {
     onFinish()
@@ -79,7 +79,7 @@ function TransferCoflCoins(props: Props) {
                             decimalScale={1}
                         />
                     </div>
-                    <span>Your current Balance: {numberWithThousandsSeperators(coflCoinsBalance)}</span>
+                    <span>Your current Balance: {numberWithThousandsSeparators(coflCoinsBalance)}</span>
                     <Button
                         variant="success"
                         style={{ float: 'right' }}

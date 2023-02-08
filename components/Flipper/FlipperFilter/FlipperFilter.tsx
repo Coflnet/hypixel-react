@@ -1,19 +1,19 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Form, Modal } from 'react-bootstrap'
-import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
+import { useMatomo } from '@datapunt/matomo-tracker-react'
 import FilterIcon from '@mui/icons-material/BallotOutlined'
 import SettingsIcon from '@mui/icons-material/Settings'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Button, Form, Modal } from 'react-bootstrap'
 import NumberFormat from 'react-number-format'
-import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSettingsObject, mapRestrictionsToApiFormat, setSetting } from '../../../utils/SettingsUtils'
-import styles from './FlipperFilter.module.css'
+import { v4 as generateUUID } from 'uuid'
 import api from '../../../api/ApiHelper'
-import { getDecimalSeperator, getThousandSeperator } from '../../../utils/Formatter'
-import { getFlipCustomizeSettings, isCurrentCalculationBasedOnLbin } from '../../../utils/FlipUtils'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
+import { getFlipCustomizeSettings, isCurrentCalculationBasedOnLbin } from '../../../utils/FlipUtils'
+import { getDecimalSeparator, getThousandSeparator } from '../../../utils/Formatter'
+import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSettingsObject, mapRestrictionsToApiFormat, setSetting } from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import FlipCustomize from '../FlipCustomize/FlipCustomize'
-import { v4 as generateUUID } from 'uuid'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
+import styles from './FlipperFilter.module.css'
 
 interface Props {
     onChange(filter: FlipperFilter)
@@ -176,8 +176,8 @@ function FlipperFilter(props: Props) {
                         }}
                         customInput={Form.Control}
                         defaultValue={flipperFilter.minProfit}
-                        thousandSeparator={getThousandSeperator()}
-                        decimalSeparator={getDecimalSeperator()}
+                        thousandSeparator={getThousandSeparator()}
+                        decimalSeparator={getDecimalSeparator()}
                         allowNegative={false}
                         decimalScale={0}
                     />
@@ -304,8 +304,8 @@ function FlipperFilter(props: Props) {
                                 }}
                                 customInput={Form.Control}
                                 defaultValue={flipperFilter.minProfitPercent}
-                                thousandSeparator={getThousandSeperator()}
-                                decimalSeparator={getDecimalSeperator()}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
                                 allowNegative={false}
                                 decimalScale={0}
                             />
@@ -332,8 +332,8 @@ function FlipperFilter(props: Props) {
                                 }}
                                 customInput={Form.Control}
                                 defaultValue={flipperFilter.minVolume}
-                                thousandSeparator={getThousandSeperator()}
-                                decimalSeparator={getDecimalSeperator()}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
                                 allowNegative={false}
                                 decimalScale={1}
                             />
@@ -354,8 +354,8 @@ function FlipperFilter(props: Props) {
                                 }}
                                 customInput={Form.Control}
                                 defaultValue={flipperFilter.maxCost}
-                                thousandSeparator={getThousandSeperator()}
-                                decimalSeparator={getDecimalSeperator()}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
                                 allowNegative={false}
                                 decimalScale={0}
                             />

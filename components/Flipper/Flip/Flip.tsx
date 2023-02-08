@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react'
-import { Badge, Card } from 'react-bootstrap'
-import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter'
-import HelpIcon from '@mui/icons-material/Help'
-import { CopyButton } from '../../CopyButton/CopyButton'
-import { useForceUpdate } from '../../../utils/Hooks'
-import { calculateProfit, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
-import { toast } from 'react-toastify'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
-import styles from './Flip.module.css'
+import HelpIcon from '@mui/icons-material/Help'
+import { useEffect } from 'react'
+import { Badge, Card } from 'react-bootstrap'
+import { toast } from 'react-toastify'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
+import { calculateProfit, getFlipCustomizeSettings, getFlipFinders } from '../../../utils/FlipUtils'
+import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier, numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { useForceUpdate } from '../../../utils/Hooks'
+import { CopyButton } from '../../CopyButton/CopyButton'
+import styles from './Flip.module.css'
 
 interface Props {
     flip: FlipAuction
@@ -103,7 +103,7 @@ function Flip(props: Props) {
         if (settings.shortNumbers) {
             return formatToPriceToShorten(price)
         }
-        return numberWithThousandsSeperators(price)
+        return numberWithThousandsSeparators(price)
     }
 
     let stars = props.flip.item.name?.match(/✪+/gm)

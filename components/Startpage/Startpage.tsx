@@ -1,20 +1,19 @@
-import React, { useEffect, useState } from 'react'
-import api from '../../api/ApiHelper'
-import { Badge, Card } from 'react-bootstrap'
-import { getMinecraftColorCodedElement, numberWithThousandsSeperators } from '../../utils/Formatter'
-import PersonIcon from '@mui/icons-material/Person'
-import TimerIcon from '@mui/icons-material/Timer'
+import { useMatomo } from '@datapunt/matomo-tracker-react'
+import AnnouncementIcon from '@mui/icons-material/Announcement'
 import NewIcon from '@mui/icons-material/FiberNew'
 import FireIcon from '@mui/icons-material/Fireplace'
-import AnnouncementIcon from '@mui/icons-material/Announcement'
+import PersonIcon from '@mui/icons-material/Person'
+import TimerIcon from '@mui/icons-material/Timer'
 import moment from 'moment'
-import Tooltip from '../Tooltip/Tooltip'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
-import { FixedSizeList as List } from 'react-window'
 import Link from 'next/link'
-import styles from './Startpage.module.css'
+import React, { useEffect, useState } from 'react'
+import { Badge, Card } from 'react-bootstrap'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { getSSRElement, isClientSideRendering } from '../../utils/SSRUtils'
+import { FixedSizeList as List } from 'react-window'
+import api from '../../api/ApiHelper'
+import { getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter'
+import Tooltip from '../Tooltip/Tooltip'
+import styles from './Startpage.module.css'
 
 interface Props {
     newAuctions?: Auction[]
@@ -70,7 +69,7 @@ function Startpage(props: Props) {
                                 <div>
                                     <ul>
                                         <li>{getEndString(auction.end)}</li>
-                                        <li>{numberWithThousandsSeperators(auction.highestBid || auction.startingBid)} Coins</li>
+                                        <li>{numberWithThousandsSeparators(auction.highestBid || auction.startingBid)} Coins</li>
                                         {auction.bin ? (
                                             <li>
                                                 <Badge style={{ marginLeft: '5px' }} variant="success">

@@ -1,4 +1,4 @@
-import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeparators } from '../../../utils/Formatter'
 
 const ANIMATION_THRESHOLD = 200
 
@@ -14,7 +14,7 @@ function getPriceGraphConfigSingle() {
                 label: {
                     formatter: axisObject => {
                         if (axisObject.axisDimension === 'y') {
-                            return `${numberWithThousandsSeperators(axisObject.value)}`
+                            return `${numberWithThousandsSeparators(axisObject.value)}`
                         }
                         return getLocalDateAndTime(new Date(+axisObject.value))
                     }
@@ -94,7 +94,7 @@ function getPriceGraphConfigSingle() {
                 name: 'Number of traded items',
                 position: 'right',
                 axisLabel: {
-                    formatter: numberWithThousandsSeperators
+                    formatter: numberWithThousandsSeparators
                 }
             }
         ],
@@ -116,7 +116,7 @@ function getPriceGraphConfigSingle() {
                         if (!value || (value && value.length === 0)) {
                             return ''
                         }
-                        return `${numberWithThousandsSeperators(value)} Coins`
+                        return `${numberWithThousandsSeparators(value)} Coins`
                     }
                 }
             },
@@ -156,7 +156,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeparators
                 },
                 data: []
             },
@@ -168,7 +168,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeparators
                 },
                 data: []
             },
@@ -189,7 +189,7 @@ function getPriceGraphConfigSingle() {
                         if (!value || (value && value.length === 0)) {
                             return ''
                         }
-                        return `${numberWithThousandsSeperators(value)} Coins`
+                        return `${numberWithThousandsSeparators(value)} Coins`
                     }
                 }
             },
@@ -231,7 +231,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeparators
                 },
                 data: []
             },
@@ -244,7 +244,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeparators
                 },
                 data: []
             }

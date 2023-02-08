@@ -1,21 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { useMatomo } from '@datapunt/matomo-tracker-react'
+import ReactECharts from 'echarts-for-react'
+import { ChangeEvent, useEffect, useState } from 'react'
+import { Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
+import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
+import { numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { getLoadingElement } from '../../../utils/LoadingUtils'
+import { getURLSearchParam } from '../../../utils/Parser/URLParser'
+import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE } from '../../../utils/SettingsUtils'
+import { isClientSideRendering } from '../../../utils/SSRUtils'
+import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import ShareButton from '../../ShareButton/ShareButton'
+import styles from './BazaarPriceGraph.module.css'
+import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
 import getPriceGraphConfigSingle from './PriceGraphConfigSingle'
 import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
-import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
-import { getLoadingElement } from '../../../utils/LoadingUtils'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
-import ShareButton from '../../ShareButton/ShareButton'
-import { isClientSideRendering } from '../../../utils/SSRUtils'
-import styles from './BazaarPriceGraph.module.css'
-import ReactECharts from 'echarts-for-react'
-import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
-import { getURLSearchParam } from '../../../utils/Parser/URLParser'
-import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE, getSetting, setSetting } from '../../../utils/SettingsUtils'
-import { Form } from 'react-bootstrap'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
 
 interface Props {
     item: Item
@@ -380,10 +380,10 @@ function BazaarPriceGraph(props: Props) {
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
-                        <b>Avg Sell Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(+avgSellPrice.toFixed(1)) + ' Coins'}
+                        <b>Avg Sell Price:</b> {isLoading ? '-' : numberWithThousandsSeparators(+avgSellPrice.toFixed(1)) + ' Coins'}
                     </span>
                     <span className={styles.avgPrice}>
-                        <b>Avg Buy Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(+avgBuyPrice.toFixed(1)) + ' Coins'}
+                        <b>Avg Buy Price:</b> {isLoading ? '-' : numberWithThousandsSeparators(+avgBuyPrice.toFixed(1)) + ' Coins'}
                     </span>
                     <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
                         {!isSSR ? (

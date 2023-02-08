@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
+import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
+import SortIcon from '@mui/icons-material/Sort'
+import { useEffect, useState } from 'react'
 import { Card, Form, Table } from 'react-bootstrap'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
-import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
-import SortIcon from '@mui/icons-material/Sort'
 
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
-import styles from './LowSupplyList.module.css'
 import NumberFormat from 'react-number-format'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
+import styles from './LowSupplyList.module.css'
 
 let mounted = true
 
@@ -101,7 +101,7 @@ function LowSupplyList(props: Props) {
                       <td>{item.name}</td>
                       <td>{item.supply}</td>
                       <td>{item.volume}</td>
-                      <td>{numberWithThousandsSeperators(item.medianPrice)}</td>
+                      <td>{numberWithThousandsSeparators(item.medianPrice)}</td>
                   </tr>
               )
           })

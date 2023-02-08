@@ -12,7 +12,7 @@ import {
     convertTagToName,
     formatDungeonStarsInString as getDungeonStarFormattedItemName,
     getMinecraftColorCodedElement, getStyleForTier,
-    numberWithThousandsSeperators
+    numberWithThousandsSeparators
 } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -186,7 +186,7 @@ function AuctionDetails(props: Props) {
         }
 
         if (!isNaN(value) && Number.isInteger(parseInt(value, 10))) {
-            return numberWithThousandsSeperators(value)
+            return numberWithThousandsSeparators(value)
         }
 
         let index = tagNbt.findIndex(tag => tag === key)
@@ -407,7 +407,7 @@ function AuctionDetails(props: Props) {
                                     style={{ marginRight: '15px', float: 'left' }}
                                     loading="lazy"
                                 />
-                                <h6 style={headingStyle}>{numberWithThousandsSeperators(bid.amount)} Coins</h6>
+                                <h6 style={headingStyle}>{numberWithThousandsSeparators(bid.amount)} Coins</h6>
                                 <span>{bid.bidder.name}</span>
                                 <br />
                                 <span>{moment(bid.timestamp).fromNow()}</span>
@@ -439,7 +439,7 @@ function AuctionDetails(props: Props) {
                         <Card className={styles.auctionCard}>
                             <Card.Header>
                                 <h2>Bids</h2>
-                                {auctionDetails ? <h6>Starting bid: {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ''}
+                                {auctionDetails ? <h6>Starting bid: {numberWithThousandsSeparators(auctionDetails?.auction.startingBid)} Coins</h6> : ''}
                             </Card.Header>
                             <Card.Body>
                                 <ListGroup>{bidList || getLoadingElement()}</ListGroup>
