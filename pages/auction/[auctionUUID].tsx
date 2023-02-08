@@ -17,7 +17,7 @@ interface Props {
 
 function AuctionDetailsPage(props: Props) {
     const router = useRouter()
-    let auctionUUID = router.query.auction as string
+    let auctionUUID = router.query.auctionUUID as string
     let forceUpdate = useForceUpdate()
     let [auctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
 
@@ -38,7 +38,7 @@ function AuctionDetailsPage(props: Props) {
     }, [auctionUUID])
 
     useEffect(() => {
-        forceUpdate();
+        forceUpdate()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [auctionDetails])
 
@@ -84,7 +84,7 @@ function AuctionDetailsPage(props: Props) {
 export const getServerSideProps = async ({ res, params }) => {
     res.setHeader('Cache-Control', getCacheControlHeader())
 
-    let auctionUUID = params.auction as string
+    let auctionUUID = params.auctionUUID as string
     let api = initAPI(true)
     let auctionDetails: any
     try {

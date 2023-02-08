@@ -46,7 +46,7 @@ function Ref(props: Props) {
             <hr />
             <div>
                 <Card style={{ marginBottom: '15px' }}>
-                    <Card.Header><h2>Referral System</h2></Card.Header>
+                    <Card.Header><Card.Title>Referral System</Card.Title></Card.Header>
                     <Card.Body>
                         {isLoggedIn && refInfo ? (
                             <div>
@@ -65,7 +65,7 @@ function Ref(props: Props) {
                                 <hr />
                             </div>
                         ) : null}
-                        <p>Share your referral Link with people which might find CoflNet useful.</p>
+                        <p>Share your referral link with people which might find Coflnet useful.</p>
                         <p>Rewards per invited person:</p>
                         <ul>
                             <li>

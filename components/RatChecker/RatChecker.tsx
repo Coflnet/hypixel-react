@@ -11,7 +11,6 @@ function RatChecker() {
     let ratFileInput = useRef<HTMLInputElement>(null)
 
     function onFileUpload(files) {
-        console.log(files);
         setIsChecking(true)
         let checkingPromises: Promise<[string, RatCheckingResponse]>[] = []
 
