@@ -44,7 +44,7 @@ function AuctionDetailsPage(props: Props) {
 
     function getAuctionDescription(): string {
         if (!auctionDetails) {
-            return 'Browse over 400 million auctions, and the bazaar of Hypixel SkyBlock.'
+            return 'Browse over 500 million auctions, and the bazaar of Hypixel SkyBlock.'
         }
 
         let description = ''

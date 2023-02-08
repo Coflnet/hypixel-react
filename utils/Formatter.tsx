@@ -277,7 +277,7 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
     )
 }
 
-export function getMinecraftColorCodedElement(text: string): JSX.Element {
+export function getMinecraftColorCodedElement(text: string, autoFormat = true): JSX.Element {
     let styleMap: { [key: string]: React.CSSProperties } = {
         '0': { fontWeight: 'normal', textDecoration: 'none', color: '#000000' },
         '1': { fontWeight: 'normal', textDecoration: 'none', color: '#0000aa' },
@@ -312,9 +312,16 @@ export function getMinecraftColorCodedElement(text: string): JSX.Element {
             return
         }
         let code = split.substring(0, 1)
-        let text = convertTagToName(split.substring(1, split.length))
+        let text = autoFormat ? convertTagToName(split.substring(1, split.length)) : split.substring(1, split.length)
         elements.push(<span style={styleMap[code]}>{text}</span>)
     })
 
     return <span>{elements}</span>
 }
+<<<<<<< HEAD
+=======
+
+export function removeMinecraftColorCoding(text: string): string {
+    return text.replace(/§[0-9a-fk-or]/gi, '')
+}
+>>>>>>> 828560f83b10c021ec98fec3ce214081d9584b49

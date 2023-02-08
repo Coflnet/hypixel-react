@@ -96,6 +96,8 @@ function PlayerDetailsList(props: Props) {
     }, [props.auctions])
 
     useEffect(() => {
+        setListElements([])
+        setAllElementsLoaded(false)
         loadNewElements(true)
         loadFilters()
     }, [filteredItem])
@@ -340,8 +342,7 @@ function PlayerDetailsList(props: Props) {
                         }
                     />
                 </p>
-            ) : null}
-            {showFilter() ? (
+            ) : (
                 <>
                     <div style={{ marginLeft: '40px', marginRight: '40px' }}>
                         <Search
@@ -372,7 +373,7 @@ function PlayerDetailsList(props: Props) {
                         }}
                     />
                 </>
-            ) : null}
+            )}
             {wasAlreadyLoggedIn ? (
                 <div style={{ visibility: 'collapse', height: 0 }}>
                     <GoogleSignIn onAfterLogin={onAfterLogin} />

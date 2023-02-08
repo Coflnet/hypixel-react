@@ -124,7 +124,7 @@ function FormatElement(props: Props) {
                             Default
                         </Button>
                     </div>
-                    <p>{getMinecraftColorCodedElement(getFormatExampleText())}</p>
+                    <p>{getMinecraftColorCodedElement(getFormatExampleText(), false)}</p>
                 </div>
             ) : null}
         </div>

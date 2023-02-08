@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
-import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
+import { camelCaseToSentenceCase, convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import RemoveIcon from '@mui/icons-material/Remove'
 
@@ -67,6 +67,27 @@ function ItemFilterPropertiesDisplay(props: Props) {
 
                     if (key.startsWith('_')) {
                         return ''
+                    }
+
+                    // finds ">","<","="" and combinations at the beginning and "-" if inbetween 2 numbers
+                    let symbolRegexp = new RegExp(/^[<>=]+|(?<=\d)-(?=\d)/)
+
+                    // finds ">","<","="" and combinations at the beginning
+                    let beginningSymbolRegexp = new RegExp(/^[<>=]+/)
+
+                    if (!isNaN(Number(display.replace(symbolRegexp, '')))) {
+                        let symbols = display.match(beginningSymbolRegexp)
+                        let number = display.replace(beginningSymbolRegexp, '')
+
+                        if (number.indexOf('-') !== -1) {
+                            display = number
+                                .split('-')
+                                .map(numberString => numberWithThousandsSeperators(Number(numberString)))
+                                .join('-')
+                        } else {
+                            display = numberWithThousandsSeperators(Number(number))
+                        }
+                        display = symbols ? symbols[0] + display : display
                     }
 
                     // Special case -> display as date
