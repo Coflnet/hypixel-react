@@ -244,7 +244,7 @@ function FlipperFilter(props: Props) {
                             )
                         }
                     />
-                    <Button onClick={onProfitCalculationButtonClick}>{isCurrentCalculationBasedOnLbin(flipCustomizeSettings) ? 'Lowest Bin' : 'Median'}</Button>
+                    <Button onClick={onProfitCalculationButtonClick}>{isCurrentCalculationBasedOnLbin(flipCustomizeSettings) ? 'Lowest BIN' : 'Median'}</Button>
                 </Form.Group>
                 <Form.Group
                     onClick={() => {

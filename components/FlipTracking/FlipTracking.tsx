@@ -159,7 +159,7 @@ export function FlipTracking(props: Props) {
                             style={{ marginRight: '5px' }}
                             loading="lazy"
                         />
-                        <span style={{ ...getStyleForTier(trackedFlip.item.tier), whiteSpace: 'nowrap' }}>{trackedFlip.item.name}</span>
+                        <span style={{whiteSpace: 'nowrap' }}>{getMinecraftColorCodedElement(trackedFlip.item.name)}</span>
                     </div>
                     {trackedFlip.profit > 0 ? (
                         <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>

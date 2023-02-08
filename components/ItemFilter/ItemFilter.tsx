@@ -221,7 +221,7 @@ function ItemFilter(props: Props) {
         let defaultValue: any = ''
         if (options && options.options[0] !== null && options.options[0] !== undefined) {
             // dont set the first option for search-selects
-            if (hasFlag(options.type, FilterType.EQUAL) || hasFlag(options.type, FilterType.BOOLEAN)) {
+            if ((hasFlag(options.type, FilterType.EQUAL) && hasFlag(options.type, FilterType.SIMPLE)) || hasFlag(options.type, FilterType.BOOLEAN)) {
                 defaultValue = options.options[0]
                 if (options.name === 'Everything') {
                     defaultValue = 'true'

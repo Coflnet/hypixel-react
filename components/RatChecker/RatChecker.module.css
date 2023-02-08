@@ -19,7 +19,7 @@
 .dNd:before{
     content: "";
     display: block;
-    padding-top: 100%;
+    padding-top: 20%;
 }
 .dNd-content{
     position:  absolute;
