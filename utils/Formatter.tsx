@@ -25,6 +25,11 @@ export function convertTagToName(itemTag?: string): string {
         return ''
     }
 
+    // special case for PET_SKIN to avoid confusion
+    if (itemTag === 'PET_SKIN') {
+        return 'Pet Skin (unapplied)'
+    }
+
     // words that should remain lowercase
     const exceptions = ['of', 'the']
 
