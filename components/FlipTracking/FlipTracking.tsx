@@ -6,14 +6,13 @@ import { useRouter } from 'next/router';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap';
 import { Item, Menu, theme, useContextMenu } from 'react-contexify';
-import { numberWithThousandsSeparators } from '../../utils/Formatter';
+import { getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter';
 import { useForceUpdate } from '../../utils/Hooks';
 import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils';
 import { isClientSideRendering } from '../../utils/SSRUtils';
 import { CopyButton } from '../CopyButton/CopyButton';
 import Tooltip from '../Tooltip/Tooltip';
 import styles from './FlipTracking.module.css';
-
 interface Props {
     totalProfit?: number
     trackedFlips?: FlipTrackingFlip[]
