@@ -38,7 +38,7 @@ function ModDetails() {
                             Download <DownloadIcon />
                         </Button>
                         <a href="https://github.com/coflnet/skyblockmod/">
-                            <img src="/github_icon.svg" alt="Github logo" width="38" height="38"/>
+                            <img src="/github_logo.png" alt="Github logo" width="38" height="38"/>
                         </a>
                     </div>
                 </Card.Body>
