@@ -8,15 +8,15 @@ import styles from './RatChecker.module.css'
 function RatChecker() {
     let [isChecking, setIsChecking] = useState(false)
     let [checkingResults, setCheckingResults] = useState<[string, RatCheckingResponse][]>(null)
-    let ratFileInput = useRef(null)
+    let ratFileInput = useRef<HTMLInputElement>(null)
 
-    function onFileUpload(e) {
+    function onFileUpload(files) {
         setIsChecking(true)
         let checkingPromises: Promise<[string, RatCheckingResponse]>[] = []
 
-        for (const file of e.target.files) {
+        for (const file of files) {
             checkingPromises.push(
-                new Promise((resolve, reject) => {
+                new Promise((resolve) => {
                     getFileHash(file).then(hash => {
                         api.checkRat(hash).then(result => resolve([file.name, result]))
                     })
@@ -31,7 +31,7 @@ function RatChecker() {
         })
     }
 
-    function getFileHash(file): Promise<string> {
+    function getFileHash(file : File): Promise<string> {
         return new Promise((resolve, reject) => {
             var blobSlice = File.prototype.slice || (File.prototype as any).mozSlice || (File.prototype as any).webkitSlice,
                 chunkSize = 2097152, // Read in chunks of 2MB
@@ -52,9 +52,7 @@ function RatChecker() {
                 }
             }
 
-            fileReader.onerror = function () {
-                console.warn('oops, something went wrong.')
-            }
+            fileReader.onerror = console.warn;
 
             function loadNext() {
                 var start = currentChunk * chunkSize,
@@ -112,9 +110,17 @@ function RatChecker() {
                 </Card.Header>
                 <Card.Body>
                     {!isChecking ? (
-                        <div>
+                        <div style={{display: "flex", alignItems: "center", flexDirection:"column"}}>
                             <p>Received a suspicious (or any other mod) that you want to check? Select it here and get quick results for known rats or legitimate mods (you can select multiple at once):</p>
-                            <Form.Control type="file" className={'form-control'} ref={ratFileInput} onChange={onFileUpload} multiple />
+                            <Form.Control type="file" className={'form-control'} style={{display: "none"}} ref={ratFileInput} onChange={(e)=>onFileUpload((e.target as HTMLInputElement).files)}multiple accept='.jar'/>
+                            <div className={styles.dNd} onClick={(e)=>ratFileInput.current?.click()} onDrop={(e)=>{
+                                onFileUpload(e.dataTransfer.files);
+                                e.preventDefault();
+                            }} onDragOver={(e)=>e.preventDefault()}>
+                                <div className={styles['dNd-content']}>
+                                    Drag and Drop Files or click to open file
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         getLoadingElement(<p>Checking file</p>)

@@ -1,24 +1,24 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Button, Form, Modal } from 'react-bootstrap'
+import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { googleLogout } from '@react-oauth/google'
 import Cookies from 'js-cookie'
+import { ChangeEvent, useEffect, useState } from 'react'
+import { Button, Form, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
+import { atobUnicode } from '../../utils/Base64Utils'
 import cacheUtils from '../../utils/CacheUtils'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
+import { useCoflCoins } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import NavBar from '../NavBar/NavBar'
-import Tooltip from '../Tooltip/Tooltip'
-import styles from './AccountDetails.module.css'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
-import { useCoflCoins } from '../../utils/Hooks'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
-import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
-import { atobUnicode } from '../../utils/Base64Utils'
-import PrivacySettings from './PrivacySettings/PrivacySettings'
-import { getHighestPriorityPremiumProduct, getPremiumType } from '../../utils/PremiumTypeUtils'
-import { googleLogout } from '@react-oauth/google'
 import PremiumStatus from '../Premium/PremiumStatus/PremiumStatus'
+import Tooltip from '../Tooltip/Tooltip'
+import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
+import styles from './AccountDetails.module.css'
+import PrivacySettings from './PrivacySettings/PrivacySettings'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -167,7 +167,7 @@ function AccountDetails() {
                     )}
                     <PremiumStatus products={products} labelStyle={{ width: '300px', fontWeight: 'bold' }} />
                     <p>
-                        <span className={styles.label}>CoflCoins:</span> {numberWithThousandsSeperators(coflCoins)}
+                        <span className={styles.label}>CoflCoins:</span> {numberWithThousandsSeparators(coflCoins)}
                         <Button
                             className={styles.sendCoflCoinsButton}
                             onClick={() => {

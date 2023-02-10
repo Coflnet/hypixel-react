@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import Search from '../../components/Search/Search'
-import { parseItem, parseItemPrice } from '../../utils/Parser/APIResponseParser'
-import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
-import api, { initAPI } from '../../api/ApiHelper'
-import { Container } from 'react-bootstrap'
 import { useRouter } from 'next/router'
-import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
+import { useEffect, useState } from 'react'
+import { Container } from 'react-bootstrap'
+import api, { initAPI } from '../../api/ApiHelper'
+import { DEFAULT_DATE_RANGE } from '../../components/ItemPriceRange/ItemPriceRange'
 import AuctionHousePriceGraph from '../../components/PriceGraph/AuctionHousePriceGraph/AuctionHousePriceGraph'
 import BazaarPriceGraph from '../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'
+import Search from '../../components/Search/Search'
 import { atobUnicode } from '../../utils/Base64Utils'
-import { parseItemFilter } from '../../utils/Parser/URLParser'
-import { DEFAULT_DATE_RANGE } from '../../components/ItemPriceRange/ItemPriceRange'
 import { getCacheControlHeader } from '../../utils/CacheUtils'
+import { convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { parseItem, parseItemPrice } from '../../utils/Parser/APIResponseParser'
+import { parseItemFilter } from '../../utils/Parser/URLParser'
+import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
 
 interface Props {
     item?: any
@@ -84,7 +84,7 @@ function ItemDetails(props: Props) {
         <div className="page">
             {getHeadElement(
                 `${getItem().name || convertTagToName(tag)} price`,
-                `💰 Price: ${avgPrice ? numberWithThousandsSeperators(Math.round(avgPrice)) : '---'} Coins
+                `💰 Price: ${avgPrice ? numberWithThousandsSeparators(Math.round(avgPrice)) : '---'} Coins
                 🕑 ${props.range ? `Range: ${props.range}` : null}
                 
                  ${filter ? `Filters: \n${getFiltersText()}` : ''}`,

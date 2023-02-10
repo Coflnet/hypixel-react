@@ -1,14 +1,13 @@
-import React, { useState } from 'react'
+import HelpIcon from '@mui/icons-material/Help'
+import { useState } from 'react'
 import { Button, Card } from 'react-bootstrap'
-import { getLoadingElement } from '../../utils/LoadingUtils'
-import api from '../../api/ApiHelper'
-import styles from './CoflCoinsPurchase.module.css'
-import Tooltip from '../Tooltip/Tooltip'
-import { Help as HelpIcon } from '@mui/icons-material'
-import { useCoflCoins } from '../../utils/Hooks'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { toast } from 'react-toastify'
-import Countdown from 'react-countdown'
+import api from '../../api/ApiHelper'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
+import { useCoflCoins } from '../../utils/Hooks'
+import { getLoadingElement } from '../../utils/LoadingUtils'
+import Tooltip from '../Tooltip/Tooltip'
+import styles from './CoflCoinsPurchase.module.css'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
@@ -105,7 +104,7 @@ function Payment(props: Props) {
                                             </p>
                                         ) : (
                                             <span>
-                                                {`${numberWithThousandsSeperators(getRoundedPrice(discount ? paypalPrice * discount : paypalPrice))} Euro`}
+                                                {`${numberWithThousandsSeparators(getRoundedPrice(discount ? paypalPrice * discount : paypalPrice))} Euro`}
                                                 {discount ? (
                                                     <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>
                                                         {Math.round((1 - discount) * 100)}% OFF
@@ -147,7 +146,7 @@ function Payment(props: Props) {
                                             </p>
                                         ) : (
                                             <span>
-                                                {`${numberWithThousandsSeperators(getRoundedPrice(discount ? stripePrice * discount : stripePrice))} Euro`}
+                                                {`${numberWithThousandsSeparators(getRoundedPrice(discount ? stripePrice * discount : stripePrice))} Euro`}
                                                 {discount ? (
                                                     <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>
                                                         {Math.round((1 - discount) * 100)}% OFF
@@ -178,16 +177,16 @@ function Payment(props: Props) {
         return (
             <Card className={styles.premiumPlanCard} style={{ width: '100%' }}>
                 <Card.Header>
-                    <Card.Title>{numberWithThousandsSeperators(coflCoinsToBuy)} CoflCoins</Card.Title>
+                    <Card.Title>{numberWithThousandsSeparators(coflCoinsToBuy)} CoflCoins</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     <p>
-                        We noticed that your CoflCoins are not a multiple of {numberWithThousandsSeperators(1800)} and therefore you would not be able to use
-                        all of them to buy premium. Here you can purchase {numberWithThousandsSeperators(coflCoinsToBuy)} CoflCoins to again be able to do that.
+                        We noticed that your CoflCoins are not a multiple of {numberWithThousandsSeparators(1800)} and therefore you would not be able to use
+                        all of them to buy premium. Here you can purchase {numberWithThousandsSeparators(coflCoinsToBuy)} CoflCoins to again be able to do that.
                     </p>
                     <p>
                         Due to the fees we have to pay to our payment providers we sadly can't provide purchases of less than{' '}
-                        {numberWithThousandsSeperators(1800)} CoflCoins at once.
+                        {numberWithThousandsSeparators(1800)} CoflCoins at once.
                     </p>
                     <hr />
                     <p className={styles.paymentOption}>
@@ -245,8 +244,8 @@ function Payment(props: Props) {
         <div>
             <div>
                 <div className={styles.productGrid}>
-                    {getPaymentElement(<span>{numberWithThousandsSeperators(1800)} CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
-                    {getPaymentElement(<span>{numberWithThousandsSeperators(5400)} CoflCoins </span>, 19.69, 's_cc_5400', 19.99, 'p_cc_5400')}
+                    {getPaymentElement(<span>{numberWithThousandsSeparators(1800)} CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
+                    {getPaymentElement(<span>{numberWithThousandsSeparators(5400)} CoflCoins </span>, 19.69, 's_cc_5400', 19.99, 'p_cc_5400')}
                     {!showAll ? (
                         <Button
                             style={{ width: '100%' }}
@@ -259,8 +258,8 @@ function Payment(props: Props) {
                     ) : null}
                     {showAll ? (
                         <>
-                            {getPaymentElement(<span>{numberWithThousandsSeperators(10800)} CoflCoins </span>, 38.99, 's_cc_10800', 39.69, 'p_cc_10800')}
-                            {getPaymentElement(<span>{numberWithThousandsSeperators(21600)} CoflCoins </span>, 74.99, 's_cc_21600', 78.69, 'p_cc_21600')}
+                            {getPaymentElement(<span>{numberWithThousandsSeparators(10800)} CoflCoins </span>, 38.99, 's_cc_10800', 39.69, 'p_cc_10800')}
+                            {getPaymentElement(<span>{numberWithThousandsSeparators(21600)} CoflCoins </span>, 74.99, 's_cc_21600', 78.69, 'p_cc_21600')}
                             {coflCoins % 1800 != 0 ? getNextTo1800PaymentElement() : null}
                         </>
                     ) : null}

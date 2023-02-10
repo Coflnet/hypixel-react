@@ -1,9 +1,9 @@
 import moment from 'moment'
-import React, { useEffect, useRef, useState } from 'react'
-import { Card, ListGroup, Table } from 'react-bootstrap'
+import { useEffect, useRef, useState } from 'react'
+import { Card, Table } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../../api/ApiTypes.d'
-import { numberWithThousandsSeperators } from '../../../../utils/Formatter'
+import { numberWithThousandsSeparators } from '../../../../utils/Formatter'
 import { useDebounce } from '../../../../utils/Hooks'
 import styles from './BazaarSnapshot.module.css'
 
@@ -60,11 +60,11 @@ function BazaarSnapshot(props: Props) {
             <div>
                 <p>
                     <span className={styles.label}>Orders:</span>
-                    {numberWithThousandsSeperators(data.orderCount)}
+                    {numberWithThousandsSeparators(data.orderCount)}
                 </p>
                 <p>
                     <span className={styles.label}>Price:</span>
-                    {numberWithThousandsSeperators(data.price)} Coins
+                    {numberWithThousandsSeparators(data.price)} Coins
                 </p>
                 <p>
                     <span className={styles.label}>Volume:</span>
@@ -72,7 +72,7 @@ function BazaarSnapshot(props: Props) {
                 </p>
                 <p>
                     <span className={styles.label}>Movement:</span>
-                    {numberWithThousandsSeperators(data.moving)} Coins
+                    {numberWithThousandsSeparators(data.moving)} Coins
                 </p>
             </div>
         )
@@ -91,7 +91,7 @@ function BazaarSnapshot(props: Props) {
                 <tbody>
                     {orders.map(order => (
                         <tr>
-                            <td>{numberWithThousandsSeperators(order.pricePerUnit)} Coins</td>
+                            <td>{numberWithThousandsSeparators(order.pricePerUnit)} Coins</td>
                             <td>{order.amount}</td>
                             <td>{order.orders}</td>
                         </tr>

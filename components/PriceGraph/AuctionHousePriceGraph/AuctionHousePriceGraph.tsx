@@ -1,18 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef, useState } from 'react'
-import api from '../../../api/ApiHelper'
-import graphConfig from './PriceGraphConfig'
-import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
-import { getLoadingElement } from '../../../utils/LoadingUtils'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
-import ShareButton from '../../ShareButton/ShareButton'
-import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
-import SubscribeButton from '../../SubscribeButton/SubscribeButton'
-import RecentAuctions from '../../RecentAuctions/RecentAuctions'
-import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
-import styles from './AuctionHousePriceGraph.module.css'
 import ReactECharts from 'echarts-for-react'
+import { useEffect, useRef, useState } from 'react'
+import api from '../../../api/ApiHelper'
+import { numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
+import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
+import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
+import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import RecentAuctions from '../../RecentAuctions/RecentAuctions'
+import ShareButton from '../../ShareButton/ShareButton'
+import SubscribeButton from '../../SubscribeButton/SubscribeButton'
+import styles from './AuctionHousePriceGraph.module.css'
+import graphConfig from './PriceGraphConfig'
 
 interface Props {
     item: Item
@@ -181,7 +181,7 @@ function AuctionHousePriceGraph(props: Props) {
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
-                        <b>Avg Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(avgPrice) + ' Coins'}
+                        <b>Avg Price:</b> {isLoading ? '-' : numberWithThousandsSeparators(avgPrice) + ' Coins'}
                     </span>
                     <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
                         <SubscribeButton type="item" topic={props.item.tag} />

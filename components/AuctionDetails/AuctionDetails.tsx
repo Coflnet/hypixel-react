@@ -1,28 +1,27 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useState } from 'react'
-import Countdown from 'react-countdown'
-import api from '../../api/ApiHelper'
+import HelpIcon from '@mui/icons-material/Help'
+import moment from 'moment'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { Badge, Button, Card, ListGroup, Modal, OverlayTrigger, Tooltip as TooltipBootstrap } from 'react-bootstrap'
+import Countdown from 'react-countdown'
+import { toast } from 'react-toastify'
+import { v4 as generateUUID } from 'uuid'
+import api from '../../api/ApiHelper'
 import {
-    getStyleForTier,
-    numberWithThousandsSeperators,
     convertTagToName,
     formatDungeonStarsInString as getDungeonStarFormattedItemName,
-    getMinecraftColorCodedElement
+    getMinecraftColorCodedElement, getStyleForTier,
+    numberWithThousandsSeparators
 } from '../../utils/Formatter'
-import { getLoadingElement } from '../../utils/LoadingUtils'
 import { useForceUpdate } from '../../utils/Hooks'
-import moment from 'moment'
-import SubscribeButton from '../SubscribeButton/SubscribeButton'
-import { CopyButton } from '../CopyButton/CopyButton'
-import { toast } from 'react-toastify'
-import Tooltip from '../Tooltip/Tooltip'
-import Link from 'next/link'
-import styles from './AuctionDetails.module.css'
+import { getLoadingElement } from '../../utils/LoadingUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import { CopyButton } from '../CopyButton/CopyButton'
 import FlipBased from '../Flipper/FlipBased/FlipBased'
-import { Help as HelpIcon } from '@mui/icons-material'
-import { v4 as generateUUID } from 'uuid'
+import SubscribeButton from '../SubscribeButton/SubscribeButton'
+import Tooltip from '../Tooltip/Tooltip'
+import styles from './AuctionDetails.module.css'
 
 interface Props {
     auctionUUID: string
@@ -38,7 +37,7 @@ function AuctionDetails(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if (!props.auctionUUID || props.auctionDetails) {
+        if (!props.auctionUUID || !props.auctionDetails) {
             return
         }
         loadAuctionDetails(props.auctionUUID!)
@@ -106,10 +105,6 @@ function AuctionDetails(props: Props) {
             return moment(auctionDetails.bids[0].timestamp).format('MMMM Do YYYY, h:mm:ss a')
         }
         return moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')
-    }
-
-    let onAucitonEnd = () => {
-        forceUpdate()
     }
 
     function getNBTElement(): JSX.Element {
@@ -191,7 +186,7 @@ function AuctionDetails(props: Props) {
         }
 
         if (!isNaN(value) && Number.isInteger(parseInt(value, 10))) {
-            return numberWithThousandsSeperators(value)
+            return numberWithThousandsSeparators(value)
         }
 
         let index = tagNbt.findIndex(tag => tag === key)
@@ -262,7 +257,7 @@ function AuctionDetails(props: Props) {
                             <div>
                                 {isRunning(auctionDetails) ? (
                                     <span>
-                                        End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : '-'}
+                                        End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={forceUpdate} /> : '-'}
                                     </span>
                                 ) : (
                                     <span>
@@ -412,7 +407,7 @@ function AuctionDetails(props: Props) {
                                     style={{ marginRight: '15px', float: 'left' }}
                                     loading="lazy"
                                 />
-                                <h6 style={headingStyle}>{numberWithThousandsSeperators(bid.amount)} Coins</h6>
+                                <h6 style={headingStyle}>{numberWithThousandsSeparators(bid.amount)} Coins</h6>
                                 <span>{bid.bidder.name}</span>
                                 <br />
                                 <span>{moment(bid.timestamp).fromNow()}</span>
@@ -444,7 +439,7 @@ function AuctionDetails(props: Props) {
                         <Card className={styles.auctionCard}>
                             <Card.Header>
                                 <h2>Bids</h2>
-                                {auctionDetails ? <h6>Starting bid: {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ''}
+                                {auctionDetails ? <h6>Starting bid: {numberWithThousandsSeparators(auctionDetails?.auction.startingBid)} Coins</h6> : ''}
                             </Card.Header>
                             <Card.Body>
                                 <ListGroup>{bidList || getLoadingElement()}</ListGroup>

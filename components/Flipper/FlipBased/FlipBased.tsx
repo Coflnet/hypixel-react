@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { Card, Badge } from 'react-bootstrap'
 import moment from 'moment'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
-import api from '../../../api/ApiHelper'
-import { getLoadingElement } from '../../../utils/LoadingUtils'
-import { useForceUpdate } from '../../../utils/Hooks'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { Badge, Card } from 'react-bootstrap'
+import api from '../../../api/ApiHelper'
+import { numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { useForceUpdate } from '../../../utils/Hooks'
+import { getLoadingElement } from '../../../utils/LoadingUtils'
 import styles from './FlipBased.module.css'
 
 interface Props {
@@ -61,7 +61,7 @@ function FlipBased(props: Props) {
                                     <div>
                                         <ul>
                                             <li>Ended {moment(auction.end).fromNow()}</li>
-                                            <li>{numberWithThousandsSeperators(auction.highestBid || auction.startingBid)} Coins</li>
+                                            <li>{numberWithThousandsSeparators(auction.highestBid || auction.startingBid)} Coins</li>
                                             {auction.bin ? (
                                                 <li>
                                                     <Badge style={{ marginLeft: '5px' }} variant="success">

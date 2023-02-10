@@ -1,11 +1,11 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import moment from 'moment'
 import Link from 'next/link'
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useStateWithRef } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -138,7 +138,7 @@ function ActiveAuctions(props: Props) {
                                             style={{ marginRight: '5px' }}
                                             loading="lazy"
                                         />
-                                        <span style={{ padding: '2px', textAlign: 'center' }}>{numberWithThousandsSeperators(activeAuction.price)} Coins</span>
+                                        <span style={{ padding: '2px', textAlign: 'center' }}>{numberWithThousandsSeparators(activeAuction.price)} Coins</span>
                                         <div onClick={e => e.preventDefault()}>
                                             <CopyButton
                                                 buttonVariant="primary"

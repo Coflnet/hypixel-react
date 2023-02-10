@@ -1,30 +1,34 @@
-import React, { useEffect, useRef, useState } from 'react'
-import api from '../../api/ApiHelper'
-import { Button, Card, Form, Modal } from 'react-bootstrap'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import FlipperFilter from './FlipperFilter/FlipperFilter'
-import { getLoadingElement } from '../../utils/LoadingUtils'
-import { KeyboardTab as ArrowRightIcon, Delete as DeleteIcon, Help as HelpIcon, PanTool as HandIcon, Search as SearchIcon } from '@mui/icons-material'
-import FlipBased from './FlipBased/FlipBased'
-import { CopyButton } from '../CopyButton/CopyButton'
-import { FixedSizeList as List } from 'react-window'
-import Tooltip from '../Tooltip/Tooltip'
-import Flip from './Flip/Flip'
-import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
-import { Menu, Item, useContextMenu, theme } from 'react-contexify'
-import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting, setSettingsChangedData } from '../../utils/SettingsUtils'
-import Countdown, { zeroPad } from 'react-countdown'
-import styles from './Flipper.module.css'
+import DeleteIcon from '@mui/icons-material/Delete'
+import HelpIcon from '@mui/icons-material/Help'
+import ArrowRightIcon from '@mui/icons-material/KeyboardTab'
+import HandIcon from '@mui/icons-material/PanTool'
+import SearchIcon from '@mui/icons-material/Search'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useEffect, useRef, useState } from 'react'
+import { Button, Card, Form, Modal } from 'react-bootstrap'
+import { Item, Menu, theme, useContextMenu } from 'react-contexify'
+import Countdown, { zeroPad } from 'react-countdown'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import AuctionDetails from '../AuctionDetails/AuctionDetails'
+import { FixedSizeList as List } from 'react-window'
 import { v4 as generateUUID } from 'uuid'
+import api from '../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
+import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils'
+import AuctionDetails from '../AuctionDetails/AuctionDetails'
+import { CopyButton } from '../CopyButton/CopyButton'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import Tooltip from '../Tooltip/Tooltip'
+import Flip from './Flip/Flip'
+import FlipBased from './FlipBased/FlipBased'
+import styles from './Flipper.module.css'
 import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
+import FlipperFilter from './FlipperFilter/FlipperFilter'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -48,8 +52,8 @@ function Flipper(props: Props) {
     let [flips, setFlips] = useState<FlipAuction[]>(
         props.flips
             ? props.flips.filter(flip => {
-                  return flipperFilter.onlyUnsold ? !flip.sold : true
-              })
+                return flipperFilter.onlyUnsold ? !flip.sold : true
+            })
             : []
     )
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -173,7 +177,7 @@ function Flipper(props: Props) {
 
     function onArrowRightClick() {
         if (listRef && listRef.current) {
-            ;(listRef!.current! as any).scrollToItem(flips?.length - 1)
+            ; (listRef!.current! as any).scrollToItem(flips?.length - 1)
         }
     }
 
@@ -319,7 +323,7 @@ function Flipper(props: Props) {
 
             setTimeout(() => {
                 if (listRef && listRef.current) {
-                    ;(listRef!.current! as any).scrollToItem(flips.length - 1)
+                    ; (listRef!.current! as any).scrollToItem(flips.length - 1)
                 }
             })
         })
@@ -411,27 +415,16 @@ function Flipper(props: Props) {
         }
         if (hasPremium) {
             let type = getPremiumType(activePremiumProduct)
-            if (type.priority === PREMIUM_RANK.STARTER) {
-                return (
-                    <span>
-                        You are using <Link href="/premium">starter premium</Link>.
-                    </span>
-                )
-            }
-            if (type.priority === PREMIUM_RANK.PREMIUM) {
-                return (
-                    <span>
-                        You are using <Link href="/premium">premium</Link>.
-                    </span>
-                )
-            }
-            if (type.priority === PREMIUM_RANK.PREMIUM_PLUS) {
-                return (
-                    <span>
-                        You are using <Link href="/premium">premium+</Link>.
-                    </span>
-                )
-            }
+            return (
+                <span>
+                    You are using <Link href="/premium">{{
+                        1: "Starter Premium",
+                        2: "Premium",
+                        3: "Premium+"
+                    }[type.priority]}</Link>
+                </span>
+            )
+
         }
         return (
             <span>
@@ -484,48 +477,7 @@ function Flipper(props: Props) {
         </div>
     )
 
-    let resetSettingsElement = (
-        <span>
-            Reset Flipper settings back to default
-            <Button
-                style={{ marginLeft: '5px' }}
-                onClick={() => {
-                    setShowResetToDefaultDialog(true)
-                }}
-            >
-                Reset
-            </Button>
-            <Modal
-                show={showResetToDefaultDialog}
-                onHide={() => {
-                    setShowResetToDefaultDialog(false)
-                }}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirmation</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p>Are you sure you want to reset all the flipper settings?</p>
-                    <p>
-                        <b>This will delete all your filter, settings and black-/whitelist.</b>
-                    </p>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Button variant="danger" style={{ width: '45%' }} onClick={resetSettingsToDefault}>
-                            RESET <DeleteIcon />
-                        </Button>
-                        <Button
-                            style={{ width: '45%' }}
-                            onClick={() => {
-                                setShowResetToDefaultDialog(false)
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                    </div>
-                </Modal.Body>
-            </Modal>
-        </span>
-    )
+
 
     return (
         <div className={styles.flipper}>
@@ -561,11 +513,47 @@ function Flipper(props: Props) {
                                 />
                             </Form.Group>
                             <Form.Group>
-                                <div style={{ display: 'contents', cursor: 'pointer', marginRight: '10px' }} onClick={clearFlips}>
-                                    <Form.Label>Clear flips!</Form.Label>
-                                    <DeleteIcon color="error" />
-                                </div>
+                                <Button style={{cursor: 'pointer', marginRight: '10px', backgroundColor: "red" }} onClick={clearFlips}>
+                                    Clear flips! <DeleteIcon />
+                                </Button>
                             </Form.Group>
+                            <Form.Group>
+                                <Button
+                                    onClick={() => {
+                                        setShowResetToDefaultDialog(true)
+                                    }}
+                                >
+                                    Reset Settings
+                                </Button>
+                                <Modal
+                                    show={showResetToDefaultDialog}
+                                    onHide={() => {
+                                        setShowResetToDefaultDialog(false)
+                                    }}
+                                >
+                                    <Modal.Header closeButton>
+                                        <Modal.Title>Confirmation</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <p>Are you sure you want to reset all the flipper settings?</p>
+                                        <p>
+                                            <b>This will delete all your filter, settings and black-/whitelist.</b>
+                                        </p>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Button variant="danger" style={{ width: '45%' }} onClick={resetSettingsToDefault}>
+                                                RESET <DeleteIcon />
+                                            </Button>
+                                            <Button
+                                                style={{ width: '45%' }}
+                                                onClick={() => {
+                                                    setShowResetToDefaultDialog(false)
+                                                }}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
+                                    </Modal.Body>
+                                </Modal></Form.Group>
                             {hasPremium ? (
                                 <Tooltip
                                     type="hover"
@@ -654,7 +642,6 @@ function Flipper(props: Props) {
                             <hr />
                         </div>
                     )}
-                    {resetSettingsElement}
                 </Card.Footer>
             </Card>
             {selectedAuctionUUID ? (
@@ -662,7 +649,7 @@ function Flipper(props: Props) {
                     <hr />
                     <Card className="card">
                         <Card.Header>
-                            <Card.Title>Auction-Details</Card.Title>
+                            <Card.Title>Auction Details</Card.Title>
                         </Card.Header>
                         <Card.Body>
                             <AuctionDetails auctionUUID={selectedAuctionUUID} retryCounter={5} />
@@ -676,7 +663,7 @@ function Flipper(props: Props) {
                 <hr />
                 <Card>
                     <Card.Header>
-                        <Card.Title>Flipper summary</Card.Title>
+                        <Card.Title>Flipper Summary</Card.Title>
                     </Card.Header>
                     <Card.Body>
                         <div className={styles.flipperSummaryWrapper}>
@@ -686,8 +673,8 @@ function Flipper(props: Props) {
                                 </Card.Header>
                                 <Card.Body>
                                     <ul>
-                                        <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
-                                        <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                        <li>Total flips received: {numberWithThousandsSeparators(missedInfo.totalFlips)}</li>
+                                        <li>Profit of copied flips: {numberWithThousandsSeparators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
                                     </ul>
                                 </Card.Body>
                             </Card>
@@ -700,7 +687,7 @@ function Flipper(props: Props) {
                                         <ul>
                                             <li>
                                                 <span style={{ marginRight: '10px' }}>
-                                                    Missed Profit: {numberWithThousandsSeperators(missedInfo.missedEstimatedProfit)} Coins
+                                                    Missed Profit: {numberWithThousandsSeparators(missedInfo.missedEstimatedProfit)} Coins
                                                 </span>
                                                 <Tooltip
                                                     type="hover"
@@ -713,7 +700,7 @@ function Flipper(props: Props) {
                                                     }
                                                 />
                                             </li>
-                                            <li>Missed Flips: {numberWithThousandsSeperators(missedInfo.missedFlipsCount)}</li>
+                                            <li>Missed Flips: {numberWithThousandsSeparators(missedInfo.missedFlipsCount)}</li>
                                         </ul>
                                     </Card.Body>
                                 </Card>
@@ -730,7 +717,7 @@ function Flipper(props: Props) {
                                     <Card.Body>
                                         <p>
                                             Get free premium time by inviting other people to our website. For further information check out our{' '}
-                                            <Link href="/ref">Referral-Program</Link>.
+                                            <Link href="/ref">Referral Program</Link>.
                                         </p>
                                         <p>
                                             Your Link to invite people:{' '}
@@ -739,7 +726,7 @@ function Flipper(props: Props) {
                                             </span>{' '}
                                             <CopyButton
                                                 copyValue={!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.oldInfo.refId : ''}
-                                                successMessage={<span>Copied Ref-Link</span>}
+                                                successMessage={<span>Copied Referral Link</span>}
                                             />
                                         </p>
                                     </Card.Body>

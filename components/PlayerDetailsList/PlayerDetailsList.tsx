@@ -1,21 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react'
+import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
+import HelpIcon from '@mui/icons-material/Help'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, ListGroup } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
-import { getLoadingElement } from '../../utils/LoadingUtils'
-import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
+import { convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
-import SubscribeButton from '../SubscribeButton/SubscribeButton'
-import { ArrowUpward as ArrowUpIcon, Help as HelpIcon } from '@mui/icons-material'
-import { CopyButton } from '../CopyButton/CopyButton'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import styles from './PlayerDetailsList.module.css'
-import Search from '../Search/Search'
-import ItemFilter from '../ItemFilter/ItemFilter'
+import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import ItemFilter from '../ItemFilter/ItemFilter'
+import Search from '../Search/Search'
+import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import Tooltip from '../Tooltip/Tooltip'
+import styles from './PlayerDetailsList.module.css'
 
 interface Props {
     player: Player
@@ -298,15 +299,15 @@ function PlayerDetailsList(props: Props) {
                                     )}
                                 </h4>
                                 <p>
-                                    Highest Bid: {numberWithThousandsSeperators(listElement.highestBid)} {getCoinImage()}
+                                    Highest Bid: {numberWithThousandsSeparators(listElement.highestBid)} {getCoinImage()}
                                 </p>
                                 {props.type === 'auctions' ? (
                                     <p>
-                                        Starting Bid: {numberWithThousandsSeperators((listElement as Auction).startingBid)} {getCoinImage()}
+                                        Starting Bid: {numberWithThousandsSeparators((listElement as Auction).startingBid)} {getCoinImage()}
                                     </p>
                                 ) : (
                                     <p>
-                                        Highest Own: {numberWithThousandsSeperators((listElement as BidForList).highestOwn)} {getCoinImage()}
+                                        Highest Own: {numberWithThousandsSeparators((listElement as BidForList).highestOwn)} {getCoinImage()}
                                     </p>
                                 )}
                                 <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>

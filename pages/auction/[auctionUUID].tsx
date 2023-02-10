@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react'
-import AuctionDetails from '../../components/AuctionDetails/AuctionDetails'
-import { useForceUpdate } from '../../utils/Hooks'
-import { Container } from 'react-bootstrap'
-import Search from '../../components/Search/Search'
+import moment from 'moment'
 import { useRouter } from 'next/router'
-import api, { initAPI } from '../../api/ApiHelper'
+import { useEffect, useState } from 'react'
+import { Container } from 'react-bootstrap'
+import { initAPI } from '../../api/ApiHelper'
+import AuctionDetails from '../../components/AuctionDetails/AuctionDetails'
+import Search from '../../components/Search/Search'
+import { getCacheControlHeader } from '../../utils/CacheUtils'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
+import { useForceUpdate } from '../../utils/Hooks'
 import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../utils/SSRUtils'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
-import moment from 'moment'
-import { ConstructionOutlined, RttTwoTone } from '@mui/icons-material'
-import { getCacheControlHeader } from '../../utils/CacheUtils'
 
 interface Props {
     auctionDetails: any
@@ -20,7 +19,7 @@ function AuctionDetailsPage(props: Props) {
     const router = useRouter()
     let auctionUUID = router.query.auctionUUID as string
     let forceUpdate = useForceUpdate()
-    let [auctionDetails, setAuctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
+    let [auctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -54,17 +53,12 @@ function AuctionDetailsPage(props: Props) {
         }
         description += `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, "")} by ${auctionDetails?.auctioneer?.name}`
         if (!auctionDetails.auction.bin) {
-            description += `| Highest Bid: ${numberWithThousandsSeperators(auctionDetails.auction.highestBid)} Coins with ${auctionDetails.bids.length} Bids`
+            description += `| Highest Bid: ${numberWithThousandsSeparators(auctionDetails.auction.highestBid)} Coins with ${auctionDetails.bids.length} Bids`
         } else if (auctionDetails.bids.length > 0) {
-            description += `| Bought by ${auctionDetails.bids[0].bidder.name} for  ${numberWithThousandsSeperators(auctionDetails.auction.highestBid)} Coins`
+            description += `| Bought by ${auctionDetails.bids[0].bidder.name} for  ${numberWithThousandsSeparators(auctionDetails.auction.highestBid)} Coins`
         }
-
-        if (auctionDetails.auction.end > new Date()) {
-            description += ` | Ends on ${moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')}`
-        } else {
-            description += ` | Ended on ${moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')}`
-        }
-
+        
+        description += ` | ${auctionDetails.auction.end > new Date() ? 'Ends' : 'Ended'} on ${moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')}`
         return (description += ` | Category: ${auctionDetails.auction.item.category} | Rarity: ${auctionDetails.auction.item.tier}`)
     }
 
@@ -97,7 +91,7 @@ export const getServerSideProps = async ({ res, params }) => {
         auctionDetails = await api.getAuctionDetails(auctionUUID)
     } catch (e) {
         console.log('ERROR: ' + JSON.stringify(e))
-        console.log('------------------------')
+        console.log('------------------------\n')
         return {
             notFound: true
         }
@@ -105,7 +99,7 @@ export const getServerSideProps = async ({ res, params }) => {
 
     if (!auctionDetails) {
         console.log('auctionDetails not found (auctionUUID=' + auctionUUID + ')')
-        console.log('------------------------')
+        console.log('------------------------\n')
         return {
             notFound: true
         }
@@ -137,7 +131,7 @@ export const getServerSideProps = async ({ res, params }) => {
                     }
                     bid.bidder = newBidder
                     console.log(`No username for player ${bid.bidder}`)
-                    console.log('------------------------')
+                    console.log('------------------------\n')
                 })
             namePromises.push(promise)
         })
@@ -156,12 +150,12 @@ export const getServerSideProps = async ({ res, params }) => {
                         uuid: auctionDetails.auctioneerId
                     }
                     console.log(`No username for player ${auctionDetails.auctioneerId}`)
-                    console.log('------------------------')
+                    console.log('------------------------\n')
                 })
         )
     } catch (e) {
         console.log('ERROR: ' + JSON.stringify(e))
-        console.log('------------------------')
+        console.log('------------------------\n')
     }
 
     await Promise.allSettled(namePromises)

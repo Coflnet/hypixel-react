@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useState } from 'react'
+import RemoveIcon from '@mui/icons-material/Remove'
+import { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
-import { camelCaseToSentenceCase, convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
+import { camelCaseToSentenceCase, convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
-import { Remove as RemoveIcon } from '@mui/icons-material'
 
 interface Props {
     filter?: ItemFilter
@@ -82,10 +82,10 @@ function ItemFilterPropertiesDisplay(props: Props) {
                         if (number.indexOf('-') !== -1) {
                             display = number
                                 .split('-')
-                                .map(numberString => numberWithThousandsSeperators(Number(numberString)))
+                                .map(numberString => numberWithThousandsSeparators(Number(numberString)))
                                 .join('-')
                         } else {
-                            display = numberWithThousandsSeperators(Number(number))
+                            display = numberWithThousandsSeparators(Number(number))
                         }
                         display = symbols ? symbols[0] + display : display
                     }

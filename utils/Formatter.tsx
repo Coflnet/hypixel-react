@@ -2,16 +2,16 @@ import React, { CSSProperties } from 'react'
 import { isClientSideRendering } from './SSRUtils'
 
 /*
- Returns a given number as string with thousands-seperators. Example:
+ Returns a given number as string with thousands-separators. Example:
  1234567 => 1.234.567
 */
-export function numberWithThousandsSeperators(number?: number): string {
+export function numberWithThousandsSeparators(number?: number): string {
     if (!number) {
         return '0'
     }
     var parts = number.toString().split('.')
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeperator())
-    return parts.join(getDecimalSeperator())
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeparator())
+    return parts.join(getDecimalSeparator())
 }
 
 /**
@@ -157,7 +157,7 @@ export function formatToPriceToShorten(num: number, decimals: number = 0): strin
     return checkPreviousNegativeSymbol(num.toFixed(0))
 }
 
-export function getThousandSeperator() {
+export function getThousandSeparator() {
     let langTag = isClientSideRendering() ? navigator.language : 'en'
     if (langTag.startsWith('en')) {
         return ','
@@ -166,7 +166,7 @@ export function getThousandSeperator() {
     }
 }
 
-export function getDecimalSeperator() {
+export function getDecimalSeparator() {
     let langTag = isClientSideRendering() ? navigator.language : 'en'
     if (langTag.startsWith('en')) {
         return '.'
@@ -222,7 +222,7 @@ export function formatAsCoins(number: number): string {
             return ''
         }
     }
-    return `${numberWithThousandsSeperators(number)} Coins`
+    return `${numberWithThousandsSeparators(number)} Coins`
 }
 export function formatDungeonStarsInString(stringWithStars: string, style: CSSProperties = {}, dungeonItemLevelString?: string): JSX.Element {
     let yellowStarStyle = { color: 'yellow', fontWeight: 'normal', height: '100%' }
@@ -284,22 +284,22 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
 
 export function getMinecraftColorCodedElement(text: string, autoFormat = true): JSX.Element {
     let styleMap: { [key: string]: React.CSSProperties } = {
-        '4': { fontWeight: 'normal', textDecoration: 'none', color: '#be0000' },
-        c: { fontWeight: 'normal', textDecoration: 'none', color: '#fe3f3f' },
-        '6': { fontWeight: 'normal', textDecoration: 'none', color: '#d9a334' },
-        e: { fontWeight: 'normal', textDecoration: 'none', color: '#fefe3f' },
-        '2': { fontWeight: 'normal', textDecoration: 'none', color: '#00be00' },
-        a: { fontWeight: 'normal', textDecoration: 'none', color: '#3ffe3f' },
-        b: { fontWeight: 'normal', textDecoration: 'none', color: '#3ffefe' },
-        '3': { fontWeight: 'normal', textDecoration: 'none', color: '#00bebe' },
-        '1': { fontWeight: 'normal', textDecoration: 'none', color: '#0000be' },
-        '9': { fontWeight: 'normal', textDecoration: 'none', color: '#3f3ffe' },
-        d: { fontWeight: 'normal', textDecoration: 'none', color: '#fe3ffe' },
-        '5': { fontWeight: 'normal', textDecoration: 'none', color: '#be00be' },
-        f: { fontWeight: 'normal', textDecoration: 'none', color: '#ffffff' },
-        '7': { fontWeight: 'normal', textDecoration: 'none', color: '#bebebe' },
-        '8': { fontWeight: 'normal', textDecoration: 'none', color: '#3f3f3f' },
         '0': { fontWeight: 'normal', textDecoration: 'none', color: '#000000' },
+        '1': { fontWeight: 'normal', textDecoration: 'none', color: '#0000aa' },
+        '2': { fontWeight: 'normal', textDecoration: 'none', color: '#00aa00' },
+        '3': { fontWeight: 'normal', textDecoration: 'none', color: '#00aaaa' },
+        '4': { fontWeight: 'normal', textDecoration: 'none', color: '#aa0000' },
+        '5': { fontWeight: 'normal', textDecoration: 'none', color: '#aa00aa' },
+        '6': { fontWeight: 'normal', textDecoration: 'none', color: '#ffaa00' },
+        '7': { fontWeight: 'normal', textDecoration: 'none', color: '#aaaaaa' },
+        '8': { fontWeight: 'normal', textDecoration: 'none', color: '#555555' },
+        '9': { fontWeight: 'normal', textDecoration: 'none', color: '#5555ff' },
+        a: { fontWeight: 'normal', textDecoration: 'none', color: '#55ff55' },
+        b: { fontWeight: 'normal', textDecoration: 'none', color: '#55ffff' },
+        c: { fontWeight: 'normal', textDecoration: 'none', color: '#FF5555' },
+        d: { fontWeight: 'normal', textDecoration: 'none', color: '#FF55FF' },
+        e: { fontWeight: 'normal', textDecoration: 'none', color: '#FFFF55' },
+        f: { fontWeight: 'normal', textDecoration: 'none', color: '#FFFFFF' },
         l: { fontWeight: 'bold' },
         n: { textDecorationLine: 'underline', textDecorationSkip: 'spaces' },
         o: { fontStyle: 'italic' },
@@ -327,3 +327,4 @@ export function getMinecraftColorCodedElement(text: string, autoFormat = true): 
 export function removeMinecraftColorCoding(text: string): string {
     return text.replace(/§[0-9a-fk-or]/gi, '')
 }
+

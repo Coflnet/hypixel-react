@@ -4,7 +4,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser'
 import FilterElement from '../FilterElement/FilterElement'
-import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@mui/icons-material'
+import DeleteIcon from '@mui/icons-material/Delete'
+import HelpIcon from '@mui/icons-material/Help'
+import AddIcon from '@mui/icons-material/AddCircleOutline'
+
 import { camelCaseToSentenceCase } from '../../utils/Formatter'
 import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead } from 'react-bootstrap-typeahead'
@@ -46,9 +49,7 @@ function ItemFilter(props: Props) {
         if (props.ignoreURL && !props.defaultFilter) {
             return
         }
-        itemFilter = props.defaultFilter
-            ? JSON.parse(JSON.stringify(props.defaultFilter))
-            : getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)
+        itemFilter = props.defaultFilter ? JSON.parse(JSON.stringify(props.defaultFilter)) : getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
@@ -268,7 +269,7 @@ function ItemFilter(props: Props) {
                     }}
                 >
                     <Modal.Header closeButton>
-                        <h4>Item-Filter Information</h4>
+                        <h4>Item Filter Information</h4>
                     </Modal.Header>
                     <Modal.Body>
                         <p>

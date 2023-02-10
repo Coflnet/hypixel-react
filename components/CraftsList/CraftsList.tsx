@@ -1,13 +1,13 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
-import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSeperators } from '../../utils/Formatter'
-import Tooltip from '../Tooltip/Tooltip'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
-import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 
 interface Props {
     crafts?: ProfitableCraft[]
@@ -27,17 +27,17 @@ const SORT_OPTIONS: SortOption[] = [
         sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
     },
     {
-        label: 'Sell-Price',
+        label: 'Sell Price',
         value: 'sellPrice',
         sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - a.sellPrice)
     },
     {
-        label: 'Craft-Cost',
+        label: 'Craft Cost',
         value: 'craftCost',
         sortFunction: crafts => crafts.sort((a, b) => b.craftCost - a.craftCost)
     },
     {
-        label: 'Instant-Sell (Bazaar)',
+        label: 'Instant Sell (Bazaar)',
         value: 'bazaarCrafts',
         sortFunction: (crafts, bazaarTags) =>
             crafts
@@ -189,18 +189,18 @@ export function CraftsList(props: Props) {
                 <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
                     <h4>{getCraftHeader(craft)}</h4>
                     <p>
-                        <span className={styles.label}>Crafting-Cost:</span> {numberWithThousandsSeperators(Math.round(craft.craftCost))} Coins
+                        <span className={styles.label}>Crafting Cost:</span> {numberWithThousandsSeparators(Math.round(craft.craftCost))} Coins
                     </p>
                     <p>
-                        <span className={styles.label}>Sell-Price:</span> {numberWithThousandsSeperators(Math.round(craft.sellPrice))} Coins
+                        <span className={styles.label}>Sell Price:</span> {numberWithThousandsSeparators(Math.round(craft.sellPrice))} Coins
                     </p>
                     <p>
                         <span className={styles.label}>Median:</span>{' '}
-                        {craft.median > 0 ? `${numberWithThousandsSeperators(Math.round(craft.median))} Coins` : 'unknown'}
+                        {craft.median > 0 ? `${numberWithThousandsSeparators(Math.round(craft.median))} Coins` : 'unknown'}
                     </p>
                     <p>
                         <span className={styles.label}>Volume:</span>{' '}
-                        {craft.volume > 0 ? `${numberWithThousandsSeperators(Math.round(craft.volume))}` : 'unknown'}
+                        {craft.volume > 0 ? `${numberWithThousandsSeparators(Math.round(craft.volume))}` : 'unknown'}
                     </p>
                     {craft.requiredCollection ? (
                         <p className={styles.craftRequirement}>
@@ -310,9 +310,9 @@ export function CraftsList(props: Props) {
                 ) : (
                     <div>
                         {!isLoggedIn ? (
-                            <p>To use the the profile filter please login with Google and {connectMinecraftTooltip}:</p>
+                            <p>To use the the profile filter, please login with Google and {connectMinecraftTooltip}:</p>
                         ) : !accountInfo?.mcId ? (
-                            <p>To use the the profile filter please {connectMinecraftTooltip}</p>
+                            <p>To use the the profile filter, please {connectMinecraftTooltip}</p>
                         ) : (
                             ''
                         )}

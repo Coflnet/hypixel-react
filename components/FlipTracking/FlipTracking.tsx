@@ -1,17 +1,18 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
-import { ArrowRightAlt as ArrowRightIcon, ArrowDownward as ArrowDownIcon, Dangerous as DangerousIcon } from '@mui/icons-material'
-import { getMinecraftColorCodedElement, getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
-import styles from './FlipTracking.module.css'
-import { useRouter } from 'next/router'
-import { CopyButton } from '../CopyButton/CopyButton'
-import { isClientSideRendering } from '../../utils/SSRUtils'
-import Tooltip from '../Tooltip/Tooltip'
-import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
-import { Item, Menu, theme, useContextMenu } from 'react-contexify'
-import { useForceUpdate } from '../../utils/Hooks'
-import moment from 'moment'
-
+import ArrowDownIcon from '@mui/icons-material/ArrowDownward';
+import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt';
+import DangerousIcon from '@mui/icons-material/Dangerous';
+import moment from 'moment';
+import { useRouter } from 'next/router';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap';
+import { Item, Menu, theme, useContextMenu } from 'react-contexify';
+import { getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter';
+import { useForceUpdate } from '../../utils/Hooks';
+import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils';
+import { isClientSideRendering } from '../../utils/SSRUtils';
+import { CopyButton } from '../CopyButton/CopyButton';
+import Tooltip from '../Tooltip/Tooltip';
+import styles from './FlipTracking.module.css';
 interface Props {
     totalProfit?: number
     trackedFlips?: FlipTrackingFlip[]
@@ -161,10 +162,10 @@ export function FlipTracking(props: Props) {
                     </div>
                     {trackedFlip.profit > 0 ? (
                         <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
-                            +{numberWithThousandsSeperators(trackedFlip.profit)} Coins
+                            +{numberWithThousandsSeparators(trackedFlip.profit)} Coins
                         </span>
                     ) : (
-                        <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>{numberWithThousandsSeperators(trackedFlip.profit)} Coins</span>
+                        <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>{numberWithThousandsSeparators(trackedFlip.profit)} Coins</span>
                     )}
                 </h1>
                 <hr />
@@ -172,7 +173,7 @@ export function FlipTracking(props: Props) {
                     <Card className={styles.profitNumberCard}>
                         <a href={`/auction/${trackedFlip.originAuction}`} target={'_blank'} className="disableLinkStyle">
                             <Card.Header className={styles.profitNumberHeader}>
-                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.pricePaid)} Coins</Card.Title>
+                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeparators(trackedFlip.pricePaid)} Coins</Card.Title>
                             </Card.Header>
                         </a>
                     </Card>
@@ -180,7 +181,7 @@ export function FlipTracking(props: Props) {
                     <Card className={styles.profitNumberCard}>
                         <a href={`/auction/${trackedFlip.soldAuction}`} target={'_blank'} className="disableLinkStyle">
                             <Card.Header className={styles.profitNumberHeader}>
-                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeperators(trackedFlip.soldFor)} Coins</Card.Title>
+                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeparators(trackedFlip.soldFor)} Coins</Card.Title>
                             </Card.Header>
                         </a>
                     </Card>
@@ -235,11 +236,11 @@ export function FlipTracking(props: Props) {
                                                     {' '}
                                                     {change.effect > 0 ? (
                                                         <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
-                                                            +{numberWithThousandsSeperators(change.effect)} Coins
+                                                            +{numberWithThousandsSeparators(change.effect)} Coins
                                                         </span>
                                                     ) : (
                                                         <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>
-                                                            {numberWithThousandsSeperators(change.effect)} Coins
+                                                            {numberWithThousandsSeparators(change.effect)} Coins
                                                         </span>
                                                     )}
                                                 </td>
@@ -288,7 +289,7 @@ export function FlipTracking(props: Props) {
         <div>
             <b>
                 <p style={{ fontSize: 'x-large' }}>
-                    Total Profit: <span style={{ color: 'gold' }}>{numberWithThousandsSeperators(totalProfit)} Coins </span>
+                    Total Profit: <span style={{ color: 'gold' }}>{numberWithThousandsSeparators(totalProfit)} Coins </span>
                     <span style={{ float: 'right', fontSize: 'small' }}>Only auctions sold in the last 7 days are displayed here.</span>
                     <Form.Control style={{ width: 'auto', marginTop: '20px' }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
                         {SORT_OPTIONS.map(option => (
