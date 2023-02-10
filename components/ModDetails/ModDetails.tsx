@@ -6,7 +6,7 @@ function ModDetails() {
 
     return (
         <>
-            <Card style={{ marginBottom: "20px" }}>
+            <Card className={styles.modCard}>
                 <Card.Header>
                     <Card.Title><h1>Cofl Skyblock Mod</h1></Card.Title>
                 </Card.Header>
@@ -18,15 +18,19 @@ function ModDetails() {
                     <h3>Installation</h3>
                     <ol>
                         <li>Get and install Forge 1.8.9 (if you don't have already watch the video below)</li>
-                        <li>Download and put the mod into your <span style={{ fontFamily: "monospace" }}>.minecraft/mods</span> folder</li>
+                        <li>Download and put the mod into your <span class={styles.modMono}>.minecraft/mods</span> folder</li>
                         <li>Launch Minecraft and join Skyblock</li>
                         <li>
-                            Get a list of commands with <span style={{ fontFamily: "monospace" }}>/cofl help</span> or watch the{' '}
+                            Get a list of commands with <span class={styles.modMono}>/cofl help</span> or watch the{' '}
                             <a href="https://www.youtube.com/watch?v=dv66Y_cra8U&list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699">YouTube playlist</a> explaining them
                         </li>
                     </ol>
                     <hr />
-                    <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: "center" }} className={styles.modDetailsFooter}>
+			    <div className={styles.modEmbedContainer}>
+                		<iframe src="https://www.youtube.com/embed/videoseries?list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" className={styles.modEmbed} allowfullscreen></iframe>
+                    </div>
+			  <hr />
+                    <div className={styles.modDetailsFooter}>
                         <a href="https://www.youtube.com/watch?v=dv66Y_cra8U&list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699">
                             <svg viewBox="0 0 30 20" preserveAspectRatio="xMidYMid meet" focusable="false" style={{ pointerEvents: "none", display: "block", "height": "38px" }}>
                                 <g>
