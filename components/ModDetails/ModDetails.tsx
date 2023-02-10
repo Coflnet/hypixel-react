@@ -18,16 +18,16 @@ function ModDetails() {
                     <h3>Installation</h3>
                     <ol>
                         <li>Get and install Forge 1.8.9 (if you don't have already watch the video below)</li>
-                        <li>Download and put the mod into your <span class={styles.modMono}>.minecraft/mods</span> folder</li>
+                        <li>Download and put the mod into your <span className={styles.modMono}>.minecraft/mods</span> folder</li>
                         <li>Launch Minecraft and join Skyblock</li>
                         <li>
-                            Get a list of commands with <span class={styles.modMono}>/cofl help</span> or watch the{' '}
+                            Get a list of commands with <span className={styles.modMono}>/cofl help</span> or watch the{' '}
                             <a href="https://www.youtube.com/watch?v=dv66Y_cra8U&list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699">YouTube playlist</a> explaining them
                         </li>
                     </ol>
                     <hr />
 			    <div className={styles.modEmbedContainer}>
-                		<iframe src="https://www.youtube.com/embed/videoseries?list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" className={styles.modEmbed} allowfullscreen></iframe>
+                		<iframe src="https://www.youtube.com/embed/videoseries?list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" className={styles.modEmbed} allowFullScreen></iframe>
                     </div>
 			  <hr />
                     <div className={styles.modDetailsFooter}>
