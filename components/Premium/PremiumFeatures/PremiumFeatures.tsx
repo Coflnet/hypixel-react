@@ -36,63 +36,63 @@ function PremiumFeatures() {
                 </thead>
                 <tbody>
                     <tr>
-                        <td className={styles.featureColumn}>Price history</td>
+                        <td className={styles.featureColumn}>Price History</td>
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Bazaar data history</td>
+                        <td className={styles.featureColumn}>Bazaar Data History</td>
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Auction explorer</td>
+                        <td className={styles.featureColumn}>Auction Explorer</td>
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Player auction history</td>
+                        <td className={styles.featureColumn}>Player Auction History</td>
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Display active auctions</td>
+                        <td className={styles.featureColumn}>Display Active Auctions</td>
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Top 3 Kat flips</td>
+                        <td className={styles.featureColumn}>Top 3 Kat Flips</td>
                         {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Top 3 Craft flips</td>
+                        <td className={styles.featureColumn}>Top 3 Craft Flips</td>
                         {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Full access to flipper filters</td>
+                        <td className={styles.featureColumn}>Full Access to Flipper Filters</td>
                         {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Support the project</td>
+                        <td className={styles.featureColumn}>Support the Project</td>
                         {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
@@ -108,21 +108,21 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Priority feature request</td>
+                        <td className={styles.featureColumn}>Priority Feature Request</td>
                         {xIconElement}
                         {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Discord role</td>
-                        <td className={styles.premiumProductColumn}>-</td>
-                        <td className={styles.premiumProductColumn}>-</td>
-                        <td className={styles.premiumProductColumn}>Flipper</td>
-                        <td className={styles.premiumProductColumn}>Flipper</td>
+                        <td className={styles.featureColumn}>Discord Role</td>
+                        {xIconElement}
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Max. recent/active auctions</td>
+                        <td className={styles.featureColumn}>Max. Recent/Active Auctions</td>
                         <td className={styles.premiumProductColumn}>12</td>
                         <td className={styles.premiumProductColumn}>60</td>
                         <td className={styles.premiumProductColumn}>120</td>
@@ -136,7 +136,7 @@ function PremiumFeatures() {
                         <td className={styles.premiumProductColumn}>{numberWithThousandsSeparators(1000)}</td>
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Chat colors</td>
+                        <td className={styles.featureColumn}>Chat Colors</td>
                         <td className={styles.premiumProductColumn} style={{ color: 'gray', fontWeight: 'bold' }}>
                             Gray
                         </td>

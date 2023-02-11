@@ -176,9 +176,8 @@ function Flipper(props: Props) {
     }
 
     function onArrowRightClick() {
-        if (listRef && listRef.current) {
-            ;(listRef!.current! as any).scrollToItem(flips?.length - 1)
-        }
+        listRef.current?.scrollToItem(flips.length - 1)
+        
     }
 
     function _setAutoScroll(value: boolean) {
@@ -190,11 +189,9 @@ function Flipper(props: Props) {
     }
 
     function attachScrollEvent(scrollContainer: Element | null = null) {
-        if (isSSR) {
+        if (isSSR || enabledScroll) {
             return
         }
-
-        if (enabledScroll) return
         if (!scrollContainer)
             scrollContainer =
                 document.getElementsByClassName(styles.flipperScrollList).length > 0 ? document.getElementsByClassName(styles.flipperScrollList).item(0) : null
@@ -216,9 +213,7 @@ function Flipper(props: Props) {
     }
 
     function clearFlips() {
-        setFlips(() => {
-            return []
-        })
+        setFlips([]);
     }
 
     function onAuctionSold(uuid: string) {
@@ -316,17 +311,10 @@ function Flipper(props: Props) {
     }
 
     function onFilterChange(newFilter) {
-        flipperFilter = newFilter
         setFlipperFilter(newFilter)
-        setTimeout(() => {
-            setFlips([])
+        setFlips([]);
+        listRef.current?.scrollToItem(flips.length - 1)
 
-            setTimeout(() => {
-                if (listRef && listRef.current) {
-                    ;(listRef!.current! as any).scrollToItem(flips.length - 1)
-                }
-            })
-        })
     }
 
     function onCopyFlip(flip: FlipAuction) {

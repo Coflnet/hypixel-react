@@ -10,7 +10,7 @@ export function numberWithThousandsSeparators(number?: number): string {
         return '0'
     }
     var parts = number.toString().split('.')
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeparator())
+    parts[0] = parts[0].replaceAll(/\B(?=(\d{3})+(?!\d))/g, getThousandSeparator())
     return parts.join(getDecimalSeparator())
 }
 
@@ -34,11 +34,11 @@ export function convertTagToName(itemTag?: string): string {
     const exceptions = ['of', 'the']
 
     function capitalizeWords(text: string): string {
-        return text.replace(/\w\S*/g, function (txt) {
+        return text.replaceAll(/\w\S*/g, function (txt) {
             if (exceptions.findIndex(a => a === txt) > -1) {
                 return txt
             }
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+            return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()
         })
     }
 
@@ -47,12 +47,12 @@ export function convertTagToName(itemTag?: string): string {
     formatted = capitalizeWords(formatted)
 
     // special per item Formating
-    formatted = formatted?.replace('Pet Item', '')
+    formatted = formatted?.replaceAll('Pet Item', '')
     if (formatted?.startsWith('Pet')) {
-        formatted = formatted?.replace('Pet', '') + ' Pet'
+        formatted = formatted?.replaceAll('Pet', '') + ' Pet'
     }
     if (formatted?.startsWith('Ring')) {
-        formatted = formatted?.replace('Ring ', '') + ' Ring'
+        formatted = formatted?.replaceAll('Ring ', '') + ' Ring'
     }
     return formatted
 }
@@ -68,7 +68,7 @@ export function camelCaseToSentenceCase(camelCase: string): string {
         return camelCase
     }
 
-    var result = camelCase.replace(/([A-Z])/g, ' $1')
+    var result = camelCase.replaceAll(/([A-Z])/g, ' $1')
     var finalResult = result.split(' ')
     var isFirstWord = true
     finalResult.forEach((word, i) => {
@@ -135,26 +135,15 @@ export function enchantmentAndReforgeCompare(a: Enchantment | Reforge, b: Enchan
 }
 
 export function formatToPriceToShorten(num: number, decimals: number = 0): string {
-    let isNegative = num < 0
-
-    function checkPreviousNegativeSymbol(result: string): string {
-        if (isNegative) {
-            result = `-${result}`
-        }
-        return result
-    }
-
-    num = Math.abs(num)
-
-    // Ensure number has max 3 significant digits (no rounding up can happen)
-    let i = Math.pow(10, Math.max(0, Math.log10(num) - 2))
-    num = (num / i) * i
-
-    if (num >= 1_000_000_000) return checkPreviousNegativeSymbol((num / 1_000_000_000).toFixed(decimals) + 'B')
-    if (num >= 1_000_000) return checkPreviousNegativeSymbol((num / 1_000_000).toFixed(decimals) + 'M')
-    if (num >= 1_000) return checkPreviousNegativeSymbol((num / 1_000).toFixed(decimals) + 'k')
-
-    return checkPreviousNegativeSymbol(num.toFixed(0))
+    var multMap = [
+        { mult: 1e12, suffix: 'T' },
+        { mult: 1e9, suffix: 'B' },
+        { mult: 1e6, suffix: 'M' },
+        { mult: 1e3, suffix: 'k' },
+        { mult: 1, suffix: '' }
+    ];
+    var mult = multMap.find(m => num >= m.mult);
+    return (num / mult.mult).toFixed(decimals) + mult.suffix;
 }
 
 export function getThousandSeparator() {
@@ -176,7 +165,7 @@ export function getDecimalSeparator() {
 }
 
 /**
- * Returs a number from a short represantation string of a price (e.g. 12M => 12_000_000)
+ * Returs a number from a short representation string of a price (e.g. 12M => 12_000_000)
  * @param shortString A string representing a larger number (e.g. 12M)
  * @returns The number represented by the string (e.g. 12_000_000)
  */
@@ -184,27 +173,14 @@ export function getNumberFromShortenString(shortString?: string): number | undef
     if (!shortString) {
         return
     }
-    let split
-    let multiplier
-    if (shortString.indexOf('B') !== -1) {
-        split = shortString.split('B')
-        multiplier = 1000000000
-    }
-    if (shortString.indexOf('M') !== -1) {
-        split = shortString.split('M')
-        multiplier = 1000000
-    }
-    if (shortString.indexOf('K') !== -1) {
-        split = shortString.split('K')
-        multiplier = 1000
-    }
-    if (!split) {
-        split = [shortString]
-        multiplier = 1
-    }
-    if (split[0] && !isNaN(+split[0])) {
-        return parseInt(split[0]) * multiplier
-    }
+    let val = [
+        { value: 1e12, suffix: 'T' },
+        { value: 1e9, suffix: 'B' },
+        { value: 1e6, suffix: 'M' },
+        { value: 1e3, suffix: 'k' },
+        { value: 1, suffix: '' }
+    ].find((val) => shortString.includes(val.suffix))
+    return parseFloat(shortString.at(-1) == val.suffix ? shortString.slice(0, -1) : shortString) * val.value
 }
 
 export function getLocalDateAndTime(d: Date): string {
@@ -225,7 +201,7 @@ export function formatAsCoins(number: number): string {
     return `${numberWithThousandsSeparators(number)} Coins`
 }
 export function formatDungeonStarsInString(stringWithStars: string, style: CSSProperties = {}, dungeonItemLevelString?: string): JSX.Element {
-    let yellowStarStyle = { color: 'yellow', fontWeight: 'normal', height: '100%' }
+    let yellowStarStyle = { color: '#ffaa00', fontWeight: 'normal', height: '100%' }
     let redStarStyle = { color: 'red', fontWeight: 'normal', height: '100%' }
     let itemNameStyle = {
         height: '32px',
@@ -233,14 +209,12 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
     }
     let stars = stringWithStars?.match(/✪.*/gm)
 
-    let numberOfMasterstars = undefined
+    let numberOfMasterstars = 0;
     if (dungeonItemLevelString) {
         try {
-            let number = parseInt(dungeonItemLevelString)
-            if (number > 5) {
-                numberOfMasterstars = number - 5
-            }
-        } catch {}
+            
+            numberOfMasterstars = Math.max(parseInt(dungeonItemLevelString) - 5, 0)
+        } catch { }
     }
 
     if (!stars || stars.length === 0) {
@@ -252,23 +226,7 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
     let starsLastChar = starsString.charAt(starsString.length - 1)
     let starWithNumber = starsLastChar === '✪' ? undefined : starsLastChar
 
-    let normalStarElement = <span style={yellowStarStyle}>{starsString}</span>
-    if (!starWithNumber && numberOfMasterstars) {
-        let redStarsString = ''
-        let yellowStarsString = ''
-        for (let index = 0; index < numberOfMasterstars; index++) {
-            redStarsString += '✪'
-        }
-        for (let index = 0; index < starsString.length - numberOfMasterstars; index++) {
-            yellowStarsString += '✪'
-        }
-        normalStarElement = (
-            <span>
-                <span style={redStarStyle}>{redStarsString}</span>
-                <span style={yellowStarStyle}>{yellowStarsString}</span>
-            </span>
-        )
-    }
+    let normalStarElement = <span style={yellowStarStyle}>{'✪'.repeat(starsString.length - numberOfMasterstars)}</span>;
     if (starWithNumber) {
         normalStarElement = <span style={yellowStarStyle}>{starsString.substring(0, starsString.length - 1)}</span>
     }
@@ -276,8 +234,9 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
     return (
         <span style={style}>
             {itemName ? <span style={itemNameStyle}>{itemName}</span> : null}
+            {' '}
             {normalStarElement}
-            {starWithNumber ? <span style={redStarStyle}>{starWithNumber}</span> : null}
+            {starWithNumber || numberOfMasterstars ? <span style={redStarStyle}>{starWithNumber ? starWithNumber : '✪'.repeat(numberOfMasterstars)}</span> : null}
         </span>
     )
 }
@@ -325,5 +284,5 @@ export function getMinecraftColorCodedElement(text: string, autoFormat = true): 
 }
 
 export function removeMinecraftColorCoding(text: string): string {
-    return text.replace(/§[0-9a-fk-or]/gi, '')
+    return text.replaceAll(/§[0-9a-fk-or]/gi, '')
 }

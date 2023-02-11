@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
-import { Button, Container, Card } from 'react-bootstrap'
+import HelpIcon from '@mui/icons-material/Help'
 import Link from 'next/link'
+import { useState } from 'react'
+import { Button, Card, Container } from 'react-bootstrap'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'
 import Search from '../components/Search/Search'
-import HelpIcon from '@mui/icons-material/Help'
-import { getHeadElement } from '../utils/SSRUtils'
 import Tooltip from '../components/Tooltip/Tooltip'
 import { useWasAlreadyLoggedIn } from '../utils/Hooks'
+import { getHeadElement } from '../utils/SSRUtils'
 
 function Refed() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -71,7 +71,7 @@ function Refed() {
 
                         <Link href="/">
                             <a className="disableLinkStyle">
-                                <Button>Go to main page</Button>
+                                <Button>Go to Main Page</Button>
                             </a>
                         </Link>
                     </Card.Body>

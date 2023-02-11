@@ -1,6 +1,6 @@
 export function btoaUnicode(str) {
     return btoa(
-        encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+        encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (_match, p1) {
             return String.fromCharCode(parseInt(p1, 16))
         })
     )

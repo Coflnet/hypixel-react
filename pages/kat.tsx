@@ -1,11 +1,9 @@
-import Head from 'next/head'
-import React from 'react'
 import { Container } from 'react-bootstrap'
 import { initAPI } from '../api/ApiHelper'
 import { KatFlips } from '../components/KatFlips/KatFlips'
 import Search from '../components/Search/Search'
 import { getCacheControlHeader } from '../utils/CacheUtils'
-import { parseKatFlip, parseProfitableCraft } from '../utils/Parser/APIResponseParser'
+import { parseKatFlip } from '../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../utils/SSRUtils'
 
 interface Props {

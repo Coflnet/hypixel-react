@@ -1,5 +1,3 @@
-import Head from 'next/head'
-import React from 'react'
 import { Container } from 'react-bootstrap'
 import { initAPI } from '../api/ApiHelper'
 import { CraftsList } from '../components/CraftsList/CraftsList'

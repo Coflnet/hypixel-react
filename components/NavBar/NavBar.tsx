@@ -1,22 +1,21 @@
-import React, { useEffect, useState } from 'react'
-import { ProSidebar, Menu, MenuItem, SidebarHeader, SubMenu } from 'react-pro-sidebar'
-import 'react-pro-sidebar/dist/css/styles.css'
-import BuildIcon from '@mui/icons-material/Build'
-import ShareIcon from '@mui/icons-material/ShareOutlined'
-import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
-import HomeIcon from '@mui/icons-material/Home'
-import StorefrontIcon from '@mui/icons-material/Storefront'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
-import PolicyIcon from '@mui/icons-material/Policy'
-import ChatIcon from '@mui/icons-material/Chat'
-import MenuIcon from '@mui/icons-material/Menu'
-import PetsIcon from '@mui/icons-material/PetsOutlined'
 import AccountIcon from '@mui/icons-material/AccountCircle'
+import BuildIcon from '@mui/icons-material/Build'
+import ChatIcon from '@mui/icons-material/Chat'
 import DownloadIcon from '@mui/icons-material/Download'
+import HomeIcon from '@mui/icons-material/Home'
+import MenuIcon from '@mui/icons-material/Menu'
+import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
+import PetsIcon from '@mui/icons-material/PetsOutlined'
+import PolicyIcon from '@mui/icons-material/Policy'
+import ShareIcon from '@mui/icons-material/ShareOutlined'
+import StorefrontIcon from '@mui/icons-material/Storefront'
+import Link from 'next/link'
+import React, { useEffect, useState } from 'react'
+import { Menu, MenuItem, ProSidebar, SidebarHeader } from 'react-pro-sidebar'
+import 'react-pro-sidebar/dist/css/styles.css'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
-import { isClientSideRendering } from '../../utils/SSRUtils'
-import Link from 'next/link'
 
 let resizePromise: NodeJS.Timeout | null = null
 
@@ -31,26 +30,17 @@ function NavBar(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if (!isClientSideRendering()) {
-            return
-        }
 
         setIsSmall(document.body.clientWidth < 1500)
 
         window.addEventListener('resize', resizeHandler)
 
         return () => {
-            if (!isClientSideRendering()) {
-                return
-            }
             window.removeEventListener('resize', resizeHandler)
         }
     }, [])
 
     useEffect(() => {
-        if (!isClientSideRendering()) {
-            return
-        }
         if (isWideOpen) {
             document.addEventListener('click', outsideClickHandler, true)
         } else {
