@@ -101,12 +101,10 @@ export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, 
             profitByFinderEmbed += `${finderGroup.label}: ${numberWithThousandsSeparators(finderGroup.profit)} Coins \n`
         }
     })
-    let highestProfitFlip = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)[0];
-    let highestProfitFlipText = `Highest Profit Flip: ${numberWithThousandsSeparators(
-        highestProfitFlip.profit
-    )} Coins \n ${numberWithThousandsSeparators(highestProfitFlip.pricePaid)} Coins ➞ ${numberWithThousandsSeparators(
-        highestProfitFlip.soldFor
-    )} Coins (${removeMinecraftColorCoding(highestProfitFlip.item.name)})`
+    let highestProfitFlip = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)[0]
+    let highestProfitFlipText = `Highest Profit Flip: ${numberWithThousandsSeparators(highestProfitFlip.profit)} Coins \n ${numberWithThousandsSeparators(
+        highestProfitFlip.pricePaid
+    )} Coins ➞ ${numberWithThousandsSeparators(highestProfitFlip.soldFor)} Coins (${removeMinecraftColorCoding(highestProfitFlip.item.name)})`
 
     return `Found Flips: ${flipTrackingResponse.flips.length} 
             Total Profit: ${numberWithThousandsSeparators(flipTrackingResponse.totalProfit)} Coins

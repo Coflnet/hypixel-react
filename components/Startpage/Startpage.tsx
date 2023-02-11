@@ -327,9 +327,7 @@ function Startpage(props: Props) {
                                 }
                                 tooltipContent={
                                     <ul key="changelogList">
-                                        <li className={styles.changelogItem}>
-                                            Added search to the restriction list
-                                        </li>
+                                        <li className={styles.changelogItem}>Added search to the restriction list</li>
                                         <li className={styles.changelogItem}>
                                             Make it possible to differentiate between items with the same name in the search
                                         </li>
@@ -433,9 +431,11 @@ function Startpage(props: Props) {
                         newItemsElement
                     ) : (
                         <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
-                            {newItems.filter(search=>search.name!='null').map(search => {
-                                return getNewItemElement(search, { height: 70, width: 200 });
-                            })}
+                            {newItems
+                                .filter(search => search.name != 'null')
+                                .map(search => {
+                                    return getNewItemElement(search, { height: 70, width: 200 })
+                                })}
                         </div>
                     )}
                 </Card.Body>
@@ -449,22 +449,28 @@ function Startpage(props: Props) {
                     <p>View, search, browse, and filter by reforge or enchantment.</p>
                     <p>You can find all current and historic prices for the auction house and bazaar on this web tracker.</p>
                     <p>
-                        We're tracking over 500 million auctions. We've saved more than 350 million bazaar prices in intervals of 10 seconds. Furthermore,
-                        there are over three million skyblock players that you can search by their Minecraft usernames. You can browse through the auctions they
-                        made over the past two years. New items are added automatically and are available within two minutes after the first auction is started.
+                        We're tracking over 500 million auctions. We've saved more than 350 million bazaar prices in intervals of 10 seconds. Furthermore, there
+                        are over three million skyblock players that you can search by their Minecraft usernames. You can browse through the auctions they made
+                        over the past two years. New items are added automatically and are available within two minutes after the first auction is started.
                     </p>
                     <p>
                         The search autocomplete is ranked by popularity and allows you to find whatever item you want faster. Quick URLs allow you to link to
                         specific sites. /p/Steve or /i/Oak allows you to create a link without visiting the site first.
                     </p>
                     <p>
-                        The free accessible <Link href="/flipper" style={{backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius:'3px'}}>auction house flipper ↗️</Link> allows you to find profitable AH flips in no time. It supplements
-                        the option to browse all of the Skyblock history on the web tracker. What's more is that you can see what auctions were used as reference to
-                        determine if a flip is profitable.
+                        The free accessible{' '}
+                        <Link href="/flipper" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}>
+                            auction house flipper ↗️
+                        </Link>{' '}
+                        allows you to find profitable AH flips in no time. It supplements the option to browse all of the Skyblock history on the web tracker.
+                        What's more is that you can see what auctions were used as reference to determine if a flip is profitable.
                     </p>
                     <p>
-                        We allow you to subscribe to auctions, item prices and being outbid with more to come. Please use the contact on the <Link href="/feedback" style={{backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius:'3px'}}>Feedback site ↗️</Link> to
-                        send us suggestions or bug reports.
+                        We allow you to subscribe to auctions, item prices and being outbid with more to come. Please use the contact on the{' '}
+                        <Link href="/feedback" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}>
+                            Feedback site ↗️
+                        </Link>{' '}
+                        to send us suggestions or bug reports.
                     </p>
                 </Card.Body>
             </Card>

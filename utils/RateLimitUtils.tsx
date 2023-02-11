@@ -22,7 +22,6 @@ export default function rateLimit(options?: Options) {
                 }
                 tokenCount[0] += 1
 
-
                 const currentUsage = tokenCount[0]
                 const isRateLimited = currentUsage >= limit
                 return isRateLimited ? reject() : resolve()

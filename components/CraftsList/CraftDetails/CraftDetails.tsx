@@ -35,14 +35,7 @@ export function CraftDetails(props: Props) {
                             onItemClick(ingredient.item.tag)
                         }}
                     >
-                        <img
-                            crossOrigin="anonymous"
-                            src={ingredient.item.iconUrl}
-                            height="24"
-                            alt=""
-                            style={{ marginRight: '5px' }}
-                            loading="lazy"
-                        />
+                        <img crossOrigin="anonymous" src={ingredient.item.iconUrl} height="24" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                         {ingredient.item.name + ' (' + ingredient.count + 'x)'}
                         <Badge style={{ marginLeft: '5px' }} variant="secondary">
                             {numberWithThousandsSeparators(Math.round(ingredient.cost))} Coins

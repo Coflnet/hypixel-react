@@ -155,8 +155,19 @@ function NavBar(props: Props) {
             <aside className={styles.navBar} id="navBar" onMouseEnter={onMouseMove} onMouseLeave={onMouseOut}>
                 <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()}>
                     <SidebarHeader>
-                        <div style={{ padding: '24px', fontWeight: 'bold', fontSize: '20px', letterSpacing: '1px', overflow: 'hidden', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center'}}>
-                            <img src='/logo512.png' alt="Logo" width={"40px"} height={"40px"} style={{translate: "-5px"}}/> {!isCollapsed() ? 'Coflnet' : ''}
+                        <div
+                            style={{
+                                padding: '24px',
+                                fontWeight: 'bold',
+                                fontSize: '20px',
+                                letterSpacing: '1px',
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            <img src="/logo512.png" alt="Logo" width={'40px'} height={'40px'} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'Coflnet' : ''}
                         </div>
                     </SidebarHeader>
                     <Menu iconShape="square">
@@ -212,4 +223,4 @@ function NavBar(props: Props) {
     )
 }
 
-export default NavBar;
+export default NavBar

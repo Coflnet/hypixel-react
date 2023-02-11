@@ -65,8 +65,8 @@ function Refed() {
                             }}
                         />
                         <p>
-                            Settings you make are tied to your google account to sync across devices and into the Minecraft mod. 
-                            what settings you made and contact you in case we need to)
+                            Settings you make are tied to your google account to sync across devices and into the Minecraft mod. what settings you made and
+                            contact you in case we need to)
                         </p>
 
                         <Link href="/">

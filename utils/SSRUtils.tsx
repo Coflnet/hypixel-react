@@ -42,8 +42,8 @@ export function getHeadElement(
             <meta name="og:title" content={embedTitle} />
             <meta name="description" content={description} />
             <meta name="og:description" content={description} />
-            <meta name="keywords" content={[...keywords, 'hypixel','skyblock','auction','history','bazaar','tracker'].join(',')} />
-            <meta property="og:keywords" content={[...keywords, 'hypixel','skyblock','auction','history','bazaar','tracker'].join(',')} />
+            <meta name="keywords" content={[...keywords, 'hypixel', 'skyblock', 'auction', 'history', 'bazaar', 'tracker'].join(',')} />
+            <meta property="og:keywords" content={[...keywords, 'hypixel', 'skyblock', 'auction', 'history', 'bazaar', 'tracker'].join(',')} />
             <meta property="og:image" content={imageUrl} />
             <meta
                 httpEquiv="origin-trial"
