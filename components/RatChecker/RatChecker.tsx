@@ -16,7 +16,7 @@ function RatChecker() {
 
         for (const file of files) {
             checkingPromises.push(
-                new Promise((resolve) => {
+                new Promise(resolve => {
                     getFileHash(file).then(hash => {
                         api.checkRat(hash).then(result => resolve([file.name, result]))
                     })
@@ -31,7 +31,7 @@ function RatChecker() {
         })
     }
 
-    function getFileHash(file : File): Promise<string> {
+    function getFileHash(file: File): Promise<string> {
         return new Promise((resolve, reject) => {
             var blobSlice = File.prototype.slice || (File.prototype as any).mozSlice || (File.prototype as any).webkitSlice,
                 chunkSize = 2097152, // Read in chunks of 2MB
@@ -52,7 +52,7 @@ function RatChecker() {
                 }
             }
 
-            fileReader.onerror = console.warn;
+            fileReader.onerror = console.warn
 
             function loadNext() {
                 var start = currentChunk * chunkSize,
@@ -92,7 +92,8 @@ function RatChecker() {
                     if (checkingResult[1].rat.includes('No')) {
                         return (
                             <li style={{ color: 'lime', fontSize: 'large' }}>
-                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: No harmful code was found in this mod. It should be safe to use.
+                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: No harmful code was found in this mod. It should be safe to
+                                use.
                             </li>
                         )
                     }
@@ -110,16 +111,30 @@ function RatChecker() {
                 </Card.Header>
                 <Card.Body>
                     {!isChecking ? (
-                        <div style={{display: "flex", alignItems: "center", flexDirection:"column"}}>
-                            <p>Received a suspicious (or any other mod) that you want to check? Select it here and get quick results for known rats or legitimate mods (you can select multiple at once):</p>
-                            <Form.Control type="file" className={'form-control'} style={{display: "none"}} ref={ratFileInput} onChange={(e)=>onFileUpload((e.target as HTMLInputElement).files)}multiple accept='.jar'/>
-                            <div className={styles.dNd} onClick={(e)=>ratFileInput.current?.click()} onDrop={(e)=>{
-                                onFileUpload(e.dataTransfer.files);
-                                e.preventDefault();
-                            }} onDragOver={(e)=>e.preventDefault()}>
-                                <div className={styles['dNd-content']}>
-                                    Drag and Drop Files or click to open file
-                                </div>
+                        <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                            <p>
+                                Received a suspicious (or any other mod) that you want to check? Select it here and get quick results for known rats or
+                                legitimate mods (you can select multiple at once):
+                            </p>
+                            <Form.Control
+                                type="file"
+                                className={'form-control'}
+                                style={{ display: 'none' }}
+                                ref={ratFileInput}
+                                onChange={e => onFileUpload((e.target as HTMLInputElement).files)}
+                                multiple
+                                accept=".jar"
+                            />
+                            <div
+                                className={styles.dNd}
+                                onClick={e => ratFileInput.current?.click()}
+                                onDrop={e => {
+                                    onFileUpload(e.dataTransfer.files)
+                                    e.preventDefault()
+                                }}
+                                onDragOver={e => e.preventDefault()}
+                            >
+                                <div className={styles['dNd-content']}>Drag and Drop Files or click to open file</div>
                             </div>
                         </div>
                     ) : (

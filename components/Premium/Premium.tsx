@@ -166,8 +166,8 @@ function Premium() {
                     <Card.Title>
                         {hasPremium ? (
                             <p>
-                                Thank you for your support. You have a Premium account. By buying another Premium plan you can extend your time. You can
-                                use the following premium features:
+                                Thank you for your support. You have a Premium account. By buying another Premium plan you can extend your time. You can use the
+                                following premium features:
                             </p>
                         ) : (
                             <p>Log in and buy Premium to support us and get access to these features</p>

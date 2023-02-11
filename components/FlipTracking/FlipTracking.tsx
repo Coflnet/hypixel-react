@@ -1,18 +1,18 @@
-import ArrowDownIcon from '@mui/icons-material/ArrowDownward';
-import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt';
-import DangerousIcon from '@mui/icons-material/Dangerous';
-import moment from 'moment';
-import { useRouter } from 'next/router';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap';
-import { Item, Menu, theme, useContextMenu } from 'react-contexify';
-import { getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter';
-import { useForceUpdate } from '../../utils/Hooks';
-import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils';
-import { isClientSideRendering } from '../../utils/SSRUtils';
-import { CopyButton } from '../CopyButton/CopyButton';
-import Tooltip from '../Tooltip/Tooltip';
-import styles from './FlipTracking.module.css';
+import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
+import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'
+import DangerousIcon from '@mui/icons-material/Dangerous'
+import moment from 'moment'
+import { useRouter } from 'next/router'
+import { ChangeEvent, useEffect, useState } from 'react'
+import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
+import { Item, Menu, theme, useContextMenu } from 'react-contexify'
+import { getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { useForceUpdate } from '../../utils/Hooks'
+import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
+import { isClientSideRendering } from '../../utils/SSRUtils'
+import { CopyButton } from '../CopyButton/CopyButton'
+import Tooltip from '../Tooltip/Tooltip'
+import styles from './FlipTracking.module.css'
 interface Props {
     totalProfit?: number
     trackedFlips?: FlipTrackingFlip[]
@@ -44,7 +44,7 @@ const SORT_OPTIONS: SortOption[] = [
     {
         label: 'Profit%',
         value: 'profitPercent',
-        sortFunction: flips => flips.sort((a, b) => (b.profit / b.pricePaid) - (a.profit / a.pricePaid))
+        sortFunction: flips => flips.sort((a, b) => b.profit / b.pricePaid - a.profit / a.pricePaid)
     }
 ]
 
@@ -158,7 +158,7 @@ export function FlipTracking(props: Props) {
                             style={{ marginRight: '5px' }}
                             loading="lazy"
                         />
-                        <span style={{whiteSpace: 'nowrap' }}>{getMinecraftColorCodedElement(trackedFlip.item.name)}</span>
+                        <span style={{ whiteSpace: 'nowrap' }}>{getMinecraftColorCodedElement(trackedFlip.item.name)}</span>
                     </div>
                     {trackedFlip.profit > 0 ? (
                         <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>

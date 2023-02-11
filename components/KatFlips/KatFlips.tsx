@@ -106,8 +106,8 @@ export function KatFlips(props: Props) {
         if (e.defaultPrevented) {
             return
         }
-        if (!flip.originAuctionUUID){
-            return;
+        if (!flip.originAuctionUUID) {
+            return
         }
         window.navigator.clipboard.writeText('/viewauction ' + flip.originAuctionUUID)
 

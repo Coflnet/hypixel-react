@@ -211,7 +211,10 @@ function FlipperFilter(props: Props) {
                             </Form.Label>
                         }
                         tooltipContent={
-                            <span>{flipperFilter.onlyBin ? 'Do not display' : 'Display'} auction flips that are about to end and could be profited from with the current bid</span>
+                            <span>
+                                {flipperFilter.onlyBin ? 'Do not display' : 'Display'} auction flips that are about to end and could be profited from with the
+                                current bid
+                            </span>
                         }
                     />
                     <Form.Check

@@ -25,7 +25,6 @@ const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
 ))
 
 function OptionsMenu(props: Props) {
-    
     let available: AvailableLinks[] = []
     const isItemPage = (props.selected as Item)?.tag !== undefined
     const isPlayerPage = !isItemPage

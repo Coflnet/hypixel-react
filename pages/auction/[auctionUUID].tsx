@@ -51,14 +51,16 @@ function AuctionDetailsPage(props: Props) {
         if (auctionDetails.auction.bin) {
             description += 'BIN '
         }
-        description += `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, "")} by ${auctionDetails?.auctioneer?.name}`
+        description += `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, '')} by ${auctionDetails?.auctioneer?.name}`
         if (!auctionDetails.auction.bin) {
             description += `| Highest Bid: ${numberWithThousandsSeparators(auctionDetails.auction.highestBid)} Coins with ${auctionDetails.bids.length} Bids`
         } else if (auctionDetails.bids.length > 0) {
             description += `| Bought by ${auctionDetails.bids[0].bidder.name} for  ${numberWithThousandsSeparators(auctionDetails.auction.highestBid)} Coins`
         }
-        
-        description += ` | ${auctionDetails.auction.end > new Date() ? 'Ends' : 'Ended'} on ${moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')}`
+
+        description += ` | ${auctionDetails.auction.end > new Date() ? 'Ends' : 'Ended'} on ${moment(auctionDetails.auction.end).format(
+            'MMMM Do YYYY, h:mm:ss a'
+        )}`
         return (description += ` | Category: ${auctionDetails.auction.item.category} | Rarity: ${auctionDetails.auction.item.tier}`)
     }
 
@@ -66,7 +68,9 @@ function AuctionDetailsPage(props: Props) {
         <div className="page">
             {auctionDetails
                 ? getHeadElement(
-                      `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, "")} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`,
+                      `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, '')} by ${
+                          auctionDetails?.auctioneer?.name
+                      } | Hypixel SkyBlock AH history tracker`,
                       getAuctionDescription(),
                       auctionDetails.auction.item.iconUrl,
                       [auctionDetails.auction.item.name || auctionDetails.auction.item.tag, auctionDetails.auctioneer.name],

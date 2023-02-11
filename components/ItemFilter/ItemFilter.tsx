@@ -49,7 +49,9 @@ function ItemFilter(props: Props) {
         if (props.ignoreURL && !props.defaultFilter) {
             return
         }
-        itemFilter = props.defaultFilter ? JSON.parse(JSON.stringify(props.defaultFilter)) : getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)
+        itemFilter = props.defaultFilter
+            ? JSON.parse(JSON.stringify(props.defaultFilter))
+            : getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {

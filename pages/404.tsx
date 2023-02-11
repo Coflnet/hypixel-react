@@ -3,7 +3,6 @@ import { Button, Container } from 'react-bootstrap'
 import { getHeadElement } from '../utils/SSRUtils'
 
 function NotFound() {
-    
     return (
         <div className="page">
             {getHeadElement('Not found')}

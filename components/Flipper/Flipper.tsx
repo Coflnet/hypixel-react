@@ -52,8 +52,8 @@ function Flipper(props: Props) {
     let [flips, setFlips] = useState<FlipAuction[]>(
         props.flips
             ? props.flips.filter(flip => {
-                return flipperFilter.onlyUnsold ? !flip.sold : true
-            })
+                  return flipperFilter.onlyUnsold ? !flip.sold : true
+              })
             : []
     )
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -177,7 +177,7 @@ function Flipper(props: Props) {
 
     function onArrowRightClick() {
         if (listRef && listRef.current) {
-            ; (listRef!.current! as any).scrollToItem(flips?.length - 1)
+            ;(listRef!.current! as any).scrollToItem(flips?.length - 1)
         }
     }
 
@@ -323,7 +323,7 @@ function Flipper(props: Props) {
 
             setTimeout(() => {
                 if (listRef && listRef.current) {
-                    ; (listRef!.current! as any).scrollToItem(flips.length - 1)
+                    ;(listRef!.current! as any).scrollToItem(flips.length - 1)
                 }
             })
         })
@@ -417,14 +417,18 @@ function Flipper(props: Props) {
             let type = getPremiumType(activePremiumProduct)
             return (
                 <span>
-                    You are using <Link href="/premium">{{
-                        1: "Starter Premium",
-                        2: "Premium",
-                        3: "Premium+"
-                    }[type.priority]}</Link>
+                    You are using{' '}
+                    <Link href="/premium">
+                        {
+                            {
+                                1: 'Starter Premium',
+                                2: 'Premium',
+                                3: 'Premium+'
+                            }[type.priority]
+                        }
+                    </Link>
                 </span>
             )
-
         }
         return (
             <span>
@@ -477,8 +481,6 @@ function Flipper(props: Props) {
         </div>
     )
 
-
-
     return (
         <div className={styles.flipper}>
             <Card>
@@ -513,7 +515,7 @@ function Flipper(props: Props) {
                                 />
                             </Form.Group>
                             <Form.Group>
-                                <Button style={{cursor: 'pointer', marginRight: '10px', backgroundColor: "red" }} onClick={clearFlips}>
+                                <Button style={{ cursor: 'pointer', marginRight: '10px', backgroundColor: 'red' }} onClick={clearFlips}>
                                     Clear flips! <DeleteIcon />
                                 </Button>
                             </Form.Group>
@@ -553,7 +555,8 @@ function Flipper(props: Props) {
                                             </Button>
                                         </div>
                                     </Modal.Body>
-                                </Modal></Form.Group>
+                                </Modal>
+                            </Form.Group>
                             {hasPremium ? (
                                 <Tooltip
                                     type="hover"

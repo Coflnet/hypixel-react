@@ -1,5 +1,5 @@
-let messageId = 0;
+let messageId = 0
 
 export function getNextMessageId(): number {
-    return ++messageId;
+    return ++messageId
 }

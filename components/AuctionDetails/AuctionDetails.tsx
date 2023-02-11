@@ -11,7 +11,8 @@ import api from '../../api/ApiHelper'
 import {
     convertTagToName,
     formatDungeonStarsInString as getDungeonStarFormattedItemName,
-    getMinecraftColorCodedElement, getStyleForTier,
+    getMinecraftColorCodedElement,
+    getStyleForTier,
     numberWithThousandsSeparators
 } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'

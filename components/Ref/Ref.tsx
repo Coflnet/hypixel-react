@@ -45,7 +45,9 @@ function Ref(props: Props) {
             <hr />
             <div>
                 <Card style={{ marginBottom: '15px' }}>
-                    <Card.Header><Card.Title>Referral System</Card.Title></Card.Header>
+                    <Card.Header>
+                        <Card.Title>Referral System</Card.Title>
+                    </Card.Header>
                     <Card.Body>
                         {isLoggedIn && refInfo ? (
                             <div>
