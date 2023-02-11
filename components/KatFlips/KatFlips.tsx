@@ -160,7 +160,7 @@ export function KatFlips(props: Props) {
                 ) : (
                     ''
                 )}
-                <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
+                <div className={blur ? 'blur' : ''} style={blur ? blurStyle : {}}>
                     <h4>{getFlipHeader(flip)}</h4>
                     <p>
                         <span className={styles.label}>Purchase Cost:</span>{' '}
@@ -201,11 +201,11 @@ export function KatFlips(props: Props) {
         )
     }
 
-    function getFlipHeader(flip) {
+    function getFlipHeader(flip: KatFlip) {
         return (
             <span style={getStyleForTier(flip.coreData.item.tier)}>
                 <img crossOrigin="anonymous" src={flip.coreData.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
-                {convertTagToName(flip.coreData.item.name) || convertTagToName(flip.coreData.item.tag)}
+                {convertTagToName(flip.coreData.item.name) || convertTagToName(flip.coreData.item.itemTag)}
             </span>
         )
     }
