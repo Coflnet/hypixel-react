@@ -283,5 +283,5 @@ export function getMinecraftColorCodedElement(text: string, autoFormat = true): 
 }
 
 export function removeMinecraftColorCoding(text: string): string {
-    return text.replaceAll(/§[0-9a-fk-or]/gi, '')
+    return text.replace(/§[0-9a-fk-or]/gi, '')
 }
