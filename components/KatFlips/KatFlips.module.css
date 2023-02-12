@@ -48,7 +48,6 @@
 .catFlips :global(.list-group-item) :global(p) {
     margin: 0;
 }
-.
 .catFlips :global(.list-group-item) .craftRequirement {
     text-align: right;
 }
