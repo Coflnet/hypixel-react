@@ -325,16 +325,16 @@ export function CraftsList(props: Props) {
                 {!isLoggedIn || !accountInfo?.mcId ? <hr /> : ''}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Form.Control style={{ width: '100%', marginRight: '3%' }} placeholder="Item name..." onChange={onNameFilterChange} />
-                <Form.Control style={{ width: '100%', marginRight: '3%' }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
+                <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
+                <Form.Control className={styles.filterInput} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
                         <option value={option.value}>{option.label}</option>
                     ))}
                 </Form.Control>
-                <Form.Control style={{ width: '100%', marginRight: '3%' }} placeholder='Minimum Profit' onChange={onMinimumProfitChange} />
+                <Form.Control className={styles.filterInput} placeholder='Minimum Profit' onChange={onMinimumProfitChange} />
 
                 {profiles ? (
-                    <Form.Control style={{ width: '100%', marginLeft: '3%' }} defaultValue={selectedProfile?.cuteName} as="select" onChange={onProfileChange}>
+                    <Form.Control className={styles.filterInput} defaultValue={selectedProfile?.cuteName} as="select" onChange={onProfileChange}>
                         {profiles.map(profile => (
                             <option key={profile.cuteName} value={profile.cuteName}>
                                 {profile.cuteName}
