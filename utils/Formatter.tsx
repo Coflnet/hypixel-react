@@ -10,7 +10,7 @@ export function numberWithThousandsSeparators(number?: number): string {
         return '0'
     }
     var parts = number.toString().split('.')
-    parts[0] = parts[0].replaceAll(/\B(?=(\d{3})+(?!\d))/g, getThousandSeparator())
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeparator())
     return parts.join(getDecimalSeparator())
 }
 
@@ -34,7 +34,7 @@ export function convertTagToName(itemTag?: string): string {
     const exceptions = ['of', 'the']
 
     function capitalizeWords(text: string): string {
-        return text.replaceAll(/\w\S*/g, function (txt) {
+        return text.replace(/\w\S*/g, function (txt) {
             if (exceptions.findIndex(a => a === txt) > -1) {
                 return txt
             }
@@ -47,12 +47,12 @@ export function convertTagToName(itemTag?: string): string {
     formatted = capitalizeWords(formatted)
 
     // special per item Formating
-    formatted = formatted?.replaceAll('Pet Item', '')
+    formatted = formatted?.replace('Pet Item', '')
     if (formatted?.startsWith('Pet')) {
-        formatted = formatted?.replaceAll('Pet', '') + ' Pet'
+        formatted = formatted?.replace('Pet', '') + ' Pet'
     }
     if (formatted?.startsWith('Ring')) {
-        formatted = formatted?.replaceAll('Ring ', '') + ' Ring'
+        formatted = formatted?.replace('Ring ', '') + ' Ring'
     }
     return formatted
 }
@@ -68,7 +68,7 @@ export function camelCaseToSentenceCase(camelCase: string): string {
         return camelCase
     }
 
-    var result = camelCase.replaceAll(/([A-Z])/g, ' $1')
+    var result = camelCase.replace(/([A-Z])/g, ' $1')
     var finalResult = result.split(' ')
     var isFirstWord = true
     finalResult.forEach((word, i) => {
@@ -209,10 +209,9 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
     }
     let stars = stringWithStars?.match(/✪.*/gm)
 
-    let numberOfMasterstars = 0;
+    let numberOfMasterstars = 0
     if (dungeonItemLevelString) {
         try {
-            
             numberOfMasterstars = Math.max(parseInt(dungeonItemLevelString) - 5, 0)
         } catch { }
     }
