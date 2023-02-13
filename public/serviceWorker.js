@@ -14,19 +14,9 @@ workbox.setConfig({
     debug: false
 });
 
-// 
-// https://developers.google.com/web/tools/workbox/reference-docs/latest/workbox.routing#registerRoute
-workbox.routing.registerRoute(
-    new RegExp('.*\.html/'),
-    // https://developers.google.com/web/tools/workbox/reference-docs/latest/workbox.strategies
-    workbox.strategies.cacheFirst({
-        cacheName: 'workbox:html',
-    })
-);
-
 // cache js files
 workbox.routing.registerRoute(
-    new RegExp('.*\.js'),
+    new RegExp('.*\.js$'),
     workbox.strategies.cacheFirst({
         cacheName: 'workbox:js',
     })
@@ -35,7 +25,7 @@ workbox.routing.registerRoute(
 // cache css files
 workbox.routing.registerRoute(
     // Cache CSS files
-    new RegExp('.*\.css'),
+    new RegExp('.*\.css$'),
     // Use cache but update in the background ASAP
     workbox.strategies.cacheFirst({
         // Use a custom cache name
@@ -45,7 +35,7 @@ workbox.routing.registerRoute(
 
 // cache generall images
 workbox.routing.registerRoute(
-    new RegExp('.*\.(?:png|jpg|jpeg|svg|gif)'),
+    new RegExp('.*\.(?:png|jpg|jpeg|svg|gif)$'),
     workbox.strategies.staleWhileRevalidate({
         // Use a custom cache name
         cacheName: 'workbox:image',
@@ -54,7 +44,7 @@ workbox.routing.registerRoute(
 
 // cache .ico files
 workbox.routing.registerRoute(
-    new RegExp('.*\.ico'),
+    new RegExp('.*\.ico$'),
     workbox.strategies.staleWhileRevalidate({
         // Use a custom cache name
         cacheName: 'workbox:image',
