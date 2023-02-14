@@ -240,7 +240,7 @@ export function CraftsList(props: Props) {
     }
 
     let shown = 0
-    let list = orderedCrafts.filter(craft=>!((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || craft.craftCost < minimumProfit)).map(craft => {
+    let list = orderedCrafts.filter(craft=>!((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || (craft.craftCost-craft.sellPrice) < minimumProfit)).map(craft => {
         shown++
 
         if (!hasPremium && shown <= 3) {
