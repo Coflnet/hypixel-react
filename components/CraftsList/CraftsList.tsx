@@ -160,7 +160,7 @@ export function CraftsList(props: Props) {
     }
 
     function getListElement(craft: ProfitableCraft, blur: boolean) {
-        if (((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || craft.craftCost < minimumProfit)&& !blur ) {
+        if (((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || (craft.craftCost-craft.sellPrice) < minimumProfit)&& !blur ) {
             return <span />
         }
         return (
