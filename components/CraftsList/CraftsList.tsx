@@ -160,7 +160,7 @@ export function CraftsList(props: Props) {
     }
 
     function getListElement(craft: ProfitableCraft, blur: boolean) {
-        if (((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || (craft.craftCost-craft.sellPrice) < minimumProfit)&& !blur ) {
+        if (((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || (craft.sellPrice-craft.craftCost) < minimumProfit)&& !blur ) {
             return <span />
         }
         return (
@@ -240,7 +240,7 @@ export function CraftsList(props: Props) {
     }
 
     let shown = 0
-    let list = orderedCrafts.filter(craft=>!((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || (craft.craftCost-craft.sellPrice) < minimumProfit)).map(craft => {
+    let list = orderedCrafts.filter(craft=>!((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || (craft.sellPrice-craft.craftCost) < minimumProfit)).map(craft => {
         shown++
 
         if (!hasPremium && shown <= 3) {
