@@ -43,7 +43,6 @@ let observer: MutationObserver
 
 export function KatFlips(props: Props) {
     let [nameFilter, setNameFilter] = useState<string | null>()
-    let [minimumTime, setMinimumTime] = useState<number>(0)
     let [minimumProfit, setMinimumProfit] = useState<number>(0)
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
     let [hasPremium, setHasPremium] = useState(false)
@@ -85,9 +84,6 @@ export function KatFlips(props: Props) {
     function onNameFilterChange(e: any) {
         setNameFilter(e.target.value)
     }
-    function onMinimumTimeChange(e: any) {
-        setMinimumTime(e.target.value)
-    }
     function onMinimumProfitChange(e: any) {
         setMinimumProfit(e.target.value)
     }
@@ -126,7 +122,7 @@ export function KatFlips(props: Props) {
     }
 
     function getListElement(flip: KatFlip, blur: boolean) {
-        if (((nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || flip.coreData.hours < minimumTime || flip.profit < minimumProfit)&&!blur) {
+        if (((nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || flip.coreData.hours < minimumTime)&&!blur) {
             return <span />
         }
         return (
@@ -219,7 +215,7 @@ export function KatFlips(props: Props) {
     }
 
     let shown = 0
-    let list = orderedFlips.filter(flip => !((nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || flip.coreData.hours < minimumTime || flip.profit < minimumProfit)).map(flip => {
+    let list = orderedFlips.filter(flip => !((nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || flip.profit < minimumProfit)).map(flip => {
         
         if (!hasPremium && ++shown <= 3) {
             let censoredFlip : KatFlip = { ...flip }
@@ -271,7 +267,6 @@ export function KatFlips(props: Props) {
                         <option value={option.value}>{option.label}</option>
                     ))}
                 </Form.Control>
-                <Form.Control className={styles.filterInput} placeholder='Minimum Time' onChange={onMinimumTimeChange} />
                 <Form.Control className={styles.filterInput} placeholder='Minimum Profit' onChange={onMinimumProfitChange} />
                 
 
