@@ -69,25 +69,22 @@ function ItemFilterPropertiesDisplay(props: Props) {
                         return ''
                     }
 
-                    // finds ">","<","="" and combinations at the beginning and "-" if inbetween 2 numbers
-                    let symbolRegexp = new RegExp(/^[<>=]+|(?<=\d)-(?=\d)/)
-
                     // finds ">","<","="" and combinations at the beginning
                     let beginningSymbolRegexp = new RegExp(/^[<>=]+/)
-
-                    if (!isNaN(Number(display.replace(symbolRegexp, '')))) {
+                    if (!isNaN(Number(display.replace(beginningSymbolRegexp, '')))) {
                         let symbols = display.match(beginningSymbolRegexp)
                         let number = display.replace(beginningSymbolRegexp, '')
-
-                        if (number.indexOf('-') !== -1) {
-                            display = number
-                                .split('-')
-                                .map(numberString => numberWithThousandsSeparators(Number(numberString)))
-                                .join('-')
-                        } else {
-                            display = numberWithThousandsSeparators(Number(number))
-                        }
+                        display = numberWithThousandsSeparators(Number(number))
                         display = symbols ? symbols[0] + display : display
+                    }
+
+                    // finds number ranges (e.g. "10000-999999")
+                    let numberRangeRegex = new RegExp(/^\d+-\d+$/)
+                    if (display.match(numberRangeRegex)) {
+                        display = display
+                            .split('-')
+                            .map(numberString => numberWithThousandsSeparators(Number(numberString)))
+                            .join('-')
                     }
 
                     // Special case -> display as date
