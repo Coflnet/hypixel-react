@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Container } from 'react-bootstrap'
 import api, { initAPI } from '../api/ApiHelper'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'

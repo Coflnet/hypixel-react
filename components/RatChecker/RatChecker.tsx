@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Card, Form } from 'react-bootstrap'
 import * as SparkMD5 from 'spark-md5'
 import api from '../../api/ApiHelper'

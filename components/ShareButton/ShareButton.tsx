@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Badge, Button, OverlayTrigger, Popover } from 'react-bootstrap'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import ShareIcon from '@mui/icons-material/ShareOutlined'

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import api from '../../../api/ApiHelper'
 import { convertTagToName } from '../../../utils/Formatter'
 import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import api from '../../api/ApiHelper'
