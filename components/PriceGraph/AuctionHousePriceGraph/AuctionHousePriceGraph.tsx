@@ -9,6 +9,7 @@ import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
 import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
 import RecentAuctions from '../../RecentAuctions/RecentAuctions'
+import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import styles from './AuctionHousePriceGraph.module.css'
@@ -195,6 +196,7 @@ function AuctionHousePriceGraph(props: Props) {
                 </div>
                 <hr />
             </div>
+            <RelatedItems tag={props.item.tag} />
             {fetchspan === DateRange.ACTIVE ? (
                 <ActiveAuctions item={props.item} filter={itemFilter} />
             ) : (

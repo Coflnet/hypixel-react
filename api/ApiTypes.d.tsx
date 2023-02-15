@@ -70,7 +70,8 @@ export enum RequestType {
     CHECK_FOR_RAT = 'checkForRat',
     GET_PREMIUM_PRODUCTS = 'premium/user/owns',
     UNSUBSCRIBE_ALL = 'unsubscribeAll',
-    GET_ITEM_NAMES = 'items/names'
+    GET_ITEM_NAMES = 'items/names',
+    RELATED_ITEMS = 'realtedItems'
 }
 
 export enum SubscriptionType {

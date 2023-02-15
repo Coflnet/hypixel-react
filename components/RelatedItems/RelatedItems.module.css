@@ -1,0 +1,16 @@
+.cardWrapper {
+    padding: 0 15px 15px 0;
+    display: inline-block;
+    cursor: pointer;
+    /* Make the container element behave like a table */
+    /* Set full-width to expand the whole page */
+}
+
+.cardsWrapper {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.cardWrapper :global(.card) {
+    height: 100%;
+}
