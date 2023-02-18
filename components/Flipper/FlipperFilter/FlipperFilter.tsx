@@ -1,7 +1,7 @@
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import FilterIcon from '@mui/icons-material/BallotOutlined'
 import SettingsIcon from '@mui/icons-material/Settings'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import NumberFormat from 'react-number-format'
 import { v4 as generateUUID } from 'uuid'

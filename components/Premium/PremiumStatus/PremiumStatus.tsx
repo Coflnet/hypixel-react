@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { getLocalDateAndTime } from '../../../utils/Formatter'
 import { getHighestPriorityPremiumProduct, getPremiumType } from '../../../utils/PremiumTypeUtils'
 import Tooltip from '../../Tooltip/Tooltip'
