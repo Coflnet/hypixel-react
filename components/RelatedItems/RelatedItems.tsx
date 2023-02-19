@@ -19,7 +19,7 @@ function RelatedItems(props: Props) {
 
     return (
         <>
-            <h2>Similar items</h2>
+            <h3>Similar items</h3>
             <div>
                 {relatedItems.map(item => (
                     <div className={`${styles.cardWrapper} disableLinkStyle`} key={item.tag}>
