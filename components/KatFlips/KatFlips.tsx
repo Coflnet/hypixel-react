@@ -122,7 +122,7 @@ export function KatFlips(props: Props) {
     }
 
     function getListElement(flip: KatFlip, blur: boolean) {
-        if (((nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || flip.coreData.hours < minimumTime)&&!blur) {
+        if ((nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1)&&!blur) {
             return <span />
         }
         return (
