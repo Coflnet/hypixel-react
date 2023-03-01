@@ -469,6 +469,49 @@ function Flipper(props: Props) {
         </div>
     )
 
+    let resetSettingsElement = (
+        <span>
+            Reset Flipper settings back to default
+            <Button
+                style={{ marginLeft: '5px' }}
+                onClick={() => {
+                    setShowResetToDefaultDialog(true)
+                }}
+            >
+                Reset
+            </Button>
+            <Modal
+                show={showResetToDefaultDialog}
+                onHide={() => {
+                    setShowResetToDefaultDialog(false)
+                }}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirmation</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to reset all the flipper settings?</p>
+                    <p>
+                        <b>This will delete all your filter, settings and black-/whitelist.</b>
+                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Button variant="danger" style={{ width: '45%' }} onClick={resetSettingsToDefault}>
+                            RESET <DeleteIcon />
+                        </Button>
+                        <Button
+                            style={{ width: '45%' }}
+                            onClick={() => {
+                                setShowResetToDefaultDialog(false)
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </Modal.Body>
+            </Modal>
+        </span>
+    )
+
     return (
         <div className={styles.flipper}>
             <Card>
@@ -503,47 +546,10 @@ function Flipper(props: Props) {
                                 />
                             </Form.Group>
                             <Form.Group>
-                                <Button style={{ cursor: 'pointer', marginRight: '10px', backgroundColor: 'red' }} onClick={clearFlips}>
-                                    Clear flips! <DeleteIcon />
-                                </Button>
-                            </Form.Group>
-                            <Form.Group>
-                                <Button
-                                    onClick={() => {
-                                        setShowResetToDefaultDialog(true)
-                                    }}
-                                >
-                                    Reset Settings
-                                </Button>
-                                <Modal
-                                    show={showResetToDefaultDialog}
-                                    onHide={() => {
-                                        setShowResetToDefaultDialog(false)
-                                    }}
-                                >
-                                    <Modal.Header closeButton>
-                                        <Modal.Title>Confirmation</Modal.Title>
-                                    </Modal.Header>
-                                    <Modal.Body>
-                                        <p>Are you sure you want to reset all the flipper settings?</p>
-                                        <p>
-                                            <b>This will delete all your filter, settings and black-/whitelist.</b>
-                                        </p>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                            <Button variant="danger" style={{ width: '45%' }} onClick={resetSettingsToDefault}>
-                                                RESET <DeleteIcon />
-                                            </Button>
-                                            <Button
-                                                style={{ width: '45%' }}
-                                                onClick={() => {
-                                                    setShowResetToDefaultDialog(false)
-                                                }}
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </div>
-                                    </Modal.Body>
-                                </Modal>
+                                <div style={{ display: 'contents', cursor: 'pointer', marginRight: '10px' }} onClick={clearFlips}>
+                                    <Form.Label>Clear flips!</Form.Label>
+                                    <DeleteIcon color="error" />
+                                </div>
                             </Form.Group>
                             {hasPremium ? (
                                 <Tooltip
@@ -633,6 +639,7 @@ function Flipper(props: Props) {
                             <hr />
                         </div>
                     )}
+                    {resetSettingsElement}
                 </Card.Footer>
             </Card>
             {selectedAuctionUUID ? (

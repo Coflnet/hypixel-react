@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'

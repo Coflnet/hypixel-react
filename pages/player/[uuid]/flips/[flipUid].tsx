@@ -6,7 +6,7 @@ import { initAPI } from '../../../../api/ApiHelper'
 import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
 import { getCacheControlHeader } from '../../../../utils/CacheUtils'
-import { numberWithThousandsSeparators } from '../../../../utils/Formatter'
+import { numberWithThousandsSeparators, removeMinecraftColorCoding } from '../../../../utils/Formatter'
 import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../../../utils/SSRUtils'
 
@@ -39,7 +39,7 @@ function Flipper(props: Props) {
                       getTargetFlipEmbedDescription(targetFlip!),
                       targetFlip?.item.iconUrl?.split('?')[0],
                       ['tracker'],
-                      `Flip: ${targetFlip?.item.name}`
+                      `Flip: ${removeMinecraftColorCoding(targetFlip?.item.name)}`
                   )
                 : getHeadElement(
                       `Tracked flips of ${player.name}`,

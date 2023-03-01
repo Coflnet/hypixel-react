@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Button, Card, Form, Modal } from 'react-bootstrap'

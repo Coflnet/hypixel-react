@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser'
 import FilterElement from '../FilterElement/FilterElement'
