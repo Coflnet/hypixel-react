@@ -120,7 +120,12 @@ export const FLIP_FINDERS = [
         ),
         selectable: true
     },
-    { value: '32', label: 'TFM', shortLabel: 'TFM', default: false, description: '', selectable: true },
+    { value: '32', label: 'TFM', shortLabel: 'TFM', default: false, description: (
+            <span>
+                These are flips from TFM (TheFlippingMod)<br /> 
+                The integration is currently under development.",
+            </span>
+        ), selectable: true },
     { value: '64', label: 'Stonks', shortLabel: 'Stonks', default: false, description: '', selectable: true },
     { value: '128', label: 'External', shortLabel: 'External', default: false, description: '', selectable: false }
 ]
