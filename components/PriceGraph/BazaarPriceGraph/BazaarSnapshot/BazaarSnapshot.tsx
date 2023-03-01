@@ -113,27 +113,27 @@ function BazaarSnapshot(props: Props) {
             <div className={styles.flex}>
                 <Card className={styles.informationField}>
                     <Card.Header>
-                        <Card.Title>Buy information</Card.Title>
-                    </Card.Header>
-                    <Card.Body>{getInformationBody(bazaarSnapshot.buyData)}</Card.Body>
-                </Card>
-                <Card className={styles.informationField}>
-                    <Card.Header>
                         <Card.Title>Sell information</Card.Title>
                     </Card.Header>
                     <Card.Body>{getInformationBody(bazaarSnapshot.sellData)}</Card.Body>
+                </Card>
+                <Card className={styles.informationField}>
+                    <Card.Header>
+                        <Card.Title>Buy information</Card.Title>
+                    </Card.Header>
+                    <Card.Body>{getInformationBody(bazaarSnapshot.buyData)}</Card.Body>
                 </Card>
             </div>
             <div className={styles.flex}>
                 <Card className={styles.informationField}>
                     <Card.Header>
-                        <Card.Title>Buy orders</Card.Title>
+                        <Card.Title>Sell orders</Card.Title>
                     </Card.Header>
                     <Card.Body>{getOrderListElement(bazaarSnapshot.buyOrders)}</Card.Body>
                 </Card>
                 <Card className={styles.informationField}>
                     <Card.Header>
-                        <Card.Title>Sell orders</Card.Title>
+                        <Card.Title>Buy orders</Card.Title>
                     </Card.Header>
                     <Card.Body>{getOrderListElement(bazaarSnapshot.sellOrders)}</Card.Body>
                 </Card>
