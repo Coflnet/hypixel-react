@@ -108,31 +108,49 @@ function FlipCustomize() {
     }
 
     function getFlipFinderWarningElement(): JSX.Element {
-        if (!flipCustomizeSettings.useLowestBinForProfit) {
-            return <></>
-        }
+        let warnings: string[] = []
+
         let sniperFinder = FLIP_FINDERS.find(finder => finder.label === 'Sniper')
-        if (!sniperFinder) {
-            console.error("Finder with label 'Sniper' not found")
-            return <></>
-        }
         if (
-            !flipCustomizeSettings.finders ||
-            flipCustomizeSettings.finders.length === 0 ||
-            flipCustomizeSettings.finders.length > 1 ||
-            flipCustomizeSettings.finders[0].toString() !== sniperFinder.value
+            sniperFinder &&
+            flipCustomizeSettings.useLowestBinForProfit &&
+            (!flipCustomizeSettings.finders ||
+                flipCustomizeSettings.finders.length === 0 ||
+                flipCustomizeSettings.finders.length > 1 ||
+                flipCustomizeSettings.finders[0].toString() !== sniperFinder.value)
         ) {
+            warnings.push(
+                'Only use the "Sniper"-Finder with "Use lbin to calculate profit option". Using other finders may lead to muliple seconds of delay as this will require additional calculations.'
+            )
+        }
+
+        let tfmFinder = FLIP_FINDERS.find(finder => finder.label === 'TFM')
+        if (flipCustomizeSettings.finders.find(finder => finder.toString() === tfmFinder.value)) {
+            warnings.push('The "TFM"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
+        }
+
+        let stonksFinder = FLIP_FINDERS.find(finder => finder.label === 'Stonks')
+        if (flipCustomizeSettings.finders.find(finder => finder.toString() === stonksFinder.value)) {
+            warnings.push('The "Stonks"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
+        }
+
+        if (warnings.length === 0) {
+            return null
+        }
+        if (warnings.length === 1) {
             return (
                 <b>
-                    <p style={{ color: 'red' }}>
-                        Only use the "Sniper"-Finder with 'Use lbin to calculate profit option'. Using other finders may lead to muliple seconds of delay as
-                        this will require additional calculations.
-                    </p>
+                    <p style={{ color: 'red' }}>{warnings[0]}</p>
                 </b>
             )
-        } else {
-            return <></>
         }
+        return (
+            <ul style={{ color: 'red' }}>
+                {warnings.map(warning => (
+                    <li>{warning}</li>
+                ))}
+            </ul>
+        )
     }
 
     const useLowestBinHelpElement = (
