@@ -127,13 +127,13 @@ function BazaarSnapshot(props: Props) {
             <div className={styles.flex}>
                 <Card className={styles.informationField}>
                     <Card.Header>
-                        <Card.Title>Buy orders</Card.Title>
+                        <Card.Title>Sell orders</Card.Title>
                     </Card.Header>
                     <Card.Body>{getOrderListElement(bazaarSnapshot.buyOrders)}</Card.Body>
                 </Card>
                 <Card className={styles.informationField}>
                     <Card.Header>
-                        <Card.Title>Sell orders</Card.Title>
+                        <Card.Title>Buy orders</Card.Title>
                     </Card.Header>
                     <Card.Body>{getOrderListElement(bazaarSnapshot.sellOrders)}</Card.Body>
                 </Card>
