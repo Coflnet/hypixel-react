@@ -126,7 +126,12 @@ export const FLIP_FINDERS = [
                 The integration is currently under development.",
             </span>
         ), selectable: true },
-    { value: '64', label: 'Stonks', shortLabel: 'Stonks', default: false, description: '', selectable: true },
+    { value: '64', label: 'Stonks', shortLabel: 'Stonks', default: false, description:  (
+            <span>
+                Experimental finder trying to predict the value of an item without references <br /> 
+                This is under active development and will occasionally overvalue flips, use with caution.",
+            </span>
+        ), selectable: true },
     { value: '128', label: 'External', shortLabel: 'External', default: false, description: '', selectable: false }
 ]
 
