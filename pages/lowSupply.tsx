@@ -43,18 +43,18 @@ function LowSupply(props: Props) {
             <Container>
                 <h2>
                     <NavBar />
-                    Low supply items
+                    Low Supply Items
                 </h2>
                 <hr />
-                {isLoggedIn && hasPremium ? (
-                    <div>
-                        <p>These are low supply items. Strong price fluctuation may occur.</p>
-                        <LowSupplyList lowSupplyItems={props.lowSupplyItems?.map(parseLowSupplyItem)} />
-                    </div>
-                ) : null}
                 {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
                 {!wasAlreadyLoggedIn && !isLoggedIn ? <p>You need to be logged in and have premium to see this page.</p> : ''}
                 {isLoggedIn && !hasPremium ? <p>You need to have premium to see this page.</p> : ''}
+                {isLoggedIn && hasPremium ? (
+                    <div>
+                        <p>These are low supply items. Strong price fluctuations may occur.</p>
+                        <LowSupplyList lowSupplyItems={props.lowSupplyItems?.map(parseLowSupplyItem)} />
+                    </div>
+                ) : null}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             </Container>
         </div>

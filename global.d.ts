@@ -430,6 +430,7 @@ interface KatFlip {
     referenceAuctionUUID: string
     purchaseCost: number
     cost: number
+    originAuctionName: string
 }
 
 interface FlipTrackingPropertyChange {

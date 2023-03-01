@@ -485,7 +485,8 @@ export function parseKatFlip(katFlip): KatFlip {
         referenceAuctionUUID: katFlip.referenceAuction,
         targetRarity: katFlip.targetRarity,
         upgradeCost: katFlip.upgradeCost,
-        volume: katFlip.volume
+        volume: katFlip.volume,
+        originAuctionName: katFlip.originAuctionName
     } as KatFlip
     flip.coreData.item.iconUrl = api.getItemImageUrl(flip.coreData.item)
     return flip

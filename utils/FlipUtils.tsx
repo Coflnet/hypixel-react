@@ -61,7 +61,7 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     try {
         settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY))
 
-        // Felder, die spezielle default values haben
+        // Fields that have special default values
         if (settings.hideSecondLowestBin !== false) {
             settings.hideSecondLowestBin = true
         }
