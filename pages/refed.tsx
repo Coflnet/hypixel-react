@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button, Container, Card } from 'react-bootstrap'
 import Link from 'next/link'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'

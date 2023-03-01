@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Search from '../../../components/Search/Search'
 import { Button, Container, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api, { initAPI } from '../../../api/ApiHelper'
