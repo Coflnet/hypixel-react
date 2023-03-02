@@ -330,7 +330,8 @@ export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: Flip
             shortNumbers: flipSettings.shortNumbers,
             blockTenSecMsg: flipSettings.blockTenSecMsg,
             format: flipSettings.modFormat,
-            chat: !flipSettings.hideModChat
+            chat: !flipSettings.hideModChat,
+            noAdjustToPurse: flipSettings.modNoAdjustToPurse
         },
         visibility: {
             cost: !flipSettings.hideCost,
