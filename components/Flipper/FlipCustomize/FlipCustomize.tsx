@@ -516,6 +516,21 @@ function FlipCustomize() {
                                     type="checkbox"
                                 />
                             </Form.Group>
+                            <Form.Group>
+                                <Form.Label className={styles.label} htmlFor="modCountdown">
+                                    Automatic maxCost
+                                </Form.Label>
+                                <Form.Check
+                                    onChange={event => {
+                                        updateApiSetting('modNoAdjustToPurse', !event.target.checked)
+                                        setFlipCustomizeSetting('modNoAdjustToPurse', !event.target.checked)
+                                    }}
+                                    defaultChecked={!flipCustomizeSettings.modNoAdjustToPurse}
+                                    id="modNoAdjustToPurse"
+                                    style={{ display: 'inline' }}
+                                    type="checkbox"
+                                />
+                            </Form.Group>
                         </div>
                     </Form>
                     <div style={{ marginLeft: '30px', marginRight: '30px' }}>

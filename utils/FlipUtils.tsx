@@ -170,6 +170,7 @@ export const DEFAULT_FLIP_SETTINGS = {
         hideLore: true,
         hideModChat: false,
         hideSellerOpenBtn: false,
+        modNoAdjustToPurse: false,
         modFormat: '',
         modCountdown: false
     } as FlipCustomizeSettings,

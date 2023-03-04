@@ -83,6 +83,7 @@ export function setSettingsChangedData(data: any): Promise<void> {
                 blockTenSecMsg: data.mod.blockTenSecMsg,
                 hideModChat: !data.mod.chat,
                 modFormat: data.mod.format,
+                modNoAdjustToPurse: data.mod.noAdjustToPurse,
                 modCountdown: data.mod.countdown,
                 disableLinks: !data.visibility.links,
                 hideCopySuccessMessage: !data.visibility.copySuccessMessage,
