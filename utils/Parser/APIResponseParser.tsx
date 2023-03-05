@@ -557,18 +557,18 @@ export function parseFlipTrackingResponse(flipTrackingResponse): FlipTrackingRes
 export function parseBazaarPrice(bazaarPrice): BazaarPrice {
     return {
         buyData: {
-            max: bazaarPrice.maxBuy,
-            min: bazaarPrice.minBuy,
-            price: bazaarPrice.buy,
-            volume: bazaarPrice.buyVolume,
-            moving: bazaarPrice.buyMovingWeek
+            max: bazaarPrice.maxBuy || 0,
+            min: bazaarPrice.minBuy || 0,
+            price: bazaarPrice.buy || 0,
+            volume: bazaarPrice.buyVolume || 0,
+            moving: bazaarPrice.buyMovingWeek || 0
         },
         sellData: {
-            max: bazaarPrice.maxSell,
-            min: bazaarPrice.minSell,
-            price: bazaarPrice.sell,
-            volume: bazaarPrice.sellVolume,
-            moving: bazaarPrice.sellMovingWeek
+            max: bazaarPrice.maxSell || 0,
+            min: bazaarPrice.minSell || 0,
+            price: bazaarPrice.sell || 0,
+            volume: bazaarPrice.sellVolume || 0,
+            moving: bazaarPrice.sellMovingWeek || 0
         },
         timestamp: parseDate(bazaarPrice.timestamp)
     }
