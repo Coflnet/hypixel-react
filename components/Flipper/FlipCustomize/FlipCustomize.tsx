@@ -518,7 +518,7 @@ function FlipCustomize() {
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label className={styles.label} htmlFor="modCountdown">
-                                    Automatic maxCost
+                                    Set maxCost to purse
                                 </Form.Label>
                                 <Form.Check
                                     onChange={event => {
