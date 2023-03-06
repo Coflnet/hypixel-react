@@ -83,6 +83,7 @@ export function setSettingsChangedData(data: any): Promise<void> {
                 blockTenSecMsg: data.mod.blockTenSecMsg,
                 hideModChat: !data.mod.chat,
                 modFormat: data.mod.format,
+                modNoAdjustToPurse: data.mod.noAdjustToPurse,
                 modCountdown: data.mod.countdown,
                 disableLinks: !data.visibility.links,
                 hideCopySuccessMessage: !data.visibility.copySuccessMessage,
@@ -330,7 +331,8 @@ export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: Flip
             shortNumbers: flipSettings.shortNumbers,
             blockTenSecMsg: flipSettings.blockTenSecMsg,
             format: flipSettings.modFormat,
-            chat: !flipSettings.hideModChat
+            chat: !flipSettings.hideModChat,
+            noAdjustToPurse: flipSettings.modNoAdjustToPurse
         },
         visibility: {
             cost: !flipSettings.hideCost,

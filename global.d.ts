@@ -321,6 +321,7 @@ interface FlipCustomizeSettings {
     hideLore?: boolean
     modFormat?: string
     modCountdown?: boolean
+    modNoAdjustToPurse?: boolean
 }
 
 interface FlipRestriction {
