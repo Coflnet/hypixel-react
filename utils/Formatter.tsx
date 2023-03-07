@@ -141,9 +141,9 @@ export function formatToPriceToShorten(num: number, decimals: number = 0): strin
         { mult: 1e6, suffix: 'M' },
         { mult: 1e3, suffix: 'k' },
         { mult: 1, suffix: '' }
-    ];
-    var mult = multMap.find(m => num >= m.mult);
-    return (num / mult.mult).toFixed(decimals) + mult.suffix;
+    ]
+    var mult = multMap.find(m => num >= m.mult) || multMap[multMap.length - 1]
+    return (num / mult.mult).toFixed(decimals) + mult.suffix
 }
 
 export function getThousandSeparator() {
@@ -179,7 +179,7 @@ export function getNumberFromShortenString(shortString?: string): number | undef
         { value: 1e6, suffix: 'M' },
         { value: 1e3, suffix: 'k' },
         { value: 1, suffix: '' }
-    ].find((val) => shortString.includes(val.suffix))
+    ].find(val => shortString.includes(val.suffix))
     return parseFloat(shortString.at(-1) == val.suffix ? shortString.slice(0, -1) : shortString) * val.value
 }
 
@@ -213,7 +213,7 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
     if (dungeonItemLevelString) {
         try {
             numberOfMasterstars = Math.max(parseInt(dungeonItemLevelString) - 5, 0)
-        } catch { }
+        } catch {}
     }
 
     if (!stars || stars.length === 0) {
@@ -225,17 +225,17 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
     let starsLastChar = starsString.charAt(starsString.length - 1)
     let starWithNumber = starsLastChar === '✪' ? undefined : starsLastChar
 
-    let normalStarElement = <span style={yellowStarStyle}>{'✪'.repeat(starsString.length - numberOfMasterstars)}</span>;
+    let normalStarElement = <span style={yellowStarStyle}>{'✪'.repeat(starsString.length - numberOfMasterstars)}</span>
     if (starWithNumber) {
         normalStarElement = <span style={yellowStarStyle}>{starsString.substring(0, starsString.length - 1)}</span>
     }
 
     return (
         <span style={style}>
-            {itemName ? <span style={itemNameStyle}>{itemName}</span> : null}
-            {' '}
-            {normalStarElement}
-            {starWithNumber || numberOfMasterstars ? <span style={redStarStyle}>{starWithNumber ? starWithNumber : '✪'.repeat(numberOfMasterstars)}</span> : null}
+            {itemName ? <span style={itemNameStyle}>{itemName}</span> : null} {normalStarElement}
+            {starWithNumber || numberOfMasterstars ? (
+                <span style={redStarStyle}>{starWithNumber ? starWithNumber : '✪'.repeat(numberOfMasterstars)}</span>
+            ) : null}
         </span>
     )
 }
