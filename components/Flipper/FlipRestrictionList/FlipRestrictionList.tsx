@@ -339,7 +339,6 @@ function FlipRestrictionList(props: Props) {
                 }
             })
             .catch(e => {
-                console.error(e)
                 toast.error('Error reloaded item names')
             })
     }
