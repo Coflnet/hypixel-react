@@ -338,7 +338,7 @@ function FlipRestrictionList(props: Props) {
                     props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
                 }
             })
-            .catch(e => {
+            .catch(() => {
                 toast.error('Error reloaded item names')
             })
     }
