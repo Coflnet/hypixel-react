@@ -215,9 +215,15 @@ function FlipRestrictionList(props: Props) {
         return restrictions.map(restriction => {
             let newRestriction = {
                 type: restriction.type,
-                item: restriction.item,
                 tags: restriction.tags
             } as FlipRestriction
+
+            if (restriction.item) {
+                newRestriction.item = {
+                    tag: restriction.item?.tag,
+                    name: restriction.item?.name
+                }
+            }
 
             if (restriction.itemFilter) {
                 newRestriction.itemFilter = {}
@@ -332,7 +338,8 @@ function FlipRestrictionList(props: Props) {
                     props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
                 }
             })
-            .catch(() => {
+            .catch(e => {
+                console.error(e)
                 toast.error('Error reloaded item names')
             })
     }
