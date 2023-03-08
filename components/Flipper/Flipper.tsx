@@ -177,7 +177,6 @@ function Flipper(props: Props) {
 
     function onArrowRightClick() {
         listRef.current?.scrollToItem(flips.length - 1)
-        
     }
 
     function _setAutoScroll(value: boolean) {
@@ -213,7 +212,7 @@ function Flipper(props: Props) {
     }
 
     function clearFlips() {
-        setFlips([]);
+        setFlips([])
     }
 
     function onAuctionSold(uuid: string) {
@@ -312,9 +311,8 @@ function Flipper(props: Props) {
 
     function onFilterChange(newFilter) {
         setFlipperFilter(newFilter)
-        setFlips([]);
+        setFlips([])
         listRef.current?.scrollToItem(flips.length - 1)
-
     }
 
     function onCopyFlip(flip: FlipAuction) {
@@ -342,7 +340,10 @@ function Flipper(props: Props) {
         }
         parsed.push({
             type: 'blacklist',
-            item: flip.item,
+            item: {
+                tag: flip.item.tag,
+                name: flip.item.name
+            },
             itemFilter: {}
         })
 

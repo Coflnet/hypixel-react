@@ -3,7 +3,7 @@ import { Badge, Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } fro
 import api from '../../../api/ApiHelper'
 import { getStyleForTier } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
-import { getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
+import { getCleanRestrictionsForApi, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Refresh from '@mui/icons-material/Refresh'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
@@ -39,6 +39,7 @@ function FlipRestrictionList(props: Props) {
                 restriction.item.iconUrl = api.getItemImageUrl(restriction.item)
             }
         })
+        setRestrictions(restrictions)
         loadFilters()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -208,38 +209,6 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
         }
         setRestrictions(restrictions)
-    }
-
-    /**
-     * Removes private properties starting with a _ from the restrictions, because the backend cant handle these.
-     * These also have to be saved into the localStorage because they could get sent to the api from there
-     * @param restrictions The restrictions
-     * @returns A new array containing restrictions without private properties
-     */
-    function getCleanRestrictionsForApi(restrictions: FlipRestriction[]) {
-        return restrictions.map(restriction => {
-            let newRestriction = {
-                type: restriction.type,
-                tags: restriction.tags
-            } as FlipRestriction
-
-            if (restriction.item) {
-                newRestriction.item = {
-                    tag: restriction.item?.tag,
-                    name: restriction.item?.name
-                }
-            }
-
-            if (restriction.itemFilter) {
-                newRestriction.itemFilter = {}
-                Object.keys(restriction.itemFilter).forEach(key => {
-                    if (!key.startsWith('_')) {
-                        newRestriction.itemFilter![key] = restriction.itemFilter![key]
-                    }
-                })
-            }
-            return newRestriction
-        })
     }
 
     function saveRestrictionEdit(restriction: FlipRestriction, index: number) {

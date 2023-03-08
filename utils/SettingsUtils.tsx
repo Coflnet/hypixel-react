@@ -169,7 +169,7 @@ export function setSettingsChangedData(data: any): Promise<void> {
         }
 
         Promise.all([_addListToRestrictions(data.whitelist, 'whitelist'), _addListToRestrictions(data.blacklist, 'blacklist')]).then(results => {
-            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(results[0].concat(results[1])))
+            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(results[0].concat(results[1]))))
 
             document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
             resolve()
@@ -295,7 +295,7 @@ export async function handleSettingsImport(importString: string) {
 
     setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
     setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
-    setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(restrictions))
+    setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
 
     api.subscribeFlips(
         restrictions || [],
@@ -368,6 +368,38 @@ export function storeUsedTagsInLocalStorage(restrictions: FlipRestriction[]) {
         }
     })
     localStorage.setItem(CURRENTLY_USED_TAGS, tags.size > 0 ? JSON.stringify(Array.from(tags)) : '[]')
+}
+
+/**
+ * Removes private properties starting with a _ from the restrictions, because the backend cant handle these.
+ * These also have to be saved into the localStorage because they could get sent to the api from there
+ * @param restrictions The restrictions
+ * @returns A new array containing restrictions without private properties
+ */
+export function getCleanRestrictionsForApi(restrictions: FlipRestriction[]) {
+    return restrictions.map(restriction => {
+        let newRestriction = {
+            type: restriction.type,
+            tags: restriction.tags
+        } as FlipRestriction
+
+        if (restriction.item) {
+            newRestriction.item = {
+                tag: restriction.item?.tag,
+                name: restriction.item?.name
+            }
+        }
+
+        if (restriction.itemFilter) {
+            newRestriction.itemFilter = {}
+            Object.keys(restriction.itemFilter).forEach(key => {
+                if (!key.startsWith('_')) {
+                    newRestriction.itemFilter![key] = restriction.itemFilter![key]
+                }
+            })
+        }
+        return newRestriction
+    })
 }
 
 export const FLIP_CUSTOMIZING_KEY = 'flipCustomizing'
