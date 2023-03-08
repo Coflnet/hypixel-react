@@ -189,7 +189,7 @@ export async function handleSettingsImport(importString: string) {
 
     try {
         let importObject = JSON.parse(importString)
-        if (importObject.changer) {
+        if (importObject.whitelist !== undefined) {
             // Handle import in server-side format
             let settings = await setSettingsFromServerSide(importObject)
             filter = settings.filter
