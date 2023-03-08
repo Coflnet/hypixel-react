@@ -34,6 +34,11 @@ function FlipRestrictionList(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
+        restrictions.forEach(restriction => {
+            if (restriction.item && restriction.item.tag) {
+                restriction.item.iconUrl = api.getItemImageUrl(restriction.item)
+            }
+        })
         loadFilters()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
