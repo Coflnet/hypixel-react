@@ -24,7 +24,7 @@ interface Props {
 function FlipRestrictionList(props: Props) {
     let [newRestriction, setNewRestriction] = useState<FlipRestriction>({ type: 'blacklist' })
     let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(false)
-    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []))
+    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getInitialFlipRestrictions())
     let [filters, setFilters] = useState<FilterOptions[]>()
     let [restrictionInEditModeIndex, setRestrictionsInEditModeIndex] = useState<number[]>([])
     let [showClearListDialog, setShowClearListDialog] = useState(false)
@@ -34,15 +34,20 @@ function FlipRestrictionList(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
+        setRestrictions(restrictions)
+        loadFilters()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    function getInitialFlipRestrictions() {
+        let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
         restrictions.forEach(restriction => {
             if (restriction.item && restriction.item.tag) {
                 restriction.item.iconUrl = api.getItemImageUrl(restriction.item)
             }
         })
-        setRestrictions(restrictions)
-        loadFilters()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+        return restrictions
+    }
 
     function loadFilters(restrictionsInEditMode: FlipRestriction[] = []): Promise<FilterOptions[]> {
         if (restrictionsInEditMode.length === 0) {
