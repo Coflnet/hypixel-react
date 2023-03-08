@@ -89,6 +89,7 @@ function ActiveAuctions(props: Props) {
                 if (auctions.length < FETCH_RESULT_SIZE) {
                     setAllElementsLoaded(true)
                 } else if (reset) {
+                    // if reset and there are more to load, load another batch to not break the endless scrolling
                     setTimeout(() => {
                         loadActiveAuctions()
                     }, 0)
