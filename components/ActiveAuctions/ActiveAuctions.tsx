@@ -37,11 +37,16 @@ function ActiveAuctions(props: Props) {
     let isLoadingElements = useRef(false)
 
     useEffect(() => {
-        loadActiveAuctions()
+        loadActiveAuctions(true)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag, JSON.stringify(props.filter), order])
 
-    function loadActiveAuctions() {
+    function loadActiveAuctions(reset: boolean = false) {
+        if (reset) {
+            setActiveAuctions([])
+            setAllElementsLoaded(false)
+        }
+
         var filterString = JSON.stringify({
             item: props.item,
             filter: props.filter
@@ -52,7 +57,7 @@ function ActiveAuctions(props: Props) {
         isLoadingElements.current = true
         currentLoad = filterString
 
-        let page = Math.ceil(activeAuctionsRef.current.length / FETCH_RESULT_SIZE)
+        let page = reset ? 0 : Math.ceil(activeAuctionsRef.current.length / FETCH_RESULT_SIZE)
         let maxPages = 10
         switch (premiumType?.priority) {
             case PREMIUM_RANK.STARTER:
@@ -83,8 +88,14 @@ function ActiveAuctions(props: Props) {
                 isLoadingElements.current = false
                 if (auctions.length < FETCH_RESULT_SIZE) {
                     setAllElementsLoaded(true)
+                } else if (reset) {
+                    // if reset and there are more to load, load another batch to not break the endless scrolling
+                    setTimeout(() => {
+                        loadActiveAuctions()
+                    }, 0)
                 }
-                setActiveAuctions([...activeAuctionsRef.current, ...auctions])
+
+                setActiveAuctions(reset ? auctions : [...activeAuctionsRef.current, ...auctions])
             })
             .catch(() => {
                 isLoadingElements.current = false
