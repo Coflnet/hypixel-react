@@ -165,6 +165,8 @@ function AccountDetails() {
                             </p>
                         </div>
                     )}
+                    {/* Add in Minecraft User(s) linked to this Google Account as a verifier of other features and confirmation of linking */}
+                    {/* <LinkedAccounts accounts={getPlayerName} */}
                     <PremiumStatus products={products} labelStyle={{ width: '300px', fontWeight: 'bold' }} />
                     <p>
                         <span className={styles.label}>CoflCoins:</span> {numberWithThousandsSeparators(coflCoins)}
