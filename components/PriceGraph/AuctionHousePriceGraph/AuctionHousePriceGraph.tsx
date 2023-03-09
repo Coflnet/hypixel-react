@@ -196,11 +196,15 @@ function AuctionHousePriceGraph(props: Props) {
                 </div>
                 <hr />
             </div>
-            <RelatedItems tag={props.item.tag} />
             {fetchspan === DateRange.ACTIVE ? (
                 <ActiveAuctions item={props.item} filter={itemFilter} />
             ) : (
-                <RecentAuctions item={props.item} itemFilter={itemFilter} />
+                <div>
+                    <div style={{ paddingBottom: '25px' }}>
+                        <RelatedItems tag={props.item.tag} />
+                    </div>
+                    <RecentAuctions item={props.item} itemFilter={itemFilter} />
+                </div>
             )}
         </div>
     )

@@ -14,3 +14,8 @@
 .cardWrapper :global(.card) {
     height: 100%;
 }
+
+.hideIcon {
+    cursor: pointer;
+    padding: 15px 15px 15px 15px;
+}
