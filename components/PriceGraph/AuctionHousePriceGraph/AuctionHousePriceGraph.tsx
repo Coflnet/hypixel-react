@@ -200,9 +200,7 @@ function AuctionHousePriceGraph(props: Props) {
                 <ActiveAuctions item={props.item} filter={itemFilter} />
             ) : (
                 <div>
-                    <div style={{ paddingBottom: '25px' }}>
-                        <RelatedItems tag={props.item.tag} />
-                    </div>
+                    <RelatedItems tag={props.item.tag} />
                     <RecentAuctions item={props.item} itemFilter={itemFilter} />
                 </div>
             )}

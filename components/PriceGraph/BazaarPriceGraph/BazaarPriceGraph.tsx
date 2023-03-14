@@ -403,10 +403,8 @@ function BazaarPriceGraph(props: Props) {
                         <ShareButton title={'Prices for ' + props.item.name} text="Browse the Bazaar history in Hypixel Skyblock" />
                     </div>
                 </div>
-                <hr />{' '}
-                <div style={{ paddingBottom: '25px' }}>
-                    <RelatedItems tag={props.item.tag} />
-                </div>
+                <hr />
+                <RelatedItems tag={props.item.tag} />
                 <BazaarSnapshot item={props.item} />
             </div>
         </div>

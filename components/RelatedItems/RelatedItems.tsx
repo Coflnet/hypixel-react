@@ -34,7 +34,7 @@ function RelatedItems(props: Props) {
     return (
         <>
             {!hide ? (
-                <div>
+                <div style={{ paddingBottom: '25px' }}>
                     <h3>
                         Similar items
                         <span className={styles.hideIcon} title="Hide similar items" onClick={toggleHide}>
