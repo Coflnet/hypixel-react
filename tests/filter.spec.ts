@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test'
 
-test('test', async ({ page }) => {
+test('test', async ({ page, browserName, isMobile }) => {
+    // Mobile Safari cant open the page for some reason
+    test.skip(browserName === 'webkit' && isMobile, 'Scrolling is not supported on mobile safari')
     await page.goto('/item/ASPECT_OF_THE_DRAGON')
     await page.getByRole('link', { name: 'Add Filter' }).click()
     await page.getByPlaceholder('Add filter').fill('shar')
