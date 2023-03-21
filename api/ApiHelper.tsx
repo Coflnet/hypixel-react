@@ -1721,6 +1721,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getRelatedItems = (tag: string): Promise<Item[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.RELATED_ITEMS,
+                customRequestURL: `${getApiEndpoint()}/item/${tag}/similar`,
+                data: '',
+                resolve: data => {
+                    resolve(data.map(item => parseItem(item)))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.RELATED_ITEMS, error, tag)
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1790,7 +1807,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getPremiumProducts,
         unsubscribeAll,
         getItemNames,
-        refreshLoadPremiumProducts
+        refreshLoadPremiumProducts,
+        getRelatedItems
     }
 }
 

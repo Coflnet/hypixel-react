@@ -241,6 +241,7 @@ interface API {
     unsubscribeAll(): Promise<void>
     getItemNames(items: Item[]): Promise<{ [key: string]: string }>
     refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void)
+    getRelatedItems(tag: string): Promise<Item[]>
 }
 
 interface CacheUtils {

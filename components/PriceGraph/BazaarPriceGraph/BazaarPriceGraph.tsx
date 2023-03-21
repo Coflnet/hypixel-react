@@ -11,6 +11,7 @@ import { getURLSearchParam } from '../../../utils/Parser/URLParser'
 import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE } from '../../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
 import styles from './BazaarPriceGraph.module.css'
 import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
@@ -403,6 +404,7 @@ function BazaarPriceGraph(props: Props) {
                     </div>
                 </div>
                 <hr />
+                <RelatedItems tag={props.item.tag} />
                 <BazaarSnapshot item={props.item} />
             </div>
         </div>
