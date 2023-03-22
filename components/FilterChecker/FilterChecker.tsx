@@ -13,7 +13,9 @@ export function FilterChecker(props: Props) {
     let [hasFilterApplied, setHasFilterApplied] = useState(null)
 
     useEffect(() => {
-        api.getFilters(props.auctionToCheck.auction.item.tag).then(setFilterOptions)
+        Promise.all([api.getFilters(props.auctionToCheck.auction.item.tag), api.flipFilters(props.auctionToCheck.auction.item.tag)]).then(results => {
+            setFilterOptions([...results[0], ...results[1]])
+        })
     }, [])
 
     function onCheck() {
