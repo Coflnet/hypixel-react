@@ -25,7 +25,9 @@ export function FilterChecker(props: Props) {
     return (
         <>
             <ItemFilter ignoreURL={true} forceOpen={true} onFilterChange={setFilter} filters={filterOptions} />
-            <Button onClick={onCheck}>Check filter</Button>
+            <Button onClick={onCheck} disabled={!filter || Object.keys(filter).length === 0}>
+                Check filter
+            </Button>
             {hasFilterApplied !== null ? hasFilterApplied ? <p>Filter applies to this auction</p> : <p>Filter does not apply to this auction</p> : null}
         </>
     )
