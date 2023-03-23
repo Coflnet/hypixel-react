@@ -1,11 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser'
 import FilterElement from '../FilterElement/FilterElement'
-import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@mui/icons-material'
-import { camelCaseToSentenceCase } from '../../utils/Formatter'
+import DeleteIcon from '@mui/icons-material/Delete'
+import HelpIcon from '@mui/icons-material/Help'
+import AddIcon from '@mui/icons-material/AddCircleOutline'
+
+import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
@@ -20,6 +23,7 @@ interface Props {
     ignoreURL?: boolean
     autoSelect?: boolean
     defaultFilter?: ItemFilter
+    disableLastUsedFilter?: boolean
 }
 
 const groupedFilter = [
@@ -39,13 +43,16 @@ function ItemFilter(props: Props) {
 
     useEffect(() => {
         initFilter()
+        console.log(props.filters)
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
         if (props.ignoreURL && !props.defaultFilter) {
             return
         }
-        itemFilter = props.defaultFilter ? JSON.parse(JSON.stringify(props.defaultFilter)) : getPrefillFilter(props.filters, props.ignoreURL)
+        itemFilter = props.defaultFilter
+            ? JSON.parse(JSON.stringify(props.defaultFilter))
+            : getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
@@ -176,7 +183,9 @@ function ItemFilter(props: Props) {
         }
 
         setItemFilter(filter!)
-        localStorage.setItem(LAST_USED_FILTER, JSON.stringify(filter))
+        if (!props.disableLastUsedFilter) {
+            localStorage.setItem(LAST_USED_FILTER, JSON.stringify(filter))
+        }
         if (props.onFilterChange) {
             props.onFilterChange(filter)
         }
@@ -215,7 +224,7 @@ function ItemFilter(props: Props) {
         let defaultValue: any = ''
         if (options && options.options[0] !== null && options.options[0] !== undefined) {
             // dont set the first option for search-selects
-            if (hasFlag(options.type, FilterType.EQUAL) || hasFlag(options.type, FilterType.BOOLEAN)) {
+            if ((hasFlag(options.type, FilterType.EQUAL) && hasFlag(options.type, FilterType.SIMPLE)) || hasFlag(options.type, FilterType.BOOLEAN)) {
                 defaultValue = options.options[0]
                 if (options.name === 'Everything') {
                     defaultValue = 'true'
@@ -263,7 +272,7 @@ function ItemFilter(props: Props) {
                     }}
                 >
                     <Modal.Header closeButton>
-                        <h4>Item-Filter Information</h4>
+                        <h4>Item Filter Information</h4>
                     </Modal.Header>
                     <Modal.Body>
                         <p>
@@ -318,12 +327,12 @@ function ItemFilter(props: Props) {
                                         id="add-filter-typeahead"
                                         autoFocus={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0
                                                 : props.autoSelect
                                         }
                                         defaultOpen={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0
                                                 : props.autoSelect
                                         }
                                         ref={typeaheadRef}
@@ -332,6 +341,9 @@ function ItemFilter(props: Props) {
                                         onChange={addFilter}
                                         options={props.filters}
                                         labelKey={filter => {
+                                            if (filter.name[0].toLowerCase() === filter.name[0]) {
+                                                return convertTagToName(filter.name)
+                                            }
                                             return camelCaseToSentenceCase(filter.name)
                                         }}
                                     ></Typeahead>
@@ -356,9 +368,9 @@ function ItemFilter(props: Props) {
 }
 export default ItemFilter
 
-export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: boolean = false) {
+export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: boolean = false, disableLastUsedFilter: boolean = false) {
     let itemFilter = !ignoreURL ? getItemFilterFromUrl() : {}
-    if (Object.keys(itemFilter).length === 0) {
+    if (Object.keys(itemFilter).length === 0 && !disableLastUsedFilter) {
         itemFilter = getFilterFromLocalStorage(filterOptions) || {}
     }
     return itemFilter

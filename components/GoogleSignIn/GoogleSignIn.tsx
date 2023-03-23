@@ -68,8 +68,14 @@ function GoogleSignIn(props: Props) {
                 document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.GOOGLE_LOGIN))
                 props.onAfterLogin()
             })
-            .catch(() => {
-                toast.error('An error occoured while trying to sign in with Google')
+            .catch(error => {
+                // dont show the error message for the invalid token error
+                // the google sign component sometimes sends an outdated token, causing this error
+                if (error.Slug !== 'invalid_token') {
+                    toast.error('An error occoured while trying to sign in with Google')
+                } else {
+                    console.warn('setGoogle: Invalid token error', error)
+                }
                 setIsLoggedIn(false)
                 setWasAlreadyLoggedInThisSession(false)
                 sessionStorage.removeItem('googleId')

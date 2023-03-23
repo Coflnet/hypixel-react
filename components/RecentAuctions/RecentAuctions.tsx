@@ -1,17 +1,17 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
-import { Button, Card, Form } from 'react-bootstrap'
-import api from '../../api/ApiHelper'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import moment from 'moment'
-import { getLoadingElement } from '../../utils/LoadingUtils'
 import Link from 'next/link'
-import styles from './RecentAuctions.module.css'
-import { isClientSideRendering } from '../../utils/SSRUtils'
-import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import api from '../../api/ApiHelper'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useStateWithRef } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
+import { getLoadingElement } from '../../utils/LoadingUtils'
+import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
+import { isClientSideRendering } from '../../utils/SSRUtils'
+import styles from './RecentAuctions.module.css'
 
 interface Props {
     item: Item
@@ -61,7 +61,7 @@ function RecentAuctions(props: Props) {
         }
 
         let itemFilter = { ...itemFilterRef.current }
-        currentLoadingString = JSON.stringify({ tag: props.item.tag, filter: itemFilter })
+        currentLoadingString = JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })
 
         if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
             let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
@@ -156,7 +156,7 @@ function RecentAuctions(props: Props) {
                                             loading="lazy"
                                         />
                                     </div>
-                                    <div>{numberWithThousandsSeperators(recentAuction.price)} Coins</div>
+                                    <div>{numberWithThousandsSeparators(recentAuction.price)} Coins</div>
                                 </Card.Header>
                                 <Card.Body style={{ padding: '10px' }}>
                                     <img

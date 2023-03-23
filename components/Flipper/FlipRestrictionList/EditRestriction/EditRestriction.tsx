@@ -2,14 +2,15 @@ import React from 'react'
 import { Button } from 'react-bootstrap'
 import ItemFilter from '../../../ItemFilter/ItemFilter'
 import Tooltip from '../../../Tooltip/Tooltip'
+import TagSelect from '../TagSelect/TagSelect'
 
 interface Props {
     newRestriction: FlipRestriction
     onSearchResultClick(item: SearchResultItem)
     filters: FilterOptions[]
-    onFilterChange(filter?: ItemFilter)
+    onRestrictionChange(restriction?: FlipRestriction)
     addEditedFilter(overrideExisting?: boolean)
-    onNewRestrictionCancel()
+    onCancel()
     overrideEditedFilter()
 }
 
@@ -20,9 +21,22 @@ function EditRestriction(props: Props) {
                 defaultFilter={props.newRestriction.itemFilter}
                 filters={props.filters}
                 forceOpen={true}
-                onFilterChange={props.onFilterChange}
+                onFilterChange={filter => {
+                    let restriction = props.newRestriction
+                    restriction.itemFilter = filter
+                    props.onRestrictionChange(restriction)
+                }}
                 ignoreURL={true}
                 autoSelect={false}
+                disableLastUsedFilter={true}
+            />
+            <TagSelect
+                restriction={props.newRestriction}
+                onTagsChange={tags => {
+                    let restriction = props.newRestriction
+                    restriction.tags = tags
+                    props.onRestrictionChange(restriction)
+                }}
             />
             <span>
                 <Tooltip
@@ -52,7 +66,7 @@ function EditRestriction(props: Props) {
                     }
                     tooltipContent={<span>Overwrites the filter of all the selected restrictions to this.</span>}
                 />
-                <Button variant="danger" onClick={props.overrideEditedFilter} style={{ marginLeft: '20px' }}>
+                <Button variant="danger" onClick={props.onCancel} style={{ marginLeft: '20px' }}>
                     Cancel
                 </Button>
             </span>

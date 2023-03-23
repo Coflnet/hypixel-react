@@ -1,10 +1,9 @@
-import React, { ChangeEvent, useState } from 'react'
-import { ToggleButtonGroup, ToggleButton } from 'react-bootstrap'
-import { Button, Card, Form, Modal } from 'react-bootstrap'
+import { ChangeEvent, useState } from 'react'
+import { Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { numberWithThousandsSeparators } from '../../../utils/Formatter'
 import { useCoflCoins } from '../../../utils/Hooks'
 import { getPremiumType, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
@@ -90,7 +89,7 @@ function BuyPremium(props: Props) {
                     </li>
                     <li>
                         <span className={styles.label}>Price:</span>
-                        {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins
+                        {numberWithThousandsSeparators(getPurchasePrice())} CoflCoins
                     </li>
                 </ul>
                 <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
@@ -158,12 +157,12 @@ function BuyPremium(props: Props) {
                             </div>
                             <div>
                                 <label className={styles.label}>Price:</label>
-                                <span style={{ fontWeight: 'bold' }}>{numberWithThousandsSeperators(getPurchasePrice())} Coins</span>
+                                <span style={{ fontWeight: 'bold' }}>{numberWithThousandsSeparators(getPurchasePrice())} Coins</span>
                             </div>
                             {coflCoins > getPurchasePrice() ? (
                                 <div>
                                     <label className={styles.label}>Remaining after Purchase:</label>
-                                    <span>{numberWithThousandsSeperators(coflCoins - getPurchasePrice())} Coins</span>
+                                    <span>{numberWithThousandsSeparators(coflCoins - getPurchasePrice())} Coins</span>
                                 </div>
                             ) : null}
                             <p style={{ marginTop: '20px' }}>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
@@ -191,7 +190,7 @@ function BuyPremium(props: Props) {
                     ) : (
                         <p style={{ color: 'lime' }}>
                             You successfully bought {purchaseSuccessfulOption.label} {getDurationString()} of {purchasePremiumType.label} for{' '}
-                            {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins!
+                            {numberWithThousandsSeparators(getPurchasePrice())} CoflCoins!
                         </p>
                     )}
                 </div>

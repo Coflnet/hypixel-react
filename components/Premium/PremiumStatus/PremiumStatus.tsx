@@ -55,7 +55,7 @@ function PremiumStatus(props: Props) {
                 {productsToShow?.length > 1 ? (
                     <div style={{ overflow: 'hidden' }}>
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
-                            Premium-Status:
+                            Premium Status:
                         </span>
                         <ul style={{ float: 'left' }}>
                             {productsToShow.map(product => (
@@ -67,7 +67,7 @@ function PremiumStatus(props: Props) {
                     <p>
                         {' '}
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
-                            Premium-Status:
+                            Premium Status:
                         </span>
                         {highestPriorityProduct ? getProductListEntry(highestPriorityProduct) : 'No Premium'}
                     </p>

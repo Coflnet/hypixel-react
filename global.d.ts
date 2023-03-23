@@ -123,6 +123,7 @@ interface SearchResultItem {
     urlSearchParams?: URLSearchParams
     id: string
     isPreviousSearch?: boolean
+    tier: string
 }
 
 interface FlipAuction {
@@ -241,6 +242,7 @@ interface API {
     getItemNames(items: Item[]): Promise<{ [key: string]: string }>
     checkFilter(auction: AuctionDetails, filter: ItemFilter): Promise<boolean>
     refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void)
+    getRelatedItems(tag: string): Promise<Item[]>
 }
 
 interface CacheUtils {
@@ -321,6 +323,7 @@ interface FlipCustomizeSettings {
     hideLore?: boolean
     modFormat?: string
     modCountdown?: boolean
+    modNoAdjustToPurse?: boolean
 }
 
 interface FlipRestriction {
@@ -328,6 +331,7 @@ interface FlipRestriction {
     item?: Item
     itemFilter?: ItemFilter
     isEdited?: boolean
+    tags?: string[]
 }
 
 interface MinecraftConnectionInfo {
@@ -429,6 +433,7 @@ interface KatFlip {
     referenceAuctionUUID: string
     purchaseCost: number
     cost: number
+    originAuctionName: string
 }
 
 interface FlipTrackingPropertyChange {

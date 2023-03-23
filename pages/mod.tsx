@@ -1,5 +1,3 @@
-import Link from 'next/link'
-import { Button } from 'react-bootstrap'
 import { Container } from 'react-bootstrap'
 import ModDetails from '../components/ModDetails/ModDetails'
 import NavBar from '../components/NavBar/NavBar'
@@ -11,13 +9,8 @@ export default function Mod() {
         <div className="page">
             {getHeadElement('Mod')}
             <Container>
-                <h2>
-                    <NavBar />
-                    CoflMod
-                </h2>
-                <div style={{ marginBottom: '20px' }}>
-                    <ModDetails />
-                </div>
+                <NavBar />
+                <ModDetails />
                 <RatChecker />
             </Container>
         </div>

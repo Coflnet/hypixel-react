@@ -1,19 +1,22 @@
-import React, { useEffect, useRef } from 'react'
-import FlipperComponent from '../components/Flipper/Flipper'
+import { useMemo } from 'react'
 import { Container } from 'react-bootstrap'
-import Search from '../components/Search/Search'
-import { getHeadElement, isClientSideRendering } from '../utils/SSRUtils'
-import Head from 'next/head'
-import { parseFlipAuction } from '../utils/Parser/APIResponseParser'
 import { initAPI } from '../api/ApiHelper'
+import FlipperComponent from '../components/Flipper/Flipper'
+import Search from '../components/Search/Search'
+import { getCacheControlHeader } from '../utils/CacheUtils'
+import { parseFlipAuction } from '../utils/Parser/APIResponseParser'
 import { handleSettingsImport } from '../utils/SettingsUtils'
-import { getCacheContolHeader } from '../utils/CacheUtils'
+import { getHeadElement } from '../utils/SSRUtils'
 
 interface Props {
-    flips?: any[]
+    flips?: any
 }
 
 function Flipper(props: Props) {
+    let flips = useMemo(() => {
+        return props.flips.map(flip => parseFlipAuction(flip))
+    }, [props.flips])
+
     function onDrop(e) {
         e.preventDefault()
         var output = '' //placeholder for text output
@@ -39,19 +42,28 @@ function Flipper(props: Props) {
             {getHeadElement(undefined, 'Free auction house item flipper for Hypixel Skyblock', undefined, ['flipper'])}
             <Container>
                 <Search />
-                <h2>Item-Flipper (WIP)</h2>
+                <h2>Item Flipper (WIP)</h2>
                 <hr />
-                <FlipperComponent flips={props.flips?.map(parseFlipAuction)} />
+                <FlipperComponent flips={flips.map(parseFlipAuction)} />
             </Container>
         </div>
     )
 }
 
 export const getServerSideProps = async ({ res }) => {
-    res.setHeader('Cache-Control', getCacheContolHeader())
+    res.setHeader('Cache-Control', getCacheControlHeader())
 
     let api = initAPI(true)
-    let flips = await api.getPreloadFlips()
+    let flips = []
+    try {
+        flips = await api.getPreloadFlips()
+    } catch (e) {
+        console.log('ERROR: Error receiving preFlips')
+        console.log('------------------------\n')
+    }
+
+    console.log(typeof flips)
+
     return {
         props: {
             flips: flips

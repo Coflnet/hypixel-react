@@ -1,3 +1,9 @@
+import { toast } from 'react-toastify'
+import { v4 as generateUUID } from 'uuid'
+import { atobUnicode } from '../utils/Base64Utils'
+import cacheUtils from '../utils/CacheUtils'
+import { getFlipCustomizeSettings } from '../utils/FlipUtils'
+import { enchantmentAndReforgeCompare } from '../utils/Formatter'
 import {
     parseAccountInfo,
     parseAuction,
@@ -29,27 +35,21 @@ import {
     parseSkyblockProfile,
     parseSubscription
 } from '../utils/Parser/APIResponseParser'
-import { RequestType, SubscriptionType, Subscription, HttpApi } from './ApiTypes.d'
-import { websocketHelper } from './WebsocketHelper'
-import { v4 as generateUUID } from 'uuid'
-import { enchantmentAndReforgeCompare } from '../utils/Formatter'
-import { toast } from 'react-toastify'
-import cacheUtils from '../utils/CacheUtils'
-import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
-import { getFlipCustomizeSettings } from '../utils/FlipUtils'
+import { PREMIUM_TYPES } from '../utils/PremiumTypeUtils'
 import { getProperty } from '../utils/PropertiesUtils'
-import { isClientSideRendering } from '../utils/SSRUtils'
 import {
     FLIPPER_FILTER_KEY,
     getSettingsObject,
     LAST_PREMIUM_PRODUCTS,
     mapSettingsToApiFormat,
     RESTRICTIONS_SETTINGS_KEY,
-    setSettingsChangedData
+    setSettingsChangedData,
+    storeUsedTagsInLocalStorage
 } from '../utils/SettingsUtils'
+import { isClientSideRendering } from '../utils/SSRUtils'
+import { HttpApi, RequestType, Subscription, SubscriptionType } from './ApiTypes.d'
 import { initHttpHelper } from './HttpHelper'
-import { atobUnicode } from '../utils/Base64Utils'
-import { PREMIUM_TYPES } from '../utils/PremiumTypeUtils'
+import { websocketHelper } from './WebsocketHelper'
 
 function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
@@ -75,12 +75,18 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         if (!error || !error.Message) {
             return
         }
-        toast.error(error.Message)
+        toast.error(error.Message, {
+            onClick: () => {
+                if (error.Trace && window.navigator.clipboard) {
+                    window.navigator.clipboard.writeText(error.Trace)
+                }
+            }
+        })
         console.log('RequestType: ' + requestType)
         console.log('ErrorMessage: ' + error.Message)
         console.log('RequestData: ')
         console.log(requestData)
-        console.log('------------------------------')
+        console.log('------------------------------\n')
     }
 
     let search = (searchText: string): Promise<SearchResultItem[]> => {
@@ -539,7 +545,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_GOOGLE, error)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -625,6 +631,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         forceSettingsUpdate: boolean = false
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+
+        storeUsedTagsInLocalStorage(restrictionList)
 
         let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
 
@@ -1432,6 +1440,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         if (sessionStorage.getItem('googleId') === null) {
             return Promise.resolve()
         }
+
+        storeUsedTagsInLocalStorage(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []))
+
         return new Promise((resolve, reject) => {
             let data = {
                 key,
@@ -1734,6 +1745,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getRelatedItems = (tag: string): Promise<Item[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.RELATED_ITEMS,
+                customRequestURL: `${getApiEndpoint()}/item/${tag}/similar`,
+                data: '',
+                resolve: data => {
+                    resolve(data.map(item => parseItem(item)))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.RELATED_ITEMS, error, tag)
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1804,7 +1832,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         unsubscribeAll,
         getItemNames,
         checkFilter,
-        refreshLoadPremiumProducts
+        refreshLoadPremiumProducts,
+        getRelatedItems
     }
 }
 

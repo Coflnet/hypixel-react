@@ -72,7 +72,7 @@ let cacheUtils: CacheUtils = {
 }
 export default cacheUtils
 
-export function getCacheContolHeader() {
+export function getCacheControlHeader() {
     return 'public, max-age=60, s-maxage=20'
 }
 

@@ -47,8 +47,8 @@ function FlipperFAQ() {
                         TLDR: Servercosts and compensation for development.
                         <br />
                         To run the flipper and the auction explorer we have to pay for servers to run it on. While we work hard to keep the cost down they are
-                        currently up to about 200$ per month. And will increase further the more auctions we save and the the more users are using the site.
-                        Furthermore we collectively spent more than 2000 hours of our spare time developing it and would like to get a some compensation for our
+                        currently up to about 503$ per month. And will increase further the more auctions we save and the the more users are using the site.
+                        Furthermore we collectively spent more than 4000 hours of our spare time developing it and would like to get a some compensation for our
                         efforts. The best case would be to develop this and similar projects full time if we could.
                     </p>
                     <h3>What can the free version do?</h3>

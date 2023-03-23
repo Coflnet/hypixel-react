@@ -5,7 +5,7 @@ import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } fro
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, handleSettingsImport, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import Flip from '../Flip/Flip'
-import { Help as HelpIcon } from '@mui/icons-material'
+import HelpIcon from '@mui/icons-material/Help'
 import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
 import styles from './FlipCustomize.module.css'
@@ -108,31 +108,49 @@ function FlipCustomize() {
     }
 
     function getFlipFinderWarningElement(): JSX.Element {
-        if (!flipCustomizeSettings.useLowestBinForProfit) {
-            return <></>
-        }
+        let warnings: string[] = []
+
         let sniperFinder = FLIP_FINDERS.find(finder => finder.label === 'Sniper')
-        if (!sniperFinder) {
-            console.error("Finder with label 'Sniper' not found")
-            return <></>
-        }
         if (
-            !flipCustomizeSettings.finders ||
-            flipCustomizeSettings.finders.length === 0 ||
-            flipCustomizeSettings.finders.length > 1 ||
-            flipCustomizeSettings.finders[0].toString() !== sniperFinder.value
+            sniperFinder &&
+            flipCustomizeSettings.useLowestBinForProfit &&
+            (!flipCustomizeSettings.finders ||
+                flipCustomizeSettings.finders.length === 0 ||
+                flipCustomizeSettings.finders.length > 1 ||
+                flipCustomizeSettings.finders[0].toString() !== sniperFinder.value)
         ) {
+            warnings.push(
+                'Only use the "Sniper"-Finder with "Use lbin to calculate profit option". Using other finders may lead to muliple seconds of delay as this will require additional calculations.'
+            )
+        }
+
+        let tfmFinder = FLIP_FINDERS.find(finder => finder.label === 'TFM')
+        if (flipCustomizeSettings.finders.find(finder => finder.toString() === tfmFinder.value)) {
+            warnings.push('The "TFM"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
+        }
+
+        let stonksFinder = FLIP_FINDERS.find(finder => finder.label === 'Stonks')
+        if (flipCustomizeSettings.finders.find(finder => finder.toString() === stonksFinder.value)) {
+            warnings.push('The "Stonks"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
+        }
+
+        if (warnings.length === 0) {
+            return null
+        }
+        if (warnings.length === 1) {
             return (
                 <b>
-                    <p style={{ color: 'red' }}>
-                        Only use the "Sniper"-Finder with 'Use lbin to calculate profit option'. Using other finders may lead to muliple seconds of delay as
-                        this will require additional calculations.
-                    </p>
+                    <p style={{ color: 'red' }}>{warnings[0]}</p>
                 </b>
             )
-        } else {
-            return <></>
         }
+        return (
+            <ul style={{ color: 'red' }}>
+                {warnings.map(warning => (
+                    <li>{warning}</li>
+                ))}
+            </ul>
+        )
     }
 
     const useLowestBinHelpElement = (
@@ -494,6 +512,21 @@ function FlipCustomize() {
                                     }}
                                     defaultChecked={!flipCustomizeSettings.hideLore}
                                     id="hideLore"
+                                    style={{ display: 'inline' }}
+                                    type="checkbox"
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label className={styles.label} htmlFor="modNoAdjustToPurse">
+                                    Don't show flips that <br /> cost more than purse
+                                </Form.Label>
+                                <Form.Check
+                                    onChange={event => {
+                                        updateApiSetting('modNoAdjustToPurse', !event.target.checked)
+                                        setFlipCustomizeSetting('modNoAdjustToPurse', !event.target.checked)
+                                    }}
+                                    defaultChecked={!flipCustomizeSettings.modNoAdjustToPurse}
+                                    id="modNoAdjustToPurse"
                                     style={{ display: 'inline' }}
                                     type="checkbox"
                                 />

@@ -1,25 +1,21 @@
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
+import AccountIcon from '@mui/icons-material/AccountCircle'
+import BuildIcon from '@mui/icons-material/Build'
+import ChatIcon from '@mui/icons-material/Chat'
+import DownloadIcon from '@mui/icons-material/Download'
+import HomeIcon from '@mui/icons-material/Home'
+import MenuIcon from '@mui/icons-material/Menu'
+import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
+import PetsIcon from '@mui/icons-material/PetsOutlined'
+import PolicyIcon from '@mui/icons-material/Policy'
+import ShareIcon from '@mui/icons-material/ShareOutlined'
+import StorefrontIcon from '@mui/icons-material/Storefront'
+import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import { ProSidebar, Menu, MenuItem, SidebarHeader, SubMenu } from 'react-pro-sidebar'
+import { Menu, MenuItem, ProSidebar, SidebarHeader } from 'react-pro-sidebar'
 import 'react-pro-sidebar/dist/css/styles.css'
-import {
-    Build as BuildIcon,
-    ShareOutlined as ShareIcon,
-    NotificationsOutlined as NotificationIcon,
-    Home as HomeIcon,
-    Storefront as StorefrontIcon,
-    AccountBalance as AccountBalanceIcon,
-    Policy as PolicyIcon,
-    Chat as ChatIcon,
-    Menu as MenuIcon,
-    ExploreOutlined as ExploreIcon,
-    PetsOutlined as PetsIcon,
-    AccountCircle as AccountIcon,
-    Download as DownloadIcon
-} from '@mui/icons-material'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
-import { isClientSideRendering } from '../../utils/SSRUtils'
-import Link from 'next/link'
 
 let resizePromise: NodeJS.Timeout | null = null
 
@@ -34,26 +30,17 @@ function NavBar(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if (!isClientSideRendering()) {
-            return
-        }
 
         setIsSmall(document.body.clientWidth < 1500)
 
         window.addEventListener('resize', resizeHandler)
 
         return () => {
-            if (!isClientSideRendering()) {
-                return
-            }
             window.removeEventListener('resize', resizeHandler)
         }
     }, [])
 
     useEffect(() => {
-        if (!isClientSideRendering()) {
-            return
-        }
         if (isWideOpen) {
             document.addEventListener('click', outsideClickHandler, true)
         } else {
@@ -158,8 +145,19 @@ function NavBar(props: Props) {
             <aside className={styles.navBar} id="navBar" onMouseEnter={onMouseMove} onMouseLeave={onMouseOut}>
                 <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()}>
                     <SidebarHeader>
-                        <div style={{ padding: '24px', fontWeight: 'bold', fontSize: '20px', letterSpacing: '1px', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                            <ExploreIcon /> {!isCollapsed() ? 'Navigation' : ''}
+                        <div
+                            style={{
+                                padding: '24px',
+                                fontWeight: 'bold',
+                                fontSize: '20px',
+                                letterSpacing: '1px',
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            <img src="/logo512.png" alt="Logo" width={'40px'} height={'40px'} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'Coflnet' : ''}
                         </div>
                     </SidebarHeader>
                     <Menu iconShape="square">
@@ -167,7 +165,7 @@ function NavBar(props: Props) {
                             <Link href={'/'}>Home</Link>
                         </MenuItem>
                         <MenuItem icon={<StorefrontIcon />}>
-                            <Link href={'/flipper'}>Item-Flipper</Link>
+                            <Link href={'/flipper'}>Item Flipper</Link>
                         </MenuItem>
                         <MenuItem icon={<AccountIcon />}>
                             <Link href={'/account'}>Account</Link>
@@ -176,13 +174,13 @@ function NavBar(props: Props) {
                             <Link href={'/subscriptions'}>Notifier</Link>
                         </MenuItem>
                         <MenuItem icon={<BuildIcon />}>
-                            <Link href={'/crafts'}>Profitable crafts</Link>
+                            <Link href={'/crafts'}>Profitable Crafts</Link>
                         </MenuItem>
                         <MenuItem icon={<AccountBalanceIcon />}>
                             <Link href={'/premium'}>Premium / Shop</Link>
                         </MenuItem>
                         <MenuItem icon={<PetsIcon />}>
-                            <Link href={'/kat'}>Kat flips</Link>
+                            <Link href={'/kat'}>Kat Flips</Link>
                         </MenuItem>
                         <MenuItem icon={<DownloadIcon />}>
                             <Link href={'/mod'}>Mod</Link>
@@ -196,7 +194,7 @@ function NavBar(props: Props) {
                         <MenuItem icon={<ChatIcon />}>
                             <Link href={'/feedback'}>Feedback</Link>
                         </MenuItem>
-                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24"></img>}>
+                        <MenuItem icon={<img src="/discord_icon.svg" alt="Discord icon" height="24" />}>
                             <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
                                 Discord
                             </a>

@@ -63,3 +63,8 @@
 .craftsList :global(.list-group-item) .craftRequirementLabel {
     margin-right: 10px;
 }
+
+.filterInput {
+    width: 100%;
+    margin-right: 3vw;
+}

@@ -1,9 +1,10 @@
 import { useMatomo } from '@datapunt/matomo-tracker-react'
-import React, { ChangeEvent, useEffect, useRef } from 'react'
+import { ChangeEvent, useEffect, useRef } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEFAULT_MOD_FORMAT } from '../../../../utils/FlipUtils'
 import Tooltip from '../../../Tooltip/Tooltip'
-import { Refresh as RefreshIcon, Help as HelpIcon } from '@mui/icons-material'
+import HelpIcon from '@mui/icons-material/Help'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import { useForceUpdate } from '../../../../utils/Hooks'
 import styles from './FormatElement.module.css'
 import { getMinecraftColorCodedElement } from '../../../../utils/Formatter'
@@ -123,7 +124,7 @@ function FormatElement(props: Props) {
                             Default
                         </Button>
                     </div>
-                    <p>{getMinecraftColorCodedElement(getFormatExampleText())}</p>
+                    <p>{getMinecraftColorCodedElement(getFormatExampleText(), false)}</p>
                 </div>
             ) : null}
         </div>

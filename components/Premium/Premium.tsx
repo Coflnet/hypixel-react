@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Button, Card, Form, Modal } from 'react-bootstrap'
@@ -82,10 +82,10 @@ function Premium() {
             ) : hasPremium === undefined ? (
                 ''
             ) : hasPremium ? (
-                <p style={{ color: '#00bc8c' }}>You have a premium account. Thank you for your support.</p>
+                <p style={{ color: '#00bc8c' }}>You have a Premium account. Thank you for your support.</p>
             ) : (
                 <div>
-                    <p style={{ color: 'red', margin: 0 }}>You do not have a premium account</p>
+                    <p style={{ color: 'red', margin: 0 }}>You do not have a Premium account</p>
                 </div>
             )}
             {isLoggedIn && !hasPremium ? (
@@ -98,7 +98,7 @@ function Premium() {
             <hr />
             <div style={{ marginBottom: '20px' }}>
                 <PremiumStatus products={products} />
-                {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
+                {!isLoggingIn && !isLoggedIn ? <p>To use Premium please login with Google</p> : ''}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 <div>{isLoggingIn ? getLoadingElement() : ''}</div>
             </div>
@@ -166,8 +166,8 @@ function Premium() {
                     <Card.Title>
                         {hasPremium ? (
                             <p>
-                                Thank you for your support. You have a Premium account. By buying another Premium-Plan you can extend your premium-time. You can
-                                use the following premium-features:
+                                Thank you for your support. You have a Premium account. By buying another Premium plan you can extend your time. You can use the
+                                following premium features:
                             </p>
                         ) : (
                             <p>Log in and buy Premium to support us and get access to these features</p>

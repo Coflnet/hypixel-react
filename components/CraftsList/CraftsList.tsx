@@ -1,13 +1,13 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React , { ChangeEvent, useEffect, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
-import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSeperators } from '../../utils/Formatter'
-import Tooltip from '../Tooltip/Tooltip'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
-import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 
 interface Props {
     crafts?: ProfitableCraft[]
@@ -27,17 +27,17 @@ const SORT_OPTIONS: SortOption[] = [
         sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
     },
     {
-        label: 'Sell-Price',
+        label: 'Sell Price',
         value: 'sellPrice',
         sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - a.sellPrice)
     },
     {
-        label: 'Craft-Cost',
+        label: 'Craft Cost',
         value: 'craftCost',
         sortFunction: crafts => crafts.sort((a, b) => b.craftCost - a.craftCost)
     },
     {
-        label: 'Instant-Sell (Bazaar)',
+        label: 'Instant Sell (Bazaar)',
         value: 'bazaarCrafts',
         sortFunction: (crafts, bazaarTags) =>
             crafts
@@ -68,6 +68,7 @@ export function CraftsList(props: Props) {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [bazaarTags, setBazaarTags] = useState<string[]>(props.bazaarTags || [])
     let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
+    let [minimumProfit, setMinimumProfit] = useState<number>(0)
 
     useEffect(() => {
         setIsLoadingProfileData(true)
@@ -107,15 +108,10 @@ export function CraftsList(props: Props) {
         }
     }
 
-    function loadHasPremium(): Promise<void> {
-        return api.refreshLoadPremiumProducts(products => {
-            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
-        })
-    }
-
     function onAfterLogin() {
         setIsLoggedIn(true)
-        loadHasPremium().then(() => {
+        api.refreshLoadPremiumProducts(products => {
+            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
             api.getAccountInfo().then(info => {
                 setAccountInfo(info)
                 if (info.mcId) {
@@ -145,6 +141,9 @@ export function CraftsList(props: Props) {
             setOrderBy(sortOption)
         }
     }
+    function onMinimumProfitChange(e: any) {
+        setMinimumProfit(e.target.value)
+    }
 
     function onProfileChange(event: ChangeEvent<HTMLSelectElement>) {
         let selectedIndex = event.target.options.selectedIndex
@@ -161,7 +160,7 @@ export function CraftsList(props: Props) {
     }
 
     function getListElement(craft: ProfitableCraft, blur: boolean) {
-        if (nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
+        if (((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || (craft.sellPrice-craft.craftCost) < minimumProfit)&& !blur ) {
             return <span />
         }
         return (
@@ -194,18 +193,18 @@ export function CraftsList(props: Props) {
                 <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
                     <h4>{getCraftHeader(craft)}</h4>
                     <p>
-                        <span className={styles.label}>Crafting-Cost:</span> {numberWithThousandsSeperators(Math.round(craft.craftCost))} Coins
+                        <span className={styles.label}>Crafting Cost:</span> {numberWithThousandsSeparators(Math.round(craft.craftCost))} Coins
                     </p>
                     <p>
-                        <span className={styles.label}>Sell-Price:</span> {numberWithThousandsSeperators(Math.round(craft.sellPrice))} Coins
+                        <span className={styles.label}>Sell Price:</span> {numberWithThousandsSeparators(Math.round(craft.sellPrice))} Coins
                     </p>
                     <p>
                         <span className={styles.label}>Median:</span>{' '}
-                        {craft.median > 0 ? `${numberWithThousandsSeperators(Math.round(craft.median))} Coins` : 'unknown'}
+                        {craft.median > 0 ? `${numberWithThousandsSeparators(Math.round(craft.median))} Coins` : 'unknown'}
                     </p>
                     <p>
                         <span className={styles.label}>Volume:</span>{' '}
-                        {craft.volume > 0 ? `${numberWithThousandsSeperators(Math.round(craft.volume))}` : 'unknown'}
+                        {craft.volume > 0 ? `${numberWithThousandsSeparators(Math.round(craft.volume))}` : 'unknown'}
                     </p>
                     {craft.requiredCollection ? (
                         <p className={styles.craftRequirement}>
@@ -241,10 +240,7 @@ export function CraftsList(props: Props) {
     }
 
     let shown = 0
-    let list = orderedCrafts.map((craft, i) => {
-        if (nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
-            return null
-        }
+    let list = orderedCrafts.filter(craft=>!((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || (craft.sellPrice-craft.craftCost) < minimumProfit)).map(craft => {
         shown++
 
         if (!hasPremium && shown <= 3) {
@@ -290,7 +286,7 @@ export function CraftsList(props: Props) {
         }
     })
 
-    const selectWidth = profiles ? '32%' : '49%'
+
 
     let connectMinecraftTooltip = (
         <Tooltip
@@ -307,6 +303,8 @@ export function CraftsList(props: Props) {
         />
     )
 
+
+
     return (
         <div>
             <div>
@@ -315,9 +313,9 @@ export function CraftsList(props: Props) {
                 ) : (
                     <div>
                         {!isLoggedIn ? (
-                            <p>To use the the profile filter please login with Google and {connectMinecraftTooltip}:</p>
+                            <p>To use the the profile filter, please login with Google and {connectMinecraftTooltip}:</p>
                         ) : !accountInfo?.mcId ? (
-                            <p>To use the the profile filter please {connectMinecraftTooltip}</p>
+                            <p>To use the the profile filter, please {connectMinecraftTooltip}</p>
                         ) : (
                             ''
                         )}
@@ -327,14 +325,16 @@ export function CraftsList(props: Props) {
                 {!isLoggedIn || !accountInfo?.mcId ? <hr /> : ''}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Form.Control style={{ width: selectWidth }} placeholder="Item name..." onChange={onNameFilterChange} />
-                <Form.Control style={{ width: selectWidth }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
+                <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
+                <Form.Control className={styles.filterInput} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
                         <option value={option.value}>{option.label}</option>
                     ))}
                 </Form.Control>
+                <Form.Control className={styles.filterInput} placeholder='Minimum Profit' onChange={onMinimumProfitChange} />
+
                 {profiles ? (
-                    <Form.Control style={{ width: selectWidth }} defaultValue={selectedProfile?.cuteName} as="select" onChange={onProfileChange}>
+                    <Form.Control className={styles.filterInput} defaultValue={selectedProfile?.cuteName} as="select" onChange={onProfileChange}>
                         {profiles.map(profile => (
                             <option key={profile.cuteName} value={profile.cuteName}>
                                 {profile.cuteName}
@@ -350,6 +350,6 @@ export function CraftsList(props: Props) {
             <div className={styles.craftsList}>
                 <ListGroup className={styles.list}>{list}</ListGroup>
             </div>
-        </div>
+        </div >
     )
 }

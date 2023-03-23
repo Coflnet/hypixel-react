@@ -61,7 +61,7 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     try {
         settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY))
 
-        // Felder, die spezielle default values haben
+        // Fields that have special default values
         if (settings.hideSecondLowestBin !== false) {
             settings.hideSecondLowestBin = true
         }
@@ -120,8 +120,18 @@ export const FLIP_FINDERS = [
         ),
         selectable: true
     },
-    { value: '32', label: 'TFM', shortLabel: 'TFM', default: false, description: '', selectable: false },
-    { value: '64', label: 'Stonks', shortLabel: 'Stonks', default: false, description: '', selectable: false },
+    { value: '32', label: 'TFM', shortLabel: 'TFM', default: false, description: (
+            <span>
+                These are flips from TFM (TheFlippingMod)<br /> 
+                The integration is currently under development.",
+            </span>
+        ), selectable: true },
+    { value: '64', label: 'Stonks', shortLabel: 'Stonks', default: false, description:  (
+            <span>
+                Experimental finder trying to predict the value of an item without references <br /> 
+                This is under active development and will occasionally overvalue flips, use with caution.",
+            </span>
+        ), selectable: true },
     { value: '128', label: 'External', shortLabel: 'External', default: false, description: '', selectable: false }
 ]
 
@@ -160,6 +170,7 @@ export const DEFAULT_FLIP_SETTINGS = {
         hideLore: true,
         hideModChat: false,
         hideSellerOpenBtn: false,
+        modNoAdjustToPurse: false,
         modFormat: '',
         modCountdown: false
     } as FlipCustomizeSettings,

@@ -25,7 +25,7 @@ export function getSSRElement(obj: any): JSX.Element {
 
 export function getHeadElement(
     title: string = 'Skyblock Auction House History | Hypixel SkyBlock AH history',
-    description: string = 'Browse over 400 million auctions, and the bazaar of Hypixel SkyBlock.',
+    description: string = 'Browse over 500 million auctions, and the bazaar of Hypixel SkyBlock.',
     imageUrl: string = 'https://sky.coflnet.com/logo192.png',
     keywords: string[] = [],
     embedTitle: string = 'Skyblock Auction House History | Hypixel SkyBlock AH history'
@@ -42,8 +42,8 @@ export function getHeadElement(
             <meta name="og:title" content={embedTitle} />
             <meta name="description" content={description} />
             <meta name="og:description" content={description} />
-            <meta name="keywords" content={`${keywords.toString()},hypixel,skyblock,auction,history,bazaar,tracker`} />
-            <meta property="og:keywords" content={`${keywords.toString()},hypixel,skyblock,auction,history,bazaar,tracker`} />
+            <meta name="keywords" content={[...keywords, 'hypixel', 'skyblock', 'auction', 'history', 'bazaar', 'tracker'].join(',')} />
+            <meta property="og:keywords" content={[...keywords, 'hypixel', 'skyblock', 'auction', 'history', 'bazaar', 'tracker'].join(',')} />
             <meta property="og:image" content={imageUrl} />
             <meta
                 httpEquiv="origin-trial"

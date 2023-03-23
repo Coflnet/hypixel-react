@@ -1,10 +1,13 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
-import { convertTagToName } from '../../utils/Formatter'
+import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
 import NavBar from '../NavBar/NavBar'
 import OptionsMenu from '../OptionsMenu/OptionsMenu'
-import { SearchOutlined as SearchIcon, Dangerous as WrongIcon, Refresh, Clear as ClearIcon } from '@mui/icons-material'
+import SearchIcon from '@mui/icons-material/SearchOutlined'
+import WrongIcon from '@mui/icons-material/Dangerous'
+import Refresh from '@mui/icons-material/Refresh'
+import ClearIcon from '@mui/icons-material/Clear'
 import { Item, Menu, theme, useContextMenu } from 'react-contexify'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -230,13 +233,25 @@ function Search(props: Props) {
     }
 
     function getListItemStyle(i: number): React.CSSProperties {
-        return {
+        let style = {
             backgroundColor: i === selectedIndex ? props.backgroundColorSelected || '#444' : props.backgroundColor,
             borderRadius: i === results.length - 1 ? '0 0 10px 10px' : '',
             border: 0,
             borderTop: i === 0 ? '1px solid #444' : 0,
-            borderTopWidth: i === 0 ? 0 : undefined
+            borderTopWidth: i === 0 ? 0 : undefined,
+            fontWeigth: 'normal',
+            fontFamily: 'inherit'
         }
+        if (results[i]) {
+            let isDuplicate = results.findIndex((element, index) => element.dataItem.name === results[i].dataItem.name && index !== i) !== -1
+            if (isDuplicate) {
+                return {
+                    ...getStyleForTier(results[i]?.tier),
+                    ...style
+                }
+            }
+        }
+        return style
     }
 
     function isMobile() {
@@ -380,12 +395,10 @@ function Search(props: Props) {
                           </ListGroup.Item>
                       ))}
             </ListGroup>
-            {!props.hideOptions ? (
-                <div className={styles.bar} style={{ marginTop: '20px' }}>
-                    {getSelectedElement()}
-                    <OptionsMenu selected={props.selected} />
-                </div>
-            ) : null}
+            <div className={styles.bar} style={{ marginTop: '20px' }}>
+                {getSelectedElement()}
+                {!props.hideOptions ? <OptionsMenu selected={props.selected} /> : null}
+            </div>
             {searchItemContextMenuElement}
             {currentItemContextMenuElement}
         </div>

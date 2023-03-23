@@ -43,6 +43,7 @@
 .btnBottom {
     margin-left: 10px;
     width: max-content;
+    pointer-events: all;
 }
 
 .playerDetailsList .list {

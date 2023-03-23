@@ -1,18 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useMatomo } from '@datapunt/matomo-tracker-react'
+import FilterIcon from '@mui/icons-material/BallotOutlined'
+import SettingsIcon from '@mui/icons-material/Settings'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
-import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
-import { BallotOutlined as FilterIcon, Settings as SettingsIcon } from '@mui/icons-material'
 import NumberFormat from 'react-number-format'
-import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSettingsObject, mapRestrictionsToApiFormat, setSetting } from '../../../utils/SettingsUtils'
-import styles from './FlipperFilter.module.css'
+import { v4 as generateUUID } from 'uuid'
 import api from '../../../api/ApiHelper'
-import { getDecimalSeperator, getThousandSeperator } from '../../../utils/Formatter'
-import { getFlipCustomizeSettings, isCurrentCalculationBasedOnLbin } from '../../../utils/FlipUtils'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
+import { getFlipCustomizeSettings, isCurrentCalculationBasedOnLbin } from '../../../utils/FlipUtils'
+import { getDecimalSeparator, getThousandSeparator } from '../../../utils/Formatter'
+import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSettingsObject, mapRestrictionsToApiFormat, setSetting } from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import FlipCustomize from '../FlipCustomize/FlipCustomize'
-import { v4 as generateUUID } from 'uuid'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
+import styles from './FlipperFilter.module.css'
 
 interface Props {
     onChange(filter: FlipperFilter)
@@ -68,9 +69,9 @@ function FlipperFilter(props: Props) {
         onFilterChange(filter)
     }
 
-    function onRestrictionsChange(restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') {
+    let onRestrictionsChange = useCallback((restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') => {
         api.setFlipSetting(type, mapRestrictionsToApiFormat(restrictions.filter(restriction => restriction.type === type)))
-    }
+    }, [])
 
     function numberFieldMaxValue(value: number = 0, maxValue: number) {
         return value <= maxValue
@@ -175,8 +176,8 @@ function FlipperFilter(props: Props) {
                         }}
                         customInput={Form.Control}
                         defaultValue={flipperFilter.minProfit}
-                        thousandSeparator={getThousandSeperator()}
-                        decimalSeparator={getDecimalSeperator()}
+                        thousandSeparator={getThousandSeparator()}
+                        decimalSeparator={getDecimalSeparator()}
                         allowNegative={false}
                         decimalScale={0}
                     />
@@ -191,7 +192,7 @@ function FlipperFilter(props: Props) {
                     <span className={styles.filterBorder}>
                         <Tooltip
                             type="hover"
-                            content={<span className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Filter-Rules</span>}
+                            content={<span className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Filter Rules</span>}
                             tooltipContent={<span>Make custom rules which items should show up and which should not</span>}
                         />
                         <FilterIcon className={styles.flipperFilterFormfield} style={{ marginLeft: '-4px' }} />
@@ -206,15 +207,14 @@ function FlipperFilter(props: Props) {
                                 className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}
                                 defaultChecked={flipperFilter.onlyBin}
                             >
-                                Only BIN-Auctions
+                                Only BIN Auctions
                             </Form.Label>
                         }
                         tooltipContent={
-                            flipperFilter.onlyBin ? (
-                                <span>Do not show auction flips that are about to end and could be profited from with the current bid</span>
-                            ) : (
-                                <span>Display auction flips that are about to end and could be profited from with the current bid</span>
-                            )
+                            <span>
+                                {flipperFilter.onlyBin ? 'Do not display' : 'Display'} auction flips that are about to end and could be profited from with the
+                                current bid
+                            </span>
                         }
                     />
                     <Form.Check
@@ -247,7 +247,7 @@ function FlipperFilter(props: Props) {
                             )
                         }
                     />
-                    <Button onClick={onProfitCalculationButtonClick}>{isCurrentCalculationBasedOnLbin(flipCustomizeSettings) ? 'lbin' : 'Median'}</Button>
+                    <Button onClick={onProfitCalculationButtonClick}>{isCurrentCalculationBasedOnLbin(flipCustomizeSettings) ? 'Lowest BIN' : 'Median'}</Button>
                 </Form.Group>
                 <Form.Group
                     onClick={() => {
@@ -307,8 +307,8 @@ function FlipperFilter(props: Props) {
                                 }}
                                 customInput={Form.Control}
                                 defaultValue={flipperFilter.minProfitPercent}
-                                thousandSeparator={getThousandSeperator()}
-                                decimalSeparator={getDecimalSeperator()}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
                                 allowNegative={false}
                                 decimalScale={0}
                             />
@@ -335,8 +335,8 @@ function FlipperFilter(props: Props) {
                                 }}
                                 customInput={Form.Control}
                                 defaultValue={flipperFilter.minVolume}
-                                thousandSeparator={getThousandSeperator()}
-                                decimalSeparator={getDecimalSeperator()}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
                                 allowNegative={false}
                                 decimalScale={1}
                             />
@@ -357,8 +357,8 @@ function FlipperFilter(props: Props) {
                                 }}
                                 customInput={Form.Control}
                                 defaultValue={flipperFilter.maxCost}
-                                thousandSeparator={getThousandSeperator()}
-                                decimalSeparator={getDecimalSeperator()}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
                                 allowNegative={false}
                                 decimalScale={0}
                             />

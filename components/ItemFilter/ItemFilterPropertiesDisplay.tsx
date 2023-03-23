@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useState } from 'react'
+import RemoveIcon from '@mui/icons-material/Remove'
+import { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
-import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
+import { camelCaseToSentenceCase, convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
-import { Remove as RemoveIcon } from '@mui/icons-material'
 
 interface Props {
     filter?: ItemFilter
@@ -67,6 +67,24 @@ function ItemFilterPropertiesDisplay(props: Props) {
 
                     if (key.startsWith('_')) {
                         return ''
+                    }
+
+                    // finds ">","<","="" and combinations at the beginning
+                    let beginningSymbolRegexp = new RegExp(/^[<>=]+/)
+                    if (!isNaN(Number(display.replace(beginningSymbolRegexp, '')))) {
+                        let symbols = display.match(beginningSymbolRegexp)
+                        let number = display.replace(beginningSymbolRegexp, '')
+                        display = numberWithThousandsSeparators(Number(number))
+                        display = symbols ? symbols[0] + display : display
+                    }
+
+                    // finds number ranges (e.g. "10000-999999")
+                    let numberRangeRegex = new RegExp(/^\d+-\d+$/)
+                    if (display.match(numberRangeRegex)) {
+                        display = display
+                            .split('-')
+                            .map(numberString => numberWithThousandsSeparators(Number(numberString)))
+                            .join('-')
                     }
 
                     // Special case -> display as date

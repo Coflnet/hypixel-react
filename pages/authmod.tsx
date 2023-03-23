@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Container } from 'react-bootstrap'
 import api from '../api/ApiHelper'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'

@@ -1,4 +1,4 @@
-import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeparators } from '../../../utils/Formatter'
 
 const ANIMATION_THRESHOLD = 200
 
@@ -13,7 +13,7 @@ let option = {
             label: {
                 formatter: axisObject => {
                     if (axisObject.axisDimension === 'y') {
-                        return `${numberWithThousandsSeperators(axisObject.value)}`
+                        return `${numberWithThousandsSeparators(axisObject.value)}`
                     }
                     return getLocalDateAndTime(new Date(+axisObject.value))
                 }
@@ -72,7 +72,7 @@ let option = {
             position: 'right',
             symbol: 'none',
             axisLabel: {
-                formatter: numberWithThousandsSeperators
+                formatter: numberWithThousandsSeparators
             }
         }
     ],
@@ -127,7 +127,7 @@ let option = {
             smooth: true,
             animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
-                valueFormatter: numberWithThousandsSeperators
+                valueFormatter: numberWithThousandsSeparators
             },
             data: []
         }

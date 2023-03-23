@@ -1,11 +1,11 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import moment from 'moment'
 import Link from 'next/link'
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useStateWithRef } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -37,11 +37,16 @@ function ActiveAuctions(props: Props) {
     let isLoadingElements = useRef(false)
 
     useEffect(() => {
-        loadActiveAuctions()
+        loadActiveAuctions(true)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag, JSON.stringify(props.filter), order])
 
-    function loadActiveAuctions() {
+    function loadActiveAuctions(reset: boolean = false) {
+        if (reset) {
+            setActiveAuctions([])
+            setAllElementsLoaded(false)
+        }
+
         var filterString = JSON.stringify({
             item: props.item,
             filter: props.filter
@@ -52,7 +57,7 @@ function ActiveAuctions(props: Props) {
         isLoadingElements.current = true
         currentLoad = filterString
 
-        let page = Math.ceil(activeAuctionsRef.current.length / FETCH_RESULT_SIZE)
+        let page = reset ? 0 : Math.ceil(activeAuctionsRef.current.length / FETCH_RESULT_SIZE)
         let maxPages = 10
         switch (premiumType?.priority) {
             case PREMIUM_RANK.STARTER:
@@ -83,8 +88,14 @@ function ActiveAuctions(props: Props) {
                 isLoadingElements.current = false
                 if (auctions.length < FETCH_RESULT_SIZE) {
                     setAllElementsLoaded(true)
+                } else if (reset) {
+                    // if reset and there are more to load, load another batch to not break the endless scrolling
+                    setTimeout(() => {
+                        loadActiveAuctions()
+                    }, 0)
                 }
-                setActiveAuctions([...activeAuctionsRef.current, ...auctions])
+
+                setActiveAuctions(reset ? auctions : [...activeAuctionsRef.current, ...auctions])
             })
             .catch(() => {
                 isLoadingElements.current = false
@@ -138,7 +149,7 @@ function ActiveAuctions(props: Props) {
                                             style={{ marginRight: '5px' }}
                                             loading="lazy"
                                         />
-                                        <span style={{ padding: '2px', textAlign: 'center' }}>{numberWithThousandsSeperators(activeAuction.price)} Coins</span>
+                                        <span style={{ padding: '2px', textAlign: 'center' }}>{numberWithThousandsSeparators(activeAuction.price)} Coins</span>
                                         <div onClick={e => e.preventDefault()}>
                                             <CopyButton
                                                 buttonVariant="primary"

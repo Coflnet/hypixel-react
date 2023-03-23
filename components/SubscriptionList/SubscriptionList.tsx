@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import DeleteIcon from '@mui/icons-material/Delete'
+import UndoIcon from '@mui/icons-material/Undo'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { Badge, Button, ListGroup, Modal } from 'react-bootstrap'
+import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
+import { convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import { convertTagToName, numberWithThousandsSeperators } from '../../utils/Formatter'
-import { toast } from 'react-toastify'
-import { Delete as DeleteIcon, Undo as UndoIcon } from '@mui/icons-material'
-import Link from 'next/link'
-import styles from './SubscriptionList.module.css'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
-import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
-import { useForceUpdate } from '../../utils/Hooks'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
+import styles from './SubscriptionList.module.css'
 
 let mounted = true
 
@@ -76,7 +76,7 @@ function SubscriptionList() {
                             result =
                                 price > 0 ? (
                                     <li key="2">
-                                        Notify if price is higher than <b>{numberWithThousandsSeperators(price)} Coins</b>
+                                        Notify if price is higher than <b>{numberWithThousandsSeparators(price)} Coins</b>
                                     </li>
                                 ) : (
                                     <li key="2">Any price</li>
@@ -85,7 +85,7 @@ function SubscriptionList() {
                         case SubscriptionType.PRICE_LOWER_THAN.toString():
                             result = (
                                 <li key="3">
-                                    Notify if price is lower than <b>{numberWithThousandsSeperators(price)} Coins</b>
+                                    Notify if price is lower than <b>{numberWithThousandsSeparators(price)} Coins</b>
                                 </li>
                             )
                             break
@@ -300,7 +300,7 @@ function SubscriptionList() {
                 ''
             )}
             {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
-            {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use subscriptions please login with Google:</p> : ''}
+            {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use subscriptions, please login with Google:</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             {resetSettingsElement}
         </div>

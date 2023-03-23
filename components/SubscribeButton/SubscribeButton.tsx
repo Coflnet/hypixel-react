@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import api from '../../api/ApiHelper'
@@ -6,7 +6,7 @@ import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { toast } from 'react-toastify'
 import askForNotificationPermissons from '../../utils/NotificationPermisson'
-import { NotificationsOutlined as NotificationIcon } from '@mui/icons-material'
+import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
 import styles from './SubscribeButton.module.css'
 import SubscribeItemContent from './SubscribeItemContent/SubscribeItemContent'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -14,7 +14,7 @@ import SubscribePlayerContent from './SubscribePlayerContent/SubscribePlayerCont
 import SubscribeAuctionContent from './SubscribeAuctionContent/SubscribeAuctionContent'
 import { useRouter } from 'next/router'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
-import { Edit as EditIcon } from '@mui/icons-material'
+import EditIcon from '@mui/icons-material/Edit'
 
 interface Props {
     topic: string
