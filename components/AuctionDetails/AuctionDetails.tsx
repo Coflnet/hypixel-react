@@ -34,6 +34,7 @@ interface Props {
 function AuctionDetails(props: Props) {
     let [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails)
+    let [unparsedAuctionDetails, setUnparsedAuctionDetails] = useState(null)
     let [isLoading, setIsLoading] = useState(false)
     let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
     let [showFilterChecker, setShowFilterChecker] = useState(false)
@@ -50,7 +51,9 @@ function AuctionDetails(props: Props) {
     function loadAuctionDetails(auctionUUID: string) {
         setIsLoading(true)
         api.getAuctionDetails(auctionUUID)
-            .then(auctionDetails => {
+            .then(result => {
+                setUnparsedAuctionDetails(result.original)
+                let auctionDetails = result.parsed
                 auctionDetails.bids.sort((a, b) => b.amount - a.amount)
                 auctionDetails.auction.item.iconUrl = api.getItemImageUrl(auctionDetails.auction.item)
                 setAuctionDetails(auctionDetails)
@@ -194,7 +197,7 @@ function AuctionDetails(props: Props) {
 
         let index = tagNbt.findIndex(tag => tag === key)
         if (index !== -1) {
-            if(key === 'skin'){
+            if (key === 'skin') {
                 return <Link href={'/item/PET_SKIN_' + value}>{convertTagToName(value)}</Link>
             }
             return <Link href={'/item/' + value}>{convertTagToName(value)}</Link>
@@ -462,9 +465,9 @@ function AuctionDetails(props: Props) {
             >
                 Show filter checker {showFilterChecker ? <ArrowDownIcon /> : <ArrowRightIcon />}
             </div>
-            {showFilterChecker ? (
+            {showFilterChecker && unparsedAuctionDetails ? (
                 <div style={{ minHeight: 400 }}>
-                    <FilterChecker auctionToCheck={auctionDetails} />
+                    <FilterChecker auctionToCheck={unparsedAuctionDetails} />
                 </div>
             ) : null}
             {basedOnDialog}

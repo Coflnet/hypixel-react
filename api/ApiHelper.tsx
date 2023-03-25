@@ -366,7 +366,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctionDetails = (auctionUUID: string): Promise<AuctionDetails> => {
+    let getAuctionDetails = (auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.AUCTION_DETAILS,
@@ -382,10 +382,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                                 name,
                                 uuid: auctionDetails.auctioneerId
                             }
-                            returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
+                            returnSSRResponse ? resolve(auctionDetails) : resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
                         })
                     } else {
-                        returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
+                        returnSSRResponse ? resolve(auctionDetails) : resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
                     }
                 },
                 reject: (error: any) => {
