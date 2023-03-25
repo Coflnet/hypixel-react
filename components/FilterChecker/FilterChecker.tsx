@@ -16,7 +16,6 @@ export function FilterChecker(props: Props) {
     let [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
-        console.log(props.auctionToCheck)
         api.getFilters(props.auctionToCheck.tag).then(setFilterOptions)
     }, [])
 
