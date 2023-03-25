@@ -171,7 +171,8 @@ function SubscriptionList() {
                     break
                 case 'auction':
                     api.getAuctionDetails(subscription.topicId)
-                        .then(auctionDetails => {
+                        .then(result => {
+                            let auctionDetails = result.parsed
                             resolve(auctionDetails.auction.item.name || auctionDetails.auction.item.tag)
                         })
                         .catch(() => {

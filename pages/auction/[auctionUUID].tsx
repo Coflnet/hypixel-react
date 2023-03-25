@@ -92,7 +92,8 @@ export const getServerSideProps = async ({ res, params }) => {
     let api = initAPI(true)
     let auctionDetails: any
     try {
-        auctionDetails = await api.getAuctionDetails(auctionUUID)
+        let result = await api.getAuctionDetails(auctionUUID)
+        auctionDetails = result.parsed
     } catch (e) {
         console.log('ERROR: ' + JSON.stringify(e))
         console.log('------------------------\n')
