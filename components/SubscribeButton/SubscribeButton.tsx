@@ -64,7 +64,7 @@ function SubscribeButton(props: Props) {
                 props.onAfterSubscribe()
             })
             .catch(error => {
-                toast.error(error.Message, {
+                toast.error(error.message, {
                     onClick: () => {
                         router.push({
                             pathname: '/subscriptions'
