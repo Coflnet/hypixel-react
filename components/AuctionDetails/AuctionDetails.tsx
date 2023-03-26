@@ -87,7 +87,7 @@ function AuctionDetails(props: Props) {
                 } else {
                     setIsNoAuctionFound(true)
                     if (error) {
-                        toast.error(error.Message)
+                        toast.error(error.message)
                     }
                 }
             })
