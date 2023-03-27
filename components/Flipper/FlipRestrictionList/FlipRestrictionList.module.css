@@ -36,19 +36,19 @@
     font-weight: bold;
 }
 
-.sortByNameCheckbox{
-    width: 49%;
+.sortByNameCheckbox {
     position: relative !important;
 }
 
-.sortByNameContainer{
+.sortByNameContainer {
     display: inline-flex;
     margin-left: 20px;
+    flex: 50%;
 }
 
-.searchFilter{
-    width: 49%;
+.searchFilter {
     margin-left: 20px;
+    flex: 50%;
 }
 
 @media all and (max-width: 1024px) {
