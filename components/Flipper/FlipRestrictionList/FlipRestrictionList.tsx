@@ -30,6 +30,7 @@ function FlipRestrictionList(props: Props) {
     let [showClearListDialog, setShowClearListDialog] = useState(false)
     let [isRefreshingItemNames, setIsRefreshingItemNames] = useState(false)
     let [searchText, setSearchText] = useState('')
+    let [sortByName, setSortByName] = useState(false)
 
     let forceUpdate = useForceUpdate()
 
@@ -361,6 +362,19 @@ function FlipRestrictionList(props: Props) {
         </svg>
     )
 
+    restrictions = [...restrictions]
+    if (sortByName) {
+        restrictions.sort((a, b) => {
+            if (!a.item) {
+                return 1
+            }
+            if (!b.item) {
+                return -1
+            }
+            return a.item.name.localeCompare(b.item.name)
+        })
+    }
+
     return (
         <>
             <div style={{ position: 'sticky', top: 0, backgroundColor: '#303030', padding: '10px 20px 0 20px', zIndex: 10 }}>
@@ -391,7 +405,7 @@ function FlipRestrictionList(props: Props) {
                             <span> Add new restriction</span>
                         </span>
                         <span style={{ float: 'right' }}>
-                            <Button variant="info" style={{ marginRight: '10px' }} onClick={refreshItemNames} disabled={isRefreshingItemNames}>
+                            <Button variant="info" style={{ marginRight: '10px', padding: '5px' }} onClick={refreshItemNames} disabled={isRefreshingItemNames}>
                                 <Refresh /> Refresh item names
                             </Button>
                             <Button variant="danger" onClick={onClearListClick}>
@@ -402,7 +416,15 @@ function FlipRestrictionList(props: Props) {
                 )}
                 <hr />
             </div>
-            <Form.Control style={{ width: '49%', marginLeft: '20px' }} placeholder="Search..." onChange={e => setSearchText(e.target.value)} />
+            <div style={{ display: 'flex' }}>
+                <Form.Control className={styles.searchFilter} placeholder="Search..." onChange={e => setSearchText(e.target.value)} />
+                <div className={styles.sortByNameContainer}>
+                    <Form.Label style={{ width: '200px' }} htmlFor="sortByNameCheckbox">
+                        Sort by name
+                    </Form.Label>
+                    <Form.Check id="sortByNameCheckbox" className={styles.sortByNameCheckbox} onChange={e => setSortByName(e.target.checked)} />
+                </div>
+            </div>
             <div className={styles.restrictionList}>
                 {restrictions.map((restriction, index) => {
                     if (searchText) {
