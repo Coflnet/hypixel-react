@@ -382,10 +382,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                                 name,
                                 uuid: auctionDetails.auctioneerId
                             }
-                            returnSSRResponse ? resolve(auctionDetails) : resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
+                            resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
                         })
                     } else {
-                        returnSSRResponse ? resolve(auctionDetails) : resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
+                        resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
                     }
                 },
                 reject: (error: any) => {
