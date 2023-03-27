@@ -44,7 +44,7 @@ function Flipper(props: Props) {
                 <Search />
                 <h2>Item Flipper (WIP)</h2>
                 <hr />
-                <FlipperComponent flips={flips.map(parseFlipAuction)} />
+                <FlipperComponent flips={flips} />
             </Container>
         </div>
     )
@@ -61,8 +61,6 @@ export const getServerSideProps = async ({ res }) => {
         console.log('ERROR: Error receiving preFlips')
         console.log('------------------------\n')
     }
-
-    console.log(typeof flips)
 
     return {
         props: {
