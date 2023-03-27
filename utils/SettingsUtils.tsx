@@ -327,8 +327,6 @@ export async function handleSettingsImport(importString: string) {
     }, 1000)
 }
 
-function handleTomlImport() {}
-
 export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: FlipCustomizeSettings, restrictions: FlipRestriction[]) {
     return {
         whitelist: mapRestrictionsToApiFormat(restrictions.filter(restriction => restriction.type === 'whitelist')),
