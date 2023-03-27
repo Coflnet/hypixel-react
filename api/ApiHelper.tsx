@@ -43,7 +43,7 @@ import {
     LAST_PREMIUM_PRODUCTS,
     mapSettingsToApiFormat,
     RESTRICTIONS_SETTINGS_KEY,
-    setSettingsChangedData,
+    setSettingsFromServerSide,
     storeUsedTagsInLocalStorage
 } from '../utils/SettingsUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
@@ -669,7 +669,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                                 true
                             )
                         } else {
-                            setSettingsChangedData(response.data)
+                            setSettingsFromServerSide(response.data)
                         }
                         break
                     case 'settingsUpdate':
@@ -677,7 +677,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         if (data.changer === window.sessionStorage.getItem('sessionId')) {
                             return
                         }
-                        setSettingsChangedData(response.data)
+                        setSettingsFromServerSide(response.data)
                         break
                     case 'ok':
                         if (onSubscribeSuccessCallback) {

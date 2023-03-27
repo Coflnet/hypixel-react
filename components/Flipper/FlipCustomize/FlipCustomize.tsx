@@ -2,7 +2,15 @@ import { useMatomo } from '@datapunt/matomo-tracker-react'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
-import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, handleSettingsImport, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
+import {
+    FLIPPER_FILTER_KEY,
+    FLIP_CUSTOMIZING_KEY,
+    getSettingsObject,
+    handleSettingsImport,
+    mapSettingsToApiFormat,
+    RESTRICTIONS_SETTINGS_KEY,
+    setSetting
+} from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import Flip from '../Flip/Flip'
 import HelpIcon from '@mui/icons-material/Help'
@@ -85,13 +93,13 @@ function FlipCustomize() {
     }
 
     function exportFilter() {
-        let exportFilter = {}
+        let toExport = mapSettingsToApiFormat(
+            getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}),
+            getSettingsObject<FlipCustomizeSettings>(FLIP_CUSTOMIZING_KEY, {}),
+            getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+        )
 
-        exportFilter[FLIP_CUSTOMIZING_KEY] = getSetting(FLIP_CUSTOMIZING_KEY, '{}')
-        exportFilter[RESTRICTIONS_SETTINGS_KEY] = getSetting(RESTRICTIONS_SETTINGS_KEY, '[]')
-        exportFilter[FLIPPER_FILTER_KEY] = getSetting(FLIPPER_FILTER_KEY, '{}')
-
-        download('filter.json', JSON.stringify(exportFilter))
+        download('filter.json', JSON.stringify(toExport))
     }
 
     function readImportFile(e) {
