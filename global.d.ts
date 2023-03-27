@@ -162,7 +162,7 @@ interface API {
     getBids(uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<BidForList[]>
     getEnchantments(): Promise<Enchantment[]>
     getReforges(): Promise<Reforge[]>
-    getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>
+    getAuctionDetails(auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }>
     getPlayerName(uuid: string): Promise<string>
     setConnectionId(): Promise<void>
     getVersion(): Promise<string>
@@ -240,6 +240,7 @@ interface API {
     getPremiumProducts(): Promise<PremiumProduct[]>
     unsubscribeAll(): Promise<void>
     getItemNames(items: Item[]): Promise<{ [key: string]: string }>
+    checkFilter(auction: AuctionDetails, filter: ItemFilter): Promise<boolean>
     refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void)
     getRelatedItems(tag: string): Promise<Item[]>
 }

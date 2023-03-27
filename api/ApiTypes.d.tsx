@@ -71,7 +71,8 @@ export enum RequestType {
     GET_PREMIUM_PRODUCTS = 'premium/user/owns',
     UNSUBSCRIBE_ALL = 'unsubscribeAll',
     GET_ITEM_NAMES = 'items/names',
-    RELATED_ITEMS = 'realtedItems'
+    RELATED_ITEMS = 'realtedItems',
+    CHECK_FILTER = 'checkFilter'
 }
 
 export enum SubscriptionType {

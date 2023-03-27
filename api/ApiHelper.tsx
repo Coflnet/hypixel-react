@@ -366,7 +366,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctionDetails = (auctionUUID: string): Promise<AuctionDetails> => {
+    let getAuctionDetails = (auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.AUCTION_DETAILS,
@@ -382,10 +382,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                                 name,
                                 uuid: auctionDetails.auctioneerId
                             }
-                            returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
+                            returnSSRResponse ? resolve(auctionDetails) : resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
                         })
                     } else {
-                        returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
+                        returnSSRResponse ? resolve(auctionDetails) : resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
                     }
                 },
                 reject: (error: any) => {
@@ -1721,6 +1721,30 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let checkFilter = (auction: AuctionDetails, filter: ItemFilter): Promise<boolean> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.CHECK_FILTER,
+                    requestMethod: 'POST',
+                    customRequestURL: `${getApiEndpoint()}/Filter`,
+                    requestHeader: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: '',
+                    resolve: data => {
+                        resolve(data)
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.CHECK_FILTER, error, { auction, filter })
+                        reject(error)
+                    }
+                },
+                JSON.stringify({ filters: filter, auction: auction })
+            )
+        })
+    }
+
     let getRelatedItems = (tag: string): Promise<Item[]> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
@@ -1807,6 +1831,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getPremiumProducts,
         unsubscribeAll,
         getItemNames,
+        checkFilter,
         refreshLoadPremiumProducts,
         getRelatedItems
     }
