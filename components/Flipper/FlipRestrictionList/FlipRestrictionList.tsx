@@ -3,7 +3,7 @@ import { Badge, Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } fro
 import api from '../../../api/ApiHelper'
 import { getStyleForTier } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
-import { getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
+import { getCleanRestrictionsForApi, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Refresh from '@mui/icons-material/Refresh'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
@@ -24,7 +24,7 @@ interface Props {
 function FlipRestrictionList(props: Props) {
     let [newRestriction, setNewRestriction] = useState<FlipRestriction>({ type: 'blacklist' })
     let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(false)
-    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []))
+    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getInitialFlipRestrictions())
     let [filters, setFilters] = useState<FilterOptions[]>()
     let [restrictionInEditModeIndex, setRestrictionsInEditModeIndex] = useState<number[]>([])
     let [showClearListDialog, setShowClearListDialog] = useState(false)
@@ -34,9 +34,20 @@ function FlipRestrictionList(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
+        setRestrictions(restrictions)
         loadFilters()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    function getInitialFlipRestrictions() {
+        let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+        restrictions.forEach(restriction => {
+            if (restriction.item && restriction.item.tag) {
+                restriction.item.iconUrl = api.getItemImageUrl(restriction.item)
+            }
+        })
+        return restrictions
+    }
 
     function loadFilters(restrictionsInEditMode: FlipRestriction[] = []): Promise<FilterOptions[]> {
         if (restrictionsInEditMode.length === 0) {
@@ -203,32 +214,6 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
         }
         setRestrictions(restrictions)
-    }
-
-    /**
-     * Removes private properties starting with a _ from the restrictions, because the backend cant handle these.
-     * These also have to be saved into the localStorage because they could get sent to the api from there
-     * @param restrictions The restrictions
-     * @returns A new array containing restrictions without private properties
-     */
-    function getCleanRestrictionsForApi(restrictions: FlipRestriction[]) {
-        return restrictions.map(restriction => {
-            let newRestriction = {
-                type: restriction.type,
-                item: restriction.item,
-                tags: restriction.tags
-            } as FlipRestriction
-
-            if (restriction.itemFilter) {
-                newRestriction.itemFilter = {}
-                Object.keys(restriction.itemFilter).forEach(key => {
-                    if (!key.startsWith('_')) {
-                        newRestriction.itemFilter![key] = restriction.itemFilter![key]
-                    }
-                })
-            }
-            return newRestriction
-        })
     }
 
     function saveRestrictionEdit(restriction: FlipRestriction, index: number) {

@@ -8,7 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import HelpIcon from '@mui/icons-material/Help'
 import AddIcon from '@mui/icons-material/AddCircleOutline'
 
-import { camelCaseToSentenceCase } from '../../utils/Formatter'
+import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
@@ -43,6 +43,7 @@ function ItemFilter(props: Props) {
 
     useEffect(() => {
         initFilter()
+        console.log(props.filters)
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
@@ -340,6 +341,9 @@ function ItemFilter(props: Props) {
                                         onChange={addFilter}
                                         options={props.filters}
                                         labelKey={filter => {
+                                            if (filter.name[0].toLowerCase() === filter.name[0]) {
+                                                return convertTagToName(filter.name)
+                                            }
                                             return camelCaseToSentenceCase(filter.name)
                                         }}
                                     ></Typeahead>

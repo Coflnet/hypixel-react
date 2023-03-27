@@ -14,15 +14,8 @@ interface Props {
 
 function Flipper(props: Props) {
     let flips = useMemo(() => {
-        try {
-            return JSON.parse(props.flips).map(flip => parseFlipAuction(flip))
-        } catch (e) {
-            console.log('ERROR: Error parsing preFlips')
-            console.log(props.flips)
-            console.log('------------------------\n')
-            return []
-        }
-    }, [])
+        return props.flips.map(flip => parseFlipAuction(flip))
+    }, [props.flips])
 
     function onDrop(e) {
         e.preventDefault()
@@ -68,6 +61,8 @@ export const getServerSideProps = async ({ res }) => {
         console.log('ERROR: Error receiving preFlips')
         console.log('------------------------\n')
     }
+
+    console.log(typeof flips)
 
     return {
         props: {

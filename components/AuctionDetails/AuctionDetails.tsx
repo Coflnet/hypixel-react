@@ -87,7 +87,7 @@ function AuctionDetails(props: Props) {
                 } else {
                     setIsNoAuctionFound(true)
                     if (error) {
-                        toast.error(error.Message)
+                        toast.error(error.message)
                     }
                 }
             })
@@ -192,6 +192,9 @@ function AuctionDetails(props: Props) {
 
         let index = tagNbt.findIndex(tag => tag === key)
         if (index !== -1) {
+            if(key === 'skin'){
+                return <Link href={'/item/PET_SKIN_' + value}>{convertTagToName(value)}</Link>
+            }
             return <Link href={'/item/' + value}>{convertTagToName(value)}</Link>
         }
         return value.toString()

@@ -72,10 +72,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }, 20000)
 
     let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
-        if (!error || !error.Message) {
+        if (!error || !error.message) {
             return
         }
-        toast.error(error.Message, {
+        toast.error(error.message, {
             onClick: () => {
                 if (error.Trace && window.navigator.clipboard) {
                     window.navigator.clipboard.writeText(error.Trace)
@@ -83,7 +83,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             }
         })
         console.log('RequestType: ' + requestType)
-        console.log('ErrorMessage: ' + error.Message)
+        console.log('ErrorMessage: ' + error.message)
         console.log('RequestData: ')
         console.log(requestData)
         console.log('------------------------------\n')
@@ -1721,6 +1721,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getRelatedItems = (tag: string): Promise<Item[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.RELATED_ITEMS,
+                customRequestURL: `${getApiEndpoint()}/item/${tag}/similar`,
+                data: '',
+                resolve: data => {
+                    resolve(data.map(item => parseItem(item)))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.RELATED_ITEMS, error, tag)
+                    reject()
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1790,7 +1807,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getPremiumProducts,
         unsubscribeAll,
         getItemNames,
-        refreshLoadPremiumProducts
+        refreshLoadPremiumProducts,
+        getRelatedItems
     }
 }
 

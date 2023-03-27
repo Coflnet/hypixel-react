@@ -71,7 +71,7 @@ function GoogleSignIn(props: Props) {
             .catch(error => {
                 // dont show the error message for the invalid token error
                 // the google sign component sometimes sends an outdated token, causing this error
-                if (error.Slug !== 'invalid_token') {
+                if (error.slug !== 'invalid_token') {
                     toast.error('An error occoured while trying to sign in with Google')
                 } else {
                     console.warn('setGoogle: Invalid token error', error)
