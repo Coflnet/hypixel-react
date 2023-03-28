@@ -168,13 +168,14 @@ export function setSettingsFromServerSide(
         setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
 
         Promise.all([_addListToRestrictions(settings.whitelist, 'whitelist'), _addListToRestrictions(settings.blacklist, 'blacklist')]).then(results => {
-            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(results[0].concat(results[1]))))
+            let newRestrictions = getCleanRestrictionsForApi(results[0].concat(results[1]))
+            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(newRestrictions))
 
             document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
             resolve({
                 filter,
                 flipCustomizing,
-                restrictions
+                restrictions: newRestrictions
             })
         })
     })
@@ -190,6 +191,7 @@ export async function handleSettingsImport(importString: string) {
         let importObject = JSON.parse(importString)
         if (importObject.whitelist !== undefined) {
             // Handle import in server-side format
+            console.log("using server side import")
             let settings = await setSettingsFromServerSide(importObject)
             filter = settings.filter
             flipCustomizeSettings = settings.flipCustomizing
