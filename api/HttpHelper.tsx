@@ -114,7 +114,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                         console.log('data: ' + JSON.stringify(parsedResponse))
                         console.log('------------------------')
                     }
-                    if (!parsedResponse || parsedResponse.slug !== undefined) {
+                    if ((!parsedResponse && parsedResponse !== false) || parsedResponse.slug !== undefined) {
                         request.resolve()
                         return
                     }
