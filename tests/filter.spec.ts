@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixture'
 
 test('test', async ({ page, browserName, isMobile }) => {
     // Mobile Safari cant open the page for some reason

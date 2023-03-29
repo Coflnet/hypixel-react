@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixture';
 
 test('auction contains relevant information', async ({ page }) => {
   await page.goto('/auction/73137bc47df84d31a9d8b010078ada0f');

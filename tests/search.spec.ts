@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixture'
 
 test('search player technoblade with special player search query', async ({ page }) => {
     await page.goto('/')
@@ -10,7 +10,7 @@ test('search player technoblade with special player search query', async ({ page
 
 test('search for grappling hook and open reference', async ({ page }) => {
     await page.goto('/')
-    await page.getByPlaceholder('Search player/item').fill('grapp')
+    await page.getByPlaceholder('Search player/item').fill('Grappling Hook')
     await page.getByPlaceholder('Search player/item').press('Enter')
     await expect(page).toHaveURL(/.*\/item\/.*/i)
     await page.locator('text=/ended.*ago/i').nth(3).click()
