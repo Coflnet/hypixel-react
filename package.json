@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "npx next dev",
     "build": "next build",
-    "test": "start-server-and-test 'npm run start' http://localhost:3000 'npx playwright test'",
+    "test": "npm run build && start-server-and-test 'npm run dev' 3000 'npx playwright test'",
     "start": "next start",
     "lint": "next lint"
   },
