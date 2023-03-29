@@ -362,9 +362,9 @@ function FlipRestrictionList(props: Props) {
         </svg>
     )
 
-    restrictions = [...restrictions]
+    let restrictionsToDisplay = [...restrictions]
     if (sortByName) {
-        restrictions.sort((a, b) => {
+        restrictionsToDisplay = restrictionsToDisplay.sort((a, b) => {
             if (!a.item) {
                 return 1
             }
@@ -426,7 +426,7 @@ function FlipRestrictionList(props: Props) {
                 </div>
             </div>
             <div className={styles.restrictionList}>
-                {restrictions.map((restriction, index) => {
+                {restrictionsToDisplay.map((restriction, index) => {
                     if (searchText) {
                         let isValid = false
                         if (restriction.item?.name && restriction.item?.name.toLowerCase().includes(searchText.toLowerCase())) {
