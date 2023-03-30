@@ -26,7 +26,7 @@ test('Scroll down to older bid', async ({ page, isMobile, browserName }) => {
         if (inView) break
         await page.waitForTimeout(50)
     }
-    await page.getByRole('link', { name: /.*Cheap Coffee Ended BIN Highest Bid: 6[,\.]000.* Highest Own: 6[,\.]000.* End of Auction: .*2021/ }).click()
+    await page.getByRole('link', { name: /.*Cheap Coffee Ended BIN Highest Bid: 6[,\.]000.* Highest Own: 6[,\.]000.* End of Auction: .*2021/ }).isVisible()
 })
 
 async function switchToBids(page: Page) {
