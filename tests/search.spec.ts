@@ -13,7 +13,7 @@ test('search for grappling hook and open reference', async ({ page }) => {
     await page.getByPlaceholder('Search player/item').fill('Grappling Hook')
     await page.getByPlaceholder('Search player/item').press('Enter')
     await expect(page).toHaveURL(/.*\/item\/.*/i)
-    await page.locator('text=/ended.*ago/i').nth(3).click({ force: true })
+    await page.locator('text=/ended.*ago/i').first().click({ force: true })
     // loaded auction page
     await expect(page).toHaveURL(/.*\/auction\/.*/i)
     // loaded item page
