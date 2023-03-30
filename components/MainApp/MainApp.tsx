@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import CookieConsent from 'react-cookie-consent'
 import { ToastContainer } from 'react-toastify'
 import { OfflineBanner } from '../OfflineBanner/OfflineBanner'

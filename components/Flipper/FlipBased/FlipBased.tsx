@@ -1,4 +1,5 @@
 import moment from 'moment'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Badge, Card } from 'react-bootstrap'
@@ -46,7 +47,7 @@ function FlipBased(props: Props) {
                         <Card className="card">
                             <Card.Header style={{ padding: '10px' }}>
                                 <p className="ellipsis" style={{ width: '180px' }}>
-                                    <img
+                                    <Image
                                         crossOrigin="anonymous"
                                         src={props.item.iconUrl}
                                         height="32"

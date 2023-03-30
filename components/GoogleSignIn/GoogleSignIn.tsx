@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import { useForceUpdate } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'

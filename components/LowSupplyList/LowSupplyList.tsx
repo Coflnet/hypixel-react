@@ -7,6 +7,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { NumericFormat } from 'react-number-format';
 import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import styles from './LowSupplyList.module.css'
+import Image from 'next/image'
 
 let mounted = true
 
@@ -95,7 +96,7 @@ function LowSupplyList(props: Props) {
               return (
                   <tr>
                       <td>
-                          <img crossOrigin="anonymous" src={item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                          <Image crossOrigin="anonymous" src={item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                       </td>
                       <td>{item.name}</td>
                       <td>{item.supply}</td>

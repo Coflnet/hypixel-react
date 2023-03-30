@@ -1,6 +1,7 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import { googleLogout } from '@react-oauth/google'
 import Cookies from 'js-cookie'
+import Image from 'next/image'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
@@ -45,7 +46,7 @@ function AccountDetails() {
             try {
                 let parts = googleId.split('.')
                 let obj = JSON.parse(atobUnicode(parts[1]))
-                let imageElement = obj.picture ? <img src={obj.picture} height={24} width={24} alt="" /> : <span />
+                let imageElement = obj.picture ? <Image src={obj.picture} height={24} width={24} alt="" /> : <span />
                 return (
                     <span>
                         {imageElement} {`${obj.name} (${obj.email})`}

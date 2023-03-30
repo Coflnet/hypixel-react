@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import React from 'react'
 import { Spinner } from 'react-bootstrap'
 
@@ -18,7 +19,7 @@ export function getInitialLoadingElement(): JSX.Element {
     return (
         <div className="main-loading" style={{ height: '500px' }}>
             <div>
-                <img src="/logo192.png" height="192" width="192" alt="auction house logo" />
+                <Image src="/logo192.png" height="192" width="192" alt="auction house logo" />
                 <div className="main-loading">
                     <span>Loading App...</span>
                 </div>

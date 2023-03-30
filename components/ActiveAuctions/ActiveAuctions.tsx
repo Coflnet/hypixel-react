@@ -12,6 +12,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import styles from './ActiveAuctions.module.css'
+import Image from 'next/image'
 
 interface Props {
     item: Item
@@ -139,7 +140,7 @@ function ActiveAuctions(props: Props) {
                         <Link href={`/auction/${activeAuction.uuid}`} className="disableLinkStyle">
                             <Card.Header style={{ padding: '10px' }}>
                                 <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'space-between' }}>
-                                    <img
+                                    <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
                                         src={props.item.iconUrl}
@@ -166,7 +167,7 @@ function ActiveAuctions(props: Props) {
                         </Link>
                     </span>
                     <Card.Body style={{ padding: '10px' }}>
-                        <img
+                        <Image
                             style={{ marginRight: '15px' }}
                             crossOrigin="anonymous"
                             className="playerHeadIcon"

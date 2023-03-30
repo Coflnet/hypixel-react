@@ -1,4 +1,5 @@
 import moment from 'moment'
+import Image from 'next/image'
 import Link from 'next/link'
 import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
@@ -146,7 +147,7 @@ function RecentAuctions(props: Props) {
                         <Card className="card">
                             <Card.Header style={{ padding: '10px' }}>
                                 <div style={{ float: 'left' }}>
-                                    <img
+                                    <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
                                         src={props.item.iconUrl}
@@ -159,7 +160,7 @@ function RecentAuctions(props: Props) {
                                 <div>{numberWithThousandsSeparators(recentAuction.price)} Coins</div>
                             </Card.Header>
                             <Card.Body style={{ padding: '10px' }}>
-                                <img
+                                <Image
                                     style={{ marginRight: '15px' }}
                                     crossOrigin="anonymous"
                                     className="playerHeadIcon"

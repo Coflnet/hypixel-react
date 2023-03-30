@@ -1,5 +1,6 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import HelpIcon from '@mui/icons-material/Help'
+import Image from 'next/image'
 import { useEffect } from 'react'
 import { Badge, Card } from 'react-bootstrap'
 import { toast } from 'react-toastify'
@@ -114,7 +115,7 @@ function Flip(props: Props) {
             <Card className={styles.flipAuctionCard} style={{ cursor: 'pointer' }} onMouseDown={onCardClick}>
                 <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
                     <div className="ellipse">
-                        <img crossOrigin="anonymous" src={props.flip.item.iconUrl} height="24" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                        <Image crossOrigin="anonymous" src={props.flip.item.iconUrl} height="24" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                         <span style={getStyleForTier(props.flip.item.tier)}>{itemName}</span>
                     </div>
                     {stars ? formatDungeonStarsInString(stars[0]) : null}

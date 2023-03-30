@@ -2,6 +2,7 @@ import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
 import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'
 import DangerousIcon from '@mui/icons-material/Dangerous'
 import moment from 'moment'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
@@ -149,7 +150,7 @@ export function FlipTracking(props: Props) {
                             router.push(`/item/${trackedFlip.item.tag}`)
                         }}
                     >
-                        <img
+                        <Image
                             crossOrigin="anonymous"
                             src={trackedFlip.item.iconUrl}
                             height="36"
@@ -300,7 +301,7 @@ export function FlipTracking(props: Props) {
             </b>
             {trackedFlips.length === 0 ? (
                 <div className={styles.noAuctionFound}>
-                    <img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
+                    <Image src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
                     <p>We couldn't find any flips.</p>
                 </div>
             ) : (

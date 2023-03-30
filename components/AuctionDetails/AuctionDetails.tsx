@@ -24,6 +24,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import styles from './AuctionDetails.module.css'
 import { Help as HelpIcon, ArrowDropDown as ArrowDownIcon, ArrowRight as ArrowRightIcon } from '@mui/icons-material'
 import { FilterChecker } from '../FilterChecker/FilterChecker'
+import Image from 'next/image'
 
 interface Props {
     auctionUUID: string
@@ -235,7 +236,7 @@ function AuctionDetails(props: Props) {
 
                     <h1>
                         <span className={styles.itemIcon}>
-                            <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
+                            <Image crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
                         </span>
                         <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
                             <span style={{ marginRight: '10px' }}>
@@ -350,7 +351,7 @@ function AuctionDetails(props: Props) {
                             <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
                         </span>
                         {auctionDetails?.auctioneer.name}
-                        <img
+                        <Image
                             crossOrigin="anonymous"
                             className="playerHeadIcon"
                             src={auctionDetails?.auctioneer.iconUrl}
@@ -412,7 +413,7 @@ function AuctionDetails(props: Props) {
                         className="disableLinkStyle">
 
                         <ListGroup.Item key={bid.amount} action>
-                            <img
+                            <Image
                                 crossOrigin="anonymous"
                                 className="playerHeadIcon"
                                 src={bid.bidder.iconUrl}

@@ -8,7 +8,6 @@ export enum RequestType {
     PLAYER_AUCTION = 'playerAuctions',
     PLAYER_BIDS = 'playerBids',
     ALL_ENCHANTMENTS = 'getEnchantments',
-    ALL_REFORGES = 'getReforges',
     TRACK_SEARCH = 'trackSearch',
     PLAYER_NAME = 'playerName',
     SET_CONNECTION_ID = 'setConId',

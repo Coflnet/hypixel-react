@@ -10,6 +10,7 @@ import PetsIcon from '@mui/icons-material/PetsOutlined'
 import PolicyIcon from '@mui/icons-material/Policy'
 import ShareIcon from '@mui/icons-material/ShareOutlined'
 import StorefrontIcon from '@mui/icons-material/Storefront'
+import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { Menu, MenuItem, ProSidebar, SidebarHeader } from 'react-pro-sidebar'
@@ -30,7 +31,6 @@ function NavBar(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-
         setIsSmall(document.body.clientWidth < 1500)
 
         window.addEventListener('resize', resizeHandler)
@@ -157,7 +157,7 @@ function NavBar(props: Props) {
                                 alignItems: 'center'
                             }}
                         >
-                            <img src="/logo512.png" alt="Logo" width={'40px'} height={'40px'} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'Coflnet' : ''}
+                            <Image src="/logo512.png" alt="Logo" width={40} height={40} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'Coflnet' : ''}
                         </div>
                     </SidebarHeader>
                     <Menu iconShape="square">
@@ -194,7 +194,7 @@ function NavBar(props: Props) {
                         <MenuItem icon={<ChatIcon />}>
                             <Link href={'/feedback'}>Feedback</Link>
                         </MenuItem>
-                        <MenuItem icon={<img src="/discord_icon.svg" alt="Discord icon" height="24" />}>
+                        <MenuItem icon={<Image src="/discord_icon.svg" alt="Discord icon" height="24" />}>
                             <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
                                 Discord
                             </a>

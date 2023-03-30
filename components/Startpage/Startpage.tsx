@@ -1,10 +1,11 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import AnnouncementIcon from '@mui/icons-material/Announcement'
 import NewIcon from '@mui/icons-material/FiberNew'
 import FireIcon from '@mui/icons-material/Fireplace'
 import PersonIcon from '@mui/icons-material/Person'
 import TimerIcon from '@mui/icons-material/Timer'
 import moment from 'moment'
+import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { Badge, Card } from 'react-bootstrap'
@@ -61,7 +62,7 @@ function Startpage(props: Props) {
                     <Card>
                         <Card.Header style={{ padding: '10px' }}>
                             <p className={styles.ellipsis}>
-                                <img crossOrigin="anonymous" src={auction.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} />
+                                <Image crossOrigin="anonymous" src={auction.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} />
                                 {getMinecraftColorCodedElement(auction.item.name)}
                             </p>
                         </Card.Header>
@@ -97,7 +98,7 @@ function Startpage(props: Props) {
                     <Card>
                         <Card.Header style={{ height: '100%', padding: '20px' }}>
                             <div style={{ float: 'left' }}>
-                                <img
+                                <Image
                                     crossOrigin="anonymous"
                                     className="playerHeadIcon"
                                     src={newPlayer.iconUrl}
@@ -124,7 +125,7 @@ function Startpage(props: Props) {
                     <Card>
                         <Card.Header style={{ height: '100%' }}>
                             <div style={{ float: 'left' }}>
-                                <img
+                                <Image
                                     crossOrigin="anonymous"
                                     className="playerHeadIcon"
                                     src={search.url.includes('/player') ? search.img + '?size=8' : search.img}
@@ -151,7 +152,7 @@ function Startpage(props: Props) {
                     <Card>
                         <Card.Header style={{ height: '100%', padding: '20px' }}>
                             <div style={{ float: 'left' }}>
-                                <img crossOrigin="anonymous" src={newItem.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                                <Image crossOrigin="anonymous" src={newItem.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                             </div>
                             <Card.Title className={styles.ellipsis}>{newItem.name}</Card.Title>
                         </Card.Header>

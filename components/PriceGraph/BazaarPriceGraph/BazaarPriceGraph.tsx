@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import ReactECharts from 'echarts-for-react'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Form } from 'react-bootstrap'

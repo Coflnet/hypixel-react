@@ -1,4 +1,4 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import React , { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'

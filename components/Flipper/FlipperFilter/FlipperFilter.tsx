@@ -1,4 +1,4 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import FilterIcon from '@mui/icons-material/BallotOutlined'
 import SettingsIcon from '@mui/icons-material/Settings'
 import React, { useCallback, useEffect, useRef, useState } from 'react'

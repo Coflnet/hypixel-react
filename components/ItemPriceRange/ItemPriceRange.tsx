@@ -1,4 +1,4 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap'

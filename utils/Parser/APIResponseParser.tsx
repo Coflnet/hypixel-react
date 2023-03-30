@@ -115,31 +115,12 @@ export function parseItem(item: any): Item {
     return parsed
 }
 
-function _formatName(enchantment: string): string {
-    let formatted: string = enchantment.replace(new RegExp('_', 'g'), ' ')
-    formatted = _capitalizeWords(formatted)
-    return formatted
-}
-
-function _capitalizeWords(text: string): string {
-    return text.replace(/\w\S*/g, function (txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    });
-}
-
 export function parseEnchantment(enchantment: any): Enchantment {
     return {
         id: enchantment.id,
         level: enchantment.level,
-        name: enchantment.type ? _formatName(enchantment.type) : '',
+        name: enchantment.type ? convertTagToName(enchantment.type) : '',
         color: enchantment.color
-    }
-}
-
-export function parseReforge(reforge: any): Reforge {
-    return {
-        id: reforge.id,
-        name: _formatName(reforge.name)
     }
 }
 

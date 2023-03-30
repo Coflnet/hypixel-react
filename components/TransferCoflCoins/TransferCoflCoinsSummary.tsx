@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
@@ -46,7 +47,7 @@ function TransferCoflCoinsSummary(props: Props) {
                             <span>{props.email}</span>
                         ) : (
                             <span>
-                                <img
+                                <Image
                                     crossOrigin="anonymous"
                                     className="playerHeadIcon"
                                     src={props.player?.iconUrl}

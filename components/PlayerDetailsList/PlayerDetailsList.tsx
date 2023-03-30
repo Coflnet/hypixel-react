@@ -1,5 +1,6 @@
 import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
 import HelpIcon from '@mui/icons-material/Help'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
@@ -173,12 +174,12 @@ function PlayerDetailsList(props: Props) {
     }
 
     let getCoinImage = () => {
-        return <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" loading="lazy" />
+        return <Image src="/Coin.png" height={35} width={35} alt="auction house logo" loading="lazy" />
     }
 
     let getItemImageElement = (listElement: Auction | BidForList) => {
         return listElement.item.iconUrl ? (
-            <img
+            <Image
                 crossOrigin="anonymous"
                 className="auctionItemImage"
                 src={listElement.item.iconUrl}
@@ -276,7 +277,6 @@ function PlayerDetailsList(props: Props) {
             <ListGroup.Item action className={styles.listGroupItem} key={'listItem-' + i}>
                 <span key={listElement.uuid} className={`${styles.disableLinkStyle} ${styles.listItemLink}`}>
                     <Link href={`/auction/${listElement.uuid}`} className="disableLinkStyle">
-
                         <div>
                             <h4>
                                 {getItemImageElement(listElement)}
@@ -312,11 +312,10 @@ function PlayerDetailsList(props: Props) {
                             )}
                             <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
                         </div>
-
                     </Link>
                 </span>
             </ListGroup.Item>
-        );
+        )
     })
 
     return (
@@ -381,7 +380,7 @@ function PlayerDetailsList(props: Props) {
             ) : null}
             {listElements.length === 0 && allElementsLoaded ? (
                 <div className={styles.noElementFound}>
-                    <img src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
+                    <Image src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
                     <p>No {props.type} found</p>
                 </div>
             ) : (
@@ -412,7 +411,7 @@ function PlayerDetailsList(props: Props) {
             )}
             {bottomElements}
         </div>
-    );
+    )
 }
 
 export default PlayerDetailsList

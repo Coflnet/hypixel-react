@@ -44,7 +44,7 @@ interface AuctionDetails {
     coop: string[]
     bids: ItemBid[]
     anvilUses: number
-    reforge: Reforge
+    reforge: string
     enchantments: Enchantment[]
     nbtData: any
     itemCreatedAt: Date
@@ -161,7 +161,6 @@ interface API {
     getAuctions(uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<Auction[]>
     getBids(uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<BidForList[]>
     getEnchantments(): Promise<Enchantment[]>
-    getReforges(): Promise<Reforge[]>
     getAuctionDetails(auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }>
     getPlayerName(uuid: string): Promise<string>
     setConnectionId(): Promise<void>

@@ -13,6 +13,7 @@ import styles from './index.module.css'
 import Link from 'next/link'
 import { getCacheControlHeader } from '../../../utils/CacheUtils'
 import GoogleSignIn from '../../../components/GoogleSignIn/GoogleSignIn'
+import Image from 'next/image'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -135,7 +136,7 @@ function PlayerDetails(props: Props) {
                     type="player"
                     currentElement={
                         <span>
-                            <img
+                            <Image
                                 crossOrigin="anonymous"
                                 className="playerHeadIcon"
                                 src={selectedPlayer?.iconUrl}

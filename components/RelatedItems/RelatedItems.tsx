@@ -6,6 +6,7 @@ import { getSetting, HIDE_RELATED_ITEMS, setSetting } from '../../utils/Settings
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import styles from './RelatedItems.module.css'
+import Image from 'next/image'
 
 interface Props {
     tag: string
@@ -49,7 +50,7 @@ function RelatedItems(props: Props) {
                                     <Card.Header style={{ height: '100%', padding: '20px' }}>
                                         <Card.Title className={styles.ellipsis}>
                                             <div className="ellipse">
-                                                <img
+                                                <Image
                                                     crossOrigin="anonymous"
                                                     src={item.iconUrl}
                                                     height="32"

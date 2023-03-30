@@ -30,7 +30,6 @@ import {
     parseProfitableCraft,
     parseRecentAuction,
     parseRefInfo,
-    parseReforge,
     parseSearchResultItem,
     parseSkyblockProfile,
     parseSubscription
@@ -315,33 +314,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         })
                         .sort(enchantmentAndReforgeCompare)
                     resolve(parsedEnchantments)
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, '')
-                    reject()
-                }
-            })
-        })
-    }
-
-    let getReforges = (): Promise<Reforge[]> => {
-        return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
-                type: RequestType.ALL_REFORGES,
-                data: '',
-                resolve: (reforges: any) => {
-                    let parsedReforges: Reforge[] = reforges.map(reforge => {
-                        return parseReforge({
-                            name: reforge.label,
-                            id: reforge.id
-                        })
-                    })
-                    parsedReforges = parsedReforges
-                        .filter(reforge => {
-                            return reforge.name!.toLowerCase() !== 'unknown'
-                        })
-                        .sort(enchantmentAndReforgeCompare)
-                    resolve(parsedReforges)
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, '')
@@ -1770,7 +1742,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getAuctions,
         getBids,
         getEnchantments,
-        getReforges,
         getAuctionDetails,
         getItemImageUrl,
         getPlayerName,
