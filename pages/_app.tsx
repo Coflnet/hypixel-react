@@ -1,7 +1,7 @@
 import '../styles/bootstrap-react.min.css'
 import '../styles/bootstrap-dark-full.min.css'
 import 'react-toastify/dist/ReactToastify.css'
-import 'react-contexify/dist/ReactContexify.css'
+import "react-contexify/ReactContexify.css"
 import 'react-datepicker/dist/react-datepicker.css'
 import 'react-bootstrap-typeahead/css/Typeahead.css'
 import '../styles/globals.css'
@@ -10,7 +10,7 @@ import Script from 'next/script'
 import { MainApp } from '../components/MainApp/MainApp'
 import NextNProgress from 'nextjs-progressbar'
 import { initCoflCoinManager } from '../utils/CoflCoinsUtils'
-import { createInstance, MatomoProvider } from '@datapunt/matomo-tracker-react'
+import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
 interface ErrorLog {

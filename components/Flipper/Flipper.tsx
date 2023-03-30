@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Card, Form, Modal } from 'react-bootstrap'
-import { Item, Menu, theme, useContextMenu } from 'react-contexify'
+import { Item, Menu, useContextMenu } from 'react-contexify'
 import Countdown, { zeroPad } from 'react-countdown'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList as List } from 'react-window'
@@ -138,7 +138,8 @@ function Flipper(props: Props) {
 
     function handleFlipContextMenu(event, flip: FlipAuction) {
         event.preventDefault()
-        show(event, {
+        show({
+            event: event,
             props: {
                 flip: flip
             }
@@ -450,7 +451,7 @@ function Flipper(props: Props) {
 
     let flipContextMenu = (
         <div>
-            <Menu id={FLIP_CONEXT_MENU_ID} theme={theme.dark}>
+            <Menu id={FLIP_CONEXT_MENU_ID} theme={'dark'}>
                 <Item
                     onClick={params => {
                         addItemToBlacklist(params.props.flip as FlipAuction)

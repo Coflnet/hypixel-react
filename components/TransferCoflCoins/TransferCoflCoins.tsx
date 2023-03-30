@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format';
 import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useCoflCoins } from '../../utils/Hooks'
 import { PlayerFilterElement } from '../FilterElement/FilterElements/PlayerFilterElement'
@@ -63,7 +63,7 @@ function TransferCoflCoins(props: Props) {
                     </div>
                     <div style={{ marginBottom: '20px' }}>
                         Amount of CoflCoins{' '}
-                        <NumberFormat
+                        <NumericFormat
                             id="coflcoins-to-send"
                             onValueChange={n => {
                                 setCoflCoinsToSend(n.floatValue)

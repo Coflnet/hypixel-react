@@ -8,7 +8,7 @@ import SearchIcon from '@mui/icons-material/SearchOutlined'
 import WrongIcon from '@mui/icons-material/Dangerous'
 import Refresh from '@mui/icons-material/Refresh'
 import ClearIcon from '@mui/icons-material/Clear'
-import { Item, Menu, theme, useContextMenu } from 'react-contexify'
+import { Item, Menu, useContextMenu } from 'react-contexify'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
@@ -283,7 +283,7 @@ function Search(props: Props) {
     function handleSearchContextMenuForCurrentElement(event) {
         if (props.selected && props.type === 'player') {
             event.preventDefault()
-            show(event)
+            show({ event: event })
         }
     }
 
@@ -294,7 +294,7 @@ function Search(props: Props) {
 
     let currentItemContextMenuElement = (
         <div>
-            <Menu id={PLAYER_SEARCH_CONEXT_MENU_ID} theme={theme.dark}>
+            <Menu id={PLAYER_SEARCH_CONEXT_MENU_ID} theme={'dark'}>
                 <Item
                     onClick={params => {
                         checkNameChange((props.selected as Player).uuid)
@@ -309,7 +309,7 @@ function Search(props: Props) {
 
     let searchItemContextMenuElement = (
         <div>
-            <Menu id={SEARCH_RESULT_CONTEXT_MENU_ID} theme={theme.dark}>
+            <Menu id={SEARCH_RESULT_CONTEXT_MENU_ID} theme={'dark'}>
                 <Item
                     onClick={() => {
                         api.sendFeedback('badSearchResults', {

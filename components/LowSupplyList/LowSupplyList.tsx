@@ -4,8 +4,7 @@ import SortIcon from '@mui/icons-material/Sort'
 import { useEffect, useState } from 'react'
 import { Card, Form, Table } from 'react-bootstrap'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format';
 import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import styles from './LowSupplyList.module.css'
 
@@ -130,7 +129,7 @@ function LowSupplyList(props: Props) {
                                 </th>
                                 <th>
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <NumberFormat
+                                        <NumericFormat
                                             id="volume"
                                             onValueChange={numberObject => {
                                                 setVolumeFilter(numberObject.floatValue)
@@ -150,7 +149,7 @@ function LowSupplyList(props: Props) {
                                 </th>
                                 <th>
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <NumberFormat
+                                        <NumericFormat
                                             id="median-price"
                                             onValueChange={numberObject => {
                                                 setMedianPriceFilter(numberObject.floatValue)

@@ -5,7 +5,7 @@ import moment from 'moment'
 import { useRouter } from 'next/router'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
-import { Item, Menu, theme, useContextMenu } from 'react-contexify'
+import { Item, Menu, useContextMenu } from 'react-contexify'
 import { getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
@@ -101,7 +101,7 @@ export function FlipTracking(props: Props) {
 
     function handleContextMenuForTrackedFlip(event) {
         event.preventDefault()
-        show(event, { props: { uid: event.currentTarget.id } })
+        show({ event: event, props: { uid: event.currentTarget.id } })
     }
 
     let orderedFlips = trackedFlips
@@ -112,7 +112,7 @@ export function FlipTracking(props: Props) {
 
     let currentItemContextMenuElement = (
         <div>
-            <Menu id={TRACKED_FLIP_CONTEXT_MENU_ID} theme={theme.dark}>
+            <Menu id={TRACKED_FLIP_CONTEXT_MENU_ID} theme={'dark'}>
                 <Item
                     onClick={params => {
                         ignoreProfitMap[params.props.uid] = true

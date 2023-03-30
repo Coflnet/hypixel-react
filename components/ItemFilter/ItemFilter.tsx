@@ -341,10 +341,11 @@ function ItemFilter(props: Props) {
                                         onChange={addFilter}
                                         options={props.filters}
                                         labelKey={filter => {
-                                            if (filter.name[0].toLowerCase() === filter.name[0]) {
-                                                return convertTagToName(filter.name)
+                                            let name = (filter as Record<string, any>).name
+                                            if (name[0].toLowerCase() === name[0]) {
+                                                return convertTagToName(name)
                                             }
-                                            return camelCaseToSentenceCase(filter.name)
+                                            return camelCaseToSentenceCase(name)
                                         }}
                                     ></Typeahead>
                                 ) : (
