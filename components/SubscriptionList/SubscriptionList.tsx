@@ -214,7 +214,7 @@ function SubscriptionList() {
     let subscriptionsTableBody = subscriptions.map((subscription, i) => (
         <ListGroup.Item key={i}>
             <h5>
-                <Badge style={{ marginRight: '5px' }} variant="primary">
+                <Badge style={{ marginRight: '5px' }} bg="primary">
                     {i + 1}
                 </Badge>
                 {getSubscriptionTitleElement(subscription)}

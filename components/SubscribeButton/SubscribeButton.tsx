@@ -165,7 +165,7 @@ function SubscribeButton(props: Props) {
                             />
                         ) : null}
                         {props.type === 'auction' ? <SubscribeAuctionContent /> : null}
-                        <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">
+                        <Button onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">
                             {props.popupButtonText || 'Notify me'}
                         </Button>
                         {itemFilter && Object.keys(itemFilter).length > MAX_FILTERS ? (

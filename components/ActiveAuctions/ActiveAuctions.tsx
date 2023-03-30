@@ -198,9 +198,9 @@ function ActiveAuctions(props: Props) {
         <div className="active-auctions">
             <div className="active-auctions-list">
                 <div style={{ margin: '20px' }}>
-                    <Form.Control as="select" onChange={onOrderChange}>
+                    <Form.Select onChange={onOrderChange}>
                         {orderListElement}
-                    </Form.Control>
+                    </Form.Select>
                 </div>
                 {activeAuctions.length > 0 ? (
                     <InfiniteScroll

@@ -142,8 +142,7 @@ function BuyPremium(props: Props) {
                             </div>
                             <div style={{ marginBottom: '15px' }}>
                                 <label className={styles.label}>Purchase Duration:</label>
-                                <Form.Control
-                                    as="select"
+                                <Form.Select
                                     onChange={onDurationChange}
                                     className={styles.dropdown}
                                     key={purchasePremiumType.productId}
@@ -152,7 +151,7 @@ function BuyPremium(props: Props) {
                                     {purchasePremiumType.options.map(option => {
                                         return <option value={JSON.stringify(option)}>{option.label}</option>
                                     })}
-                                </Form.Control>
+                                </Form.Select>
                                 <span style={{ marginLeft: '20px' }}>{getDurationString()}</span>
                             </div>
                             <div>

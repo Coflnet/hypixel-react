@@ -125,7 +125,7 @@ function AuctionDetails(props: Props) {
                         <div key={key}>
                             <p>
                                 <span className={styles.label}>
-                                    <Badge variant={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
+                                    <Badge bg={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
                                 </span>
                                 <div className="ellipse">{formatNBTValue(key, currentNBT)}</div>
                             </p>
@@ -199,9 +199,9 @@ function AuctionDetails(props: Props) {
         let index = tagNbt.findIndex(tag => tag === key)
         if (index !== -1) {
             if (key === 'skin') {
-                return <Link href={'/item/PET_SKIN_' + value}>{convertTagToName(value)}</Link>;
+                return <Link href={'/item/PET_SKIN_' + value}>{convertTagToName(value)}</Link>
             }
-            return <Link href={'/item/' + value}>{convertTagToName(value)}</Link>;
+            return <Link href={'/item/' + value}>{convertTagToName(value)}</Link>
         }
         return value.toString()
     }
@@ -230,10 +230,7 @@ function AuctionDetails(props: Props) {
     ) : (
         <div>
             <Card.Header className={styles.auctionCardHeader}>
-                <Link
-                    href={'/item/' + auctionDetails.auction.item.tag}
-                    className="disableLinkStyle">
-
+                <Link href={'/item/' + auctionDetails.auction.item.tag} className="disableLinkStyle">
                     <h1>
                         <span className={styles.itemIcon}>
                             <Image crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
@@ -248,11 +245,11 @@ function AuctionDetails(props: Props) {
                                           auctionDetails?.nbtData['dungeon_item_level']
                                       )}
                             </span>
-                            <Badge variant={countBadgeVariant} style={{ marginLeft: '5px' }}>
+                            <Badge bg={countBadgeVariant} style={{ marginLeft: '5px' }}>
                                 x{auctionDetails?.count}
                             </Badge>
                             {auctionDetails.auction.bin ? (
-                                <Badge variant={binBadgeVariant} style={{ marginLeft: '5px' }}>
+                                <Badge bg={binBadgeVariant} style={{ marginLeft: '5px' }}>
                                     BIN
                                 </Badge>
                             ) : (
@@ -260,7 +257,6 @@ function AuctionDetails(props: Props) {
                             )}
                         </span>
                     </h1>
-
                 </Link>
                 <div className={styles.cardHeadSubtext}>
                     <OverlayTrigger
@@ -327,28 +323,27 @@ function AuctionDetails(props: Props) {
             <Card.Body>
                 <p>
                     <span className={styles.label}>
-                        <Badge variant={labelBadgeVariant}>Tier:</Badge>
+                        <Badge bg={labelBadgeVariant}>Tier:</Badge>
                     </span>
                     <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.tier}</span>
                 </p>
                 <p>
                     <span className={styles.label}>
-                        <Badge variant={labelBadgeVariant}>Category:</Badge>
+                        <Badge bg={labelBadgeVariant}>Category:</Badge>
                     </span>{' '}
                     {convertTagToName(auctionDetails?.auction.item.category)}
                 </p>
                 <p>
                     <span className={styles.label}>
-                        <Badge variant={labelBadgeVariant}>Reforge:</Badge>
+                        <Badge bg={labelBadgeVariant}>Reforge:</Badge>
                     </span>
                     {auctionDetails?.reforge}
                 </p>
 
                 <Link href={`/player/${auctionDetails.auctioneer.uuid}`}>
-
                     <p>
                         <span className={styles.label}>
-                            <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
+                            <Badge bg={labelBadgeVariant}>Auctioneer:</Badge>
                         </span>
                         {auctionDetails?.auctioneer.name}
                         <Image
@@ -361,25 +356,24 @@ function AuctionDetails(props: Props) {
                             loading="lazy"
                         />
                     </p>
-
                 </Link>
 
                 <p>
                     <span className={styles.label}>
-                        <Badge variant={labelBadgeVariant}>Auction Created:</Badge>
+                        <Badge bg={labelBadgeVariant}>Auction Created:</Badge>
                     </span>
                     {auctionDetails?.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}
                 </p>
                 <p>
                     <span className={styles.label}>
-                        <Badge variant={labelBadgeVariant}>Item Created:</Badge>
+                        <Badge bg={labelBadgeVariant}>Item Created:</Badge>
                     </span>
                     {auctionDetails?.itemCreatedAt.toLocaleDateString() + ' ' + auctionDetails.itemCreatedAt.toLocaleTimeString()}
                 </p>
 
                 <div style={{ overflow: 'auto' }}>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? styles.labelForList : styles.label}>
-                        <Badge variant={labelBadgeVariant}>Enchantments:</Badge>
+                        <Badge bg={labelBadgeVariant}>Enchantments:</Badge>
                     </span>
                     {auctionDetails && auctionDetails!.enchantments.length > 0 ? (
                         <ul className={styles.list}>
@@ -407,11 +401,7 @@ function AuctionDetails(props: Props) {
             auctionDetails?.bids.map((bid, i) => {
                 let headingStyle = i === 0 ? { color: 'green' } : { color: 'red' }
                 return (
-                    (<Link
-                        href={`/player/${bid.bidder.uuid}`}
-                        key={'bid-' + i}
-                        className="disableLinkStyle">
-
+                    <Link href={`/player/${bid.bidder.uuid}`} key={'bid-' + i} className="disableLinkStyle">
                         <ListGroup.Item key={bid.amount} action>
                             <Image
                                 crossOrigin="anonymous"
@@ -427,9 +417,8 @@ function AuctionDetails(props: Props) {
                             <br />
                             <span>{moment(bid.timestamp).fromNow()}</span>
                         </ListGroup.Item>
-
-                    </Link>)
-                );
+                    </Link>
+                )
             })
         )
 
@@ -442,9 +431,7 @@ function AuctionDetails(props: Props) {
                     <p>The auction you tried to see doesn't seem to exist. Please go back.</p>
                     <br />
                     <Link href="/" className="disableLinkStyle">
-
                         <Button>Get back</Button>
-
                     </Link>
                 </div>
             ) : (
@@ -478,7 +465,7 @@ function AuctionDetails(props: Props) {
             ) : null}
             {basedOnDialog}
         </div>
-    );
+    )
 }
 
 export default AuctionDetails

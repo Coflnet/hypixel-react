@@ -242,7 +242,7 @@ function PlayerDetailsList(props: Props) {
                     <div className={styles.btnBottom}>
                         <Button
                             aria-label="up button"
-                            type="primary"
+                            variant="primary"
                             className={styles.upButton}
                             onClick={() => {
                                 window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -259,7 +259,7 @@ function PlayerDetailsList(props: Props) {
                         <SubscribeButton type="player" topic={props.player.uuid} />
                     </div>
                     <Button
-                        type="primary"
+                        variant="primary"
                         className={styles.btnBottom}
                         onClick={() => {
                             window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -282,16 +282,16 @@ function PlayerDetailsList(props: Props) {
                                 {getItemImageElement(listElement)}
                                 {listElement.item.name || convertTagToName(listElement.item.tag)}
                                 {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
-                                    <Badge variant="danger" style={{ marginLeft: '10px' }}>
+                                    <Badge bg="danger" style={{ marginLeft: '10px' }}>
                                         Ended
                                     </Badge>
                                 ) : (
-                                    <Badge variant="info" style={{ marginLeft: '10px' }}>
+                                    <Badge bg="info" style={{ marginLeft: '10px' }}>
                                         Running
                                     </Badge>
                                 )}
                                 {listElement.bin ? (
-                                    <Badge style={{ marginLeft: '5px' }} variant="success">
+                                    <Badge bg="success" style={{ marginLeft: '5px' }}>
                                         BIN
                                     </Badge>
                                 ) : (

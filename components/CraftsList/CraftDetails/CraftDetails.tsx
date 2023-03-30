@@ -20,7 +20,7 @@ export function CraftDetails(props: Props) {
                     <CraftingRecipe itemTag={props.craft.item.tag} onIngredientClick={onItemClick} />
                 </div>
                 <span style={{ marginLeft: '20px' }}>
-                    <Badge style={{ marginLeft: '5px' }} variant="secondary">
+                    <Badge style={{ marginLeft: '5px' }} bg="secondary">
                         {numberWithThousandsSeparators(Math.round(props.craft.sellPrice))} Coins
                     </Badge>
                 </span>
@@ -38,7 +38,7 @@ export function CraftDetails(props: Props) {
                     >
                         <Image crossOrigin="anonymous" src={ingredient.item.iconUrl} height="24" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                         {ingredient.item.name + ' (' + ingredient.count + 'x)'}
-                        <Badge style={{ marginLeft: '5px' }} variant="secondary">
+                        <Badge style={{ marginLeft: '5px' }} bg="secondary">
                             {numberWithThousandsSeparators(Math.round(ingredient.cost))} Coins
                         </Badge>
                     </div>

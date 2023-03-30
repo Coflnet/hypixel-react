@@ -7,20 +7,20 @@ interface Props {
 }
 
 export function BooleanFilterElement(props: Props) {
-    function _onChange(e: ChangeEvent<HTMLInputElement>) {
+    function _onChange(e: ChangeEvent<HTMLSelectElement>) {
         props.onChange((e.target as any).value)
     }
 
     return (
         <span>
-            <Form.Control defaultValue={props.defaultValue || 'true'} as="select" onChange={_onChange}>
+            <Form.Select defaultValue={props.defaultValue || 'true'} onChange={_onChange}>
                 <option key={'true'} value={'true'}>
                     true
                 </option>
                 <option key={'false'} value={'false'}>
                     false
                 </option>
-            </Form.Control>
+            </Form.Select>
         </span>
     )
 }

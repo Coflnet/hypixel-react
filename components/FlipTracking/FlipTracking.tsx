@@ -193,7 +193,7 @@ export function FlipTracking(props: Props) {
                             <Tooltip
                                 content={
                                     <span>
-                                        Finder: <Badge variant="dark">{trackedFlip.finder.shortLabel}</Badge>
+                                        Finder: <Badge bg="dark">{trackedFlip.finder.shortLabel}</Badge>
                                     </span>
                                 }
                                 tooltipContent={
@@ -292,11 +292,11 @@ export function FlipTracking(props: Props) {
                 <p style={{ fontSize: 'x-large' }}>
                     Total Profit: <span style={{ color: 'gold' }}>{numberWithThousandsSeparators(totalProfit)} Coins </span>
                     <span style={{ float: 'right', fontSize: 'small' }}>Only auctions sold in the last 7 days are displayed here.</span>
-                    <Form.Control style={{ width: 'auto', marginTop: '20px' }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
+                    <Form.Select style={{ width: 'auto', marginTop: '20px' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
                         {SORT_OPTIONS.map(option => (
                             <option value={option.value}>{option.label}</option>
                         ))}
-                    </Form.Control>
+                    </Form.Select>
                 </p>
             </b>
             {trackedFlips.length === 0 ? (

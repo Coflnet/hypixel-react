@@ -147,7 +147,7 @@ export function PlayerWithRankFilterElement(props: Props) {
 
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <Form.Control style={{ width: '50%', color: RANKS.find(r => r.tag === rank)?.color }} defaultValue={rank} as="select" onChange={_onRankChange}>
+            <Form.Select style={{ width: '50%', color: RANKS.find(r => r.tag === rank)?.color }} defaultValue={rank} onChange={_onRankChange}>
                 {RANKS.map(rank => {
                     return (
                         <option key={rank.tag} value={rank.tag} style={{ color: rank.color }}>
@@ -155,7 +155,7 @@ export function PlayerWithRankFilterElement(props: Props) {
                         </option>
                     )
                 })}
-            </Form.Control>
+            </Form.Select>
             <div style={{ width: '50%' }}>
                 <PlayerFilterElement ref={playerRef} returnType="name" defaultValue={player} onChange={_onPlayerChange} disabled={rank === RANKS[0].tag} />
             </div>

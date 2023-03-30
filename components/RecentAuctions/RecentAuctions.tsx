@@ -112,7 +112,7 @@ function RecentAuctions(props: Props) {
         })
     }
 
-    function onFetchTypeChange(e: ChangeEvent<HTMLInputElement>) {
+    function onFetchTypeChange(e: ChangeEvent<HTMLSelectElement>) {
         localStorage.setItem(RECENT_AUCTIONS_FETCH_TYPE_KEY, e.target.value)
         loadRecentAuctions(true)
     }
@@ -143,7 +143,6 @@ function RecentAuctions(props: Props) {
             <div className={styles.cardWrapper}>
                 <span className="disableLinkStyle">
                     <Link href={`/auction/${recentAuction.uuid}`} className="disableLinkStyle">
-
                         <Card className="card">
                             <Card.Header style={{ padding: '10px' }}>
                                 <div style={{ float: 'left' }}>
@@ -174,11 +173,10 @@ function RecentAuctions(props: Props) {
                                 <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
                             </Card.Body>
                         </Card>
-
                     </Link>
                 </span>
             </div>
-        );
+        )
     })
 
     return (
@@ -186,8 +184,7 @@ function RecentAuctions(props: Props) {
             <h3>
                 Recent auctions
                 {!isSSR ? (
-                    <Form.Control
-                        as="select"
+                    <Form.Select
                         defaultValue={localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY) || RECENT_AUCTIONS_FETCH_TYPE.SOLD}
                         className={styles.recentAuctionsFetchType}
                         onChange={onFetchTypeChange}
@@ -195,7 +192,7 @@ function RecentAuctions(props: Props) {
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.ALL}>ALL</option>
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.SOLD}>Sold</option>
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.UNSOLD}>Unsold</option>
-                    </Form.Control>
+                    </Form.Select>
                 ) : null}
             </h3>
             <div>
@@ -234,13 +231,11 @@ function RecentAuctions(props: Props) {
                 onAfterLogin,
                 <span>
                     You currently use Starter Premium. You can see up to 120 recent auctions with
-                    <Link href={'/premium'}>
-                        Premium
-                    </Link>
+                    <Link href={'/premium'}>Premium</Link>
                 </span>
             )}
         </div>
-    );
+    )
 }
 
 export default RecentAuctions

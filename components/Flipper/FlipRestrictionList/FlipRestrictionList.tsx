@@ -461,7 +461,7 @@ function FlipRestrictionList(props: Props) {
                                         </ToggleButton>
                                     </ToggleButtonGroup>
                                 ) : (
-                                    <Badge style={{ marginRight: '10px' }} variant={restriction.type === 'blacklist' ? 'danger' : 'success'}>
+                                    <Badge style={{ marginRight: '10px' }} bg={restriction.type === 'blacklist' ? 'danger' : 'success'}>
                                         {restriction.type.toUpperCase()}
                                     </Badge>
                                 )}
@@ -534,7 +534,7 @@ function FlipRestrictionList(props: Props) {
                                     />
                                 ) : null}
                                 {restriction.tags?.map(tag => (
-                                    <Badge key={tag} variant="dark" style={{ marginRight: '5px' }}>
+                                    <Badge key={tag} bg="dark" style={{ marginRight: '5px' }}>
                                         {tag}
                                     </Badge>
                                 ))}

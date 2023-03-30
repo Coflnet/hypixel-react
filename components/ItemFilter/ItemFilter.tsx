@@ -281,7 +281,7 @@ function ItemFilter(props: Props) {
                         </p>
                         <hr />
                         <h4>
-                            <Badge variant="danger">Caution</Badge>
+                            <Badge bg="danger">Caution</Badge>
                         </h4>
                         <p>
                             Some filter requests take quite some time to process. That's because we have to search through millions of auctions that potentially

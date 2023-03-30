@@ -263,11 +263,11 @@ export function KatFlips(props: Props) {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
-                <Form.Control className={styles.filterInput} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
+                <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
                         <option value={option.value}>{option.label}</option>
                     ))}
-                </Form.Control>
+                </Form.Select>
                 <Form.Control className={styles.filterInput} placeholder='Minimum Profit' onChange={onMinimumProfitChange} />
                 
 

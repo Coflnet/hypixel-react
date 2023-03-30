@@ -120,14 +120,14 @@ function Flip(props: Props) {
                     </div>
                     {stars ? formatDungeonStarsInString(stars[0]) : null}
                     {props.flip.bin ? (
-                        <Badge style={{ marginLeft: '5px' }} variant="success">
+                        <Badge style={{ marginLeft: '5px' }} bg="success">
                             BIN
                         </Badge>
                     ) : (
                         ''
                     )}
                     {props.flip.sold ? (
-                        <Badge style={{ marginLeft: '5px' }} variant="danger">
+                        <Badge style={{ marginLeft: '5px' }} bg="danger">
                             SOLD
                         </Badge>
                     ) : (
@@ -229,7 +229,7 @@ function Flip(props: Props) {
                         )}
                         {getFlipFinders([props.flip.finder]).map(finder => {
                             return (
-                                <Badge key={finder.shortLabel} variant="dark">
+                                <Badge key={finder.shortLabel} bg="dark">
                                     {finder.shortLabel}
                                 </Badge>
                             )

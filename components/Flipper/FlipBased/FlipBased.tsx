@@ -65,7 +65,7 @@ function FlipBased(props: Props) {
                                         <li>{numberWithThousandsSeparators(auction.highestBid || auction.startingBid)} Coins</li>
                                         {auction.bin ? (
                                             <li>
-                                                <Badge style={{ marginLeft: '5px' }} variant="success">
+                                                <Badge style={{ marginLeft: '5px' }} bg="success">
                                                     BIN
                                                 </Badge>
                                             </li>

@@ -316,7 +316,7 @@ function BazaarPriceGraph(props: Props) {
         chartOptions.xAxis[0].data = prices.map(p => p.timestamp.getTime())
     }
 
-    function onGraphTypeChange(e: ChangeEvent<HTMLInputElement>) {
+    function onGraphTypeChange(e: ChangeEvent<HTMLSelectElement>) {
         let graphType = e.target.value
         setGraphType(graphType as GRAPH_TYPE)
         localStorage.setItem(BAZAAR_GRAPH_TYPE, graphType)
@@ -388,15 +388,14 @@ function BazaarPriceGraph(props: Props) {
                     </span>
                     <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
                         {!isSSR ? (
-                            <Form.Control
-                                as="select"
+                            <Form.Select
                                 defaultValue={localStorage.getItem(BAZAAR_GRAPH_TYPE) || DEFAULT_GRAPH_TYPE}
                                 className={styles.recentAuctionsFetchType}
                                 onChange={onGraphTypeChange}
                             >
                                 <option value={GRAPH_TYPE.SINGLE}>Single</option>
                                 <option value={GRAPH_TYPE.SPLIT}>Split</option>
-                            </Form.Control>
+                            </Form.Select>
                         ) : null}
                     </div>
                     <div style={{ float: 'right' }}>
