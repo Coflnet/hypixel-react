@@ -39,7 +39,7 @@ export function convertTagToName(itemTag?: string): string {
                 return txt
             }
             return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()
-        })
+        });
     }
 
     let formatted: string = itemTag.toString().replace(new RegExp('_', 'g'), ' ').toLowerCase()
@@ -283,5 +283,5 @@ export function getMinecraftColorCodedElement(text: string, autoFormat = true): 
 }
 
 export function removeMinecraftColorCoding(text: string): string {
-    return text.replace(/§[0-9a-fk-or]/gi, '')
+    return text.replace(/§[0-9a-fk-or]/gi, '');
 }

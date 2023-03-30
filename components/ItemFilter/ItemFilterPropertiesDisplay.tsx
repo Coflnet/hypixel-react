@@ -119,7 +119,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
                 })
             )}
         </div>
-    )
+    );
 }
 
 export default ItemFilterPropertiesDisplay

@@ -198,9 +198,9 @@ function AuctionDetails(props: Props) {
         let index = tagNbt.findIndex(tag => tag === key)
         if (index !== -1) {
             if (key === 'skin') {
-                return <Link href={'/item/PET_SKIN_' + value}>{convertTagToName(value)}</Link>
+                return <Link href={'/item/PET_SKIN_' + value}>{convertTagToName(value)}</Link>;
             }
-            return <Link href={'/item/' + value}>{convertTagToName(value)}</Link>
+            return <Link href={'/item/' + value}>{convertTagToName(value)}</Link>;
         }
         return value.toString()
     }
@@ -229,35 +229,37 @@ function AuctionDetails(props: Props) {
     ) : (
         <div>
             <Card.Header className={styles.auctionCardHeader}>
-                <Link href={'/item/' + auctionDetails.auction.item.tag}>
-                    <a className="disableLinkStyle">
-                        <h1>
-                            <span className={styles.itemIcon}>
-                                <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
+                <Link
+                    href={'/item/' + auctionDetails.auction.item.tag}
+                    className="disableLinkStyle">
+
+                    <h1>
+                        <span className={styles.itemIcon}>
+                            <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
+                        </span>
+                        <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
+                            <span style={{ marginRight: '10px' }}>
+                                {auctionDetails?.auction.item.name?.includes('§')
+                                    ? getMinecraftColorCodedElement(auctionDetails?.auction.item.name)
+                                    : getDungeonStarFormattedItemName(
+                                          auctionDetails?.auction.item.name,
+                                          getStyleForTier(auctionDetails.auction.item.tier),
+                                          auctionDetails?.nbtData['dungeon_item_level']
+                                      )}
                             </span>
-                            <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
-                                <span style={{ marginRight: '10px' }}>
-                                    {auctionDetails?.auction.item.name?.includes('§')
-                                        ? getMinecraftColorCodedElement(auctionDetails?.auction.item.name)
-                                        : getDungeonStarFormattedItemName(
-                                              auctionDetails?.auction.item.name,
-                                              getStyleForTier(auctionDetails.auction.item.tier),
-                                              auctionDetails?.nbtData['dungeon_item_level']
-                                          )}
-                                </span>
-                                <Badge variant={countBadgeVariant} style={{ marginLeft: '5px' }}>
-                                    x{auctionDetails?.count}
+                            <Badge variant={countBadgeVariant} style={{ marginLeft: '5px' }}>
+                                x{auctionDetails?.count}
+                            </Badge>
+                            {auctionDetails.auction.bin ? (
+                                <Badge variant={binBadgeVariant} style={{ marginLeft: '5px' }}>
+                                    BIN
                                 </Badge>
-                                {auctionDetails.auction.bin ? (
-                                    <Badge variant={binBadgeVariant} style={{ marginLeft: '5px' }}>
-                                        BIN
-                                    </Badge>
-                                ) : (
-                                    ''
-                                )}
-                            </span>
-                        </h1>
-                    </a>
+                            ) : (
+                                ''
+                            )}
+                        </span>
+                    </h1>
+
                 </Link>
                 <div className={styles.cardHeadSubtext}>
                     <OverlayTrigger
@@ -342,23 +344,23 @@ function AuctionDetails(props: Props) {
                 </p>
 
                 <Link href={`/player/${auctionDetails.auctioneer.uuid}`}>
-                    <a>
-                        <p>
-                            <span className={styles.label}>
-                                <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
-                            </span>
-                            {auctionDetails?.auctioneer.name}
-                            <img
-                                crossOrigin="anonymous"
-                                className="playerHeadIcon"
-                                src={auctionDetails?.auctioneer.iconUrl}
-                                alt="auctioneer icon"
-                                height="16"
-                                style={{ marginLeft: '5px' }}
-                                loading="lazy"
-                            />
-                        </p>
-                    </a>
+
+                    <p>
+                        <span className={styles.label}>
+                            <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
+                        </span>
+                        {auctionDetails?.auctioneer.name}
+                        <img
+                            crossOrigin="anonymous"
+                            className="playerHeadIcon"
+                            src={auctionDetails?.auctioneer.iconUrl}
+                            alt="auctioneer icon"
+                            height="16"
+                            style={{ marginLeft: '5px' }}
+                            loading="lazy"
+                        />
+                    </p>
+
                 </Link>
 
                 <p>
@@ -404,26 +406,29 @@ function AuctionDetails(props: Props) {
             auctionDetails?.bids.map((bid, i) => {
                 let headingStyle = i === 0 ? { color: 'green' } : { color: 'red' }
                 return (
-                    <Link href={`/player/${bid.bidder.uuid}`} key={'bid-' + i}>
-                        <a className="disableLinkStyle">
-                            <ListGroup.Item key={bid.amount} action>
-                                <img
-                                    crossOrigin="anonymous"
-                                    className="playerHeadIcon"
-                                    src={bid.bidder.iconUrl}
-                                    height="64"
-                                    alt="bidder minecraft icon"
-                                    style={{ marginRight: '15px', float: 'left' }}
-                                    loading="lazy"
-                                />
-                                <h6 style={headingStyle}>{numberWithThousandsSeparators(bid.amount)} Coins</h6>
-                                <span>{bid.bidder.name}</span>
-                                <br />
-                                <span>{moment(bid.timestamp).fromNow()}</span>
-                            </ListGroup.Item>
-                        </a>
-                    </Link>
-                )
+                    (<Link
+                        href={`/player/${bid.bidder.uuid}`}
+                        key={'bid-' + i}
+                        className="disableLinkStyle">
+
+                        <ListGroup.Item key={bid.amount} action>
+                            <img
+                                crossOrigin="anonymous"
+                                className="playerHeadIcon"
+                                src={bid.bidder.iconUrl}
+                                height="64"
+                                alt="bidder minecraft icon"
+                                style={{ marginRight: '15px', float: 'left' }}
+                                loading="lazy"
+                            />
+                            <h6 style={headingStyle}>{numberWithThousandsSeparators(bid.amount)} Coins</h6>
+                            <span>{bid.bidder.name}</span>
+                            <br />
+                            <span>{moment(bid.timestamp).fromNow()}</span>
+                        </ListGroup.Item>
+
+                    </Link>)
+                );
             })
         )
 
@@ -435,10 +440,10 @@ function AuctionDetails(props: Props) {
                 <div>
                     <p>The auction you tried to see doesn't seem to exist. Please go back.</p>
                     <br />
-                    <Link href="/">
-                        <a className="disableLinkStyle">
-                            <Button>Get back</Button>
-                        </a>
+                    <Link href="/" className="disableLinkStyle">
+
+                        <Button>Get back</Button>
+
                     </Link>
                 </div>
             ) : (
@@ -472,7 +477,7 @@ function AuctionDetails(props: Props) {
             ) : null}
             {basedOnDialog}
         </div>
-    )
+    );
 }
 
 export default AuctionDetails

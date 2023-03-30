@@ -77,7 +77,7 @@ function Flipper(props: Props) {
                 />
             </Container>
         </div>
-    )
+    );
 }
 
 export const getServerSideProps = async ({ res, params }) => {

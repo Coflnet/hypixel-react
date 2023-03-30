@@ -196,7 +196,7 @@ export function KatFlips(props: Props) {
                     </p>
                 </div>
             </ListGroup.Item>
-        )
+        );
     }
 
     function getFlipHeader(flip: KatFlip) {

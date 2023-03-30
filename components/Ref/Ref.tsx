@@ -169,7 +169,7 @@ function Ref(props: Props) {
                     <CopyButton buttonWrapperClass="copy-button" copyValue={full} successMessage={<span>copied Link</span>} />
                 </span>
             </li>
-        )
+        );
     }
 }
 //

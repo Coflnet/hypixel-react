@@ -136,35 +136,33 @@ function ActiveAuctions(props: Props) {
             <div className={styles.cardWrapper} key={activeAuction.uuid}>
                 <Card>
                     <span>
-                        <Link href={`/auction/${activeAuction.uuid}`}>
-                            <a className="disableLinkStyle">
-                                <Card.Header style={{ padding: '10px' }}>
-                                    <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'space-between' }}>
-                                        <img
-                                            crossOrigin="anonymous"
-                                            className="playerHeadIcon"
-                                            src={props.item.iconUrl}
-                                            height="32"
-                                            alt=""
-                                            style={{ marginRight: '5px' }}
-                                            loading="lazy"
+                        <Link href={`/auction/${activeAuction.uuid}`} className="disableLinkStyle">
+                            <Card.Header style={{ padding: '10px' }}>
+                                <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'space-between' }}>
+                                    <img
+                                        crossOrigin="anonymous"
+                                        className="playerHeadIcon"
+                                        src={props.item.iconUrl}
+                                        height="32"
+                                        alt=""
+                                        style={{ marginRight: '5px' }}
+                                        loading="lazy"
+                                    />
+                                    <span style={{ padding: '2px', textAlign: 'center' }}>{numberWithThousandsSeparators(activeAuction.price)} Coins</span>
+                                    <div onClick={e => e.preventDefault()}>
+                                        <CopyButton
+                                            buttonVariant="primary"
+                                            copyValue={'/viewauction ' + activeAuction.uuid}
+                                            successMessage={
+                                                <p>
+                                                    Copied ingame link <br />
+                                                    <i>/viewauction {activeAuction.uuid}</i>
+                                                </p>
+                                            }
                                         />
-                                        <span style={{ padding: '2px', textAlign: 'center' }}>{numberWithThousandsSeparators(activeAuction.price)} Coins</span>
-                                        <div onClick={e => e.preventDefault()}>
-                                            <CopyButton
-                                                buttonVariant="primary"
-                                                copyValue={'/viewauction ' + activeAuction.uuid}
-                                                successMessage={
-                                                    <p>
-                                                        Copied ingame link <br />
-                                                        <i>/viewauction {activeAuction.uuid}</i>
-                                                    </p>
-                                                }
-                                            />
-                                        </div>
                                     </div>
-                                </Card.Header>
-                            </a>
+                                </div>
+                            </Card.Header>
                         </Link>
                     </span>
                     <Card.Body style={{ padding: '10px' }}>
@@ -238,9 +236,7 @@ function ActiveAuctions(props: Props) {
                 onAfterLogin,
                 <span>
                     You currently use Starter Premium. You can see up to 120 active auctions with
-                    <Link href={'/premium'}>
-                        <a>Premium</a>
-                    </Link>
+                    <Link href={'/premium'}>Premium</Link>
                 </span>
             )}
         </div>

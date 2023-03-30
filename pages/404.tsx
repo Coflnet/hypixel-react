@@ -12,13 +12,13 @@ function NotFound() {
                 <p>
                     <small>Error 404</small>
                 </p>
-                <Link href="/">
-                    <a className="disableLinkStyle">
-                        <Button>Go back</Button>
-                    </a>
+                <Link href="/" className="disableLinkStyle">
+
+                    <Button>Go back</Button>
+
                 </Link>
             </Container>
         </div>
-    )
+    );
 }
 export default NotFound

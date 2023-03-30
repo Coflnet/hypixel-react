@@ -418,7 +418,7 @@ function Flipper(props: Props) {
                         }
                     </Link>
                 </span>
-            )
+            );
         }
         return (
             <span>

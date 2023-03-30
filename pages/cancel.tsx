@@ -19,16 +19,16 @@ function Cancel() {
                         <p>
                             If you encountered a problem, feel free to contact us via the <Link href="/feedback">Feedback site</Link>
                         </p>
-                        <Link href="/">
-                            <a className="disableLinkStyle">
-                                <Button>Back to the main page</Button>
-                            </a>
+                        <Link href="/" className="disableLinkStyle">
+
+                            <Button>Back to the main page</Button>
+
                         </Link>
                     </Card.Body>
                 </Card>
             </Container>
         </div>
-    )
+    );
 }
 
 export default Cancel

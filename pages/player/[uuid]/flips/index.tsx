@@ -51,7 +51,7 @@ function Flipper(props: Props) {
                 <FlipTracking totalProfit={flipTrackingResponse.totalProfit} trackedFlips={flipTrackingResponse.flips} />
             </Container>
         </div>
-    )
+    );
 }
 
 export const getServerSideProps = async ({ res, params }) => {

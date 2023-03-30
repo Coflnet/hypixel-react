@@ -12,11 +12,11 @@ export function getMoreAuctionsElement(isLoggedIn: boolean, premiumType: Premium
             <p>
                 You can see more auctions with{' '}
                 <Link href={'/premium'} style={{ marginBottom: '15px' }}>
-                    <a>Premium</a>
+                    Premium
                 </Link>
                 <GoogleSignIn onAfterLogin={onAfterLogin} />
             </p>
-        )
+        );
     }
     if (premiumType.priority === PREMIUM_RANK.STARTER) {
         return (

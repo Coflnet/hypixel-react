@@ -275,48 +275,48 @@ function PlayerDetailsList(props: Props) {
         return (
             <ListGroup.Item action className={styles.listGroupItem} key={'listItem-' + i}>
                 <span key={listElement.uuid} className={`${styles.disableLinkStyle} ${styles.listItemLink}`}>
-                    <Link href={`/auction/${listElement.uuid}`}>
-                        <a className="disableLinkStyle">
-                            <div>
-                                <h4>
-                                    {getItemImageElement(listElement)}
-                                    {listElement.item.name || convertTagToName(listElement.item.tag)}
-                                    {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
-                                        <Badge variant="danger" style={{ marginLeft: '10px' }}>
-                                            Ended
-                                        </Badge>
-                                    ) : (
-                                        <Badge variant="info" style={{ marginLeft: '10px' }}>
-                                            Running
-                                        </Badge>
-                                    )}
-                                    {listElement.bin ? (
-                                        <Badge style={{ marginLeft: '5px' }} variant="success">
-                                            BIN
-                                        </Badge>
-                                    ) : (
-                                        ''
-                                    )}
-                                </h4>
-                                <p>
-                                    Highest Bid: {numberWithThousandsSeparators(listElement.highestBid)} {getCoinImage()}
-                                </p>
-                                {props.type === 'auctions' ? (
-                                    <p>
-                                        Starting Bid: {numberWithThousandsSeparators((listElement as Auction).startingBid)} {getCoinImage()}
-                                    </p>
+                    <Link href={`/auction/${listElement.uuid}`} className="disableLinkStyle">
+
+                        <div>
+                            <h4>
+                                {getItemImageElement(listElement)}
+                                {listElement.item.name || convertTagToName(listElement.item.tag)}
+                                {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
+                                    <Badge variant="danger" style={{ marginLeft: '10px' }}>
+                                        Ended
+                                    </Badge>
                                 ) : (
-                                    <p>
-                                        Highest Own: {numberWithThousandsSeparators((listElement as BidForList).highestOwn)} {getCoinImage()}
-                                    </p>
+                                    <Badge variant="info" style={{ marginLeft: '10px' }}>
+                                        Running
+                                    </Badge>
                                 )}
-                                <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
-                            </div>
-                        </a>
+                                {listElement.bin ? (
+                                    <Badge style={{ marginLeft: '5px' }} variant="success">
+                                        BIN
+                                    </Badge>
+                                ) : (
+                                    ''
+                                )}
+                            </h4>
+                            <p>
+                                Highest Bid: {numberWithThousandsSeparators(listElement.highestBid)} {getCoinImage()}
+                            </p>
+                            {props.type === 'auctions' ? (
+                                <p>
+                                    Starting Bid: {numberWithThousandsSeparators((listElement as Auction).startingBid)} {getCoinImage()}
+                                </p>
+                            ) : (
+                                <p>
+                                    Highest Own: {numberWithThousandsSeparators((listElement as BidForList).highestOwn)} {getCoinImage()}
+                                </p>
+                            )}
+                            <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
+                        </div>
+
                     </Link>
                 </span>
             </ListGroup.Item>
-        )
+        );
     })
 
     return (
@@ -412,7 +412,7 @@ function PlayerDetailsList(props: Props) {
             )}
             {bottomElements}
         </div>
-    )
+    );
 }
 
 export default PlayerDetailsList

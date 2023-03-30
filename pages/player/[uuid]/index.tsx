@@ -184,7 +184,7 @@ function PlayerDetails(props: Props) {
                 ) : undefined}
             </Container>
         </div>
-    )
+    );
 }
 
 export const getServerSideProps = async ({ res, params }) => {
