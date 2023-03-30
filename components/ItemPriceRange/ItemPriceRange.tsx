@@ -136,6 +136,7 @@ export function ItemPriceRange(props: Props) {
                         disabled={props.disabled || (props.disableAllTime && dateRange === DateRange.ALL)}
                         onChange={removeWrongFocus}
                         size="sm"
+                        key={key}
                     >
                         {getButtonText(dateRange)}
                     </ToggleButton>
