@@ -13,8 +13,7 @@ import StorefrontIcon from '@mui/icons-material/Storefront'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import { Menu, MenuItem, ProSidebar, SidebarHeader } from 'react-pro-sidebar'
-import 'react-pro-sidebar/dist/css/styles.css'
+import { Menu, MenuItem, Sidebar, useProSidebar } from 'react-pro-sidebar'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
 
@@ -28,6 +27,7 @@ function NavBar(props: Props) {
     let [isWideOpen, setIsWideOpen] = useState(false)
     let [isHovering, setIsHovering] = useState(false)
     let [isSmall, setIsSmall] = useState(true)
+    let { collapseSidebar } = useProSidebar()
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
@@ -48,6 +48,17 @@ function NavBar(props: Props) {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isWideOpen])
+
+    useEffect(() => {
+        collapseSidebar(isCollapsed())
+    }, [isSmall, isWideOpen, isHovering])
+
+    function isCollapsed() {
+        if (isSmall) {
+            return false
+        }
+        return !isWideOpen && !isHovering
+    }
 
     function outsideClickHandler(evt) {
         const flyoutEl = document.getElementById('navBar')
@@ -84,13 +95,6 @@ function NavBar(props: Props) {
         setIsHovering(false)
     }
 
-    function isCollapsed() {
-        if (isSmall) {
-            return false
-        }
-        return !isWideOpen && !isHovering
-    }
-
     function resizeHandler() {
         if (resizePromise) {
             return
@@ -105,10 +109,6 @@ function NavBar(props: Props) {
                 el.style.left = '0px'
             }
         }, 500)
-    }
-
-    function isHidden() {
-        return isSmall && !isWideOpen
     }
 
     function onHamburgerClick() {
@@ -131,76 +131,61 @@ function NavBar(props: Props) {
         }
     }
 
-    let style = {
-        position: 'absolute',
-        bottom: 0,
-        zIndex: 100,
-        left: 0,
-        top: 0,
-        minHeight: '100vh'
-    } as React.CSSProperties
-
     return (
         <span>
             <aside className={styles.navBar} id="navBar" onMouseEnter={onMouseMove} onMouseLeave={onMouseOut}>
-                <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()}>
-                    <SidebarHeader>
-                        <div
-                            style={{
-                                padding: '24px',
-                                fontWeight: 'bold',
-                                fontSize: '20px',
-                                letterSpacing: '1px',
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}
-                        >
-                            <Image src="/logo512.png" alt="Logo" width={40} height={40} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'Coflnet' : ''}
+                <Sidebar id="pro-sidebar" hidden={isSmall && !isWideOpen} defaultCollapsed={true} backgroundColor="#1d1d1d">
+                    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <div>
+                            <div className={styles.logo}>
+                                <Image src="/logo512.png" alt="Logo" width={40} height={40} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'Coflnet' : ''}
+                            </div>
                         </div>
-                    </SidebarHeader>
-                    <Menu iconShape="square">
-                        <MenuItem className="disableLinkStyle" icon={<HomeIcon />}>
-                            <Link href={'/'}>Home</Link>
-                        </MenuItem>
-                        <MenuItem icon={<StorefrontIcon />}>
-                            <Link href={'/flipper'}>Item Flipper</Link>
-                        </MenuItem>
-                        <MenuItem icon={<AccountIcon />}>
-                            <Link href={'/account'}>Account</Link>
-                        </MenuItem>
-                        <MenuItem icon={<NotificationIcon />}>
-                            <Link href={'/subscriptions'}>Notifier</Link>
-                        </MenuItem>
-                        <MenuItem icon={<BuildIcon />}>
-                            <Link href={'/crafts'}>Profitable Crafts</Link>
-                        </MenuItem>
-                        <MenuItem icon={<AccountBalanceIcon />}>
-                            <Link href={'/premium'}>Premium / Shop</Link>
-                        </MenuItem>
-                        <MenuItem icon={<PetsIcon />}>
-                            <Link href={'/kat'}>Kat Flips</Link>
-                        </MenuItem>
-                        <MenuItem icon={<DownloadIcon />}>
-                            <Link href={'/mod'}>Mod</Link>
-                        </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<ShareIcon />}>
-                            <Link href={'/ref'}>Referral</Link>
-                        </MenuItem>
-                        <MenuItem icon={<PolicyIcon />}>
-                            <Link href={'/about'}>Links / Legal</Link>
-                        </MenuItem>
-                        <MenuItem icon={<ChatIcon />}>
-                            <Link href={'/feedback'}>Feedback</Link>
-                        </MenuItem>
-                        <MenuItem icon={<Image src="/discord_icon.svg" alt="Discord icon" height="24" />}>
-                            <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
+                        <hr />
+                        <Menu>
+                            <MenuItem component={<Link href={'/'} />} icon={<HomeIcon />}>
+                                Home
+                            </MenuItem>
+                            <MenuItem component={<Link href={'/flipper'} />} icon={<StorefrontIcon />}>
+                                Item Flipper
+                            </MenuItem>
+                            <MenuItem component={<Link href={'/account'} />} icon={<AccountIcon />}>
+                                Account
+                            </MenuItem>
+                            <MenuItem component={<Link href={'/subscriptions'} />} icon={<NotificationIcon />}>
+                                Notifier
+                            </MenuItem>
+                            <MenuItem component={<Link href={'/crafts'} />} icon={<BuildIcon />}>
+                                Profitable Crafts
+                            </MenuItem>
+                            <MenuItem component={<Link href={'/premium'} />} icon={<AccountBalanceIcon />}>
+                                Premium / Shop
+                            </MenuItem>
+                            <MenuItem component={<Link href={'/kat'} />} icon={<PetsIcon />}>
+                                Kat Flips
+                            </MenuItem>
+                            <MenuItem component={<Link href={'/mod'} />} icon={<DownloadIcon />}>
+                                Mod
+                            </MenuItem>
+                            <MenuItem component={<Link href={'/ref'} />} icon={<ShareIcon />}>
+                                Referral
+                            </MenuItem>
+                            <MenuItem component={<Link href={'/about'} />} icon={<PolicyIcon />}>
+                                Links / Legal
+                            </MenuItem>
+                            <MenuItem component={<Link href={'/feedback'} />} icon={<ChatIcon />}>
+                                Feedback
+                            </MenuItem>
+                            <MenuItem
+                                component={<Link href={'https://discord.gg/wvKXfTgCfb'} target="_blank" />}
+                                rel="noreferrer"
+                                icon={<Image src="/discord_icon.svg" alt="Discord icon" height="24" />}
+                            >
                                 Discord
-                            </a>
-                        </MenuItem>
-                    </Menu>
-                </ProSidebar>
+                            </MenuItem>
+                        </Menu>
+                    </div>
+                </Sidebar>
             </aside>
             {isSmall ? (
                 <span onClick={onHamburgerClick} className={styles.hamburgerIcon} id="hamburgerIcon" style={props.hamburgerIconStyle}>

@@ -13,6 +13,7 @@ import { initCoflCoinManager } from '../utils/CoflCoinsUtils'
 import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { SSRProvider } from 'react-bootstrap'
+import { ProSidebarProvider } from 'react-pro-sidebar'
 
 interface ErrorLog {
     error: ErrorEvent
@@ -62,10 +63,12 @@ function MyApp({ Component, pageProps }) {
                 <Script async={true} src={'/preScript.js'} />
                 <MatomoProvider value={matomoTrackingInstance}>
                     <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
-                        <MainApp>
-                            <NextNProgress />
-                            <Component {...pageProps} />
-                        </MainApp>
+                        <ProSidebarProvider>
+                            <MainApp>
+                                <NextNProgress />
+                                <Component {...pageProps} />
+                            </MainApp>
+                        </ProSidebarProvider>
                     </GoogleOAuthProvider>
                 </MatomoProvider>
             </SSRProvider>
