@@ -270,13 +270,13 @@ export function getMinecraftColorCodedElement(text: string, autoFormat = true): 
     splits.forEach((split, i) => {
         if (i === 0) {
             if (split !== '') {
-                elements.push(<span>{split}</span>)
+                elements.push(<span key={i}>{split}</span>)
             }
             return
         }
         let code = split.substring(0, 1)
         let text = autoFormat ? convertTagToName(split.substring(1, split.length)) : split.substring(1, split.length)
-        elements.push(<span style={styleMap[code]}>{text}</span>)
+        elements.push(<span key={i} style={styleMap[code]}>{text}</span>)
     })
 
     return <span>{elements}</span>
