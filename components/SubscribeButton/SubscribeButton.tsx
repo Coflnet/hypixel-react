@@ -61,7 +61,9 @@ function SubscribeButton(props: Props) {
                         })
                     }
                 })
-                props.onAfterSubscribe()
+                if (props.onAfterSubscribe) {
+                    props.onAfterSubscribe()
+                }
             })
             .catch(error => {
                 toast.error(error.message, {

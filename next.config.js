@@ -19,6 +19,10 @@ module.exports = {
             {
                 protocol: 'https',
                 hostname: 'mc-heads.net'
+            },
+            {
+                protocol: 'https',
+                hostname: '**.googleusercontent.com'
             }
         ]
     },
