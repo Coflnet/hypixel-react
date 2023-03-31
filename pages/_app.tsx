@@ -1,5 +1,5 @@
 import '../styles/bootstrap-react.min.css'
-import '../styles/bootstrap-dark-full.min.css'
+import '../styles/bootstrap-dark.min.css'
 import 'react-toastify/dist/ReactToastify.css'
 import 'react-contexify/ReactContexify.css'
 import 'react-datepicker/dist/react-datepicker.css'

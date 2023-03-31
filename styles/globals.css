@@ -79,19 +79,19 @@ option {
     border-color: #444;
 }
 
-.form-control {
+.form-control,.form-select {
     background-color: #222;
     color: #fff;
     border-color: #444;
 }
 
-.form-control:focus {
+.form-control:focus,.form-select:focus {
     background-color: #222;
     color: #fff;
     border-color: #444;
 }
 
-.form-control:disabled {
+.form-control:disabled,.form-select:disabled {
     color: lightgrey;
     background-color: #222;
     color: lightgrey;
