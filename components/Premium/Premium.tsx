@@ -149,6 +149,7 @@ function Premium() {
                                     localStorage.setItem(CANCELLATION_RIGHT_CONFIRMED, e.target.checked.toString())
                                     setCancellationRightLossConfirmed(e.target.checked)
                                 }}
+                                inline
                             />
                             <label htmlFor={'cancellationRightCheckbox'}>
                                 By buying one of the following products, you confirm the immediate execution of the contract, hereby losing your cancellation
