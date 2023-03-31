@@ -11,8 +11,7 @@ import {
     convertTagToName,
     formatDungeonStarsInString as getDungeonStarFormattedItemName,
     getMinecraftColorCodedElement,
-    getStyleForTier,
-    numberWithThousandsSeparators
+    getStyleForTier
 } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'

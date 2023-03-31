@@ -1,7 +1,6 @@
 import HelpIcon from '@mui/icons-material/Help'
 import Link from 'next/link'
 import { Table } from 'react-bootstrap'
-import { getDecimalSeparator, numberWithThousandsSeparators } from '../../../utils/Formatter'
 import { Number } from '../../Number/Number'
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumFeatures.module.css'
