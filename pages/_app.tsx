@@ -12,6 +12,7 @@ import NextNProgress from 'nextjs-progressbar'
 import { initCoflCoinManager } from '../utils/CoflCoinsUtils'
 import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import { SSRProvider } from 'react-bootstrap'
 
 interface ErrorLog {
     error: ErrorEvent
@@ -57,15 +58,17 @@ function MyApp({ Component, pageProps }) {
 
     return (
         <>
-            <Script async={true} src={'/preScript.js'} />
-            <MatomoProvider value={matomoTrackingInstance}>
-                <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
-                    <MainApp>
-                        <NextNProgress />
-                        <Component {...pageProps} />
-                    </MainApp>
-                </GoogleOAuthProvider>
-            </MatomoProvider>
+            <SSRProvider>
+                <Script async={true} src={'/preScript.js'} />
+                <MatomoProvider value={matomoTrackingInstance}>
+                    <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
+                        <MainApp>
+                            <NextNProgress />
+                            <Component {...pageProps} />
+                        </MainApp>
+                    </GoogleOAuthProvider>
+                </MatomoProvider>
+            </SSRProvider>
         </>
     )
 }

@@ -155,10 +155,10 @@ function PlayerDetails(props: Props) {
                     }
                 />
                 <ToggleButtonGroup className={styles.playerDetailsType} type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
-                    <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">
+                    <ToggleButton id="auctionToggleButton" value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">
                         Auctions
                     </ToggleButton>
-                    <ToggleButton value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">
+                    <ToggleButton id="bidsToggleButton" value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">
                         Bids
                     </ToggleButton>
                 </ToggleButtonGroup>
