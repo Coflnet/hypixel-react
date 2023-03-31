@@ -481,6 +481,7 @@ function FlipRestrictionList(props: Props) {
                                             crossOrigin="anonymous"
                                             src={restriction.item?.iconUrl}
                                             height="24"
+                                            width="24"
                                             alt=""
                                             style={{ marginRight: '5px' }}
                                             loading="lazy"

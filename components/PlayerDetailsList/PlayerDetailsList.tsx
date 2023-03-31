@@ -14,6 +14,7 @@ import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import ItemFilter from '../ItemFilter/ItemFilter'
+import { Number } from '../Number/Number'
 import Search from '../Search/Search'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import Tooltip from '../Tooltip/Tooltip'
@@ -186,6 +187,7 @@ function PlayerDetailsList(props: Props) {
                 style={{ marginRight: '10px' }}
                 alt="item icon"
                 height="48"
+                width="48"
                 onError={error => onImageLoadError(listElement, error)}
                 loading="lazy"
             />
@@ -299,15 +301,15 @@ function PlayerDetailsList(props: Props) {
                                 )}
                             </h4>
                             <p>
-                                Highest Bid: {numberWithThousandsSeparators(listElement.highestBid)} {getCoinImage()}
+                                Highest Bid: <Number number={listElement.highestBid} /> {getCoinImage()}
                             </p>
                             {props.type === 'auctions' ? (
                                 <p>
-                                    Starting Bid: {numberWithThousandsSeparators((listElement as Auction).startingBid)} {getCoinImage()}
+                                    Starting Bid: <Number number={(listElement as Auction).startingBid} /> {getCoinImage()}
                                 </p>
                             ) : (
                                 <p>
-                                    Highest Own: {numberWithThousandsSeparators((listElement as BidForList).highestOwn)} {getCoinImage()}
+                                    Highest Own: <Number number={(listElement as BidForList).highestOwn} /> {getCoinImage()}
                                 </p>
                             )}
                             <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
@@ -380,7 +382,7 @@ function PlayerDetailsList(props: Props) {
             ) : null}
             {listElements.length === 0 && allElementsLoaded ? (
                 <div className={styles.noElementFound}>
-                    <Image src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
+                    <Image src="/Barrier.png" height="24" width="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
                     <p>No {props.type} found</p>
                 </div>
             ) : (

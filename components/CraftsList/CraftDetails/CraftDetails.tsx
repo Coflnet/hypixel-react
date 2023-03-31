@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { Badge } from 'react-bootstrap'
-import { numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { Number } from '../../Number/Number'
 import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import styles from './CraftDetails.module.css'
 
@@ -21,7 +21,7 @@ export function CraftDetails(props: Props) {
                 </div>
                 <span style={{ marginLeft: '20px' }}>
                     <Badge style={{ marginLeft: '5px' }} bg="secondary">
-                        {numberWithThousandsSeparators(Math.round(props.craft.sellPrice))} Coins
+                        <Number number={Math.round(props.craft.sellPrice)} /> Coins
                     </Badge>
                 </span>
             </div>
@@ -36,10 +36,18 @@ export function CraftDetails(props: Props) {
                             onItemClick(ingredient.item.tag)
                         }}
                     >
-                        <Image crossOrigin="anonymous" src={ingredient.item.iconUrl} height="24" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                        <Image
+                            crossOrigin="anonymous"
+                            src={ingredient.item.iconUrl}
+                            height="24"
+                            width="24"
+                            alt=""
+                            style={{ marginRight: '5px' }}
+                            loading="lazy"
+                        />
                         {ingredient.item.name + ' (' + ingredient.count + 'x)'}
                         <Badge style={{ marginLeft: '5px' }} bg="secondary">
-                            {numberWithThousandsSeparators(Math.round(ingredient.cost))} Coins
+                            <Number number={Math.round(ingredient.cost)} /> Coins
                         </Badge>
                     </div>
                 )

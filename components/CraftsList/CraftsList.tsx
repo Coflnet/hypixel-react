@@ -6,6 +6,7 @@ import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSep
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
@@ -197,18 +198,23 @@ export function CraftsList(props: Props) {
                 <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
                     <h4>{getCraftHeader(craft)}</h4>
                     <p>
-                        <span className={styles.label}>Crafting Cost:</span> {numberWithThousandsSeparators(Math.round(craft.craftCost))} Coins
+                        <span className={styles.label}>Crafting Cost:</span> <Number number={Math.round(craft.craftCost)} /> Coins
                     </p>
                     <p>
-                        <span className={styles.label}>Sell Price:</span> {numberWithThousandsSeparators(Math.round(craft.sellPrice))} Coins
+                        <span className={styles.label}>Sell Price:</span> <Number number={Math.round(craft.sellPrice)} /> Coins
                     </p>
                     <p>
                         <span className={styles.label}>Median:</span>{' '}
-                        {craft.median > 0 ? `${numberWithThousandsSeparators(Math.round(craft.median))} Coins` : 'unknown'}
+                        {craft.median > 0 ? (
+                            <span>
+                                <Number number={Math.round(craft.median)} /> Coins
+                            </span>
+                        ) : (
+                            'unknown'
+                        )}
                     </p>
                     <p>
-                        <span className={styles.label}>Volume:</span>{' '}
-                        {craft.volume > 0 ? `${numberWithThousandsSeparators(Math.round(craft.volume))}` : 'unknown'}
+                        <span className={styles.label}>Volume:</span> {craft.volume > 0 ? <Number number={Math.round(craft.volume)} /> : 'unknown'}
                     </p>
                     {craft.requiredCollection ? (
                         <p className={styles.craftRequirement}>
@@ -231,7 +237,7 @@ export function CraftsList(props: Props) {
     function getCraftHeader(craft: ProfitableCraft): JSX.Element {
         return (
             <span>
-                <Image crossOrigin="anonymous" src={craft.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <Image crossOrigin="anonymous" src={craft.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                 {getMinecraftColorCodedElement(craft.item.name)}
             </span>
         )
@@ -333,7 +339,7 @@ export function CraftsList(props: Props) {
                 <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
                 <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
-                        <option value={option.value}>{option.label}</option>
+                        <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
                 </Form.Select>
                 <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />

@@ -21,10 +21,12 @@ function GoogleSignIn(props: Props) {
     )
 
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [isSSR, setIsSSR] = useState(true)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
+        setIsSSR(false)
         if (wasAlreadyLoggedInThisSession) {
             onLoginSucces({ credential: sessionStorage.getItem('googleId') })
             setTimeout(() => {
@@ -99,6 +101,10 @@ function GoogleSignIn(props: Props) {
               height: 0
           }
         : {}
+
+    if (isSSR) {
+        return null
+    }
 
     return (
         <div style={style} onClickCapture={onLoginClick}>

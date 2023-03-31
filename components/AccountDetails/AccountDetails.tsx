@@ -8,13 +8,13 @@ import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { atobUnicode } from '../../utils/Base64Utils'
 import cacheUtils from '../../utils/CacheUtils'
-import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useCoflCoins } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import NavBar from '../NavBar/NavBar'
+import { Number } from '../Number/Number'
 import PremiumStatus from '../Premium/PremiumStatus/PremiumStatus'
 import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
@@ -168,7 +168,7 @@ function AccountDetails() {
                     )}
                     <PremiumStatus products={products} labelStyle={{ width: '300px', fontWeight: 'bold' }} />
                     <p>
-                        <span className={styles.label}>CoflCoins:</span> {numberWithThousandsSeparators(coflCoins)}
+                        <span className={styles.label}>CoflCoins:</span> <Number number={coflCoins} />
                         <Button
                             className={styles.sendCoflCoinsButton}
                             onClick={() => {
@@ -207,13 +207,13 @@ function AccountDetails() {
             ) : null}
             <hr />
             <h2 style={{ marginBottom: '30px' }}>Settings</h2>
-            <p>
-                <div style={{ display: 'inline-block' }}>
+            <div style={{ paddingBottom: '1rem' }}>
+                <div>
                     <span className={styles.label}>Allow cookies for analytics: </span>
                     <Form.Check onChange={setTrackingAllowed} defaultChecked={isTrackingAllowed()} type="checkbox" />
                 </div>
-            </p>
-            <p>
+            </div>
+            <div style={{ paddingBottom: '1rem' }}>
                 <span className={styles.label}>Login problems?</span>
                 <div>
                     <Tooltip
@@ -226,9 +226,9 @@ function AccountDetails() {
                         tooltipContent={<span>Make sure your browser doesn't block popups. Otherwise use this button to reset your Google login</span>}
                     />
                 </div>
-            </p>
+            </div>
             {isLoggedIn ? (
-                <p>
+                <div style={{ paddingBottom: '1rem' }}>
                     <div style={{ display: 'inline-block' }}>
                         <span className={styles.label}>Mod data settings: </span>
                         <Tooltip
@@ -238,9 +238,9 @@ function AccountDetails() {
                             tooltipTitle={<span>Mod data settings</span>}
                         />
                     </div>
-                </p>
+                </div>
             ) : null}
-            <p>
+            <div style={{ paddingBottom: '1rem' }}>
                 <span className={styles.label}>Delete Caches/Cookies and hard refresh:</span>
                 <Tooltip
                     type="click"
@@ -255,7 +255,7 @@ function AccountDetails() {
                     }
                     tooltipTitle={<span>Are you sure?</span>}
                 />
-            </p>
+            </div>
         </>
     )
 }

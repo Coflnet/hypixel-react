@@ -179,7 +179,7 @@ function NavBar(props: Props) {
                             <MenuItem
                                 component={<Link href={'https://discord.gg/wvKXfTgCfb'} target="_blank" />}
                                 rel="noreferrer"
-                                icon={<Image src="/discord_icon.svg" alt="Discord icon" height="24" />}
+                                icon={<Image src="/discord_icon.svg" alt="Discord icon" height={24} width={32} />}
                             >
                                 Discord
                             </MenuItem>

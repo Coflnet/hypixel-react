@@ -141,6 +141,7 @@ function PlayerDetails(props: Props) {
                                 className="playerHeadIcon"
                                 src={selectedPlayer?.iconUrl}
                                 height="32"
+                                width="32"
                                 alt=""
                                 style={{ marginRight: '10px' }}
                             />

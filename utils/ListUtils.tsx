@@ -9,23 +9,23 @@ import { PREMIUM_RANK } from './PremiumTypeUtils'
 export function getMoreAuctionsElement(isLoggedIn: boolean, premiumType: PremiumType, onAfterLogin: () => void, textForStarterPremium: JSX.Element) {
     if (!isLoggedIn || !premiumType) {
         return (
-            <p>
+            <div>
                 You can see more auctions with{' '}
                 <Link href={'/premium'} style={{ marginBottom: '15px' }}>
                     Premium
                 </Link>
                 <GoogleSignIn onAfterLogin={onAfterLogin} />
-            </p>
-        );
+            </div>
+        )
     }
     if (premiumType.priority === PREMIUM_RANK.STARTER) {
         return (
-            <p>
+            <div>
                 {textForStarterPremium}
                 <div style={{ marginTop: '15px' }}>
                     <GoogleSignIn onAfterLogin={onAfterLogin} />
                 </div>
-            </p>
+            </div>
         )
     }
 }

@@ -17,7 +17,7 @@ function Crafts(props: Props) {
             {getHeadElement('Crafts', 'List of profitable craft flips based on current ah and bazaar prices')}
             <Container>
                 <Search />
-                <h2>Profitable Hypixel Skyblock Craft flips</h2>
+                <h2>Profitable Hypixel Skyblock Craft Flips</h2>
                 <hr />
                 <CraftsList crafts={props.crafts?.map(parseProfitableCraft)} bazaarTags={props.bazaarTags} />
             </Container>

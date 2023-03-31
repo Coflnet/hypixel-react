@@ -5,7 +5,6 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
-import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useStateWithRef } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -13,6 +12,7 @@ import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '
 import { CopyButton } from '../CopyButton/CopyButton'
 import styles from './ActiveAuctions.module.css'
 import Image from 'next/image'
+import { Number } from '../Number/Number'
 
 interface Props {
     item: Item
@@ -144,12 +144,15 @@ function ActiveAuctions(props: Props) {
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
                                         src={props.item.iconUrl}
-                                        height="32"
+                                        height={32}
+                                        width={32}
                                         alt=""
                                         style={{ marginRight: '5px' }}
                                         loading="lazy"
                                     />
-                                    <span style={{ padding: '2px', textAlign: 'center' }}>{numberWithThousandsSeparators(activeAuction.price)} Coins</span>
+                                    <span style={{ padding: '2px', textAlign: 'center' }}>
+                                        <Number number={activeAuction.price} /> Coins
+                                    </span>
                                     <div onClick={e => e.preventDefault()}>
                                         <CopyButton
                                             buttonVariant="primary"
@@ -173,8 +176,8 @@ function ActiveAuctions(props: Props) {
                             className="playerHeadIcon"
                             src={activeAuction.seller.iconUrl}
                             alt=""
-                            height="24"
-                            width="24"
+                            height={24}
+                            width={24}
                             loading="lazy"
                         />
                         <span>{activeAuction.playerName}</span>
@@ -198,9 +201,7 @@ function ActiveAuctions(props: Props) {
         <div className="active-auctions">
             <div className="active-auctions-list">
                 <div style={{ margin: '20px' }}>
-                    <Form.Select onChange={onOrderChange}>
-                        {orderListElement}
-                    </Form.Select>
+                    <Form.Select onChange={onOrderChange}>{orderListElement}</Form.Select>
                 </div>
                 {activeAuctions.length > 0 ? (
                     <InfiniteScroll

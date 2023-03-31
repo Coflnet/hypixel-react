@@ -1647,7 +1647,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     let refreshLoadPremiumProducts = (callback: (products: PremiumProduct[]) => void) => {
         let lastPremiumProducts = localStorage.getItem(LAST_PREMIUM_PRODUCTS)
         if (lastPremiumProducts) {
-            callback(parsePremiumProducts(JSON.parse(lastPremiumProducts)))
+            try {
+                callback(parsePremiumProducts(JSON.parse(lastPremiumProducts)))
+            } catch {
+                callback([])
+            }
         }
         getPremiumProducts().then(prodcuts => {
             callback(prodcuts)

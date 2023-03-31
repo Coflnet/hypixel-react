@@ -2,12 +2,12 @@
 import ReactECharts from 'echarts-for-react'
 import { useEffect, useRef, useState } from 'react'
 import api from '../../../api/ApiHelper'
-import { numberWithThousandsSeparators } from '../../../utils/Formatter'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
 import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
 import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { Number } from '../../Number/Number'
 import RecentAuctions from '../../RecentAuctions/RecentAuctions'
 import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
@@ -182,7 +182,14 @@ function AuctionHousePriceGraph(props: Props) {
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
-                        <b>Avg Price:</b> {isLoading ? '-' : numberWithThousandsSeparators(avgPrice) + ' Coins'}
+                        <b>Avg Price:</b>{' '}
+                        {isLoading ? (
+                            '-'
+                        ) : (
+                            <span>
+                                <Number number={avgPrice} /> Coins
+                            </span>
+                        )}
                     </span>
                     <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
                         <SubscribeButton type="item" topic={props.item.tag} />

@@ -133,6 +133,7 @@ function RatChecker() {
                                     e.preventDefault()
                                 }}
                                 onDragOver={e => e.preventDefault()}
+                                style={{ cursor: 'pointer' }}
                             >
                                 <div className={styles['dNd-content']}>Drag and Drop Files or click to open file</div>
                             </div>

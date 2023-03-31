@@ -54,6 +54,7 @@ function RelatedItems(props: Props) {
                                                     crossOrigin="anonymous"
                                                     src={item.iconUrl}
                                                     height="32"
+                                                    width="32"
                                                     alt=""
                                                     style={{ marginRight: '5px', float: 'left' }}
                                                     loading="lazy"

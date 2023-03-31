@@ -15,7 +15,6 @@ import { v4 as generateUUID } from 'uuid'
 import api from '../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
-import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -23,6 +22,7 @@ import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTING
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import Flip from './Flip/Flip'
 import FlipBased from './FlipBased/FlipBased'
@@ -418,7 +418,7 @@ function Flipper(props: Props) {
                         }
                     </Link>
                 </span>
-            );
+            )
         }
         return (
             <span>
@@ -673,8 +673,12 @@ function Flipper(props: Props) {
                                 </Card.Header>
                                 <Card.Body>
                                     <ul>
-                                        <li>Total flips received: {numberWithThousandsSeparators(missedInfo.totalFlips)}</li>
-                                        <li>Profit of copied flips: {numberWithThousandsSeparators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                        <li>
+                                            Total flips received: <Number number={missedInfo.totalFlips} />
+                                        </li>
+                                        <li>
+                                            Profit of copied flips: <Number number={missedInfo.estimatedProfitCopiedAuctions} /> Coins
+                                        </li>
                                     </ul>
                                 </Card.Body>
                             </Card>
@@ -687,7 +691,7 @@ function Flipper(props: Props) {
                                         <ul>
                                             <li>
                                                 <span style={{ marginRight: '10px' }}>
-                                                    Missed Profit: {numberWithThousandsSeparators(missedInfo.missedEstimatedProfit)} Coins
+                                                    Missed Profit: <Number number={missedInfo.missedEstimatedProfit} /> Coins
                                                 </span>
                                                 <Tooltip
                                                     type="hover"
@@ -700,7 +704,9 @@ function Flipper(props: Props) {
                                                     }
                                                 />
                                             </li>
-                                            <li>Missed Flips: {numberWithThousandsSeparators(missedInfo.missedFlipsCount)}</li>
+                                            <li>
+                                                Missed Flips: <Number number={missedInfo.missedFlipsCount} />
+                                            </li>
                                         </ul>
                                     </Card.Body>
                                 </Card>

@@ -43,7 +43,6 @@ function ItemFilter(props: Props) {
 
     useEffect(() => {
         initFilter()
-        console.log(props.filters)
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {

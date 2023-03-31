@@ -25,6 +25,7 @@ import styles from './AuctionDetails.module.css'
 import { Help as HelpIcon, ArrowDropDown as ArrowDownIcon, ArrowRight as ArrowRightIcon } from '@mui/icons-material'
 import { FilterChecker } from '../FilterChecker/FilterChecker'
 import Image from 'next/image'
+import { Number } from '../Number/Number'
 
 interface Props {
     auctionUUID: string
@@ -192,8 +193,8 @@ function AuctionDetails(props: Props) {
             return <Tooltip type="hover" content={<span>{hexSplits.join('')}</span>} tooltipContent={value} />
         }
 
-        if (!isNaN(value) && Number.isInteger(parseInt(value, 10))) {
-            return numberWithThousandsSeparators(value)
+        if (!isNaN(value)) {
+            return <Number number={value} />
         }
 
         let index = tagNbt.findIndex(tag => tag === key)
@@ -233,7 +234,7 @@ function AuctionDetails(props: Props) {
                 <Link href={'/item/' + auctionDetails.auction.item.tag} className="disableLinkStyle">
                     <h1>
                         <span className={styles.itemIcon}>
-                            <Image crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
+                            <Image crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height={48} width={48} alt="item icon" loading="lazy" />
                         </span>
                         <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
                             <span style={{ marginRight: '10px' }}>
@@ -352,6 +353,7 @@ function AuctionDetails(props: Props) {
                             src={auctionDetails?.auctioneer.iconUrl}
                             alt="auctioneer icon"
                             height="16"
+                            width="16"
                             style={{ marginLeft: '5px' }}
                             loading="lazy"
                         />
@@ -408,11 +410,14 @@ function AuctionDetails(props: Props) {
                                 className="playerHeadIcon"
                                 src={bid.bidder.iconUrl}
                                 height="64"
+                                width="64"
                                 alt="bidder minecraft icon"
                                 style={{ marginRight: '15px', float: 'left' }}
                                 loading="lazy"
                             />
-                            <h6 style={headingStyle}>{numberWithThousandsSeparators(bid.amount)} Coins</h6>
+                            <h6 style={headingStyle}>
+                                <Number number={bid.amount} /> Coins
+                            </h6>
                             <span>{bid.bidder.name}</span>
                             <br />
                             <span>{moment(bid.timestamp).fromNow()}</span>
@@ -441,7 +446,13 @@ function AuctionDetails(props: Props) {
                         <Card className={styles.auctionCard}>
                             <Card.Header>
                                 <h2>Bids</h2>
-                                {auctionDetails ? <h6>Starting bid: {numberWithThousandsSeparators(auctionDetails?.auction.startingBid)} Coins</h6> : ''}
+                                {auctionDetails ? (
+                                    <h6>
+                                        Starting bid: <Number number={auctionDetails?.auction.startingBid} /> Coins
+                                    </h6>
+                                ) : (
+                                    ''
+                                )}
                             </Card.Header>
                             <Card.Body>
                                 <ListGroup>{bidList || getLoadingElement()}</ListGroup>

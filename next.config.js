@@ -14,7 +14,7 @@ module.exports = {
             },
             {
                 protocol: 'https',
-                hostname: 'sky.coflnet.com'
+                hostname: '**.coflnet.com'
             },
             {
                 protocol: 'https',

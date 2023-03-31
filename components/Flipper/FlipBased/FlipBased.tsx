@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Badge, Card } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
-import { numberWithThousandsSeparators } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
+import { Number } from '../../Number/Number'
 import styles from './FlipBased.module.css'
 
 interface Props {
@@ -43,7 +43,6 @@ function FlipBased(props: Props) {
             <div className={styles.cardWrapper} style={{ display: 'inline-block' }} key={auction.uuid}>
                 <span className="disableLinkStyle">
                     <Link href={`/auction/${auction.uuid}`} className="disableLinkStyle">
-
                         <Card className="card">
                             <Card.Header style={{ padding: '10px' }}>
                                 <p className="ellipsis" style={{ width: '180px' }}>
@@ -51,6 +50,7 @@ function FlipBased(props: Props) {
                                         crossOrigin="anonymous"
                                         src={props.item.iconUrl}
                                         height="32"
+                                        width="32"
                                         alt=""
                                         style={{ marginRight: '5px' }}
                                         loading="lazy"
@@ -62,7 +62,9 @@ function FlipBased(props: Props) {
                                 <div>
                                     <ul>
                                         <li>Ended {moment(auction.end).fromNow()}</li>
-                                        <li>{numberWithThousandsSeparators(auction.highestBid || auction.startingBid)} Coins</li>
+                                        <li>
+                                            <Number number={auction.highestBid || auction.startingBid} /> Coins
+                                        </li>
                                         {auction.bin ? (
                                             <li>
                                                 <Badge style={{ marginLeft: '5px' }} bg="success">
@@ -76,11 +78,10 @@ function FlipBased(props: Props) {
                                 </div>
                             </Card.Body>
                         </Card>
-
                     </Link>
                 </span>
             </div>
-        );
+        )
     })
 
     return (

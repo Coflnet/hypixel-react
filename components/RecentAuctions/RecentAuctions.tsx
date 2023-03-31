@@ -5,13 +5,13 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
-import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useStateWithRef } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import { Number } from '../Number/Number'
 import styles from './RecentAuctions.module.css'
 
 interface Props {
@@ -34,7 +34,7 @@ let mounted = true
 
 function RecentAuctions(props: Props) {
     let [recentAuctions, setRecentAuctions, recentAuctionsRef] = useStateWithRef<RecentAuction[]>([])
-    let [isSSR, setIsSSR] = useState(!isClientSideRendering())
+    let [isSSR, setIsSSR] = useState(true)
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [premiumType, setPremiumType] = useState<PremiumType>(null)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -105,6 +105,7 @@ function RecentAuctions(props: Props) {
             if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
                 return
             }
+            currentLoadingString = null
             if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
                 setAllElementsLoaded(true)
             }
@@ -140,7 +141,7 @@ function RecentAuctions(props: Props) {
 
     let recentAuctionList = recentAuctions.map(recentAuction => {
         return (
-            <div className={styles.cardWrapper}>
+            <div key={recentAuction.uuid} className={styles.cardWrapper}>
                 <span className="disableLinkStyle">
                     <Link href={`/auction/${recentAuction.uuid}`} className="disableLinkStyle">
                         <Card className="card">
@@ -151,12 +152,15 @@ function RecentAuctions(props: Props) {
                                         className="playerHeadIcon"
                                         src={props.item.iconUrl}
                                         height="32"
+                                        width="32"
                                         alt=""
                                         style={{ marginRight: '5px' }}
                                         loading="lazy"
                                     />
                                 </div>
-                                <div>{numberWithThousandsSeparators(recentAuction.price)} Coins</div>
+                                <div>
+                                    <Number number={recentAuction.price} /> Coins
+                                </div>
                             </Card.Header>
                             <Card.Body style={{ padding: '10px' }}>
                                 <Image
@@ -166,6 +170,7 @@ function RecentAuctions(props: Props) {
                                     src={recentAuction.seller.iconUrl}
                                     alt=""
                                     height="24"
+                                    width="24"
                                     loading="lazy"
                                 />
                                 <span>{recentAuction.playerName}</span>

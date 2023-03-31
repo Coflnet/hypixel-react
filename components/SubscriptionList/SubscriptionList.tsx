@@ -11,6 +11,7 @@ import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
+import { Number } from '../Number/Number'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import styles from './SubscriptionList.module.css'
 
@@ -76,7 +77,10 @@ function SubscriptionList() {
                             result =
                                 price > 0 ? (
                                     <li key="2">
-                                        Notify if price is higher than <b>{numberWithThousandsSeparators(price)} Coins</b>
+                                        Notify if price is higher than{' '}
+                                        <b>
+                                            <Number number={price} /> Coins
+                                        </b>
                                     </li>
                                 ) : (
                                     <li key="2">Any price</li>
@@ -85,7 +89,10 @@ function SubscriptionList() {
                         case SubscriptionType.PRICE_LOWER_THAN.toString():
                             result = (
                                 <li key="3">
-                                    Notify if price is lower than <b>{numberWithThousandsSeparators(price)} Coins</b>
+                                    Notify if price is lower than{' '}
+                                    <b>
+                                        <Number number={price} /> Coins
+                                    </b>
                                 </li>
                             )
                             break
@@ -193,19 +200,19 @@ function SubscriptionList() {
                     <Link href={'/item/' + subscription.topicId} className="disableLinkStyle">
                         {subscription.title}
                     </Link>
-                );
+                )
             case 'player':
                 return (
                     <Link href={'/player/' + subscription.topicId} className="disableLinkStyle">
                         {subscription.title}
                     </Link>
-                );
+                )
             case 'auction':
                 return (
                     <Link href={'/auction/' + subscription.topicId} className="disableLinkStyle">
                         {subscription.title}
                     </Link>
-                );
+                )
             default:
                 return subscription.title
         }

@@ -5,12 +5,12 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { numberWithThousandsSeparators } from '../../../utils/Formatter'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { getURLSearchParam } from '../../../utils/Parser/URLParser'
 import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE } from '../../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { Number } from '../../Number/Number'
 import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
 import styles from './BazaarPriceGraph.module.css'
@@ -381,10 +381,24 @@ function BazaarPriceGraph(props: Props) {
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
-                        <b>Avg Sell Price:</b> {isLoading ? '-' : numberWithThousandsSeparators(+avgSellPrice.toFixed(1)) + ' Coins'}
+                        <b>Avg Sell Price:</b>{' '}
+                        {isLoading ? (
+                            '-'
+                        ) : (
+                            <span>
+                                <Number number={+avgSellPrice.toFixed(1)} /> Coins
+                            </span>
+                        )}
                     </span>
                     <span className={styles.avgPrice}>
-                        <b>Avg Buy Price:</b> {isLoading ? '-' : numberWithThousandsSeparators(+avgBuyPrice.toFixed(1)) + ' Coins'}
+                        <b>Avg Buy Price:</b>{' '}
+                        {isLoading ? (
+                            '-'
+                        ) : (
+                            <span>
+                                <Number number={+avgBuyPrice.toFixed(1)} /> Coins
+                            </span>
+                        )}
                     </span>
                     <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
                         {!isSSR ? (
