@@ -453,10 +453,20 @@ function FlipRestrictionList(props: Props) {
                                             changeRestrictionType(restriction, newValue)
                                         }}
                                     >
-                                        <ToggleButton value={'blacklist'} variant={restriction.type === 'blacklist' ? 'primary' : 'secondary'} size="sm">
+                                        <ToggleButton
+                                            id="blacklistToggleButton"
+                                            value={'blacklist'}
+                                            variant={restriction.type === 'blacklist' ? 'primary' : 'secondary'}
+                                            size="sm"
+                                        >
                                             Blacklist
                                         </ToggleButton>
-                                        <ToggleButton value={'whitelist'} variant={restriction.type === 'whitelist' ? 'primary' : 'secondary'} size="sm">
+                                        <ToggleButton
+                                            id="whitelistToggleButton"
+                                            value={'whitelist'}
+                                            variant={restriction.type === 'whitelist' ? 'primary' : 'secondary'}
+                                            size="sm"
+                                        >
                                             Whitelist
                                         </ToggleButton>
                                     </ToggleButtonGroup>

@@ -70,7 +70,7 @@ function PlayerDetails(props: Props) {
     }
 
     let getButtonVariant = (type: DetailType): string => {
-        return type === detailType ? 'primary' : 'light'
+        return type === detailType ? 'primary' : 'secondary'
     }
 
     let setDetailType = (type: DetailType) => {

@@ -3,7 +3,7 @@ import FilterIcon from '@mui/icons-material/BallotOutlined'
 import SettingsIcon from '@mui/icons-material/Settings'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
-import { NumericFormat } from 'react-number-format';
+import { NumericFormat } from 'react-number-format'
 import { v4 as generateUUID } from 'uuid'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
@@ -118,6 +118,7 @@ function FlipperFilter(props: Props) {
                 setShowRestrictionList(false)
             }}
             scrollable={true}
+            contentClassName={styles.restrictionListContent}
         >
             <Modal.Header closeButton>
                 <Modal.Title>Restrict the flip results</Modal.Title>

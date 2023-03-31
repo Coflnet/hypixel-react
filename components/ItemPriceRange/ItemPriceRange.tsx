@@ -130,6 +130,7 @@ export function ItemPriceRange(props: Props) {
                 }
                 return (
                     <ToggleButton
+                        id={key}
                         className="price-range-button"
                         value={dateRange}
                         variant={getButtonVariant(dateRange)}

@@ -131,7 +131,7 @@ function BuyPremium(props: Props) {
                                     onChange={onPremiumTypeChange}
                                 >
                                     {PREMIUM_TYPES.map(premiumType => (
-                                        <ToggleButton value={premiumType.productId} className="price-range-button" size="sm">
+                                        <ToggleButton id={premiumType.productId} value={premiumType.productId} className="price-range-button" size="sm">
                                             {premiumType.label}
                                         </ToggleButton>
                                     ))}
