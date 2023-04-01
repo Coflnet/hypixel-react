@@ -91,6 +91,7 @@ function FilterElement(props: Props) {
             return false
         }
         if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
+            // TODO: Validation for custom number formats (like 2m or 1m-2m)
             let v = parseInt(value)
             let lowEnd = parseInt(props.options.options[0])
             let highEnd = parseInt(props.options.options[1])
