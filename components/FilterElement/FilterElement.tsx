@@ -84,6 +84,10 @@ function FilterElement(props: Props) {
         _setValue(parseValue(value))
     }
 
+    function isValidNumber(number: string) {
+        return new RegExp(/\d+[kKmMbB]?/).test(number)
+    }
+
     function validate(value?: any) {
         if (!value && value !== 0) {
             setErrorText('Please fill the filter or remove it')
