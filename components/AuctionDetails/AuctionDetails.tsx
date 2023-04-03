@@ -42,7 +42,7 @@ function AuctionDetails(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if (!props.auctionUUID || !props.auctionDetails) {
+        if (!props.auctionUUID) {
             return
         }
         loadAuctionDetails(props.auctionUUID!)
@@ -50,7 +50,10 @@ function AuctionDetails(props: Props) {
 
     let tryNumber = 1
     function loadAuctionDetails(auctionUUID: string) {
-        setIsLoading(true)
+        // if auction details are already available, don't show loading animation to prevent flickering
+        if (!auctionDetails) {
+            setIsLoading(true)
+        }
         api.getAuctionDetails(auctionUUID)
             .then(result => {
                 setUnparsedAuctionDetails(result.original)
@@ -127,7 +130,7 @@ function AuctionDetails(props: Props) {
                                 <span className={styles.label}>
                                     <Badge bg={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
                                 </span>
-                                <div className="ellipse">{formatNBTValue(key, currentNBT)}</div>
+                                <span className="ellipse">{formatNBTValue(key, currentNBT)}</span>
                             </p>
                         </div>
                     )

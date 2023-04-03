@@ -82,7 +82,7 @@ function AuctionDetailsPage(props: Props) {
                 <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} />
             </Container>
         </div>
-    );
+    )
 }
 
 export const getServerSideProps = async ({ res, params }) => {
