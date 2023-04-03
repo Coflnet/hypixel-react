@@ -14,6 +14,8 @@ import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { SSRProvider } from 'react-bootstrap'
 import { ProSidebarProvider } from 'react-pro-sidebar'
+import { NextAdapter } from 'next-query-params'
+import { QueryParamProvider } from 'use-query-params'
 
 interface ErrorLog {
     error: ErrorEvent
@@ -62,14 +64,16 @@ function MyApp({ Component, pageProps }) {
             <SSRProvider>
                 <Script async={true} src={'/preScript.js'} />
                 <MatomoProvider value={matomoTrackingInstance}>
-                    <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
-                        <ProSidebarProvider>
-                            <MainApp>
-                                <NextNProgress />
-                                <Component {...pageProps} />
-                            </MainApp>
-                        </ProSidebarProvider>
-                    </GoogleOAuthProvider>
+                    <QueryParamProvider adapter={NextAdapter}>
+                        <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
+                            <ProSidebarProvider>
+                                <MainApp>
+                                    <NextNProgress />
+                                    <Component {...pageProps} />
+                                </MainApp>
+                            </ProSidebarProvider>
+                        </GoogleOAuthProvider>
+                    </QueryParamProvider>
                 </MatomoProvider>
             </SSRProvider>
         </>

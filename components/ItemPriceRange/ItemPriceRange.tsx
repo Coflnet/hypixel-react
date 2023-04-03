@@ -1,9 +1,10 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { getURLSearchParam } from '../../utils/Parser/URLParser'
 import styles from './ItemPriceRange.module.css'
+import { StringParam, useQueryParam, withDefault } from 'use-query-params'
 
 export enum DateRange {
     ACTIVE = 'active',
@@ -29,7 +30,7 @@ export function ItemPriceRange(props: Props) {
     const { trackEvent } = useMatomo()
 
     let router = useRouter()
-    let [selectedDateRange, setSelectedDateRange] = useState(DEFAULT_DATE_RANGE)
+    let [selectedDateRange, setSelectedDateRange] = useQueryParam('range', withDefault(StringParam, DEFAULT_DATE_RANGE))
 
     if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
         setSelectedDateRange(DateRange.MONTH)
@@ -89,9 +90,6 @@ export function ItemPriceRange(props: Props) {
     }
 
     let onRangeChange = (newRange: DateRange) => {
-        router.query.range = newRange
-        router.replace(router)
-
         setSelectedDateRange(newRange)
         if (props.onRangeChange) {
             props.onRangeChange(newRange)
