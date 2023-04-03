@@ -24,6 +24,7 @@ interface Props {
     autoSelect?: boolean
     defaultFilter?: ItemFilter
     disableLastUsedFilter?: boolean
+    onIsValidChange?(newIsValid: boolean)
 }
 
 const groupedFilter = [
@@ -36,6 +37,7 @@ function ItemFilter(props: Props) {
     let [expanded, setExpanded] = useState(props.forceOpen || false)
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
+    let [invalidFilters, setInvalidFilters] = useState<string[]>([])
 
     let typeaheadRef = useRef(null)
 
@@ -218,6 +220,23 @@ function ItemFilter(props: Props) {
         onFilterChange(newFilter)
     }
 
+    function onIsValidChange(filterName: string, newIsValid: boolean) {
+        let newInvalidFilters = [...invalidFilters]
+        if (newIsValid) {
+            let index = invalidFilters.indexOf(filterName)
+            if (index !== -1) {
+                newInvalidFilters.splice(index, 1)
+                setInvalidFilters(newInvalidFilters)
+            }
+        } else {
+            newInvalidFilters.push(filterName)
+            setInvalidFilters(newInvalidFilters)
+        }
+        if (props.onIsValidChange) {
+            props.onIsValidChange(newInvalidFilters.length === 0)
+        }
+    }
+
     function getDefaultValue(filterName: string): string {
         let options = props.filters?.find(f => f.name === filterName)
         let defaultValue: any = ''
@@ -245,7 +264,12 @@ function ItemFilter(props: Props) {
         }
         return (
             <div key={filterName} className={styles.filterElement}>
-                <FilterElement onFilterChange={onFilterElementChange} options={options} defaultValue={defaultValue} />
+                <FilterElement
+                    onFilterChange={onFilterElementChange}
+                    options={options}
+                    defaultValue={defaultValue}
+                    onIsValidChange={newValue => onIsValidChange(filterName, newValue)}
+                />
                 <div className={styles.removeFilter} onClick={() => onFilterRemoveClick(filterName)}>
                     <DeleteIcon color="error" />
                 </div>

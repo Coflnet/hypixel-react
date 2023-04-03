@@ -42,6 +42,7 @@ function SubscribeButton(props: Props) {
     let [isPlayerAuctionCreation, setIsPlayerAuctionCreation] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [itemFilter, setItemFilter] = useState<ItemFilter>(props.prefill?.filter)
+    let [isItemFilterValid, setIsItemFilterValid] = useState(true)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     function onSubscribe() {
@@ -156,6 +157,7 @@ function SubscribeButton(props: Props) {
                                 onOnlyInstantBuyChange={setOnlyInstantBuy}
                                 onPriceChange={setPrice}
                                 prefill={props.prefill}
+                                onIsFilterValidChange={setIsItemFilterValid}
                             />
                         ) : null}
                         {props.type === 'player' ? (
@@ -167,7 +169,7 @@ function SubscribeButton(props: Props) {
                             />
                         ) : null}
                         {props.type === 'auction' ? <SubscribeAuctionContent /> : null}
-                        <Button onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">
+                        <Button onClick={onSubscribe} disabled={isNotifyDisabled() || !isItemFilterValid} className="notifyButton">
                             {props.popupButtonText || 'Notify me'}
                         </Button>
                         {itemFilter && Object.keys(itemFilter).length > MAX_FILTERS ? (

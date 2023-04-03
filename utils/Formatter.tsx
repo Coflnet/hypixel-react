@@ -175,8 +175,12 @@ export function getNumberFromShortenString(shortString?: string): number | undef
     }
     let val = [
         { value: 1e12, suffix: 'T' },
+        { value: 1e12, suffix: 't' },
         { value: 1e9, suffix: 'B' },
+        { value: 1e9, suffix: 'b' },
         { value: 1e6, suffix: 'M' },
+        { value: 1e6, suffix: 'm' },
+        { value: 1e3, suffix: 'K' },
         { value: 1e3, suffix: 'k' },
         { value: 1, suffix: '' }
     ].find(val => shortString.includes(val.suffix))
@@ -276,7 +280,11 @@ export function getMinecraftColorCodedElement(text: string, autoFormat = true): 
         }
         let code = split.substring(0, 1)
         let text = autoFormat ? convertTagToName(split.substring(1, split.length)) : split.substring(1, split.length)
-        elements.push(<span key={i} style={styleMap[code]}>{text}</span>)
+        elements.push(
+            <span key={i} style={styleMap[code]}>
+                {text}
+            </span>
+        )
     })
 
     return <span>{elements}</span>
