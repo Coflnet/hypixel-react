@@ -186,7 +186,7 @@ function PlayerDetails(props: Props) {
                 ) : undefined}
             </Container>
         </div>
-    );
+    )
 }
 
 export const getServerSideProps = async ({ res, params }) => {
@@ -201,7 +201,12 @@ export const getServerSideProps = async ({ res, params }) => {
             notFound: true
         }
     }
-    let auctions = await api.getAuctions(params.uuid, 0)
+    let auctions = []
+    try {
+        await api.getAuctions(params.uuid, 0)
+    } catch {
+        console.error('Error loading player auctions for player ' + params.uuid)
+    }
     return {
         props: {
             auctions: auctions,
