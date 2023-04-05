@@ -82,7 +82,7 @@ function AuctionDetailsPage(props: Props) {
                 <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} />
             </Container>
         </div>
-    );
+    )
 }
 
 export const getServerSideProps = async ({ res, params }) => {
@@ -135,7 +135,7 @@ export const getServerSideProps = async ({ res, params }) => {
                         uuid: bid.bidder
                     }
                     bid.bidder = newBidder
-                    console.log(`No username for player ${bid.bidder}`)
+                    console.log(`No username for player ${JSON.stringify(bid.bidder)}`)
                     console.log('------------------------\n')
                 })
             namePromises.push(promise)

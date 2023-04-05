@@ -349,13 +349,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         return
                     }
                     if (!auctionDetails.auctioneer) {
-                        api.getPlayerName(auctionDetails.auctioneerId).then(name => {
-                            auctionDetails.auctioneer = {
-                                name,
-                                uuid: auctionDetails.auctioneerId
-                            }
-                            resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
-                        })
+                        api.getPlayerName(auctionDetails.auctioneerId)
+                            .then(name => {
+                                auctionDetails.auctioneer = {
+                                    name,
+                                    uuid: auctionDetails.auctioneerId
+                                }
+                            })
+                            .catch(e => {
+                                console.error('error getting playername for ' + auctionDetails.auctioneerId)
+                                auctionDetails.auctioneer = {
+                                    name: '',
+                                    uuid: auctionDetails.auctioneerId
+                                }
+                            })
+                            .finally(() => {
+                                resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
+                            })
                     } else {
                         resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
                     }

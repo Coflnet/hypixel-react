@@ -7,14 +7,13 @@ import FilterElement from '../FilterElement/FilterElement'
 import DeleteIcon from '@mui/icons-material/Delete'
 import HelpIcon from '@mui/icons-material/Help'
 import AddIcon from '@mui/icons-material/AddCircleOutline'
-
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
-import { useRouter } from 'next/router'
 import { btoaUnicode } from '../../utils/Base64Utils'
 import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
+import { useQueryParam } from 'use-query-params'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -37,14 +36,15 @@ function ItemFilter(props: Props) {
     let [expanded, setExpanded] = useState(props.forceOpen || false)
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
+    let [urlFilterString, setUrlFilterString] = useQueryParam('itemFilter')
     let [invalidFilters, setInvalidFilters] = useState<string[]>([])
 
     let typeaheadRef = useRef(null)
 
-    let router = useRouter()
-
     useEffect(() => {
-        initFilter()
+        if (props.filters && props.filters.length > 0) {
+            initFilter()
+        }
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
@@ -165,9 +165,7 @@ function ItemFilter(props: Props) {
         }
 
         let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoaUnicode(JSON.stringify(filter))
-
-        router.query.itemFilter = filterString || ''
-        router.replace(router.asPath, undefined, { shallow: true })
+        setUrlFilterString(filterString || '')
     }
 
     function onFilterChange(filter: ItemFilter) {

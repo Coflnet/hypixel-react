@@ -656,9 +656,7 @@ function Flipper(props: Props) {
                         </Card.Body>
                     </Card>
                 </div>
-            ) : (
-                ''
-            )}
+            ) : null}
             <div>
                 <hr />
                 <Card>
