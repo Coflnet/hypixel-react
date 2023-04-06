@@ -408,7 +408,6 @@ function FlipCustomize() {
                         styles={customSelectStyle}
                         onChange={onFindersChange}
                         closeMenuOnSelect={false}
-                        components={{ MultiValueContainer }}
                     />
                     {getFlipFinderWarningElement()}
                 </div>
