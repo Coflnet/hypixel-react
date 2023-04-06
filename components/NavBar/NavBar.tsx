@@ -143,40 +143,41 @@ function NavBar(props: Props) {
                         </div>
                         <hr />
                         <Menu>
-                            <MenuItem component={<Link href={'/'} />} icon={<HomeIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/'} />} icon={<HomeIcon />}>
                                 Home
                             </MenuItem>
-                            <MenuItem component={<Link href={'/flipper'} />} icon={<StorefrontIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/flipper'} />} icon={<StorefrontIcon />}>
                                 Item Flipper
                             </MenuItem>
-                            <MenuItem component={<Link href={'/account'} />} icon={<AccountIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/account'} />} icon={<AccountIcon />}>
                                 Account
                             </MenuItem>
-                            <MenuItem component={<Link href={'/subscriptions'} />} icon={<NotificationIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/subscriptions'} />} icon={<NotificationIcon />}>
                                 Notifier
                             </MenuItem>
-                            <MenuItem component={<Link href={'/crafts'} />} icon={<BuildIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/crafts'} />} icon={<BuildIcon />}>
                                 Profitable Crafts
                             </MenuItem>
-                            <MenuItem component={<Link href={'/premium'} />} icon={<AccountBalanceIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/premium'} />} icon={<AccountBalanceIcon />}>
                                 Premium / Shop
                             </MenuItem>
-                            <MenuItem component={<Link href={'/kat'} />} icon={<PetsIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/kat'} />} icon={<PetsIcon />}>
                                 Kat Flips
                             </MenuItem>
-                            <MenuItem component={<Link href={'/mod'} />} icon={<DownloadIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/mod'} />} icon={<DownloadIcon />}>
                                 Mod
                             </MenuItem>
-                            <MenuItem component={<Link href={'/ref'} />} icon={<ShareIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/ref'} />} icon={<ShareIcon />}>
                                 Referral
                             </MenuItem>
-                            <MenuItem component={<Link href={'/about'} />} icon={<PolicyIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/about'} />} icon={<PolicyIcon />}>
                                 Links / Legal
                             </MenuItem>
-                            <MenuItem component={<Link href={'/feedback'} />} icon={<ChatIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/feedback'} />} icon={<ChatIcon />}>
                                 Feedback
                             </MenuItem>
                             <MenuItem
+                                className={styles.menuItem}
                                 component={<Link href={'https://discord.gg/wvKXfTgCfb'} target="_blank" />}
                                 rel="noreferrer"
                                 icon={<Image src="/discord_icon.svg" alt="Discord icon" height={24} width={32} />}
