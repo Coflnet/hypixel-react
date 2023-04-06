@@ -140,7 +140,7 @@ function Premium() {
                         </Modal>
                     </h2>
                     {!cancellationRightLossConfirmed ? (
-                        <p>
+                        <div style={{ paddingBottom: '15px' }}>
                             <Form.Check
                                 id={'cancellationRightCheckbox'}
                                 className={styles.cancellationRightCheckbox}
@@ -149,12 +149,13 @@ function Premium() {
                                     localStorage.setItem(CANCELLATION_RIGHT_CONFIRMED, e.target.checked.toString())
                                     setCancellationRightLossConfirmed(e.target.checked)
                                 }}
+                                inline
                             />
                             <label htmlFor={'cancellationRightCheckbox'}>
                                 By buying one of the following products, you confirm the immediate execution of the contract, hereby losing your cancellation
                                 right.
                             </label>
-                        </p>
+                        </div>
                     ) : null}
                     <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
                 </div>

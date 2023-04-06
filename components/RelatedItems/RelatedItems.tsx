@@ -6,6 +6,7 @@ import { getSetting, HIDE_RELATED_ITEMS, setSetting } from '../../utils/Settings
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import styles from './RelatedItems.module.css'
+import Image from 'next/image'
 
 interface Props {
     tag: string
@@ -31,54 +32,53 @@ function RelatedItems(props: Props) {
         return null
     }
 
-    return (
-        <>
-            {!hide ? (
-                <div style={{ paddingBottom: '25px' }}>
-                    <h3>
-                        Similar items
-                        <span className={styles.hideIcon} title="Hide similar items" onClick={toggleHide}>
-                            <VisibilityOff />
-                        </span>
-                    </h3>
-                    <div className={styles.cardsWrapper}>
-                        {relatedItems.map(item => (
-                            <div className={`${styles.cardWrapper} disableLinkStyle`} style={{ padding: '15px 15px 15px 15px' }} key={item.tag}>
-                                <Link href={`/item/${item.tag}`}>
-                                    <a className="disableLinkStyle">
-                                        <Card>
-                                            <Card.Header style={{ height: '100%', padding: '20px' }}>
-                                                <Card.Title className={styles.ellipsis}>
-                                                    <div className="ellipse">
-                                                        <img
-                                                            crossOrigin="anonymous"
-                                                            src={item.iconUrl}
-                                                            height="32"
-                                                            alt=""
-                                                            style={{ marginRight: '5px', float: 'left' }}
-                                                            loading="lazy"
-                                                        />
-                                                        <span title={item.name}>{item.name}</span>
-                                                    </div>
-                                                </Card.Title>
-                                            </Card.Header>
-                                        </Card>
-                                    </a>
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ) : (
-                <p style={{ cursor: 'pointer' }} onClick={toggleHide}>
-                    Show similar items{' '}
-                    <span className={styles.hideIcon} title="Show similar items" onClick={toggleHide}>
-                        <Visibility />
+    return <>
+        {!hide ? (
+            <div style={{ paddingBottom: '25px' }}>
+                <h3>
+                    Similar items
+                    <span className={styles.hideIcon} title="Hide similar items" onClick={toggleHide}>
+                        <VisibilityOff />
                     </span>
-                </p>
-            )}
-        </>
-    )
+                </h3>
+                <div className={styles.cardsWrapper}>
+                    {relatedItems.map(item => (
+                        <div className={`${styles.cardWrapper} disableLinkStyle`} style={{ padding: '15px 15px 15px 15px' }} key={item.tag}>
+                            <Link href={`/item/${item.tag}`} className="disableLinkStyle">
+
+                                <Card>
+                                    <Card.Header style={{ height: '100%', padding: '20px' }}>
+                                        <Card.Title className={styles.ellipsis}>
+                                            <div className="ellipse">
+                                                <Image
+                                                    crossOrigin="anonymous"
+                                                    src={item.iconUrl}
+                                                    height="32"
+                                                    width="32"
+                                                    alt=""
+                                                    style={{ marginRight: '5px', float: 'left' }}
+                                                    loading="lazy"
+                                                />
+                                                <span title={item.name}>{item.name}</span>
+                                            </div>
+                                        </Card.Title>
+                                    </Card.Header>
+                                </Card>
+
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        ) : (
+            <p style={{ cursor: 'pointer' }} onClick={toggleHide}>
+                Show similar items{' '}
+                <span className={styles.hideIcon} title="Show similar items" onClick={toggleHide}>
+                    <Visibility />
+                </span>
+            </p>
+        )}
+    </>;
 }
 
 export default RelatedItems

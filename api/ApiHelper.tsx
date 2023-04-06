@@ -30,7 +30,6 @@ import {
     parseProfitableCraft,
     parseRecentAuction,
     parseRefInfo,
-    parseReforge,
     parseSearchResultItem,
     parseSkyblockProfile,
     parseSubscription
@@ -324,33 +323,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getReforges = (): Promise<Reforge[]> => {
-        return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
-                type: RequestType.ALL_REFORGES,
-                data: '',
-                resolve: (reforges: any) => {
-                    let parsedReforges: Reforge[] = reforges.map(reforge => {
-                        return parseReforge({
-                            name: reforge.label,
-                            id: reforge.id
-                        })
-                    })
-                    parsedReforges = parsedReforges
-                        .filter(reforge => {
-                            return reforge.name!.toLowerCase() !== 'unknown'
-                        })
-                        .sort(enchantmentAndReforgeCompare)
-                    resolve(parsedReforges)
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, '')
-                    reject()
-                }
-            })
-        })
-    }
-
     let trackSearch = (fullSearchId: string, fullSearchType: string): void => {
         let requestData = {
             id: fullSearchId,
@@ -377,13 +349,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         return
                     }
                     if (!auctionDetails.auctioneer) {
-                        api.getPlayerName(auctionDetails.auctioneerId).then(name => {
-                            auctionDetails.auctioneer = {
-                                name,
-                                uuid: auctionDetails.auctioneerId
-                            }
-                            resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
-                        })
+                        api.getPlayerName(auctionDetails.auctioneerId)
+                            .then(name => {
+                                auctionDetails.auctioneer = {
+                                    name,
+                                    uuid: auctionDetails.auctioneerId
+                                }
+                            })
+                            .catch(e => {
+                                console.error('error getting playername for ' + auctionDetails.auctioneerId)
+                                auctionDetails.auctioneer = {
+                                    name: '',
+                                    uuid: auctionDetails.auctioneerId
+                                }
+                            })
+                            .finally(() => {
+                                resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
+                            })
                     } else {
                         resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
                     }
@@ -1675,7 +1657,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     let refreshLoadPremiumProducts = (callback: (products: PremiumProduct[]) => void) => {
         let lastPremiumProducts = localStorage.getItem(LAST_PREMIUM_PRODUCTS)
         if (lastPremiumProducts) {
-            callback(parsePremiumProducts(JSON.parse(lastPremiumProducts)))
+            try {
+                callback(parsePremiumProducts(JSON.parse(lastPremiumProducts)))
+            } catch {
+                callback([])
+            }
         }
         getPremiumProducts().then(prodcuts => {
             callback(prodcuts)
@@ -1770,7 +1756,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getAuctions,
         getBids,
         getEnchantments,
-        getReforges,
         getAuctionDetails,
         getItemImageUrl,
         getPlayerName,

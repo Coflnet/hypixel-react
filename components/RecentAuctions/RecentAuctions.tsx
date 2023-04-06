@@ -1,16 +1,17 @@
 import moment from 'moment'
+import Image from 'next/image'
 import Link from 'next/link'
 import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
-import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useStateWithRef } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import { Number } from '../Number/Number'
 import styles from './RecentAuctions.module.css'
 
 interface Props {
@@ -33,7 +34,7 @@ let mounted = true
 
 function RecentAuctions(props: Props) {
     let [recentAuctions, setRecentAuctions, recentAuctionsRef] = useStateWithRef<RecentAuction[]>([])
-    let [isSSR, setIsSSR] = useState(!isClientSideRendering())
+    let [isSSR, setIsSSR] = useState(true)
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [premiumType, setPremiumType] = useState<PremiumType>(null)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -104,6 +105,7 @@ function RecentAuctions(props: Props) {
             if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
                 return
             }
+            currentLoadingString = null
             if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
                 setAllElementsLoaded(true)
             }
@@ -111,7 +113,7 @@ function RecentAuctions(props: Props) {
         })
     }
 
-    function onFetchTypeChange(e: ChangeEvent<HTMLInputElement>) {
+    function onFetchTypeChange(e: ChangeEvent<HTMLSelectElement>) {
         localStorage.setItem(RECENT_AUCTIONS_FETCH_TYPE_KEY, e.target.value)
         loadRecentAuctions(true)
     }
@@ -139,41 +141,43 @@ function RecentAuctions(props: Props) {
 
     let recentAuctionList = recentAuctions.map(recentAuction => {
         return (
-            <div className={styles.cardWrapper}>
+            <div key={recentAuction.uuid} className={styles.cardWrapper}>
                 <span className="disableLinkStyle">
-                    <Link href={`/auction/${recentAuction.uuid}`}>
-                        <a className="disableLinkStyle">
-                            <Card className="card">
-                                <Card.Header style={{ padding: '10px' }}>
-                                    <div style={{ float: 'left' }}>
-                                        <img
-                                            crossOrigin="anonymous"
-                                            className="playerHeadIcon"
-                                            src={props.item.iconUrl}
-                                            height="32"
-                                            alt=""
-                                            style={{ marginRight: '5px' }}
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                    <div>{numberWithThousandsSeparators(recentAuction.price)} Coins</div>
-                                </Card.Header>
-                                <Card.Body style={{ padding: '10px' }}>
-                                    <img
-                                        style={{ marginRight: '15px' }}
+                    <Link href={`/auction/${recentAuction.uuid}`} className="disableLinkStyle">
+                        <Card className="card">
+                            <Card.Header style={{ padding: '10px' }}>
+                                <div style={{ float: 'left' }}>
+                                    <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
-                                        src={recentAuction.seller.iconUrl}
+                                        src={props.item.iconUrl}
+                                        height="32"
+                                        width="32"
                                         alt=""
-                                        height="24"
+                                        style={{ marginRight: '5px' }}
                                         loading="lazy"
                                     />
-                                    <span>{recentAuction.playerName}</span>
-                                    <hr />
-                                    <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
-                                </Card.Body>
-                            </Card>
-                        </a>
+                                </div>
+                                <div>
+                                    <Number number={recentAuction.price} /> Coins
+                                </div>
+                            </Card.Header>
+                            <Card.Body style={{ padding: '10px' }}>
+                                <Image
+                                    style={{ marginRight: '15px' }}
+                                    crossOrigin="anonymous"
+                                    className="playerHeadIcon"
+                                    src={recentAuction.seller.iconUrl}
+                                    alt=""
+                                    height="24"
+                                    width="24"
+                                    loading="lazy"
+                                />
+                                <span>{recentAuction.playerName}</span>
+                                <hr />
+                                <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
+                            </Card.Body>
+                        </Card>
                     </Link>
                 </span>
             </div>
@@ -185,8 +189,7 @@ function RecentAuctions(props: Props) {
             <h3>
                 Recent auctions
                 {!isSSR ? (
-                    <Form.Control
-                        as="select"
+                    <Form.Select
                         defaultValue={localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY) || RECENT_AUCTIONS_FETCH_TYPE.SOLD}
                         className={styles.recentAuctionsFetchType}
                         onChange={onFetchTypeChange}
@@ -194,7 +197,7 @@ function RecentAuctions(props: Props) {
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.ALL}>ALL</option>
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.SOLD}>Sold</option>
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.UNSOLD}>Unsold</option>
-                    </Form.Control>
+                    </Form.Select>
                 ) : null}
             </h3>
             <div>
@@ -233,9 +236,7 @@ function RecentAuctions(props: Props) {
                 onAfterLogin,
                 <span>
                     You currently use Starter Premium. You can see up to 120 recent auctions with
-                    <Link href={'/premium'}>
-                        <a>Premium</a>
-                    </Link>
+                    <Link href={'/premium'}>Premium</Link>
                 </span>
             )}
         </div>

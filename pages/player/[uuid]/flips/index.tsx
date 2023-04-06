@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { Container } from 'react-bootstrap'
 import { initAPI } from '../../../../api/ApiHelper'
@@ -34,11 +35,12 @@ function Flipper(props: Props) {
                             <span style={{ fontSize: 'larger', marginRight: '20px' }}>Tracked flips of:</span>
                             <Link href={`/player/${player.uuid}`}>
                                 <span style={{ cursor: 'pointer' }}>
-                                    <img
+                                    <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
                                         src={player.iconUrl}
                                         height="32"
+                                        width="32"
                                         alt=""
                                         style={{ marginRight: '10px' }}
                                     />
@@ -51,7 +53,7 @@ function Flipper(props: Props) {
                 <FlipTracking totalProfit={flipTrackingResponse.totalProfit} trackedFlips={flipTrackingResponse.flips} />
             </Container>
         </div>
-    )
+    );
 }
 
 export const getServerSideProps = async ({ res, params }) => {

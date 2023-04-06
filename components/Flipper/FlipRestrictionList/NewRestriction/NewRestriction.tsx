@@ -30,10 +30,10 @@ function NewRestriction(props: Props) {
                 value={props.newRestriction.type}
                 onChange={props.onRestrictionTypeChange}
             >
-                <ToggleButton value={'blacklist'} variant={getButtonVariant('blacklist')} size="sm">
+                <ToggleButton id="newRestrictionWhitelistToggleButton" value={'blacklist'} variant={getButtonVariant('blacklist')} size="sm">
                     Blacklist
                 </ToggleButton>
-                <ToggleButton value={'whitelist'} variant={getButtonVariant('whitelist')} size="sm">
+                <ToggleButton id="newRestrictionBlacklistToggleButton" value={'whitelist'} variant={getButtonVariant('whitelist')} size="sm">
                     Whitelist
                 </ToggleButton>
             </ToggleButtonGroup>

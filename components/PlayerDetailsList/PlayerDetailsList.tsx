@@ -1,18 +1,20 @@
 import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
 import HelpIcon from '@mui/icons-material/Help'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, ListGroup } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
-import { convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { convertTagToName } from '../../utils/Formatter'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import ItemFilter from '../ItemFilter/ItemFilter'
+import { Number } from '../Number/Number'
 import Search from '../Search/Search'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import Tooltip from '../Tooltip/Tooltip'
@@ -173,18 +175,19 @@ function PlayerDetailsList(props: Props) {
     }
 
     let getCoinImage = () => {
-        return <img src="/Coin.png" height="35px" width="35px" alt="auction house logo" loading="lazy" />
+        return <Image src="/Coin.png" height={35} width={35} alt="auction house logo" loading="lazy" />
     }
 
     let getItemImageElement = (listElement: Auction | BidForList) => {
         return listElement.item.iconUrl ? (
-            <img
+            <Image
                 crossOrigin="anonymous"
                 className="auctionItemImage"
                 src={listElement.item.iconUrl}
                 style={{ marginRight: '10px' }}
                 alt="item icon"
                 height="48"
+                width="48"
                 onError={error => onImageLoadError(listElement, error)}
                 loading="lazy"
             />
@@ -241,7 +244,7 @@ function PlayerDetailsList(props: Props) {
                     <div className={styles.btnBottom}>
                         <Button
                             aria-label="up button"
-                            type="primary"
+                            variant="primary"
                             className={styles.upButton}
                             onClick={() => {
                                 window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -258,7 +261,7 @@ function PlayerDetailsList(props: Props) {
                         <SubscribeButton type="player" topic={props.player.uuid} />
                     </div>
                     <Button
-                        type="primary"
+                        variant="primary"
                         className={styles.btnBottom}
                         onClick={() => {
                             window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -275,44 +278,42 @@ function PlayerDetailsList(props: Props) {
         return (
             <ListGroup.Item action className={styles.listGroupItem} key={'listItem-' + i}>
                 <span key={listElement.uuid} className={`${styles.disableLinkStyle} ${styles.listItemLink}`}>
-                    <Link href={`/auction/${listElement.uuid}`}>
-                        <a className="disableLinkStyle">
-                            <div>
-                                <h4>
-                                    {getItemImageElement(listElement)}
-                                    {listElement.item.name || convertTagToName(listElement.item.tag)}
-                                    {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
-                                        <Badge variant="danger" style={{ marginLeft: '10px' }}>
-                                            Ended
-                                        </Badge>
-                                    ) : (
-                                        <Badge variant="info" style={{ marginLeft: '10px' }}>
-                                            Running
-                                        </Badge>
-                                    )}
-                                    {listElement.bin ? (
-                                        <Badge style={{ marginLeft: '5px' }} variant="success">
-                                            BIN
-                                        </Badge>
-                                    ) : (
-                                        ''
-                                    )}
-                                </h4>
-                                <p>
-                                    Highest Bid: {numberWithThousandsSeparators(listElement.highestBid)} {getCoinImage()}
-                                </p>
-                                {props.type === 'auctions' ? (
-                                    <p>
-                                        Starting Bid: {numberWithThousandsSeparators((listElement as Auction).startingBid)} {getCoinImage()}
-                                    </p>
+                    <Link href={`/auction/${listElement.uuid}`} className="disableLinkStyle">
+                        <div>
+                            <h4>
+                                {getItemImageElement(listElement)}
+                                {listElement.item.name || convertTagToName(listElement.item.tag)}
+                                {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
+                                    <Badge bg="danger" style={{ marginLeft: '10px' }}>
+                                        Ended
+                                    </Badge>
                                 ) : (
-                                    <p>
-                                        Highest Own: {numberWithThousandsSeparators((listElement as BidForList).highestOwn)} {getCoinImage()}
-                                    </p>
+                                    <Badge bg="info" style={{ marginLeft: '10px' }}>
+                                        Running
+                                    </Badge>
                                 )}
-                                <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
-                            </div>
-                        </a>
+                                {listElement.bin ? (
+                                    <Badge bg="success" style={{ marginLeft: '5px' }}>
+                                        BIN
+                                    </Badge>
+                                ) : (
+                                    ''
+                                )}
+                            </h4>
+                            <p>
+                                Highest Bid: <Number number={listElement.highestBid} /> {getCoinImage()}
+                            </p>
+                            {props.type === 'auctions' ? (
+                                <p>
+                                    Starting Bid: <Number number={(listElement as Auction).startingBid} /> {getCoinImage()}
+                                </p>
+                            ) : (
+                                <p>
+                                    Highest Own: <Number number={(listElement as BidForList).highestOwn} /> {getCoinImage()}
+                                </p>
+                            )}
+                            <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
+                        </div>
                     </Link>
                 </span>
             </ListGroup.Item>
@@ -381,7 +382,7 @@ function PlayerDetailsList(props: Props) {
             ) : null}
             {listElements.length === 0 && allElementsLoaded ? (
                 <div className={styles.noElementFound}>
-                    <img src="/Barrier.png" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
+                    <Image src="/Barrier.png" height="24" width="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />
                     <p>No {props.type} found</p>
                 </div>
             ) : (

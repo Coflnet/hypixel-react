@@ -69,16 +69,16 @@ function Refed() {
                             contact you in case we need to)
                         </p>
 
-                        <Link href="/">
-                            <a className="disableLinkStyle">
-                                <Button>Go to Main Page</Button>
-                            </a>
+                        <Link href="/" className="disableLinkStyle">
+
+                            <Button>Go to Main Page</Button>
+
                         </Link>
                     </Card.Body>
                 </Card>
             </Container>
         </div>
-    )
+    );
 }
 
 export default Refed

@@ -1,10 +1,11 @@
+import Image from 'next/image'
 import { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { v4 as generateUUID } from 'uuid'
 import api from '../../api/ApiHelper'
-import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { Number } from '../Number/Number'
 import styles from './TransferCoflCoinsSummary.module.css'
 
 interface Props {
@@ -25,7 +26,9 @@ function TransferCoflCoinsSummary(props: Props) {
         api.transferCoflCoins(props.email, props.player?.uuid, props.coflCoins, reference)
             .then(() => {
                 toast.success(
-                    `Successfuly sent ${numberWithThousandsSeparators(props.coflCoins)} CoflCoins to ${props.email === '' ? props.player.name : props.email}`
+                    <span>
+                        Successfuly sent <Number number={props.coflCoins} /> CoflCoins to {props.email === '' ? props.player.name : props.email}
+                    </span>
                 )
                 setIsSending(false)
                 props.onFinish()
@@ -46,11 +49,12 @@ function TransferCoflCoinsSummary(props: Props) {
                             <span>{props.email}</span>
                         ) : (
                             <span>
-                                <img
+                                <Image
                                     crossOrigin="anonymous"
                                     className="playerHeadIcon"
                                     src={props.player?.iconUrl}
                                     height="32"
+                                    width="32"
                                     alt=""
                                     style={{ marginRight: '10px' }}
                                     loading="lazy"

@@ -1,13 +1,15 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import HelpIcon from '@mui/icons-material/Help'
+import Image from 'next/image'
 import { useEffect } from 'react'
 import { Badge, Card } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { calculateProfit, getFlipCustomizeSettings, getFlipFinders } from '../../../utils/FlipUtils'
-import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier, numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
 import { CopyButton } from '../../CopyButton/CopyButton'
+import { Number } from '../../Number/Number'
 import styles from './Flip.module.css'
 
 interface Props {
@@ -99,11 +101,11 @@ function Flip(props: Props) {
         window.open('/player/' + props.flip.sellerName)
     }
 
-    function formatPrices(price: number) {
+    function formatPrices(price: number): JSX.Element {
         if (settings.shortNumbers) {
-            return formatToPriceToShorten(price)
+            return <span>{formatToPriceToShorten(price)}</span>
         }
-        return numberWithThousandsSeparators(price)
+        return <Number number={price} />
     }
 
     let stars = props.flip.item.name?.match(/✪+/gm)
@@ -114,19 +116,27 @@ function Flip(props: Props) {
             <Card className={styles.flipAuctionCard} style={{ cursor: 'pointer' }} onMouseDown={onCardClick}>
                 <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
                     <div className="ellipse">
-                        <img crossOrigin="anonymous" src={props.flip.item.iconUrl} height="24" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                        <Image
+                            crossOrigin="anonymous"
+                            src={props.flip.item.iconUrl}
+                            height="24"
+                            width="24"
+                            alt=""
+                            style={{ marginRight: '5px' }}
+                            loading="lazy"
+                        />
                         <span style={getStyleForTier(props.flip.item.tier)}>{itemName}</span>
                     </div>
                     {stars ? formatDungeonStarsInString(stars[0]) : null}
                     {props.flip.bin ? (
-                        <Badge style={{ marginLeft: '5px' }} variant="success">
+                        <Badge style={{ marginLeft: '5px' }} bg="success">
                             BIN
                         </Badge>
                     ) : (
                         ''
                     )}
                     {props.flip.sold ? (
-                        <Badge style={{ marginLeft: '5px' }} variant="danger">
+                        <Badge style={{ marginLeft: '5px' }} bg="danger">
                             SOLD
                         </Badge>
                     ) : (
@@ -228,7 +238,7 @@ function Flip(props: Props) {
                         )}
                         {getFlipFinders([props.flip.finder]).map(finder => {
                             return (
-                                <Badge key={finder.shortLabel} variant="dark">
+                                <Badge key={finder.shortLabel} bg="dark">
                                     {finder.shortLabel}
                                 </Badge>
                             )

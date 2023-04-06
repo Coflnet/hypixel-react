@@ -2,6 +2,7 @@ import React from 'react'
 import { Card, Button } from 'react-bootstrap'
 import DownloadIcon from '@mui/icons-material/Download'
 import styles from './ModDetails.module.css'
+import Image from 'next/image'
 function ModDetails() {
     return (
         <>
@@ -61,7 +62,7 @@ function ModDetails() {
                             Download <DownloadIcon />
                         </Button>
                         <a href="https://github.com/coflnet/skyblockmod/">
-                            <img src="/github_logo.png" alt="Github logo" width="38" height="38" />
+                            <Image src="/github_logo.png" alt="Github logo" width="38" height="38" />
                         </a>
                     </div>
                 </Card.Body>

@@ -79,19 +79,19 @@ option {
     border-color: #444;
 }
 
-.form-control {
+.form-control,.form-select {
     background-color: #222;
     color: #fff;
     border-color: #444;
 }
 
-.form-control:focus {
+.form-control:focus,.form-select:focus {
     background-color: #222;
     color: #fff;
     border-color: #444;
 }
 
-.form-control:disabled {
+.form-control:disabled,.form-select:disabled {
     color: lightgrey;
     background-color: #222;
     color: lightgrey;
@@ -106,15 +106,6 @@ option {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.form-check-input {
-    position: absolute !important;
-}
-
-.form-check {
-    position: absolute !important;
-    display: inline !important;
 }
 
 [data-darkreader-mode='dynamic'] .form-check-input {

@@ -25,8 +25,8 @@ export function SimpleEqualFilterElement(props: Props) {
     }
 
     return (
-        <Form.Control isInvalid={!props.isValid} defaultValue={props.defaultValue} as="select" onChange={_onChange}>
+        <Form.Select isInvalid={!props.isValid} defaultValue={props.defaultValue} onChange={_onChange}>
             {getSelectOptions()}
-        </Form.Control>
+        </Form.Select>
     )
 }

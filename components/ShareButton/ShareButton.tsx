@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Badge, Button, OverlayTrigger, Popover } from 'react-bootstrap'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import ShareIcon from '@mui/icons-material/ShareOutlined'
 import styles from './ShareButton.module.css'
 import { v4 as generateUUID } from 'uuid'
@@ -58,9 +58,9 @@ function ShareButton(props: Props) {
                 onEntered={() => setTimeout(() => setShowOverlayTrigger(false), 3000)}
                 overlay={
                     <Popover id={generateUUID()}>
-                        <Popover.Content>
-                            <Badge variant="secondary">Copied to clipboard</Badge>
-                        </Popover.Content>
+                        <Popover.Body>
+                            <Badge bg="secondary">Copied to clipboard</Badge>
+                        </Popover.Body>
                     </Popover>
                 }
             >

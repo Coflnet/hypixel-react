@@ -29,9 +29,7 @@ function SubscribeItemContent(props: Props) {
         <>
             <div className="item-forms">
                 <InputGroup className="price-input">
-                    <InputGroup.Prepend>
-                        <InputGroup.Text id="inputGroup-sizing-sm">Item price</InputGroup.Text>
-                    </InputGroup.Prepend>
+                    <InputGroup.Text id="inputGroup-sizing-sm">Item price</InputGroup.Text>
                     <FormControl
                         aria-label="Small"
                         aria-describedby="inputGroup-sizing-sm"

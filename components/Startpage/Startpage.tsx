@@ -1,17 +1,19 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import AnnouncementIcon from '@mui/icons-material/Announcement'
 import NewIcon from '@mui/icons-material/FiberNew'
 import FireIcon from '@mui/icons-material/Fireplace'
 import PersonIcon from '@mui/icons-material/Person'
 import TimerIcon from '@mui/icons-material/Timer'
 import moment from 'moment'
+import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { Badge, Card } from 'react-bootstrap'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList as List } from 'react-window'
 import api from '../../api/ApiHelper'
-import { getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { getMinecraftColorCodedElement } from '../../utils/Formatter'
+import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './Startpage.module.css'
 
@@ -56,34 +58,34 @@ function Startpage(props: Props) {
     function getAuctionElement(auction: Auction, style: React.CSSProperties) {
         return (
             <div className={`${styles.cardWrapper}`} key={auction.uuid} style={style}>
-                <Link href={`/auction/${auction.uuid}`}>
-                    <a className="disableLinkStyle">
-                        <Card>
-                            <Card.Header style={{ padding: '10px' }}>
-                                <p className={styles.ellipsis}>
-                                    <img crossOrigin="anonymous" src={auction.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} />
-                                    {getMinecraftColorCodedElement(auction.item.name)}
-                                </p>
-                            </Card.Header>
-                            <Card.Body>
-                                <div>
-                                    <ul>
-                                        <li>{getEndString(auction.end)}</li>
-                                        <li>{numberWithThousandsSeparators(auction.highestBid || auction.startingBid)} Coins</li>
-                                        {auction.bin ? (
-                                            <li>
-                                                <Badge style={{ marginLeft: '5px' }} variant="success">
-                                                    BIN
-                                                </Badge>
-                                            </li>
-                                        ) : (
-                                            ''
-                                        )}
-                                    </ul>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </a>
+                <Link href={`/auction/${auction.uuid}`} className="disableLinkStyle">
+                    <Card>
+                        <Card.Header style={{ padding: '10px' }}>
+                            <p className={styles.ellipsis}>
+                                <Image crossOrigin="anonymous" src={auction.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} />
+                                {getMinecraftColorCodedElement(auction.item.name)}
+                            </p>
+                        </Card.Header>
+                        <Card.Body>
+                            <div>
+                                <ul>
+                                    <li>{getEndString(auction.end)}</li>
+                                    <li>
+                                        <Number number={auction.highestBid || auction.startingBid} /> Coins
+                                    </li>
+                                    {auction.bin ? (
+                                        <li>
+                                            <Badge style={{ marginLeft: '5px' }} bg="success">
+                                                BIN
+                                            </Badge>
+                                        </li>
+                                    ) : (
+                                        ''
+                                    )}
+                                </ul>
+                            </div>
+                        </Card.Body>
+                    </Card>
                 </Link>
             </div>
         )
@@ -92,25 +94,24 @@ function Startpage(props: Props) {
     function getNewPlayerElement(newPlayer: Player, style: React.CSSProperties) {
         return (
             <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newPlayer.name} style={style}>
-                <Link href={`/player/${newPlayer.uuid}`}>
-                    <a className="disableLinkStyle">
-                        <Card>
-                            <Card.Header style={{ height: '100%', padding: '20px' }}>
-                                <div style={{ float: 'left' }}>
-                                    <img
-                                        crossOrigin="anonymous"
-                                        className="playerHeadIcon"
-                                        src={newPlayer.iconUrl}
-                                        height="32"
-                                        alt=""
-                                        style={{ marginRight: '5px' }}
-                                        loading="lazy"
-                                    />
-                                </div>
-                                <Card.Title className={styles.ellipsis}>{newPlayer.name}</Card.Title>
-                            </Card.Header>
-                        </Card>
-                    </a>
+                <Link href={`/player/${newPlayer.uuid}`} className="disableLinkStyle">
+                    <Card>
+                        <Card.Header style={{ height: '100%', padding: '20px' }}>
+                            <div style={{ float: 'left' }}>
+                                <Image
+                                    crossOrigin="anonymous"
+                                    className="playerHeadIcon"
+                                    src={newPlayer.iconUrl}
+                                    height="32"
+                                    width="32"
+                                    alt=""
+                                    style={{ marginRight: '5px' }}
+                                    loading="lazy"
+                                />
+                            </div>
+                            <Card.Title className={styles.ellipsis}>{newPlayer.name}</Card.Title>
+                        </Card.Header>
+                    </Card>
                 </Link>
             </div>
         )
@@ -119,25 +120,24 @@ function Startpage(props: Props) {
     function getPopularSearchElement(search: PopularSearch, style: React.CSSProperties) {
         return (
             <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={search.url} style={style}>
-                <Link href={search.url}>
-                    <a className="disableLinkStyle">
-                        <Card>
-                            <Card.Header style={{ height: '100%' }}>
-                                <div style={{ float: 'left' }}>
-                                    <img
-                                        crossOrigin="anonymous"
-                                        className="playerHeadIcon"
-                                        src={search.url.includes('/player') ? search.img + '?size=8' : search.img}
-                                        height="32"
-                                        alt=""
-                                        style={{ marginRight: '5px' }}
-                                        loading="lazy"
-                                    />
-                                </div>
-                                <Card.Title className={styles.ellipsis}>{search.title}</Card.Title>
-                            </Card.Header>
-                        </Card>
-                    </a>
+                <Link href={search.url} className="disableLinkStyle">
+                    <Card>
+                        <Card.Header style={{ height: '100%' }}>
+                            <div style={{ float: 'left' }}>
+                                <Image
+                                    crossOrigin="anonymous"
+                                    className="playerHeadIcon"
+                                    src={search.url.includes('/player') ? search.img + '?size=8' : search.img}
+                                    height="32"
+                                    width="32"
+                                    alt=""
+                                    style={{ marginRight: '5px' }}
+                                    loading="lazy"
+                                />
+                            </div>
+                            <Card.Title className={styles.ellipsis}>{search.title}</Card.Title>
+                        </Card.Header>
+                    </Card>
                 </Link>
             </div>
         )
@@ -146,17 +146,23 @@ function Startpage(props: Props) {
     function getNewItemElement(newItem: Item, style: React.CSSProperties) {
         return (
             <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newItem.tag} style={style}>
-                <Link href={`/item/${newItem.tag}`}>
-                    <a className="disableLinkStyle">
-                        <Card>
-                            <Card.Header style={{ height: '100%', padding: '20px' }}>
-                                <div style={{ float: 'left' }}>
-                                    <img crossOrigin="anonymous" src={newItem.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
-                                </div>
-                                <Card.Title className={styles.ellipsis}>{newItem.name}</Card.Title>
-                            </Card.Header>
-                        </Card>
-                    </a>
+                <Link href={`/item/${newItem.tag}`} className="disableLinkStyle">
+                    <Card>
+                        <Card.Header style={{ height: '100%', padding: '20px' }}>
+                            <div style={{ float: 'left' }}>
+                                <Image
+                                    crossOrigin="anonymous"
+                                    src={newItem.iconUrl}
+                                    height="32"
+                                    width="32"
+                                    alt=""
+                                    style={{ marginRight: '5px' }}
+                                    loading="lazy"
+                                />
+                            </div>
+                            <Card.Title className={styles.ellipsis}>{newItem.name}</Card.Title>
+                        </Card.Header>
+                    </Card>
                 </Link>
             </div>
         )

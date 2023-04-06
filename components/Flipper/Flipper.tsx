@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Card, Form, Modal } from 'react-bootstrap'
-import { Item, Menu, theme, useContextMenu } from 'react-contexify'
+import { Item, Menu, useContextMenu } from 'react-contexify'
 import Countdown, { zeroPad } from 'react-countdown'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList as List } from 'react-window'
@@ -15,7 +15,6 @@ import { v4 as generateUUID } from 'uuid'
 import api from '../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
-import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -23,6 +22,7 @@ import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTING
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import Flip from './Flip/Flip'
 import FlipBased from './FlipBased/FlipBased'
@@ -138,7 +138,8 @@ function Flipper(props: Props) {
 
     function handleFlipContextMenu(event, flip: FlipAuction) {
         event.preventDefault()
-        show(event, {
+        show({
+            event: event,
             props: {
                 flip: flip
             }
@@ -450,7 +451,7 @@ function Flipper(props: Props) {
 
     let flipContextMenu = (
         <div>
-            <Menu id={FLIP_CONEXT_MENU_ID} theme={theme.dark}>
+            <Menu id={FLIP_CONEXT_MENU_ID} theme={'dark'}>
                 <Item
                     onClick={params => {
                         addItemToBlacklist(params.props.flip as FlipAuction)
@@ -655,9 +656,7 @@ function Flipper(props: Props) {
                         </Card.Body>
                     </Card>
                 </div>
-            ) : (
-                ''
-            )}
+            ) : null}
             <div>
                 <hr />
                 <Card>
@@ -672,8 +671,12 @@ function Flipper(props: Props) {
                                 </Card.Header>
                                 <Card.Body>
                                     <ul>
-                                        <li>Total flips received: {numberWithThousandsSeparators(missedInfo.totalFlips)}</li>
-                                        <li>Profit of copied flips: {numberWithThousandsSeparators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                        <li>
+                                            Total flips received: <Number number={missedInfo.totalFlips} />
+                                        </li>
+                                        <li>
+                                            Profit of copied flips: <Number number={missedInfo.estimatedProfitCopiedAuctions} /> Coins
+                                        </li>
                                     </ul>
                                 </Card.Body>
                             </Card>
@@ -686,7 +689,7 @@ function Flipper(props: Props) {
                                         <ul>
                                             <li>
                                                 <span style={{ marginRight: '10px' }}>
-                                                    Missed Profit: {numberWithThousandsSeparators(missedInfo.missedEstimatedProfit)} Coins
+                                                    Missed Profit: <Number number={missedInfo.missedEstimatedProfit} /> Coins
                                                 </span>
                                                 <Tooltip
                                                     type="hover"
@@ -699,7 +702,9 @@ function Flipper(props: Props) {
                                                     }
                                                 />
                                             </li>
-                                            <li>Missed Flips: {numberWithThousandsSeparators(missedInfo.missedFlipsCount)}</li>
+                                            <li>
+                                                Missed Flips: <Number number={missedInfo.missedFlipsCount} />
+                                            </li>
                                         </ul>
                                     </Card.Body>
                                 </Card>

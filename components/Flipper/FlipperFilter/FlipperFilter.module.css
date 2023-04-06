@@ -3,6 +3,7 @@
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    row-gap: 10px;
 }
 
 .flipperFilterFormfieldText {
@@ -127,6 +128,10 @@
 
 .restrictionModal .modal-body::-webkit-scrollbar-thumb:hover {
     background: #7a8288;
+}
+
+.restrictionListContent {
+    height: 100%
 }
 
 .filterBorder {

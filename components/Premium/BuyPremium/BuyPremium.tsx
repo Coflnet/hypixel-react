@@ -3,10 +3,10 @@ import { Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'reac
 import { toast } from 'react-toastify'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { numberWithThousandsSeparators } from '../../../utils/Formatter'
 import { useCoflCoins } from '../../../utils/Hooks'
 import { getPremiumType, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
+import { Number } from '../../Number/Number'
 import styles from './BuyPremium.module.css'
 
 interface Props {
@@ -89,7 +89,7 @@ function BuyPremium(props: Props) {
                     </li>
                     <li>
                         <span className={styles.label}>Price:</span>
-                        {numberWithThousandsSeparators(getPurchasePrice())} CoflCoins
+                        <Number number={getPurchasePrice()} /> CoflCoins
                     </li>
                 </ul>
                 <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
@@ -131,7 +131,13 @@ function BuyPremium(props: Props) {
                                     onChange={onPremiumTypeChange}
                                 >
                                     {PREMIUM_TYPES.map(premiumType => (
-                                        <ToggleButton value={premiumType.productId} className="price-range-button" size="sm">
+                                        <ToggleButton
+                                            id={premiumType.productId}
+                                            key={premiumType.productId}
+                                            value={premiumType.productId}
+                                            className="price-range-button"
+                                            size="sm"
+                                        >
                                             {premiumType.label}
                                         </ToggleButton>
                                     ))}
@@ -142,27 +148,34 @@ function BuyPremium(props: Props) {
                             </div>
                             <div style={{ marginBottom: '15px' }}>
                                 <label className={styles.label}>Purchase Duration:</label>
-                                <Form.Control
-                                    as="select"
+                                <Form.Select
                                     onChange={onDurationChange}
                                     className={styles.dropdown}
                                     key={purchasePremiumType.productId}
                                     defaultValue={purchasePremiumOption.value}
                                 >
                                     {purchasePremiumType.options.map(option => {
-                                        return <option value={JSON.stringify(option)}>{option.label}</option>
+                                        return (
+                                            <option key={option.label} value={JSON.stringify(option)}>
+                                                {option.label}
+                                            </option>
+                                        )
                                     })}
-                                </Form.Control>
+                                </Form.Select>
                                 <span style={{ marginLeft: '20px' }}>{getDurationString()}</span>
                             </div>
                             <div>
                                 <label className={styles.label}>Price:</label>
-                                <span style={{ fontWeight: 'bold' }}>{numberWithThousandsSeparators(getPurchasePrice())} Coins</span>
+                                <span style={{ fontWeight: 'bold' }}>
+                                    <Number number={getPurchasePrice()} /> Coins
+                                </span>
                             </div>
                             {coflCoins > getPurchasePrice() ? (
                                 <div>
                                     <label className={styles.label}>Remaining after Purchase:</label>
-                                    <span>{numberWithThousandsSeparators(coflCoins - getPurchasePrice())} Coins</span>
+                                    <span>
+                                        <Number number={coflCoins - getPurchasePrice()} /> Coins
+                                    </span>
                                 </div>
                             ) : null}
                             <p style={{ marginTop: '20px' }}>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
@@ -190,7 +203,7 @@ function BuyPremium(props: Props) {
                     ) : (
                         <p style={{ color: 'lime' }}>
                             You successfully bought {purchaseSuccessfulOption.label} {getDurationString()} of {purchasePremiumType.label} for{' '}
-                            {numberWithThousandsSeparators(getPurchasePrice())} CoflCoins!
+                            <Number number={getPurchasePrice()} /> CoflCoins!
                         </p>
                     )}
                 </div>

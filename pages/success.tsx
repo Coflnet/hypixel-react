@@ -18,13 +18,13 @@ function Success() {
                     It may take <b>a few minutes</b> until your CoflCoins are credited.
                 </p>
                 <Link href="/premium" className="disableLinkStyle">
-                    <a>
-                        <Button>Return to the Premium page</Button>
-                    </a>
+
+                    <Button>Return to the Premium page</Button>
+
                 </Link>
             </Container>
         </div>
-    )
+    );
 }
 
 export default Success

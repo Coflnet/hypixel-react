@@ -1,10 +1,12 @@
-import React , { ChangeEvent, useEffect, useState } from 'react'
+import Image from 'next/image'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
-import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
@@ -160,7 +162,10 @@ export function CraftsList(props: Props) {
     }
 
     function getListElement(craft: ProfitableCraft, blur: boolean) {
-        if (((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || (craft.sellPrice-craft.craftCost) < minimumProfit)&& !blur ) {
+        if (
+            ((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || craft.sellPrice - craft.craftCost < minimumProfit) &&
+            !blur
+        ) {
             return <span />
         }
         return (
@@ -193,18 +198,23 @@ export function CraftsList(props: Props) {
                 <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
                     <h4>{getCraftHeader(craft)}</h4>
                     <p>
-                        <span className={styles.label}>Crafting Cost:</span> {numberWithThousandsSeparators(Math.round(craft.craftCost))} Coins
+                        <span className={styles.label}>Crafting Cost:</span> <Number number={Math.round(craft.craftCost)} /> Coins
                     </p>
                     <p>
-                        <span className={styles.label}>Sell Price:</span> {numberWithThousandsSeparators(Math.round(craft.sellPrice))} Coins
+                        <span className={styles.label}>Sell Price:</span> <Number number={Math.round(craft.sellPrice)} /> Coins
                     </p>
                     <p>
                         <span className={styles.label}>Median:</span>{' '}
-                        {craft.median > 0 ? `${numberWithThousandsSeparators(Math.round(craft.median))} Coins` : 'unknown'}
+                        {craft.median > 0 ? (
+                            <span>
+                                <Number number={Math.round(craft.median)} /> Coins
+                            </span>
+                        ) : (
+                            'unknown'
+                        )}
                     </p>
                     <p>
-                        <span className={styles.label}>Volume:</span>{' '}
-                        {craft.volume > 0 ? `${numberWithThousandsSeparators(Math.round(craft.volume))}` : 'unknown'}
+                        <span className={styles.label}>Volume:</span> {craft.volume > 0 ? <Number number={Math.round(craft.volume)} /> : 'unknown'}
                     </p>
                     {craft.requiredCollection ? (
                         <p className={styles.craftRequirement}>
@@ -227,7 +237,7 @@ export function CraftsList(props: Props) {
     function getCraftHeader(craft: ProfitableCraft): JSX.Element {
         return (
             <span>
-                <img crossOrigin="anonymous" src={craft.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <Image crossOrigin="anonymous" src={craft.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                 {getMinecraftColorCodedElement(craft.item.name)}
             </span>
         )
@@ -240,53 +250,56 @@ export function CraftsList(props: Props) {
     }
 
     let shown = 0
-    let list = orderedCrafts.filter(craft=>!((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || (craft.sellPrice-craft.craftCost) < minimumProfit)).map(craft => {
-        shown++
+    let list = orderedCrafts
+        .filter(
+            craft =>
+                !((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || craft.sellPrice - craft.craftCost < minimumProfit)
+        )
+        .map(craft => {
+            shown++
 
-        if (!hasPremium && shown <= 3) {
-            let censoredCraft = { ...craft }
-            censoredCraft.item = {
-                tag: '',
-                name: '§6You cheated the blur ☺',
-                iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
-            }
-            censoredCraft.craftCost = 42
-            censoredCraft.sellPrice = 69
-            censoredCraft.ingredients = [
-                {
-                    cost: 119999545.7,
-                    count: 80,
-                    item: {
-                        tag: 'ASPECT_OF_THE_DRAGONS',
-                        name: 'Sword',
-                        iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
-                    }
+            if (!hasPremium && shown <= 3) {
+                let censoredCraft = { ...craft }
+                censoredCraft.item = {
+                    tag: '',
+                    name: '§6You cheated the blur ☺',
+                    iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
                 }
-            ]
-            censoredCraft.median = -1
-            censoredCraft.volume = 123123
-            censoredCraft.requiredCollection = null
-            censoredCraft.requiredSlayer = null
+                censoredCraft.craftCost = 42
+                censoredCraft.sellPrice = 69
+                censoredCraft.ingredients = [
+                    {
+                        cost: 119999545.7,
+                        count: 80,
+                        item: {
+                            tag: 'ASPECT_OF_THE_DRAGONS',
+                            name: 'Sword',
+                            iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
+                        }
+                    }
+                ]
+                censoredCraft.median = -1
+                censoredCraft.volume = 123123
+                censoredCraft.requiredCollection = null
+                censoredCraft.requiredSlayer = null
 
-            return (
-                <div key={craft.item.tag} className={styles.preventSelect}>
-                    {getListElement(censoredCraft, true)}
-                </div>
-            )
-        } else {
-            return (
-                <Tooltip
-                    key={craft.item.tag}
-                    type="click"
-                    content={getListElement(craft, false)}
-                    tooltipTitle={getCraftHeader(craft)}
-                    tooltipContent={<CraftDetails craft={craft} />}
-                />
-            )
-        }
-    })
-
-
+                return (
+                    <div key={craft.item.tag} className={styles.preventSelect}>
+                        {getListElement(censoredCraft, true)}
+                    </div>
+                )
+            } else {
+                return (
+                    <Tooltip
+                        key={craft.item.tag}
+                        type="click"
+                        content={getListElement(craft, false)}
+                        tooltipTitle={getCraftHeader(craft)}
+                        tooltipContent={<CraftDetails craft={craft} />}
+                    />
+                )
+            }
+        })
 
     let connectMinecraftTooltip = (
         <Tooltip
@@ -302,8 +315,6 @@ export function CraftsList(props: Props) {
             }
         />
     )
-
-
 
     return (
         <div>
@@ -326,21 +337,21 @@ export function CraftsList(props: Props) {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
-                <Form.Control className={styles.filterInput} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
+                <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
-                        <option value={option.value}>{option.label}</option>
+                        <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
-                </Form.Control>
-                <Form.Control className={styles.filterInput} placeholder='Minimum Profit' onChange={onMinimumProfitChange} />
+                </Form.Select>
+                <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />
 
                 {profiles ? (
-                    <Form.Control className={styles.filterInput} defaultValue={selectedProfile?.cuteName} as="select" onChange={onProfileChange}>
+                    <Form.Select className={styles.filterInput} defaultValue={selectedProfile?.cuteName} onChange={onProfileChange}>
                         {profiles.map(profile => (
                             <option key={profile.cuteName} value={profile.cuteName}>
                                 {profile.cuteName}
                             </option>
                         ))}
-                    </Form.Control>
+                    </Form.Select>
                 ) : (
                     ''
                 )}
@@ -350,6 +361,6 @@ export function CraftsList(props: Props) {
             <div className={styles.craftsList}>
                 <ListGroup className={styles.list}>{list}</ListGroup>
             </div>
-        </div >
+        </div>
     )
 }

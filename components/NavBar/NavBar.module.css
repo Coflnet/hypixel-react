@@ -22,12 +22,30 @@
     top: 0px;
     bottom: 0px;
     z-index: 20;
+    font-size: 1rem;
 }
 
-.navBar :global(.pro-icon-wrapper){
-    background-color: #1d1d1d !important;
+.logo {
+    padding: 24px;
+    font-weight: bold;
+    font-size: 20px;
+    letter-spacing: 1px;
+    overflow: hidden;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
 }
 
-.navBar :global(.pro-sidebar) :global(.pro-menu) > :global(ul) > :global(.pro-sub-menu) > :global(.pro-inner-list-item) :global(.pro-icon-wrapper) {
-    background: none !important;
+.navBar :global(#pro-sidebar) {
+    position: absolute;
+    bottom: 0;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    min-height: 100vh;
+    border: none;
+}
+
+.navBar :global(.ps-menu-button):hover {
+    background-color: #505050 !important;
 }

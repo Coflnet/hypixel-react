@@ -13,6 +13,7 @@ import styles from './index.module.css'
 import Link from 'next/link'
 import { getCacheControlHeader } from '../../../utils/CacheUtils'
 import GoogleSignIn from '../../../components/GoogleSignIn/GoogleSignIn'
+import Image from 'next/image'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -69,7 +70,7 @@ function PlayerDetails(props: Props) {
     }
 
     let getButtonVariant = (type: DetailType): string => {
-        return type === detailType ? 'primary' : 'light'
+        return type === detailType ? 'primary' : 'secondary'
     }
 
     let setDetailType = (type: DetailType) => {
@@ -135,11 +136,12 @@ function PlayerDetails(props: Props) {
                     type="player"
                     currentElement={
                         <span>
-                            <img
+                            <Image
                                 crossOrigin="anonymous"
                                 className="playerHeadIcon"
                                 src={selectedPlayer?.iconUrl}
                                 height="32"
+                                width="32"
                                 alt=""
                                 style={{ marginRight: '10px' }}
                             />
@@ -154,10 +156,10 @@ function PlayerDetails(props: Props) {
                     }
                 />
                 <ToggleButtonGroup className={styles.playerDetailsType} type="radio" name="options" value={detailType} onChange={onDetailTypeChange}>
-                    <ToggleButton value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">
+                    <ToggleButton id="auctionToggleButton" value={DetailType.AUCTIONS} variant={getButtonVariant(DetailType.AUCTIONS)} size="lg">
                         Auctions
                     </ToggleButton>
-                    <ToggleButton value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">
+                    <ToggleButton id="bidsToggleButton" value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">
                         Bids
                     </ToggleButton>
                 </ToggleButtonGroup>
@@ -199,7 +201,12 @@ export const getServerSideProps = async ({ res, params }) => {
             notFound: true
         }
     }
-    let auctions = await api.getAuctions(params.uuid, 0)
+    let auctions = []
+    try {
+        await api.getAuctions(params.uuid, 0)
+    } catch {
+        console.error('Error loading player auctions for player ' + params.uuid)
+    }
     return {
         props: {
             auctions: auctions,

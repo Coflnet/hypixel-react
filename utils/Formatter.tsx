@@ -5,13 +5,13 @@ import { isClientSideRendering } from './SSRUtils'
  Returns a given number as string with thousands-separators. Example:
  1234567 => 1.234.567
 */
-export function numberWithThousandsSeparators(number?: number): string {
+export function numberWithThousandsSeparators(number?: number, thousandSeperator?: string, decimalSeperator?: string): string {
     if (!number) {
         return '0'
     }
     var parts = number.toString().split('.')
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeparator())
-    return parts.join(getDecimalSeparator())
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeperator || getThousandSeparator())
+    return parts.join(decimalSeperator || getDecimalSeparator())
 }
 
 /**
@@ -270,13 +270,13 @@ export function getMinecraftColorCodedElement(text: string, autoFormat = true): 
     splits.forEach((split, i) => {
         if (i === 0) {
             if (split !== '') {
-                elements.push(<span>{split}</span>)
+                elements.push(<span key={i}>{split}</span>)
             }
             return
         }
         let code = split.substring(0, 1)
         let text = autoFormat ? convertTagToName(split.substring(1, split.length)) : split.substring(1, split.length)
-        elements.push(<span style={styleMap[code]}>{text}</span>)
+        elements.push(<span key={i} style={styleMap[code]}>{text}</span>)
     })
 
     return <span>{elements}</span>

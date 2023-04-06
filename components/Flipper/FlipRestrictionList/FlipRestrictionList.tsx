@@ -16,6 +16,7 @@ import NewRestriction from './NewRestriction/NewRestriction'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import Tooltip from '../../Tooltip/Tooltip'
 import { toast } from 'react-toastify'
+import Image from 'next/image'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist')
@@ -452,24 +453,35 @@ function FlipRestrictionList(props: Props) {
                                             changeRestrictionType(restriction, newValue)
                                         }}
                                     >
-                                        <ToggleButton value={'blacklist'} variant={restriction.type === 'blacklist' ? 'primary' : 'secondary'} size="sm">
+                                        <ToggleButton
+                                            id="blacklistToggleButton"
+                                            value={'blacklist'}
+                                            variant={restriction.type === 'blacklist' ? 'primary' : 'secondary'}
+                                            size="sm"
+                                        >
                                             Blacklist
                                         </ToggleButton>
-                                        <ToggleButton value={'whitelist'} variant={restriction.type === 'whitelist' ? 'primary' : 'secondary'} size="sm">
+                                        <ToggleButton
+                                            id="whitelistToggleButton"
+                                            value={'whitelist'}
+                                            variant={restriction.type === 'whitelist' ? 'primary' : 'secondary'}
+                                            size="sm"
+                                        >
                                             Whitelist
                                         </ToggleButton>
                                     </ToggleButtonGroup>
                                 ) : (
-                                    <Badge style={{ marginRight: '10px' }} variant={restriction.type === 'blacklist' ? 'danger' : 'success'}>
+                                    <Badge style={{ marginRight: '10px' }} bg={restriction.type === 'blacklist' ? 'danger' : 'success'}>
                                         {restriction.type.toUpperCase()}
                                     </Badge>
                                 )}
                                 {restriction.item ? (
                                     <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}>
-                                        <img
+                                        <Image
                                             crossOrigin="anonymous"
                                             src={restriction.item?.iconUrl}
                                             height="24"
+                                            width="24"
                                             alt=""
                                             style={{ marginRight: '5px' }}
                                             loading="lazy"
@@ -533,7 +545,7 @@ function FlipRestrictionList(props: Props) {
                                     />
                                 ) : null}
                                 {restriction.tags?.map(tag => (
-                                    <Badge key={tag} variant="dark" style={{ marginRight: '5px' }}>
+                                    <Badge key={tag} bg="dark" style={{ marginRight: '5px' }}>
                                         {tag}
                                     </Badge>
                                 ))}

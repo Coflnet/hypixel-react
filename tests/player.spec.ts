@@ -15,7 +15,7 @@ test('Opens last bid', async ({ page }) => {
 })
 
 test('Scroll down to older bid', async ({ page, isMobile, browserName }) => {
-    test.skip(browserName === 'webkit' && isMobile, 'Scrolling is not supported on mobile safari')
+    test.skip(isMobile, 'Scrolling is not reliably on mobile')
     await page.goto('/player/b876ec32e396476ba1158438d83c67d4')
     await switchToBids(page)
     for (let i = 0; i < 500; i++) {

@@ -6,11 +6,12 @@ import { Badge, Button, ListGroup, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
-import { convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { convertTagToName } from '../../utils/Formatter'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
+import { Number } from '../Number/Number'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import styles from './SubscriptionList.module.css'
 
@@ -76,7 +77,10 @@ function SubscriptionList() {
                             result =
                                 price > 0 ? (
                                     <li key="2">
-                                        Notify if price is higher than <b>{numberWithThousandsSeparators(price)} Coins</b>
+                                        Notify if price is higher than{' '}
+                                        <b>
+                                            <Number number={price} /> Coins
+                                        </b>
                                     </li>
                                 ) : (
                                     <li key="2">Any price</li>
@@ -85,7 +89,10 @@ function SubscriptionList() {
                         case SubscriptionType.PRICE_LOWER_THAN.toString():
                             result = (
                                 <li key="3">
-                                    Notify if price is lower than <b>{numberWithThousandsSeparators(price)} Coins</b>
+                                    Notify if price is lower than{' '}
+                                    <b>
+                                        <Number number={price} /> Coins
+                                    </b>
                                 </li>
                             )
                             break
@@ -190,20 +197,20 @@ function SubscriptionList() {
         switch (subscription.type) {
             case 'item':
                 return (
-                    <Link href={'/item/' + subscription.topicId}>
-                        <a className="disableLinkStyle">{subscription.title}</a>
+                    <Link href={'/item/' + subscription.topicId} className="disableLinkStyle">
+                        {subscription.title}
                     </Link>
                 )
             case 'player':
                 return (
-                    <Link href={'/player/' + subscription.topicId}>
-                        <a className="disableLinkStyle">{subscription.title}</a>
+                    <Link href={'/player/' + subscription.topicId} className="disableLinkStyle">
+                        {subscription.title}
                     </Link>
                 )
             case 'auction':
                 return (
-                    <Link href={'/auction/' + subscription.topicId}>
-                        <a className="disableLinkStyle">{subscription.title}</a>
+                    <Link href={'/auction/' + subscription.topicId} className="disableLinkStyle">
+                        {subscription.title}
                     </Link>
                 )
             default:
@@ -214,7 +221,7 @@ function SubscriptionList() {
     let subscriptionsTableBody = subscriptions.map((subscription, i) => (
         <ListGroup.Item key={i}>
             <h5>
-                <Badge style={{ marginRight: '5px' }} variant="primary">
+                <Badge style={{ marginRight: '5px' }} bg="primary">
                     {i + 1}
                 </Badge>
                 {getSubscriptionTitleElement(subscription)}

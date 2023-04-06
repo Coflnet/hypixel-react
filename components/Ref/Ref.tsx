@@ -3,12 +3,12 @@ import { useState } from 'react'
 import { Card } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import Navbar from '../../components/NavBar/NavBar'
-import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getProperty } from '../../utils/PropertiesUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { Number } from '../Number/Number'
 import styles from './Ref.module.css'
 
 interface Props {}
@@ -126,7 +126,9 @@ function Ref(props: Props) {
                             </p>
                             <p>
                                 <span className={styles.label}>Referred user coins purchases:</span>{' '}
-                                <b>{numberWithThousandsSeparators(refInfo?.purchasedCoins)}</b>
+                                <b>
+                                    <Number number={refInfo?.purchasedCoins} />
+                                </b>
                             </p>
                             <p>
                                 <span className={styles.label}>Number of validated MC-Accounts:</span> <b>{refInfo?.validatedMinecraft}</b>

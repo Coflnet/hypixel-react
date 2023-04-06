@@ -1,9 +1,9 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import FilterIcon from '@mui/icons-material/BallotOutlined'
 import SettingsIcon from '@mui/icons-material/Settings'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { v4 as generateUUID } from 'uuid'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
@@ -118,6 +118,7 @@ function FlipperFilter(props: Props) {
                 setShowRestrictionList(false)
             }}
             scrollable={true}
+            contentClassName={styles.restrictionListContent}
         >
             <Modal.Header closeButton>
                 <Modal.Title>Restrict the flip results</Modal.Title>
@@ -163,7 +164,7 @@ function FlipperFilter(props: Props) {
                             </span>
                         }
                     />
-                    <NumberFormat
+                    <NumericFormat
                         id="min-profit"
                         onValueChange={value => {
                             onSettingsChange('minProfit', value.floatValue || 0)
@@ -295,7 +296,7 @@ function FlipperFilter(props: Props) {
                             <Form.Label htmlFor="min-profit-percent" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
                                 Min. Profit (%):
                             </Form.Label>
-                            <NumberFormat
+                            <NumericFormat
                                 id="min-profit-percent"
                                 onValueChange={value => {
                                     onSettingsChange('minProfitPercent', value.floatValue || 0)
@@ -323,7 +324,7 @@ function FlipperFilter(props: Props) {
                                 }
                                 tooltipContent={<span>Minimum average amount of sells in 24 hours</span>}
                             />
-                            <NumberFormat
+                            <NumericFormat
                                 id="min-volume"
                                 onValueChange={value => {
                                     onSettingsChange('minVolume', value.floatValue || 0)
@@ -345,7 +346,7 @@ function FlipperFilter(props: Props) {
                             <Form.Label htmlFor="max-cost" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
                                 Max. Cost:
                             </Form.Label>
-                            <NumberFormat
+                            <NumericFormat
                                 id="max-cost"
                                 onValueChange={value => {
                                     onSettingsChange('maxCost', value.floatValue || 0)

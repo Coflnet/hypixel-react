@@ -67,10 +67,10 @@ function AuthMod() {
                                 <p style={{ color: '#40ff00' }}>Your Connection is now authorized</p>
                                 <hr />
                                 <p>Now that the mod is connected with the website you can change the filters/settings here:</p>
-                                <Link href="/flipper">
-                                    <a className="disableLinkStyle">
-                                        <Button>To the Flipper</Button>
-                                    </a>
+                                <Link href="/flipper" className="disableLinkStyle">
+
+                                    <Button>To the Flipper</Button>
+
                                 </Link>
                             </div>
                         ) : null}
@@ -89,7 +89,7 @@ function AuthMod() {
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             </Container>
         </div>
-    )
+    );
 }
 
 export default AuthMod

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import api from '../../api/ApiHelper'
 import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
@@ -61,7 +61,9 @@ function SubscribeButton(props: Props) {
                         })
                     }
                 })
-                props.onAfterSubscribe()
+                if (props.onAfterSubscribe) {
+                    props.onAfterSubscribe()
+                }
             })
             .catch(error => {
                 toast.error(error.message, {
@@ -165,7 +167,7 @@ function SubscribeButton(props: Props) {
                             />
                         ) : null}
                         {props.type === 'auction' ? <SubscribeAuctionContent /> : null}
-                        <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">
+                        <Button onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">
                             {props.popupButtonText || 'Notify me'}
                         </Button>
                         {itemFilter && Object.keys(itemFilter).length > MAX_FILTERS ? (

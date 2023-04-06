@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Card, Table } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../../api/ApiTypes.d'
-import { numberWithThousandsSeparators } from '../../../../utils/Formatter'
 import { useDebounce } from '../../../../utils/Hooks'
+import { Number } from '../../../Number/Number'
 import styles from './BazaarSnapshot.module.css'
 
 interface Props {
@@ -60,19 +60,19 @@ function BazaarSnapshot(props: Props) {
             <div>
                 <p>
                     <span className={styles.label}>Orders:</span>
-                    {numberWithThousandsSeparators(data.orderCount)}
+                    <Number number={data.orderCount} />
                 </p>
                 <p>
                     <span className={styles.label}>Price:</span>
-                    {numberWithThousandsSeparators(data.price)} Coins
+                    <Number number={data.price} /> Coins
                 </p>
                 <p>
                     <span className={styles.label}>Volume:</span>
-                    {data.volume}
+                    <Number number={data.volume} />
                 </p>
                 <p>
                     <span className={styles.label}>Movement:</span>
-                    {numberWithThousandsSeparators(data.moving)} Coins
+                    <Number number={data.moving} /> Coins
                 </p>
             </div>
         )
@@ -91,7 +91,9 @@ function BazaarSnapshot(props: Props) {
                 <tbody>
                     {orders.map(order => (
                         <tr>
-                            <td>{numberWithThousandsSeparators(order.pricePerUnit)} Coins</td>
+                            <td>
+                                <Number number={order.pricePerUnit} /> Coins
+                            </td>
                             <td>{order.amount}</td>
                             <td>{order.orders}</td>
                         </tr>

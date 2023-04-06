@@ -2,15 +2,17 @@ import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
 import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'
 import DangerousIcon from '@mui/icons-material/Dangerous'
 import moment from 'moment'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
-import { Item, Menu, theme, useContextMenu } from 'react-contexify'
-import { getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { Item, Menu, useContextMenu } from 'react-contexify'
+import { getMinecraftColorCodedElement } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
+import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './FlipTracking.module.css'
 interface Props {
@@ -101,7 +103,7 @@ export function FlipTracking(props: Props) {
 
     function handleContextMenuForTrackedFlip(event) {
         event.preventDefault()
-        show(event, { props: { uid: event.currentTarget.id } })
+        show({ event: event, props: { uid: event.currentTarget.id } })
     }
 
     let orderedFlips = trackedFlips
@@ -112,7 +114,7 @@ export function FlipTracking(props: Props) {
 
     let currentItemContextMenuElement = (
         <div>
-            <Menu id={TRACKED_FLIP_CONTEXT_MENU_ID} theme={theme.dark}>
+            <Menu id={TRACKED_FLIP_CONTEXT_MENU_ID} theme={'dark'}>
                 <Item
                     onClick={params => {
                         ignoreProfitMap[params.props.uid] = true
@@ -149,7 +151,7 @@ export function FlipTracking(props: Props) {
                             router.push(`/item/${trackedFlip.item.tag}`)
                         }}
                     >
-                        <img
+                        <Image
                             crossOrigin="anonymous"
                             src={trackedFlip.item.iconUrl}
                             height="36"
@@ -162,10 +164,12 @@ export function FlipTracking(props: Props) {
                     </div>
                     {trackedFlip.profit > 0 ? (
                         <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
-                            +{numberWithThousandsSeparators(trackedFlip.profit)} Coins
+                            +<Number number={trackedFlip.profit} /> Coins
                         </span>
                     ) : (
-                        <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>{numberWithThousandsSeparators(trackedFlip.profit)} Coins</span>
+                        <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>
+                            <Number number={trackedFlip.profit} /> Coins
+                        </span>
                     )}
                 </h1>
                 <hr />
@@ -173,7 +177,9 @@ export function FlipTracking(props: Props) {
                     <Card className={styles.profitNumberCard}>
                         <a href={`/auction/${trackedFlip.originAuction}`} target={'_blank'} className="disableLinkStyle">
                             <Card.Header className={styles.profitNumberHeader}>
-                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeparators(trackedFlip.pricePaid)} Coins</Card.Title>
+                                <Card.Title style={{ margin: 0 }}>
+                                    <Number number={trackedFlip.pricePaid} /> Coins
+                                </Card.Title>
                             </Card.Header>
                         </a>
                     </Card>
@@ -181,7 +187,9 @@ export function FlipTracking(props: Props) {
                     <Card className={styles.profitNumberCard}>
                         <a href={`/auction/${trackedFlip.soldAuction}`} target={'_blank'} className="disableLinkStyle">
                             <Card.Header className={styles.profitNumberHeader}>
-                                <Card.Title style={{ margin: 0 }}>{numberWithThousandsSeparators(trackedFlip.soldFor)} Coins</Card.Title>
+                                <Card.Title style={{ margin: 0 }}>
+                                    <Number number={trackedFlip.soldFor} /> Coins
+                                </Card.Title>
                             </Card.Header>
                         </a>
                     </Card>
@@ -192,7 +200,7 @@ export function FlipTracking(props: Props) {
                             <Tooltip
                                 content={
                                     <span>
-                                        Finder: <Badge variant="dark">{trackedFlip.finder.shortLabel}</Badge>
+                                        Finder: <Badge bg="dark">{trackedFlip.finder.shortLabel}</Badge>
                                     </span>
                                 }
                                 tooltipContent={
@@ -236,11 +244,11 @@ export function FlipTracking(props: Props) {
                                                     {' '}
                                                     {change.effect > 0 ? (
                                                         <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
-                                                            +{numberWithThousandsSeparators(change.effect)} Coins
+                                                            +<Number number={change.effect} /> Coins
                                                         </span>
                                                     ) : (
                                                         <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>
-                                                            {numberWithThousandsSeparators(change.effect)} Coins
+                                                            <Number number={change.effect} />
                                                         </span>
                                                     )}
                                                 </td>
@@ -289,18 +297,21 @@ export function FlipTracking(props: Props) {
         <div>
             <b>
                 <p style={{ fontSize: 'x-large' }}>
-                    Total Profit: <span style={{ color: 'gold' }}>{numberWithThousandsSeparators(totalProfit)} Coins </span>
+                    Total Profit:{' '}
+                    <span style={{ color: 'gold' }}>
+                        <Number number={totalProfit} /> Coins{' '}
+                    </span>
                     <span style={{ float: 'right', fontSize: 'small' }}>Only auctions sold in the last 7 days are displayed here.</span>
-                    <Form.Control style={{ width: 'auto', marginTop: '20px' }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
+                    <Form.Select style={{ width: 'auto', marginTop: '20px' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
                         {SORT_OPTIONS.map(option => (
                             <option value={option.value}>{option.label}</option>
                         ))}
-                    </Form.Control>
+                    </Form.Select>
                 </p>
             </b>
             {trackedFlips.length === 0 ? (
                 <div className={styles.noAuctionFound}>
-                    <img src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
+                    <Image src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
                     <p>We couldn't find any flips.</p>
                 </div>
             ) : (

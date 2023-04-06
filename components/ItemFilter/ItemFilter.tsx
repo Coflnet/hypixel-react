@@ -7,14 +7,13 @@ import FilterElement from '../FilterElement/FilterElement'
 import DeleteIcon from '@mui/icons-material/Delete'
 import HelpIcon from '@mui/icons-material/Help'
 import AddIcon from '@mui/icons-material/AddCircleOutline'
-
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
-import { useRouter } from 'next/router'
 import { btoaUnicode } from '../../utils/Base64Utils'
 import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
+import { useQueryParam } from 'use-query-params'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -36,14 +35,14 @@ function ItemFilter(props: Props) {
     let [expanded, setExpanded] = useState(props.forceOpen || false)
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
+    let [urlFilterString, setUrlFilterString] = useQueryParam('itemFilter')
 
     let typeaheadRef = useRef(null)
 
-    let router = useRouter()
-
     useEffect(() => {
-        initFilter()
-        console.log(props.filters)
+        if (props.filters && props.filters.length > 0) {
+            initFilter()
+        }
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
@@ -164,9 +163,7 @@ function ItemFilter(props: Props) {
         }
 
         let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoaUnicode(JSON.stringify(filter))
-
-        router.query.itemFilter = filterString || ''
-        router.replace(router.asPath, undefined, { shallow: true })
+        setUrlFilterString(filterString || '')
     }
 
     function onFilterChange(filter: ItemFilter) {
@@ -281,7 +278,7 @@ function ItemFilter(props: Props) {
                         </p>
                         <hr />
                         <h4>
-                            <Badge variant="danger">Caution</Badge>
+                            <Badge bg="danger">Caution</Badge>
                         </h4>
                         <p>
                             Some filter requests take quite some time to process. That's because we have to search through millions of auctions that potentially
@@ -341,10 +338,11 @@ function ItemFilter(props: Props) {
                                         onChange={addFilter}
                                         options={props.filters}
                                         labelKey={filter => {
-                                            if (filter.name[0].toLowerCase() === filter.name[0]) {
-                                                return convertTagToName(filter.name)
+                                            let name = (filter as Record<string, any>).name
+                                            if (name[0].toLowerCase() === name[0]) {
+                                                return convertTagToName(name)
                                             }
-                                            return camelCaseToSentenceCase(filter.name)
+                                            return camelCaseToSentenceCase(name)
                                         }}
                                     ></Typeahead>
                                 ) : (

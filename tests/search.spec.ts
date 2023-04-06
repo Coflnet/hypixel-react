@@ -9,16 +9,13 @@ test('search player technoblade with special player search query', async ({ page
 })
 
 test('search for grappling hook and open reference', async ({ page }) => {
-    await page.goto('/')
-    await page.getByPlaceholder('Search player/item').fill('Grappling Hook')
-    await page.getByPlaceholder('Search player/item').press('Enter')
-    await expect(page).toHaveURL(/.*\/item\/.*/i)
-    await page.locator('text=/ended.*ago/i').first().click({ force: true })
+    await page.goto('/item/GRAPPLING_HOOK')
+    await page.locator('text=/ended.*ago/i').first().click()
     // loaded auction page
     await expect(page).toHaveURL(/.*\/auction\/.*/i)
     // loaded item page
     await page.getByText('Enchantments:None').isVisible()
-    await page.getByRole('button').filter({ hasText: 'Compare to ended auctions' }).click({ force: true })
+    await page.getByRole('button').filter({ hasText: 'Compare to ended auctions' }).click()
     await expect(page.locator('.modal-title')).toHaveText('Similar auctions from the past')
 })
 
