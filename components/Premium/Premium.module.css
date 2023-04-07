@@ -62,3 +62,12 @@
         float: none;
     }
 }
+
+.coflCoinsText {
+	font-size: 80px;
+	font-weight: 700;
+	background-clip: text;
+	-webkit-background-clip: text;
+	color: transparent;
+	background-image: url('/easter.png');
+}

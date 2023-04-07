@@ -8,6 +8,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './CoflCoinsPurchase.module.css'
+import Countdown from 'react-countdown'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
@@ -244,6 +245,17 @@ function Payment(props: Props) {
 
     return (
         <div>
+            <span style={{ fontSize: 'larger' }}>
+                <span style={{ color: 'red' }}>EASTER SALE:</span>
+                <p>Products over 1.800 CoflCoins are reduced by up to 20%!</p>
+                <p>
+                    End:{' '}
+                    <span style={{ color: 'red' }}>
+                        <Countdown date={new Date('2023-04-10T06:00:00.000Z')} />
+                    </span>
+                </p>
+            </span>
+            <hr />
             <div>
                 <div className={styles.productGrid}>
                     {getPaymentElement(
@@ -262,7 +274,8 @@ function Payment(props: Props) {
                         19.69,
                         's_cc_5400',
                         19.99,
-                        'p_cc_5400'
+                        'p_cc_5400',
+                        0.9
                     )}
                     {!showAll ? (
                         <Button
@@ -283,7 +296,8 @@ function Payment(props: Props) {
                                 38.99,
                                 's_cc_10800',
                                 39.69,
-                                'p_cc_10800'
+                                'p_cc_10800',
+                                0.8
                             )}
                             {getPaymentElement(
                                 <span>
@@ -292,7 +306,8 @@ function Payment(props: Props) {
                                 74.99,
                                 's_cc_21600',
                                 78.69,
-                                'p_cc_21600'
+                                'p_cc_21600',
+                                0.8
                             )}
                             {coflCoins % 1800 != 0 ? getNextTo1800PaymentElement() : null}
                         </>
