@@ -255,6 +255,7 @@ function Payment(props: Props) {
                     </span>
                 </p>
             </span>
+            <hr />
             <div>
                 <div className={styles.productGrid}>
                     {getPaymentElement(
