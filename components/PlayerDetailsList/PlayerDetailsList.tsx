@@ -123,7 +123,7 @@ function PlayerDetailsList(props: Props) {
     }
 
     function showFilter(): boolean {
-        return (props.accountInfo && props.accountInfo?.mcId === props.player.uuid) || (premiumRank && premiumRank.priority > PREMIUM_RANK.STARTER)
+        return (props.accountInfo && props.accountInfo?.mcId === props.player.uuid) || (premiumRank && premiumRank.priority >= PREMIUM_RANK.STARTER)
     }
 
     let onRouteChange = () => {
