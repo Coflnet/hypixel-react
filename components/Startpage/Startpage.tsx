@@ -316,14 +316,13 @@ function Startpage(props: Props) {
                             <AnnouncementIcon />
                             <span className={styles.statusTitle}> News / Announcements</span>
                         </Card.Title>
-                        <Card.Subtitle>Flip Tracking</Card.Subtitle>
+                        <Card.Subtitle>Filter Checker</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        <p>You can now look up a detailed breakdown of your flips in the last week.</p>
-                        <p>To look up your (or someone elses) flips, just search the player and click the blue "Check tracked flips" button.</p>
+                        <p>Below auctions there is now a filter checker to test out if a certain auction would match certain criteria.</p>
                         <hr />
                         <div style={{ marginTop: '20px' }}>
-                            <p>Recent changes (last change: 16. January 2023):</p>
+                            <p>Recent changes (last change: 7. April 2023):</p>
                             <Tooltip
                                 onClick={onRecentChangesClick}
                                 content={
@@ -333,13 +332,14 @@ function Startpage(props: Props) {
                                 }
                                 tooltipContent={
                                     <ul key="changelogList">
-                                        <li className={styles.changelogItem}>Added search to the restriction list</li>
                                         <li className={styles.changelogItem}>
                                             Make it possible to differentiate between items with the same name in the search
                                         </li>
-                                        <li className={styles.changelogItem}>Made multiple pages more robust if data is not valid or not available</li>
-                                        <li className={styles.changelogItem}>Change the way auction names are colored</li>
-                                        <li className={styles.changelogItem}>Multiple Bugfixes</li>
+                                        <li className={styles.changelogItem}>Lots of bug fixes</li>
+                                        <li className={styles.changelogItem}>Styling improvements</li>
+                                        <li className={styles.changelogItem}>Added simlar items</li>
+                                        <li className={styles.changelogItem}>Updated the UI libaries to React 18 and Next 13</li>
+                                        <li className={styles.changelogItem}>Basically updated all npm packages</li>
                                     </ul>
                                 }
                                 type="click"

@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useEffect, useState } from 'react'
 import { Form, Spinner } from 'react-bootstrap'
-import { camelCaseToSentenceCase, getNumberFromShortenString } from '../../utils/Formatter'
+import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { FilterType, hasFlag } from './FilterType'
 import { DateFilterElement } from './FilterElements/DateFilterElement'
 import { RangeFilterElement } from './FilterElements/RangeFilterElement'
@@ -191,7 +191,11 @@ function FilterElement(props: Props) {
             ) : (
                 <div style={{ display: 'grid' }}>
                     <Form.Label style={{ float: 'left' }}>
-                        <b>{camelCaseToSentenceCase(props.options.name)}</b>
+                        <b>
+                            {props.options.name[0].toLowerCase() === props.options.name[0]
+                                ? convertTagToName(props.options.name)
+                                : camelCaseToSentenceCase(props.options.name)}
+                        </b>
                     </Form.Label>
                     {getFilterElement(props.options.type, props.options)}
                     {!isValid ? (

@@ -85,7 +85,9 @@ function Flip(props: Props) {
         let profitPercentElement = <span>({Math.round((profit / flip.cost) * 100)}%)</span>
         return (
             <b style={{ color: profit > 0 ? 'lime' : 'white' }}>
-                {preSymbol + formatPrices(profit) + ' Coins '}
+                <span>{preSymbol}</span>
+                <span>{formatPrices(profit)}</span>
+                <span> Coins </span>
                 {!settings.hideProfitPercent ? profitPercentElement : null}
             </b>
         )

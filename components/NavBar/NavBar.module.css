@@ -49,3 +49,7 @@
 .navBar :global(.ps-menu-button):hover {
     background-color: #505050 !important;
 }
+
+.menuItem {
+    display: block !important
+}
