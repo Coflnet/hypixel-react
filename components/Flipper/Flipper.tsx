@@ -132,6 +132,7 @@ function Flipper(props: Props) {
 
     useEffect(() => {
         if (sessionStorage.getItem('googleId') !== null && !isLoggedIn) {
+            setFlips([])
             setIsLoading(true)
         }
     }, [wasAlreadyLoggedIn, isLoggedIn])
@@ -164,6 +165,7 @@ function Flipper(props: Props) {
     }
 
     function onLogin() {
+        setFlips([])
         setIsLoggedIn(true)
         setIsLoading(true)
         loadHasPremium()
