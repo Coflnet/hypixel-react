@@ -51,9 +51,6 @@ function AuctionHousePriceGraph(props: Props) {
         loadFilters().then(filters => {
             fetchspan = DEFAULT_DATE_RANGE
             setFetchspan(DEFAULT_DATE_RANGE)
-            if (props.item) {
-                updateChart(fetchspan, getPrefillFilter(filters))
-            }
             setFilters(filters)
         })
     }, [props.item.tag])
