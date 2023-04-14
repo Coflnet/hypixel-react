@@ -42,7 +42,10 @@ function AuctionDetails(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if (!props.auctionUUID) {
+        // Dont load auction details if
+        // - either the auctionUUID is not present (then it cant be loaded here and needs props.auctionDetails)
+        // - or props.auctionDetails is already filled
+        if (!props.auctionUUID || props.auctionDetails) {
             return
         }
         loadAuctionDetails(props.auctionUUID!)
