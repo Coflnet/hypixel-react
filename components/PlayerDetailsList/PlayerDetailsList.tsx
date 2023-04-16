@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, ListGroup } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
-import { convertTagToName } from '../../utils/Formatter'
+import { convertTagToName, getMinecraftColorCodedElement, getStyleForTier } from '../../utils/Formatter'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -280,9 +280,9 @@ function PlayerDetailsList(props: Props) {
                 <span key={listElement.uuid} className={`${styles.disableLinkStyle} ${styles.listItemLink}`}>
                     <Link href={`/auction/${listElement.uuid}`} className="disableLinkStyle">
                         <div>
-                            <h4>
+                            <h4 style={{ ...getStyleForTier(listElement.item.tag) }}>
                                 {getItemImageElement(listElement)}
-                                {listElement.item.name || convertTagToName(listElement.item.tag)}
+                                {getMinecraftColorCodedElement(listElement.item.name || convertTagToName(listElement.item.tag))}
                                 {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
                                     <Badge bg="danger" style={{ marginLeft: '10px' }}>
                                         Ended

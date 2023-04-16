@@ -114,7 +114,7 @@ export function getStyleForTier(tier?: string | number): CSSProperties {
     }
 
     return {
-        color: color ? color.colourCode : tierColors[0].colourCode,
+        color: color ? color.colourCode : undefined,
         fontFamily: 'monospace',
         fontWeight: 'bold'
     }
