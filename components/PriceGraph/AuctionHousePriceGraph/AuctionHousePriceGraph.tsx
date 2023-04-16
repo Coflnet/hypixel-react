@@ -123,7 +123,7 @@ function AuctionHousePriceGraph(props: Props) {
     }
 
     let onFilterChange = (filter: ItemFilter) => {
-        setItemFilter(filter)
+        setItemFilter({ ...filter })
         setDefaultRangeSwitch(!defaultRangeSwitch)
         if (fetchspanRef.current !== DateRange.ACTIVE) {
             updateChart(fetchspanRef.current, filter)

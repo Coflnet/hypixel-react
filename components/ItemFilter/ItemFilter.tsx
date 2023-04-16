@@ -153,7 +153,7 @@ function ItemFilter(props: Props) {
     }
 
     let setItemFilter = (itemFilter: ItemFilter) => {
-        _setItemFilter(itemFilter)
+        _setItemFilter({ ...itemFilter })
         updateURLQuery(itemFilter)
     }
 
@@ -163,13 +163,15 @@ function ItemFilter(props: Props) {
         }
 
         let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoaUnicode(JSON.stringify(filter))
-        setUrlFilterString(filterString || '')
+        setUrlFilterString(filterString || '', 'replace')
     }
 
     function onFilterChange(filter: ItemFilter) {
+        let filterCopy = { ...filter }
+
         let valid = true
-        Object.keys(filter).forEach(key => {
-            if (!checkForValidGroupedFilter(key, filter)) {
+        Object.keys(filterCopy).forEach(key => {
+            if (!checkForValidGroupedFilter(key, filterCopy)) {
                 valid = false
                 return
             }
@@ -179,12 +181,20 @@ function ItemFilter(props: Props) {
             return
         }
 
-        setItemFilter(filter!)
+        setItemFilter(filterCopy!)
         if (!props.disableLastUsedFilter) {
-            localStorage.setItem(LAST_USED_FILTER, JSON.stringify(filter))
+            localStorage.setItem(LAST_USED_FILTER, JSON.stringify(filterCopy))
         }
         if (props.onFilterChange) {
-            props.onFilterChange(filter)
+            Object.keys(filterCopy).forEach(key => {
+                if (filterCopy[key] === '' || filterCopy[key] === null) {
+                    console.log('here i delete ' + key)
+                    delete filterCopy[key]
+                }
+            })
+
+            console.log(filterCopy)
+            props.onFilterChange(filterCopy)
         }
     }
 

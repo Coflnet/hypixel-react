@@ -151,7 +151,9 @@ function SubscribeButton(props: Props) {
                         {props.type === 'item' ? (
                             <SubscribeItemContent
                                 itemTag={props.topic}
-                                onFilterChange={setItemFilter}
+                                onFilterChange={filter => {
+                                    setItemFilter({ ...filter })
+                                }}
                                 onIsPriceAboveChange={setIsPriceAbove}
                                 onOnlyInstantBuyChange={setOnlyInstantBuy}
                                 onPriceChange={setPrice}

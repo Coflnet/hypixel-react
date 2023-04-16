@@ -366,8 +366,8 @@ function PlayerDetailsList(props: Props) {
                     <ItemFilter
                         filters={filters}
                         onFilterChange={filter => {
-                            itemFilter = filter
-                            setItemFilter(filter)
+                            itemFilter = {...filter}
+                            setItemFilter(itemFilter)
                             setListElements([])
                             setAllElementsLoaded(false)
                             loadNewElements(true)
