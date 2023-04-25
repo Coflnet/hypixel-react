@@ -14,6 +14,9 @@ interface Props {
 
 function Flipper(props: Props) {
     let flips = useMemo(() => {
+        if (!props.flips) {
+            return []
+        }
         return props.flips.map(flip => parseFlipAuction(flip))
     }, [props.flips])
 
@@ -64,7 +67,7 @@ export const getServerSideProps = async ({ res }) => {
 
     return {
         props: {
-            flips: flips
+            flips: flips || []
         }
     }
 }

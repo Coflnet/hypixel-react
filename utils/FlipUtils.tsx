@@ -120,18 +120,33 @@ export const FLIP_FINDERS = [
         ),
         selectable: true
     },
-    { value: '32', label: 'TFM', shortLabel: 'TFM', default: false, description: (
+    {
+        value: '32',
+        label: 'TFM',
+        shortLabel: 'TFM',
+        default: false,
+        description: (
             <span>
-                These are flips from TFM (TheFlippingMod)<br /> 
+                These are flips from TFM (TheFlippingMod)
+                <br />
                 The integration is currently under development.",
             </span>
-        ), selectable: true },
-    { value: '64', label: 'Stonks', shortLabel: 'Stonks', default: false, description:  (
+        ),
+        selectable: true
+    },
+    {
+        value: '64',
+        label: 'Stonks',
+        shortLabel: 'Stonks',
+        default: false,
+        description: (
             <span>
-                Experimental finder trying to predict the value of an item without references <br /> 
+                Experimental finder trying to predict the value of an item without references <br />
                 This is under active development and will occasionally overvalue flips, use with caution.",
             </span>
-        ), selectable: true },
+        ),
+        selectable: true
+    },
     { value: '128', label: 'External', shortLabel: 'External', default: false, description: '', selectable: false }
 ]
 
@@ -191,7 +206,7 @@ export function isCurrentCalculationBasedOnLbin(flipCustomizeSettings: FlipCusto
 }
 
 export function calculateProfit(flip: FlipAuction, settings?: FlipCustomizeSettings) {
-    if (settings && isCurrentCalculationBasedOnLbin(settings)) {
+    if (flip.finder === 2 || (settings && isCurrentCalculationBasedOnLbin(settings))) {
         return flip.lowestBin - flip.cost
     } else {
         return flip.median - flip.cost

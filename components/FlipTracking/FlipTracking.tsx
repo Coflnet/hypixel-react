@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
 import { Item, Menu, useContextMenu } from 'react-contexify'
-import { getMinecraftColorCodedElement } from '../../utils/Formatter'
+import { getMinecraftColorCodedElement, getStyleForTier } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -160,7 +160,9 @@ export function FlipTracking(props: Props) {
                             style={{ marginRight: '5px' }}
                             loading="lazy"
                         />
-                        <span style={{ whiteSpace: 'nowrap' }}>{getMinecraftColorCodedElement(trackedFlip.item.name)}</span>
+                        <span style={{ whiteSpace: 'nowrap', ...getStyleForTier(trackedFlip.item.tier) }}>
+                            {getMinecraftColorCodedElement(trackedFlip.item.name)}
+                        </span>
                     </div>
                     {trackedFlip.profit > 0 ? (
                         <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>

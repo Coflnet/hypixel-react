@@ -51,10 +51,10 @@ function AuctionHousePriceGraph(props: Props) {
         loadFilters().then(filters => {
             fetchspan = DEFAULT_DATE_RANGE
             setFetchspan(DEFAULT_DATE_RANGE)
+            setFilters(filters)
             if (props.item) {
                 updateChart(fetchspan, getPrefillFilter(filters))
             }
-            setFilters(filters)
         })
     }, [props.item.tag])
 
@@ -126,7 +126,7 @@ function AuctionHousePriceGraph(props: Props) {
     }
 
     let onFilterChange = (filter: ItemFilter) => {
-        setItemFilter({...filter})
+        setItemFilter({ ...filter })
         setDefaultRangeSwitch(!defaultRangeSwitch)
         if (fetchspanRef.current !== DateRange.ACTIVE) {
             updateChart(fetchspanRef.current, filter)

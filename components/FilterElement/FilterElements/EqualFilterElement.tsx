@@ -23,7 +23,9 @@ export function EqualFilterElement(props: Props) {
             options={props.options?.options}
             labelKey={convertTagToName}
             isInvalid={!props.isValid}
-            selectHint={() => true}
+            selectHint={(shouldSelect, event) => {
+                return event.key === 'Enter' || shouldSelect
+            }}
         ></Typeahead>
     )
 }

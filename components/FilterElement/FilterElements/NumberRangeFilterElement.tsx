@@ -78,7 +78,7 @@ export function NumberRangeFilterElement(props: Props) {
     function getMarks() {
         let marks = {}
         for (let i = props.min; i <= props.max; i++) {
-            marks[i] = i.toString()
+            marks[i] = i === 0 ? 'None' : i.toString()
         }
         return marks
     }

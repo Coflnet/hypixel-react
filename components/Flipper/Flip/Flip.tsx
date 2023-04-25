@@ -157,7 +157,7 @@ function Flip(props: Props) {
                         <p>
                             <span>Target price: </span>
                             <br />
-                            <b>{formatPrices(props.flip.median)} Coins</b>
+                            <b>{formatPrices(props.flip.finder === 2 ? props.flip.lowestBin : props.flip.median)} Coins</b>
                         </p>
                     )}
                     {settings.hideEstimatedProfit ? null : (
