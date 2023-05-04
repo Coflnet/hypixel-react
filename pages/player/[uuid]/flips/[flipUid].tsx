@@ -24,7 +24,7 @@ function Flipper(props: Props) {
 
     function getTargetFlipEmbedDescription(targetFlip: FlipTrackingFlip) {
         return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeparators(targetFlip.profit)} Coins ${
-            targetFlip.profit > 0 ? `(${Math.round((targetFlip.profit / targetFlip.pricePaid) * 98)}%)` : ''
+            targetFlip.profit > 0 ? `(${numberWithThousandsSeparators(Math.round((targetFlip.profit / targetFlip.pricePaid) * 98))}%)` : ''
         }
         💸 Purchase: ${numberWithThousandsSeparators(targetFlip.pricePaid)} Coins
         💰 Sold: ${numberWithThousandsSeparators(targetFlip.soldFor)} Coins
@@ -79,7 +79,7 @@ function Flipper(props: Props) {
                 />
             </Container>
         </div>
-    );
+    )
 }
 
 export const getServerSideProps = async ({ res, params }) => {
