@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import Link from 'next/link'
+import { Card } from 'react-bootstrap'
 
 interface Props {
     playerUUID: string
@@ -51,11 +51,22 @@ function ClaimAccount(props: Props) {
     let formattedVerificationNumber = getFormattedVerificationNumber()
 
     const whyText = (
-        <p>
-            Connecting your Minecraft account allows us to improve your experience. There are a lot of features in development where we need to know what your
-            Minecraft account is. Currently connecting your account only adds your Minecraft name to the link preview when you share your{' '}
-            <Link href="/ref">referral link</Link>. Future features include tracking your profit from the flipper and hiding your history from others.
-        </p>
+        <div>
+            <Card style={{ marginBottom: '10px' }}>
+                <Card.Header>Referrals</Card.Header>
+                <Card.Body>
+                    You need to verify your Minecraft account before the person who invited you gets their ref-bonus. This is to prevent people from abusing the
+                    ref system.
+                </Card.Body>
+            </Card>
+            <Card>
+                <Card.Header>Flipping</Card.Header>
+                <Card.Body>
+                    Accounts that are not connected receive a slight delay by default. This is also to prevent different exploits. We also use this information
+                    for our flip tracking feature.
+                </Card.Body>
+            </Card>
+        </div>
     )
 
     return (
