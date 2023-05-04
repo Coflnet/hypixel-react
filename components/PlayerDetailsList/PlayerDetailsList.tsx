@@ -188,9 +188,18 @@ function PlayerDetailsList(props: Props) {
                 alt="item icon"
                 height="48"
                 width="48"
+                onError={error => onImageLoadError(listElement, error)}
                 loading="lazy"
             />
         ) : undefined
+    }
+
+    let onImageLoadError = (listElement: Auction | BidForList, data: any) => {
+        api.getItemDetails(listElement.item.tag).then(item => {
+            listElement.item.iconUrl = item.iconUrl
+            setListElements(listElements)
+            forceUpdate()
+        })
     }
 
     let updateListState = () => {
