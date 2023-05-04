@@ -60,6 +60,12 @@ function About() {
                             by Packs HQ
                         </p>
                         <p>
+                            <a href="https://hypixel.net/threads/4174260" target="_blank" rel="noreferrer">
+                                Hypixel+ <small>v0.18.0</small>
+                            </a>{' '}
+                            by ic22487
+                        </p>
+                        <p>
                             <a href="https://hypixel.net/threads/2138599" target="_blank" rel="noreferrer">
                                 FurfSky+ <small>v1.71</small>
                             </a>{' '}
