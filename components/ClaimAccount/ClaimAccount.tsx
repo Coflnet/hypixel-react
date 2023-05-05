@@ -63,8 +63,8 @@ function ClaimAccount(props: Props) {
             <Card>
                 <Card.Header>Flipping</Card.Header>
                 <Card.Body>
-                    Accounts that are not connected receive a slight delay by default. This is also to prevent different exploits. We also use this information
-                    for our flip tracking feature.
+                    As part of our fairness system unverified accounts receive flips delayed. 
+                    Some parts (like the in game `/cofl profit`) use the list of verified accounts to compute summaries over all your minecraft accounts.
                 </Card.Body>
             </Card>
         </div>
