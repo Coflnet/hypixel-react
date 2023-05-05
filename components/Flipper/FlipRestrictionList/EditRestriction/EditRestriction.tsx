@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import ItemFilter from '../../../ItemFilter/ItemFilter'
 import Tooltip from '../../../Tooltip/Tooltip'
@@ -15,6 +15,8 @@ interface Props {
 }
 
 function EditRestriction(props: Props) {
+    let [isFilterValid, setIsFilterValid] = useState(true)
+
     return (
         <div>
             <ItemFilter
@@ -29,6 +31,7 @@ function EditRestriction(props: Props) {
                 ignoreURL={true}
                 autoSelect={false}
                 disableLastUsedFilter={true}
+                onIsValidChange={setIsFilterValid}
             />
             <TagSelect
                 restriction={props.newRestriction}
@@ -47,6 +50,7 @@ function EditRestriction(props: Props) {
                             onClick={() => {
                                 props.addEditedFilter()
                             }}
+                            disabled={!isFilterValid}
                         >
                             Add filter(s)
                         </Button>
@@ -60,7 +64,7 @@ function EditRestriction(props: Props) {
                 <Tooltip
                     type="hover"
                     content={
-                        <Button variant="success" onClick={props.overrideEditedFilter} style={{ marginLeft: '20px' }}>
+                        <Button variant="success" onClick={props.overrideEditedFilter} style={{ marginLeft: '20px' }} disabled={!isFilterValid}>
                             Override
                         </Button>
                     }

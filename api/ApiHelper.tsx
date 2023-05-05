@@ -554,7 +554,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getRecentAuctions = (itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
-            let params = new URLSearchParams(itemFilter)
+            let params = new URLSearchParams()
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                params = new URLSearchParams(itemFilter)
+            }
 
             httpApi.sendApiRequest({
                 type: RequestType.RECENT_AUCTIONS,

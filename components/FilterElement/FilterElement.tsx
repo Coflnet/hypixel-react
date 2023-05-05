@@ -15,16 +15,18 @@ import { BooleanFilterElement } from './FilterElements/BooleanFilterElement'
 import styles from './FilterElement.module.css'
 import { NumericalFilterElement } from './FilterElements/NumericalFilterElement'
 import { NumberRangeFilterElement } from './FilterElements/NumberRangeFilterElement'
+import { validateFilterNumber, validateFilterRange } from '../../utils/NumberValidationUtils'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
     options?: FilterOptions
     defaultValue: any
+    onIsValidChange?(newIsValid: boolean)
 }
 
 function FilterElement(props: Props) {
     let [value, _setValue] = useState<any>()
-    let [isValid, setIsValid] = useState(true)
+    let [isValid, _setIsValid] = useState(true)
     let [errorText, setErrorText] = useState('')
 
     useEffect(() => {
@@ -49,13 +51,11 @@ function FilterElement(props: Props) {
                 return date
             }
             return newValue
-        } else if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
-            if (!newValue) {
-                return 1
+        } else {
+            if (!newValue && newValue !== 0) {
+                return ''
             }
             return newValue
-        } else {
-            return newValue || ''
         }
     }
 
@@ -84,21 +84,36 @@ function FilterElement(props: Props) {
         _setValue(parseValue(value))
     }
 
+    function setIsValid(newValue: boolean) {
+        if (props.onIsValidChange) {
+            props.onIsValidChange(newValue)
+        }
+        _setIsValid(newValue)
+    }
+
     function validate(value?: any) {
         if (!value && value !== 0) {
             setErrorText('Please fill the filter or remove it')
             setIsValid(false)
             return false
         }
-        if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
-            let v = parseInt(value)
-            let lowEnd = parseInt(props.options.options[0])
-            let highEnd = parseInt(props.options.options[1])
-            if (v < lowEnd || v > highEnd) {
-                setErrorText('Please choose a value between ' + lowEnd + ' and ' + highEnd)
-                setIsValid(false)
+        if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL) && hasFlag(props.options.type, FilterType.RANGE)) {
+            let validationResult = validateFilterRange(value.toString(), props.options)
+            setIsValid(validationResult[0])
+            if (!validationResult[0]) {
+                setErrorText(validationResult[1])
                 return false
             }
+            return true
+        }
+        if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
+            let validationResult = validateFilterNumber(value.toString(), props.options)
+            setIsValid(validationResult[0])
+            if (!validationResult[0]) {
+                setErrorText(validationResult[1])
+                return false
+            }
+            return true
         }
         setIsValid(true)
         return true
@@ -152,7 +167,15 @@ function FilterElement(props: Props) {
                     />
                 )
             } else {
-                return <EqualFilterElement key={options.name} options={options} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+                return (
+                    <EqualFilterElement
+                        key={options.name}
+                        isValid={isValid}
+                        options={options}
+                        defaultValue={props.defaultValue}
+                        onChange={onFilterElementChange}
+                    />
+                )
             }
         }
         if (hasFlag(type, FilterType.NUMERICAL)) {
@@ -177,13 +200,9 @@ function FilterElement(props: Props) {
                     {getFilterElement(props.options.type, props.options)}
                     {!isValid ? (
                         <div>
-                            <Form.Control.Feedback type="invalid">
-                                <span style={{ color: 'red' }}>{errorText}</span>
-                            </Form.Control.Feedback>
+                            <span style={{ color: 'red' }}>{errorText}</span>
                         </div>
-                    ) : (
-                        ''
-                    )}
+                    ) : null}
                 </div>
             )}
         </div>

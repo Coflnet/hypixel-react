@@ -13,6 +13,7 @@ interface Props {
     onFilterChange(filter: ItemFilter)
     itemTag: string
     prefill?: Subscription
+    onIsFilterValidChange?(newIsFilter: boolean)
 }
 
 function SubscribeItemContent(props: Props) {
@@ -86,6 +87,7 @@ function SubscribeItemContent(props: Props) {
                         forceOpen={true}
                         ignoreURL={true}
                         onFilterChange={props.onFilterChange}
+                        onIsValidChange={props.onIsFilterValidChange}
                     />
                 </Form.Group>
             </div>
