@@ -6,6 +6,7 @@ interface Props {
     onChange(n: string)
     options: FilterOptions
     defaultValue?: any
+    isValid?: boolean
 }
 
 export function EqualFilterElement(props: Props) {
@@ -21,6 +22,7 @@ export function EqualFilterElement(props: Props) {
             onChange={_onChange}
             options={props.options?.options}
             labelKey={convertTagToName}
+            isInvalid={!props.isValid}
             selectHint={(shouldSelect, event) => {
                 return event.key === 'Enter' || shouldSelect
             }}

@@ -14,6 +14,7 @@ export function FilterChecker(props: Props) {
     let [hasFilterApplied, setHasFilterApplied] = useState(null)
     let [disabled, setDisabled] = useState(true)
     let [isLoading, setIsLoading] = useState(false)
+    let [isFilterValid, setIsFilterValid] = useState(true)
 
     useEffect(() => {
         api.getFilters(props.auctionToCheck.tag).then(setFilterOptions)
@@ -43,9 +44,9 @@ export function FilterChecker(props: Props) {
 
     return (
         <>
-            <ItemFilter ignoreURL={true} forceOpen={true} onFilterChange={onFilterChange} filters={filterOptions} />
+            <ItemFilter ignoreURL={true} forceOpen={true} onFilterChange={onFilterChange} filters={filterOptions} onIsValidChange={setIsFilterValid} />
             <div>
-                <Button onClick={onCheck} disabled={disabled} style={{ width: '100%' }}>
+                <Button onClick={onCheck} disabled={disabled || !isFilterValid} style={{ width: '100%' }}>
                     {!isLoading ? 'Check filter' : 'Loading...'}
                 </Button>
                 {hasFilterApplied != null ? (

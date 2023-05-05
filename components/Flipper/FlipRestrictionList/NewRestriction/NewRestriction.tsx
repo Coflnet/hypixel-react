@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
 import ItemFilter from '../../../ItemFilter/ItemFilter'
@@ -17,6 +17,8 @@ interface Props {
 }
 
 function NewRestriction(props: Props) {
+    let [isFilterValid, setIsFilterValid] = useState(true)
+
     let getButtonVariant = (range: string): string => {
         return range === props.newRestriction.type ? 'primary' : 'secondary'
     }
@@ -60,6 +62,7 @@ function NewRestriction(props: Props) {
                 ignoreURL={true}
                 autoSelect={false}
                 disableLastUsedFilter={true}
+                onIsValidChange={setIsFilterValid}
             />
             <TagSelect
                 restriction={props.newRestriction}
@@ -70,7 +73,7 @@ function NewRestriction(props: Props) {
                 }}
             />
             <span>
-                <Button variant="success" onClick={props.addNewRestriction}>
+                <Button variant="success" onClick={props.addNewRestriction} disabled={!isFilterValid}>
                     Save new restriction
                 </Button>
                 <Button variant="danger" onClick={props.onCancel} style={{ marginLeft: '5px' }}>
