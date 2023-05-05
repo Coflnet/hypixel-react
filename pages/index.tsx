@@ -37,8 +37,13 @@ export const getServerSideProps = async ({ res }) => {
     res.setHeader('Cache-Control', getCacheControlHeader())
 
     let api = initAPI(true)
-    // Dont load ended Auctions, as this is a expensive computation and can take multiple seconds
-    let results = await Promise.all([api.getNewAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => null)))
+    let results = []
+    try {
+        // Dont load ended Auctions, as this is a expensive computation and can take multiple seconds
+        results = await Promise.all([api.getNewAuctions(), api.getNewPlayers(), api.getPopularSearches(), api.getNewItems()].map(p => p.catch(e => null)))
+    } catch (e) {
+        console.log('Startpage SSR: ' + JSON.stringify(e))
+    }
     return {
         props: {
             newAuctions: results[0] || [],
