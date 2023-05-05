@@ -55,8 +55,9 @@ function ClaimAccount(props: Props) {
             <Card style={{ marginBottom: '10px' }}>
                 <Card.Header>Referrals</Card.Header>
                 <Card.Body>
-                    You need to verify your Minecraft account before the person who invited you gets their ref-bonus. This is to prevent people from abusing the
-                    ref system.
+                    The referral bonus for inviting someone is only awarded after verifying with a minecraft account.  
+                    You receive free test premium after you verified your account.
+                    This is to prevent people from abusing the ref system by creating new emails.
                 </Card.Body>
             </Card>
             <Card>
