@@ -36,7 +36,6 @@ function FlipRestrictionList(props: Props) {
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        setRestrictions(restrictions)
         loadFilters()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -133,93 +132,98 @@ function FlipRestrictionList(props: Props) {
     }
 
     function addEditedFilter() {
+        let newRestrictions = [...restrictions]
         restrictionInEditModeIndex.forEach(index => {
             Object.keys(newRestriction.itemFilter).forEach(key => {
-                if (restrictions[index].itemFilter[key] === undefined) {
-                    restrictions[index].itemFilter[key] = newRestriction.itemFilter[key]
+                if (newRestrictions[index].itemFilter[key] === undefined) {
+                    newRestrictions[index].itemFilter[key] = newRestriction.itemFilter[key]
                 }
             })
-            restrictions[index].tags = newRestriction.tags ? [...newRestriction.tags] : []
-            restrictions[index].isEdited = false
+            newRestrictions[index].tags = newRestriction.tags ? [...newRestriction.tags] : []
+            newRestrictions[index].isEdited = false
         })
         restrictionInEditModeIndex = []
 
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
         if (props.onRestrictionsChange) {
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
         }
 
         loadFilters().then(() => {
             setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
-            setRestrictions(restrictions)
+            setRestrictions(newRestrictions)
             forceUpdate()
         })
     }
 
     function overrideEditedFilter() {
+        let newRestrictions = [...restrictions]
         restrictionInEditModeIndex.forEach(index => {
-            restrictions[index].itemFilter = { ...newRestriction.itemFilter }
-            restrictions[index].tags = newRestriction.tags ? [...newRestriction.tags] : []
-            restrictions[index].isEdited = false
+            newRestrictions[index].itemFilter = { ...newRestriction.itemFilter }
+            newRestrictions[index].tags = newRestriction.tags ? [...newRestriction.tags] : []
+            newRestrictions[index].isEdited = false
         })
 
         restrictionInEditModeIndex = []
 
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
         if (props.onRestrictionsChange) {
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
         }
 
         loadFilters().then(() => {
             setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
-            setRestrictions(restrictions)
+            setRestrictions(newRestrictions)
             forceUpdate()
         })
     }
 
     function onEditRestrictionCancel() {
+        let newRestrictions = [...restrictions]
         restrictionInEditModeIndex.forEach(index => {
-            restrictions[index].isEdited = false
+            newRestrictions[index].isEdited = false
         })
 
         loadFilters().then(() => {
             setRestrictionsInEditModeIndex([])
-            setRestrictions(restrictions)
+            setRestrictions(newRestrictions)
             forceUpdate()
         })
     }
 
-    function removeRestrictionByIndex(restriction: FlipRestriction, index: number) {
-        restrictions.splice(index, 1)
-        setRestrictions(restrictions)
+    function removeRestrictionByIndex(index: number) {
+        let newRestrictions = [...restrictions]
 
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
 
         document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
 
         if (props.onRestrictionsChange) {
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), restriction.type)
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), newRestrictions[index].type)
         }
 
-        setRestrictions(restrictions)
+        newRestrictions.splice(index, 1)
+        setRestrictions(newRestrictions)
         forceUpdate()
     }
 
-    function createDuplicate(restriction: FlipRestriction, index: number) {
-        let duplicate = { ...restriction }
-        restrictions.splice(index + 1, 0, duplicate)
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+    function createDuplicate(index: number) {
+        let duplicate = { ...restrictions[index] }
+        let newRestrictions = [...restrictions]
+        newRestrictions.splice(index + 1, 0, duplicate)
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
         if (props.onRestrictionsChange) {
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
         }
-        setRestrictions(restrictions)
+        setRestrictions(newRestrictions)
     }
 
-    function saveRestrictionEdit(restriction: FlipRestriction, index: number) {
-        restriction.isEdited = false
+    function saveRestrictionEdit(index: number) {
+        let newRestrictions = [...restrictions]
+        newRestrictions[index].isEdited = false
         let i = restrictionInEditModeIndex.indexOf(index)
         restrictionInEditModeIndex.splice(i, 1)
 
@@ -230,7 +234,7 @@ function FlipRestrictionList(props: Props) {
 
         loadFilters(restrictionsInEditMode).then(() => {
             setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
-            setRestrictions(restrictions)
+            setRestrictions(newRestrictions)
             setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
             if (props.onRestrictionsChange) {
                 props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
@@ -240,42 +244,31 @@ function FlipRestrictionList(props: Props) {
         })
     }
 
-    function editRestriction(restriction: FlipRestriction, index: number) {
-        if (restrictionInEditModeIndex.length === 0) {
-            newRestriction.itemFilter = { ...restriction.itemFilter }
-            if (restriction.tags) {
-                newRestriction.tags = [...restriction.tags]
+    function editRestriction(index: number) {
+        let newRestrictions = [...restrictions]
+        let restrictionToEdit = newRestrictions[index]
+        let newRestrictionsInEditMode = [...restrictionInEditModeIndex]
+        if (newRestrictionsInEditMode.length === 0) {
+            newRestriction.itemFilter = { ...restrictionToEdit.itemFilter }
+            if (restrictionToEdit.tags) {
+                newRestriction.tags = [...restrictionToEdit.tags]
             }
             setNewRestriction(newRestriction)
         }
 
-        restrictionInEditModeIndex.push(index)
+        newRestrictionsInEditMode.push(index)
 
         let restrictionsInEditMode: FlipRestriction[] = []
-        restrictionInEditModeIndex.forEach(index => {
+        newRestrictionsInEditMode.forEach(index => {
             restrictionsInEditMode.push(restrictions[index])
         })
 
         loadFilters(restrictionsInEditMode).then(() => {
-            restriction.isEdited = true
-            setRestrictions(restrictions)
-            setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
+            restrictionToEdit.isEdited = true
+            setRestrictions(newRestrictions)
+            setRestrictionsInEditModeIndex(newRestrictionsInEditMode)
             forceUpdate()
         })
-    }
-
-    function changeRestrictionType(restriction: FlipRestriction, type: 'whitelist' | 'blacklist') {
-        restriction.type = type
-        setRestrictions(restrictions)
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
-        if (props.onRestrictionsChange) {
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), type)
-        }
-        forceUpdate()
-    }
-
-    function onClearListClick() {
-        setShowClearListDialog(true)
     }
 
     function clearRestrictions() {
@@ -296,27 +289,28 @@ function FlipRestrictionList(props: Props) {
     }
 
     function refreshItemNames() {
+        let newRestrictions = [...restrictions]
         setIsRefreshingItemNames(true)
         let items: Item[] = []
-        restrictions.forEach(restriction => {
+        newRestrictions.forEach(restriction => {
             if (restriction.item && restriction.item.tag) {
                 items.push(restriction.item)
             }
         })
         api.getItemNames(items)
             .then(itemNameMap => {
-                restrictions.forEach(restriction => {
+                newRestrictions.forEach(restriction => {
                     if (restriction.item && restriction.item.tag) {
                         restriction.item.name = itemNameMap[restriction.item.tag]
                     }
                 })
                 toast.success('Reloaded all item names')
                 setIsRefreshingItemNames(false)
-                setRestrictions(restrictions)
-                setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+                setRestrictions(newRestrictions)
+                setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
                 if (props.onRestrictionsChange) {
-                    props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
-                    props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
+                    props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
+                    props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
                 }
             })
             .catch(() => {
@@ -409,7 +403,12 @@ function FlipRestrictionList(props: Props) {
                             <Button variant="info" style={{ marginRight: '10px', padding: '5px' }} onClick={refreshItemNames} disabled={isRefreshingItemNames}>
                                 <Refresh /> Refresh item names
                             </Button>
-                            <Button variant="danger" onClick={onClearListClick}>
+                            <Button
+                                variant="danger"
+                                onClick={() => {
+                                    setShowClearListDialog(true)
+                                }}
+                            >
                                 <DeleteIcon /> Clear list
                             </Button>
                         </span>
@@ -450,7 +449,9 @@ function FlipRestrictionList(props: Props) {
                                         name="options"
                                         value={restriction.type}
                                         onChange={newValue => {
-                                            changeRestrictionType(restriction, newValue)
+                                            let newRestrictions = [...restrictions]
+                                            newRestrictions[index].type = newValue
+                                            setRestrictions(newRestrictions)
                                         }}
                                     >
                                         <ToggleButton
@@ -496,7 +497,7 @@ function FlipRestrictionList(props: Props) {
                                         <div
                                             className={styles.cancelEditButton}
                                             onClick={() => {
-                                                saveRestrictionEdit(restriction, index)
+                                                saveRestrictionEdit(index)
                                             }}
                                         >
                                             <Tooltip type="hover" content={<SaveIcon />} tooltipContent={<p>Save</p>} />
@@ -505,7 +506,7 @@ function FlipRestrictionList(props: Props) {
                                         <div
                                             className={styles.editButton}
                                             onClick={() => {
-                                                editRestriction(restriction, index)
+                                                editRestriction(index)
                                             }}
                                         >
                                             <Tooltip type="hover" content={<EditIcon />} tooltipContent={<p>Edit restriction</p>} />
@@ -513,10 +514,10 @@ function FlipRestrictionList(props: Props) {
                                     )}
                                     {restrictionInEditModeIndex.length === 0 ? (
                                         <>
-                                            <div className={styles.removeFilter} onClick={() => createDuplicate(restriction, index)}>
+                                            <div className={styles.removeFilter} onClick={() => createDuplicate(index)}>
                                                 <Tooltip type="hover" content={<DuplicateIcon />} tooltipContent={<p>Create duplicate</p>} />
                                             </div>
-                                            <div className={styles.removeFilter} onClick={() => removeRestrictionByIndex(restriction, index)}>
+                                            <div className={styles.removeFilter} onClick={() => removeRestrictionByIndex(index)}>
                                                 <Tooltip type="hover" content={<DeleteIcon color="error" />} tooltipContent={<p>Remove restriction</p>} />
                                             </div>
                                         </>
@@ -530,9 +531,10 @@ function FlipRestrictionList(props: Props) {
                                         onAfterEdit={
                                             restriction.isEdited
                                                 ? filter => {
-                                                      restriction.itemFilter = { ...filter }
-                                                      setRestrictions(restrictions)
-                                                      setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+                                                      let newRestrictions = [...restrictions]
+                                                      newRestrictions[index].itemFilter = { ...filter }
+                                                      setRestrictions(newRestrictions)
+                                                      setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
 
                                                       if (props.onRestrictionsChange) {
                                                           props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), newRestriction.type)
