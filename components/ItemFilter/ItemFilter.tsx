@@ -190,12 +190,9 @@ function ItemFilter(props: Props) {
         if (props.onFilterChange) {
             Object.keys(filterCopy).forEach(key => {
                 if (filterCopy[key] === '' || filterCopy[key] === null) {
-                    console.log('here i delete ' + key)
                     delete filterCopy[key]
                 }
             })
-
-            console.log(filterCopy)
             props.onFilterChange(filterCopy)
         }
     }

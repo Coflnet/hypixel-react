@@ -39,7 +39,7 @@ export function validateFilterNumber(input: string, options: FilterOptions): [bo
     if (number === null) {
         return [false, INVALID_NUMBER_ERROR]
     }
-    if (isNumberInRange(number, options)) {
+    if (!isNumberInRange(number, options)) {
         return [false, getRangeErrorMessage(options.options[0], options.options[1])]
     }
     return [true]
