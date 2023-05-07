@@ -37,7 +37,7 @@ function ItemFilter(props: Props) {
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
     let [urlFilterString, setUrlFilterString] = useQueryParam('itemFilter')
-    let [invalidFilters, setInvalidFilters] = useState<string[]>([])
+    let [invalidFilters, setInvalidFilters] = useState(new Set<string>())
 
     let typeaheadRef = useRef(null)
 
@@ -226,19 +226,15 @@ function ItemFilter(props: Props) {
     }
 
     function onIsValidChange(filterName: string, newIsValid: boolean) {
-        let newInvalidFilters = [...invalidFilters]
+        let newInvalidFilters = new Set(invalidFilters)
         if (newIsValid) {
-            let index = invalidFilters.indexOf(filterName)
-            if (index !== -1) {
-                newInvalidFilters.splice(index, 1)
-                setInvalidFilters(newInvalidFilters)
-            }
+            newInvalidFilters.delete(filterName)
         } else {
-            newInvalidFilters.push(filterName)
-            setInvalidFilters(newInvalidFilters)
+            newInvalidFilters.add(filterName)
         }
+        setInvalidFilters(newInvalidFilters)
         if (props.onIsValidChange) {
-            props.onIsValidChange(newInvalidFilters.length === 0)
+            props.onIsValidChange(newInvalidFilters.size === 0)
         }
     }
 
