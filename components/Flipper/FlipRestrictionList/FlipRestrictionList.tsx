@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { getStyleForTier } from '../../../utils/Formatter'
-import { useForceUpdate } from '../../../utils/Hooks'
 import { getCleanRestrictionsForApi, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Refresh from '@mui/icons-material/Refresh'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -32,8 +31,6 @@ function FlipRestrictionList(props: Props) {
     let [isRefreshingItemNames, setIsRefreshingItemNames] = useState(false)
     let [searchText, setSearchText] = useState('')
     let [sortByName, setSortByName] = useState(false)
-
-    let forceUpdate = useForceUpdate()
 
     useEffect(() => {
         loadFilters()
@@ -92,7 +89,6 @@ function FlipRestrictionList(props: Props) {
         newRestriction.item.tag = item.id
         setNewRestriction(newRestriction)
         loadFilters()
-        forceUpdate()
     }
 
     function onRestrictionChange(restriction: FlipRestriction) {
@@ -113,8 +109,6 @@ function FlipRestrictionList(props: Props) {
         if (props.onRestrictionsChange) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), newRestriction.type)
         }
-
-        forceUpdate()
     }
 
     function onNewRestrictionCancel() {
@@ -125,10 +119,9 @@ function FlipRestrictionList(props: Props) {
     }
 
     function onRestrictionTypeChange(value: 'blacklist' | 'whitelist') {
-        let restriction = newRestriction
+        let restriction = { ...newRestriction }
         restriction.type = value
         setNewRestriction(restriction)
-        forceUpdate()
     }
 
     function addEditedFilter() {
@@ -153,7 +146,6 @@ function FlipRestrictionList(props: Props) {
         loadFilters().then(() => {
             setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
             setRestrictions(newRestrictions)
-            forceUpdate()
         })
     }
 
@@ -176,7 +168,6 @@ function FlipRestrictionList(props: Props) {
         loadFilters().then(() => {
             setRestrictionsInEditModeIndex(restrictionInEditModeIndex)
             setRestrictions(newRestrictions)
-            forceUpdate()
         })
     }
 
@@ -189,12 +180,12 @@ function FlipRestrictionList(props: Props) {
         loadFilters().then(() => {
             setRestrictionsInEditModeIndex([])
             setRestrictions(newRestrictions)
-            forceUpdate()
         })
     }
 
     function removeRestrictionByIndex(index: number) {
         let newRestrictions = [...restrictions]
+        newRestrictions.splice(index, 1)
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
 
@@ -203,10 +194,7 @@ function FlipRestrictionList(props: Props) {
         if (props.onRestrictionsChange) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), newRestrictions[index].type)
         }
-
-        newRestrictions.splice(index, 1)
         setRestrictions(newRestrictions)
-        forceUpdate()
     }
 
     function createDuplicate(index: number) {
@@ -240,7 +228,6 @@ function FlipRestrictionList(props: Props) {
                 props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
                 props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
             }
-            forceUpdate()
         })
     }
 
@@ -267,7 +254,6 @@ function FlipRestrictionList(props: Props) {
             restrictionToEdit.isEdited = true
             setRestrictions(newRestrictions)
             setRestrictionsInEditModeIndex(newRestrictionsInEditMode)
-            forceUpdate()
         })
     }
 
@@ -284,8 +270,6 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
         }
-
-        forceUpdate()
     }
 
     function refreshItemNames() {
@@ -539,8 +523,6 @@ function FlipRestrictionList(props: Props) {
                                                       if (props.onRestrictionsChange) {
                                                           props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), newRestriction.type)
                                                       }
-
-                                                      forceUpdate()
                                                   }
                                                 : null
                                         }
