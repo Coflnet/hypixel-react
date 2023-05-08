@@ -1,0 +1,5 @@
+/* Google shows a white box if the color-scheme is black for some reason */
+.googleButton{
+    width: 250px;
+    color-scheme: light;
+}

@@ -6,6 +6,7 @@ import { useForceUpdate } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { GoogleLogin } from '@react-oauth/google'
+import styles from './GoogleSignIn.module.css'
 
 interface Props {
     onAfterLogin(): void
@@ -110,7 +111,7 @@ function GoogleSignIn(props: Props) {
         <div style={style} onClickCapture={onLoginClick}>
             {!wasAlreadyLoggedInThisSession ? (
                 <>
-                    <div style={{ width: '250px' }}>
+                    <div className={styles.googleButton}>
                         <GoogleLogin onSuccess={onLoginSucces} onError={onLoginFail} theme={'filled_blue'} size={'large'} useOneTap auto_select />
                     </div>
                     <p>
