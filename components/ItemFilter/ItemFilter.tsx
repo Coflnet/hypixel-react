@@ -129,6 +129,11 @@ function ItemFilter(props: Props) {
     }
 
     function onFilterRemoveClick(filterName: string) {
+        if (invalidFilters.has(filterName)) {
+            let newInvalidFilters = new Set(invalidFilters)
+            newInvalidFilters.delete(filterName)
+            setInvalidFilters(newInvalidFilters)
+        }
         removeFilter(filterName)
         getGroupedFilter(filterName).forEach(filter => removeFilter(filter))
     }
@@ -234,6 +239,7 @@ function ItemFilter(props: Props) {
         }
         setInvalidFilters(newInvalidFilters)
         if (props.onIsValidChange) {
+            console.log(newInvalidFilters)
             props.onIsValidChange(newInvalidFilters.size === 0)
         }
     }
