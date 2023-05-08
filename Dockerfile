@@ -5,7 +5,7 @@ WORKDIR /opt/app
 COPY package*.json ./
 RUN npm ci
 
-FROM node:16-alpine3.16 AS builder
+FROM node:16.20-bullseye AS builder
 
 ENV NODE_ENV=production
 WORKDIR /opt/app
