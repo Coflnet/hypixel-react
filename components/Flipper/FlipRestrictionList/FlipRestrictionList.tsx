@@ -185,14 +185,14 @@ function FlipRestrictionList(props: Props) {
 
     function removeRestrictionByIndex(index: number) {
         let newRestrictions = [...restrictions]
-        newRestrictions.splice(index, 1)
+        let deletedRestriction = newRestrictions.splice(index, 1)
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
 
         document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
 
         if (props.onRestrictionsChange) {
-            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), newRestrictions[index].type)
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), deletedRestriction[0].type)
         }
         setRestrictions(newRestrictions)
     }
