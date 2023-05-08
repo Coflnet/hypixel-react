@@ -209,7 +209,7 @@ function Search(props: Props) {
         }
         return (
             <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
-                <Image crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" width="32" alt="" style={{ marginRight: '10px' }} />
+                <img crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" width="32" alt="" style={{ marginRight: '10px' }} />
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
                 {props.enableReset ? (
                     <ClearIcon onClick={props.onResetClick} style={{ cursor: 'pointer', color: 'red', marginLeft: '10px', fontWeight: 'bold' }} />
