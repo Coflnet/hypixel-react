@@ -1,5 +1,5 @@
 # Install dependencies only when needed
-FROM node:16-alpine3.16 AS deps
+FROM node:16.20-bullseye AS deps
 
 WORKDIR /opt/app
 COPY package*.json ./
@@ -14,7 +14,7 @@ COPY --from=deps /opt/app/node_modules ./node_modules
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:16-alpine3.16 AS runner
+FROM node:16.20-bullseye AS runner
 
 ARG X_TAG
 WORKDIR /opt/app
