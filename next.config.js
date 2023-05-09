@@ -7,6 +7,7 @@ module.exports = {
         defaultLocale: 'en'
     },
     images: {
+        unoptimized: true,
         remotePatterns: [
             {
                 protocol: 'https',
