@@ -13,7 +13,7 @@ import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
 import { btoaUnicode } from '../../utils/Base64Utils'
 import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
-import { useQueryParam } from 'use-query-params'
+import { ObjectParam, StringParam, useQueryParam } from 'use-query-params'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -36,7 +36,7 @@ function ItemFilter(props: Props) {
     let [expanded, setExpanded] = useState(props.forceOpen || false)
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
-    let [urlFilterString, setUrlFilterString] = useQueryParam('itemFilter')
+    let [urlFilterString, setUrlFilterString] = useQueryParam('itemFilter', StringParam)
     let [invalidFilters, setInvalidFilters] = useState(new Set<string>())
 
     let typeaheadRef = useRef(null)
@@ -170,7 +170,7 @@ function ItemFilter(props: Props) {
         }
 
         let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoaUnicode(JSON.stringify(filter))
-        setUrlFilterString(filterString || '', 'replace')
+        setUrlFilterString(filterString || '', 'replaceIn')
     }
 
     function onFilterChange(filter: ItemFilter) {
