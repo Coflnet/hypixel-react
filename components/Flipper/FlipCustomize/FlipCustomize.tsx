@@ -14,7 +14,7 @@ import {
 import Tooltip from '../../Tooltip/Tooltip'
 import Flip from '../Flip/Flip'
 import HelpIcon from '@mui/icons-material/Help'
-import Select, { components } from 'react-select'
+import Select, { MultiValueGenericProps, components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
 import styles from './FlipCustomize.module.css'
 import api from '../../../api/ApiHelper'
@@ -171,7 +171,7 @@ function FlipCustomize() {
     const MultiValueContainer = props => {
         return (
             <components.MultiValueContainer {...props}>
-                <Tooltip type={'hover'} content={<div {...props.innerProps}>{props.children}</div>} tooltipContent={<span>{props.data.description}</span>} />
+                <Tooltip type={'hover'} content={<span style={props.innerProps.css}>{props.children}</span>} tooltipContent={<span>{props.data.description}</span>} />
             </components.MultiValueContainer>
         )
     }
@@ -408,6 +408,7 @@ function FlipCustomize() {
                         styles={customSelectStyle}
                         onChange={onFindersChange}
                         closeMenuOnSelect={false}
+                        components={{ MultiValueContainer }}
                     />
                     {getFlipFinderWarningElement()}
                 </div>
