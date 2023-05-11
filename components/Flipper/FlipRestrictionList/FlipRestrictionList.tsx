@@ -53,7 +53,7 @@ function FlipRestrictionList(props: Props) {
                 api.getFilters(newRestriction.item ? newRestriction.item.tag : '*'),
                 api.flipFilters(newRestriction.item ? newRestriction.item.tag : '*')
             ]).then(filters => {
-                let result = [...filters[0], ...filters[1]]
+                let result = [...(filters[0] || []), ...(filters[1] || [])]
                 setFilters(result)
                 return result
             })
