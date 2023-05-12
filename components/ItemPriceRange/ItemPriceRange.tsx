@@ -33,7 +33,7 @@ export function ItemPriceRange(props: Props) {
     let [selectedDateRange, setSelectedDateRange] = useQueryParam('range', withDefault(StringParam, DEFAULT_DATE_RANGE))
 
     if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
-        setSelectedDateRange(DateRange.MONTH)
+        setSelectedDateRange(DateRange.MONTH, 'replaceIn')
         if (props.onRangeChange) {
             props.onRangeChange(DateRange.MONTH)
         }
@@ -47,14 +47,14 @@ export function ItemPriceRange(props: Props) {
         DEFAULT_DATE_RANGE = range as DateRange
 
         setTimeout(() => {
-            setSelectedDateRange(range as DateRange)
+            setSelectedDateRange(range as DateRange, 'replaceIn')
             DEFAULT_DATE_RANGE = DateRange.DAY
         }, 500)
     }, [])
 
     useEffect(() => {
         if (props.item !== undefined) {
-            setSelectedDateRange(DEFAULT_DATE_RANGE)
+            setSelectedDateRange(DEFAULT_DATE_RANGE, 'replaceIn')
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag])
@@ -90,7 +90,7 @@ export function ItemPriceRange(props: Props) {
     }
 
     let onRangeChange = (newRange: DateRange) => {
-        setSelectedDateRange(newRange)
+        setSelectedDateRange(newRange, 'replaceIn')
         if (props.onRangeChange) {
             props.onRangeChange(newRange)
         }

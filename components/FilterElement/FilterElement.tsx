@@ -106,6 +106,31 @@ function FilterElement(props: Props) {
             }
             return true
         }
+        if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
+            let date = new Date(value * 1000)
+            if (date < new Date(props.options.options[0])) {
+                setErrorText(`Date needs to be after ${props.options.options[0]}`)
+                setIsValid(false)
+                return false
+            }
+            if (date > new Date(props.options.options[1])) {
+                setErrorText(`Date needs to be before ${props.options.options[1]}`)
+                setIsValid(false)
+                return false
+            }
+            setIsValid(true)
+            return true
+        }
+        if (props.options && hasFlag(props.options.type, FilterType.RANGE)) {
+            if (props.options?.options.length === 2 && props.options.options[0] === '000000000000' && props.options.options[1] === 'ffffffffffff') {
+                let result = new RegExp(/^[0-9A-Fa-f]{12}$/).test(value)
+                setIsValid(result)
+                if (!isValid) {
+                    setErrorText('This field needs to be 12 characters long and must only include hex characters.')
+                }
+                return result
+            }
+        }
         if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
             let validationResult = validateFilterNumber(value.toString(), props.options)
             setIsValid(validationResult[0])
@@ -125,6 +150,8 @@ function FilterElement(props: Props) {
             return <ColorFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
         }
         if (
+            hasFlag(type, FilterType.NUMERICAL) &&
+            hasFlag(type, FilterType.RANGE) &&
             options.options.length === 2 &&
             !isNaN(parseInt(options.options[0])) &&
             !isNaN(parseInt(options.options[1])) &&
@@ -150,7 +177,15 @@ function FilterElement(props: Props) {
             return <PlayerWithRankFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
         }
         if (hasFlag(type, FilterType.PLAYER)) {
-            return <PlayerFilterElement key={options.name} defaultValue={props.defaultValue} returnType="uuid" onChange={onFilterElementChange} />
+            return (
+                <PlayerFilterElement
+                    key={options.name}
+                    defaultValue={props.defaultValue}
+                    isValid={isValid}
+                    returnType="uuid"
+                    onChange={onFilterElementChange}
+                />
+            )
         }
         if (hasFlag(type, FilterType.BOOLEAN)) {
             return <BooleanFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />

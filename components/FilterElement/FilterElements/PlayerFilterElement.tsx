@@ -10,6 +10,7 @@ interface Props {
     defaultValue: string
     ref?(ref)
     placeholder?: string
+    isValid?: boolean
 }
 
 export let PlayerFilterElement = forwardRef((props: Props, ref: Ref<Typeahead>) => {
@@ -38,6 +39,7 @@ export let PlayerFilterElement = forwardRef((props: Props, ref: Ref<Typeahead>) 
             isLoading={isLoading}
             labelKey="name"
             minLength={1}
+            isInvalid={!props.isValid}
             onSearch={handlePlayerSearch}
             defaultInputValue={props.defaultValue}
             options={players}
