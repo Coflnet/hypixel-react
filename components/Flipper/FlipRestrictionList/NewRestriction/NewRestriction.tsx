@@ -1,26 +1,70 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
 import ItemFilter from '../../../ItemFilter/ItemFilter'
-import Search from '../../../Search/Search'
 import TagSelect from '../TagSelect/TagSelect'
 import styles from './NewRestriction.module.css'
+import { MultiSearch } from '../../../Search/MultiSearch'
 
 interface Props {
-    newRestriction: FlipRestriction
-    onRestrictionTypeChange(value: 'blacklist' | 'whitelist')
-    onSearchResultClick(item: SearchResultItem)
-    filters: FilterOptions[]
-    onRestrictionChange(restriction?: FlipRestriction)
-    addNewRestriction()
+    onSaveRestrictions(restrictions: FlipRestriction[])
     onCancel()
 }
 
+interface RestrictionCreateState {
+    selectedItems?: Item[]
+    type: 'blacklist' | 'whitelist'
+    itemFilter?: ItemFilter
+    tags?: string[]
+}
+
 function NewRestriction(props: Props) {
+    let [createState, setCreateState] = useState<RestrictionCreateState>({
+        type: 'blacklist'
+    })
     let [isFilterValid, setIsFilterValid] = useState(true)
+    let [filters, setFilters] = useState<FilterOptions[]>([])
+
+    useEffect(() => {
+        loadFilters()
+    }, [createState.tags])
+
+    function loadFilters(): Promise<FilterOptions[]> {
+        if (!createState.selectedItems || createState.selectedItems?.length <= 1) {
+            return Promise.all([
+                api.getFilters(createState.selectedItems?.length === 1 ? createState.selectedItems[0].tag : '*'),
+                api.flipFilters(createState.selectedItems?.length === 1 ? createState.selectedItems[0].tag : '*')
+            ]).then(filters => {
+                let result = [...(filters[0] || []), ...(filters[1] || [])]
+                setFilters(result)
+                return result
+            })
+        } else {
+            let promises: Promise<FilterOptions[]>[] = []
+            createState.selectedItems.forEach(item => {
+                promises.push(api.getFilters(item.tag))
+                promises.push(api.flipFilters(item.tag))
+            })
+            return Promise.all(promises).then(filters => {
+                let groupedFilters: FilterOptions[][] = []
+                for (let i = 0; i < filters.length; i += 2) {
+                    groupedFilters.push([...filters[i], ...filters[i + 1]])
+                }
+
+                const intersect2 = (a: FilterOptions[], b: FilterOptions[]) => a.filter(x => b.some(y => y.name === x.name))
+                const intersect = (arrOfArrays: FilterOptions[][]) =>
+                    arrOfArrays[1] === undefined ? arrOfArrays[0] : intersect([intersect2(arrOfArrays[0], arrOfArrays[1]), ...arrOfArrays.slice(2)])
+
+                var intersecting = intersect(groupedFilters)
+                setFilters(intersecting)
+
+                return intersecting
+            })
+        }
+    }
 
     let getButtonVariant = (range: string): string => {
-        return range === props.newRestriction.type ? 'primary' : 'secondary'
+        return range === createState.type ? 'primary' : 'secondary'
     }
 
     return (
@@ -29,8 +73,10 @@ function NewRestriction(props: Props) {
                 style={{ maxWidth: '200px', marginBottom: '5px' }}
                 type="radio"
                 name="options"
-                value={props.newRestriction.type}
-                onChange={props.onRestrictionTypeChange}
+                value={createState.type}
+                onChange={newType => {
+                    setCreateState({ ...createState, type: newType })
+                }}
             >
                 <ToggleButton id="newRestrictionWhitelistToggleButton" value={'blacklist'} variant={getButtonVariant('blacklist')} size="sm">
                     Blacklist
@@ -40,24 +86,27 @@ function NewRestriction(props: Props) {
                 </ToggleButton>
             </ToggleButtonGroup>
             <div className={styles.newRestrictionSearchbar}>
-                <Search
-                    selected={props.newRestriction.item}
-                    type="item"
-                    backgroundColor="#404040"
-                    backgroundColorSelected="#222"
+                <MultiSearch
+                    onChange={items => {
+                        setCreateState({
+                            ...createState,
+                            selectedItems: items.map(item => {
+                                return {
+                                    tag: item.id,
+                                    name: item.dataItem.name,
+                                    iconUrl: item.dataItem.iconUrl
+                                }
+                            })
+                        })
+                    }}
                     searchFunction={api.itemSearch}
-                    onSearchresultClick={props.onSearchResultClick}
-                    hideNavbar={true}
-                    placeholder="Search item"
                 />
             </div>
             <ItemFilter
-                filters={props.filters}
+                filters={filters}
                 forceOpen={true}
                 onFilterChange={filter => {
-                    let restriction = props.newRestriction
-                    restriction.itemFilter = filter
-                    props.onRestrictionChange(restriction)
+                    setCreateState({ ...createState, itemFilter: filter })
                 }}
                 ignoreURL={true}
                 autoSelect={false}
@@ -65,15 +114,28 @@ function NewRestriction(props: Props) {
                 onIsValidChange={setIsFilterValid}
             />
             <TagSelect
-                restriction={props.newRestriction}
+                defaultTags={createState.tags}
                 onTagsChange={tags => {
-                    let restriction = props.newRestriction
-                    restriction.tags = tags
-                    props.onRestrictionChange(restriction)
+                    setCreateState({ ...createState, tags: tags })
                 }}
             />
             <span>
-                <Button variant="success" onClick={props.addNewRestriction} disabled={!isFilterValid}>
+                <Button
+                    variant="success"
+                    onClick={() => {
+                        props.onSaveRestrictions(
+                            (createState.selectedItems || [null]).map(item => {
+                                return {
+                                    type: createState.type,
+                                    itemFilter: createState.itemFilter,
+                                    item: item,
+                                    tags: createState.tags
+                                }
+                            })
+                        )
+                    }}
+                    disabled={!isFilterValid}
+                >
                     Save new restriction
                 </Button>
                 <Button variant="danger" onClick={props.onCancel} style={{ marginLeft: '5px' }}>

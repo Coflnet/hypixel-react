@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { HexColorInput } from 'react-colorful'
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function ColorFilterElement(props: Props) {
-    const [color, setColor] = useState(props.defaultValue || '000000')
+    const [color, setColor] = useState(props.defaultValue)
 
     function _onChange(color) {
         color = color.replace('#', '')

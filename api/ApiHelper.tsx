@@ -1150,7 +1150,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let itemSearch = (searchText: string): Promise<FilterOptions[]> => {
+    let itemSearch = (searchText: string): Promise<SearchResultItem[]> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_SEARCH,

@@ -6,7 +6,7 @@ import Tooltip from '../../../Tooltip/Tooltip'
 import HelpIcon from '@mui/icons-material/Help'
 
 interface Props {
-    restriction: FlipRestriction
+    defaultTags: string[]
     onTagsChange(tags: string[])
 }
 
@@ -27,8 +27,8 @@ const MultiValueContainer = props => {
 
 function TagSelect(props: Props) {
     let [tagOptions, setTagOptions] = useState(
-        props.restriction.tags
-            ? props.restriction.tags.slice().map(value => {
+        props.defaultTags
+            ? props.defaultTags.slice().map(value => {
                   return { value, label: value }
               })
             : []

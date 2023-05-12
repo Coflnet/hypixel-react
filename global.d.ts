@@ -5,7 +5,7 @@ interface Player {
     name: string
     uuid: string
     iconUrl?: string
-}
+} 
 
 interface Enchantment {
     id: number
@@ -207,7 +207,7 @@ interface API {
     getActiveAuctions(item: Item, order: string, filter?: ItemFilter): Promise<RecentAuction[]>
     connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>
     getAccountInfo(): Promise<AccountInfo>
-    itemSearch(searchText: string): Promise<FilterOptions[]>
+    itemSearch(searchText: string): Promise<SearchResultItem[]>
     authenticateModConnection(conId: string): Promise<void>
     getFlipUpdateTime(): Promise<Date>
     playerSearch(playerName: string): Promise<Player[]>

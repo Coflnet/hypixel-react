@@ -259,6 +259,9 @@ function ItemFilter(props: Props) {
                 }
             }
         }
+        if(filterName === 'Color'){
+            defaultValue = '#000000'
+        }
         return defaultValue
     }
 

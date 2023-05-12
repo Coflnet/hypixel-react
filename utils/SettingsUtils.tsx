@@ -191,7 +191,6 @@ export async function handleSettingsImport(importString: string) {
         let importObject = JSON.parse(importString)
         if (importObject.whitelist !== undefined) {
             // Handle import in server-side format
-            console.log("using server side import")
             let settings = await setSettingsFromServerSide(importObject)
             filter = settings.filter
             flipCustomizeSettings = settings.flipCustomizing
