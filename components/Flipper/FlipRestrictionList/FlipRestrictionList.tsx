@@ -8,6 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import DuplicateIcon from '@mui/icons-material/ControlPointDuplicate'
 import SaveIcon from '@mui/icons-material/Save'
+import RemoveIcon from '@mui/icons-material/Remove'
 import ItemFilterPropertiesDisplay from '../../ItemFilter/ItemFilterPropertiesDisplay'
 import styles from './FlipRestrictionList.module.css'
 import EditRestriction from './EditRestriction/EditRestriction'
@@ -206,6 +207,12 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
         }
+        setRestrictions(newRestrictions)
+    }
+
+    function removeItemOfRestriction(index: number) {
+        let newRestrictions = [...restrictions]
+        newRestrictions[index].item = null
         setRestrictions(newRestrictions)
     }
 
@@ -472,6 +479,20 @@ function FlipRestrictionList(props: Props) {
                                             loading="lazy"
                                         />
                                         <span style={getStyleForTier(restriction.item?.tier)}>{restriction.item?.name}</span>
+                                        {restriction.isEdited ? (
+                                            <Tooltip
+                                                type="hover"
+                                                content={
+                                                    <RemoveIcon
+                                                        style={{ cursor: 'pointer' }}
+                                                        onClick={() => {
+                                                            removeItemOfRestriction(index)
+                                                        }}
+                                                    />
+                                                }
+                                                tooltipContent={<p>Remove item</p>}
+                                            />
+                                        ) : null}
                                     </div>
                                 ) : (
                                     <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}></div>
