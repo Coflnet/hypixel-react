@@ -65,6 +65,10 @@ function ItemFilterPropertiesDisplay(props: Props) {
 
                     let display = convertTagToName(localFilter[key])
 
+                    if (key === 'ItemNameContains') {
+                        display = localFilter[key]
+                    }
+
                     if (key.startsWith('_')) {
                         return ''
                     }
@@ -119,7 +123,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
                 })
             )}
         </div>
-    );
+    )
 }
 
 export default ItemFilterPropertiesDisplay
