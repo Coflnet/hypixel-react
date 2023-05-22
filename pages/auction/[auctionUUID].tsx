@@ -71,7 +71,7 @@ function AuctionDetailsPage(props: Props) {
                 : getHeadElement()}
             <Container>
                 <Search />
-                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} />
+                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} unparsedAuctionDetails={props.auctionDetails} />
             </Container>
         </div>
     )
