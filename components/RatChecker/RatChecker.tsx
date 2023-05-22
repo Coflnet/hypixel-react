@@ -17,7 +17,7 @@ function RatChecker() {
         for (const file of files) {
             checkingPromises.push(
                 new Promise(resolve => {
-                    getFileHash(file).then(hash => {
+                    generateSHA256FromFile(file).then(hash => {
                         api.checkRat(hash).then(result => resolve([file.name, result]))
                     })
                 })
@@ -27,42 +27,24 @@ function RatChecker() {
         Promise.all(checkingPromises).then(results => {
             setIsChecking(false)
             setCheckingResults(results)
-            ratFileInput.current.value = ''
+            if (ratFileInput.current) {
+                ratFileInput.current.value = ''
+            }
         })
     }
 
-    function getFileHash(file: File): Promise<string> {
-        return new Promise((resolve, reject) => {
-            var blobSlice = File.prototype.slice || (File.prototype as any).mozSlice || (File.prototype as any).webkitSlice,
-                chunkSize = 2097152, // Read in chunks of 2MB
-                chunks = Math.ceil(file.size / chunkSize),
-                currentChunk = 0,
-                spark = new SparkMD5.ArrayBuffer(),
-                fileReader = new FileReader()
+    async function generateSHA256FromFile(file) {
+        // Read the file as an ArrayBuffer
+        const buffer = await file.arrayBuffer()
+        // Convert ArrayBuffer to Uint8Array
+        const data = new Uint8Array(buffer)
 
-            fileReader.onload = function (e) {
-                spark.append(e.target.result) // Append array buffer
-                currentChunk++
+        // Generate SHA-256 hash
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+        const hashArray = Array.from(new Uint8Array(hashBuffer))
+        const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('')
 
-                if (currentChunk < chunks) {
-                    loadNext()
-                } else {
-                    let hash = spark.end()
-                    resolve(hash)
-                }
-            }
-
-            fileReader.onerror = console.warn
-
-            function loadNext() {
-                var start = currentChunk * chunkSize,
-                    end = start + chunkSize >= file.size ? file.size : start + chunkSize
-
-                fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
-            }
-
-            loadNext()
-        })
+        return hashHex
     }
 
     function getResultElement(): JSX.Element {
