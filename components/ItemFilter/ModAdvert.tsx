@@ -24,8 +24,7 @@ export default function ModAdvert() {
             <Card style={{ marginBottom: '15px' }}>
                 <Card.Header style={{ borderRadius: '5px' }}>
                     <Card.Text>
-                        Checking item prices? We also provide a mod showing market information like volume, lowest bin and median prices in the item
-                        description. <br />
+                        Checking item prices? We provide a mod showing market data like volume, lowest bin and median prices in game. <br />
                         <Link
                             href="/mod"
                             style={{
