@@ -163,7 +163,7 @@ function AuctionHousePriceGraph(props: Props) {
 
     return (
         <div>
-            <ItemFilter filters={filters} onFilterChange={onFilterChange} />
+            <ItemFilter filters={filters} onFilterChange={onFilterChange} showModAdvert={true} />
             <ItemPriceRange
                 setToDefaultRangeSwitch={defaultRangeSwitch}
                 onRangeChange={onRangeChange}
