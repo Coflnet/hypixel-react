@@ -30,12 +30,13 @@ interface Props {
     auctionUUID: string
     auctionDetails?: AuctionDetails
     retryCounter?: number
+    unparsedAuctionDetails?: any
 }
 
 function AuctionDetails(props: Props) {
     let [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails)
-    let [unparsedAuctionDetails, setUnparsedAuctionDetails] = useState(null)
+    let [unparsedAuctionDetails, setUnparsedAuctionDetails] = useState(props.unparsedAuctionDetails)
     let [isLoading, setIsLoading] = useState(false)
     let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
     let [showFilterChecker, setShowFilterChecker] = useState(false)

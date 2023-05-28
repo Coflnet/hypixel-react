@@ -44,7 +44,7 @@ export function FilterChecker(props: Props) {
 
     return (
         <>
-            <ItemFilter ignoreURL={true} forceOpen={true} onFilterChange={onFilterChange} filters={filterOptions} onIsValidChange={setIsFilterValid} />
+            <ItemFilter ignoreURL={true} forceOpen={true} autoSelect={false} onFilterChange={onFilterChange} filters={filterOptions} onIsValidChange={setIsFilterValid} />
             <div>
                 <Button onClick={onCheck} disabled={disabled || !isFilterValid} style={{ width: '100%' }}>
                     {!isLoading ? 'Check filter' : 'Loading...'}

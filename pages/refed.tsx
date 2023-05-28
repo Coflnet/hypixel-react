@@ -43,18 +43,10 @@ function Refed() {
                             <Link href="/flipper">advanced auction flipper</Link>.
                         </p>
                         <p>
-                            We also provide a Minecraft mod to use the flipper in game. You can download it in the <b>#mod-releases</b> channel on our{' '}
-                            <a href="https://discord.gg/wvKXfTgCfb">
-                                <span style={{ color: '#7289da' }}>Discord</span>
-                            </a>
-                            . For help check out the{' '}
-                            <Link href="/flipper#faq" passHref>
-                                #faq
-                            </Link>{' '}
-                            or ask us on our{' '}
-                            <a href="https://discord.gg/wvKXfTgCfb">
-                                <span style={{ color: '#7289da' }}>Discord</span>
-                            </a>
+                            We also provide a Minecraft mod to use the flipper in game. You can get it{' '}
+                            <Link href="/mod" style={{ fontWeight: 'bold' }}>
+                                here
+                            </Link>
                             .
                         </p>
                         <hr />
@@ -64,21 +56,16 @@ function Refed() {
                                 setIsLoggedIn(true)
                             }}
                         />
-                        <p>
-                            Settings you make are tied to your google account to sync across devices and into the Minecraft mod. what settings you made and
-                            contact you in case we need to)
-                        </p>
+                        <p>Settings you make are tied to your google account to sync across devices and into the Minecraft mod.</p>
 
                         <Link href="/" className="disableLinkStyle">
-
                             <Button>Go to Main Page</Button>
-
                         </Link>
                     </Card.Body>
                 </Card>
             </Container>
         </div>
-    );
+    )
 }
 
 export default Refed

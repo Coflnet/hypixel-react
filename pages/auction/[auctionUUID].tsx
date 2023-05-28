@@ -24,16 +24,8 @@ function AuctionDetailsPage(props: Props) {
     useEffect(() => {
         window.scrollTo(0, 0)
 
-        function reload() {
-            if (auctionDetails && auctionDetails.auction.uuid !== auctionUUID) {
-                window.location.reload()
-            }
-        }
-
-        router.events.on('routeChangeComplete', reload)
-
-        return () => {
-            router.events.off('routeChangeComplete', reload)
+        if (auctionDetails && auctionDetails.auction.uuid !== auctionUUID) {
+            window.location.reload()
         }
     }, [auctionUUID])
 
@@ -79,7 +71,7 @@ function AuctionDetailsPage(props: Props) {
                 : getHeadElement()}
             <Container>
                 <Search />
-                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} />
+                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} unparsedAuctionDetails={props.auctionDetails} />
             </Container>
         </div>
     )

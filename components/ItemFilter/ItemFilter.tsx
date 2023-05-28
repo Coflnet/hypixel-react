@@ -14,6 +14,7 @@ import styles from './ItemFilter.module.css'
 import { btoaUnicode } from '../../utils/Base64Utils'
 import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
 import { ObjectParam, StringParam, useQueryParam } from 'use-query-params'
+import ModAdvert from './ModAdvert'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -23,6 +24,7 @@ interface Props {
     autoSelect?: boolean
     defaultFilter?: ItemFilter
     disableLastUsedFilter?: boolean
+    showModAdvert?: boolean
     onIsValidChange?(newIsValid: boolean)
 }
 
@@ -36,7 +38,7 @@ function ItemFilter(props: Props) {
     let [expanded, setExpanded] = useState(props.forceOpen || false)
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
-    let [urlFilterString, setUrlFilterString] = useQueryParam('itemFilter', StringParam)
+    let [_, setUrlFilterString] = useQueryParam('itemFilter', StringParam)
     let [invalidFilters, _setInvalidFilters] = useState(new Set<string>())
 
     let typeaheadRef = useRef(null)
@@ -259,7 +261,7 @@ function ItemFilter(props: Props) {
                 }
             }
         }
-        if(filterName === 'Color'){
+        if (filterName === 'Color') {
             defaultValue = '#000000'
         }
         return defaultValue
@@ -356,6 +358,7 @@ function ItemFilter(props: Props) {
                         {infoIconElement}
                     </Card.Title>
                     <Card.Body>
+                        {props.showModAdvert ? <ModAdvert /> : null}
                         <Form style={{ marginBottom: '5px' }}>
                             <Form.Group>
                                 {props?.filters && props.filters?.length > 0 ? (

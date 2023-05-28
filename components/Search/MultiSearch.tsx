@@ -6,6 +6,7 @@ import api from '../../api/ApiHelper'
 import { Option } from 'react-bootstrap-typeahead/types/types'
 import styles from './Search.module.css'
 import Image from 'next/image'
+import { getStyleForTier } from '../../utils/Formatter'
 interface Props {
     onChange(selected: SearchResultItem[])
     disabled?: boolean
@@ -52,6 +53,7 @@ export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
             labelKey="label"
             renderMenuItemChildren={(option, { text }) => {
                 let o: any = option
+                let isDuplicate = results.filter((element, index) => element.dataItem.name === o.dataItem.name).length > 1
                 return (
                     <>
                         <Image
@@ -62,7 +64,7 @@ export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
                             src={o.dataItem.iconUrl}
                             alt=""
                         />
-                        <Highlighter search={text}>{o.label}</Highlighter>
+                        <span style={isDuplicate ? getStyleForTier(o.tier) : null}>{o.label}</span>
                     </>
                 )
             }}
