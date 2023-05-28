@@ -134,7 +134,7 @@ function AuctionDetails(props: Props) {
                                 <span className={styles.label}>
                                     <Badge bg={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
                                 </span>
-                                <span className="ellipse">{formatNBTValue(key, currentNBT)}</span>
+                                <span className="ellipse">{formatNBTValue(key, currentNBT, auctionDetails)}</span>
                             </p>
                         </div>
                     )
@@ -143,7 +143,7 @@ function AuctionDetails(props: Props) {
         )
     }
 
-    function formatNBTValue(key: string, value: any) {
+    function formatNBTValue(key: string, value: any, auctionDetails: AuctionDetails) {
         let tagNbt = [
             'heldItem',
             'personal_compact_0',
@@ -205,7 +205,7 @@ function AuctionDetails(props: Props) {
 
         let index = tagNbt.findIndex(tag => tag === key)
         if (index !== -1) {
-            if (key === 'skin') {
+            if (key === 'skin' && auctionDetails?.auction?.item?.tag?.startsWith("PET_")) {
                 return <Link href={'/item/PET_SKIN_' + value}>{convertTagToName(value)}</Link>
             }
             return <Link href={'/item/' + value}>{convertTagToName(value)}</Link>
