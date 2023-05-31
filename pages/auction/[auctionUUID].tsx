@@ -13,6 +13,7 @@ import { getHeadElement } from '../../utils/SSRUtils'
 
 interface Props {
     auctionDetails: any
+    unparsedAuctionDetails: any
 }
 
 function AuctionDetailsPage(props: Props) {
@@ -71,7 +72,7 @@ function AuctionDetailsPage(props: Props) {
                 : getHeadElement()}
             <Container>
                 <Search />
-                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} unparsedAuctionDetails={props.auctionDetails} />
+                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} unparsedAuctionDetails={JSON.parse(props.unparsedAuctionDetails)} />
             </Container>
         </div>
     )
@@ -83,9 +84,11 @@ export const getServerSideProps = async ({ res, params }) => {
     let auctionUUID = params.auctionUUID as string
     let api = initAPI(true)
     let auctionDetails: any
+    let unparsedAuctionDetails: any
     try {
         let result = await api.getAuctionDetails(auctionUUID)
         auctionDetails = result.original
+        unparsedAuctionDetails = JSON.stringify(result.original)
     } catch (e) {
         console.log('ERROR: ' + JSON.stringify(e))
         console.log('------------------------\n')
@@ -159,7 +162,8 @@ export const getServerSideProps = async ({ res, params }) => {
 
     return {
         props: {
-            auctionDetails: auctionDetails
+            auctionDetails: auctionDetails,
+            unparsedAuctionDetails: unparsedAuctionDetails
         }
     }
 }
