@@ -45,7 +45,7 @@ function Flipper(props: Props) {
             {getHeadElement(undefined, 'Free auction house item flipper for Hypixel Skyblock', undefined, ['flipper'])}
             <Container>
                 <Search />
-                <h2>Item Flipper (WIP)</h2>
+                <h2>Item Flipper</h2>
                 <hr />
                 <FlipperComponent flips={flips} />
             </Container>

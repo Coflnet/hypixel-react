@@ -171,9 +171,7 @@ function PremiumFeatures() {
                                 }
                             />
                         </td>
-                        <td className={styles.premiumProductColumn}>
-                            <Number number={2.5} /> min
-                        </td>
+                        <td className={styles.premiumProductColumn}>40 sec</td>
                         <td className={styles.premiumProductColumn}>10-20 sec</td>
                         <td className={styles.premiumProductColumn}>~1 sec</td>
                         <td className={styles.premiumProductColumn}>&lt; 1 sec</td>

@@ -316,13 +316,24 @@ function Startpage(props: Props) {
                             <AnnouncementIcon />
                             <span className={styles.statusTitle}> News / Announcements</span>
                         </Card.Title>
-                        <Card.Subtitle>Filter Checker</Card.Subtitle>
+                        <Card.Subtitle>Flipper release</Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
-                        <p>Below auctions there is now a filter checker to test out if a certain auction would match certain criteria.</p>
+                        <p>
+                            The first work in progress publication of the flipper was two years ago. To celebrate the anniversary we have a few announcements to
+                            make
+                        </p>
+                        <ul>
+                            <li>The WIP label will be removed, its mostly done</li>
+                            <li>The free version delay will be reduced to under a minute (around 40 seconds)</li>
+                            <li>
+                                Invite bonus for new (mod) users is trippled, they get 3 days of premium and you get 300 CoflCoins for inviting them (after they
+                                verified with a new account)
+                            </li>
+                        </ul>
                         <hr />
                         <div style={{ marginTop: '20px' }}>
-                            <p>Recent changes (last change: 7. April 2023):</p>
+                            <p>Recent changes (last change: 26. Mai 2023):</p>
                             <Tooltip
                                 onClick={onRecentChangesClick}
                                 content={
@@ -332,14 +343,10 @@ function Startpage(props: Props) {
                                 }
                                 tooltipContent={
                                     <ul key="changelogList">
-                                        <li className={styles.changelogItem}>
-                                            Make it possible to differentiate between items with the same name in the search
-                                        </li>
+                                        <li className={styles.changelogItem}>Multi select for restrictions</li>
+                                        <li className={styles.changelogItem}>Allow more number formats (like 1m-15m)</li>
+                                        <li className={styles.changelogItem}>Allow restriction items to be removed afterwards</li>
                                         <li className={styles.changelogItem}>Lots of bug fixes</li>
-                                        <li className={styles.changelogItem}>Styling improvements</li>
-                                        <li className={styles.changelogItem}>Added simlar items</li>
-                                        <li className={styles.changelogItem}>Updated the UI libaries to React 18 and Next 13</li>
-                                        <li className={styles.changelogItem}>Basically updated all npm packages</li>
                                     </ul>
                                 }
                                 type="click"
