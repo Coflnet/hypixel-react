@@ -46,6 +46,10 @@ function NavBar(props: Props) {
         } else {
             document.removeEventListener('click', outsideClickHandler, true)
         }
+
+        return () => {
+            document.removeEventListener('click', outsideClickHandler, true)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isWideOpen])
 

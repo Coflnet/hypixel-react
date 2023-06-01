@@ -62,6 +62,10 @@ function Search(props: Props) {
         if (isClientSideRendering()) {
             setIsSmall(isClientSideRendering() ? document.body.clientWidth < 1500 : false)
         }
+        document.addEventListener('click', outsideClickHandler, true)
+        return () => {
+            document.removeEventListener('click', outsideClickHandler, true)
+        }
     }, [])
 
     useEffect(() => {
@@ -126,6 +130,20 @@ function Search(props: Props) {
         search()
     }
 
+    function outsideClickHandler(evt) {
+        const flyoutEl = searchElement.current
+        let targetEl = evt.target
+
+        do {
+            if (targetEl === flyoutEl) {
+                return
+            }
+            targetEl = (targetEl as any).parentNode
+        } while (targetEl)
+
+        setResults([])
+    }
+
     let onKeyPress = (e: KeyboardEvent) => {
         switch (e.key) {
             case 'Enter':
@@ -167,13 +185,14 @@ function Search(props: Props) {
         let previousSearches: SearchResultItem[] = previousSearchesString ? JSON.parse(previousSearchesString) : []
 
         let alreadyFoundIndex = previousSearches.findIndex(r => r.dataItem.name === item.dataItem.name)
-        if (alreadyFoundIndex === -1) {
-            previousSearches.push(item)
-            if (previousSearches.length > MAX_PREVIOUS_SEARCHES_TO_STORE) {
-                previousSearches.shift()
-            }
-            localStorage.setItem(PREVIOUS_SEARCHES_KEY, JSON.stringify(previousSearches))
+        if (alreadyFoundIndex !== -1) {
+            previousSearches.splice(alreadyFoundIndex, 1)
         }
+        previousSearches.push(item)
+        if (previousSearches.length > MAX_PREVIOUS_SEARCHES_TO_STORE) {
+            previousSearches.shift()
+        }
+        localStorage.setItem(PREVIOUS_SEARCHES_KEY, JSON.stringify(previousSearches))
 
         api.trackSearch(item.id, item.type)
         router.push({
@@ -209,7 +228,15 @@ function Search(props: Props) {
         }
         return (
             <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
-                <img crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" width="32" alt="" style={{ marginRight: '10px' }} />
+                <img
+                    crossOrigin="anonymous"
+                    className="playerHeadIcon"
+                    src={props.selected.iconUrl}
+                    height="32"
+                    width="32"
+                    alt=""
+                    style={{ marginRight: '10px' }}
+                />
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
                 {props.enableReset ? (
                     <ClearIcon onClick={props.onResetClick} style={{ cursor: 'pointer', color: 'red', marginLeft: '10px', fontWeight: 'bold' }} />
@@ -352,6 +379,19 @@ function Search(props: Props) {
                             onChange={onSearchChange}
                             onKeyDown={(e: any) => {
                                 onKeyPress(e)
+                            }}
+                            onFocus={() => {
+                                if (!noResultsFound && results.length === 0 && !searchText) {
+                                    let previousSearches: SearchResultItem[] = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
+                                        ? JSON.parse(localStorage.getItem(PREVIOUS_SEARCHES_KEY))
+                                        : []
+                                    setResults(
+                                        previousSearches.slice(-5).reverse().map(prevSearch => {
+                                            prevSearch.isPreviousSearch = true
+                                            return prevSearch
+                                        })
+                                    )
+                                }
                             }}
                         />
                     </InputGroup>
