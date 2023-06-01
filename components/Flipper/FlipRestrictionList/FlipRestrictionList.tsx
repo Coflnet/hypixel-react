@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
-import { getStyleForTier } from '../../../utils/Formatter'
+import { camelCaseToSentenceCase, getStyleForTier } from '../../../utils/Formatter'
 import { getCleanRestrictionsForApi, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Refresh from '@mui/icons-material/Refresh'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -183,6 +183,17 @@ function FlipRestrictionList(props: Props) {
         }
     }
 
+    const debounceSearchFunction = (function () {
+        let timerId
+
+        return searchText => {
+            clearTimeout(timerId)
+            timerId = setTimeout(() => {
+                setSearchText(searchText)
+            }, 1000)
+        }
+    })()
+
     function refreshItemNames() {
         let newRestrictions = [...restrictions]
         setIsRefreshingItemNames(true)
@@ -301,7 +312,7 @@ function FlipRestrictionList(props: Props) {
                 <hr />
             </div>
             <div style={{ display: 'flex' }}>
-                <Form.Control className={styles.searchFilter} placeholder="Search..." onChange={e => setSearchText(e.target.value)} />
+                <Form.Control className={styles.searchFilter} placeholder="Search..." onChange={e => debounceSearchFunction(e.target.value)} />
                 <div className={styles.sortByNameContainer}>
                     <Form.Label style={{ width: '200px' }} htmlFor="sortByNameCheckbox">
                         Sort by name
@@ -313,10 +324,21 @@ function FlipRestrictionList(props: Props) {
                 {restrictionsToDisplay.map((restriction, index) => {
                     if (searchText) {
                         let isValid = false
-                        if (restriction.item?.name && restriction.item?.name.toLowerCase().includes(searchText.toLowerCase())) {
+                        let lowerCaseSearchText = searchText.toLowerCase()
+                        if (restriction.item?.name && restriction.item?.name.toLowerCase().includes(lowerCaseSearchText)) {
                             isValid = true
                         }
-                        if (restriction.tags && restriction.tags.findIndex(tag => tag.toLowerCase().includes(searchText.toLowerCase())) !== -1) {
+                        if (restriction.itemFilter && !isValid) {
+                            Object.keys(restriction.itemFilter).forEach(key => {
+                                if (isValid) {
+                                    return
+                                }
+                                if (restriction.itemFilter[key]?.toLocaleLowerCase().includes(lowerCaseSearchText) || camelCaseToSentenceCase(key).toLowerCase().includes(lowerCaseSearchText)) {
+                                    isValid = true
+                                }
+                            })
+                        }
+                        if (restriction.tags && restriction.tags.findIndex(tag => tag.toLowerCase().includes(lowerCaseSearchText)) !== -1 && !isValid) {
                             isValid = true
                         }
                         if (!isValid) {
