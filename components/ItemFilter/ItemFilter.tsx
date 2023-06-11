@@ -386,6 +386,13 @@ function ItemFilter(props: Props) {
                                             }
                                             return camelCaseToSentenceCase(name)
                                         }}
+                                        filterBy={(option, props) => {
+                                            let searchString = props.text.replace(/\s/g, '').toLowerCase()
+                                            let name = (props.labelKey as Function)(option).toLowerCase()
+                                            let initials = name.match(/\b\w/g).join('')
+
+                                            return name.replace(/\s/g, '').includes(searchString) || initials.includes(searchString)
+                                        }}
                                     ></Typeahead>
                                 ) : (
                                     <Spinner animation="border" role="status" variant="primary" />
