@@ -6,6 +6,7 @@ function getPriceGraphConfigSplit() {
     return {
         tooltip: {
             trigger: 'axis',
+            className: 'priceGraphTooltip',
             axisPointer: {
                 type: 'cross',
                 crossStyle: {

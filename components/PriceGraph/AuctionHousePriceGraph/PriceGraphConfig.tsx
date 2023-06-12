@@ -5,6 +5,7 @@ const ANIMATION_THRESHOLD = 200
 let option = {
     tooltip: {
         trigger: 'axis',
+        className: 'priceGraphTooltip',
         axisPointer: {
             type: 'cross',
             crossStyle: {
