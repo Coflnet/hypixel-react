@@ -104,26 +104,48 @@ export const getServerSideProps = async ({ res, params, query }) => {
     res.setHeader('Cache-Control', getCacheControlHeader())
 
     let range = query.range || DEFAULT_DATE_RANGE
+    let tag = params.tag
 
     let api = initAPI(true)
-    let apiResponses = await Promise.all([
-        api.getItemDetails(params.tag).catch(() => {
-            return {
-                tag: params.tag,
-                name: convertTagToName(params.tag),
-                iconUrl: api.getItemImageUrl({ tag: params.tag })
-            } as Item
-        }),
-        api.getItemPrices(params.tag, range, query.itemFilter ? JSON.parse(atobUnicode(query.itemFilter)) : {}).catch(() => {
-            return []
-        })
-    ])
-    return {
-        props: {
-            item: apiResponses[0],
-            prices: (apiResponses[1] as ItemPrice[]) || [],
-            range: range || null,
-            filter: query.itemFilter || null
+    try {
+        let itemDetails = await api.getItemDetails(tag)
+        if (!itemDetails || !itemDetails.name) {
+            let searchResults = await api.itemSearch(tag)
+            if (searchResults) {
+                return {
+                    redirect: {
+                        destination: `/item/${searchResults[0].id}`,
+                        permanent: true
+                    }
+                }
+            } else {
+                return {
+                    props: {
+                        item: {},
+                        prices: [],
+                        range: null,
+                        filter: null
+                    }
+                }
+            }
+        }
+        let prices = await api.getItemPrices(tag, range, query.itemFilter ? JSON.parse(atobUnicode(query.itemFilter)) : {})
+        return {
+            props: {
+                item: itemDetails,
+                prices: prices || [],
+                range: range || null,
+                filter: query.itemFilter || null
+            }
+        }
+    } catch (e) {
+        return {
+            props: {
+                item: {},
+                prices: [],
+                range: null,
+                filter: null
+            }
         }
     }
 }
