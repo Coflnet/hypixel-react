@@ -44,6 +44,10 @@
     flex-wrap: wrap;
 }
 
+.chartsWrapper :global(.priceGraphTooltip) {
+    z-index: 18 !important
+}
+
 .graphHeadline {
     text-align: center;
 }
