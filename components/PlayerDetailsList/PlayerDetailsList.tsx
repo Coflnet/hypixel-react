@@ -352,6 +352,7 @@ function PlayerDetailsList(props: Props) {
                             enableReset={true}
                             onResetClick={() => setFilteredItem(null)}
                             hideOptions={true}
+                            preventDisplayOfPreviousSearches={true}
                         />
                     </div>
                     <ItemFilter

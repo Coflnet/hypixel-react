@@ -380,16 +380,19 @@ function Search(props: Props) {
                             onKeyDown={(e: any) => {
                                 onKeyPress(e)
                             }}
-                            onFocus={() => {
-                                if (!noResultsFound && results.length === 0 && !searchText) {
+                            onClick={() => {
+                                if (!props.preventDisplayOfPreviousSearches && !noResultsFound && results.length === 0 && !searchText) {
                                     let previousSearches: SearchResultItem[] = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
                                         ? JSON.parse(localStorage.getItem(PREVIOUS_SEARCHES_KEY))
                                         : []
                                     setResults(
-                                        previousSearches.slice(-5).reverse().map(prevSearch => {
-                                            prevSearch.isPreviousSearch = true
-                                            return prevSearch
-                                        })
+                                        previousSearches
+                                            .slice(-5)
+                                            .reverse()
+                                            .map(prevSearch => {
+                                                prevSearch.isPreviousSearch = true
+                                                return prevSearch
+                                            })
                                     )
                                 }
                             }}
