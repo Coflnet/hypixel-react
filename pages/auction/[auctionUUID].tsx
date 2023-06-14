@@ -23,6 +23,13 @@ function AuctionDetailsPage(props: Props) {
     let [auctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
 
     useEffect(() => {
+        if (!getOriginalAuctionDetails()) {
+            console.log('Original Auction Details could not be parsed')
+            console.log(props.unparsedAuctionDetails)
+        }
+    }, [])
+
+    useEffect(() => {
         window.scrollTo(0, 0)
 
         if (auctionDetails && auctionDetails.auction.uuid.startsWith(auctionUUID)) {
@@ -59,6 +66,13 @@ function AuctionDetailsPage(props: Props) {
         return (description += ` | Category: ${auctionDetails.auction.item.category} | Rarity: ${auctionDetails.auction.item.tier}`)
     }
 
+    function getOriginalAuctionDetails() {
+        try {
+            return JSON.parse(props.unparsedAuctionDetails)
+        } catch (e) {}
+        return null
+    }
+
     return (
         <div className="page">
             {auctionDetails
@@ -74,7 +88,7 @@ function AuctionDetailsPage(props: Props) {
                 : getHeadElement()}
             <Container>
                 <Search />
-                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} unparsedAuctionDetails={JSON.parse(props.unparsedAuctionDetails)} />
+                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} unparsedAuctionDetails={getOriginalAuctionDetails()} />
             </Container>
         </div>
     )
