@@ -32,10 +32,8 @@ function AuctionDetailsPage(props: Props) {
     useEffect(() => {
         window.scrollTo(0, 0)
 
-        if (auctionDetails && auctionDetails.auction.uuid.startsWith(auctionUUID)) {
-            console.log(auctionDetails)
-            console.log(auctionUUID)
-            //window.location.reload()
+        if (auctionDetails && !auctionDetails.auction.uuid.startsWith(auctionUUID)) {
+            window.location.reload()
         }
     }, [auctionUUID])
 
