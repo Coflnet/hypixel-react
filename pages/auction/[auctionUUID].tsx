@@ -1,7 +1,6 @@
 import moment from 'moment'
-import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { Container } from 'react-bootstrap'
+import Container from 'react-bootstrap/Container'
 import { initAPI } from '../../api/ApiHelper'
 import AuctionDetails from '../../components/AuctionDetails/AuctionDetails'
 import Search from '../../components/Search/Search'
@@ -10,6 +9,7 @@ import { numberWithThousandsSeparators } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import { getHeadElement } from '../../utils/SSRUtils'
+import { useSearchParams } from 'next/navigation'
 
 interface Props {
     auctionDetails: any
@@ -17,8 +17,8 @@ interface Props {
 }
 
 function AuctionDetailsPage(props: Props) {
-    const router = useRouter()
-    let auctionUUID = router.query.auctionUUID as string
+    const searchParams = useSearchParams()
+    let auctionUUID = searchParams?.get('auctionUUID') as string
     let forceUpdate = useForceUpdate()
     let [auctionDetails] = useState(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
 

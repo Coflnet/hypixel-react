@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import CookieConsent from 'react-cookie-consent'
@@ -9,15 +11,50 @@ import Cookies from 'js-cookie'
 import { Modal } from 'react-bootstrap'
 import ReloadDialog from '../ReloadDialog/ReloadDialog'
 import { startMigrations } from '../../migrations/MigrationUtils'
-import { useRouter } from 'next/router'
 import { v4 as generateUUID } from 'uuid'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import NextNProgress from 'nextjs-progressbar'
+import { useRouter } from 'next/navigation'
+
+interface ErrorLog {
+    error: ErrorEvent
+    timestamp: Date
+}
+
+export const errorLog: ErrorLog[] = []
 
 export function MainApp(props: any) {
     const [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false)
     const [isReloadTracked, setIsReloadTracked] = useState(false)
     const { trackPageView, trackEvent, pushInstruction } = useMatomo()
     const router = useRouter()
+
+    useEffect(() => {
+        window.addEventListener('error', function (event) {
+            errorLog.push({
+                error: event,
+                timestamp: new Date()
+            })
+
+            if (event.error.name === 'ChunkLoadError') {
+                let chunkErrorLocalStorage = window.localStorage.getItem('chunkErrorReload')
+                if (chunkErrorLocalStorage && parseInt(chunkErrorLocalStorage) + 5000 > new Date().getTime()) {
+                    alert('There is something wrong with the website-chunks. Please try Control + F5 to hard refresh the page.')
+                    return
+                }
+                window.localStorage.setItem('chunkErrorReload', new Date().getTime().toString())
+                caches
+                    .keys()
+                    .then(keys => {
+                        keys.forEach(key => {
+                            caches.delete(key)
+                        })
+                    })
+                    .catch(() => {})
+                location.reload()
+            }
+        })
+    }, [])
 
     useEffect(() => {
         window.sessionStorage.setItem('sessionId', generateUUID())
@@ -103,6 +140,7 @@ export function MainApp(props: any) {
     return (
         <div>
             <OfflineBanner />
+            <NextNProgress />
             {props.children}
             <CookieConsent
                 enableDeclineButton

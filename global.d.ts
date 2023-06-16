@@ -5,7 +5,7 @@ interface Player {
     name: string
     uuid: string
     iconUrl?: string
-} 
+}
 
 interface Enchantment {
     id: number

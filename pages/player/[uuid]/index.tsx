@@ -7,13 +7,13 @@ import { useSwipe } from '../../../utils/Hooks'
 import Tooltip from '../../../components/Tooltip/Tooltip'
 import ClaimAccount from '../../../components/ClaimAccount/ClaimAccount'
 import PlayerDetailsList from '../../../components/PlayerDetailsList/PlayerDetailsList'
-import { useRouter } from 'next/router'
 import { getHeadElement, isClientSideRendering } from '../../../utils/SSRUtils'
 import styles from './index.module.css'
 import Link from 'next/link'
 import { getCacheControlHeader } from '../../../utils/CacheUtils'
 import GoogleSignIn from '../../../components/GoogleSignIn/GoogleSignIn'
 import Image from 'next/image'
+import { useSearchParams } from 'next/navigation'
 
 enum DetailType {
     AUCTIONS = 'auctions',
@@ -29,8 +29,8 @@ interface Props {
 }
 
 function PlayerDetails(props: Props) {
-    const router = useRouter()
-    let uuid = router.query.uuid as string
+    const searchParams = useSearchParams()
+    let uuid = searchParams?.get('uuid') as string
     let [detailType, setDetailType_] = useState<DetailType>(prevDetailType || DetailType.AUCTIONS)
     let [selectedPlayer, setSelectedPlayer] = useState<Player>(parsePlayer(props.player))
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()

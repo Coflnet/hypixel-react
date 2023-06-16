@@ -1,3 +1,5 @@
+'use client'
+
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
@@ -12,7 +14,7 @@ import { Item, Menu, useContextMenu } from 'react-contexify'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { useForceUpdate } from '../../utils/Hooks'
 import Image from 'next/image'
 

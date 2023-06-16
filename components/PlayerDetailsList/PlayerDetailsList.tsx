@@ -1,3 +1,5 @@
+'use client'
+
 import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
@@ -46,12 +48,11 @@ let listStates: ListState[] = []
 const FETCH_RESULT_SIZE = 10
 
 function PlayerDetailsList(props: Props) {
-    let forceUpdate = useForceUpdate()
     let router = useRouter()
 
     let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
     let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < FETCH_RESULT_SIZE : false)
-    let [filteredItem, setFilteredItem] = useState<Item>(null)
+    let [filteredItem, setFilteredItem] = useState<Item>()
     let [filters, setFilters] = useState<FilterOptions[]>()
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
     let [premiumRank, setPremiumRank] = useState<PremiumType>()
@@ -112,7 +113,9 @@ function PlayerDetailsList(props: Props) {
                 premiumRank = highestPremiumType
                 setPremiumRank(highestPremiumType)
             }
-            props.onAfterLogin()
+            if (props.onAfterLogin) {
+                props.onAfterLogin()
+            }
         })
     }
 
@@ -123,7 +126,8 @@ function PlayerDetailsList(props: Props) {
     }
 
     function showFilter(): boolean {
-        return (props.accountInfo && props.accountInfo?.mcId === props.player.uuid) || (premiumRank && premiumRank.priority >= PREMIUM_RANK.STARTER)
+        return ((props.accountInfo && props.accountInfo?.mcId === props.player.uuid) ||
+            (premiumRank && premiumRank.priority >= PREMIUM_RANK.STARTER)) as boolean
     }
 
     let onRouteChange = () => {

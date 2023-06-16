@@ -12,7 +12,7 @@ import SubscribeItemContent from './SubscribeItemContent/SubscribeItemContent'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import SubscribePlayerContent from './SubscribePlayerContent/SubscribePlayerContent'
 import SubscribeAuctionContent from './SubscribeAuctionContent/SubscribeAuctionContent'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import EditIcon from '@mui/icons-material/Edit'
 

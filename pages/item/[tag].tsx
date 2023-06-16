@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Container } from 'react-bootstrap'
 import api, { initAPI } from '../../api/ApiHelper'
@@ -12,6 +11,7 @@ import { convertTagToName, numberWithThousandsSeparators } from '../../utils/For
 import { parseItem, parseItemPrice } from '../../utils/Parser/APIResponseParser'
 import { parseItemFilter } from '../../utils/Parser/URLParser'
 import { getHeadElement, isClientSideRendering } from '../../utils/SSRUtils'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface Props {
     item?: any
@@ -21,8 +21,8 @@ interface Props {
 }
 
 function ItemDetails(props: Props) {
-    const router = useRouter()
-    let tag = router.query.tag as string
+    const searchParams = useSearchParams()
+    let tag = searchParams?.get('tag') as string
     let [item, setItem] = useState<Item>(props.item ? parseItem(props.item) : null)
     let [prices] = useState<ItemPrice[]>(props.prices ? props.prices.map(parseItemPrice) : [])
     let [filter] = useState<ItemFilter>(props.filter ? parseItemFilter(props.filter) : null)
