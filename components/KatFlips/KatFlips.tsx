@@ -1,3 +1,4 @@
+'use client'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { ChangeEvent, useEffect, useState } from 'react'
@@ -209,7 +210,15 @@ export function KatFlips(props: Props) {
     function getFlipHeader(flip: KatFlip) {
         return (
             <span style={getStyleForTier(flip.coreData.item.tier)}>
-                <Image crossOrigin="anonymous" src={flip.coreData.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <Image
+                    crossOrigin="anonymous"
+                    src={flip.coreData.item.iconUrl || ''}
+                    height="32"
+                    width="32"
+                    alt=""
+                    style={{ marginRight: '5px' }}
+                    loading="lazy"
+                />
                 {convertTagToName(flip.originAuctionName) || convertTagToName(flip.coreData.item.tag)}
             </span>
         )
@@ -272,7 +281,9 @@ export function KatFlips(props: Props) {
                 <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
                 <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
                     ))}
                 </Form.Select>
                 <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />

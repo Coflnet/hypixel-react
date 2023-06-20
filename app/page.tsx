@@ -4,7 +4,7 @@ import Search from '../components/Search/Search'
 import { initAPI } from '../api/ApiHelper'
 import { parseAuction, parseItem, parsePlayer, parsePopularSearch } from '../utils/Parser/APIResponseParser'
 import { getHeadMetadata } from '../utils/SSRUtils'
-import RBContainer from '../components/Container/Container'
+import RBContainer from '../components/ReactBootstrapWrapper/Container'
 
 export default async function Page() {
     let api = initAPI(true)

@@ -1,3 +1,4 @@
+'use client'
 import Image from 'next/image'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
@@ -237,7 +238,7 @@ export function CraftsList(props: Props) {
     function getCraftHeader(craft: ProfitableCraft): JSX.Element {
         return (
             <span>
-                <Image crossOrigin="anonymous" src={craft.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <Image crossOrigin="anonymous" src={craft.item.iconUrl || ''} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                 {getMinecraftColorCodedElement(craft.item.name)}
             </span>
         )
@@ -280,8 +281,8 @@ export function CraftsList(props: Props) {
                 ]
                 censoredCraft.median = -1
                 censoredCraft.volume = 123123
-                censoredCraft.requiredCollection = null
-                censoredCraft.requiredSlayer = null
+                censoredCraft.requiredCollection = undefined
+                censoredCraft.requiredSlayer = undefined
 
                 return (
                     <div key={craft.item.tag} className={styles.preventSelect}>
@@ -339,7 +340,9 @@ export function CraftsList(props: Props) {
                 <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
                 <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
                     ))}
                 </Form.Select>
                 <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />

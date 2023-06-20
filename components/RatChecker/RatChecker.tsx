@@ -1,13 +1,13 @@
+'use client'
 import { useRef, useState } from 'react'
 import { Card, Form } from 'react-bootstrap'
-import * as SparkMD5 from 'spark-md5'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import styles from './RatChecker.module.css'
 
 function RatChecker() {
     let [isChecking, setIsChecking] = useState(false)
-    let [checkingResults, setCheckingResults] = useState<[string, RatCheckingResponse][]>(null)
+    let [checkingResults, setCheckingResults] = useState<[string, RatCheckingResponse][]>()
     let ratFileInput = useRef<HTMLInputElement>(null)
 
     function onFileUpload(files) {
@@ -47,7 +47,7 @@ function RatChecker() {
         return hashHex
     }
 
-    function getResultElement(): JSX.Element {
+    function getResultElement(): JSX.Element | null {
         if (!checkingResults || checkingResults.length === 0 || isChecking) {
             return null
         }

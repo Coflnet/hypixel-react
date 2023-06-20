@@ -1,5 +1,4 @@
 'use client'
-
 import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
@@ -10,7 +9,7 @@ import { Badge, Button, ListGroup } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement, getStyleForTier } from '../../utils/Formatter'
-import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
@@ -354,7 +353,7 @@ function PlayerDetailsList(props: Props) {
                             hideNavbar={true}
                             placeholder="Search item"
                             enableReset={true}
-                            onResetClick={() => setFilteredItem(null)}
+                            onResetClick={() => setFilteredItem(undefined)}
                             hideOptions={true}
                             preventDisplayOfPreviousSearches={true}
                         />

@@ -1,3 +1,4 @@
+'use client'
 import { ChangeEvent, useState } from 'react'
 import { Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { toast } from 'react-toastify'
@@ -29,8 +30,10 @@ function BuyPremium(props: Props) {
 
     function onPremiumTypeChange(productId) {
         let selectedType = PREMIUM_TYPES.find(type => type.productId === productId)
-        setPurchasePremiumType(selectedType)
-        setPurchasePremiumOption(selectedType.options[0])
+        if (selectedType) {
+            setPurchasePremiumType(selectedType)
+            setPurchasePremiumOption(selectedType.options[0])
+        }
     }
 
     function onPremiumBuy() {
@@ -93,7 +96,7 @@ function BuyPremium(props: Props) {
                     </li>
                 </ul>
                 <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
-                {props.activePremiumProduct && getPremiumType(props.activePremiumProduct).productId !== purchasePremiumType.productId ? (
+                {props.activePremiumProduct && getPremiumType(props.activePremiumProduct)?.productId !== purchasePremiumType.productId ? (
                     <div>
                         <hr />
                         <p style={{ color: 'yellow' }}>

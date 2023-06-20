@@ -37,7 +37,6 @@
     "react-virtualized-auto-sizer": "^1.0.9",
     "react-window": "^1.8.8",
     "sharp": "^0.32.0",
-    "spark-md5": "^3.0.2",
     "toml": "^3.0.0",
     "use-query-params": "^2.2.1",
     "uuid": "^9.0.0"

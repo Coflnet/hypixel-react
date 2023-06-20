@@ -1,10 +1,10 @@
+'use client'
 import DeleteIcon from '@mui/icons-material/Delete'
 import HelpIcon from '@mui/icons-material/Help'
 import ArrowRightIcon from '@mui/icons-material/KeyboardTab'
 import HandIcon from '@mui/icons-material/PanTool'
 import SearchIcon from '@mui/icons-material/Search'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Card, Form, Modal } from 'react-bootstrap'
 import { Item, Menu, useContextMenu } from 'react-contexify'
@@ -29,6 +29,7 @@ import FlipBased from './FlipBased/FlipBased'
 import styles from './Flipper.module.css'
 import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
 import FlipperFilter from './FlipperFilter/FlipperFilter'
+import { useRouter } from 'next/navigation'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -179,7 +180,7 @@ function Flipper(props: Props) {
     }
 
     function onArrowRightClick() {
-        listRef.current?.scrollToItem(flips.length - 1)
+        ;(listRef.current as any).scrollToItem(flips.length - 1)
     }
 
     function _setAutoScroll(value: boolean) {
@@ -315,7 +316,7 @@ function Flipper(props: Props) {
     function onFilterChange(newFilter) {
         setFlipperFilter(newFilter)
         setFlips([])
-        listRef.current?.scrollToItem(flips.length - 1)
+        ;(listRef.current as any)?.scrollToItem(flips.length - 1)
     }
 
     function onCopyFlip(flip: FlipAuction) {
@@ -355,9 +356,7 @@ function Flipper(props: Props) {
     }
 
     function redirectToSeller(sellerName: string) {
-        router.push({
-            pathname: 'player/' + sellerName
-        })
+        router.push('/player/' + sellerName)
     }
 
     function resetSettingsToDefault() {
@@ -406,7 +405,10 @@ function Flipper(props: Props) {
             return <h2>Free Auction Flipper</h2>
         }
         if (hasPremium) {
-            let type = getPremiumType(activePremiumProduct)
+            let type = getPremiumType(activePremiumProduct!)
+            if (!type) {
+                return null
+            }
             return (
                 <span>
                     You are using{' '}

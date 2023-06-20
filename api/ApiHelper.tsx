@@ -1502,7 +1502,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getBazaarSnapshot = (itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot> => {
+    let getBazaarSnapshot = (itemTag: string, timestamp: string | number | Date): Promise<BazaarSnapshot> => {
         return new Promise((resolve, reject) => {
             let isoTimestamp = new Date(timestamp).toISOString()
 

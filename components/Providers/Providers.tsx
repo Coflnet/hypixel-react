@@ -1,5 +1,4 @@
 'use client'
-
 import { MatomoProvider, createInstance } from '@jonkoops/matomo-tracker-react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import Script from 'next/script'
@@ -20,9 +19,7 @@ export function Providers({ children }) {
             <MatomoProvider value={matomoTrackingInstance}>
                 <QueryParamProvider adapter={NextAdapterApp}>
                     <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
-                        <MainApp>
-                            <div className="page">{children}</div>
-                        </MainApp>
+                        <div className="page">{children}</div>
                     </GoogleOAuthProvider>
                 </QueryParamProvider>
             </MatomoProvider>

@@ -1,3 +1,4 @@
+'use client'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import AccountIcon from '@mui/icons-material/AccountCircle'
 import BuildIcon from '@mui/icons-material/Build'

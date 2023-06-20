@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import { convertTagToName } from '../../../utils/Formatter'
 import { Typeahead } from 'react-bootstrap-typeahead'
@@ -21,7 +22,9 @@ export function EqualFilterElement(props: Props) {
             defaultSelected={props.defaultValue ? [props.defaultValue] : undefined}
             onChange={_onChange}
             options={props.options?.options}
-            labelKey={convertTagToName}
+            labelKey={option => {
+                return convertTagToName(option as string)
+            }}
             isInvalid={!props.isValid}
             selectHint={(shouldSelect, event) => {
                 return event.key === 'Enter' || shouldSelect

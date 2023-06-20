@@ -1,3 +1,4 @@
+'use client'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { getLocalDateAndTime } from '../../../utils/Formatter'
@@ -11,8 +12,8 @@ interface Props {
 }
 
 function PremiumStatus(props: Props) {
-    let [highestPriorityProduct, setHighestPriorityProduct] = useState<PremiumProduct>(null)
-    let [productsToShow, setProductsToShow] = useState<PremiumProduct[]>(null)
+    let [highestPriorityProduct, setHighestPriorityProduct] = useState<PremiumProduct>()
+    let [productsToShow, setProductsToShow] = useState<PremiumProduct[]>()
 
     useEffect(() => {
         let products = props.products
@@ -21,7 +22,7 @@ function PremiumStatus(props: Props) {
         if (products.length > 1) {
             for (let i = 1; i < products.length; i++) {
                 if (Math.abs(products[i - 1].expires.getTime() - products[i].expires.getTime()) < 60000) {
-                    if (getPremiumType(products[i - 1]).priority > getPremiumType(products[i]).priority) {
+                    if (getPremiumType(products[i - 1])?.priority > getPremiumType(products[i])?.priority) {
                         products.splice(i, 1)
                     } else {
                         products.splice(i - 1, 1)
@@ -39,7 +40,7 @@ function PremiumStatus(props: Props) {
     function getProductListEntry(product: PremiumProduct) {
         return (
             <>
-                <span>{getPremiumType(product).label}</span>
+                <span>{getPremiumType(product)?.label}</span>
                 <Tooltip
                     type="hover"
                     content={<span> (ends {moment(product.expires).fromNow()})</span>}
@@ -52,7 +53,7 @@ function PremiumStatus(props: Props) {
     return (
         <>
             <div>
-                {productsToShow?.length > 1 ? (
+                {productsToShow && productsToShow.length > 1 ? (
                     <div style={{ overflow: 'hidden' }}>
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
                             Premium Status:

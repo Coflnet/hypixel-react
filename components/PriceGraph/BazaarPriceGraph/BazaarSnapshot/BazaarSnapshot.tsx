@@ -1,3 +1,4 @@
+'use client'
 import moment from 'moment'
 import { useEffect, useRef, useState } from 'react'
 import Card from 'react-bootstrap/Card'

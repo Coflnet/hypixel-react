@@ -103,7 +103,8 @@ function getPriceGraphConfigSplit() {
                         }
                         return formatAsCoins(value)
                     }
-                }
+                },
+                data: [] as any[]
             },
             {
                 name: 'Min',
@@ -117,7 +118,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Max',
@@ -131,7 +132,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Volume',
@@ -145,7 +146,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: numberWithThousandsSeparators
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Moving',
@@ -158,7 +159,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: numberWithThousandsSeparators
                 },
-                data: []
+                data: [] as any[]
             }
         ]
     }

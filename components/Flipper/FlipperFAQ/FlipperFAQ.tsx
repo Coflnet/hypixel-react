@@ -1,3 +1,4 @@
+'use client'
 import { useEffect } from 'react'
 import { Card } from 'react-bootstrap'
 
@@ -10,7 +11,7 @@ function FlipperFAQ() {
         if (element) {
             setTimeout(() => {
                 window.scrollTo({
-                    top: element.offsetTop - 50
+                    top: element!.offsetTop - 50
                 })
             }, 200)
         }

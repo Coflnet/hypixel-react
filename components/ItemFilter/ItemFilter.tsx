@@ -1,3 +1,4 @@
+'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useEffect, useRef, useState } from 'react'
@@ -415,7 +416,7 @@ function ItemFilter(props: Props) {
 }
 export default ItemFilter
 
-export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: boolean = false, disableLastUsedFilter: boolean = false) {
+export function getPrefillFilter(filterOptions: FilterOptions[] = [], ignoreURL: boolean = false, disableLastUsedFilter: boolean = false) {
     let itemFilter = !ignoreURL ? getItemFilterFromUrl() : {}
     if (Object.keys(itemFilter).length === 0 && !disableLastUsedFilter) {
         itemFilter = getFilterFromLocalStorage(filterOptions) || {}
@@ -427,7 +428,7 @@ export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: bool
  * Gets the last used filter from the local storage and removes all properties not available in the allowed filters
  * @returns the filter or null if no last used filter is found
  */
-function getFilterFromLocalStorage(filterOptions: FilterOptions[] = []): ItemFilter {
+function getFilterFromLocalStorage(filterOptions: FilterOptions[] = []): ItemFilter | null {
     let localStorageLastFilter = localStorage.getItem(LAST_USED_FILTER)
     if (localStorageLastFilter === null) {
         return null

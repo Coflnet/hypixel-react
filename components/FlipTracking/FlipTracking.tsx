@@ -1,9 +1,10 @@
+'use client'
 import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
 import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'
 import DangerousIcon from '@mui/icons-material/Dangerous'
 import moment from 'moment'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
 import { Item, Menu, useContextMenu } from 'react-contexify'
@@ -153,7 +154,7 @@ export function FlipTracking(props: Props) {
                     >
                         <Image
                             crossOrigin="anonymous"
-                            src={trackedFlip.item.iconUrl}
+                            src={trackedFlip.item.iconUrl || ''}
                             height="36"
                             width="36"
                             alt=""

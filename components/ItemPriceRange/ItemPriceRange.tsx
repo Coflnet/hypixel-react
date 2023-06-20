@@ -1,5 +1,5 @@
+'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { getURLSearchParam } from '../../utils/Parser/URLParser'

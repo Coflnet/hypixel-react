@@ -1,19 +1,19 @@
 import React from 'react'
-import { Card, Container } from 'react-bootstrap'
-import NavBar from '../components/NavBar/NavBar'
-import { getHeadElement } from '../utils/SSRUtils'
+import { getHeadMetadata } from '../../utils/SSRUtils'
+import NavBar from '../../components/NavBar/NavBar'
+import RBContainer from '../../components/ReactBootstrapWrapper/Container'
+import RBCard from '../../components/ReactBootstrapWrapper/Card'
 
-function About() {
+export default function Page() {
     return (
-        <div className="page">
-            {getHeadElement('About')}
-            <Container>
+        <>
+            <RBContainer>
                 <h2>
                     <NavBar />
                     Links/Legal
                 </h2>
                 <hr />
-                <Card style={{ padding: '30px' }}>
+                <RBCard style={{ padding: '30px' }}>
                     <p>
                         This is an OpenSource project developed on <a href="https://github.com/matthias-luger/hypixel-react">GitHub</a>.
                     </p>
@@ -110,10 +110,10 @@ function About() {
                     <p>
                         <a href="https://coflnet.com/impressum">Imprint</a>
                     </p>
-                </Card>
-            </Container>
-        </div>
+                </RBCard>
+            </RBContainer>
+        </>
     )
 }
 
-export default About
+export const metadata = getHeadMetadata('About')

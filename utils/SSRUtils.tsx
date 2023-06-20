@@ -1,6 +1,4 @@
 import { Metadata } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
 
 export function isClientSideRendering() {
     return typeof window !== 'undefined'

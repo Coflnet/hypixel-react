@@ -1,5 +1,6 @@
+'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import React , { useState } from 'react'
+import React, { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -7,7 +8,7 @@ import { isClientSideRendering } from '../../utils/SSRUtils'
 interface Props {
     onCopy?()
     successMessage?: JSX.Element
-    copyValue?: string
+    copyValue?: string | null
     buttonWrapperClass?: string
     buttonClass?: string
     buttonVariant?: string
