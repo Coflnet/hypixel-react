@@ -1,21 +1,23 @@
 import Link from 'next/link'
-import React from 'react'
-import { Card, Container } from 'react-bootstrap'
-import Search from '../components/Search/Search'
-import { getHeadElement } from '../utils/SSRUtils'
+import RBContainer from '../../components/ReactBootstrapWrapper/Container'
+import RBCard from '../../components/ReactBootstrapWrapper/Card'
+import RBCardHeader from '../../components/ReactBootstrapWrapper/RBCardHeader'
+import RBCardTitle from '../../components/ReactBootstrapWrapper/RBCardTitle'
+import Search from '../../components/Search/Search'
+import RBCardBody from '../../components/ReactBootstrapWrapper/RBCardBody'
+import { getHeadMetadata } from '../../utils/SSRUtils'
 
-function ApiInfo() {
+export default function Page() {
     return (
-        <div className="page">
-            {getHeadElement('API')}
-            <Container>
+        <>
+            <RBContainer>
                 <Search />
                 <hr />
-                <Card>
-                    <Card.Header>
-                        <Card.Title>An app you use gets the data from us</Card.Title>
-                    </Card.Header>
-                    <Card.Body>
+                <RBCard>
+                    <RBCardHeader>
+                        <RBCardTitle>An app you use gets the data from us</RBCardTitle>
+                    </RBCardHeader>
+                    <RBCardBody>
                         <p>
                             If you want to make another app yourself take a look at the API docs at{' '}
                             <a href="https://sky.coflnet.com/api" target="_blank">
@@ -64,11 +66,11 @@ function ApiInfo() {
 
                             <li>You use the API as well? Tell use and get listed here :)</li>
                         </ul>
-                    </Card.Body>
-                </Card>
-            </Container>
-        </div>
+                    </RBCardBody>
+                </RBCard>
+            </RBContainer>
+        </>
     )
 }
 
-export default ApiInfo
+export const metadata = getHeadMetadata('API')

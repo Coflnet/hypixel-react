@@ -1,12 +1,13 @@
 import React from 'react'
-import { Button, Container } from 'react-bootstrap'
-import NavBar from '../components/NavBar/NavBar'
-import { getHeadElement } from '../utils/SSRUtils'
-function Feedback() {
+import { getHeadMetadata } from '../../utils/SSRUtils'
+import RBContainer from '../../components/ReactBootstrapWrapper/Container'
+import NavBar from '../../components/NavBar/NavBar'
+import RBButton from '../../components/ReactBootstrapWrapper/Button'
+
+export default function Page() {
     return (
-        <div className="page">
-            {getHeadElement('Feedback')}
-            <Container>
+        <>
+            <RBContainer>
                 <h2>
                     <NavBar />
                     Feedback
@@ -24,24 +25,24 @@ function Feedback() {
                     <p>We will try to use your feedback to improve the experience for all the Skyblock players who use this application.</p>
                     <p>Thank you very much.</p>
                     <a href="mailto:support@coflnet.com">
-                        <Button>Send feedback</Button>
+                        <RBButton>Send feedback</RBButton>
                     </a>
                     <hr />
                     <h4>Contact: </h4>
                     <p>
                         <a href="mailto:support@coflnet.com">
-                            <Button>support@coflnet.com</Button>
+                            <RBButton>support@coflnet.com</RBButton>
                         </a>
                     </p>
                     <p>
                         <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                            <Button>Discord</Button>
+                            <RBButton>Discord</RBButton>
                         </a>
                     </p>
                 </div>
-            </Container>
-        </div>
+            </RBContainer>
+        </>
     )
 }
 
-export default Feedback
+export const metadata = getHeadMetadata('Feedback')

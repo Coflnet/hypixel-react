@@ -1479,7 +1479,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let transferCoflCoins = (email: string, mcId: string, amount: number, reference: string): Promise<void> => {
+    let transferCoflCoins = (email: string | undefined, mcId: string | undefined, amount: number, reference: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             let data = {
                 email: email,

@@ -1,12 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Container } from 'react-bootstrap'
 import { initAPI } from '../../../../api/ApiHelper'
 import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
 import { numberWithThousandsSeparators, removeMinecraftColorCoding } from '../../../../utils/Formatter'
 import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata } from '../../../../utils/SSRUtils'
+import RBContainer from '../../../../components/ReactBootstrapWrapper/Container'
 
 export default async function Page({ params }) {
     let flipData = await getFlipData(params.uuid)
@@ -15,8 +15,8 @@ export default async function Page({ params }) {
     let player = parsePlayer(flipData.player)
 
     return (
-        <div className="page">
-            <Container>
+        <>
+            <RBContainer>
                 <Search
                     type="player"
                     currentElement={
@@ -40,8 +40,8 @@ export default async function Page({ params }) {
                     }
                 />
                 <FlipTracking totalProfit={flipTrackingResponse.totalProfit} trackedFlips={flipTrackingResponse.flips} />
-            </Container>
-        </div>
+            </RBContainer>
+        </>
     )
 }
 

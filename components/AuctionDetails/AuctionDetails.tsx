@@ -25,17 +25,18 @@ import { Help as HelpIcon, ArrowDropDown as ArrowDownIcon, ArrowRight as ArrowRi
 import { FilterChecker } from '../FilterChecker/FilterChecker'
 import Image from 'next/image'
 import { Number } from '../Number/Number'
+import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 
 interface Props {
     auctionUUID: string
-    auctionDetails?: AuctionDetails
+    auctionDetails?: any
     retryCounter?: number
     unparsedAuctionDetails?: any
 }
 
 function AuctionDetails(props: Props) {
     let [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
-    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails)
+    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(parseAuctionDetails(props.auctionDetails))
     let [unparsedAuctionDetails, setUnparsedAuctionDetails] = useState(props.unparsedAuctionDetails)
     let [isLoading, setIsLoading] = useState(false)
     let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)

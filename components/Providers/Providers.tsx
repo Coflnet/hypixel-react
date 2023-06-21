@@ -1,10 +1,8 @@
 'use client'
 import { MatomoProvider, createInstance } from '@jonkoops/matomo-tracker-react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-import Script from 'next/script'
 import SSRProvider from 'react-bootstrap/SSRProvider'
-import { QueryParamProvider } from 'use-query-params'
-import { MainApp } from '../MainApp/MainApp'
+import { QueryParamAdapterComponent, QueryParamProvider } from 'use-query-params'
 import NextAdapterApp from 'next-query-params/app'
 
 const matomoTrackingInstance = createInstance({
@@ -15,12 +13,9 @@ const matomoTrackingInstance = createInstance({
 export function Providers({ children }) {
     return (
         <SSRProvider>
-            <Script async={true} src={'/preScript.js'} />
             <MatomoProvider value={matomoTrackingInstance}>
-                <QueryParamProvider adapter={NextAdapterApp}>
-                    <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
-                        <div className="page">{children}</div>
-                    </GoogleOAuthProvider>
+                <QueryParamProvider adapter={NextAdapterApp as QueryParamAdapterComponent}>
+                    <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">{children}</GoogleOAuthProvider>
                 </QueryParamProvider>
             </MatomoProvider>
         </SSRProvider>

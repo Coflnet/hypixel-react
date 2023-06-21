@@ -14,7 +14,7 @@ import StorefrontIcon from '@mui/icons-material/Storefront'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import { Menu, MenuItem, Sidebar, useProSidebar } from 'react-pro-sidebar'
+import { Menu, MenuItem, Sidebar } from 'react-pro-sidebar'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
 

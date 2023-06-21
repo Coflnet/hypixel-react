@@ -10,7 +10,7 @@ import { GoogleLogin } from '@react-oauth/google'
 import styles from './GoogleSignIn.module.css'
 
 interface Props {
-    onAfterLogin(): void
+    onAfterLogin?(): void
     onLoginFail?(): void
     rerenderFlip?: boolean
 }
@@ -70,7 +70,9 @@ function GoogleSignIn(props: Props) {
                     api.setRef(refId)
                 }
                 document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.GOOGLE_LOGIN))
-                props.onAfterLogin()
+                if (props.onAfterLogin) {
+                    props.onAfterLogin()
+                }
             })
             .catch(error => {
                 // dont show the error message for the invalid token error

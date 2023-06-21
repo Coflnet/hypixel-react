@@ -6,7 +6,6 @@ import { numberWithThousandsSeparators } from '../../../utils/Formatter'
 import RBContainer from '../../../components/ReactBootstrapWrapper/Container'
 import AuctionDetails from '../../../components/AuctionDetails/AuctionDetails'
 import Search from '../../../components/Search/Search'
-import { parseAuctionDetails } from '../../../utils/Parser/APIResponseParser'
 
 async function getAuctionDetails(auctionUUID: string) {
     let api = initAPI(true)
@@ -17,7 +16,7 @@ async function getAuctionDetails(auctionUUID: string) {
         auctionDetails = result.original
         unparsedAuctionDetails = JSON.stringify(result.original)
     } catch (e) {
-        console.log('ERROR: ' + JSON.stringify(e))
+        console.log('ERROR fetching Auction Details: ' + JSON.stringify(e))
         console.log('------------------------\n')
         return null
     }
@@ -77,7 +76,7 @@ async function getAuctionDetails(auctionUUID: string) {
                 })
         )
     } catch (e) {
-        console.log('ERROR: ' + JSON.stringify(e))
+        console.log('ERROR building Auction Details: ' + JSON.stringify(e))
         console.log('------------------------\n')
     }
 
@@ -109,11 +108,7 @@ export default async function Page({ params }) {
         <>
             <RBContainer>
                 <Search />
-                <AuctionDetails
-                    auctionUUID={auctionUUID}
-                    auctionDetails={parseAuctionDetails(auctionDetails)}
-                    unparsedAuctionDetails={getOriginalAuctionDetails()}
-                />
+                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} unparsedAuctionDetails={getOriginalAuctionDetails()} />
             </RBContainer>
         </>
     )

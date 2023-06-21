@@ -1,5 +1,4 @@
 'use client'
-
 import React, { FC } from 'react'
 import Card, { CardProps } from 'react-bootstrap/Card'
 

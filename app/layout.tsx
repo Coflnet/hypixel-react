@@ -5,18 +5,23 @@ import 'react-contexify/ReactContexify.css'
 import 'react-datepicker/dist/react-datepicker.css'
 import 'react-bootstrap-typeahead/css/Typeahead.css'
 import '../styles/globals.css'
-import { MainApp } from '../components/MainApp/MainApp'
 import { initCoflCoinManager } from '../utils/CoflCoinsUtils'
+import { Providers } from '../components/Providers/Providers'
+import Script from 'next/script'
+import { MainApp } from '../components/MainApp/MainApp'
 
 initCoflCoinManager()
 
 function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html>
+            <Script async={true} src={'/preScript.js'} />
             <body>
-                <MainApp>
-                    <div className="page">{children}</div>
-                </MainApp>
+                <div className="page">
+                    <Providers>
+                        <MainApp>{children}</MainApp>
+                    </Providers>
+                </div>
             </body>
         </html>
     )

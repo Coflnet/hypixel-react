@@ -1,3 +1,4 @@
+'use client'
 import { useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
@@ -41,7 +42,7 @@ function SubscribeButton(props: Props) {
     let [isSold, setIsSold] = useState(false)
     let [isPlayerAuctionCreation, setIsPlayerAuctionCreation] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [itemFilter, setItemFilter] = useState<ItemFilter>(props.prefill?.filter)
+    let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.filter || undefined)
     let [isItemFilterValid, setIsItemFilterValid] = useState(true)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
@@ -57,9 +58,7 @@ function SubscribeButton(props: Props) {
             .then(() => {
                 toast.success(props.successMessage || 'Notifier successfully created!', {
                     onClick: () => {
-                        router.push({
-                            pathname: '/subscriptions'
-                        })
+                        router.push('/subscriptions')
                     }
                 })
                 if (props.onAfterSubscribe) {
@@ -69,9 +68,7 @@ function SubscribeButton(props: Props) {
             .catch(error => {
                 toast.error(error.message, {
                     onClick: () => {
-                        router.push({
-                            pathname: '/subscriptions'
-                        })
+                        router.push('/subscriptions')
                     }
                 })
             })

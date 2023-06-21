@@ -11,9 +11,10 @@ import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
+import { parseProfitableCraft } from '../../utils/Parser/APIResponseParser'
 
 interface Props {
-    crafts?: ProfitableCraft[]
+    crafts?: any[]
     bazaarTags?: string[]
 }
 
@@ -60,7 +61,7 @@ const SORT_OPTIONS: SortOption[] = [
 let observer: MutationObserver
 
 export function CraftsList(props: Props) {
-    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts || [])
+    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts ? props.crafts.map(parseProfitableCraft) : [])
     let [nameFilter, setNameFilter] = useState<string | null>()
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()

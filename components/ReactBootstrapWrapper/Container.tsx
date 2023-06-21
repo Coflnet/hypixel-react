@@ -1,5 +1,4 @@
 'use client'
-
 import React, { FC } from 'react'
 import Container, { ContainerProps } from 'react-bootstrap/Container'
 

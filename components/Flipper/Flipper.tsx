@@ -18,7 +18,7 @@ import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSett
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
-import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils'
+import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, handleSettingsImport, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils'
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
@@ -30,6 +30,7 @@ import styles from './Flipper.module.css'
 import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
 import FlipperFilter from './FlipperFilter/FlipperFilter'
 import { useRouter } from 'next/navigation'
+import { parseFlipAuction } from '../../utils/Parser/APIResponseParser'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -45,14 +46,14 @@ let mounted = true
 const FLIP_CONEXT_MENU_ID = 'flip-context-menu'
 
 interface Props {
-    flips?: FlipAuction[]
+    flips?: any[]
 }
 
 function Flipper(props: Props) {
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
     let [flips, setFlips] = useState<FlipAuction[]>(
         props.flips
-            ? props.flips.filter(flip => {
+            ? props.flips.map(parseFlipAuction).filter(flip => {
                   return flipperFilter.onlyUnsold ? !flip.sold : true
               })
             : []
@@ -435,6 +436,26 @@ function Flipper(props: Props) {
         )
     }
 
+    function onDrop(e) {
+        e.preventDefault()
+        var output = '' //placeholder for text output
+        let reader = new FileReader()
+        let file = e.dataTransfer.items[0].getAsFile()
+        if (file) {
+            reader.onload = function (e) {
+                output = e.target!.result!.toString()
+                handleSettingsImport(output)
+                //handleSettingsImport(output)
+            } //end onload()
+            reader.readAsText(file)
+        }
+        return true
+    }
+
+    function onDragOver(e) {
+        e.preventDefault()
+    }
+
     let basedOnDialog =
         basedOnAuction === null ? null : (
             <Modal
@@ -519,7 +540,7 @@ function Flipper(props: Props) {
     )
 
     return (
-        <div className={styles.flipper}>
+        <div className={styles.flipper} onDragOver={onDragOver} onDrop={onDrop}>
             <Card>
                 <Card.Header>
                     <Card.Title>

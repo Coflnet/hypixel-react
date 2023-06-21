@@ -1,4 +1,4 @@
-import { redirect, useParams, useSearchParams } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { parseItem } from '../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata } from '../../../utils/SSRUtils'
 import { convertTagToName, numberWithThousandsSeparators } from '../../../utils/Formatter'
