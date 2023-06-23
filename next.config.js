@@ -47,7 +47,6 @@ module.exports = {
         ]
     },
     experimental: {
-        appDir: true,
-        serverComponentsExternalPackages: ['react-bootstrap', 'react-toastify']
+        appDir: true
     }
 }

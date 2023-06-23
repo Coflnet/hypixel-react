@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap'
 import { Container } from 'react-bootstrap'
 import { getHeadMetadata } from '../utils/SSRUtils'
 
-export default function Custom500() {
+export default function Custom500({ error }) {
     return (
         <>
             <Container>
@@ -12,6 +12,7 @@ export default function Custom500() {
                 <Link href="/" className="disableLinkStyle">
                     <Button>Return to main page</Button>
                 </Link>
+                <p>{JSON.stringify(error)}</p>
             </Container>
         </>
     )

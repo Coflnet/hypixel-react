@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { initAPI } from '../../../../api/ApiHelper'
@@ -39,7 +40,9 @@ export default async function Page({ params }) {
                         </p>
                     }
                 />
-                <FlipTracking totalProfit={flipTrackingResponse.totalProfit} trackedFlips={flipTrackingResponse.flips} />
+                <Suspense>
+                    <FlipTracking totalProfit={flipTrackingResponse.totalProfit} trackedFlips={flipTrackingResponse.flips} />
+                </Suspense>
             </RBContainer>
         </>
     )

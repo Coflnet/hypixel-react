@@ -12,9 +12,8 @@ import ReloadDialog from '../ReloadDialog/ReloadDialog'
 import { startMigrations } from '../../migrations/MigrationUtils'
 import { v4 as generateUUID } from 'uuid'
 import { isClientSideRendering } from '../../utils/SSRUtils'
-import NextNProgress from 'nextjs-progressbar'
 import { useRouter } from 'next/navigation'
-import { Providers } from '../Providers/Providers'
+import NextTopLoader from 'nextjs-toploader'
 
 interface ErrorLog {
     error: ErrorEvent
@@ -140,7 +139,7 @@ export function MainApp(props: any) {
     return (
         <>
             <OfflineBanner />
-            <NextNProgress />
+            <NextTopLoader />
             {props.children}
             <CookieConsent
                 enableDeclineButton

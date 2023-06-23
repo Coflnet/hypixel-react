@@ -1,7 +1,7 @@
+import { Suspense } from 'react'
 import moment from 'moment'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Container } from 'react-bootstrap'
 import { initAPI } from '../../../../../api/ApiHelper'
 import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '../../../../../utils/Parser/APIResponseParser'
 import { numberWithThousandsSeparators, removeMinecraftColorCoding } from '../../../../../utils/Formatter'
@@ -43,11 +43,13 @@ export default async function Page({ params }) {
                         </p>
                     }
                 />
-                <FlipTracking
-                    totalProfit={flipTrackingResponse.totalProfit}
-                    trackedFlips={flipTrackingResponse.flips}
-                    highlightedFlipUid={targetFlip?.uId.toString(16)}
-                />
+                <Suspense>
+                    <FlipTracking
+                        totalProfit={flipTrackingResponse.totalProfit}
+                        trackedFlips={flipTrackingResponse.flips}
+                        highlightedFlipUid={targetFlip?.uId.toString(16)}
+                    />
+                </Suspense>
             </RBContainer>
         </>
     )

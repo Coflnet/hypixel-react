@@ -3,7 +3,6 @@ import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, ListGroup } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -20,6 +19,7 @@ import Search from '../Search/Search'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './PlayerDetailsList.module.css'
+import { usePathname } from 'next/navigation'
 
 interface Props {
     player: Player
@@ -47,11 +47,10 @@ let listStates: ListState[] = []
 const FETCH_RESULT_SIZE = 10
 
 function PlayerDetailsList(props: Props) {
-    let router = useRouter()
-
+    let pathname = usePathname()
     let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
     let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < FETCH_RESULT_SIZE : false)
-    let [filteredItem, setFilteredItem] = useState<Item>()
+    let [filteredItem, _setFilteredItem] = useState<Item>()
     let [filters, setFilters] = useState<FilterOptions[]>()
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
     let [premiumRank, setPremiumRank] = useState<PremiumType>()
@@ -59,12 +58,17 @@ function PlayerDetailsList(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
+        updateListState()
         loadFilters()
     }, [])
 
     useEffect(() => {
+        console.log(pathname)
+        onRouteChange()
+    }, [pathname])
+
+    useEffect(() => {
         mounted = true
-        router.events.on('routeChangeStart', onRouteChange)
 
         let listState = getListState()
         if (listState !== undefined) {
@@ -80,13 +84,10 @@ function PlayerDetailsList(props: Props) {
                     behavior: 'auto'
                 })
             }, 100)
-        } else {
-            loadNewElements(true)
         }
 
         return () => {
             mounted = false
-            router.events.off('routeChangeStart', onRouteChange)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.player.uuid])
@@ -96,13 +97,6 @@ function PlayerDetailsList(props: Props) {
             loadNewElements()
         }
     }, [props.auctions])
-
-    useEffect(() => {
-        setListElements([])
-        setAllElementsLoaded(false)
-        loadNewElements(true)
-        loadFilters()
-    }, [filteredItem])
 
     function onAfterLogin() {
         api.refreshLoadPremiumProducts(products => {
@@ -116,6 +110,14 @@ function PlayerDetailsList(props: Props) {
                 props.onAfterLogin()
             }
         })
+    }
+
+    function setFilteredItem(item?: Item) {
+        _setFilteredItem(item)
+        setListElements([])
+        setAllElementsLoaded(false)
+        loadNewElements(true)
+        loadFilters()
     }
 
     function loadFilters() {

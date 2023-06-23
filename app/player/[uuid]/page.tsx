@@ -24,12 +24,13 @@ async function getPlayerInfo(uuid) {
     } catch {
         notFound()
     }
-    let auctions = []
+    let auctions: any[] = []
     try {
-        await api.getAuctions(uuid, 0)
+        auctions = await api.getAuctions(uuid, 0)
     } catch {
         console.error('Error loading player auctions for player ' + uuid)
     }
+
     return {
         auctions: (auctions as any[]) || [],
         player: {
@@ -39,14 +40,14 @@ async function getPlayerInfo(uuid) {
     }
 }
 
-export function generateMetadata({ params }) {
+export async function generateMetadata({ params }) {
     let api = initAPI(true)
     let player = {
         name: '',
         iconUrl: ''
     } as any
     try {
-        let name = api.getPlayerName(params.uuid)
+        let name = await api.getPlayerName(params.uuid)
         player = parsePlayer({
             uuid: params.uuid,
             name
