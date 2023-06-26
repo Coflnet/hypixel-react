@@ -1,5 +1,5 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import React , { useState } from 'react'
+import React, { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -57,7 +57,7 @@ export function CopyButton(props: Props) {
 
     return (
         <span>
-            {!isClientSideRendering() || window.navigator.clipboard ? (
+            {!isClientSideRendering() && window.navigator.clipboard ? (
                 <span className={props.buttonWrapperClass}>
                     <Button
                         style={props.buttonStyle}
