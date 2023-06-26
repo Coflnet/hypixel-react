@@ -49,6 +49,7 @@ import { isClientSideRendering } from '../utils/SSRUtils'
 import { HttpApi, RequestType, Subscription, SubscriptionType } from './ApiTypes.d'
 import { initHttpHelper } from './HttpHelper'
 import { websocketHelper } from './WebsocketHelper'
+import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 
 function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
@@ -76,8 +77,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         }
         toast.error(error.message, {
             onClick: () => {
-                if (error.Trace && window.navigator.clipboard) {
-                    window.navigator.clipboard.writeText(error.Trace)
+                if (error.Trace && canUseClipBoard()) {
+                    writeToClipboard(error.Trace)
                 }
             }
         })

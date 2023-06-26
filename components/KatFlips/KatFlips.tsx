@@ -11,6 +11,7 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { Number } from '../Number/Number'
 import styles from './KatFlips.module.css'
 import { parseKatFlip } from '../../utils/Parser/APIResponseParser'
+import { writeToClipboard } from '../../utils/ClipboardUtils'
 
 interface Props {
     flips: any[]
@@ -115,7 +116,7 @@ export function KatFlips(props: Props) {
         if (e.defaultPrevented || !flip.originAuctionUUID) {
             return
         }
-        window.navigator.clipboard.writeText('/viewauction ' + flip.originAuctionUUID)
+        writeToClipboard('/viewauction ' + flip.originAuctionUUID)
 
         toast.success(
             <p>

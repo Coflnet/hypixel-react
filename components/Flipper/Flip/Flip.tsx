@@ -12,6 +12,7 @@ import { useForceUpdate } from '../../../utils/Hooks'
 import { CopyButton } from '../../CopyButton/CopyButton'
 import { Number } from '../../Number/Number'
 import styles from './Flip.module.css'
+import { writeToClipboard } from '../../../utils/ClipboardUtils'
 
 interface Props {
     flip: FlipAuction
@@ -57,7 +58,7 @@ function Flip(props: Props) {
             return
         }
 
-        window.navigator.clipboard.writeText('/viewauction ' + props.flip.uuid)
+        writeToClipboard('/viewauction ' + props.flip.uuid)
         if (props.onCopy) {
             props.onCopy(props.flip)
         }

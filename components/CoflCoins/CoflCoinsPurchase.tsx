@@ -22,6 +22,7 @@ function Payment(props: Props) {
 
     function onPayPaypal(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
+        setCurrentRedirectLink('')
         api.paypalPurchase(productId, coflCoins)
             .then(data => {
                 setCurrentRedirectLink(data.directLink)
@@ -32,6 +33,7 @@ function Payment(props: Props) {
 
     function onPayStripe(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
+        setCurrentRedirectLink('')
         api.stripePurchase(productId, coflCoins)
             .then(data => {
                 setCurrentRedirectLink(data.directLink)
@@ -97,11 +99,23 @@ function Payment(props: Props) {
                                     >
                                         {payPalProductId === isLoadingId ? (
                                             <p className={styles.manualRedirectLink}>
-                                                Redirecting to PayPal...
-                                                <br /> Not working?{' '}
-                                                <a href={currentRedirectLink} target="_blank">
-                                                    Click here
-                                                </a>
+                                                {currentRedirectLink ? (
+                                                    <>
+                                                        Redirecting to PayPal...
+                                                        <br /> Not working?{' '}
+                                                        <a
+                                                            href={currentRedirectLink}
+                                                            onClick={e => {
+                                                                e.stopPropagation()
+                                                            }}
+                                                            target="_blank"
+                                                        >
+                                                            Click here
+                                                        </a>
+                                                    </>
+                                                ) : (
+                                                    <span>Contacting payment provider...</span>
+                                                )}
                                             </p>
                                         ) : (
                                             <span>
@@ -138,12 +152,23 @@ function Payment(props: Props) {
                                     >
                                         {stripeProductId === isLoadingId ? (
                                             <p className={styles.manualRedirectLink}>
-                                                Redirecting to Stripe...
-                                                <br />
-                                                Not working?{' '}
-                                                <a href={currentRedirectLink} target="_blank">
-                                                    Click here
-                                                </a>
+                                                {currentRedirectLink ? (
+                                                    <>
+                                                        Redirecting to Stripe...
+                                                        <br /> Not working?{' '}
+                                                        <a
+                                                            href={currentRedirectLink}
+                                                            onClick={e => {
+                                                                e.stopPropagation()
+                                                            }}
+                                                            target="_blank"
+                                                        >
+                                                            Click here
+                                                        </a>
+                                                    </>
+                                                ) : (
+                                                    <span>Contacting payment provider...</span>
+                                                )}
                                             </p>
                                         ) : (
                                             <span>
@@ -207,9 +232,29 @@ function Payment(props: Props) {
                                         className={styles.paymentButton}
                                         disabled={!props.cancellationRightLossConfirmed}
                                     >
-                                        {`${payPalProductId}_${coflCoinsToBuy}` === isLoadingId
-                                            ? getLoadingElement(<p>Redirecting to checkout...</p>)
-                                            : `${paypalPrice} Euro`}
+                                        {`${payPalProductId}_${coflCoinsToBuy}` === isLoadingId ? (
+                                            <p className={styles.manualRedirectLink}>
+                                                {currentRedirectLink ? (
+                                                    <>
+                                                        Redirecting to PayPal...
+                                                        <br /> Not working?{' '}
+                                                        <a
+                                                            href={currentRedirectLink}
+                                                            onClick={e => {
+                                                                e.stopPropagation()
+                                                            }}
+                                                            target="_blank"
+                                                        >
+                                                            Click here
+                                                        </a>
+                                                    </>
+                                                ) : (
+                                                    <span>Contacting payment provider...</span>
+                                                )}
+                                            </p>
+                                        ) : (
+                                            `${paypalPrice} Euro`
+                                        )}
                                     </Button>
                                 </div>
                             }
@@ -230,9 +275,29 @@ function Payment(props: Props) {
                                         className={styles.paymentButton}
                                         disabled={!props.cancellationRightLossConfirmed}
                                     >
-                                        {`${stripeProductId}_${coflCoinsToBuy}` === isLoadingId
-                                            ? getLoadingElement(<p>Redirecting to checkout...</p>)
-                                            : `${stripePrice} Euro`}
+                                        {`${stripeProductId}_${coflCoinsToBuy}` === isLoadingId ? (
+                                            <p className={styles.manualRedirectLink}>
+                                                {currentRedirectLink ? (
+                                                    <>
+                                                        Redirecting to Stripe...
+                                                        <br /> Not working?{' '}
+                                                        <a
+                                                            href={currentRedirectLink}
+                                                            onClick={e => {
+                                                                e.stopPropagation()
+                                                            }}
+                                                            target="_blank"
+                                                        >
+                                                            Click here
+                                                        </a>
+                                                    </>
+                                                ) : (
+                                                    <span>Contacting payment provider...</span>
+                                                )}
+                                            </p>
+                                        ) : (
+                                            `${stripePrice} Euro`
+                                        )}
                                     </Button>
                                 </div>
                             }
