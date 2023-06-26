@@ -64,9 +64,11 @@ function ItemDetails(props: Props) {
     function getAvgPrice() {
         let priceSum = 0
 
-        props.prices.forEach(item => {
-            priceSum += item.avg
-        })
+        if (props.prices) {
+            props.prices.forEach(item => {
+                priceSum += item.avg
+            })
+        }
 
         return Math.round(priceSum / prices.length)
     }
