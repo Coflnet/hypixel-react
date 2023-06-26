@@ -57,7 +57,7 @@ export function CopyButton(props: Props) {
 
     return (
         <span>
-            {!isClientSideRendering() && window.navigator.clipboard ? (
+            {isClientSideRendering() && window.navigator.clipboard ? (
                 <span className={props.buttonWrapperClass}>
                     <Button
                         style={props.buttonStyle}
