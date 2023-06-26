@@ -4,6 +4,7 @@ import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import ShareIcon from '@mui/icons-material/ShareOutlined'
 import styles from './ShareButton.module.css'
 import { v4 as generateUUID } from 'uuid'
+import { canUseClipBoard, writeToClipboard } from '../../utils/ClipboardUtils'
 
 interface Props {
     title: string
@@ -34,12 +35,12 @@ function ShareButton(props: Props) {
     }
 
     function copyToClipboard() {
-        if (window.navigator.clipboard) {
+        if (canUseClipBoard()) {
             trackEvent({
                 category: 'share',
                 action: 'copyToClipboard'
             })
-            window.navigator.clipboard.writeText(window.location.href)
+            writeToClipboard(window.location.href)
             setShowOverlayTrigger(true)
         } else {
             trackEvent({

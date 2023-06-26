@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import { canUseClipBoard, writeToClipboard } from '../../utils/ClipboardUtils'
 
 interface Props {
     onCopy?()
@@ -41,7 +42,7 @@ export function CopyButton(props: Props) {
     function copyClick() {
         setIsCopied(true)
         if (props.copyValue) {
-            window.navigator.clipboard.writeText(props.copyValue)
+            writeToClipboard(props.copyValue)
             trackEvent({
                 category: 'copyButtonClick',
                 action: props.copyValue
@@ -57,7 +58,7 @@ export function CopyButton(props: Props) {
 
     return (
         <span>
-            {isClientSideRendering() && window.navigator.clipboard ? (
+            {isClientSideRendering() && canUseClipBoard() ? (
                 <span className={props.buttonWrapperClass}>
                     <Button
                         style={props.buttonStyle}
