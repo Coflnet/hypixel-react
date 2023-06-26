@@ -204,7 +204,7 @@ function Startpage(props: Props) {
                     return (
                         <List
                             className={styles.startpageListElementWrapper}
-                            height={height - 15}
+                            height={height! - 15}
                             itemCount={newAuctions.length}
                             itemSize={200}
                             layout="horizontal"
@@ -226,7 +226,7 @@ function Startpage(props: Props) {
                 {({ height, width }) => (
                     <List
                         className={styles.startpageListElementWrapper}
-                        height={height - 15}
+                        height={height! - 15}
                         itemCount={popularSearches.length}
                         itemSize={200}
                         layout="horizontal"
@@ -247,7 +247,7 @@ function Startpage(props: Props) {
                 {({ height, width }) => (
                     <List
                         className={styles.startpageListElementWrapper}
-                        height={height - 15}
+                        height={height! - 15}
                         itemCount={endedAuctions.length}
                         itemSize={200}
                         layout="horizontal"
@@ -268,7 +268,7 @@ function Startpage(props: Props) {
                 {({ height, width }) => (
                     <List
                         className={styles.startpageListElementWrapper}
-                        height={height - 15}
+                        height={height! - 15}
                         itemCount={newPlayers.length}
                         itemSize={200}
                         layout="horizontal"
