@@ -45,5 +45,13 @@ module.exports = {
                 permanent: true
             }
         ]
+    },
+    modularizeImports: {
+        '@mui/material': {
+            transform: '@mui/material/{{member}}'
+        },
+        '@mui/icons-material': {
+            transform: '@mui/icons-material/{{member}}'
+        }
     }
 }
