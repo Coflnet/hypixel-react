@@ -9,6 +9,7 @@ import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { Number } from '../Number/Number'
 import styles from './KatFlips.module.css'
+import { writeToClipboard } from '../../utils/ClipboardUtils'
 
 interface Props {
     flips: KatFlip[]
@@ -109,7 +110,7 @@ export function KatFlips(props: Props) {
         if (e.defaultPrevented || !flip.originAuctionUUID) {
             return
         }
-        window.navigator.clipboard.writeText('/viewauction ' + flip.originAuctionUUID)
+        writeToClipboard('/viewauction ' + flip.originAuctionUUID)
 
         toast.success(
             <p>
@@ -272,7 +273,9 @@ export function KatFlips(props: Props) {
                 <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
                 <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
                     ))}
                 </Form.Select>
                 <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />

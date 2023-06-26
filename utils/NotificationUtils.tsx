@@ -1,5 +1,6 @@
 import { toast } from 'react-toastify'
 import cacheUtils from './CacheUtils'
+import { canUseClipBoard, writeToClipboard } from './ClipboardUtils'
 
 export default function registerNotificationCallback(router) {
     let interval = setInterval(function () {
@@ -20,8 +21,8 @@ export default function registerNotificationCallback(router) {
     function displayNotification(notification: any) {
         toast.info(notification.title + '\n' + notification.body, {
             onClick: () => {
-                if (window.navigator.clipboard) {
-                    window.navigator.clipboard.writeText('/viewauction ' + notification.click_action.split(/\/auction\//)[1])
+                if (canUseClipBoard()) {
+                    writeToClipboard('/viewauction ' + notification.click_action.split(/\/auction\//)[1])
                 }
                 router.push('/' + notification.click_action.match(/\/\/[^/]+\/([^.]+)/)[1])
             },
