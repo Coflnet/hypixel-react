@@ -6,6 +6,18 @@ test('search player technoblade with special player search query', async ({ page
     await page.getByPlaceholder('Search player/item').fill('player technoblade')
     await page.getByPlaceholder('Search player/item').press('Enter')
     await expect(page).toHaveURL('/player/b876ec32e396476ba1158438d83c67d4')
+    let playerText = page.getByText('Technoblade')
+    expect(playerText !== undefined).toBeTruthy()
+})
+
+test('search item sheep pet', async ({ page }) => {
+    await page.goto('/')
+    await page.getByPlaceholder('Search player/item').click()
+    await page.getByPlaceholder('Search player/item').fill('sheep pet')
+    await page.getByPlaceholder('Search player/item').press('Enter')
+    await expect(page).toHaveURL(/\/item\/PET_SHEEP(\?.*)?$/)
+    let sheepText = await page.getByText('Sheep')
+    expect(sheepText !== undefined).toBeTruthy()
 })
 
 test('search for grappling hook and open reference', async ({ page }) => {
