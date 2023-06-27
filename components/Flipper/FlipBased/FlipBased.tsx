@@ -1,3 +1,4 @@
+'use client'
 import moment from 'moment'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -51,7 +52,7 @@ function FlipBased(props: Props) {
                                     <p className="ellipsis" style={{ width: '180px' }}>
                                         <Image
                                             crossOrigin="anonymous"
-                                            src={props.item.iconUrl}
+                                            src={props.item.iconUrl || ''}
                                             height="32"
                                             width="32"
                                             alt=""

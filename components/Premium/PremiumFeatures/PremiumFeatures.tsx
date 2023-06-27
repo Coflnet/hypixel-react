@@ -1,3 +1,4 @@
+'use client'
 import HelpIcon from '@mui/icons-material/Help'
 import Link from 'next/link'
 import { Table } from 'react-bootstrap'

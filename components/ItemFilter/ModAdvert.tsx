@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link'
 import { Card } from 'react-bootstrap'
 import { CancelOutlined as CancelIcon } from '@mui/icons-material'

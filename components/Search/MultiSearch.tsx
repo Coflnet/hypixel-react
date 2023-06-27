@@ -1,3 +1,4 @@
+'use client'
 import { forwardRef, Ref, useState } from 'react'
 import { AsyncTypeahead, Highlighter } from 'react-bootstrap-typeahead'
 import { v4 as generateUUID } from 'uuid'
@@ -64,7 +65,7 @@ export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
                             src={o.dataItem.iconUrl}
                             alt=""
                         />
-                        <span style={isDuplicate ? getStyleForTier(o.tier) : null}>{o.label}</span>
+                        <span style={isDuplicate ? getStyleForTier(o.tier) : undefined}>{o.label}</span>
                     </>
                 )
             }}

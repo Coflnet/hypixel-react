@@ -1,3 +1,4 @@
+'use client'
 import { Form } from 'react-bootstrap'
 import { NumberFormatValues, NumericFormat } from 'react-number-format'
 import { getDecimalSeparator, getThousandSeparator } from '../../../utils/Formatter'
@@ -22,7 +23,7 @@ export function NumericalFilterElement(props: Props) {
             decimalSeparator={getDecimalSeparator()}
             allowNegative={false}
             isAllowed={value => {
-                if (!value.value) {
+                if (!value.floatValue) {
                     return true
                 }
                 let options = props.options?.options

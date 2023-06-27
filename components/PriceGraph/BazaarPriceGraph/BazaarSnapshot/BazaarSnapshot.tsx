@@ -1,6 +1,8 @@
+'use client'
 import moment from 'moment'
 import { useEffect, useRef, useState } from 'react'
-import { Card, Table } from 'react-bootstrap'
+import Card from 'react-bootstrap/Card'
+import { Table } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../../api/ApiTypes.d'
 import { useDebounce } from '../../../../utils/Hooks'
@@ -12,14 +14,13 @@ interface Props {
 }
 
 function BazaarSnapshot(props: Props) {
-    let [timestamp, setTimestamp] = useState(null)
+    let [timestamp, setTimestamp] = useState<Date>(new Date())
     let [bazaarSnapshot, setBazaarSnapshot] = useState<BazaarSnapshot>()
 
     let debouncedTimestamp = useDebounce(timestamp, 100)
     let bazaarSnapshotDateRef = useRef(null)
 
     useEffect(() => {
-        setTimestamp(new Date())
         document.addEventListener(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, onTimestampChangeEvent)
 
         return () => {

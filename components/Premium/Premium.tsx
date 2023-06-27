@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -104,7 +105,7 @@ function Premium() {
             </div>
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>
-                    <BuyPremium activePremiumProduct={activePremiumProduct} onNewActivePremiumProduct={loadPremiumProducts} />
+                    <BuyPremium activePremiumProduct={activePremiumProduct!} onNewActivePremiumProduct={loadPremiumProducts} />
                 </div>
             ) : null}
             {isLoggedIn ? (

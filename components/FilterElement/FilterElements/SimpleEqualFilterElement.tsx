@@ -1,3 +1,4 @@
+'use client'
 import { ChangeEvent } from 'react'
 import { Form } from 'react-bootstrap'
 import { convertTagToName } from '../../../utils/Formatter'

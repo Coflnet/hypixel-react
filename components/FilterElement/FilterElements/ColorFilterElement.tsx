@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+'use client'
+import { useState } from 'react'
 import { HexColorInput } from 'react-colorful'
 
 interface Props {
