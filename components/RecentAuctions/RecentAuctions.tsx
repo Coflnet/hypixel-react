@@ -1,4 +1,3 @@
-'use client'
 import moment from 'moment'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,6 +10,7 @@ import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
+import { isClientSideRendering } from '../../utils/SSRUtils'
 import { Number } from '../Number/Number'
 import styles from './RecentAuctions.module.css'
 
@@ -36,10 +36,10 @@ function RecentAuctions(props: Props) {
     let [recentAuctions, setRecentAuctions, recentAuctionsRef] = useStateWithRef<RecentAuction[]>([])
     let [isSSR, setIsSSR] = useState(true)
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
-    let [premiumType, setPremiumType] = useState<PremiumType>()
+    let [premiumType, setPremiumType] = useState<PremiumType>(null)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
 
-    let itemFilterRef = useRef<ItemFilter>(props.itemFilter)
+    let itemFilterRef = useRef<ItemFilter>(null)
     itemFilterRef.current = props.itemFilter
 
     useEffect(() => {
@@ -150,7 +150,7 @@ function RecentAuctions(props: Props) {
                                     <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
-                                        src={props.item.iconUrl || ''}
+                                        src={props.item.iconUrl}
                                         height="32"
                                         width="32"
                                         alt=""
@@ -167,7 +167,7 @@ function RecentAuctions(props: Props) {
                                     style={{ marginRight: '15px' }}
                                     crossOrigin="anonymous"
                                     className="playerHeadIcon"
-                                    src={recentAuction.seller.iconUrl || ''}
+                                    src={recentAuction.seller.iconUrl}
                                     alt=""
                                     height="24"
                                     width="24"
@@ -230,17 +230,15 @@ function RecentAuctions(props: Props) {
                     <p style={{ textAlign: 'center' }}>No recent auctions found</p>
                 )}
             </div>
-            {premiumType
-                ? getMoreAuctionsElement(
-                      isLoggedIn,
-                      premiumType,
-                      onAfterLogin,
-                      <span>
-                          You currently use Starter Premium. You can see up to 120 recent auctions with
-                          <Link href={'/premium'}>Premium</Link>
-                      </span>
-                  )
-                : null}
+            {getMoreAuctionsElement(
+                isLoggedIn,
+                premiumType,
+                onAfterLogin,
+                <span>
+                    You currently use Starter Premium. You can see up to 120 recent auctions with
+                    <Link href={'/premium'}>Premium</Link>
+                </span>
+            )}
         </div>
     )
 }

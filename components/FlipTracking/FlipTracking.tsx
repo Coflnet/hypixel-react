@@ -1,10 +1,9 @@
-'use client'
 import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
 import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'
 import DangerousIcon from '@mui/icons-material/Dangerous'
 import moment from 'moment'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
 import { Item, Menu, useContextMenu } from 'react-contexify'
@@ -16,7 +15,6 @@ import { CopyButton } from '../CopyButton/CopyButton'
 import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './FlipTracking.module.css'
-import { useQueryParam } from 'use-query-params'
 interface Props {
     totalProfit?: number
     trackedFlips?: FlipTrackingFlip[]
@@ -55,7 +53,6 @@ const SORT_OPTIONS: SortOption[] = [
 const TRACKED_FLIP_CONTEXT_MENU_ID = 'tracked-flip-context-menu'
 
 export function FlipTracking(props: Props) {
-    let [uuid] = useQueryParam('uuid')
     let [totalProfit, setTotalProfit] = useState(props.totalProfit || 0)
     let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
@@ -156,7 +153,7 @@ export function FlipTracking(props: Props) {
                     >
                         <Image
                             crossOrigin="anonymous"
-                            src={trackedFlip.item.iconUrl || ''}
+                            src={trackedFlip.item.iconUrl}
                             height="36"
                             width="36"
                             alt=""
@@ -266,7 +263,9 @@ export function FlipTracking(props: Props) {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'end' }}>
                         <CopyButton
-                            copyValue={isClientSideRendering() ? `${window.location.origin}/player/${uuid}/flips/${trackedFlip.uId.toString(16)}` : ''}
+                            copyValue={
+                                isClientSideRendering() ? `${window.location.origin}/player/${router.query.uuid}/flips/${trackedFlip.uId.toString(16)}` : ''
+                            }
                             successMessage={isClientSideRendering() ? <span>{`Copied link to flip!`}</span> : <span />}
                         />
                     </div>

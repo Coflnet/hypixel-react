@@ -1,4 +1,3 @@
-'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import ReactECharts from 'echarts-for-react'

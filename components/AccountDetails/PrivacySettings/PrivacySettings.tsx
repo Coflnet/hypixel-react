@@ -1,4 +1,3 @@
-'use client'
 import { useEffect, useState } from 'react'
 import { Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
@@ -6,29 +5,29 @@ import { getLoadingElement } from '../../../utils/LoadingUtils'
 import styles from './PrivacySettings.module.css'
 
 function PrivacySettings() {
-    let [privacySettings, setPrivacySettings] = useState<PrivacySettings | null>(null)
+    let [privacySettings, setPrivacySettings] = useState<PrivacySettings>(null)
+    let [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         loadPrivacySettings()
     }, [])
 
     function loadPrivacySettings() {
+        setIsLoading(true)
         api.getPrivacySettings().then(settings => {
             setPrivacySettings(settings)
+            setIsLoading(false)
         })
     }
 
     function onSettingChange(key: string, value: any) {
-        if (!privacySettings) {
-            return
-        }
         privacySettings[key] = value
         setPrivacySettings(privacySettings)
 
         api.setPrivacySettings(privacySettings)
     }
 
-    if (!privacySettings) {
+    if (isLoading) {
         return getLoadingElement(<p>Loading settings</p>)
     }
 

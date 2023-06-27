@@ -1,4 +1,3 @@
-'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useEffect, useState } from 'react'
@@ -102,7 +101,7 @@ function FilterElement(props: Props) {
             let validationResult = validateFilterRange(value.toString(), props.options)
             setIsValid(validationResult[0])
             if (!validationResult[0]) {
-                setErrorText(validationResult[1] || '')
+                setErrorText(validationResult[1])
                 return false
             }
             return true
@@ -136,7 +135,7 @@ function FilterElement(props: Props) {
             let validationResult = validateFilterNumber(value.toString(), props.options)
             setIsValid(validationResult[0])
             if (!validationResult[0]) {
-                setErrorText(validationResult[1] || '')
+                setErrorText(validationResult[1])
                 return false
             }
             return true
@@ -162,8 +161,8 @@ function FilterElement(props: Props) {
                 <NumberRangeFilterElement
                     key={options.name}
                     defaultValue={props.defaultValue}
-                    min={props.options ? parseInt(props.options.options[0]) : undefined}
-                    max={props.options ? parseInt(props.options.options[1]) : undefined}
+                    min={parseInt(props.options.options[0])}
+                    max={parseInt(props.options.options[1])}
                     onChange={onFilterElementChange}
                 />
             )

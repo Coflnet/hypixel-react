@@ -1,4 +1,3 @@
-'use client'
 import { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
@@ -56,15 +55,16 @@ function ClaimAccount(props: Props) {
             <Card style={{ marginBottom: '10px' }}>
                 <Card.Header>Referrals</Card.Header>
                 <Card.Body>
-                    The referral bonus for inviting someone is only awarded after verifying with a minecraft account. You receive free test premium after you
-                    verified your account. This is to prevent people from abusing the ref system by creating new emails.
+                    The referral bonus for inviting someone is only awarded after verifying with a minecraft account.  
+                    You receive free test premium after you verified your account.
+                    This is to prevent people from abusing the ref system by creating new emails.
                 </Card.Body>
             </Card>
             <Card>
                 <Card.Header>Flipping</Card.Header>
                 <Card.Body>
-                    As part of our fairness system unverified accounts receive flips delayed. Some parts (like the in game `/cofl profit`) use the list of
-                    verified accounts to compute summaries over all your minecraft accounts.
+                    As part of our fairness system unverified accounts receive flips delayed. 
+                    Some parts (like the in game `/cofl profit`) use the list of verified accounts to compute summaries over all your minecraft accounts.
                 </Card.Body>
             </Card>
         </div>

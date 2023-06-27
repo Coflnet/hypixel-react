@@ -1,4 +1,3 @@
-'use client'
 import { useEffect, useState } from 'react'
 import { FormControl, InputGroup } from 'react-bootstrap'
 import { Form } from 'react-bootstrap'

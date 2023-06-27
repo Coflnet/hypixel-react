@@ -1,14 +1,14 @@
-'use client'
 import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, ListGroup } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement, getStyleForTier } from '../../utils/Formatter'
-import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
@@ -19,7 +19,6 @@ import Search from '../Search/Search'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './PlayerDetailsList.module.css'
-import { usePathname } from 'next/navigation'
 
 interface Props {
     player: Player
@@ -47,10 +46,12 @@ let listStates: ListState[] = []
 const FETCH_RESULT_SIZE = 10
 
 function PlayerDetailsList(props: Props) {
-    let pathname = usePathname()
+    let forceUpdate = useForceUpdate()
+    let router = useRouter()
+
     let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
     let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < FETCH_RESULT_SIZE : false)
-    let [filteredItem, _setFilteredItem] = useState<Item>()
+    let [filteredItem, setFilteredItem] = useState<Item>(null)
     let [filters, setFilters] = useState<FilterOptions[]>()
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
     let [premiumRank, setPremiumRank] = useState<PremiumType>()
@@ -58,17 +59,12 @@ function PlayerDetailsList(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
-        updateListState()
         loadFilters()
     }, [])
 
     useEffect(() => {
-        console.log(pathname)
-        onRouteChange()
-    }, [pathname])
-
-    useEffect(() => {
         mounted = true
+        router.events.on('routeChangeStart', onRouteChange)
 
         let listState = getListState()
         if (listState !== undefined) {
@@ -84,10 +80,13 @@ function PlayerDetailsList(props: Props) {
                     behavior: 'auto'
                 })
             }, 100)
+        } else {
+            loadNewElements(true)
         }
 
         return () => {
             mounted = false
+            router.events.off('routeChangeStart', onRouteChange)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.player.uuid])
@@ -98,6 +97,13 @@ function PlayerDetailsList(props: Props) {
         }
     }, [props.auctions])
 
+    useEffect(() => {
+        setListElements([])
+        setAllElementsLoaded(false)
+        loadNewElements(true)
+        loadFilters()
+    }, [filteredItem])
+
     function onAfterLogin() {
         api.refreshLoadPremiumProducts(products => {
             let highestPremium = getHighestPriorityPremiumProduct(products)
@@ -106,18 +112,8 @@ function PlayerDetailsList(props: Props) {
                 premiumRank = highestPremiumType
                 setPremiumRank(highestPremiumType)
             }
-            if (props.onAfterLogin) {
-                props.onAfterLogin()
-            }
+            props.onAfterLogin()
         })
-    }
-
-    function setFilteredItem(item?: Item) {
-        _setFilteredItem(item)
-        setListElements([])
-        setAllElementsLoaded(false)
-        loadNewElements(true)
-        loadFilters()
     }
 
     function loadFilters() {
@@ -127,8 +123,7 @@ function PlayerDetailsList(props: Props) {
     }
 
     function showFilter(): boolean {
-        return ((props.accountInfo && props.accountInfo?.mcId === props.player.uuid) ||
-            (premiumRank && premiumRank.priority >= PREMIUM_RANK.STARTER)) as boolean
+        return (props.accountInfo && props.accountInfo?.mcId === props.player.uuid) || (premiumRank && premiumRank.priority >= PREMIUM_RANK.STARTER)
     }
 
     let onRouteChange = () => {
@@ -355,7 +350,7 @@ function PlayerDetailsList(props: Props) {
                             hideNavbar={true}
                             placeholder="Search item"
                             enableReset={true}
-                            onResetClick={() => setFilteredItem(undefined)}
+                            onResetClick={() => setFilteredItem(null)}
                             hideOptions={true}
                             preventDisplayOfPreviousSearches={true}
                         />

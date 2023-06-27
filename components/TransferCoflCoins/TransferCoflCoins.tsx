@@ -1,4 +1,3 @@
-'use client'
 import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { NumericFormat } from 'react-number-format'
@@ -67,12 +66,10 @@ function TransferCoflCoins(props: Props) {
                         <NumericFormat
                             id="coflcoins-to-send"
                             onValueChange={n => {
-                                if (n.floatValue) {
-                                    setCoflCoinsToSend(n.floatValue)
-                                }
+                                setCoflCoinsToSend(n.floatValue)
                             }}
                             isAllowed={value => {
-                                return value.floatValue ? value.floatValue <= coflCoinsBalance : false
+                                return value.floatValue <= coflCoinsBalance
                             }}
                             customInput={Form.Control}
                             defaultValue={0}

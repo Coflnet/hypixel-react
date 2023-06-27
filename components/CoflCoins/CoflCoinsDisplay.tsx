@@ -1,4 +1,3 @@
-'use client'
 import { useEffect, useState } from 'react'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { useCoflCoins } from '../../utils/Hooks'

@@ -57,8 +57,8 @@ export function getHighestPriorityPremiumProduct(premiumProducts: PremiumProduct
         let type = getPremiumType(product)
         return {
             productSlug: product.productSlug,
-            productId: type?.productId,
-            priority: type?.priority
+            productId: type.productId,
+            priority: type.priority
         }
     })
 
@@ -74,7 +74,7 @@ export function hasHighEnoughPremium(products: PremiumProduct[], minPremiumType:
     let hasHighEnoughPremium = false
     products.forEach(product => {
         let type = getPremiumType(product)
-        if (type && type.priority >= minPremiumType && product.expires > new Date()) {
+        if (type.priority >= minPremiumType && product.expires > new Date()) {
             hasHighEnoughPremium = true
         }
     })

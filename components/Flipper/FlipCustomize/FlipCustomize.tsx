@@ -1,4 +1,3 @@
-'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
@@ -15,7 +14,7 @@ import {
 import Tooltip from '../../Tooltip/Tooltip'
 import Flip from '../Flip/Flip'
 import HelpIcon from '@mui/icons-material/Help'
-import Select, { components } from 'react-select'
+import Select, { MultiValueGenericProps, components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
 import styles from './FlipCustomize.module.css'
 import api from '../../../api/ApiHelper'
@@ -116,7 +115,7 @@ function FlipCustomize() {
         return true
     }
 
-    function getFlipFinderWarningElement(): JSX.Element | null {
+    function getFlipFinderWarningElement(): JSX.Element {
         let warnings: string[] = []
 
         let sniperFinder = FLIP_FINDERS.find(finder => finder.label === 'Sniper')
@@ -134,12 +133,12 @@ function FlipCustomize() {
         }
 
         let tfmFinder = FLIP_FINDERS.find(finder => finder.label === 'TFM')
-        if (flipCustomizeSettings?.finders?.find(finder => finder.toString() === tfmFinder?.value)) {
+        if (flipCustomizeSettings.finders.find(finder => finder.toString() === tfmFinder.value)) {
             warnings.push('The "TFM"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
         }
 
         let stonksFinder = FLIP_FINDERS.find(finder => finder.label === 'Stonks')
-        if (flipCustomizeSettings?.finders?.find(finder => finder.toString() === stonksFinder?.value)) {
+        if (flipCustomizeSettings.finders.find(finder => finder.toString() === stonksFinder.value)) {
             warnings.push('The "Stonks"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
         }
 
@@ -172,11 +171,7 @@ function FlipCustomize() {
     const MultiValueContainer = props => {
         return (
             <components.MultiValueContainer {...props}>
-                <Tooltip
-                    type={'hover'}
-                    content={<span style={props.innerProps.css}>{props.children}</span>}
-                    tooltipContent={<span>{props.data.description}</span>}
-                />
+                <Tooltip type={'hover'} content={<span style={props.innerProps.css}>{props.children}</span>} tooltipContent={<span>{props.data.description}</span>} />
             </components.MultiValueContainer>
         )
     }

@@ -1,4 +1,3 @@
-'use client'
 import React, { useEffect, useState } from 'react'
 import { Button } from 'react-bootstrap'
 import ItemFilter from '../../../ItemFilter/ItemFilter'
@@ -53,7 +52,7 @@ function EditRestriction(props: Props) {
                 onIsValidChange={setIsFilterValid}
             />
             <TagSelect
-                defaultTags={props.defaultRestriction.tags || []}
+                defaultTags={props.defaultRestriction.tags}
                 onTagsChange={tags => {
                     setUpdateState({ ...updateState, tags: tags })
                 }}

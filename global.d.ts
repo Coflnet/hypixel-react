@@ -5,7 +5,7 @@ interface Player {
     name: string
     uuid: string
     iconUrl?: string
-}
+} 
 
 interface Enchantment {
     id: number
@@ -229,7 +229,7 @@ interface API {
     setFlipSetting(identifier: string, value: any): Promise<void>
     getKatFlips(): Promise<KatFlip[]>
     getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
-    transferCoflCoins(email: string | undefined, mcId: string | undefined, amount: number, reference: string): Promise<void>
+    transferCoflCoins(email: string, mcId: string, amount: number, reference: string): Promise<void>
     getBazaarSnapshot(itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot>
     getBazaarPrices(itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]>
     getBazaarPricesByRange(itemTag: string, startDate: Date | string | number, endDate: Date | string | number): Promise<BazaarPrice[]>

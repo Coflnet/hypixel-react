@@ -1,4 +1,3 @@
-'use client'
 import React from 'react'
 import { Card, Button } from 'react-bootstrap'
 import DownloadIcon from '@mui/icons-material/Download'

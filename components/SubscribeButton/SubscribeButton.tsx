@@ -1,4 +1,3 @@
-'use client'
 import { useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
@@ -13,7 +12,7 @@ import SubscribeItemContent from './SubscribeItemContent/SubscribeItemContent'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import SubscribePlayerContent from './SubscribePlayerContent/SubscribePlayerContent'
 import SubscribeAuctionContent from './SubscribeAuctionContent/SubscribeAuctionContent'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import EditIcon from '@mui/icons-material/Edit'
 
@@ -42,7 +41,7 @@ function SubscribeButton(props: Props) {
     let [isSold, setIsSold] = useState(false)
     let [isPlayerAuctionCreation, setIsPlayerAuctionCreation] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.filter || undefined)
+    let [itemFilter, setItemFilter] = useState<ItemFilter>(props.prefill?.filter)
     let [isItemFilterValid, setIsItemFilterValid] = useState(true)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
@@ -58,7 +57,9 @@ function SubscribeButton(props: Props) {
             .then(() => {
                 toast.success(props.successMessage || 'Notifier successfully created!', {
                     onClick: () => {
-                        router.push('/subscriptions')
+                        router.push({
+                            pathname: '/subscriptions'
+                        })
                     }
                 })
                 if (props.onAfterSubscribe) {
@@ -68,7 +69,9 @@ function SubscribeButton(props: Props) {
             .catch(error => {
                 toast.error(error.message, {
                     onClick: () => {
-                        router.push('/subscriptions')
+                        router.push({
+                            pathname: '/subscriptions'
+                        })
                     }
                 })
             })

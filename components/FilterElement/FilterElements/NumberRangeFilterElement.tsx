@@ -1,4 +1,3 @@
-'use client'
 import { ChangeEvent, useMemo, useState } from 'react'
 import Slider from 'rc-slider'
 import styles from './NumberRangeFilterElement.module.css'
@@ -8,7 +7,7 @@ import { Form } from 'react-bootstrap'
 interface Props {
     onChange(n: string)
     min?: number
-    max?: number
+    max: number
     defaultValue: any
 }
 
@@ -77,9 +76,6 @@ export function NumberRangeFilterElement(props: Props) {
     }
 
     function getMarks() {
-        if (!props.min || !props.max) {
-            return undefined
-        }
         let marks = {}
         for (let i = props.min; i <= props.max; i++) {
             marks[i] = i === 0 ? 'None' : i.toString()

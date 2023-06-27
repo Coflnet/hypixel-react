@@ -48,7 +48,7 @@ let option = {
     xAxis: [
         {
             type: 'category',
-            data: [] as any[],
+            data: [],
             axisPointer: {
                 type: 'shadow'
             },
@@ -91,8 +91,7 @@ let option = {
             animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
                 valueFormatter: formatAsCoins
-            },
-            data: [] as any[]
+            }
         },
         {
             name: 'Min',
@@ -105,7 +104,7 @@ let option = {
             tooltip: {
                 valueFormatter: formatAsCoins
             },
-            data: [] as any[]
+            data: []
         },
         {
             name: 'Max',
@@ -118,7 +117,7 @@ let option = {
             tooltip: {
                 valueFormatter: formatAsCoins
             },
-            data: [] as any[]
+            data: []
         },
         {
             name: 'Volume',
@@ -131,7 +130,7 @@ let option = {
             tooltip: {
                 valueFormatter: numberWithThousandsSeparators
             },
-            data: [] as any[]
+            data: []
         }
     ]
 }

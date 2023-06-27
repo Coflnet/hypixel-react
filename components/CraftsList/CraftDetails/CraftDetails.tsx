@@ -1,4 +1,3 @@
-'use client'
 import Image from 'next/image'
 import { Badge } from 'react-bootstrap'
 import { Number } from '../../Number/Number'
@@ -39,7 +38,7 @@ export function CraftDetails(props: Props) {
                     >
                         <Image
                             crossOrigin="anonymous"
-                            src={ingredient.item.iconUrl || ''}
+                            src={ingredient.item.iconUrl}
                             height="24"
                             width="24"
                             alt=""

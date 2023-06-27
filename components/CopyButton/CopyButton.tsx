@@ -1,4 +1,3 @@
-'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import React, { useState } from 'react'
 import { Button } from 'react-bootstrap'
@@ -9,7 +8,7 @@ import { canUseClipBoard, writeToClipboard } from '../../utils/ClipboardUtils'
 interface Props {
     onCopy?()
     successMessage?: JSX.Element
-    copyValue?: string | null
+    copyValue?: string
     buttonWrapperClass?: string
     buttonClass?: string
     buttonVariant?: string

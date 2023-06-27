@@ -1,6 +1,5 @@
-'use client'
-import React, { useEffect, useState } from 'react'
-import { Button } from 'react-bootstrap'
+import React, { ChangeEvent, useEffect, useState } from 'react'
+import { Button, Form } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import ItemFilter from '../ItemFilter/ItemFilter'
 import { ArrowRightAlt } from '@mui/icons-material'
@@ -10,9 +9,9 @@ interface Props {
 }
 
 export function FilterChecker(props: Props) {
-    let [filter, setFilter] = useState<ItemFilter>({})
+    let [filter, setFilter] = useState(null)
     let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([])
-    let [hasFilterApplied, setHasFilterApplied] = useState<boolean | null>(null)
+    let [hasFilterApplied, setHasFilterApplied] = useState(null)
     let [disabled, setDisabled] = useState(true)
     let [isLoading, setIsLoading] = useState(false)
     let [isFilterValid, setIsFilterValid] = useState(true)

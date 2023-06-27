@@ -1,4 +1,3 @@
-'use client'
 import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
 import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
 import SortIcon from '@mui/icons-material/Sort'
@@ -97,7 +96,7 @@ function LowSupplyList(props: Props) {
               return (
                   <tr>
                       <td>
-                          <Image crossOrigin="anonymous" src={item.iconUrl || ''} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                          <Image crossOrigin="anonymous" src={item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                       </td>
                       <td>{item.name}</td>
                       <td>{item.supply}</td>

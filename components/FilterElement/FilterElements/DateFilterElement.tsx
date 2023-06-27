@@ -1,4 +1,3 @@
-'use client'
 import React from 'react'
 import DatePicker from 'react-datepicker'
 import './DateFilterElement.module.css'

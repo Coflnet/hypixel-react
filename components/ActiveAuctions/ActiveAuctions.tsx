@@ -1,4 +1,3 @@
-'use client'
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import moment from 'moment'
 import Link from 'next/link'
@@ -34,7 +33,7 @@ function ActiveAuctions(props: Props) {
     let [activeAuctions, setActiveAuctions, activeAuctionsRef] = useStateWithRef<RecentAuction[]>([])
     let [order, setOrder] = useState<string>(ORDERS[0].value)
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
-    let [premiumType, setPremiumType] = useState<PremiumType>()
+    let [premiumType, setPremiumType] = useState<PremiumType>(null)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let isLoadingElements = useRef(false)
 
@@ -144,7 +143,7 @@ function ActiveAuctions(props: Props) {
                                     <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
-                                        src={props.item.iconUrl || ''}
+                                        src={props.item.iconUrl}
                                         height={32}
                                         width={32}
                                         alt=""
@@ -175,7 +174,7 @@ function ActiveAuctions(props: Props) {
                             style={{ marginRight: '15px' }}
                             crossOrigin="anonymous"
                             className="playerHeadIcon"
-                            src={activeAuction.seller.iconUrl || ''}
+                            src={activeAuction.seller.iconUrl}
                             alt=""
                             height={24}
                             width={24}
@@ -233,17 +232,15 @@ function ActiveAuctions(props: Props) {
                     <p style={{ textAlign: 'center' }}>No active auctions found</p>
                 )}
             </div>
-            {premiumType
-                ? getMoreAuctionsElement(
-                      isLoggedIn,
-                      premiumType,
-                      onAfterLogin,
-                      <span>
-                          You currently use Starter Premium. You can see up to 120 active auctions with
-                          <Link href={'/premium'}>Premium</Link>
-                      </span>
-                  )
-                : null}
+            {getMoreAuctionsElement(
+                isLoggedIn,
+                premiumType,
+                onAfterLogin,
+                <span>
+                    You currently use Starter Premium. You can see up to 120 active auctions with
+                    <Link href={'/premium'}>Premium</Link>
+                </span>
+            )}
         </div>
     )
 }

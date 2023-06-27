@@ -1,4 +1,3 @@
-'use client'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import AccountIcon from '@mui/icons-material/AccountCircle'
 import BuildIcon from '@mui/icons-material/Build'
@@ -14,7 +13,7 @@ import StorefrontIcon from '@mui/icons-material/Storefront'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import { Menu, MenuItem, Sidebar } from 'react-pro-sidebar'
+import { Menu, MenuItem, Sidebar, useProSidebar } from 'react-pro-sidebar'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
 
@@ -28,7 +27,7 @@ function NavBar(props: Props) {
     let [isWideOpen, setIsWideOpen] = useState(false)
     let [isHovering, setIsHovering] = useState(false)
     let [isSmall, setIsSmall] = useState(true)
-    let [collapsed, setCollapsed] = useState(true)
+    let { collapseSidebar } = useProSidebar()
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
@@ -55,7 +54,7 @@ function NavBar(props: Props) {
     }, [isWideOpen])
 
     useEffect(() => {
-        setCollapsed(isCollapsed())
+        collapseSidebar(isCollapsed())
     }, [isSmall, isWideOpen, isHovering])
 
     function isCollapsed() {
@@ -139,7 +138,7 @@ function NavBar(props: Props) {
     return (
         <span>
             <aside className={styles.navBar} id="navBar" onMouseEnter={onMouseMove} onMouseLeave={onMouseOut}>
-                <Sidebar id="pro-sidebar" hidden={isSmall && !isWideOpen} backgroundColor="#1d1d1d" collapsed={collapsed}>
+                <Sidebar id="pro-sidebar" hidden={isSmall && !isWideOpen} defaultCollapsed={true} backgroundColor="#1d1d1d">
                     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <div>
                             <div className={styles.logo}>

@@ -1,5 +1,3 @@
-'use client'
-
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import AnnouncementIcon from '@mui/icons-material/Announcement'
 import NewIcon from '@mui/icons-material/FiberNew'
@@ -10,8 +8,7 @@ import moment from 'moment'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import Card from 'react-bootstrap/Card'
-import Badge from 'react-bootstrap/Badge'
+import { Badge, Card } from 'react-bootstrap'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList as List } from 'react-window'
 import api from '../../api/ApiHelper'
@@ -22,6 +19,7 @@ import styles from './Startpage.module.css'
 
 interface Props {
     newAuctions?: Auction[]
+    endedAuctions?: Auction[]
     popularSearches?: PopularSearch[]
     newPlayers?: Player[]
     newItems?: Item[]
@@ -31,7 +29,7 @@ function Startpage(props: Props) {
     let { trackEvent } = useMatomo()
 
     let [newAuctions, setNewAuctions] = useState<Auction[]>(props.newAuctions || [])
-    let [endedAuctions, setEndedAuctions] = useState<Auction[]>([])
+    let [endedAuctions, setEndedAuctions] = useState<Auction[]>(props.endedAuctions || [])
     let [popularSearches, setPopularSearches] = useState<PopularSearch[]>(props.popularSearches || [])
     let [newPlayers, setNewPlayers] = useState<Player[]>(props.newPlayers || [])
     let [newItems, setNewItems] = useState<Item[]>(props.newItems || [])
@@ -64,7 +62,7 @@ function Startpage(props: Props) {
                     <Card>
                         <Card.Header style={{ padding: '10px' }}>
                             <p className={styles.ellipsis}>
-                                <Image crossOrigin="anonymous" src={auction.item.iconUrl || ''} height="32" width="32" alt="" style={{ marginRight: '5px' }} />
+                                <Image crossOrigin="anonymous" src={auction.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} />
                                 {getMinecraftColorCodedElement(auction.item.name)}
                             </p>
                         </Card.Header>
@@ -103,7 +101,7 @@ function Startpage(props: Props) {
                                 <Image
                                     crossOrigin="anonymous"
                                     className="playerHeadIcon"
-                                    src={newPlayer.iconUrl || ''}
+                                    src={newPlayer.iconUrl}
                                     height="32"
                                     width="32"
                                     alt=""
@@ -154,7 +152,7 @@ function Startpage(props: Props) {
                             <div style={{ float: 'left' }}>
                                 <Image
                                     crossOrigin="anonymous"
-                                    src={newItem.iconUrl || ''}
+                                    src={newItem.iconUrl}
                                     height="32"
                                     width="32"
                                     alt=""
@@ -204,7 +202,7 @@ function Startpage(props: Props) {
                     return (
                         <List
                             className={styles.startpageListElementWrapper}
-                            height={height! - 15}
+                            height={height - 15}
                             itemCount={newAuctions.length}
                             itemSize={200}
                             layout="horizontal"
@@ -226,7 +224,7 @@ function Startpage(props: Props) {
                 {({ height, width }) => (
                     <List
                         className={styles.startpageListElementWrapper}
-                        height={height! - 15}
+                        height={height - 15}
                         itemCount={popularSearches.length}
                         itemSize={200}
                         layout="horizontal"
@@ -247,7 +245,7 @@ function Startpage(props: Props) {
                 {({ height, width }) => (
                     <List
                         className={styles.startpageListElementWrapper}
-                        height={height! - 15}
+                        height={height - 15}
                         itemCount={endedAuctions.length}
                         itemSize={200}
                         layout="horizontal"
@@ -268,7 +266,7 @@ function Startpage(props: Props) {
                 {({ height, width }) => (
                     <List
                         className={styles.startpageListElementWrapper}
-                        height={height! - 15}
+                        height={height - 15}
                         itemCount={newPlayers.length}
                         itemSize={200}
                         layout="horizontal"

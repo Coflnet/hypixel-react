@@ -1,4 +1,3 @@
-'use client'
 import HelpIcon from '@mui/icons-material/Help'
 import { useState } from 'react'
 import { Button, Card } from 'react-bootstrap'
@@ -49,7 +48,7 @@ function Payment(props: Props) {
     }
 
     function getDisabledPaymentTooltip() {
-        return !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : <span />
+        return !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
     }
 
     function getRoundedPrice(price: number) {

@@ -1,4 +1,3 @@
-'use client'
 import Image from 'next/image'
 import { useState } from 'react'
 import { Button } from 'react-bootstrap'
@@ -11,8 +10,8 @@ import styles from './TransferCoflCoinsSummary.module.css'
 
 interface Props {
     receiverType: 'email' | 'mcId'
-    email: string | undefined
-    player: Player | undefined
+    email?: string
+    player?: Player
     coflCoins: number
     onBack()
     onFinish()
@@ -28,7 +27,7 @@ function TransferCoflCoinsSummary(props: Props) {
             .then(() => {
                 toast.success(
                     <span>
-                        Successfuly sent <Number number={props.coflCoins} /> CoflCoins to {props.email === '' ? props.player?.name : props.email}
+                        Successfuly sent <Number number={props.coflCoins} /> CoflCoins to {props.email === '' ? props.player.name : props.email}
                     </span>
                 )
                 setIsSending(false)
@@ -53,14 +52,14 @@ function TransferCoflCoinsSummary(props: Props) {
                                 <Image
                                     crossOrigin="anonymous"
                                     className="playerHeadIcon"
-                                    src={props.player?.iconUrl || ''}
+                                    src={props.player?.iconUrl}
                                     height="32"
                                     width="32"
                                     alt=""
                                     style={{ marginRight: '10px' }}
                                     loading="lazy"
                                 />
-                                {props.player!.name}
+                                {props.player.name}
                             </span>
                         )}
                     </p>

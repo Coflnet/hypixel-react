@@ -253,10 +253,9 @@ export async function handleSettingsImport(importString: string) {
                     restriction.itemFilter = {
                         Enchantment: split[0]
                     }
-
-                    if (split[1] && split[1].length > 0) {
-                        restriction.itemFilter.EnchantLvl = split[1]
-                    }
+                }
+                if (split[1] && split[1].length > 0) {
+                    restriction.itemFilter.EnchantLvl = split[1]
                 }
                 restrictions.push(restriction)
             })

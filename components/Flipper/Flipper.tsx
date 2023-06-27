@@ -1,10 +1,10 @@
-'use client'
 import DeleteIcon from '@mui/icons-material/Delete'
 import HelpIcon from '@mui/icons-material/Help'
 import ArrowRightIcon from '@mui/icons-material/KeyboardTab'
 import HandIcon from '@mui/icons-material/PanTool'
 import SearchIcon from '@mui/icons-material/Search'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Card, Form, Modal } from 'react-bootstrap'
 import { Item, Menu, useContextMenu } from 'react-contexify'
@@ -18,7 +18,7 @@ import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSett
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
-import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, handleSettingsImport, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils'
+import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils'
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
@@ -29,8 +29,6 @@ import FlipBased from './FlipBased/FlipBased'
 import styles from './Flipper.module.css'
 import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
 import FlipperFilter from './FlipperFilter/FlipperFilter'
-import { useRouter } from 'next/navigation'
-import { parseFlipAuction } from '../../utils/Parser/APIResponseParser'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -46,14 +44,14 @@ let mounted = true
 const FLIP_CONEXT_MENU_ID = 'flip-context-menu'
 
 interface Props {
-    flips?: any[]
+    flips?: FlipAuction[]
 }
 
 function Flipper(props: Props) {
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
     let [flips, setFlips] = useState<FlipAuction[]>(
         props.flips
-            ? props.flips.map(parseFlipAuction).filter(flip => {
+            ? props.flips.filter(flip => {
                   return flipperFilter.onlyUnsold ? !flip.sold : true
               })
             : []
@@ -181,7 +179,7 @@ function Flipper(props: Props) {
     }
 
     function onArrowRightClick() {
-        ;(listRef.current as any).scrollToItem(flips.length - 1)
+        listRef.current?.scrollToItem(flips.length - 1)
     }
 
     function _setAutoScroll(value: boolean) {
@@ -317,7 +315,7 @@ function Flipper(props: Props) {
     function onFilterChange(newFilter) {
         setFlipperFilter(newFilter)
         setFlips([])
-        ;(listRef.current as any)?.scrollToItem(flips.length - 1)
+        listRef.current?.scrollToItem(flips.length - 1)
     }
 
     function onCopyFlip(flip: FlipAuction) {
@@ -357,7 +355,9 @@ function Flipper(props: Props) {
     }
 
     function redirectToSeller(sellerName: string) {
-        router.push('/player/' + sellerName)
+        router.push({
+            pathname: 'player/' + sellerName
+        })
     }
 
     function resetSettingsToDefault() {
@@ -406,10 +406,7 @@ function Flipper(props: Props) {
             return <h2>Free Auction Flipper</h2>
         }
         if (hasPremium) {
-            let type = getPremiumType(activePremiumProduct!)
-            if (!type) {
-                return null
-            }
+            let type = getPremiumType(activePremiumProduct)
             return (
                 <span>
                     You are using{' '}
@@ -434,26 +431,6 @@ function Flipper(props: Props) {
                 if you want real time flips.
             </span>
         )
-    }
-
-    function onDrop(e) {
-        e.preventDefault()
-        var output = '' //placeholder for text output
-        let reader = new FileReader()
-        let file = e.dataTransfer.items[0].getAsFile()
-        if (file) {
-            reader.onload = function (e) {
-                output = e.target!.result!.toString()
-                handleSettingsImport(output)
-                //handleSettingsImport(output)
-            } //end onload()
-            reader.readAsText(file)
-        }
-        return true
-    }
-
-    function onDragOver(e) {
-        e.preventDefault()
     }
 
     let basedOnDialog =
@@ -540,7 +517,7 @@ function Flipper(props: Props) {
     )
 
     return (
-        <div className={styles.flipper} onDragOver={onDragOver} onDrop={onDrop}>
+        <div className={styles.flipper}>
             <Card>
                 <Card.Header>
                     <Card.Title>

@@ -1,4 +1,3 @@
-'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 import ReactECharts from 'echarts-for-react'
 import { useEffect, useRef, useState } from 'react'
@@ -209,7 +208,7 @@ function AuctionHousePriceGraph(props: Props) {
             ) : (
                 <div>
                     <RelatedItems tag={props.item.tag} />
-                    <RecentAuctions item={props.item} itemFilter={itemFilter || {}} />
+                    <RecentAuctions item={props.item} itemFilter={itemFilter} />
                 </div>
             )}
         </div>

@@ -1,4 +1,3 @@
-'use client'
 import Link from 'next/link'
 import { useState } from 'react'
 import { Card } from 'react-bootstrap'
@@ -12,9 +11,12 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { Number } from '../Number/Number'
 import styles from './Ref.module.css'
 
-function Ref() {
+interface Props {}
+
+function Ref(props: Props) {
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     function onLogin() {
         let googleId = sessionStorage.getItem('googleId')
