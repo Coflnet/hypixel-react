@@ -358,7 +358,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                                 }
                             })
                             .catch(e => {
-                                console.error('error getting playername for ' + auctionDetails.auctioneerId)
+                                console.error(`Error fetching playername for ${auctionDetails.auctioneerId}. ${JSON.stringify(e)}`)
                                 auctionDetails.auctioneer = {
                                     name: '',
                                     uuid: auctionDetails.auctioneerId

@@ -25,8 +25,8 @@ async function getPlayerInfo(uuid) {
     let auctions: any[] = []
     try {
         auctions = await api.getAuctions(uuid, 0)
-    } catch {
-        console.error('Error loading player auctions for player ' + uuid)
+    } catch (e) {
+        console.error(`Error loading player auctions for player ${uuid}. ${JSON.stringify(e)}`)
     }
 
     return {
