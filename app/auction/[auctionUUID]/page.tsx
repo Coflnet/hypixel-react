@@ -139,11 +139,13 @@ export async function generateMetadata({ params }) {
     }
 
     let auctionUUID = params.auctionUUID as string
-    let auctionDetails = parseAuctionDetails((await getAuctionDetails(auctionUUID))?.auctionDetails)
+    let auctionDetails = (await getAuctionDetails(auctionUUID))?.auctionDetails
 
     if (!auctionDetails) {
         return
     }
+
+    auctionDetails = parseAuctionDetails(auctionDetails)
 
     return getHeadMetadata(
         `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, '')} by ${
