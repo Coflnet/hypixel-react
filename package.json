@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "npx next dev",
     "build": "next build",
-    "test": "npm run build && cross-env TEST_RUNNER=true npx playwright test",
+    "test": "cross-env TEST_RUNNER=true npx playwright test",
+    "build-test": "npm run build && cross-env TEST_RUNNER=true npx playwright test",
     "start": "next start",
     "lint": "next lint"
   },
