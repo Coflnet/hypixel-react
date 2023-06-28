@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "npx next dev",
     "build": "next build",
-    "test": "npm run build && npx playwright test",
+    "test": "npm run build && cross-env TEST_RUNNER=true npx playwright test",
     "start": "next start",
     "lint": "next lint"
   },
@@ -46,6 +46,7 @@
     "@playwright/test": "^1.32.1",
     "@types/node": "^18.15.11",
     "@types/react": "^18.0.31",
+    "cross-env": "^6.0.3",
     "typescript": "^5.0.2"
   }
 }

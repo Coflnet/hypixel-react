@@ -50,6 +50,7 @@ import { HttpApi, RequestType, Subscription, SubscriptionType } from './ApiTypes
 import { initHttpHelper } from './HttpHelper'
 import { websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
+import properties from '../properties'
 
 function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
@@ -379,6 +380,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let getPlayerName = (uuid: string): Promise<string> => {
+        // Reduce amount of API calls during test runs
+        if (properties.isTestRunner) {
+            return Promise.resolve('TestRunnerUser')
+        }
         return new Promise((resolve, reject) => {
             if (!uuid) {
                 resolve('')
