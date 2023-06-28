@@ -96,7 +96,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             })
                 .then(response => {
                     if (!response.ok) {
-                        return Promise.reject(response.text())
+                        return Promise.reject(`HTTP ${response.status} for ${url}`)
                     }
 
                     return response.text()
@@ -124,7 +124,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 })
                 .catch(responseTextPromise => {
                     if (!responseTextPromise || typeof responseTextPromise.then !== 'function') {
-                        request.reject()
+                        request.reject(responseTextPromise)
                         return
                     }
                     responseTextPromise.then(responseText => {

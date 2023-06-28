@@ -14,6 +14,9 @@ import { v4 as generateUUID } from 'uuid'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { useRouter } from 'next/navigation'
 import NextTopLoader from 'nextjs-toploader'
+import '../../styles/bootstrap-react.min.css'
+import '../../styles/bootstrap-dark.min.css'
+import '../../styles/globals.css'
 
 interface ErrorLog {
     error: ErrorEvent

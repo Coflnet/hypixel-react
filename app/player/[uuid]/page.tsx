@@ -8,11 +8,9 @@ import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponsePars
 export default async function Page({ params }) {
     let playerInfo = await getPlayerInfo(params.uuid)
     return (
-        <div className="page">
-            <RBContainer>
-                <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} />
-            </RBContainer>
-        </div>
+        <RBContainer>
+            <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} />
+        </RBContainer>
     )
 }
 
@@ -27,8 +25,8 @@ async function getPlayerInfo(uuid) {
     let auctions: any[] = []
     try {
         auctions = await api.getAuctions(uuid, 0)
-    } catch {
-        console.error('Error loading player auctions for player ' + uuid)
+    } catch (e) {
+        console.error(`Error loading player auctions for player ${uuid}. ${JSON.stringify(e)}`)
     }
 
     return {
@@ -53,7 +51,7 @@ export async function generateMetadata({ params }) {
             name
         })
     } catch (e) {
-        console.error('Error loading player name', e)
+        console.error(`Error fetching player name ${params.uuid}. ${JSON.stringify(e)}`)
     }
     return getHeadMetadata(
         `${player?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`,

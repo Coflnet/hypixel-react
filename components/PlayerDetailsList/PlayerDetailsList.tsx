@@ -19,7 +19,6 @@ import Search from '../Search/Search'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './PlayerDetailsList.module.css'
-import { usePathname } from 'next/navigation'
 
 interface Props {
     player: Player
@@ -47,7 +46,6 @@ let listStates: ListState[] = []
 const FETCH_RESULT_SIZE = 10
 
 function PlayerDetailsList(props: Props) {
-    let pathname = usePathname()
     let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
     let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < FETCH_RESULT_SIZE : false)
     let [filteredItem, _setFilteredItem] = useState<Item>()
@@ -58,14 +56,8 @@ function PlayerDetailsList(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
-        updateListState()
         loadFilters()
     }, [])
-
-    useEffect(() => {
-        console.log(pathname)
-        onRouteChange()
-    }, [pathname])
 
     useEffect(() => {
         mounted = true
@@ -81,7 +73,7 @@ function PlayerDetailsList(props: Props) {
                 window.scrollTo({
                     left: 0,
                     top: listState!.yOffset,
-                    behavior: 'auto'
+                    behavior: 'instant'
                 })
             }, 100)
         }
@@ -131,7 +123,7 @@ function PlayerDetailsList(props: Props) {
             (premiumRank && premiumRank.priority >= PREMIUM_RANK.STARTER)) as boolean
     }
 
-    let onRouteChange = () => {
+    let onListElementClick = () => {
         let listState = getListState()
         if (listState) {
             listState.yOffset = window.pageYOffset
@@ -272,7 +264,7 @@ function PlayerDetailsList(props: Props) {
 
     let list = listElements.map((listElement, i) => {
         return (
-            <ListGroup.Item action className={styles.listGroupItem} key={'listItem-' + i}>
+            <ListGroup.Item action className={styles.listGroupItem} key={'listItem-' + i} onClick={onListElementClick}>
                 <span key={listElement.uuid} className={`${styles.disableLinkStyle} ${styles.listItemLink}`}>
                     <Link href={`/auction/${listElement.uuid}`} className="disableLinkStyle">
                         <div>

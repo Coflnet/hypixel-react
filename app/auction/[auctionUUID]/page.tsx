@@ -6,6 +6,7 @@ import { numberWithThousandsSeparators } from '../../../utils/Formatter'
 import RBContainer from '../../../components/ReactBootstrapWrapper/Container'
 import AuctionDetails from '../../../components/AuctionDetails/AuctionDetails'
 import Search from '../../../components/Search/Search'
+import { parseAuctionDetails } from '../../../utils/Parser/APIResponseParser'
 
 async function getAuctionDetails(auctionUUID: string) {
     let api = initAPI(true)
@@ -46,13 +47,13 @@ async function getAuctionDetails(auctionUUID: string) {
                     }
                     bid.bidder = newBidder
                 })
-                .catch(() => {
+                .catch(e => {
                     let newBidder = {
                         name: '',
                         uuid: bid.bidder
                     }
                     bid.bidder = newBidder
-                    console.log(`No username for player ${JSON.stringify(bid.bidder)}`)
+                    console.error(`Error fetching playername for bidder ${newBidder.uuid}. ${JSON.stringify(e)}`)
                     console.log('------------------------\n')
                 })
             namePromises.push(promise)
@@ -66,12 +67,12 @@ async function getAuctionDetails(auctionUUID: string) {
                         uuid: auctionDetails.auctioneerId
                     }
                 })
-                .catch(() => {
+                .catch(e => {
                     auctionDetails.auctioneer = {
                         name: name,
                         uuid: auctionDetails.auctioneerId
                     }
-                    console.log(`No username for player ${auctionDetails.auctioneerId}`)
+                    console.error(`Error fetching playername for auctioneer ${auctionDetails.auctioneerId}. ${JSON.stringify(e)}`)
                     console.log('------------------------\n')
                 })
         )
@@ -114,7 +115,7 @@ export default async function Page({ params }) {
     )
 }
 
-export async function generateMetadata({ searchParams }) {
+export async function generateMetadata({ params }) {
     function getAuctionDescription(auctionDetails): string {
         if (!auctionDetails) {
             return 'Browse over 500 million auctions, and the bazaar of Hypixel SkyBlock.'
@@ -137,12 +138,14 @@ export async function generateMetadata({ searchParams }) {
         return (description += ` | Category: ${auctionDetails.auction.item.category} | Rarity: ${auctionDetails.auction.item.tier}`)
     }
 
-    let auctionUUID = searchParams.auctionUUID as string
+    let auctionUUID = params.auctionUUID as string
     let auctionDetails = (await getAuctionDetails(auctionUUID))?.auctionDetails
 
     if (!auctionDetails) {
         return
     }
+
+    auctionDetails = parseAuctionDetails(auctionDetails)
 
     return getHeadMetadata(
         `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, '')} by ${

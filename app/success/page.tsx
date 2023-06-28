@@ -7,7 +7,7 @@ import NavBar from '../../components/NavBar/NavBar'
 
 export default function Page() {
     return (
-        <div className="page">
+        <>
             <RBContainer>
                 <h2>
                     <NavBar />
@@ -22,7 +22,7 @@ export default function Page() {
                 </Link>
             </RBContainer>
             <Confetti recycle={false} />
-        </div>
+        </>
     )
 }
 
