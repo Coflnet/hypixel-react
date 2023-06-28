@@ -8,11 +8,9 @@ import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponsePars
 export default async function Page({ params }) {
     let playerInfo = await getPlayerInfo(params.uuid)
     return (
-        <div className="page">
-            <RBContainer>
-                <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} />
-            </RBContainer>
-        </div>
+        <RBContainer>
+            <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} />
+        </RBContainer>
     )
 }
 
