@@ -105,7 +105,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SEARCH, error, searchText)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -126,7 +126,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTag)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -160,7 +160,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         fetchSpan,
                         itemFilter
                     })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -181,7 +181,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         itemTag,
                         fetchSpan
                     })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -229,7 +229,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         startDateIso,
                         endDateIso
                     })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -261,7 +261,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_AUCTION, error, { uuid, page })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -291,7 +291,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_BIDS, error, { uuid, page })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -318,7 +318,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -393,7 +393,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_NAME, error, uuid)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -413,7 +413,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_CONNECTION_ID, error, connectionId)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -429,7 +429,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_VERSION, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -492,7 +492,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.UNSUBSCRIBE, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -512,7 +512,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -547,7 +547,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.FCM_TOKEN, error, token)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -569,7 +569,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, itemTag)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -585,7 +585,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -742,7 +742,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -775,7 +775,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.NEW_PLAYERS, error, '')
-                        reject()
+                        reject(error)
                     }
                 },
                 5
@@ -794,7 +794,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.NEW_ITEMS, error, '')
-                        reject()
+                        reject(error)
                     }
                 },
                 15
@@ -813,7 +813,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.POPULAR_SEARCHES, error, '')
-                        reject()
+                        reject(error)
                     }
                 },
                 5
@@ -832,7 +832,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.ENDED_AUCTIONS, error, '')
-                        reject()
+                        reject(error)
                     }
                 },
                 1
@@ -851,7 +851,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.NEW_AUCTIONS, error, '')
-                        reject()
+                        reject(error)
                     }
                 },
                 1
@@ -869,7 +869,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_FLIP_BASED_AUCTIONS, error, flipUUID)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -903,7 +903,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: (error: any) => {
                         apiErrorHandler(RequestType.STRIPE_PAYMENT_SESSION, error, data)
-                        reject()
+                        reject(error)
                     }
                 },
                 JSON.stringify({
@@ -979,7 +979,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.PURCHASE_WITH_COFLCOiNS, error, data)
-                        reject()
+                        reject(error)
                     }
                 },
                 JSON.stringify({
@@ -1019,7 +1019,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_COFLCOIN_BALANCE, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1106,7 +1106,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         filter,
                         order
                     })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1122,7 +1122,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.CONNECT_MINECRAFT_ACCOUNT, error, playerUUID)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1161,7 +1161,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ITEM_SEARCH, error, searchText)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1177,7 +1177,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1207,7 +1207,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1230,7 +1230,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1269,7 +1269,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.SEND_FEEDBACK, error, feedback)
-                        reject()
+                        reject(error)
                     }
                 },
                 JSON.stringify(requestData)
@@ -1289,7 +1289,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_PROFITABLE_CRAFTS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1307,7 +1307,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.TRIGGER_PLAYER_NAME_CHECK, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1342,7 +1342,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_CRAFTING_RECIPE, error, itemTag)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1362,7 +1362,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_LOWEST_BIN, error, itemTag)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1379,7 +1379,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.FLIP_FILTERS, error, tag)
-                        reject()
+                        reject(error)
                     }
                 },
                 1
@@ -1397,7 +1397,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_BAZAAR_TAGS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1416,7 +1416,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ITEM_PRICE_SUMMARY, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1474,7 +1474,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_TRACKED_FLIPS_FOR_PLAYER, error, playerUUID)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1497,7 +1497,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.TRASFER_COFLCOINS, error, data)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1539,7 +1539,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_BAZAAR_SNAPSHOT, error, { itemTag, timestamp: isoTimestamp })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1682,7 +1682,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.UNSUBSCRIBE_ALL, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1746,7 +1746,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RELATED_ITEMS, error, tag)
-                    reject()
+                    reject(error)
                 }
             })
         })

@@ -51,7 +51,7 @@ export async function generateMetadata({ params }) {
             name
         })
     } catch (e) {
-        console.error('Error loading player name', e)
+        console.error(`Error fetching player name ${params.uuid}. ${JSON.stringify(e)}`)
     }
     return getHeadMetadata(
         `${player?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`,
