@@ -1,3 +1,4 @@
+'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
@@ -121,7 +122,7 @@ function Flip(props: Props) {
                     <div className="ellipse">
                         <Image
                             crossOrigin="anonymous"
-                            src={props.flip.item.iconUrl}
+                            src={props.flip.item.iconUrl || ''}
                             height="24"
                             width="24"
                             alt=""

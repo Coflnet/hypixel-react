@@ -3,8 +3,8 @@ import { Form, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import Tooltip from '../Tooltip/Tooltip'
-import { errorLog } from '../../pages/_app'
 import styles from './ReloadDialog.module.css'
+import { errorLog } from '../MainApp/MainApp'
 
 interface Props {
     onClose()
@@ -135,7 +135,7 @@ function ReloadDialog(props: Props) {
                             </Button>
                         </div>
                     }
-                    tooltipContent={!hasUserInput ? <span>Please enter some information before submitting feedback</span> : null}
+                    tooltipContent={!hasUserInput ? <span>Please enter some information before submitting feedback</span> : undefined}
                 />
             </div>
         </div>

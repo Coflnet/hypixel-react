@@ -1,3 +1,4 @@
+'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import RemoveIcon from '@mui/icons-material/Remove'
@@ -15,7 +16,7 @@ const DATE_FORMAT_FILTER = ['EndBefore', 'EndAfter']
 const SELLER_FORMAT_FILTER = 'Seller'
 
 function ItemFilterPropertiesDisplay(props: Props) {
-    let [localFilter, setLocalFilter] = useState(props.filter)
+    let [localFilter, setLocalFilter] = useState(props.filter || {})
 
     let forceUpdate = useForceUpdate()
 
@@ -49,8 +50,12 @@ function ItemFilterPropertiesDisplay(props: Props) {
     }
 
     function onRemoveClick(key) {
-        localFilter[key] = undefined
-        props.onAfterEdit(localFilter)
+        let newLocalFilter = { ...localFilter }
+        delete newLocalFilter[key]
+        setLocalFilter(newLocalFilter)
+        if (props.onAfterEdit) {
+            props.onAfterEdit(newLocalFilter)
+        }
     }
 
     return (

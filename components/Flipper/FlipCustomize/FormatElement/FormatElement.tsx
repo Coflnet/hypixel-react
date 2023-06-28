@@ -1,5 +1,6 @@
+'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import { ChangeEvent, useEffect, useRef } from 'react'
+import { ChangeEvent, useRef } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEFAULT_MOD_FORMAT } from '../../../../utils/FlipUtils'
 import Tooltip from '../../../Tooltip/Tooltip'

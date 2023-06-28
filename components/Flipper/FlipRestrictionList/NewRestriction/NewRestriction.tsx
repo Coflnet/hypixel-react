@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from 'react'
 import { Button, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
@@ -114,7 +115,7 @@ function NewRestriction(props: Props) {
                 onIsValidChange={setIsFilterValid}
             />
             <TagSelect
-                defaultTags={createState.tags}
+                defaultTags={createState.tags || []}
                 onTagsChange={tags => {
                     setCreateState({ ...createState, tags: tags })
                 }}

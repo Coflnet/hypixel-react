@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
+'use client'
 import moment from 'moment'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -25,17 +25,18 @@ import { Help as HelpIcon, ArrowDropDown as ArrowDownIcon, ArrowRight as ArrowRi
 import { FilterChecker } from '../FilterChecker/FilterChecker'
 import Image from 'next/image'
 import { Number } from '../Number/Number'
+import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 
 interface Props {
     auctionUUID: string
-    auctionDetails?: AuctionDetails
+    auctionDetails?: any
     retryCounter?: number
     unparsedAuctionDetails?: any
 }
 
 function AuctionDetails(props: Props) {
     let [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
-    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails)
+    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(parseAuctionDetails(props.auctionDetails))
     let [unparsedAuctionDetails, setUnparsedAuctionDetails] = useState(props.unparsedAuctionDetails)
     let [isLoading, setIsLoading] = useState(false)
     let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
@@ -121,7 +122,7 @@ function AuctionDetails(props: Props) {
         return moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')
     }
 
-    function getNBTElement(): JSX.Element {
+    function getNBTElement(): JSX.Element | null {
         if (!auctionDetails?.nbtData) {
             return null
         }
@@ -144,7 +145,7 @@ function AuctionDetails(props: Props) {
         )
     }
 
-    function formatNBTValue(key: string, value: any, auctionDetails: AuctionDetails) {
+    function formatNBTValue(key: string, value: any, auctionDetails?: AuctionDetails) {
         let tagNbt = [
             'heldItem',
             'personal_compact_0',
@@ -206,7 +207,7 @@ function AuctionDetails(props: Props) {
 
         let index = tagNbt.findIndex(tag => tag === key)
         if (index !== -1) {
-            if (key === 'skin' && auctionDetails?.auction?.item?.tag?.startsWith("PET_")) {
+            if (key === 'skin' && auctionDetails?.auction?.item?.tag?.startsWith('PET_')) {
                 return <Link href={'/item/PET_SKIN_' + value}>{convertTagToName(value)}</Link>
             }
             return <Link href={'/item/' + value}>{convertTagToName(value)}</Link>
@@ -223,7 +224,7 @@ function AuctionDetails(props: Props) {
             size={'xl'}
             show={showBasedOnDialog}
             onHide={() => {
-                setShowBasedOnDialog(null)
+                setShowBasedOnDialog(false)
             }}
         >
             <Modal.Header closeButton>
@@ -241,14 +242,21 @@ function AuctionDetails(props: Props) {
                 <Link href={'/item/' + auctionDetails.auction.item.tag} className="disableLinkStyle">
                     <h1>
                         <span className={styles.itemIcon}>
-                            <Image crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height={48} width={48} alt="item icon" loading="lazy" />
+                            <Image
+                                crossOrigin="anonymous"
+                                src={auctionDetails?.auction.item.iconUrl || ''}
+                                height={48}
+                                width={48}
+                                alt="item icon"
+                                loading="lazy"
+                            />
                         </span>
                         <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
                             <span style={{ marginRight: '10px' }}>
                                 {auctionDetails?.auction.item.name?.includes('§')
                                     ? getMinecraftColorCodedElement(auctionDetails?.auction.item.name)
                                     : getDungeonStarFormattedItemName(
-                                          auctionDetails?.auction.item.name,
+                                          auctionDetails.auction.item.name,
                                           getStyleForTier(auctionDetails.auction.item.tier),
                                           auctionDetails?.nbtData['dungeon_item_level']
                                       )}
@@ -357,7 +365,7 @@ function AuctionDetails(props: Props) {
                         <Image
                             crossOrigin="anonymous"
                             className="playerHeadIcon"
-                            src={auctionDetails?.auctioneer.iconUrl}
+                            src={auctionDetails?.auctioneer.iconUrl || ''}
                             alt="auctioneer icon"
                             height="16"
                             width="16"
@@ -415,7 +423,7 @@ function AuctionDetails(props: Props) {
                             <Image
                                 crossOrigin="anonymous"
                                 className="playerHeadIcon"
-                                src={bid.bidder.iconUrl}
+                                src={bid.bidder.iconUrl || ''}
                                 height="64"
                                 width="64"
                                 alt="bidder minecraft icon"

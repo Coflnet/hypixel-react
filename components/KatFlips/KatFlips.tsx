@@ -1,6 +1,7 @@
+'use client'
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
@@ -9,10 +10,11 @@ import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { Number } from '../Number/Number'
 import styles from './KatFlips.module.css'
+import { parseKatFlip } from '../../utils/Parser/APIResponseParser'
 import { writeToClipboard } from '../../utils/ClipboardUtils'
 
 interface Props {
-    flips: KatFlip[]
+    flips: any[]
 }
 interface SortOption {
     label: string
@@ -51,6 +53,10 @@ export function KatFlips(props: Props) {
     let [hasPremium, setHasPremium] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
+
+    let flips = useMemo(() => {
+        return (props.flips ? props.flips.map(parseKatFlip) : []) as KatFlip[]
+    }, [props.flips])
 
     useEffect(() => {
         // reset the blur observer, when something changed
@@ -210,16 +216,24 @@ export function KatFlips(props: Props) {
     function getFlipHeader(flip: KatFlip) {
         return (
             <span style={getStyleForTier(flip.coreData.item.tier)}>
-                <Image crossOrigin="anonymous" src={flip.coreData.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <Image
+                    crossOrigin="anonymous"
+                    src={flip.coreData.item.iconUrl || ''}
+                    height="32"
+                    width="32"
+                    alt=""
+                    style={{ marginRight: '5px' }}
+                    loading="lazy"
+                />
                 {convertTagToName(flip.originAuctionName) || convertTagToName(flip.coreData.item.tag)}
             </span>
         )
     }
 
-    let orderedFlips = props.flips
+    let orderedFlips = [...flips]
     if (orderBy) {
         let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
-        orderedFlips = sortOption?.sortFunction(props.flips)
+        orderedFlips = sortOption?.sortFunction([...flips])
     }
 
     let shown = 0

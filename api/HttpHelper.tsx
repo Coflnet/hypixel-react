@@ -76,7 +76,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         let equals = findForEqualSentRequest(request)
         if (equals.length > 0) {
             requests.push(request)
-            return
+            return Promise.resolve()
         }
 
         requests.push(request)
@@ -89,7 +89,10 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             return fetch(url, {
                 body: body,
                 method: request.requestMethod,
-                headers: request.requestHeader
+                headers: request.requestHeader,
+                next: {
+                    revalidate: 60
+                }
             })
                 .then(response => {
                     if (!response.ok) {
@@ -143,8 +146,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             console.log('Body: ' + JSON.stringify(body))
             console.log('------------------------')
 
-            request.reject()
-            return
+            return request.reject()
         }
     }
 

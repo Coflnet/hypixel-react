@@ -1,3 +1,4 @@
+'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import { googleLogout } from '@react-oauth/google'
 import Cookies from 'js-cookie'

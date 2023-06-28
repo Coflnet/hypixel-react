@@ -1,3 +1,4 @@
+'use client'
 import { forwardRef, Ref, useState } from 'react'
 import { AsyncTypeahead } from 'react-bootstrap-typeahead'
 import api from '../../../api/ApiHelper'

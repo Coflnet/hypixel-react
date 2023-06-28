@@ -1480,7 +1480,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let transferCoflCoins = (email: string, mcId: string, amount: number, reference: string): Promise<void> => {
+    let transferCoflCoins = (email: string | undefined, mcId: string | undefined, amount: number, reference: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             let data = {
                 email: email,
@@ -1503,7 +1503,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getBazaarSnapshot = (itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot> => {
+    let getBazaarSnapshot = (itemTag: string, timestamp: string | number | Date): Promise<BazaarSnapshot> => {
         return new Promise((resolve, reject) => {
             let isoTimestamp = new Date(timestamp).toISOString()
 

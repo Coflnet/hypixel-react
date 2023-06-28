@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useRef, useState } from 'react'
 import { Form } from 'react-bootstrap'
 import { PlayerFilterElement } from '../FilterElements/PlayerFilterElement'

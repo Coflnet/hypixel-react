@@ -1,5 +1,5 @@
+'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { getURLSearchParam } from '../../utils/Parser/URLParser'
@@ -28,8 +28,6 @@ export let DEFAULT_DATE_RANGE = DateRange.DAY
 
 export function ItemPriceRange(props: Props) {
     const { trackEvent } = useMatomo()
-
-    let router = useRouter()
     let [selectedDateRange, setSelectedDateRange] = useQueryParam('range', withDefault(StringParam, DEFAULT_DATE_RANGE))
 
     if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
@@ -60,9 +58,6 @@ export function ItemPriceRange(props: Props) {
     }, [props.item.tag])
 
     useEffect(() => {
-        if (!router.isReady) {
-            return
-        }
         let setTo = selectedDateRange === DateRange.ACTIVE ? DateRange.ACTIVE : DEFAULT_DATE_RANGE
         onRangeChange(setTo)
         // eslint-disable-next-line react-hooks/exhaustive-deps

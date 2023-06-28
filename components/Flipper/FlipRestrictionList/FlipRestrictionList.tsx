@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react'
+'use client'
+import React, { useState } from 'react'
 import { Badge, Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { camelCaseToSentenceCase, getStyleForTier } from '../../../utils/Formatter'
@@ -64,8 +65,8 @@ function FlipRestrictionList(props: Props) {
         let newRestrictions = [...restrictions]
         restrictionInEditModeIndex.forEach(index => {
             let toUpdate = newRestrictions[index]
-            Object.keys(updateState.itemFilter).forEach(key => {
-                if (toUpdate.itemFilter[key] === undefined) {
+            Object.keys(updateState.itemFilter || {}).forEach(key => {
+                if (toUpdate.itemFilter && updateState.itemFilter && toUpdate.itemFilter[key] === undefined) {
                     toUpdate.itemFilter[key] = updateState.itemFilter[key]
                 }
             })
@@ -130,7 +131,7 @@ function FlipRestrictionList(props: Props) {
 
     function removeItemOfRestriction(index: number) {
         let newRestrictions = [...restrictions]
-        newRestrictions[index].item = null
+        newRestrictions[index].item = undefined
         setRestrictions(newRestrictions)
     }
 
@@ -272,7 +273,7 @@ function FlipRestrictionList(props: Props) {
             if (!b.item) {
                 return -1
             }
-            return a.item.name.localeCompare(b.item.name)
+            return a.item.name?.localeCompare(b.item.name || '') || -1
         })
     }
 
@@ -333,7 +334,10 @@ function FlipRestrictionList(props: Props) {
                                 if (isValid) {
                                     return
                                 }
-                                if (restriction.itemFilter[key]?.toLocaleLowerCase().includes(lowerCaseSearchText) || camelCaseToSentenceCase(key).toLowerCase().includes(lowerCaseSearchText)) {
+                                if (
+                                    restriction.itemFilter![key].toString().toLocaleLowerCase().includes(lowerCaseSearchText) ||
+                                    camelCaseToSentenceCase(key).toLowerCase().includes(lowerCaseSearchText)
+                                ) {
                                     isValid = true
                                 }
                             })
@@ -386,7 +390,7 @@ function FlipRestrictionList(props: Props) {
                                     <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}>
                                         <Image
                                             crossOrigin="anonymous"
-                                            src={restriction.item?.iconUrl}
+                                            src={restriction.item?.iconUrl || ''}
                                             height="24"
                                             width="24"
                                             alt=""
@@ -455,7 +459,7 @@ function FlipRestrictionList(props: Props) {
                                                       newRestrictions[index].itemFilter = { ...filter }
                                                       setRestrictions(newRestrictions)
                                                   }
-                                                : null
+                                                : undefined
                                         }
                                     />
                                 ) : null}

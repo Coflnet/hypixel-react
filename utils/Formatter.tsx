@@ -183,7 +183,7 @@ export function getNumberFromShortenString(shortString?: string): number | undef
         { value: 1e3, suffix: 'K' },
         { value: 1e3, suffix: 'k' },
         { value: 1, suffix: '' }
-    ].find(val => shortString.includes(val.suffix))
+    ].find(val => shortString.includes(val.suffix)) || { value: 1, suffix: '' }
     return parseFloat(shortString.at(-1) == val.suffix ? shortString.slice(0, -1) : shortString) * val.value
 }
 
@@ -204,7 +204,7 @@ export function formatAsCoins(number: number): string {
     }
     return `${numberWithThousandsSeparators(number)} Coins`
 }
-export function formatDungeonStarsInString(stringWithStars: string, style: CSSProperties = {}, dungeonItemLevelString?: string): JSX.Element {
+export function formatDungeonStarsInString(stringWithStars: string = '', style: CSSProperties = {}, dungeonItemLevelString?: string): JSX.Element {
     let yellowStarStyle = { color: '#ffaa00', fontWeight: 'normal', height: '100%' }
     let redStarStyle = { color: 'red', fontWeight: 'normal', height: '100%' }
     let itemNameStyle = {
@@ -244,7 +244,7 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
     )
 }
 
-export function getMinecraftColorCodedElement(text: string, autoFormat = true): JSX.Element {
+export function getMinecraftColorCodedElement(text: string = '', autoFormat = true): JSX.Element {
     let styleMap: { [key: string]: React.CSSProperties } = {
         '0': { fontWeight: 'normal', textDecoration: 'none', color: '#000000' },
         '1': { fontWeight: 'normal', textDecoration: 'none', color: '#0000aa' },
@@ -290,6 +290,6 @@ export function getMinecraftColorCodedElement(text: string, autoFormat = true): 
     return <span>{elements}</span>
 }
 
-export function removeMinecraftColorCoding(text: string): string {
+export function removeMinecraftColorCoding(text: string = ''): string {
     return text.replace(/§[0-9a-fk-or]/gi, '')
 }

@@ -1,3 +1,4 @@
+'use client'
 import DeleteIcon from '@mui/icons-material/Delete'
 import UndoIcon from '@mui/icons-material/Undo'
 import Link from 'next/link'

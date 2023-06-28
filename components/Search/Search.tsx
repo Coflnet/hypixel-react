@@ -1,3 +1,4 @@
+'use client'
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
@@ -12,9 +13,9 @@ import { Item, Menu, useContextMenu } from 'react-contexify'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
-import { useRouter } from 'next/router'
 import { useForceUpdate } from '../../utils/Hooks'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 interface Props {
     selected?: Player | Item
@@ -195,15 +196,18 @@ function Search(props: Props) {
         localStorage.setItem(PREVIOUS_SEARCHES_KEY, JSON.stringify(previousSearches))
 
         api.trackSearch(item.id, item.type)
-        router.push({
-            pathname: item.route,
-            query: item.urlSearchParams
-                ? {
-                      itemFilter: item.urlSearchParams?.get('itemFilter'),
-                      apply: item.urlSearchParams?.get('apply')
-                  }
-                : {}
-        })
+
+        let searchParams = new URLSearchParams()
+        let itemFilter = item.urlSearchParams?.get('itemFilter')
+        let apply = item.urlSearchParams?.get('apply')
+        if (itemFilter) {
+            searchParams.set('itemFilter', itemFilter)
+        }
+        if (apply) {
+            searchParams.set('apply', apply)
+        }
+
+        router.push(`${item.route}?${searchParams.toString()}`)
     }
 
     let noResultsFoundElement = (
@@ -383,7 +387,7 @@ function Search(props: Props) {
                             onClick={() => {
                                 if (!props.preventDisplayOfPreviousSearches && !noResultsFound && results.length === 0 && !searchText) {
                                     let previousSearches: SearchResultItem[] = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
-                                        ? JSON.parse(localStorage.getItem(PREVIOUS_SEARCHES_KEY))
+                                        ? JSON.parse(localStorage.getItem(PREVIOUS_SEARCHES_KEY)!)
                                         : []
                                     setResults(
                                         previousSearches
@@ -411,7 +415,7 @@ function Search(props: Props) {
                                   onItemClick(result)
                               }}
                               style={getListItemStyle(i)}
-                              className={result.isPreviousSearch ? styles.previousSearch : null}
+                              className={result.isPreviousSearch ? styles.previousSearch : undefined}
                               onContextMenu={handleSearchContextMenuForSearchResult}
                           >
                               {result.dataItem.iconUrl ? (

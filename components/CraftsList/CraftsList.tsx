@@ -1,3 +1,4 @@
+'use client'
 import Image from 'next/image'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
@@ -10,9 +11,10 @@ import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
+import { parseProfitableCraft } from '../../utils/Parser/APIResponseParser'
 
 interface Props {
-    crafts?: ProfitableCraft[]
+    crafts?: any[]
     bazaarTags?: string[]
 }
 
@@ -59,7 +61,7 @@ const SORT_OPTIONS: SortOption[] = [
 let observer: MutationObserver
 
 export function CraftsList(props: Props) {
-    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts || [])
+    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts ? props.crafts.map(parseProfitableCraft) : [])
     let [nameFilter, setNameFilter] = useState<string | null>()
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
@@ -237,7 +239,7 @@ export function CraftsList(props: Props) {
     function getCraftHeader(craft: ProfitableCraft): JSX.Element {
         return (
             <span>
-                <Image crossOrigin="anonymous" src={craft.item.iconUrl} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                <Image crossOrigin="anonymous" src={craft.item.iconUrl || ''} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                 {getMinecraftColorCodedElement(craft.item.name)}
             </span>
         )
@@ -280,8 +282,8 @@ export function CraftsList(props: Props) {
                 ]
                 censoredCraft.median = -1
                 censoredCraft.volume = 123123
-                censoredCraft.requiredCollection = null
-                censoredCraft.requiredSlayer = null
+                censoredCraft.requiredCollection = undefined
+                censoredCraft.requiredSlayer = undefined
 
                 return (
                     <div key={craft.item.tag} className={styles.preventSelect}>
@@ -339,7 +341,9 @@ export function CraftsList(props: Props) {
                 <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
                 <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
                     ))}
                 </Form.Select>
                 <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />

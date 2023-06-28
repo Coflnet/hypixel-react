@@ -1,3 +1,4 @@
+'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import FilterIcon from '@mui/icons-material/BallotOutlined'
 import SettingsIcon from '@mui/icons-material/Settings'
