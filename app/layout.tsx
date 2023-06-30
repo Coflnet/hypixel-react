@@ -12,7 +12,7 @@ initCoflCoinManager()
 
 function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html>
+        <html lang="en">
             <Script async={true} src={'/preScript.js'} />
             <body>
                 <div className="page">
