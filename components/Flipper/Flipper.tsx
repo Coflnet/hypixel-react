@@ -181,7 +181,9 @@ function Flipper(props: Props) {
     }
 
     function onArrowRightClick() {
-        ;(listRef.current as any).scrollToItem(flips.length - 1)
+        if (listRef.current) {
+            ;(listRef.current as any).scrollToItem(flips.length - 1)
+        }
     }
 
     function _setAutoScroll(value: boolean) {
@@ -317,7 +319,9 @@ function Flipper(props: Props) {
     function onFilterChange(newFilter) {
         setFlipperFilter(newFilter)
         setFlips([])
-        ;(listRef.current as any)?.scrollToItem(flips.length - 1)
+        if (listRef.current) {
+            ;(listRef.current as any)?.scrollToItem(flips.length - 1)
+        }
     }
 
     function onCopyFlip(flip: FlipAuction) {
