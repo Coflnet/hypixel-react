@@ -33,7 +33,7 @@ test('search for grappling hook and open reference', async ({ page }) => {
 
 test('search aspect of the dragon from auction page', async ({ page }) => {
     await page.goto('/auction/06f2c2033f4749708fbf921abfdddbf5')
-    await page.getByPlaceholder('Search player/item').focus()
+    await page.getByPlaceholder('Search player/item').click()
     await page.getByPlaceholder('Search player/item').fill('aspect of the d')
     await page.getByPlaceholder('Search player/item').press('Enter')
     await expect(page).toHaveURL(/.*\/item\/.*/i)

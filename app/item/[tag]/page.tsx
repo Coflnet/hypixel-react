@@ -86,7 +86,9 @@ async function getItemData(searchParams, params) {
                 redirect(`/item/${searchResults[0].id}`)
             } else {
                 return {
-                    item: {},
+                    item: {
+                        tag: tag
+                    },
                     prices: [],
                     range: null,
                     filter: null
@@ -101,8 +103,11 @@ async function getItemData(searchParams, params) {
             filter: itemFilter || null
         }
     } catch (e) {
+        console.log('Error fetching item data: ' + JSON.stringify(e))
         return {
-            item: {},
+            item: {
+                tag: tag
+            },
             prices: [],
             range: null,
             filter: null
