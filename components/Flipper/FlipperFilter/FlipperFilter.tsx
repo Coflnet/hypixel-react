@@ -174,7 +174,7 @@ function FlipperFilter(props: Props) {
                         type="text"
                         disabled={!props.isLoggedIn}
                         isAllowed={value => {
-                            return numberFieldMaxValue(value.floatValue, 2147483647)
+                            return numberFieldMaxValue(value.floatValue, 10000000000)
                         }}
                         customInput={Form.Control}
                         defaultValue={flipperFilter.minProfit}
@@ -305,7 +305,7 @@ function FlipperFilter(props: Props) {
                                 className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                                 disabled={!props.isLoggedIn}
                                 isAllowed={value => {
-                                    return numberFieldMaxValue(value.floatValue, 2147483647)
+                                    return numberFieldMaxValue(value.floatValue, 10000000000)
                                 }}
                                 customInput={Form.Control}
                                 defaultValue={flipperFilter.minProfitPercent}
@@ -355,7 +355,7 @@ function FlipperFilter(props: Props) {
                                 className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                                 disabled={!props.isLoggedIn}
                                 isAllowed={value => {
-                                    return numberFieldMaxValue(value.floatValue, 2147483647)
+                                    return numberFieldMaxValue(value.floatValue, 10000000000)
                                 }}
                                 customInput={Form.Control}
                                 defaultValue={flipperFilter.maxCost}

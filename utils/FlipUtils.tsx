@@ -192,7 +192,7 @@ export const DEFAULT_FLIP_SETTINGS = {
     RESTRICTIONS: [] as FlipRestriction[],
     FILTER: {
         onlyBin: false,
-        maxCost: 2147483647,
+        maxCost: 10000000000,
         minProfit: 0,
         minProfitPercent: 0,
         minVolume: 0,
