@@ -14,8 +14,9 @@ import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
 import { btoaUnicode } from '../../utils/Base64Utils'
 import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
-import { ObjectParam, StringParam, useQueryParam } from 'use-query-params'
 import ModAdvert from './ModAdvert'
+import { isClientSideRendering } from '../../utils/SSRUtils'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -35,11 +36,12 @@ const groupedFilter = [
 ]
 
 function ItemFilter(props: Props) {
+    let router = useRouter()
+    let pathname = usePathname()
     let [itemFilter, _setItemFilter] = useState<ItemFilter>({})
     let [expanded, setExpanded] = useState(props.forceOpen || false)
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
-    let [_, setUrlFilterString] = useQueryParam('itemFilter', StringParam)
     let [invalidFilters, _setInvalidFilters] = useState(new Set<string>())
 
     let typeaheadRef = useRef(null)
@@ -92,6 +94,17 @@ function ItemFilter(props: Props) {
         }
 
         return result
+    }
+
+    function setUrlFilterString(itemFilterString: string) {
+        if (isClientSideRendering()) {
+            let searchParams = new URLSearchParams(window.location.search)
+            searchParams.set('itemFilter', itemFilterString)
+            console.log('Replace URL: ' + `${pathname}?${searchParams.toString()}`)
+            router.replace(`${pathname}?${searchParams.toString()}`)
+        } else {
+            console.error('Tried to update url query "itemFilter" during serverside rendering')
+        }
     }
 
     let enableFilter = (filterName: string) => {
@@ -173,7 +186,7 @@ function ItemFilter(props: Props) {
         }
 
         let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoaUnicode(JSON.stringify(filter))
-        setUrlFilterString(filterString || '', 'replaceIn')
+        setUrlFilterString(filterString || '')
     }
 
     function onFilterChange(filter: ItemFilter) {

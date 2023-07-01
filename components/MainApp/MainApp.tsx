@@ -13,10 +13,10 @@ import { startMigrations } from '../../migrations/MigrationUtils'
 import { v4 as generateUUID } from 'uuid'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { useRouter } from 'next/navigation'
-import NextTopLoader from 'nextjs-toploader'
 import '../../styles/bootstrap-react.min.css'
 import '../../styles/bootstrap-dark.min.css'
 import '../../styles/globals.css'
+import TopLoadingAnimation from '../TopLoader/TopLoadingAnimation'
 
 interface ErrorLog {
     error: ErrorEvent
@@ -142,7 +142,7 @@ export function MainApp(props: any) {
     return (
         <>
             <OfflineBanner />
-            <NextTopLoader />
+            <TopLoadingAnimation />
             {props.children}
             <CookieConsent
                 enableDeclineButton

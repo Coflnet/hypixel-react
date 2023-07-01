@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import ReactECharts from 'echarts-for-react'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, Suspense, useEffect, useState } from 'react'
 import { Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
@@ -340,12 +340,14 @@ function BazaarPriceGraph(props: Props) {
 
     return (
         <div>
-            <ItemPriceRange
-                dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.ALL]}
-                onRangeChange={onRangeChange}
-                disableAllTime={false}
-                item={props.item}
-            />
+            <Suspense>
+                <ItemPriceRange
+                    dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.ALL]}
+                    onRangeChange={onRangeChange}
+                    disableAllTime={false}
+                    item={props.item}
+                />
+            </Suspense>
 
             <div>
                 <div className={styles.chartsWrapper}>

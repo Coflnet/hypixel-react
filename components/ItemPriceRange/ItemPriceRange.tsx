@@ -1,10 +1,11 @@
 'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { getURLSearchParam } from '../../utils/Parser/URLParser'
 import styles from './ItemPriceRange.module.css'
-import { StringParam, useQueryParam, withDefault } from 'use-query-params'
+import { isClientSideRendering } from '../../utils/SSRUtils'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 export enum DateRange {
     ACTIVE = 'active',
@@ -28,10 +29,13 @@ export let DEFAULT_DATE_RANGE = DateRange.DAY
 
 export function ItemPriceRange(props: Props) {
     const { trackEvent } = useMatomo()
-    let [selectedDateRange, setSelectedDateRange] = useQueryParam('range', withDefault(StringParam, DEFAULT_DATE_RANGE))
+    let pathname = usePathname()
+    let router = useRouter()
+    let searchParams = useSearchParams()
+    let [selectedDateRange, _setSelectedDateRange] = useState(searchParams.get('range') || DEFAULT_DATE_RANGE)
 
     if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
-        setSelectedDateRange(DateRange.MONTH, 'replaceIn')
+        setSelectedDateRange(DateRange.MONTH)
         if (props.onRangeChange) {
             props.onRangeChange(DateRange.MONTH)
         }
@@ -45,14 +49,14 @@ export function ItemPriceRange(props: Props) {
         DEFAULT_DATE_RANGE = range as DateRange
 
         setTimeout(() => {
-            setSelectedDateRange(range as DateRange, 'replaceIn')
+            setSelectedDateRange(range as DateRange)
             DEFAULT_DATE_RANGE = DateRange.DAY
         }, 500)
     }, [])
 
     useEffect(() => {
         if (props.item !== undefined) {
-            setSelectedDateRange(DEFAULT_DATE_RANGE, 'replaceIn')
+            setSelectedDateRange(DEFAULT_DATE_RANGE)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag])
@@ -62,6 +66,18 @@ export function ItemPriceRange(props: Props) {
         onRangeChange(setTo)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.setToDefaultRangeSwitch])
+
+    function setSelectedDateRange(range: string) {
+        if (isClientSideRendering()) {
+            console.log('setting range to ' + range)
+            let searchParams = new URLSearchParams(window.location.search)
+            searchParams.set('range', range)
+            router.replace(`${pathname}?${searchParams.toString()}`)
+            _setSelectedDateRange(range)
+        } else {
+            console.error('Tried to update url query "range" during serverside rendering')
+        }
+    }
 
     let getButtonText = (range: DateRange): string => {
         switch (range) {
@@ -85,7 +101,7 @@ export function ItemPriceRange(props: Props) {
     }
 
     let onRangeChange = (newRange: DateRange) => {
-        setSelectedDateRange(newRange, 'replaceIn')
+        setSelectedDateRange(newRange)
         if (props.onRangeChange) {
             props.onRangeChange(newRange)
         }

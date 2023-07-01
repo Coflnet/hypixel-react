@@ -36,7 +36,7 @@ interface Props {
 
 function AuctionDetails(props: Props) {
     let [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
-    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(parseAuctionDetails(props.auctionDetails))
+    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
     let [unparsedAuctionDetails, setUnparsedAuctionDetails] = useState(props.unparsedAuctionDetails)
     let [isLoading, setIsLoading] = useState(false)
     let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)

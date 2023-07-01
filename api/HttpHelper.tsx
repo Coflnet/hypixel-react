@@ -124,11 +124,11 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 })
                 .catch(responseTextPromise => {
                     if (!responseTextPromise || typeof responseTextPromise.then !== 'function') {
-                        request.reject(responseTextPromise)
+                        request.reject(responseTextPromise || 'no responseTextPromise')
                         return
                     }
                     responseTextPromise.then(responseText => {
-                        request.reject(parseResponseText(responseText))
+                        request.reject(parseResponseText(responseText) || 'no responseTextPromise after parse')
                     })
                 })
                 .finally(() => {
@@ -144,9 +144,10 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             console.log('URL: ' + url)
             console.log('Request: ' + JSON.stringify(request))
             console.log('Body: ' + JSON.stringify(body))
+            console.log(JSON.stringify(e))
             console.log('------------------------')
 
-            return request.reject()
+            return request.reject('Fetch threw exception: ' + JSON.stringify(e))
         }
     }
 
