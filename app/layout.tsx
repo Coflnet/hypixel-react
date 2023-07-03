@@ -2,13 +2,9 @@ import 'react-toastify/dist/ReactToastify.css'
 import 'react-contexify/ReactContexify.css'
 import 'react-datepicker/dist/react-datepicker.css'
 import 'react-bootstrap-typeahead/css/Typeahead.css'
-import { initCoflCoinManager } from '../utils/CoflCoinsUtils'
 import { Providers } from '../components/Providers/Providers'
 import Script from 'next/script'
 import { MainApp } from '../components/MainApp/MainApp'
-import { Suspense } from 'react'
-
-initCoflCoinManager()
 
 function RootLayout({ children }: { children: React.ReactNode }) {
     return (

@@ -17,6 +17,7 @@ import '../../styles/bootstrap-react.min.css'
 import '../../styles/bootstrap-dark.min.css'
 import '../../styles/globals.css'
 import TopLoadingAnimation from '../TopLoader/TopLoadingAnimation'
+import { initCoflCoinManager } from '../../utils/CoflCoinsUtils'
 
 interface ErrorLog {
     error: ErrorEvent
@@ -24,6 +25,8 @@ interface ErrorLog {
 }
 
 export const errorLog: ErrorLog[] = []
+
+initCoflCoinManager()
 
 export function MainApp(props: any) {
     const [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false)
