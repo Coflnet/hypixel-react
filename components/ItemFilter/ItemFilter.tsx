@@ -100,8 +100,8 @@ function ItemFilter(props: Props) {
         if (isClientSideRendering()) {
             let searchParams = new URLSearchParams(window.location.search)
             searchParams.set('itemFilter', itemFilterString)
-            console.log('Replace URL: ' + `${pathname}?${searchParams.toString()}`)
             router.replace(`${pathname}?${searchParams.toString()}`)
+            window.history.replaceState(null, '', `${pathname}?${searchParams.toString()}`)
         } else {
             console.error('Tried to update url query "itemFilter" during serverside rendering')
         }

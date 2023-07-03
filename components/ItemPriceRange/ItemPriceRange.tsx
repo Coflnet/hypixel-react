@@ -69,7 +69,6 @@ export function ItemPriceRange(props: Props) {
 
     function setSelectedDateRange(range: string) {
         if (isClientSideRendering()) {
-            console.log('setting range to ' + range)
             let searchParams = new URLSearchParams(window.location.search)
             searchParams.set('range', range)
             router.replace(`${pathname}?${searchParams.toString()}`)
