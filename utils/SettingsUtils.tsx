@@ -4,7 +4,6 @@ import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
 import { hasFlag } from '../components/FilterElement/FilterType'
 import { DEFAULT_FLIP_SETTINGS, FLIP_FINDERS, getFlipCustomizeSettings, getFlipFinders } from './FlipUtils'
 import { isClientSideRendering } from './SSRUtils'
-import toml from 'toml'
 import { getNumberFromShortenString } from './Formatter'
 
 const LOCAL_STORAGE_SETTINGS_KEY = 'userSettings'
@@ -136,23 +135,37 @@ export function setSettingsFromServerSide(
                             })
                         } else {
                             promises.push(
-                                api.getItemDetails(item.tag).then(details => {
-                                    newRestrictions.push({
-                                        type: type,
-                                        item: {
-                                            tag: details.tag,
-                                            name: details.name,
-                                            iconUrl: api.getItemImageUrl(item)
-                                        },
-                                        itemFilter: item.filter,
-                                        tags: item.tags
+                                api
+                                    .getItemDetails(item.tag)
+                                    .then(details => {
+                                        newRestrictions.push({
+                                            type: type,
+                                            item: {
+                                                tag: details.tag,
+                                                name: details.name,
+                                                iconUrl: api.getItemImageUrl(item)
+                                            },
+                                            itemFilter: item.filter,
+                                            tags: item.tags
+                                        })
                                     })
-                                })
+                                    .catch(e => {
+                                        newRestrictions.push({
+                                            type: type,
+                                            item: {
+                                                tag: item.tag,
+                                                name: 'Name could not be loaded',
+                                                iconUrl: api.getItemImageUrl(item)
+                                            },
+                                            itemFilter: item.filter,
+                                            tags: item.tags
+                                        })
+                                    })
                             )
                         }
                     })
                     if (promises.length > 0) {
-                        Promise.all(promises).then(() => {
+                        Promise.allSettled(promises).then(() => {
                             resolve(newRestrictions)
                         })
                     } else {
@@ -204,7 +217,7 @@ export async function handleSettingsImport(importString: string) {
     } catch {
         // Handle toml settings import
         try {
-            var json = toml.parse(importString)
+            var json = (await import('toml')).parse(importString)
 
             if (json.thresholds.blacklist.blacklist_bypass_percent) {
                 restrictions.push({
