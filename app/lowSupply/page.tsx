@@ -23,3 +23,5 @@ export default async function Page() {
 }
 
 export const metadata = getHeadMetadata('Low Supply Items', 'Items that are in low supply on the auction house')
+
+export const revalidate = 0

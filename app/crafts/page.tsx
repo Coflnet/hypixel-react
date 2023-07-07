@@ -21,3 +21,5 @@ export default async function Page() {
 }
 
 export const metadata = getHeadMetadata('Crafts', 'List of profitable craft flips based on current ah and bazaar prices')
+
+export const revalidate = 0

@@ -20,3 +20,5 @@ export default async function Page() {
 }
 
 export const metadata = getHeadMetadata('Kat Flips', 'List of profitable upgrades from the NPC "Kat"')
+
+export const revalidate = 0

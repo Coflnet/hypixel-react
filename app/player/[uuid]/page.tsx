@@ -61,3 +61,5 @@ export async function generateMetadata({ params }) {
         `${player?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`
     )
 }
+
+export const revalidate = 0

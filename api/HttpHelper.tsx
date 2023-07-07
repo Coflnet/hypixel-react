@@ -89,10 +89,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             return fetch(url, {
                 body: body,
                 method: request.requestMethod,
-                headers: request.requestHeader,
-                next: {
-                    revalidate: 60
-                }
+                headers: request.requestHeader
             })
                 .then(response => {
                     if (!response.ok) {

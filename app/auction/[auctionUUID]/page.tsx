@@ -157,3 +157,5 @@ export async function generateMetadata({ params }) {
         `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`
     )
 }
+
+export const revalidate = 0

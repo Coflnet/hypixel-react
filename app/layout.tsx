@@ -34,3 +34,5 @@ function RootLayout({ children }: { children: React.ReactNode }) {
 // }
 
 export default RootLayout
+
+export const revalidate = 60
