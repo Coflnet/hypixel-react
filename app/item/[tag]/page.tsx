@@ -100,7 +100,7 @@ async function getItemData(searchParams, params) {
             item: itemDetails,
             prices: prices || [],
             range: range || null,
-            filter: itemFilter || null
+            filter: itemFilter ? JSON.parse(atobUnicode(itemFilter)) : null
         }
     } catch (e) {
         console.log('Error fetching item data: ' + JSON.stringify(e))
