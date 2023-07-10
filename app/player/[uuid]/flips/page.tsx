@@ -115,3 +115,5 @@ export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, 
             \n ${profitByFinderEmbed} 
             ${highestProfitFlipText}`
 }
+
+export const revalidate = 0

@@ -99,3 +99,5 @@ export async function generateMetadata({ params }) {
               `Tracked flips of ${player.name}`
           )
 }
+
+export const revalidate = 0
