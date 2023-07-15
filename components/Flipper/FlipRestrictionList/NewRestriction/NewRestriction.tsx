@@ -28,7 +28,7 @@ function NewRestriction(props: Props) {
 
     useEffect(() => {
         loadFilters()
-    }, [createState.tags])
+    }, [createState.selectedItems])
 
     function loadFilters(): Promise<FilterOptions[]> {
         if (!createState.selectedItems || createState.selectedItems?.length <= 1) {

@@ -31,11 +31,13 @@ function EditRestriction(props: Props) {
     }, [])
 
     function loadFilters(): Promise<FilterOptions[]> {
-        return Promise.all([api.getFilters('*'), api.flipFilters('*')]).then(filters => {
-            let result = [...(filters[0] || []), ...(filters[1] || [])]
-            setFilters(result)
-            return result
-        })
+        return Promise.all([api.getFilters(props.defaultRestriction.item?.tag || '*'), api.flipFilters(props.defaultRestriction.item?.tag || '*')]).then(
+            filters => {
+                let result = [...(filters[0] || []), ...(filters[1] || [])]
+                setFilters(result)
+                return result
+            }
+        )
     }
 
     return (
