@@ -68,7 +68,7 @@ function Ref() {
                         <p>Rewards per invited person:</p>
                         <ul>
                             <li>
-                                You receive <b>300 CoflCoins</b>
+                                You receive <b>200 CoflCoins</b>
                             </li>
                             <li>
                                 The invited person gets <b>3 days of premium</b> to test our services
