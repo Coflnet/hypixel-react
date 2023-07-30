@@ -118,9 +118,9 @@ export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, 
 
     return `Found Flips: ${flipTrackingResponse.flips.length} 
             Total Profit: ${numberWithThousandsSeparators(flipTrackingResponse.totalProfit)} Coins
-            \n ${profitByFinderEmbed} 
+            \n${profitByFinderEmbed} 
             ${highestProfitFlipText}
-            \n ${lowestProfitFlipText}`
+            ${lowestProfitFlipText}`
 }
 
 export const revalidate = 0
