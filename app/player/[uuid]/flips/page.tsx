@@ -120,7 +120,7 @@ export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, 
             Total Profit: ${numberWithThousandsSeparators(flipTrackingResponse.totalProfit)} Coins
             \n${profitByFinderEmbed} 
             ${highestProfitFlipText}
-            ${lowestProfitFlipText}`
+            \n${lowestProfitFlipText}`
 }
 
 export const revalidate = 0
