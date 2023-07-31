@@ -36,7 +36,7 @@ function FlipperFAQ() {
                         Reference auctions depend on the individual item, its modifiers, and how often it is sold. The algorithm to determine which auctions can
                         be used as reference is changing frequently.
                         <br />
-                        You can see the auctions used for reference by clicking on the (?) next to <code>Estimated Profit</code>
+                        You can see the auctions used for reference by clicking on the (?) next to <code>Estimated Profit</code>.
                     </p>
                     <h3>How reliable is the flipper?</h3>
                     <p>
