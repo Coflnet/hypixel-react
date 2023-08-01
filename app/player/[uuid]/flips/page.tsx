@@ -106,12 +106,14 @@ export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, 
         }
     })
 
-    let highestProfitFlip = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)[0]
+    let sortedFlips = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit);
+
+    let highestProfitFlip = sortedFlips[0]
     let highestProfitFlipText = `Highest Profit Flip: ${numberWithThousandsSeparators(highestProfitFlip.profit)} Coins \n ${numberWithThousandsSeparators(
         highestProfitFlip.pricePaid
     )} Coins ➞ ${numberWithThousandsSeparators(highestProfitFlip.soldFor)} Coins (${removeMinecraftColorCoding(highestProfitFlip.item.name)})`
 
-    let lowestProfitFlip = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)[flipTrackingResponse.flips.length-1]
+    let lowestProfitFlip = sortedFlips[sortedFlips.length-1]
     let lowestProfitFlipText = `Lowest Profit Flip: ${numberWithThousandsSeparators(lowestProfitFlip.profit)} Coins \n ${numberWithThousandsSeparators(
         lowestProfitFlip.pricePaid
     )} Coins ➞ ${numberWithThousandsSeparators(lowestProfitFlip.soldFor)} Coins (${removeMinecraftColorCoding(lowestProfitFlip.item.name)})`
