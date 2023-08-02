@@ -311,54 +311,6 @@ function Startpage(props: Props) {
                 <p style={{ fontSize: 'larger' }}>Browse through over 500 million auctions, over two million players and the bazaar of hypixel skyblock</p>
                 <hr />
             </div>
-            <div className={styles.statusElementWrapper}>
-                <Card>
-                    <Card.Header>
-                        <Card.Title>
-                            <AnnouncementIcon />
-                            <span className={styles.statusTitle}> News / Announcements</span>
-                        </Card.Title>
-                        <Card.Subtitle>Flipper release</Card.Subtitle>
-                    </Card.Header>
-                    <Card.Body>
-                        <p>
-                            The first work in progress publication of the flipper was two years ago. To celebrate the anniversary we have a few announcements to
-                            make
-                        </p>
-                        <ul>
-                            <li>The WIP label will be removed, its mostly done</li>
-                            <li>The free version delay will be reduced to under a minute (around 40 seconds)</li>
-                            <li>
-                                Invite bonus for new (mod) users is trippled, they get 3 days of premium and you get 300 CoflCoins for inviting them (after they
-                                verified with a new account)
-                            </li>
-                        </ul>
-                        <hr />
-                        <div style={{ marginTop: '20px' }}>
-                            <p>Recent changes (last change: 26. Mai 2023):</p>
-                            <Tooltip
-                                onClick={onRecentChangesClick}
-                                content={
-                                    <p>
-                                        <NewIcon /> <span style={{ color: '#007bff', cursor: 'pointer' }}>Click here to open</span>
-                                    </p>
-                                }
-                                tooltipContent={
-                                    <ul key="changelogList">
-                                        <li className={styles.changelogItem}>Multi select for restrictions</li>
-                                        <li className={styles.changelogItem}>Allow more number formats (like 1m-15m)</li>
-                                        <li className={styles.changelogItem}>Allow restriction items to be removed afterwards</li>
-                                        <li className={styles.changelogItem}>Lots of bug fixes</li>
-                                    </ul>
-                                }
-                                type="click"
-                                tooltipTitle={<span>Recent changes</span>}
-                            />
-                        </div>
-                    </Card.Body>
-                </Card>
-            </div>
-
             <Card className={styles.startpageCard}>
                 <Card.Header>
                     <Card.Title>
