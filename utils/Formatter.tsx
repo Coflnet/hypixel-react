@@ -133,14 +133,21 @@ export function enchantmentAndReforgeCompare(a: Enchantment | Reforge, b: Enchan
 }
 
 export function formatToPriceToShorten(num: number, decimals: number = 0): string {
-    var multMap = [
+    let multMap = [
         { mult: 1e12, suffix: 'T' },
         { mult: 1e9, suffix: 'B' },
         { mult: 1e6, suffix: 'M' },
         { mult: 1e3, suffix: 'k' },
         { mult: 1, suffix: '' }
     ]
-    var mult = multMap.find(m => num >= m.mult) || multMap[multMap.length - 1]
+    let multIndex = multMap.findIndex(m => num >= m.mult) || multMap.length - 1
+    if (multIndex !== 0) {
+        if (Math.round(num / multMap[multIndex].mult) === 1000) {
+            multIndex -= 1
+        }
+    }
+
+    let mult = multMap[multIndex]
     return (num / mult.mult).toFixed(decimals) + mult.suffix
 }
 
