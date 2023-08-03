@@ -61,6 +61,15 @@ function FlipRestrictionList(props: Props) {
         setIsNewFlipperExtended(false)
     }
 
+    function onEditRestrictionCancel() {
+        let newRestrictions = [...restrictions]
+        restrictionInEditModeIndex.forEach(index => {
+            newRestrictions[index].isEdited = false
+        })
+        setRestrictions(newRestrictions)
+        setRestrictionsInEditModeIndex([])
+    }
+
     function addEditedFilter(updateState: UpdateState) {
         let newRestrictions = [...restrictions]
         restrictionInEditModeIndex.forEach(index => {
@@ -285,7 +294,7 @@ function FlipRestrictionList(props: Props) {
                         defaultRestriction={restrictions[restrictionInEditModeIndex[0]]}
                         onAdd={addEditedFilter}
                         onOverride={overrideEditedFilter}
-                        onCancel={onNewRestrictionCancel}
+                        onCancel={onEditRestrictionCancel}
                     />
                 ) : isAddNewFlipperExtended ? (
                     <NewRestriction onCancel={onNewRestrictionCancel} onSaveRestrictions={addNewRestriction} />
