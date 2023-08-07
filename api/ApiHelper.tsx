@@ -1173,14 +1173,24 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let authenticateModConnection = (conId: string): Promise<void> => {
+        let timeout = setTimeout(() => {
+            toast.warn(
+                <span>
+                    The login seems to take longer that expected. Are you using Kaspersky? If so, the "Secure Browsing" feature seems to interfere with the
+                    login.
+                </span>
+            )
+        }, 10000)
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.AUTHENTICATE_MOD_CONNECTION,
                 data: conId,
                 resolve: function () {
+                    clearTimeout(timeout)
                     resolve()
                 },
                 reject: function (error) {
+                    clearTimeout(timeout)
                     apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId)
                     reject(error)
                 }
