@@ -53,7 +53,7 @@ export const DEMO_FLIP: FlipAuction = {
     ]
 }
 
-export const DEFAULT_MOD_FORMAT = '§6{0}: {1}{2} {3}{4} -> {5} (+{6} §4{7}{3}) §7Med: §b{8} §7Lbin: §b{9} §7Volume: §b{10}'
+export const DEFAULT_MOD_FORMAT = '§6{0}: [menu] [sellerbtn] {1}{2} {3}{4} -> {5} (+{6} §4{7}{3}) §7Med: §b{8} §7Lbin: §b{9} §7Volume: §b{10}'
 
 export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     let settings: FlipCustomizeSettings
