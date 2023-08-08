@@ -9,6 +9,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import { useForceUpdate } from '../../../../utils/Hooks'
 import styles from './FormatElement.module.css'
 import { getMinecraftColorCodedElement } from '../../../../utils/Formatter'
+import { values } from 'idb-keyval'
 
 interface Props {
     onChange(value: string)
@@ -57,24 +58,27 @@ function FormatElement(props: Props) {
         }
 
         var values = {
-            '0': 'FLIP',
-            '1': '§2',
-            '2': 'Armadillo',
-            '3': '§1',
-            '4': settings.shortNumbers ? '1.49M' : '1.490.000',
-            '5': settings.shortNumbers ? '2M' : '2.000.000',
-            '6': settings.shortNumbers ? '470k' : '470.000',
-            '7': '31%',
-            '8': settings.shortNumbers ? '2M' : '2.000.000',
-            '9': settings.shortNumbers ? '1M' : '1.000.000',
-            '10': '26'
+            '{0}': 'FLIP',
+            '{1}': '§2',
+            '{2}': 'Armadillo',
+            '{3}': '§1',
+            '{4}': settings.shortNumbers ? '1.49M' : '1.490.000',
+            '{5}': settings.shortNumbers ? '2M' : '2.000.000',
+            '{6}': settings.shortNumbers ? '470k' : '470.000',
+            '{7}': '31%',
+            '{8}': settings.shortNumbers ? '2M' : '2.000.000',
+            '{9}': settings.shortNumbers ? '1M' : '1.000.000',
+            '{10}': '26',
+            '[menu]': '§f✥',
+            '[sellerbtn]': '§7sellers ah'
         }
 
-        let resultText = settings.modFormat.replace(/\{([^}]+)\}/g, function (i, match) {
-            return values[match]
+        let result = settings.modFormat
+        Object.keys(values).forEach(key => {
+            result = result.replace(key, values[key])
         })
 
-        return resultText
+        return result
     }
 
     const formatHelpTooltip = (
