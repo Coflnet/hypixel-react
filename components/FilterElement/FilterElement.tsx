@@ -31,6 +31,7 @@ function FilterElement(props: Props) {
     let [errorText, setErrorText] = useState('')
 
     useEffect(() => {
+        console.log(props)
         if (value) {
             return
         }

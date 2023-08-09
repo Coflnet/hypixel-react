@@ -77,11 +77,11 @@ export function NumberRangeFilterElement(props: Props) {
     }
 
     function getMarks() {
-        if (!props.min || !props.max) {
+        if (props.max === undefined || props.max === null) {
             return undefined
         }
         let marks = {}
-        for (let i = props.min; i <= props.max; i++) {
+        for (let i = props.min || 0; i <= props.max; i++) {
             marks[i] = i === 0 ? 'None' : i.toString()
         }
         return marks

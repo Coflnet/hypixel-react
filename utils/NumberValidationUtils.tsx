@@ -19,7 +19,7 @@ function removeRangeSymbols(input: string) {
 function getFilterNumber(number: string) {
     let numberRegexp = new RegExp(/^\d*\.?\d+[kKmMbB]?$/)
     if (numberRegexp.test(number)) {
-        return getNumberFromShortenString(number)
+        return getNumberFromShortenString(number) as number
     }
     return null
 }
@@ -37,7 +37,7 @@ function isNumberInRange(number: number, options: FilterOptions): boolean {
 
 export function validateFilterNumber(input: string, options: FilterOptions): [boolean, string?] {
     let number = getFilterNumber(input)
-    if (!number) {
+    if (number === null) {
         return [false, INVALID_NUMBER_ERROR]
     }
     if (!isNumberInRange(number, options)) {
@@ -50,7 +50,7 @@ export function validateFilterRange(input: string, options: FilterOptions): [boo
     if (!input.includes('-')) {
         input = removeRangeSymbols(input)
         let number = getFilterNumber(input)
-        if (!number) {
+        if (number === null) {
             return [false, INVALID_NUMBER_RANGE_ERROR]
         }
         if (!isNumberInRange(number, options)) {
@@ -61,7 +61,7 @@ export function validateFilterRange(input: string, options: FilterOptions): [boo
     let [n1, n2] = input.split('-')
     let number1 = getFilterNumber(n1)
     let number2 = getFilterNumber(n2)
-    if (!number1 || !number2) {
+    if (number1 === null || number2 === null) {
         return [false, INVALID_NUMBER_RANGE_ERROR]
     }
     if (number1 > number2) {
