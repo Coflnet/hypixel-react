@@ -140,7 +140,10 @@ export function formatToPriceToShorten(num: number, decimals: number = 0): strin
         { mult: 1e3, suffix: 'k' },
         { mult: 1, suffix: '' }
     ]
-    let multIndex = multMap.findIndex(m => num >= m.mult) || multMap.length - 1
+    let multIndex = multMap.findIndex(m => num >= m.mult)
+    if (multIndex === -1) {
+        multIndex = multMap.length - 1
+    }
     if (multIndex !== 0) {
         if (Math.round(num / multMap[multIndex].mult) === 1000) {
             multIndex -= 1
