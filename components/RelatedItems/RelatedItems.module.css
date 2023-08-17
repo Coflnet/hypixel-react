@@ -8,6 +8,8 @@
 
 .cardsWrapper {
     display: flex;
+    overflow-x: auto;
+    align-items: stretch;
     flex-wrap: nowrap;
 }
 
