@@ -170,6 +170,7 @@ function FlipperFilter(props: Props) {
                         onValueChange={value => {
                             onSettingsChange('minProfit', value.floatValue || 0)
                         }}
+                        placeholder={!props.isLoggedIn ? 'Please login first' : null}
                         className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                         type="text"
                         disabled={!props.isLoggedIn}
@@ -177,7 +178,7 @@ function FlipperFilter(props: Props) {
                             return numberFieldMaxValue(value.floatValue, 10000000000)
                         }}
                         customInput={Form.Control}
-                        defaultValue={flipperFilter.minProfit}
+                        defaultValue={'test'}
                         thousandSeparator={getThousandSeparator()}
                         decimalSeparator={getDecimalSeparator()}
                         allowNegative={false}
@@ -304,6 +305,7 @@ function FlipperFilter(props: Props) {
                                 }}
                                 className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                                 disabled={!props.isLoggedIn}
+                                placeholder={!props.isLoggedIn ? 'Please login first' : null}
                                 isAllowed={value => {
                                     return numberFieldMaxValue(value.floatValue, 10000000000)
                                 }}
@@ -332,6 +334,7 @@ function FlipperFilter(props: Props) {
                                 }}
                                 className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                                 disabled={!props.isLoggedIn}
+                                placeholder={!props.isLoggedIn ? 'Please login first' : null}
                                 isAllowed={value => {
                                     return numberFieldMaxValue(value.floatValue, 120)
                                 }}
@@ -354,6 +357,7 @@ function FlipperFilter(props: Props) {
                                 }}
                                 className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                                 disabled={!props.isLoggedIn}
+                                placeholder={!props.isLoggedIn ? 'Please login first' : null}
                                 isAllowed={value => {
                                     return numberFieldMaxValue(value.floatValue, 10000000000)
                                 }}
