@@ -317,6 +317,30 @@ export async function handleSettingsImport(importString: string) {
         }
     }
 
+    if (flipCustomizeSettings.finders) {
+        // remove user and TFM finder when importing a config, to protect users from these configs which they might not really understand
+
+        let removed: string[] = []
+        let newFinders = flipCustomizeSettings.finders.filter(finder => {
+            if (finder === 16) {
+                removed.push('User')
+                return false
+            }
+            if (finder === 32) {
+                removed.push('TFM')
+                return false
+            }
+            return true
+        })
+        if (removed.length > 0) {
+            toast.warn(
+                `Removed potentially dangerous finder${removed.length > 1 ? 's' : ''} (${removed.toString()}). Re-add them if you know what you are doing.`
+            )
+            await sleep(5000)
+        }
+        flipCustomizeSettings.finders = newFinders
+    }
+
     await Promise.allSettled(promises)
 
     setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
@@ -339,6 +363,14 @@ export async function handleSettingsImport(importString: string) {
     setTimeout(() => {
         window.location.reload()
     }, 1000)
+}
+
+export function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve()
+        }, ms)
+    })
 }
 
 export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: FlipCustomizeSettings, restrictions: FlipRestriction[]) {
