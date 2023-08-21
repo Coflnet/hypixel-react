@@ -93,7 +93,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             })
                 .then(response => {
                     if (!response.ok) {
-                        return Promise.reject(`HTTP ${response.status} for ${url}`)
+                        return Promise.reject(response.text())
                     }
 
                     return response.text()

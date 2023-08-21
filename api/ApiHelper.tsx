@@ -76,13 +76,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         if (!error || !error.message) {
             return
         }
-        toast.error(error.message, {
-            onClick: () => {
-                if (error.Trace && canUseClipBoard()) {
-                    writeToClipboard(error.Trace)
+        if (isClientSideRendering()) {
+            toast.error(error.message, {
+                onClick: () => {
+                    if (error.Trace && canUseClipBoard()) {
+                        writeToClipboard(error.Trace)
+                    }
                 }
-            }
-        })
+            })
+        }
         console.log('RequestType: ' + requestType)
         console.log('ErrorMessage: ' + error.message)
         console.log('RequestData: ')
