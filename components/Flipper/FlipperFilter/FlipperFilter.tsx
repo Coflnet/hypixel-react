@@ -295,9 +295,20 @@ function FlipperFilter(props: Props) {
                     <hr />
                     <div className={styles.flipperFilterGroupAdvanced}>
                         <Form.Group className={styles.filterTextfield}>
-                            <Form.Label htmlFor="min-profit-percent" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
-                                Min. Profit (%):
-                            </Form.Label>
+                            <Tooltip
+                                type="hover"
+                                content={
+                                    <Form.Label htmlFor="min-profit-percent" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                                        Min. Profit (%):
+                                    </Form.Label>
+                                }
+                                tooltipContent={
+                                    <span>
+                                        A 94m item wort an estimated 100m would have 3m (3%) estimated profit. This includes a total of 3% ah tax and would
+                                        block any flip below the value chosen, using 2% would show the flip
+                                    </span>
+                                }
+                            />
                             <NumericFormat
                                 id="min-profit-percent"
                                 onValueChange={value => {
