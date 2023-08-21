@@ -18,12 +18,17 @@ function ReloadDialog(props: Props) {
         additionalInformation: ''
     })
     let [hasUserInput, setHasUserInput] = useState(false)
+    let [showMissingAdditionalInformation, setShowMissingAdditionalInformation] = useState(false)
 
     function onClose() {
         props.onClose()
     }
 
     function onSubmit() {
+        if (!feedback.additionalInformation) {
+            setShowMissingAdditionalInformation(true)
+            return
+        }
         let feedbackToSend: any = { ...feedback }
         feedbackToSend.errorLog = errorLog
         feedbackToSend.href = location.href
@@ -45,26 +50,33 @@ function ReloadDialog(props: Props) {
     }
 
     function onLoadNewInformationChange(e: ChangeEvent<HTMLInputElement>) {
-        feedback.loadNewInformation = e.target.checked
-        setFeedback(feedback)
+        let newFeedback = { ...feedback }
+        newFeedback.loadNewInformation = e.target.checked
+        setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onSomethingBrokeChange(e: ChangeEvent<HTMLInputElement>) {
-        feedback.somethingBroke = e.target.checked
-        setFeedback(feedback)
+        let newFeedback = { ...feedback }
+        newFeedback.somethingBroke = e.target.checked
+        setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onOtherIssueChange(e: ChangeEvent<HTMLInputElement>) {
-        feedback.otherIssue = e.target.checked
-        setFeedback(feedback)
+        let newFeedback = { ...feedback }
+        newFeedback.otherIssue = e.target.checked
+        setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onAdditionalInformationChange(e: ChangeEvent<HTMLInputElement>) {
-        feedback.additionalInformation = e.target.value
-        setFeedback(feedback)
+        let newFeedback = { ...feedback }
+        newFeedback.additionalInformation = e.target.value
+        if (newFeedback.additionalInformation) {
+            setShowMissingAdditionalInformation(false)
+        }
+        setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
@@ -105,13 +117,19 @@ function ReloadDialog(props: Props) {
 
                 <hr />
                 <Form.Group>
-                    <Form.Label htmlFor="additionalInformations">Additional information</Form.Label>
+                    <Form.Label htmlFor="additionalInformations">*Additional information</Form.Label>
                     <Form.Control
+                        isInvalid={showMissingAdditionalInformation}
                         style={{ height: '75px', resize: 'none' }}
                         id="additionalInformations"
                         as="textarea"
                         onChange={onAdditionalInformationChange}
                     />
+                    {showMissingAdditionalInformation ? (
+                        <div>
+                            <span style={{ color: 'red' }}>Please enter some additional information</span>
+                        </div>
+                    ) : null}
                 </Form.Group>
 
                 <hr />
