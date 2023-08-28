@@ -55,6 +55,9 @@ function PlayerDetailsList(props: Props) {
     let isLoadingElements = useRef(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
+    let filteredItemRef = useRef(filteredItem)
+    filteredItemRef.current = filteredItem
+
     useEffect(() => {
         loadFilters()
     }, [])
@@ -105,6 +108,7 @@ function PlayerDetailsList(props: Props) {
     }
 
     function setFilteredItem(item?: Item) {
+        filteredItemRef.current = item
         _setFilteredItem(item)
         setListElements([])
         setAllElementsLoaded(false)
@@ -136,8 +140,8 @@ function PlayerDetailsList(props: Props) {
         }
 
         let filter = { ...itemFilter }
-        if (filteredItem) {
-            filter['tag'] = filteredItem.tag
+        if (filteredItemRef.current) {
+            filter['tag'] = filteredItemRef.current.tag
         }
 
         isLoadingElements.current = true
