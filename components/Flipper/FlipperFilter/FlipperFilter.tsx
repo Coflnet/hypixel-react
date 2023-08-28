@@ -178,7 +178,7 @@ function FlipperFilter(props: Props) {
                             return numberFieldMaxValue(value.floatValue, 10000000000)
                         }}
                         customInput={Form.Control}
-                        defaultValue={'test'}
+                        defaultValue={flipperFilter.minProfit}
                         thousandSeparator={getThousandSeparator()}
                         decimalSeparator={getDecimalSeparator()}
                         allowNegative={false}
