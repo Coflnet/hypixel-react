@@ -245,15 +245,11 @@ export function CraftsList(props: Props) {
         )
     }
 
-    console.log('crafts: ' + crafts.length)
-
     let orderedCrafts = crafts
     if (orderBy) {
         let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
         orderedCrafts = sortOption?.sortFunction(crafts, bazaarTags)
     }
-
-    console.log('ordered crafts: ' + orderedCrafts.length)
 
     let shown = 0
     let list = orderedCrafts
@@ -306,8 +302,6 @@ export function CraftsList(props: Props) {
                 )
             }
         })
-
-    console.log('list: ' + list.length)
 
     let connectMinecraftTooltip = (
         <Tooltip
