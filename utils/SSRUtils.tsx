@@ -24,7 +24,11 @@ export function getHeadMetadata(
         openGraph: {
             title: embedTitle,
             description: description,
-            images: imageUrl
+            images: {
+                url: imageUrl,
+                height: 64,
+                width: 64
+            }
         },
         keywords: [...keywords, 'hypixel', 'skyblock', 'auction', 'history', 'bazaar', 'tracker'].join(',')
     }
