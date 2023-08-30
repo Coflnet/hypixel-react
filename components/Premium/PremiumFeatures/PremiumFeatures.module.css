@@ -11,6 +11,10 @@
     text-align: left;
 }
 
+.premiumFeatures {
+    overflow-x: auto;
+}
+
 .premiumProductHeading {
     text-align: center;
 }
