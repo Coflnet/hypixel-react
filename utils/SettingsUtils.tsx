@@ -281,16 +281,27 @@ export async function handleSettingsImport(importString: string) {
                 if (split[0].length > 0) {
                     let split2 = split[0].split('==')
                     promises.push(
-                        api.getItemDetails(split2[0]).then(details => {
-                            restriction.item = {
-                                tag: details.tag,
-                                name: details.name,
-                                iconUrl: api.getItemImageUrl({
-                                    tag: details.tag
-                                })
-                            }
-                            restrictions.push(restriction)
-                        })
+                        api
+                            .getItemDetails(split2[0])
+                            .then(details => {
+                                restriction.item = {
+                                    tag: details.tag,
+                                    name: details.name,
+                                    iconUrl: api.getItemImageUrl({
+                                        tag: details.tag
+                                    })
+                                }
+                                restrictions.push(restriction)
+                            })
+                            .catch(() => {
+                                restriction.item = {
+                                    tag: split2[0],
+                                    name: split2[0],
+                                    iconUrl: api.getItemImageUrl({
+                                        tag: split2[0]
+                                    })
+                                }
+                            })
                     )
                     if (split2[1] && split2[1].length > 0) {
                         restriction.itemFilter = {
