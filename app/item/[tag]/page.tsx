@@ -9,6 +9,7 @@ import Search from '../../../components/Search/Search'
 import BazaarPriceGraph from '../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'
 import AuctionHousePriceGraph from '../../../components/PriceGraph/AuctionHousePriceGraph/AuctionHousePriceGraph'
 import RBContainer from '../../../components/ReactBootstrapWrapper/Container'
+import { hasFlag } from '../../../components/FilterElement/FilterType'
 
 export default async function Page({ searchParams, params }) {
     let tag = params.tag as string
@@ -60,6 +61,15 @@ export async function generateMetadata({ params, searchParams }) {
 
     let tag = params?.tag as string
     let { item, filter, prices, range } = await getItemData(searchParams, params)
+    if (hasFlag(item.flags, 1)) {
+        return getHeadMetadata(
+            `${item.name || convertTagToName(tag)} price`,
+            `🕑 ${range ? `Range: ${range}` : null}`,
+            item.iconUrl,
+            [convertTagToName(item.tag)],
+            `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`
+        )
+    }
     return getHeadMetadata(
         `${item.name || convertTagToName(tag)} price`,
         `💰 Price: ${getAvgPrice(prices) ? numberWithThousandsSeparators(Math.round(getAvgPrice(prices))) : '---'} Coins
@@ -95,7 +105,9 @@ async function getItemData(searchParams, params) {
                 }
             }
         }
-        let prices = (await api.getItemPrices(tag, range as DateRange, itemFilter ? JSON.parse(atobUnicode(itemFilter)) : {})) as any
+        let prices = hasFlag(itemDetails.flags, 1)
+            ? []
+            : ((await api.getItemPrices(tag, range as DateRange, itemFilter ? JSON.parse(atobUnicode(itemFilter)) : {})) as any)
         return {
             item: itemDetails,
             prices: prices || [],
