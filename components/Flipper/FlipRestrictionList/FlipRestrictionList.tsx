@@ -288,7 +288,17 @@ function FlipRestrictionList(props: Props) {
 
     return (
         <>
-            <div style={{ position: 'sticky', top: 0, backgroundColor: '#303030', padding: '10px 20px 0 20px', zIndex: 10 }}>
+            <div
+                style={{
+                    position: 'sticky',
+                    top: 0,
+                    backgroundColor: '#303030',
+                    padding: '10px 20px 0 20px',
+                    zIndex: 10,
+                    overflowY: 'auto',
+                    maxHeight: '80vh'
+                }}
+            >
                 {restrictionInEditModeIndex.length > 0 ? (
                     <EditRestriction
                         defaultRestriction={restrictions[restrictionInEditModeIndex[0]]}
