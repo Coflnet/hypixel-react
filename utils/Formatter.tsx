@@ -254,30 +254,32 @@ export function formatDungeonStarsInString(stringWithStars: string = '', style: 
 
 export function getMinecraftColorCodedElement(text: string = '', autoFormat = true): JSX.Element {
     let styleMap: { [key: string]: React.CSSProperties } = {
-        '0': { fontWeight: 'normal', textDecoration: 'none', color: '#000000' },
-        '1': { fontWeight: 'normal', textDecoration: 'none', color: '#0000aa' },
-        '2': { fontWeight: 'normal', textDecoration: 'none', color: '#00aa00' },
-        '3': { fontWeight: 'normal', textDecoration: 'none', color: '#00aaaa' },
-        '4': { fontWeight: 'normal', textDecoration: 'none', color: '#aa0000' },
-        '5': { fontWeight: 'normal', textDecoration: 'none', color: '#aa00aa' },
-        '6': { fontWeight: 'normal', textDecoration: 'none', color: '#ffaa00' },
-        '7': { fontWeight: 'normal', textDecoration: 'none', color: '#aaaaaa' },
-        '8': { fontWeight: 'normal', textDecoration: 'none', color: '#555555' },
-        '9': { fontWeight: 'normal', textDecoration: 'none', color: '#5555ff' },
-        a: { fontWeight: 'normal', textDecoration: 'none', color: '#55ff55' },
-        b: { fontWeight: 'normal', textDecoration: 'none', color: '#55ffff' },
-        c: { fontWeight: 'normal', textDecoration: 'none', color: '#FF5555' },
-        d: { fontWeight: 'normal', textDecoration: 'none', color: '#FF55FF' },
-        e: { fontWeight: 'normal', textDecoration: 'none', color: '#FFFF55' },
-        f: { fontWeight: 'normal', textDecoration: 'none', color: '#FFFFFF' },
+        '0': { color: '#000000' },
+        '1': { color: '#0000aa' },
+        '2': { color: '#00aa00' },
+        '3': { color: '#00aaaa' },
+        '4': { color: '#aa0000' },
+        '5': { color: '#aa00aa' },
+        '6': { color: '#ffaa00' },
+        '7': { color: '#aaaaaa' },
+        '8': { color: '#555555' },
+        '9': { color: '#5555ff' },
+        a: { color: '#55ff55' },
+        b: { color: '#55ffff' },
+        c: { color: '#FF5555' },
+        d: { color: '#FF55FF' },
+        e: { color: '#FFFF55' },
+        f: { color: '#FFFFFF' },
         l: { fontWeight: 'bold' },
         n: { textDecorationLine: 'underline', textDecorationSkip: 'spaces' },
         o: { fontStyle: 'italic' },
-        m: { textDecoration: 'line-through', textDecorationSkip: 'spaces' }
+        m: { textDecoration: 'line-through', textDecorationSkip: 'spaces' },
+        r: { textDecoration: 'none', textDecorationLine: 'none', textDecorationSkip: 'none', fontWeight: 'normal', fontStyle: 'normal', color: '#FFFFFF' }
     }
 
     let splits = text.split('§')
     let elements: JSX.Element[] = []
+    let currentStyle = {}
 
     splits.forEach((split, i) => {
         if (i === 0) {
@@ -288,8 +290,9 @@ export function getMinecraftColorCodedElement(text: string = '', autoFormat = tr
         }
         let code = split.substring(0, 1)
         let text = autoFormat ? convertTagToName(split.substring(1, split.length)) : split.substring(1, split.length)
+        currentStyle = { ...currentStyle, ...styleMap[code] }
         elements.push(
-            <span key={i} style={styleMap[code]}>
+            <span key={i} style={currentStyle}>
                 {text}
             </span>
         )
