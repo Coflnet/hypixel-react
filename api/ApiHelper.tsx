@@ -621,6 +621,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         soldCallback?: Function,
         nextUpdateNotificationCallback?: Function,
         onSubscribeSuccessCallback?: Function,
+        onErrorCallback?: Function,
         forceSettingsUpdate: boolean = false
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
@@ -659,6 +660,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                                 soldCallback,
                                 nextUpdateNotificationCallback,
                                 undefined,
+                                onErrorCallback,
                                 true
                             )
                         } else {
@@ -684,7 +686,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             resubscribe: function (subscription) {
                 let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
                 let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-                subscribeFlips(restrictions, filter, getFlipCustomizeSettings(), flipCallback, soldCallback, nextUpdateNotificationCallback, undefined, false)
+                subscribeFlips(
+                    restrictions,
+                    filter,
+                    getFlipCustomizeSettings(),
+                    flipCallback,
+                    soldCallback,
+                    nextUpdateNotificationCallback,
+                    undefined,
+                    onErrorCallback,
+                    false
+                )
+            },
+            onError: function (message) {
+                toast.error(message)
+                if (onErrorCallback) {
+                    onErrorCallback()
+                }
             }
         })
     }
@@ -734,7 +752,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             resubscribe: function (subscription) {
                 let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
                 let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-                subscribeFlips(restrictions, filter, getFlipCustomizeSettings(), flipCallback, soldCallback, nextUpdateNotificationCallback, undefined, false)
+                subscribeFlipsAnonym(restrictions, filter, getFlipCustomizeSettings(), flipCallback, soldCallback, nextUpdateNotificationCallback, undefined)
+            },
+            onError: function (message) {
+                toast.error(message)
             }
         })
     }

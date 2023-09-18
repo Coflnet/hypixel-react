@@ -73,7 +73,7 @@ function initWebsocket(): void {
         } catch (e) {}
 
         if (response.type === 'error') {
-            toast.error(response.data.message)
+            subscription.onError(response.data.message)
         } else {
             subscription.callback(response)
         }

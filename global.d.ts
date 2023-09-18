@@ -182,6 +182,7 @@ interface API {
         soldCallback?: Function,
         nextUpdateNotificationCallback?: Function,
         onSubscribeSuccessCallback?: Function,
+        onErrorCallback?: Function,
         forceSettingsUpdate: boolean = false
     ): void
     subscribeFlipsAnonym(

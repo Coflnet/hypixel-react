@@ -103,6 +103,7 @@ export interface ApiSubscription {
     data: any
     callback(request: ApiResponse)
     resubscribe(subscription: ApiSubscription)
+    onError(message: string)
 }
 
 export interface Subscription {

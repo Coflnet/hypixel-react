@@ -362,12 +362,17 @@ export async function handleSettingsImport(importString: string) {
         () => {
             window.location.reload()
         },
+        () => {
+            sleep(2000)
+            window.location.reload()
+        },
         true
     )
 
-    setTimeout(() => {
-        window.location.reload()
-    }, 1000)
+    toast('Uploading config...', {
+        type: 'info',
+        autoClose: false
+    })
 }
 
 export function sleep(ms: number): Promise<void> {
