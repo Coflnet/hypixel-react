@@ -375,6 +375,7 @@ function Flipper(props: Props) {
             () => {
                 window.location.reload()
             },
+            () => {},
             true
         )
         localStorage.removeItem('userSettings')
