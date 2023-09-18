@@ -70,7 +70,7 @@ export default function PlayerDetails(props: Props) {
                 <Tooltip
                     type="click"
                     content={<span style={{ color: '#007bff', cursor: 'pointer' }}>You? Claim account.</span>}
-                    tooltipContent={<ClaimAccount playerUUID={props.player.uuid} />}
+                    tooltipContent={<ClaimAccount />}
                     size="xl"
                     tooltipTitle={<span>Claim Minecraft account</span>}
                 />
