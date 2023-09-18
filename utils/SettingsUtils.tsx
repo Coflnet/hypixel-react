@@ -109,11 +109,12 @@ export function setSettingsFromServerSide(
             }
         })
 
-        let _addListToRestrictions = function (list, type): Promise<FlipRestriction[]> {
-            return new Promise(resolve => {
+        let _addListToRestrictions = async function (list, type): Promise<FlipRestriction[]> {
+            return new Promise((resolve, reject) => {
                 if (list) {
                     let newRestrictions: FlipRestriction[] = []
-                    let promises: Promise<void>[] = []
+                    let tagsToFindNamesFor = new Set()
+                    let restrictionsToLoadNamesFor: FlipRestriction[] = []
                     list.forEach(item => {
                         let itemName = item.displayName || itemMap[item.tag]
                         if (!item.tag) {
@@ -134,38 +135,30 @@ export function setSettingsFromServerSide(
                                 tags: item.tags
                             })
                         } else {
-                            promises.push(
-                                api
-                                    .getItemDetails(item.tag)
-                                    .then(details => {
-                                        newRestrictions.push({
-                                            type: type,
-                                            item: {
-                                                tag: details.tag,
-                                                name: details.name,
-                                                iconUrl: api.getItemImageUrl(item)
-                                            },
-                                            itemFilter: item.filter,
-                                            tags: item.tags
-                                        })
-                                    })
-                                    .catch(e => {
-                                        newRestrictions.push({
-                                            type: type,
-                                            item: {
-                                                tag: item.tag,
-                                                name: 'Name could not be loaded',
-                                                iconUrl: api.getItemImageUrl(item)
-                                            },
-                                            itemFilter: item.filter,
-                                            tags: item.tags
-                                        })
-                                    })
-                            )
+                            tagsToFindNamesFor.add(item.tag)
+                            restrictionsToLoadNamesFor.push({
+                                type: type,
+                                item: {
+                                    tag: item.tag,
+                                    name: '',
+                                    iconUrl: api.getItemImageUrl(item)
+                                },
+                                itemFilter: item.filter,
+                                tags: item.tags
+                            })
                         }
                     })
-                    if (promises.length > 0) {
-                        Promise.allSettled(promises).then(() => {
+                    if (tagsToFindNamesFor.size > 0) {
+                        let tags = Array.from(tagsToFindNamesFor)
+                        api.getItemNames(
+                            tags.map(tag => {
+                                return { tag: tag } as Item
+                            })
+                        ).then(nameMap => {
+                            restrictionsToLoadNamesFor.forEach(newRestriction => {
+                                newRestriction.item!.name = nameMap[newRestriction.item!.tag]
+                                newRestrictions.push(newRestriction)
+                            })
                             resolve(newRestrictions)
                         })
                     } else {
@@ -273,6 +266,8 @@ export async function handleSettingsImport(importString: string) {
                 }
                 restrictions.push(restriction)
             })
+            let tagsToLoad = new Set()
+            let entriesToLoadNamesFor: FlipRestriction[] = []
             json.flipping.others.blacklist.split(',').forEach(item => {
                 let restriction: FlipRestriction = {
                     type: 'blacklist'
@@ -280,22 +275,13 @@ export async function handleSettingsImport(importString: string) {
                 let split = item.split('_+_')
                 if (split[0].length > 0) {
                     let split2 = split[0].split('==')
-                    promises.push(
-                        api.getItemDetails(split2[0]).then(details => {
-                            restriction.item = {
-                                tag: details.tag,
-                                name: details.name,
-                                iconUrl: api.getItemImageUrl({
-                                    tag: details.tag
-                                })
-                            }
-                            restrictions.push(restriction)
-                        })
-                    )
                     if (split2[1] && split2[1].length > 0) {
                         restriction.itemFilter = {
                             Stars: split2[1].split('_STARRED_')[0]
                         }
+                    }
+                    restriction.item = {
+                        tag: split2[0]
                     }
                 }
                 if (split[1] && split[1].length > 0) {
@@ -304,6 +290,25 @@ export async function handleSettingsImport(importString: string) {
                     }
                     restriction.itemFilter.Rarity = split[1]
                 }
+                if (restriction.item?.tag) {
+                    tagsToLoad.add(restriction.item?.tag)
+                    entriesToLoadNamesFor.push(restriction)
+                } else {
+                    restrictions.push(restriction)
+                }
+            })
+
+            let nameMap = await api.getItemNames(
+                Array.from(tagsToLoad).map(tag => {
+                    return { tag: tag } as Item
+                })
+            )
+            entriesToLoadNamesFor.forEach(entry => {
+                entry.item!.name = nameMap[entry.item!.tag]
+                entry.item!.iconUrl = api.getItemImageUrl({
+                    tag: entry.item!.tag
+                })
+                restrictions.push(entry)
             })
 
             flipCustomizeSettings.soundOnFlip = !!json.flipping.others.enable_sounds
