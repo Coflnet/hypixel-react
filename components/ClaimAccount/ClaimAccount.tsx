@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Card } from 'react-bootstrap'
 
@@ -28,11 +29,12 @@ function ClaimAccount() {
                 <h3>How do I claim my Minecraft Account?</h3>
                 <p>
                     <p>
-                        To verify that this account is yours, please use your mod. The mod will give you a 3 digit number. Create or bid on an auction. After at
-                        most 3 minutes your account will automatically be verified by our server. If your account hasn't been verified within 5 minutes please
-                        try again.
+                        To verify that this account is yours, please use our mod. The mod will give you a 3 digit number. Create or bid
+                        on an auction. After at most 3 minutes your account will automatically be verified by our server. If your account hasn't been verified
+                        within 5 minutes please try again.
                     </p>
                 </p>
+                <Link href="/mod">Get the mod here</Link>
                 <hr />
                 <h3>Example</h3>
                 <p>
