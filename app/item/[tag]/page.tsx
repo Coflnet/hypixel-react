@@ -83,7 +83,7 @@ export async function generateMetadata({ params, searchParams }) {
 }
 
 async function getItemData(searchParams, params) {
-    let range = searchParams.range || DEFAULT_DATE_RANGE
+    let range = searchParams.range || 'day'
     let tag = params.tag as string
     let itemFilter = searchParams.itemFilter
 
