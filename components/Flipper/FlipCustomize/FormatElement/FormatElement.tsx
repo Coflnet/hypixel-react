@@ -75,7 +75,7 @@ function FormatElement(props: Props) {
 
         let result = settings.modFormat
         Object.keys(values).forEach(key => {
-            result = result.replace(key, values[key])
+            result = result.replaceAll(key, values[key])
         })
 
         return result

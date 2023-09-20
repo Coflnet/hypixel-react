@@ -290,7 +290,11 @@ export function getMinecraftColorCodedElement(text: string = '', autoFormat = tr
         }
         let code = split.substring(0, 1)
         let text = autoFormat ? convertTagToName(split.substring(1, split.length)) : split.substring(1, split.length)
-        currentStyle = { ...currentStyle, ...styleMap[code] }
+
+        // get new style. Use reset if a unknown color code is used
+        let newStyle = styleMap[code] || styleMap['r']
+
+        currentStyle = { ...currentStyle, ...newStyle }
         elements.push(
             <span key={i} style={currentStyle}>
                 {text}
