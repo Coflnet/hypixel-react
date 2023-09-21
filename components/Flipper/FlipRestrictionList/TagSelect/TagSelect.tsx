@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { components, MultiValue } from 'react-select'
-import Creatable from 'react-select/creatable'
+import Select, { components, MultiValue } from 'react-select'
 import { CURRENTLY_USED_TAGS } from '../../../../utils/SettingsUtils'
 import Tooltip from '../../../Tooltip/Tooltip'
 import HelpIcon from '@mui/icons-material/Help'
@@ -20,7 +19,11 @@ const customSelectStyle = {
 const MultiValueContainer = props => {
     return (
         <components.MultiValueContainer {...props}>
-            <Tooltip type={'hover'} content={<div {...props.innerProps}>{props.children}</div>} tooltipContent={<span>{props.data.label}</span>} />
+            <Tooltip
+                type={'hover'}
+                content={<span style={props.innerProps.css}>{props.children}</span>}
+                tooltipContent={<span>{props.data.description}</span>}
+            />
         </components.MultiValueContainer>
     )
 }
@@ -78,7 +81,7 @@ function TagSelect(props: Props) {
                         }
                     />
                 </label>
-                <Creatable
+                <Select
                     isMulti
                     options={getAllUsedOptions()}
                     value={tagOptions}
