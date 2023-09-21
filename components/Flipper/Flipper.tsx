@@ -107,7 +107,7 @@ function Flipper(props: Props) {
         )
         getLastFlipFetchTime()
 
-        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
+        let onFlipSettingsChange = e => {
             if ((e as any).detail?.apiUpdate) {
                 setFlipperFilterKey(generateUUID())
             }
@@ -121,12 +121,14 @@ function Flipper(props: Props) {
                     onNextFlipNotification
                 )
             }
-        })
+        }
+        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, onFlipSettingsChange)
 
         setIsSmall(document.body.clientWidth < 1000)
 
         return () => {
             mounted = false
+            document.removeEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, onFlipSettingsChange)
             api.unsubscribeFlips()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

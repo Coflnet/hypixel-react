@@ -112,7 +112,7 @@ function FlipRestrictionList(props: Props) {
         setRestrictions(newRestrictions)
     }
 
-    function removeRestrictionByIndex(index: number) {
+    function removeRestrictionByIndex(restrictions: FlipRestriction[], index: number) {
         let newRestrictions = [...restrictions]
         let deletedRestriction = newRestrictions.splice(index, 1)
 
@@ -126,7 +126,7 @@ function FlipRestrictionList(props: Props) {
         setRestrictions(newRestrictions)
     }
 
-    function createDuplicate(index: number) {
+    function createDuplicate(restrictions: FlipRestriction[], index: number) {
         let duplicate = { ...restrictions[index] }
         let newRestrictions = [...restrictions]
         newRestrictions.splice(index + 1, 0, duplicate)
@@ -138,13 +138,13 @@ function FlipRestrictionList(props: Props) {
         setRestrictions(newRestrictions)
     }
 
-    function removeItemOfRestriction(index: number) {
+    function removeItemOfRestriction(restrictions: FlipRestriction[], index: number) {
         let newRestrictions = [...restrictions]
         newRestrictions[index].item = undefined
         setRestrictions(newRestrictions)
     }
 
-    function saveRestrictionEdit(index: number) {
+    function saveRestrictionEdit(restrictions: FlipRestriction[], index: number) {
         let newRestrictions = [...restrictions]
         let newIndexArray = [...restrictionInEditModeIndex]
 
@@ -161,7 +161,7 @@ function FlipRestrictionList(props: Props) {
         }
     }
 
-    function editRestriction(index: number) {
+    function editRestriction(restrictions: FlipRestriction[], index: number) {
         let newRestrictions = [...restrictions]
         let restrictionToEdit = newRestrictions[index]
         let newRestrictionsInEditMode = [...restrictionInEditModeIndex]
@@ -274,6 +274,12 @@ function FlipRestrictionList(props: Props) {
     )
 
     let restrictionsToDisplay = [...restrictions]
+
+    // remembering the original place for every restriction so it can correctly be mutated after a potential sorting
+    restrictionsToDisplay.forEach((restriction, i) => {
+        restriction.originalIndex = i
+    })
+
     if (sortByName) {
         restrictionsToDisplay = restrictionsToDisplay.sort((a, b) => {
             if (!a.item) {
@@ -337,11 +343,18 @@ function FlipRestrictionList(props: Props) {
                     <Form.Label style={{ width: '200px' }} htmlFor="sortByNameCheckbox">
                         Sort by name
                     </Form.Label>
-                    <Form.Check id="sortByNameCheckbox" className={styles.sortByNameCheckbox} onChange={e => setSortByName(e.target.checked)} />
+                    <Form.Check
+                        id="sortByNameCheckbox"
+                        className={styles.sortByNameCheckbox}
+                        onChange={e => {
+                            setSortByName(e.target.checked)
+                            onEditRestrictionCancel()
+                        }}
+                    />
                 </div>
             </div>
             <div className={styles.restrictionList}>
-                {restrictionsToDisplay.map((restriction, index) => {
+                {restrictionsToDisplay.map(restriction => {
                     if (searchText) {
                         let isValid = false
                         let lowerCaseSearchText = searchText.toLowerCase()
@@ -379,12 +392,12 @@ function FlipRestrictionList(props: Props) {
                                         value={restriction.type}
                                         onChange={newValue => {
                                             let newRestrictions = [...restrictions]
-                                            newRestrictions[index].type = newValue
+                                            newRestrictions[restriction.originalIndex!].type = newValue
                                             setRestrictions(newRestrictions)
                                         }}
                                     >
                                         <ToggleButton
-                                            id={'blacklistToggleButton-' + index}
+                                            id={'blacklistToggleButton-' + restriction.originalIndex!}
                                             value={'blacklist'}
                                             variant={restriction.type === 'blacklist' ? 'primary' : 'secondary'}
                                             size="sm"
@@ -392,7 +405,7 @@ function FlipRestrictionList(props: Props) {
                                             Blacklist
                                         </ToggleButton>
                                         <ToggleButton
-                                            id={'whitelistToggleButton-' + index}
+                                            id={'whitelistToggleButton-' + restriction.originalIndex!}
                                             value={'whitelist'}
                                             variant={restriction.type === 'whitelist' ? 'primary' : 'secondary'}
                                             size="sm"
@@ -424,7 +437,7 @@ function FlipRestrictionList(props: Props) {
                                                     <RemoveIcon
                                                         style={{ cursor: 'pointer' }}
                                                         onClick={() => {
-                                                            removeItemOfRestriction(index)
+                                                            removeItemOfRestriction(restrictions, restriction.originalIndex!)
                                                         }}
                                                     />
                                                 }
@@ -440,7 +453,7 @@ function FlipRestrictionList(props: Props) {
                                         <div
                                             className={styles.cancelEditButton}
                                             onClick={() => {
-                                                saveRestrictionEdit(index)
+                                                saveRestrictionEdit(restrictions, restriction.originalIndex!)
                                             }}
                                         >
                                             <Tooltip type="hover" content={<SaveIcon />} tooltipContent={<p>Save</p>} />
@@ -449,7 +462,7 @@ function FlipRestrictionList(props: Props) {
                                         <div
                                             className={styles.editButton}
                                             onClick={() => {
-                                                editRestriction(index)
+                                                editRestriction(restrictions, restriction.originalIndex!)
                                             }}
                                         >
                                             <Tooltip type="hover" content={<EditIcon />} tooltipContent={<p>Edit restriction</p>} />
@@ -457,10 +470,13 @@ function FlipRestrictionList(props: Props) {
                                     )}
                                     {restrictionInEditModeIndex.length === 0 ? (
                                         <>
-                                            <div className={styles.removeFilter} onClick={() => createDuplicate(index)}>
+                                            <div className={styles.removeFilter} onClick={() => createDuplicate(restrictions, restriction.originalIndex!)}>
                                                 <Tooltip type="hover" content={<DuplicateIcon />} tooltipContent={<p>Create duplicate</p>} />
                                             </div>
-                                            <div className={styles.removeFilter} onClick={() => removeRestrictionByIndex(index)}>
+                                            <div
+                                                className={styles.removeFilter}
+                                                onClick={() => removeRestrictionByIndex(restrictions, restriction.originalIndex!)}
+                                            >
                                                 <Tooltip type="hover" content={<DeleteIcon color="error" />} tooltipContent={<p>Remove restriction</p>} />
                                             </div>
                                         </>
@@ -475,7 +491,7 @@ function FlipRestrictionList(props: Props) {
                                             restriction.isEdited
                                                 ? filter => {
                                                       let newRestrictions = [...restrictions]
-                                                      newRestrictions[index].itemFilter = { ...filter }
+                                                      newRestrictions[restriction.originalIndex!].itemFilter = { ...filter }
                                                       setRestrictions(newRestrictions)
                                                   }
                                                 : undefined

@@ -331,6 +331,7 @@ interface FlipRestriction {
     item?: Item
     itemFilter?: ItemFilter
     isEdited?: boolean
+    originalIndex?: number
     tags?: string[]
 }
 
