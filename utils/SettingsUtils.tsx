@@ -350,7 +350,7 @@ export async function handleSettingsImport(importString: string) {
 
     // Temporarily block large config imports
 
-    if (restrictions.length > 100) {
+    if (restrictions.length > 1000) {
         toast.error(
             <div>
                 <p>
