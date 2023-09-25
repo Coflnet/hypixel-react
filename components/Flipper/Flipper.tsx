@@ -107,19 +107,30 @@ function Flipper(props: Props) {
         )
         getLastFlipFetchTime()
 
+        const debounceSubFlipAnonymFunction = (function () {
+            let timerId
+
+            return () => {
+                clearTimeout(timerId)
+                timerId = setTimeout(() => {
+                    api.subscribeFlipsAnonym(
+                        getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
+                        getSettingsObject(FLIPPER_FILTER_KEY, {}),
+                        getFlipCustomizeSettings(),
+                        onNewFlip,
+                        onAuctionSold,
+                        onNextFlipNotification
+                    )
+                }, 1000)
+            }
+        })()
+
         let onFlipSettingsChange = e => {
             if ((e as any).detail?.apiUpdate) {
                 setFlipperFilterKey(generateUUID())
             }
             if (sessionStorage.getItem('googleId') === null) {
-                api.subscribeFlipsAnonym(
-                    getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
-                    getSettingsObject(FLIPPER_FILTER_KEY, {}),
-                    getFlipCustomizeSettings(),
-                    onNewFlip,
-                    onAuctionSold,
-                    onNextFlipNotification
-                )
+                debounceSubFlipAnonymFunction()
             }
         }
         document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, onFlipSettingsChange)
