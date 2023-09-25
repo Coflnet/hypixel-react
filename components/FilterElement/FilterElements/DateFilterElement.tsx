@@ -16,7 +16,7 @@ export function DateFilterElement(props: Props) {
 
     return (
         <span>
-            <DatePicker className="date-filter form-control" selected={props.selected} onChange={_onChange} popperClassName="date-picker-popper" />
+            <DatePicker showIcon className="date-filter form-control" selected={props.selected} onChange={_onChange} popperClassName="date-picker-popper" />
         </span>
     )
 }
