@@ -18,6 +18,9 @@ import styles from './FlipTracking.module.css'
 import FlipTrackingCopyButton from './FlipTrackingCopyButton'
 import DatePicker from 'react-datepicker'
 import api from '../../api/ApiHelper'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { PREMIUM_RANK, hasHighEnoughPremium } from '../../utils/PremiumTypeUtils'
+import { getLoadingElement } from '../../utils/LoadingUtils'
 
 interface Props {
     totalProfit?: number
@@ -69,6 +72,8 @@ export function FlipTracking(props: Props) {
     let [ignoreProfitMap, setIgnoreProfitMap] = useState(getSettingsObject(IGNORE_FLIP_TRACKING_PROFIT, {}))
     let [rangeStartDate, setRangeStartDate] = useState(new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7))
     let [rangeEndDate, setRangeEndDate] = useState(new Date())
+    let [hasPremium, setHasPremium] = useState(false)
+    let [isLoading, setIsLoading] = useState(false)
     let router = useRouter()
     let forceUpdate = useForceUpdate()
 
@@ -339,13 +344,29 @@ export function FlipTracking(props: Props) {
     function loadFlipsForTimespan(from: Date, to: Date) {
         let batches = splitIntoBatches(from, to)
         let offset = 0
+        let promises: Promise<FlipTrackingResponse>[] = []
         batches.forEach(batch => {
             let diff = getDaysDifference(batch[0], batch[1])
-            api.getTrackedFlipsForPlayer(props.playerUUID, diff, offset).then(flips => {
-                let newFlips = [...trackedFlips, ...flips.flips]
-                setTrackedFlips(newFlips)
-            })
+            let promise = api.getTrackedFlipsForPlayer(props.playerUUID, diff, offset)
+            promises.push(promise)
             offset += diff
+        })
+
+        setTrackedFlips([])
+        setIsLoading(true)
+        let newFlips: FlipTrackingFlip[] = []
+        Promise.all(promises).then(results => {
+            results.forEach(result => {
+                newFlips.push(...result.flips)
+            })
+            setIsLoading(false)
+            setTrackedFlips(newFlips)
+        })
+    }
+
+    function onAfterLogin() {
+        api.refreshLoadPremiumProducts(products => {
+            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM))
         })
     }
 
@@ -362,45 +383,58 @@ export function FlipTracking(props: Props) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
                 <Form.Select style={{ width: 'auto', marginTop: '20px' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
-                        <option value={option.value}>{option.label}</option>
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
                     ))}
                 </Form.Select>
-                <div style={{ display: 'flex' }}>
-                    <div style={{ paddingRight: 15 }}>
-                        <label style={{ marginRight: 15 }}>From: </label>
+                {hasPremium ? (
+                    <div style={{ display: 'flex' }}>
+                        <div style={{ paddingRight: 15 }}>
+                            <label style={{ marginRight: 15 }}>From: </label>
+                            <DatePicker
+                                onChange={e => {
+                                    setRangeStartDate(e)
+                                    loadFlipsForTimespan(e, rangeEndDate)
+                                }}
+                                className={'form-control'}
+                                minDate={new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 2)}
+                                maxDate={new Date()}
+                                selected={rangeStartDate}
+                            />
+                        </div>
+                        <label style={{ marginRight: 15 }}>To: </label>
                         <DatePicker
-                            onChange={e => {
-                                setRangeStartDate(e)
-                                loadFlipsForTimespan(e, rangeEndDate)
-                            }}
                             className={'form-control'}
+                            onChange={e => {
+                                setRangeEndDate(e)
+                                loadFlipsForTimespan(rangeStartDate, e)
+                            }}
                             minDate={new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 2)}
                             maxDate={new Date()}
-                            selected={rangeStartDate}
+                            selected={rangeEndDate}
                         />
                     </div>
-                    <label style={{ marginRight: 15 }}>To: </label>
-                    <DatePicker
-                        className={'form-control'}
-                        onChange={e => {
-                            setRangeEndDate(e)
-                            loadFlipsForTimespan(rangeStartDate, e)
-                        }}
-                        minDate={new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 2)}
-                        maxDate={new Date()}
-                        selected={rangeEndDate}
-                    />
-                </div>
+                ) : null}
             </div>
-            {trackedFlips.length === 0 ? (
-                <div className={styles.noAuctionFound}>
-                    <Image src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
-                    <p>We couldn't find any flips.</p>
-                </div>
+            {isLoading ? (
+                getLoadingElement()
             ) : (
-                <ListGroup className={styles.list}>{list}</ListGroup>
+                <div>
+                    {trackedFlips.length === 0 ? (
+                        <div className={styles.noAuctionFound}>
+                            <Image src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
+                            <p>We couldn't find any flips.</p>
+                        </div>
+                    ) : (
+                        <ListGroup className={styles.list}>{list}</ListGroup>
+                    )}
+                </div>
             )}
             {currentItemContextMenuElement}
+            <div style={{ visibility: 'collapse', height: 0 }}>
+                <GoogleSignIn onAfterLogin={onAfterLogin} />
+            </div>
         </div>
     )
 }
