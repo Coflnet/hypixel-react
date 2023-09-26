@@ -1502,10 +1502,21 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getTrackedFlipsForPlayer = (playerUUID: string): Promise<FlipTrackingResponse> => {
+    let getTrackedFlipsForPlayer = (playerUUID: string, days: number = 7, offset?: number): Promise<FlipTrackingResponse> => {
         return new Promise((resolve, reject) => {
+            let params = new URLSearchParams()
+            params.set('days', days.toString())
+            if (offset) {
+                params.set('offset', offset.toString())
+            }
+
+            let googleId = isClientSideRendering() ? sessionStorage.getItem('googleId') : null
+            let requestHeader = googleId ? { GoogleToken: googleId } : {}
+
             httpApi.sendApiRequest({
+                customRequestURL: `${getApiEndpoint()}/flip/stats/player/${playerUUID}?${params.toString()}`,
                 type: RequestType.GET_TRACKED_FLIPS_FOR_PLAYER,
+                requestHeader: requestHeader,
                 data: playerUUID,
                 resolve: function (data) {
                     returnSSRResponse ? resolve(data) : resolve(parseFlipTrackingResponse(data))

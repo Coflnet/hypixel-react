@@ -48,6 +48,7 @@ export default async function Page({ params }) {
                         totalProfit={flipTrackingResponse.totalProfit}
                         trackedFlips={flipTrackingResponse.flips}
                         highlightedFlipUid={targetFlip?.uId.toString(16)}
+                        playerUUID={params.uuid}
                     />
                 </Suspense>
             </RBContainer>
