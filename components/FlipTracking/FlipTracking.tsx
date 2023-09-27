@@ -392,9 +392,9 @@ export function FlipTracking(props: Props) {
                     ))}
                 </Form.Select>
                 {hasPremium ? (
-                    <div style={{ display: 'flex' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <label style={{ marginRight: 15 }}>From: </label>
                         <div style={{ paddingRight: 15 }}>
-                            <label style={{ marginRight: 15 }}>From: </label>
                             <DatePicker
                                 onChange={e => {
                                     setRangeStartDate(e)
