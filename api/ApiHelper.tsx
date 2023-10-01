@@ -707,6 +707,74 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    const debounceSubFlipAnonymFunction = (function () {
+        let timerId
+
+        return (
+            restrictionList: FlipRestriction[],
+            filter: FlipperFilter,
+            flipSettings: FlipCustomizeSettings,
+            flipCallback?: Function,
+            soldCallback?: Function,
+            nextUpdateNotificationCallback?: Function,
+            onSubscribeSuccessCallback?: Function
+        ) => {
+            clearTimeout(timerId)
+            timerId = setTimeout(() => {
+                websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+
+                let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
+
+                websocketHelper.subscribe({
+                    type: RequestType.SUBSCRIBE_FLIPS_ANONYM,
+                    data: requestData,
+                    callback: function (response) {
+                        switch (response.type) {
+                            case 'flip':
+                                if (flipCallback) {
+                                    flipCallback(parseFlipAuction(response.data))
+                                }
+                                break
+                            case 'nextUpdate':
+                                if (nextUpdateNotificationCallback) {
+                                    nextUpdateNotificationCallback()
+                                }
+                                break
+                            case 'sold':
+                                if (soldCallback) {
+                                    soldCallback(response.data)
+                                }
+                                break
+                            case 'ok':
+                                if (onSubscribeSuccessCallback) {
+                                    onSubscribeSuccessCallback()
+                                }
+                                break
+                            default:
+                                break
+                        }
+                    },
+                    resubscribe: function (subscription) {
+                        let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
+                        let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+                        subscribeFlipsAnonym(
+                            restrictions,
+                            filter,
+                            getFlipCustomizeSettings(),
+                            flipCallback,
+                            soldCallback,
+                            nextUpdateNotificationCallback,
+                            undefined
+                        )
+                    },
+                    onError: function (message) {
+                        toast.error(message)
+                    }
+                })
+            }, 2000)
+        }
+    })()
+
     let subscribeFlipsAnonym = (
         restrictionList: FlipRestriction[],
         filter: FlipperFilter,
@@ -716,48 +784,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         nextUpdateNotificationCallback?: Function,
         onSubscribeSuccessCallback?: Function
     ) => {
-        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
-
-        let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
-
-        websocketHelper.subscribe({
-            type: RequestType.SUBSCRIBE_FLIPS_ANONYM,
-            data: requestData,
-            callback: function (response) {
-                switch (response.type) {
-                    case 'flip':
-                        if (flipCallback) {
-                            flipCallback(parseFlipAuction(response.data))
-                        }
-                        break
-                    case 'nextUpdate':
-                        if (nextUpdateNotificationCallback) {
-                            nextUpdateNotificationCallback()
-                        }
-                        break
-                    case 'sold':
-                        if (soldCallback) {
-                            soldCallback(response.data)
-                        }
-                        break
-                    case 'ok':
-                        if (onSubscribeSuccessCallback) {
-                            onSubscribeSuccessCallback()
-                        }
-                        break
-                    default:
-                        break
-                }
-            },
-            resubscribe: function (subscription) {
-                let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
-                let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-                subscribeFlipsAnonym(restrictions, filter, getFlipCustomizeSettings(), flipCallback, soldCallback, nextUpdateNotificationCallback, undefined)
-            },
-            onError: function (message) {
-                toast.error(message)
-            }
-        })
+        debounceSubFlipAnonymFunction(
+            restrictionList,
+            filter,
+            flipSettings,
+            flipCallback,
+            soldCallback,
+            nextUpdateNotificationCallback,
+            onSubscribeSuccessCallback
+        )
     }
 
     let unsubscribeFlips = (): Promise<void> => {
