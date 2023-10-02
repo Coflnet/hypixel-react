@@ -323,7 +323,7 @@ function Flipper(props: Props) {
                 setTimeout(() => {
                     ;(listRef.current as any)?.scrollToItem((listRef.current as any).props.itemCount)
                     attachScrollEvent(listRef.current)
-                }, 0)
+                }, 200)
             }
             return newFlips
         })
