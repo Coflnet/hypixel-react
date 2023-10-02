@@ -317,16 +317,17 @@ function Flipper(props: Props) {
             totalFlips: missedInfo.totalFlips + 1
         }
 
-        setFlips(flips => [...flips, newFlipAuction])
-
-        if (autoscrollRef.current) {
-            let element =
-                document.getElementsByClassName(styles.flipperScrollList).length > 0 ? document.getElementsByClassName(styles.flipperScrollList).item(0) : null
-            if (element) {
-                element.scrollBy({ left: 16000, behavior: 'smooth' })
-                attachScrollEvent(element)
+        setFlips(flips => {
+            let newFlips = [...flips, newFlipAuction]
+            if (autoscrollRef.current) {
+                let element = document.getElementById(`flip-${newFlips.length - 1}`)
+                element?.scrollIntoView({
+                    behavior: 'smooth'
+                })
+                attachScrollEvent(listRef.current)
             }
-        }
+            return newFlips
+        })
     }
 
     function onFilterChange(newFilter) {
@@ -349,7 +350,11 @@ function Flipper(props: Props) {
         let { data, index, style } = listData
         let { flips } = data
 
-        return <div key={'flip-' + index}>{getFlipElement(flips[index], style)}</div>
+        return (
+            <div key={'flip-' + index} id={'flip-' + index}>
+                {getFlipElement(flips[index], style)}
+            </div>
+        )
     }
 
     function addItemToBlacklist(flip: FlipAuction) {
