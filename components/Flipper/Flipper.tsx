@@ -450,7 +450,7 @@ function Flipper(props: Props) {
         }
         return (
             <span>
-                These auctions are delayed by 5 min. Please purchase{' '}
+                These auctions are delayed by about one minute. Please purchase{' '}
                 <a target="_blank" rel="noreferrer" href="/premium">
                     premium
                 </a>{' '}
