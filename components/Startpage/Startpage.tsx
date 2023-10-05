@@ -1,7 +1,6 @@
 'use client'
 
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import AnnouncementIcon from '@mui/icons-material/Announcement'
 import NewIcon from '@mui/icons-material/FiberNew'
 import FireIcon from '@mui/icons-material/Fireplace'
 import PersonIcon from '@mui/icons-material/Person'
@@ -12,12 +11,10 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import Card from 'react-bootstrap/Card'
 import Badge from 'react-bootstrap/Badge'
-import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList as List } from 'react-window'
 import api from '../../api/ApiHelper'
 import { getMinecraftColorCodedElement } from '../../utils/Formatter'
 import { Number } from '../Number/Number'
-import Tooltip from '../Tooltip/Tooltip'
 import styles from './Startpage.module.css'
 
 interface Props {
@@ -198,108 +195,86 @@ function Startpage(props: Props) {
     }
 
     let newAuctionsElement = (
-        <div className={`${styles.cardsWrapper} ${styles.newAuctions}`}>
-            <AutoSizer>
-                {({ height, width }) => {
-                    return (
-                        <List
-                            className={styles.startpageListElementWrapper}
-                            height={height! - 15}
-                            itemCount={newAuctions.length}
-                            itemSize={200}
-                            layout="horizontal"
-                            width={width}
-                        >
-                            {({ index, style }) => {
-                                return getAuctionElement(newAuctions[index], style)
-                            }}
-                        </List>
-                    )
+        <div id="new-auctions-element" className={`${styles.cardsWrapper} ${styles.newAuctions}`}>
+            <List
+                className={styles.startpageListElementWrapper}
+                height={260 - 15}
+                itemCount={newAuctions.length}
+                itemSize={200}
+                layout="horizontal"
+                width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
+            >
+                {({ index, style }) => {
+                    return getAuctionElement(newAuctions[index], style)
                 }}
-            </AutoSizer>
+            </List>
         </div>
     )
 
     let popularSearchesElement = (
         <div className={`${styles.cardsWrapper} ${styles.popularSearches}`}>
-            <AutoSizer>
-                {({ height, width }) => (
-                    <List
-                        className={styles.startpageListElementWrapper}
-                        height={height! - 15}
-                        itemCount={popularSearches.length}
-                        itemSize={200}
-                        layout="horizontal"
-                        width={width}
-                    >
-                        {({ index, style }) => {
-                            return getPopularSearchElement(popularSearches[index], style)
-                        }}
-                    </List>
-                )}
-            </AutoSizer>
+            <List
+                className={styles.startpageListElementWrapper}
+                height={130 - 15}
+                itemCount={popularSearches.length}
+                itemSize={200}
+                layout="horizontal"
+                width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
+            >
+                {({ index, style }) => {
+                    return getPopularSearchElement(popularSearches[index], style)
+                }}
+            </List>
         </div>
     )
 
     let endedAuctionsElement = (
         <div className={`${styles.cardsWrapper} ${styles.endedAuctions}`}>
-            <AutoSizer>
-                {({ height, width }) => (
-                    <List
-                        className={styles.startpageListElementWrapper}
-                        height={height! - 15}
-                        itemCount={endedAuctions.length}
-                        itemSize={200}
-                        layout="horizontal"
-                        width={width}
-                    >
-                        {({ index, style }) => {
-                            return getAuctionElement(endedAuctions[index], style)
-                        }}
-                    </List>
-                )}
-            </AutoSizer>
+            <List
+                className={styles.startpageListElementWrapper}
+                height={260 - 15}
+                itemCount={endedAuctions.length}
+                itemSize={200}
+                layout="horizontal"
+                width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
+            >
+                {({ index, style }) => {
+                    return getAuctionElement(endedAuctions[index], style)
+                }}
+            </List>
         </div>
     )
 
     let newPlayersElement = (
         <div className={`${styles.cardsWrapper} ${styles.newPlayers}`}>
-            <AutoSizer>
-                {({ height, width }) => (
-                    <List
-                        className={styles.startpageListElementWrapper}
-                        height={height! - 15}
-                        itemCount={newPlayers.length}
-                        itemSize={200}
-                        layout="horizontal"
-                        width={width}
-                    >
-                        {({ index, style }) => {
-                            return getNewPlayerElement(newPlayers[index], style)
-                        }}
-                    </List>
-                )}
-            </AutoSizer>
+            <List
+                className={styles.startpageListElementWrapper}
+                height={130 - 15}
+                itemCount={newPlayers.length}
+                itemSize={200}
+                layout="horizontal"
+                width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
+            >
+                {({ index, style }) => {
+                    return getNewPlayerElement(newPlayers[index], style)
+                }}
+            </List>
         </div>
     )
     let newItemsElement = (
         <div className={`${styles.cardsWrapper} ${styles.newItems}`}>
-            <AutoSizer>
-                {({ height, width }) => (
-                    <List
-                        className={styles.startpageListElementWrapper}
-                        height={height - 15}
-                        itemCount={newItems.length}
-                        itemSize={200}
-                        layout="horizontal"
-                        width={width}
-                    >
-                        {({ index, style }) => {
-                            return getNewItemElement(newItems[index], style)
-                        }}
-                    </List>
-                )}
-            </AutoSizer>
+            <List
+                className={styles.startpageListElementWrapper}
+                height={130 - 15}
+                itemCount={newItems.length}
+                itemSize={200}
+                layout="horizontal"
+                width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
+            >
+                {({ index, style }) => {
+                    return getNewItemElement(newItems[index], style)
+                }}
+            </List>
         </div>
     )
 
@@ -318,15 +293,7 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-auctions-body">
-                    {!isSSR ? (
-                        newAuctionsElement
-                    ) : (
-                        <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
-                            {newAuctions.map(auction => {
-                                return getAuctionElement(auction, { height: 180, width: 200 })
-                            })}
-                        </div>
-                    )}
+                    {newAuctionsElement}
                 </Card.Body>
             </Card>
 
@@ -337,15 +304,7 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="ended-auctions-body">
-                    {!isSSR ? (
-                        endedAuctionsElement
-                    ) : (
-                        <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
-                            {endedAuctions.map(auction => {
-                                return getAuctionElement(auction, { height: 180, width: 200 })
-                            })}
-                        </div>
-                    )}
+                    {endedAuctionsElement}
                 </Card.Body>
             </Card>
 
@@ -356,15 +315,7 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-players-body">
-                    {!isSSR ? (
-                        newPlayersElement
-                    ) : (
-                        <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
-                            {newPlayers.map(player => {
-                                return getNewPlayerElement(player, { height: 70, width: 200 })
-                            })}
-                        </div>
-                    )}
+                    {newPlayersElement}
                 </Card.Body>
             </Card>
 
@@ -375,15 +326,7 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="popular-searches-body">
-                    {!isSSR ? (
-                        popularSearchesElement
-                    ) : (
-                        <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
-                            {popularSearches.map(search => {
-                                return getPopularSearchElement(search, { height: 70, width: 200 })
-                            })}
-                        </div>
-                    )}
+                    {popularSearchesElement}
                 </Card.Body>
             </Card>
 
@@ -394,17 +337,7 @@ function Startpage(props: Props) {
                     </Card.Title>
                 </Card.Header>
                 <Card.Body className={styles.startpageCardBody} id="new-items-body">
-                    {!isSSR ? (
-                        newItemsElement
-                    ) : (
-                        <div className={`${styles.SSRcardsWrapper} ${styles.startpageListElementWrapper}`}>
-                            {newItems
-                                .filter(search => search.name != 'null')
-                                .map(search => {
-                                    return getNewItemElement(search, { height: 70, width: 200 })
-                                })}
-                        </div>
-                    )}
+                    {newItemsElement}
                 </Card.Body>
             </Card>
 

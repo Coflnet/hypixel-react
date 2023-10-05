@@ -47,22 +47,11 @@
 
 .startpageListElementWrapper {
     margin-top: 20px;
-    width: 100%;
+    overflow-y: hidden !important;
 }
 
 .joinNote {
     margin-right: 35px;
-}
-
-.newAuctions,
-.endedAuctions {
-    min-height: 260px;
-}
-
-.popularSearches,
-.newPlayers,
-.newItems {
-    min-height: 120px;
 }
 
 .changelogItem {
