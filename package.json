@@ -32,6 +32,7 @@
     "react-countdown": "^2.3.5",
     "react-datepicker": "^4.11.0",
     "react-infinite-scroll-component": "^6.1.0",
+    "react-loading-skeleton": "^3.3.1",
     "react-number-format": "^5.1.4",
     "react-pro-sidebar": "^1.1.0-alpha.1",
     "react-select": "^5.7.2",

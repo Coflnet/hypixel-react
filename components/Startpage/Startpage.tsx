@@ -16,6 +16,7 @@ import api from '../../api/ApiHelper'
 import { getMinecraftColorCodedElement } from '../../utils/Formatter'
 import { Number } from '../Number/Number'
 import styles from './Startpage.module.css'
+import { StartpageLargeElementSkeleton } from './StartpageLargeElementSkeleton'
 
 interface Props {
     newAuctions?: Auction[]
@@ -233,13 +234,13 @@ function Startpage(props: Props) {
             <List
                 className={styles.startpageListElementWrapper}
                 height={260 - 15}
-                itemCount={endedAuctions.length}
+                itemCount={endedAuctions.length === 0 ? 20 : endedAuctions.length}
                 itemSize={200}
                 layout="horizontal"
                 width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
             >
                 {({ index, style }) => {
-                    return getAuctionElement(endedAuctions[index], style)
+                    return endedAuctions.length === 0 ? <StartpageLargeElementSkeleton style={style} /> : getAuctionElement(endedAuctions[index], style)
                 }}
             </List>
         </div>
