@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import Select, { components, MultiValue } from 'react-select'
+import { components, MultiValue } from 'react-select'
 import { CURRENTLY_USED_TAGS } from '../../../../utils/SettingsUtils'
 import Tooltip from '../../../Tooltip/Tooltip'
 import HelpIcon from '@mui/icons-material/Help'
+import Creatable from 'react-select/creatable'
 
 interface Props {
     defaultTags: string[]
@@ -81,7 +82,7 @@ function TagSelect(props: Props) {
                         }
                     />
                 </label>
-                <Select
+                <Creatable
                     isMulti
                     options={getAllUsedOptions()}
                     value={tagOptions}
