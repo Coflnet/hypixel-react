@@ -6,10 +6,16 @@ import { PREMIUM_RANK } from './PremiumTypeUtils'
  * Utility functon for the recent and active auctions lists
  * Displayed if more auctions could be loaded with premium
  */
-export function getMoreAuctionsElement(isLoggedIn: boolean, premiumType: PremiumType, onAfterLogin: () => void, textForStarterPremium: JSX.Element) {
+export function getMoreAuctionsElement(
+    isLoggedIn: boolean,
+    wasAlreadyLoggedIn: boolean,
+    premiumType: PremiumType | undefined,
+    onAfterLogin: () => void,
+    textForStarterPremium: JSX.Element
+) {
     if (!isLoggedIn || !premiumType) {
         return (
-            <div>
+            <div style={wasAlreadyLoggedIn ? { visibility: 'collapse', height: 0 } : {}}>
                 You can see more auctions with{' '}
                 <Link href={'/premium'} style={{ marginBottom: '15px' }}>
                     Premium
@@ -18,7 +24,7 @@ export function getMoreAuctionsElement(isLoggedIn: boolean, premiumType: Premium
             </div>
         )
     }
-    if (premiumType.priority === PREMIUM_RANK.STARTER) {
+    if (premiumType.priority >= PREMIUM_RANK.STARTER) {
         return (
             <div>
                 {textForStarterPremium}

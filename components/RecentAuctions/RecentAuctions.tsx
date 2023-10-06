@@ -6,7 +6,7 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
-import { useStateWithRef } from '../../utils/Hooks'
+import { useStateWithRef, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -38,6 +38,7 @@ function RecentAuctions(props: Props) {
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [premiumType, setPremiumType] = useState<PremiumType>()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     let itemFilterRef = useRef<ItemFilter>(props.itemFilter)
     itemFilterRef.current = props.itemFilter
@@ -95,7 +96,11 @@ function RecentAuctions(props: Props) {
                 break
         }
 
+        console.log('length:' + recentAuctionList.length)
+        console.log('maxPages: ' + maxPages)
+
         if (page >= maxPages) {
+            console.log('a')
             setAllElementsLoaded(true)
             return
         }
@@ -107,6 +112,7 @@ function RecentAuctions(props: Props) {
             }
             currentLoadingString = null
             if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
+                console.log('b')
                 setAllElementsLoaded(true)
             }
             setRecentAuctions([...recentAuctions, ...newRecentAuctions])
@@ -230,17 +236,16 @@ function RecentAuctions(props: Props) {
                     <p style={{ textAlign: 'center' }}>No recent auctions found</p>
                 )}
             </div>
-            {premiumType
-                ? getMoreAuctionsElement(
-                      isLoggedIn,
-                      premiumType,
-                      onAfterLogin,
-                      <span>
-                          You currently use Starter Premium. You can see up to 120 recent auctions with
-                          <Link href={'/premium'}>Premium</Link>
-                      </span>
-                  )
-                : null}
+            {getMoreAuctionsElement(
+                isLoggedIn,
+                wasAlreadyLoggedIn,
+                premiumType,
+                onAfterLogin,
+                <span>
+                    You currently use Starter Premium. You can see up to 120 recent auctions with
+                    <Link href={'/premium'}>Premium</Link>
+                </span>
+            )}
         </div>
     )
 }

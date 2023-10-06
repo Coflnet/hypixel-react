@@ -6,7 +6,7 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
-import { useStateWithRef } from '../../utils/Hooks'
+import { useStateWithRef, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -36,6 +36,7 @@ function ActiveAuctions(props: Props) {
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [premiumType, setPremiumType] = useState<PremiumType>()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let isLoadingElements = useRef(false)
 
     useEffect(() => {
@@ -233,17 +234,16 @@ function ActiveAuctions(props: Props) {
                     <p style={{ textAlign: 'center' }}>No active auctions found</p>
                 )}
             </div>
-            {premiumType
-                ? getMoreAuctionsElement(
-                      isLoggedIn,
-                      premiumType,
-                      onAfterLogin,
-                      <span>
-                          You currently use Starter Premium. You can see up to 120 active auctions with
-                          <Link href={'/premium'}>Premium</Link>
-                      </span>
-                  )
-                : null}
+            {getMoreAuctionsElement(
+                isLoggedIn,
+                wasAlreadyLoggedIn,
+                premiumType,
+                onAfterLogin,
+                <span>
+                    You currently use Starter Premium. You can see up to 120 active auctions with
+                    <Link href={'/premium'}>Premium</Link>
+                </span>
+            )}
         </div>
     )
 }
