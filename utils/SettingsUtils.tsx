@@ -322,7 +322,7 @@ export async function handleSettingsImport(importString: string) {
         }
     }
 
-    if (flipCustomizeSettings.finders) {
+    if (flipCustomizeSettings.finders && localStorage.getItem('disableRiskyFinderImportProtection') !== 'true') {
         // remove user and TFM finder when importing a config, to protect users from these configs which they might not really understand
 
         let removed: string[] = []
