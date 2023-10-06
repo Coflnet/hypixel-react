@@ -321,8 +321,14 @@ function Flipper(props: Props) {
             let newFlips = [...flips, newFlipAuction]
             if (autoscrollRef.current && listRef.current) {
                 setTimeout(() => {
-                    ;(listRef.current as any)?.scrollToItem((listRef.current as any).props.itemCount)
-                    attachScrollEvent(listRef.current)
+                    let element =
+                        document.getElementsByClassName(styles.flipperScrollList).length > 0
+                            ? document.getElementsByClassName(styles.flipperScrollList).item(0)
+                            : null
+                    if (element) {
+                        element.scrollBy({ left: 16000, behavior: 'smooth' })
+                        attachScrollEvent(element)
+                    }
                 }, 200)
             }
             return newFlips
