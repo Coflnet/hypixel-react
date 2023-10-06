@@ -122,8 +122,6 @@ export function FlipTracking(props: Props) {
         }
     }
 
-    function loadAdditionalFlips() {}
-
     function handleContextMenuForTrackedFlip(event) {
         event.preventDefault()
         show({ event: event, props: { uid: event.currentTarget.id } })
