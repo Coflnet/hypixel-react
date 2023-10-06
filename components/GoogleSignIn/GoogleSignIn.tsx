@@ -12,6 +12,7 @@ import styles from './GoogleSignIn.module.css'
 interface Props {
     onAfterLogin?(): void
     onLoginFail?(): void
+    onManualLoginClick?(): void
     rerenderFlip?: boolean
 }
 
@@ -93,6 +94,9 @@ function GoogleSignIn(props: Props) {
     }
 
     const onLoginClick = () => {
+        if (props.onManualLoginClick) {
+            props.onManualLoginClick()
+        }
         trackEvent({
             category: 'login',
             action: 'click'

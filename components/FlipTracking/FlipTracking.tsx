@@ -9,7 +9,7 @@ import { ChangeEvent, Suspense, useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, ListGroup, Table } from 'react-bootstrap'
 import { Item, Menu, useContextMenu } from 'react-contexify'
 import { getMinecraftColorCodedElement, getStyleForTier } from '../../utils/Formatter'
-import { useForceUpdate } from '../../utils/Hooks'
+import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { Number } from '../Number/Number'
@@ -21,6 +21,7 @@ import api from '../../api/ApiHelper'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { PREMIUM_RANK, hasHighEnoughPremium } from '../../utils/PremiumTypeUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import Link from 'next/link'
 
 interface Props {
     totalProfit?: number
@@ -74,6 +75,9 @@ export function FlipTracking(props: Props) {
     let [rangeEndDate, setRangeEndDate] = useState(new Date())
     let [hasPremium, setHasPremium] = useState(false)
     let [isLoading, setIsLoading] = useState(false)
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [wasManualLoginClick, setWasManualLoginClick] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let router = useRouter()
     let forceUpdate = useForceUpdate()
 
@@ -368,8 +372,14 @@ export function FlipTracking(props: Props) {
     }
 
     function onAfterLogin() {
+        setIsLoggedIn(true)
         api.refreshLoadPremiumProducts(products => {
-            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM))
+            let hasEnoughPremium = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
+            setHasPremium(hasEnoughPremium)
+
+            if (wasManualLoginClick && hasEnoughPremium) {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+            }
         })
     }
 
@@ -434,10 +444,24 @@ export function FlipTracking(props: Props) {
                     )}
                 </div>
             )}
-            {currentItemContextMenuElement}
-            <div style={{ visibility: 'collapse', height: 0 }}>
-                <GoogleSignIn onAfterLogin={onAfterLogin} />
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div style={wasAlreadyLoggedIn || isLoggedIn ? { visibility: 'collapse', height: 0 } : {}}>
+                    <p>
+                        You can get flips further in the past with{' '}
+                        <Link href={'/premium'} style={{ marginBottom: '15px' }}>
+                            Premium
+                        </Link>
+                        .
+                    </p>
+                    <GoogleSignIn
+                        onAfterLogin={onAfterLogin}
+                        onManualLoginClick={() => {
+                            setWasManualLoginClick(true)
+                        }}
+                    />
+                </div>
             </div>
+            {currentItemContextMenuElement}
         </div>
     )
 }
