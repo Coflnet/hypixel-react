@@ -16,7 +16,7 @@ import { btoaUnicode } from '../../utils/Base64Utils'
 import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
 import ModAdvert from './ModAdvert'
 import { isClientSideRendering } from '../../utils/SSRUtils'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -404,8 +404,13 @@ function ItemFilter(props: Props) {
                                             let searchString = props.text.replace(/\s/g, '').toLowerCase()
                                             let name = (props.labelKey as Function)(option).toLowerCase()
                                             let initials = name.match(/\b\w/g).join('')
+                                            let description = (option as any).description ? (option as any).description.replace(/\s/g, '').toLowerCase() : ''
 
-                                            return name.replace(/\s/g, '').includes(searchString) || initials.includes(searchString)
+                                            return (
+                                                name.replace(/\s/g, '').includes(searchString) ||
+                                                initials.includes(searchString) ||
+                                                description.includes(searchString)
+                                            )
                                         }}
                                     ></Typeahead>
                                 ) : (

@@ -17,6 +17,8 @@ import styles from './FilterElement.module.css'
 import { NumericalFilterElement } from './FilterElements/NumericalFilterElement'
 import { NumberRangeFilterElement } from './FilterElements/NumberRangeFilterElement'
 import { validateFilterNumber, validateFilterRange } from '../../utils/NumberValidationUtils'
+import Tooltip from '../Tooltip/Tooltip'
+import HelpIcon from '@mui/icons-material/Help'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -31,6 +33,7 @@ function FilterElement(props: Props) {
     let [errorText, setErrorText] = useState('')
 
     useEffect(() => {
+        console.log(props.options)
         if (value) {
             return
         }
@@ -226,12 +229,19 @@ function FilterElement(props: Props) {
                 <Spinner animation="border" role="status" variant="primary" />
             ) : (
                 <div style={{ display: 'grid' }}>
-                    <Form.Label style={{ float: 'left' }}>
-                        <b>
+                    <Form.Label style={{ float: 'left', display: 'flex', alignContent: 'center' }}>
+                        <b style={{ marginRight: 5 }}>
                             {props.options.name[0].toLowerCase() === props.options.name[0]
                                 ? convertTagToName(props.options.name)
                                 : camelCaseToSentenceCase(props.options.name)}
                         </b>
+                        {props.options.description ? (
+                            <Tooltip
+                                type="hover"
+                                content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />}
+                                tooltipContent={<span>{props.options.description}</span>}
+                            />
+                        ) : null}
                     </Form.Label>
                     {getFilterElement(props.options.type, props.options)}
                     {!isValid ? (

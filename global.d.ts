@@ -102,6 +102,7 @@ interface FilterOptions {
     name: string
     options: string[]
     type: FilterType
+    description: string | null
 }
 
 interface ItemPrice {
