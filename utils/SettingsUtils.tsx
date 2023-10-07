@@ -348,18 +348,11 @@ export async function handleSettingsImport(importString: string) {
 
     await Promise.allSettled(promises)
 
-    // Temporarily block large config imports
-
     if (restrictions.length > 1000) {
-        toast.error(
-            <div>
-                <p>
-                    Could not import config! We currently experience issues while importing large configs. Please be patien while we are working on resolving
-                    these issues.
-                </p>
-            </div>
-        )
-        return
+        toast('You are importing a large config! This may take a while...', {
+            type: 'info',
+            autoClose: false
+        })
     }
 
     setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
