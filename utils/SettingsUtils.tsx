@@ -323,10 +323,14 @@ export async function handleSettingsImport(importString: string) {
     }
 
     if (flipCustomizeSettings.finders) {
-        // remove user and TFM finder when importing a config, to protect users from these configs which they might not really understand
+        // remove user, ai and  TFM finder when importing a config, to protect users from these configs which they might not really understand
 
         let removed: string[] = []
         let newFinders = flipCustomizeSettings.finders.filter(finder => {
+            if (finder === 8) {
+                removed.push('AI')
+                return false
+            }
             if (finder === 16) {
                 removed.push('User')
                 return false
