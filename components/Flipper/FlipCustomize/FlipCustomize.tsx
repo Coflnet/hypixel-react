@@ -573,6 +573,28 @@ function FlipCustomize() {
                         {/* This is the "true" upload field. It is called by the "Import"-Button */}
                         <input onChange={readImportFile} style={{ display: 'none' }} type="file" id="fileUpload" />
                     </div>
+                    <Form.Group style={{ marginTop: 15 }}>
+                        <Form.Check
+                            onChange={() => {
+                                let wasDisabled = localStorage.getItem('disableRiskyFinderImportProtection') === 'true'
+                                localStorage.setItem('disableRiskyFinderImportProtection', (!wasDisabled).toString())
+                            }}
+                            defaultChecked={localStorage.getItem('disableRiskyFinderImportProtection') !== 'true'}
+                            id="riskyFinderProtection"
+                            style={{ display: 'inline', marginRight: 10 }}
+                            type="checkbox"
+                        />
+                        <Form.Label className={styles.label} htmlFor="riskyFinderProtection">
+                            Risky finder protection{' '}
+                            <Tooltip
+                                type="hover"
+                                content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />}
+                                tooltipContent={
+                                    <span>This setting disables risky finders when importing settings. Only disable this if you know what you are doing!</span>
+                                }
+                            />
+                        </Form.Label>
+                    </Form.Group>
                 </div>
                 <hr />
             </div>
