@@ -24,7 +24,7 @@ export function getMoreAuctionsElement(
             </div>
         )
     }
-    if (premiumType.priority >= PREMIUM_RANK.STARTER) {
+    if (premiumType.priority === PREMIUM_RANK.STARTER) {
         return (
             <div>
                 {textForStarterPremium}

@@ -96,11 +96,7 @@ function RecentAuctions(props: Props) {
                 break
         }
 
-        console.log('length:' + recentAuctionList.length)
-        console.log('maxPages: ' + maxPages)
-
         if (page >= maxPages) {
-            console.log('a')
             setAllElementsLoaded(true)
             return
         }
@@ -112,7 +108,6 @@ function RecentAuctions(props: Props) {
             }
             currentLoadingString = null
             if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
-                console.log('b')
                 setAllElementsLoaded(true)
             }
             setRecentAuctions([...recentAuctions, ...newRecentAuctions])
@@ -242,8 +237,7 @@ function RecentAuctions(props: Props) {
                 premiumType,
                 onAfterLogin,
                 <span>
-                    You currently use Starter Premium. You can see up to 120 recent auctions with
-                    <Link href={'/premium'}>Premium</Link>
+                    You currently use Starter Premium. You can see up to 120 recent auctions with <Link href={'/premium'}>Premium</Link>
                 </span>
             )}
         </div>
