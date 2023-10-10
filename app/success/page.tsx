@@ -15,7 +15,8 @@ export default function Page() {
                 </h2>
                 <p>Your payment is being handled securely by our payment provider.</p>
                 <p>
-                    It may take <b>a few minutes</b> until your CoflCoins are credited.
+                    Your CoflCoins will be awarded as soon as the money transfer finished. This may take a few minutes up to a few days (depending on your
+                    payment method).
                 </p>
                 <Link href="/premium" className="disableLinkStyle">
                     <RBButton>Return to the Premium page</RBButton>
