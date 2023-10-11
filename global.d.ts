@@ -453,7 +453,6 @@ interface FlipTrackingFlip {
     item: Item
     sellTime: Date
     profit: number
-    showPropertyChanges?: boolean
     propertyChanges: FlipTrackingPropertyChange[]
 }
 
