@@ -6,8 +6,9 @@ import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import api from '../../api/ApiHelper'
 import Link from 'next/link'
 import { Button } from 'react-bootstrap'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { GoogleLogin } from '@react-oauth/google'
+import { toast } from 'react-toastify'
 
 export default function AuthMod() {
     let [conId] = useState(getURLSearchParam('conId'))
@@ -15,6 +16,8 @@ export default function AuthMod() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasAuthenticationFailed, setHasAuthenticationFailed] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
+    let [hasConfirmedLogin, setHasConfirmedLogin] = useState(false)
+    let [googleToken, setGoogleToken] = useState('')
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
@@ -38,7 +41,7 @@ export default function AuthMod() {
     function authenticateModConnection() {
         setIsAuthenticated(false)
         setHasAuthenticationFailed(false)
-        api.authenticateModConnection(conId!)
+        api.authenticateModConnection(conId!, googleToken)
             .then(() => {
                 setIsAuthenticated(true)
             })
@@ -74,7 +77,24 @@ export default function AuthMod() {
                     {conId === null ? <p>This is an invalid link. There is no connection id present.</p> : null}
                 </div>
             ) : null}
-            <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
+            {!hasConfirmedLogin ? (
+                <>
+                    <p>Please login to confirm your Identity:</p>
+                    <div style={{ width: '250px', colorScheme: 'light', marginBottom: '15px' }}>
+                        <GoogleLogin
+                            onSuccess={response => {
+                                setHasConfirmedLogin(true)
+                                setGoogleToken(response.credential!)
+                            }}
+                            onError={() => {
+                                toast.error('Login failed')
+                            }}
+                            theme={'filled_blue'}
+                            size={'large'}
+                        />
+                    </div>
+                </>
+            ) : null}
         </>
     )
 }

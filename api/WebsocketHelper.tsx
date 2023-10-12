@@ -35,9 +35,10 @@ function initWebsocket(): void {
         // set the connection id first
         api.setConnectionId().then(() => {
             isConnectionIdSet = true
-            let googleAuthObj = (window as any).googleAuthObj
-            if (sessionStorage.getItem('googleId') !== null && googleAuthObj) {
-                api.setGoogle(googleAuthObj.credential).then(() => {
+            if (sessionStorage.getItem('googleId') !== null) {
+                api.setGoogle(sessionStorage.getItem('googleId')!).then(token => {
+                    sessionStorage.setItem('googleId', token)
+                    localStorage.setItem('googleId', token)
                     _reconnect()
                 })
             } else {

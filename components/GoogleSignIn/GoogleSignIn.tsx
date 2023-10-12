@@ -20,7 +20,7 @@ let gotResponse = false
 
 function GoogleSignIn(props: Props) {
     let [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(
-        isClientSideRendering() ? sessionStorage.getItem('googleId') !== null : false
+        isClientSideRendering() ? isValidTokenAvailable(localStorage.getItem('googleId')) : false
     )
 
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -31,7 +31,7 @@ function GoogleSignIn(props: Props) {
     useEffect(() => {
         setIsSSR(false)
         if (wasAlreadyLoggedInThisSession) {
-            onLoginSucces({ credential: sessionStorage.getItem('googleId') })
+            onLoginSucces(localStorage.getItem('googleId')!)
             setTimeout(() => {
                 if (!gotResponse) {
                     toast.error('We had problems authenticating your account with google. Please try to log in again.')
@@ -58,14 +58,13 @@ function GoogleSignIn(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.rerenderFlip])
 
-    const onLoginSucces = (response: any) => {
+    function onLoginSucces(token: string) {
         gotResponse = true
-        localStorage.setItem('googleId', response.credential)
-        sessionStorage.setItem('googleId', response.credential)
         setIsLoggedIn(true)
-        api.setGoogle(response.credential)
-            .then(() => {
-                ;(window as any).googleAuthObj = response
+        api.setGoogle(token)
+            .then(token => {
+                localStorage.setItem('googleId', token)
+                sessionStorage.setItem('googleId', token)
                 let refId = (window as any).refId
                 if (refId) {
                     api.setRef(refId)
@@ -89,11 +88,11 @@ function GoogleSignIn(props: Props) {
             })
     }
 
-    const onLoginFail = () => {
+    function onLoginFail() {
         toast.error('Something went wrong, please try again.', { autoClose: 20000 })
     }
 
-    const onLoginClick = () => {
+    function onLoginClick() {
         if (props.onManualLoginClick) {
             props.onManualLoginClick()
         }
@@ -119,7 +118,16 @@ function GoogleSignIn(props: Props) {
             {!wasAlreadyLoggedInThisSession ? (
                 <>
                     <div className={styles.googleButton}>
-                        <GoogleLogin onSuccess={onLoginSucces} onError={onLoginFail} theme={'filled_blue'} size={'large'} useOneTap auto_select />
+                        <GoogleLogin
+                            onSuccess={response => {
+                                onLoginSucces(response.credential!)
+                            }}
+                            onError={onLoginFail}
+                            theme={'filled_blue'}
+                            size={'large'}
+                            useOneTap
+                            auto_select
+                        />
                     </div>
                     <p>
                         I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
@@ -131,3 +139,13 @@ function GoogleSignIn(props: Props) {
 }
 
 export default GoogleSignIn
+
+export function isValidTokenAvailable(token?: string | null) {
+    if (!token || token === 'null') {
+        return
+    }
+    let details = JSON.parse(atob(token.split('.')[1]))
+    let expirationDate = new Date(parseInt(details.exp) * 1000)
+    let result = expirationDate.getTime() - 10000 > new Date().getTime()
+    return result
+}

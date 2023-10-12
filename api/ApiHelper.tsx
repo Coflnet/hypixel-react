@@ -525,13 +525,13 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let setGoogle = (id: string): Promise<void> => {
+    let setGoogle = (id: string): Promise<string> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.SET_GOOGLE,
                 data: id,
-                resolve: () => {
-                    resolve()
+                resolve: token => {
+                    resolve(token)
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_GOOGLE, error)
@@ -1014,17 +1014,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let purchaseWithCoflcoins = (productId: string, count?: number): Promise<void> => {
+    let purchaseWithCoflcoins = (productId: string, googleToken: string, count?: number): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId')
-            if (!googleId) {
-                toast.error('You need to be logged in to purchase something.')
-                reject()
-                return
-            }
-
             let data = {
-                userId: googleId,
+                userId: googleToken,
                 productId: productId
             }
 
@@ -1230,7 +1223,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let authenticateModConnection = (conId: string): Promise<void> => {
+    let authenticateModConnection = (conId: string, googleToken: string): Promise<void> => {
         let timeout = setTimeout(() => {
             toast.warn(
                 <span>
@@ -1240,16 +1233,21 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             )
         }, 10000)
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.AUTHENTICATE_MOD_CONNECTION,
-                data: conId,
-                resolve: function () {
+                requestHeader: {
+                    GoogleToken: googleToken,
+                    'Content-Type': 'application/json'
+                },
+                customRequestURL: `${getApiEndpoint()}/mod/authentication/${conId}`,
+                data: '',
+                resolve: function (data) {
                     clearTimeout(timeout)
-                    resolve()
+                    resolve(data.map(a => parseSearchResultItem(a)))
                 },
                 reject: function (error) {
                     clearTimeout(timeout)
-                    apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId)
+                    apiErrorHandler(RequestType.ITEM_SEARCH, error, conId)
                     reject(error)
                 }
             })
