@@ -525,16 +525,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let setGoogle = (id: string): Promise<string> => {
+    let loginWithToken = (id: string): Promise<string> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
-                type: RequestType.SET_GOOGLE,
+                type: RequestType.LOGIN_WITH_TOKEN,
                 data: id,
                 resolve: token => {
                     resolve(token)
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.SET_GOOGLE, error)
+                    apiErrorHandler(RequestType.LOGIN_WITH_TOKEN, error)
                     reject(error)
                 }
             })
@@ -1850,7 +1850,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         subscribe,
         unsubscribe,
         getSubscriptions,
-        setGoogle,
+        loginWithToken,
         stripePurchase,
         setToken,
         getRecentAuctions,

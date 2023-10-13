@@ -8,6 +8,8 @@ import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { GoogleLogin } from '@react-oauth/google'
 import styles from './GoogleSignIn.module.css'
+import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, setSetting } from '../../utils/SettingsUtils'
+import { atobUnicode } from '../../utils/Base64Utils'
 
 interface Props {
     onAfterLogin?(): void
@@ -61,7 +63,7 @@ function GoogleSignIn(props: Props) {
     function onLoginSucces(token: string) {
         gotResponse = true
         setIsLoggedIn(true)
-        api.setGoogle(token)
+        api.loginWithToken(token)
             .then(token => {
                 localStorage.setItem('googleId', token)
                 sessionStorage.setItem('googleId', token)
@@ -120,6 +122,10 @@ function GoogleSignIn(props: Props) {
                     <div className={styles.googleButton}>
                         <GoogleLogin
                             onSuccess={response => {
+                                let userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
+                                setSetting(GOOGLE_PROFILE_PICTURE_URL, userObject.picture)
+                                setSetting(GOOGLE_EMAIL, userObject.email)
+                                setSetting(GOOGLE_NAME, userObject.name)
                                 onLoginSucces(response.credential!)
                             }}
                             onError={onLoginFail}

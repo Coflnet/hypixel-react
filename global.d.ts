@@ -169,7 +169,7 @@ interface API {
     subscribe(topic: string, type: SubscriptionType[], price?: number, itemFilter?: ItemFilter): Promise<void>
     unsubscribe(subscription: Subscription): Promise<Number>
     getSubscriptions(): Promise<Subscription[]>
-    setGoogle(id: string): Promise<string>
+    loginWithToken(id: string): Promise<string>
     stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
     setToken(token: string): Promise<void>
