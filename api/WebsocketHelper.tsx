@@ -41,8 +41,6 @@ function initWebsocket(): void {
                     localStorage.setItem('googleId', token)
                     _reconnect()
                 })
-            } else {
-                _reconnect()
             }
         })
     }
