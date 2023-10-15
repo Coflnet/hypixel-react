@@ -7,8 +7,7 @@ import api from '../../api/ApiHelper'
 import Link from 'next/link'
 import { Button } from 'react-bootstrap'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { GoogleLogin } from '@react-oauth/google'
-import { toast } from 'react-toastify'
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 
 export default function AuthMod() {
     let [conId] = useState(getURLSearchParam('conId'))
@@ -16,22 +15,15 @@ export default function AuthMod() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasAuthenticationFailed, setHasAuthenticationFailed] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
-    let [hasConfirmedLogin, setHasConfirmedLogin] = useState(false)
     let [googleToken, setGoogleToken] = useState('')
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
         setIsSSR(false)
     }, [])
 
-    useEffect(() => {
-        if (wasAlreadyLoggedIn && !isLoggedIn) {
-            setIsLoggedIn(true)
-        }
-    }, [wasAlreadyLoggedIn])
-
-    function onLogin() {
+    function onLogin(response: CredentialResponse) {
         setIsLoggedIn(true)
+        setGoogleToken(response.credential!)
 
         if (conId) {
             authenticateModConnection()
@@ -68,7 +60,6 @@ export default function AuthMod() {
                         </div>
                     ) : null}
                     {isLoggedIn && !isAuthenticated && !hasAuthenticationFailed && conId !== null ? getLoadingElement(<p>Authorizing connection...</p>) : null}
-                    {!isLoggedIn && !hasAuthenticationFailed && conId !== null ? <p>Please log in to authenticate for the mod usage</p> : null}
                     {hasAuthenticationFailed ? (
                         <p>
                             Authentication failed. <Button onClick={authenticateModConnection}>Try again</Button>
@@ -77,17 +68,14 @@ export default function AuthMod() {
                     {conId === null ? <p>This is an invalid link. There is no connection id present.</p> : null}
                 </div>
             ) : null}
-            {!hasConfirmedLogin ? (
+            {!isLoggedIn ? (
                 <>
-                    <p>Please login to confirm your Identity:</p>
+                    <p>Please log in to authenticate for the mod usage:</p>
                     <div style={{ width: '250px', colorScheme: 'light', marginBottom: '15px' }}>
                         <GoogleLogin
-                            onSuccess={response => {
-                                setHasConfirmedLogin(true)
-                                setGoogleToken(response.credential!)
-                            }}
+                            onSuccess={onLogin}
                             onError={() => {
-                                toast.error('Login failed')
+                                onLoginFail()
                             }}
                             theme={'filled_blue'}
                             size={'large'}
