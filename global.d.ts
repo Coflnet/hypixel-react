@@ -169,7 +169,7 @@ interface API {
     subscribe(topic: string, type: SubscriptionType[], price?: number, itemFilter?: ItemFilter): Promise<void>
     unsubscribe(subscription: Subscription): Promise<Number>
     getSubscriptions(): Promise<Subscription[]>
-    setGoogle(id: string): Promise<void>
+    loginWithToken(id: string): Promise<string>
     stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
     setToken(token: string): Promise<void>
@@ -210,7 +210,7 @@ interface API {
     connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>
     getAccountInfo(): Promise<AccountInfo>
     itemSearch(searchText: string): Promise<SearchResultItem[]>
-    authenticateModConnection(conId: string): Promise<void>
+    authenticateModConnection(conId: string, googleToken: string): Promise<void>
     getFlipUpdateTime(): Promise<Date>
     playerSearch(playerName: string): Promise<Player[]>
     sendFeedback(feedbackKey: string, feedback: any): Promise<void>
@@ -225,7 +225,7 @@ interface API {
     getBazaarTags(): Promise<string[]>
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
-    purchaseWithCoflcoins(productId: string, count?: number): Promise<void>
+    purchaseWithCoflcoins(productId: string, googleToken: string, count?: number): Promise<void>
     subscribeCoflCoinChange()
     getCoflcoinBalance(): Promise<number>
     setFlipSetting(identifier: string, value: any): Promise<void>

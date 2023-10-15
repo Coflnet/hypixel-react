@@ -21,6 +21,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import styles from './AccountDetails.module.css'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
+import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting } from '../../utils/SettingsUtils'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -42,36 +43,22 @@ function AccountDetails() {
     }, [])
 
     function getAccountElement(): JSX.Element {
-        let googleId = sessionStorage.getItem('googleId')
-        if (googleId) {
-            try {
-                let parts = googleId.split('.')
-                let obj = JSON.parse(atobUnicode(parts[1]))
-                let imageElement = obj.picture ? <Image src={obj.picture} height={24} width={24} alt="" /> : <span />
-                return (
-                    <span>
-                        {imageElement} {`${obj.name} (${obj.email})`}
-                    </span>
-                )
-            } catch {
-                setHasWrongFormattedGoogleToken(true)
-            }
-        }
-        return <span />
+        let picture = getSetting(GOOGLE_PROFILE_PICTURE_URL)
+        let email = getSetting(GOOGLE_EMAIL)
+        let name = getSetting(GOOGLE_NAME)
+
+        let imageElement = picture ? <Image src={picture} height={24} width={24} alt="" /> : <span />
+        return (
+            <span>
+                {imageElement} {`${name} (${email})`}
+            </span>
+        )
     }
 
     function loadPremiumProducts(): Promise<void> {
         return api.refreshLoadPremiumProducts(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
             setProducts(products)
-            let activeProduct = getHighestPriorityPremiumProduct(products)
-
-            if (!activeProduct) {
-                setHasPremium(false)
-            } else {
-                setHasPremium(true)
-                setHasPremiumUntil(activeProduct.expires)
-            }
             setIsLoading(false)
         })
     }
@@ -81,6 +68,7 @@ function AccountDetails() {
         setIsLoading(false)
         googleLogout()
         sessionStorage.removeItem('googleId')
+        localStorage.removeItem('googleId')
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
     }
@@ -125,6 +113,7 @@ function AccountDetails() {
 
     function deleteGoogleToken() {
         sessionStorage.removeItem('googleId')
+        localStorage.removeItem('googleId')
         setIsLoggedIn(false)
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
     }

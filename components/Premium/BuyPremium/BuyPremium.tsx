@@ -9,6 +9,7 @@ import { getPremiumType, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import { Number } from '../../Number/Number'
 import styles from './BuyPremium.module.css'
+import BuyPremiumConfirmationDialog from './BuyPremiumConfirmationDialog'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -36,11 +37,11 @@ function BuyPremium(props: Props) {
         }
     }
 
-    function onPremiumBuy() {
+    function onPremiumBuy(googleToken: string) {
         setShowConfirmationDialog(false)
         setIsPurchasing(true)
 
-        api.purchaseWithCoflcoins(purchasePremiumOption.productId, purchasePremiumOption.value).then(() => {
+        api.purchaseWithCoflcoins(purchasePremiumOption.productId, googleToken, purchasePremiumOption.value).then(() => {
             document.dispatchEvent(
                 new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, {
                     detail: { coflCoins: coflCoins - getPurchasePrice() }
@@ -69,51 +70,6 @@ function BuyPremium(props: Props) {
         }
         return durationString
     }
-
-    let confirmationDialog = (
-        <Modal
-            show={showConfirmationDialog}
-            onHide={() => {
-                setShowConfirmationDialog(false)
-            }}
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>Confirmation</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <ul>
-                    <li>
-                        <span className={styles.label}>Type:</span>
-                        {purchasePremiumType.label}
-                    </li>
-                    <li>
-                        <span className={styles.label}>Duration:</span>
-                        {purchasePremiumOption.label} {getDurationString()}
-                    </li>
-                    <li>
-                        <span className={styles.label}>Price:</span>
-                        <Number number={getPurchasePrice()} /> CoflCoins
-                    </li>
-                </ul>
-                <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
-                {props.activePremiumProduct && getPremiumType(props.activePremiumProduct)?.productId !== purchasePremiumType.productId ? (
-                    <div>
-                        <hr />
-                        <p style={{ color: 'yellow' }}>
-                            It seems you already have an active premium product. While the 'better' premium is active, the other will get paused.
-                        </p>
-                    </div>
-                ) : null}
-                <hr />
-                <Button variant="danger" onClick={onPremiumBuyCancel}>
-                    Cancel
-                </Button>
-                <Button variant="success" style={{ float: 'right' }} onClick={onPremiumBuy}>
-                    Confirm
-                </Button>
-            </Modal.Body>
-        </Modal>
-    )
 
     return (
         <>
@@ -211,7 +167,16 @@ function BuyPremium(props: Props) {
                     )}
                 </div>
             </Card>
-            {confirmationDialog}
+            <BuyPremiumConfirmationDialog
+                show={showConfirmationDialog}
+                durationString={getDurationString()}
+                purchasePremiumOption={purchasePremiumOption}
+                purchasePrice={getPurchasePrice()}
+                purchasePremiumType={purchasePremiumType}
+                onHide={onPremiumBuyCancel}
+                onConfirm={onPremiumBuy}
+                activePremiumProduct={props.activePremiumProduct}
+            />
         </>
     )
 }

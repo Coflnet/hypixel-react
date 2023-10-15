@@ -48,13 +48,11 @@ export function initCoflCoinManager() {
     }
 
     function initCoflCoinBalanceAndSubscriptions() {
-        if (!!(window as any).googleAuthObj) {
-            api.subscribeCoflCoinChange()
-            api.getCoflcoinBalance().then(coflCoins => {
-                currentCoflCoins = coflCoins
-                notifyAboutCoflCoinUpdate(coflCoins)
-            })
-        }
+        api.subscribeCoflCoinChange()
+        api.getCoflcoinBalance().then(coflCoins => {
+            currentCoflCoins = coflCoins
+            notifyAboutCoflCoinUpdate(coflCoins)
+        })
     }
 
     document.addEventListener(CUSTOM_EVENTS.GOOGLE_LOGIN, initCoflCoinBalanceAndSubscriptions)

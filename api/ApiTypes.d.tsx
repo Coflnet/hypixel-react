@@ -15,7 +15,7 @@ export enum RequestType {
     SUBSCRIBE = 'subscribe',
     UNSUBSCRIBE = 'unsubscribe',
     GET_SUBSCRIPTIONS = 'subscriptions',
-    SET_GOOGLE = 'setGoogle',
+    LOGIN_WITH_TOKEN = 'loginWithToken',
     STRIPE_PAYMENT_SESSION = 'topup/stripe',
     GET_PRODUCTS = 'topup/options',
     PREMIUM_EXPIRATION = 'premiumExpiration',

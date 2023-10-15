@@ -17,7 +17,7 @@ function initWebsocket(): void {
     let onWebsocketClose = (): void => {
         var timeout = Math.random() * (5000 - 0) + 0
         setTimeout(() => {
-            websocket = getNewWebsocket()
+            websocket = getNewWebsocket(true)
         }, timeout)
     }
 
@@ -25,7 +25,7 @@ function initWebsocket(): void {
         console.error(e)
     }
 
-    let onOpen = (e: Event): void => {
+    let onOpen = (e: Event, isReconnecting: boolean): void => {
         let _reconnect = function () {
             apiSubscriptions.forEach(subscription => {
                 subscription.resubscribe(subscription)
@@ -35,13 +35,12 @@ function initWebsocket(): void {
         // set the connection id first
         api.setConnectionId().then(() => {
             isConnectionIdSet = true
-            let googleAuthObj = (window as any).googleAuthObj
-            if (sessionStorage.getItem('googleId') !== null && googleAuthObj) {
-                api.setGoogle(googleAuthObj.credential).then(() => {
+            if (isReconnecting && sessionStorage.getItem('googleId') !== null) {
+                api.loginWithToken(sessionStorage.getItem('googleId')!).then(token => {
+                    sessionStorage.setItem('googleId', token)
+                    localStorage.setItem('googleId', token)
                     _reconnect()
                 })
-            } else {
-                _reconnect()
             }
         })
     }
@@ -96,16 +95,18 @@ function initWebsocket(): void {
         }
     }
 
-    let getNewWebsocket = (): WebSocket => {
+    let getNewWebsocket = (isReconnecting: boolean): WebSocket => {
         websocket = new WebSocket(getProperty('websocketEndpoint'))
         websocket.onclose = onWebsocketClose
         websocket.onerror = onWebsocketError
         websocket.onmessage = onWebsocketMessage
-        websocket.onopen = onOpen
+        websocket.onopen = e => {
+            onOpen(e, isReconnecting)
+        }
         return websocket
     }
 
-    websocket = getNewWebsocket()
+    websocket = getNewWebsocket(false)
 }
 
 function sendRequest(request: ApiRequest): Promise<void> {
