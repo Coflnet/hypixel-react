@@ -1235,19 +1235,19 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.AUTHENTICATE_MOD_CONNECTION,
+                requestMethod: 'POST',
                 requestHeader: {
                     GoogleToken: googleToken,
                     'Content-Type': 'application/json'
                 },
-                customRequestURL: `${getApiEndpoint()}/mod/authentication/${conId}`,
+                customRequestURL: `${getApiEndpoint()}/mod/auth?newId=${conId}`,
                 data: '',
-                resolve: function (data) {
-                    clearTimeout(timeout)
-                    resolve(data.map(a => parseSearchResultItem(a)))
+                resolve: function () {
+                    resolve()
                 },
                 reject: function (error) {
                     clearTimeout(timeout)
-                    apiErrorHandler(RequestType.ITEM_SEARCH, error, conId)
+                    apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId)
                     reject(error)
                 }
             })
