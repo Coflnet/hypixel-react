@@ -25,7 +25,7 @@ function TEMOwnerHistory(props: Props) {
     useEffect(() => {
         setIsLoading(true)
 
-        let promises = []
+        let promises: Promise<void>[] = []
 
         promises.push(
             api.getPlayerName(props.detailEntry.currentOwner.playerUUID).then(name => {
