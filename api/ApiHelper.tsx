@@ -1228,7 +1228,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             toast.warn(
                 <span>
                     The login seems to take longer that expected. Are you using Kaspersky? If so, the "Secure Browsing" feature seems to interfere with the
-                    login.
+                    login
                 </span>
             )
         }, 10000)
