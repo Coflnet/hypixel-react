@@ -1,13 +1,14 @@
-import React, { useState } from 'react'
+'use client'
+import HelpIcon from '@mui/icons-material/Help'
+import { useState } from 'react'
 import { Button, Card } from 'react-bootstrap'
-import { getLoadingElement } from '../../utils/LoadingUtils'
-import api from '../../api/ApiHelper'
-import styles from './CoflCoinsPurchase.module.css'
-import Tooltip from '../Tooltip/Tooltip'
-import { Help as HelpIcon } from '@mui/icons-material'
-import { useCoflCoins } from '../../utils/Hooks'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { toast } from 'react-toastify'
+import api from '../../api/ApiHelper'
+import { useCoflCoins } from '../../utils/Hooks'
+import { getLoadingElement } from '../../utils/LoadingUtils'
+import { Number } from '../Number/Number'
+import Tooltip from '../Tooltip/Tooltip'
+import styles from './CoflCoinsPurchase.module.css'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
@@ -21,6 +22,7 @@ function Payment(props: Props) {
 
     function onPayPaypal(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
+        setCurrentRedirectLink('')
         api.paypalPurchase(productId, coflCoins)
             .then(data => {
                 setCurrentRedirectLink(data.directLink)
@@ -31,6 +33,7 @@ function Payment(props: Props) {
 
     function onPayStripe(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
+        setCurrentRedirectLink('')
         api.stripePurchase(productId, coflCoins)
             .then(data => {
                 setCurrentRedirectLink(data.directLink)
@@ -46,7 +49,7 @@ function Payment(props: Props) {
     }
 
     function getDisabledPaymentTooltip() {
-        return !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : null
+        return !props.cancellationRightLossConfirmed ? <span>Please note the information regarding your cancellation right above.</span> : <span />
     }
 
     function getRoundedPrice(price: number) {
@@ -65,14 +68,21 @@ function Payment(props: Props) {
         />
     )
 
-    function getPaymentElement(title: JSX.Element, stripePrice: number, stripeProductId: string, paypalPrice: number, payPalProductId: string) {
+    function getPaymentElement(
+        title: JSX.Element,
+        stripePrice: number,
+        stripeProductId: string,
+        paypalPrice: number,
+        payPalProductId: string,
+        discount?: number
+    ) {
         return (
             <Card className={styles.premiumPlanCard}>
                 <Card.Header>
                     <Card.Title>{title}</Card.Title>
                 </Card.Header>
                 <Card.Body>
-                    <p className={styles.paymentOption}>
+                    <div className={styles.paymentOption}>
                         <div className={styles.paymentLabel}>Buy with Paypal {paypalHigherPricesTooltip}</div>
                         <Tooltip
                             type="hover"
@@ -89,21 +99,43 @@ function Payment(props: Props) {
                                     >
                                         {payPalProductId === isLoadingId ? (
                                             <p className={styles.manualRedirectLink}>
-                                                Redirecting to PayPal...
-                                                <br /> Not working?{' '}
-                                                <a href={currentRedirectLink} target="_blank">
-                                                    Click here
-                                                </a>
+                                                {currentRedirectLink ? (
+                                                    <>
+                                                        Redirecting to PayPal...
+                                                        <br /> Not working?{' '}
+                                                        <a
+                                                            href={currentRedirectLink}
+                                                            onClick={e => {
+                                                                e.stopPropagation()
+                                                            }}
+                                                            target="_blank"
+                                                        >
+                                                            Click here
+                                                        </a>
+                                                    </>
+                                                ) : (
+                                                    <span>Contacting payment provider...</span>
+                                                )}
                                             </p>
                                         ) : (
-                                            `${numberWithThousandsSeperators(getRoundedPrice(paypalPrice))} Euro`
+                                            <span>
+                                                <Number number={getRoundedPrice(discount ? paypalPrice * discount : paypalPrice)} /> Euro
+                                                {discount ? (
+                                                    <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>
+                                                        {Math.round((1 - discount) * 100)}% OFF
+                                                    </span>
+                                                ) : null}
+                                                {discount ? (
+                                                    <p style={{ fontSize: 'x-small', margin: 0, padding: 0 }}>Original price: {getRoundedPrice(paypalPrice)}</p>
+                                                ) : null}
+                                            </span>
                                         )}
                                     </Button>
                                 </div>
                             }
                         />
-                    </p>
-                    <p className={styles.paymentOption}>
+                    </div>
+                    <div className={styles.paymentOption}>
                         <div className={styles.paymentLabel}>Buy with Stripe</div>
                         <Tooltip
                             type="hover"
@@ -120,21 +152,42 @@ function Payment(props: Props) {
                                     >
                                         {stripeProductId === isLoadingId ? (
                                             <p className={styles.manualRedirectLink}>
-                                                Redirecting to Stripe...
-                                                <br />
-                                                Not working?{' '}
-                                                <a href={currentRedirectLink} target="_blank">
-                                                    Click here
-                                                </a>
+                                                {currentRedirectLink ? (
+                                                    <>
+                                                        Redirecting to Stripe...
+                                                        <br /> Not working?{' '}
+                                                        <a
+                                                            href={currentRedirectLink}
+                                                            onClick={e => {
+                                                                e.stopPropagation()
+                                                            }}
+                                                            target="_blank"
+                                                        >
+                                                            Click here
+                                                        </a>
+                                                    </>
+                                                ) : (
+                                                    <span>Contacting payment provider...</span>
+                                                )}
                                             </p>
                                         ) : (
-                                            `${numberWithThousandsSeperators(getRoundedPrice(stripePrice))} Euro`
+                                            <span>
+                                                <Number number={getRoundedPrice(discount ? stripePrice * discount : stripePrice)} /> Euro
+                                                {discount ? (
+                                                    <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>
+                                                        {Math.round((1 - discount) * 100)}% OFF
+                                                    </span>
+                                                ) : null}
+                                                {discount ? (
+                                                    <p style={{ fontSize: 'x-small', margin: 0, padding: 0 }}>Original price: {getRoundedPrice(stripePrice)}</p>
+                                                ) : null}
+                                            </span>
                                         )}
                                     </Button>
                                 </div>
                             }
                         />
-                    </p>
+                    </div>
                 </Card.Body>
             </Card>
         )
@@ -150,19 +203,21 @@ function Payment(props: Props) {
         return (
             <Card className={styles.premiumPlanCard} style={{ width: '100%' }}>
                 <Card.Header>
-                    <Card.Title>{numberWithThousandsSeperators(coflCoinsToBuy)} CoflCoins</Card.Title>
+                    <Card.Title>
+                        <Number number={coflCoinsToBuy} /> CoflCoins
+                    </Card.Title>
                 </Card.Header>
                 <Card.Body>
                     <p>
-                        We noticed that your CoflCoins are not a multiple of {numberWithThousandsSeperators(1800)} and therefore you would not be able to use
-                        all of them to buy premium. Here you can purchase {numberWithThousandsSeperators(coflCoinsToBuy)} CoflCoins to again be able to do that.
+                        We noticed that your CoflCoins are not a multiple of <Number number={1800} /> and therefore you would not be able to use all of them to
+                        buy premium. Here you can purchase <Number number={coflCoinsToBuy} /> CoflCoins to again be able to do that.
                     </p>
                     <p>
-                        Due to the fees we have to pay to our payment providers we sadly can't provide purchases of less than{' '}
-                        {numberWithThousandsSeperators(1800)} CoflCoins at once.
+                        Due to the fees we have to pay to our payment providers we sadly can't provide purchases of less than <Number number={1800} /> CoflCoins
+                        at once.
                     </p>
                     <hr />
-                    <p className={styles.paymentOption}>
+                    <div className={styles.paymentOption}>
                         <div className={styles.paymentLabel}>Buy with Paypal {paypalHigherPricesTooltip}</div>
                         <Tooltip
                             type="hover"
@@ -177,15 +232,35 @@ function Payment(props: Props) {
                                         className={styles.paymentButton}
                                         disabled={!props.cancellationRightLossConfirmed}
                                     >
-                                        {`${payPalProductId}_${coflCoinsToBuy}` === isLoadingId
-                                            ? getLoadingElement(<p>Redirecting to checkout...</p>)
-                                            : `${paypalPrice} Euro`}
+                                        {`${payPalProductId}_${coflCoinsToBuy}` === isLoadingId ? (
+                                            <p className={styles.manualRedirectLink}>
+                                                {currentRedirectLink ? (
+                                                    <>
+                                                        Redirecting to PayPal...
+                                                        <br /> Not working?{' '}
+                                                        <a
+                                                            href={currentRedirectLink}
+                                                            onClick={e => {
+                                                                e.stopPropagation()
+                                                            }}
+                                                            target="_blank"
+                                                        >
+                                                            Click here
+                                                        </a>
+                                                    </>
+                                                ) : (
+                                                    <span>Contacting payment provider...</span>
+                                                )}
+                                            </p>
+                                        ) : (
+                                            `${paypalPrice} Euro`
+                                        )}
                                     </Button>
                                 </div>
                             }
                         />
-                    </p>
-                    <p className={styles.paymentOption}>
+                    </div>
+                    <div className={styles.paymentOption}>
                         <div className={styles.paymentLabel}>Buy with Stripe</div>
                         <Tooltip
                             type="hover"
@@ -200,14 +275,34 @@ function Payment(props: Props) {
                                         className={styles.paymentButton}
                                         disabled={!props.cancellationRightLossConfirmed}
                                     >
-                                        {`${stripeProductId}_${coflCoinsToBuy}` === isLoadingId
-                                            ? getLoadingElement(<p>Redirecting to checkout...</p>)
-                                            : `${stripePrice} Euro`}
+                                        {`${stripeProductId}_${coflCoinsToBuy}` === isLoadingId ? (
+                                            <p className={styles.manualRedirectLink}>
+                                                {currentRedirectLink ? (
+                                                    <>
+                                                        Redirecting to Stripe...
+                                                        <br /> Not working?{' '}
+                                                        <a
+                                                            href={currentRedirectLink}
+                                                            onClick={e => {
+                                                                e.stopPropagation()
+                                                            }}
+                                                            target="_blank"
+                                                        >
+                                                            Click here
+                                                        </a>
+                                                    </>
+                                                ) : (
+                                                    <span>Contacting payment provider...</span>
+                                                )}
+                                            </p>
+                                        ) : (
+                                            `${stripePrice} Euro`
+                                        )}
                                     </Button>
                                 </div>
                             }
                         />
-                    </p>
+                    </div>
                 </Card.Body>
             </Card>
         )
@@ -217,10 +312,18 @@ function Payment(props: Props) {
         <div>
             <div>
                 <div className={styles.productGrid}>
-                    {getPaymentElement(<span>{numberWithThousandsSeperators(1800)} CoflCoins</span>, 6.69, 's_cc_1800', 6.99, 'p_cc_1800')}
                     {getPaymentElement(
                         <span>
-                            {numberWithThousandsSeperators(5400)} CoflCoins <span className={styles.discount}>~4% off</span>
+                            <Number number={1800} /> CoflCoins
+                        </span>,
+                        6.69,
+                        's_cc_1800',
+                        6.99,
+                        'p_cc_1800'
+                    )}
+                    {getPaymentElement(
+                        <span>
+                            <Number number={5400} /> CoflCoins{' '}
                         </span>,
                         19.69,
                         's_cc_5400',
@@ -241,7 +344,7 @@ function Payment(props: Props) {
                         <>
                             {getPaymentElement(
                                 <span>
-                                    {numberWithThousandsSeperators(10800)} CoflCoins <span className={styles.discount}>~5% off</span>
+                                    <Number number={10800} /> CoflCoins{' '}
                                 </span>,
                                 38.99,
                                 's_cc_10800',
@@ -250,7 +353,7 @@ function Payment(props: Props) {
                             )}
                             {getPaymentElement(
                                 <span>
-                                    {numberWithThousandsSeperators(21600)} CoflCoins <span className={styles.discount}>~6% off</span>
+                                    <Number number={21600} /> CoflCoins{' '}
                                 </span>,
                                 74.99,
                                 's_cc_21600',

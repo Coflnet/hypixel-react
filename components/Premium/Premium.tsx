@@ -1,24 +1,25 @@
-import React, { useEffect, useState } from 'react'
+'use client'
+import { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Button, Card, Form, Modal, OverlayTrigger } from 'react-bootstrap'
+import { Button, Card, Form, Modal } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
-import moment from 'moment'
 import styles from './Premium.module.css'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
-import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
-import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_TYPES } from '../../utils/PremiumTypeUtils'
+import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
+import PremiumStatus from './PremiumStatus/PremiumStatus'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasPremium, setHasPremium] = useState<boolean>()
     let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
+    let [products, setProducts] = useState<PremiumProduct[]>([])
     let [isLoading, setIsLoading] = useState(false)
     let [isLoggingIn, setIsLoggingIn] = useState(false)
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
@@ -39,8 +40,9 @@ function Premium() {
     }, [])
 
     function loadPremiumProducts(): Promise<void> {
-        return api.getPremiumProducts().then(products => {
+        return api.refreshLoadPremiumProducts(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
+            setProducts(products)
             let activePremiumProduct = getHighestPriorityPremiumProduct(products)
 
             if (!activePremiumProduct) {
@@ -81,10 +83,10 @@ function Premium() {
             ) : hasPremium === undefined ? (
                 ''
             ) : hasPremium ? (
-                <p style={{ color: '#00bc8c' }}>You have a premium account. Thank you for your support.</p>
+                <p style={{ color: '#00bc8c' }}>You have a Premium account. Thank you for your support.</p>
             ) : (
                 <div>
-                    <p style={{ color: 'red', margin: 0 }}>You do not have a premium account</p>
+                    <p style={{ color: 'red', margin: 0 }}>You do not have a Premium account</p>
                 </div>
             )}
             {isLoggedIn && !hasPremium ? (
@@ -96,31 +98,14 @@ function Premium() {
             )}
             <hr />
             <div style={{ marginBottom: '20px' }}>
-                {hasPremium && activePremiumProduct ? (
-                    <div>
-                        <p>
-                            <span className={styles.labelShort}>Premium-Status:</span>
-                            {getPremiumType(activePremiumProduct).label}
-                        </p>
-                        <Tooltip
-                            type="hover"
-                            content={
-                                <span>
-                                    <span className={styles.labelShort}>Expiration date:</span>
-                                    {moment(activePremiumProduct.expires).fromNow()}
-                                </span>
-                            }
-                            tooltipContent={<span>{activePremiumProduct.expires?.toDateString()}</span>}
-                        />
-                    </div>
-                ) : null}
-                {!isLoggingIn && !isLoggedIn ? <p>To use premium please login with Google</p> : ''}
+                <PremiumStatus products={products} />
+                {!isLoggingIn && !isLoggedIn ? <p>To use Premium please login with Google</p> : ''}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 <div>{isLoggingIn ? getLoadingElement() : ''}</div>
             </div>
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>
-                    <BuyPremium activePremiumProduct={activePremiumProduct} onNewActivePremiumProduct={loadPremiumProducts} />
+                    <BuyPremium activePremiumProduct={activePremiumProduct!} onNewActivePremiumProduct={loadPremiumProducts} />
                 </div>
             ) : null}
             {isLoggedIn ? (
@@ -156,7 +141,7 @@ function Premium() {
                         </Modal>
                     </h2>
                     {!cancellationRightLossConfirmed ? (
-                        <p>
+                        <div style={{ paddingBottom: '15px' }}>
                             <Form.Check
                                 id={'cancellationRightCheckbox'}
                                 className={styles.cancellationRightCheckbox}
@@ -165,12 +150,13 @@ function Premium() {
                                     localStorage.setItem(CANCELLATION_RIGHT_CONFIRMED, e.target.checked.toString())
                                     setCancellationRightLossConfirmed(e.target.checked)
                                 }}
+                                inline
                             />
                             <label htmlFor={'cancellationRightCheckbox'}>
                                 By buying one of the following products, you confirm the immediate execution of the contract, hereby losing your cancellation
                                 right.
                             </label>
-                        </p>
+                        </div>
                     ) : null}
                     <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
                 </div>
@@ -182,8 +168,8 @@ function Premium() {
                     <Card.Title>
                         {hasPremium ? (
                             <p>
-                                Thank you for your support. You have a Premium account. By buying another Premium-Plan you can extend your premium-time. You can
-                                use the following premium-features:
+                                Thank you for your support. You have a Premium account. By buying another Premium plan you can extend your time. You can use the
+                                following premium features:
                             </p>
                         ) : (
                             <p>Log in and buy Premium to support us and get access to these features</p>

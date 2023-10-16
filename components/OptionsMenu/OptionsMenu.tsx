@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { MoreVert as MoreVertIcon } from '@mui/icons-material'
+'use client'
+import React from 'react'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import styles from './OptionsMenu.module.css'
 import { Button, Dropdown, DropdownButton } from 'react-bootstrap'
 
@@ -25,7 +26,6 @@ const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
 ))
 
 function OptionsMenu(props: Props) {
-    
     let available: AvailableLinks[] = []
     const isItemPage = (props.selected as Item)?.tag !== undefined
     const isPlayerPage = !isItemPage
@@ -35,14 +35,11 @@ function OptionsMenu(props: Props) {
         available.push({ title: 'Wiki', url: 'https://hypixel-skyblock.fandom.com/wiki/' + name })
         if ((props.selected as Item).bazaar) {
             available.push({ title: 'Skyblock.bz', url: 'https://Skyblock.bz/product/' + tag })
-        } else {
-            available.push({ title: 'HyAuctions', url: 'https://craftlink.xyz/items/' + tag })
         }
     } else if (isPlayerPage) {
         let player = props.selected as Player
         available.push({ title: 'SkyCrypt', url: 'https://skycrypt.coflnet.com/stats/' + player?.uuid })
         available.push({ title: 'Plancke', url: 'https://plancke.io/hypixel/player/stats/' + player?.uuid })
-        available.push({ title: 'HyAuctions', url: 'https://auctions.craftlink.xyz/players/' + player?.uuid })
     }
 
     const navigate = (url: string) => {

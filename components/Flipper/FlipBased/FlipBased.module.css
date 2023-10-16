@@ -1,3 +1,12 @@
 .cardWrapper {
     padding: 15px 15px 0 0;
 }
+
+.filterInput{
+    max-width: 200px;
+}
+
+.filterContainer{
+    display: flex;
+    justify-content: flex-end;
+}

@@ -1,11 +1,20 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+'use client'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
-import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSetting, handleSettingsImport, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
+import {
+    FLIPPER_FILTER_KEY,
+    FLIP_CUSTOMIZING_KEY,
+    getSettingsObject,
+    handleSettingsImport,
+    mapSettingsToApiFormat,
+    RESTRICTIONS_SETTINGS_KEY,
+    setSetting
+} from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import Flip from '../Flip/Flip'
-import { Help as HelpIcon } from '@mui/icons-material'
+import HelpIcon from '@mui/icons-material/Help'
 import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
 import styles from './FlipCustomize.module.css'
@@ -85,13 +94,13 @@ function FlipCustomize() {
     }
 
     function exportFilter() {
-        let exportFilter = {}
+        let toExport = mapSettingsToApiFormat(
+            getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}),
+            getSettingsObject<FlipCustomizeSettings>(FLIP_CUSTOMIZING_KEY, {}),
+            getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+        )
 
-        exportFilter[FLIP_CUSTOMIZING_KEY] = getSetting(FLIP_CUSTOMIZING_KEY, '{}')
-        exportFilter[RESTRICTIONS_SETTINGS_KEY] = getSetting(RESTRICTIONS_SETTINGS_KEY, '[]')
-        exportFilter[FLIPPER_FILTER_KEY] = getSetting(FLIPPER_FILTER_KEY, '{}')
-
-        download('filter.json', JSON.stringify(exportFilter))
+        download('filter.json', JSON.stringify(toExport))
     }
 
     function readImportFile(e) {
@@ -107,32 +116,50 @@ function FlipCustomize() {
         return true
     }
 
-    function getFlipFinderWarningElement(): JSX.Element {
-        if (!flipCustomizeSettings.useLowestBinForProfit) {
-            return <></>
-        }
+    function getFlipFinderWarningElement(): JSX.Element | null {
+        let warnings: string[] = []
+
         let sniperFinder = FLIP_FINDERS.find(finder => finder.label === 'Sniper')
-        if (!sniperFinder) {
-            console.error("Finder with label 'Sniper' not found")
-            return <></>
-        }
         if (
-            !flipCustomizeSettings.finders ||
-            flipCustomizeSettings.finders.length === 0 ||
-            flipCustomizeSettings.finders.length > 1 ||
-            flipCustomizeSettings.finders[0].toString() !== sniperFinder.value
+            sniperFinder &&
+            flipCustomizeSettings.useLowestBinForProfit &&
+            (!flipCustomizeSettings.finders ||
+                flipCustomizeSettings.finders.length === 0 ||
+                flipCustomizeSettings.finders.length > 1 ||
+                flipCustomizeSettings.finders[0].toString() !== sniperFinder.value)
         ) {
+            warnings.push(
+                'Only use the "Sniper"-Finder with "Use lbin to calculate profit option". Using other finders may lead to muliple seconds of delay as this will require additional calculations.'
+            )
+        }
+
+        let tfmFinder = FLIP_FINDERS.find(finder => finder.label === 'TFM')
+        if (flipCustomizeSettings?.finders?.find(finder => finder.toString() === tfmFinder?.value)) {
+            warnings.push('The "TFM"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
+        }
+
+        let stonksFinder = FLIP_FINDERS.find(finder => finder.label === 'Stonks')
+        if (flipCustomizeSettings?.finders?.find(finder => finder.toString() === stonksFinder?.value)) {
+            warnings.push('The "Stonks"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
+        }
+
+        if (warnings.length === 0) {
+            return null
+        }
+        if (warnings.length === 1) {
             return (
                 <b>
-                    <p style={{ color: 'red' }}>
-                        Only use the "Sniper"-Finder with 'Use lbin to calculate profit option'. Using other finders may leed to muliple seconds of delay as
-                        this will require additional calculations.
-                    </p>
+                    <p style={{ color: 'red' }}>{warnings[0]}</p>
                 </b>
             )
-        } else {
-            return <></>
         }
+        return (
+            <ul style={{ color: 'red' }}>
+                {warnings.map(warning => (
+                    <li>{warning}</li>
+                ))}
+            </ul>
+        )
     }
 
     const useLowestBinHelpElement = (
@@ -145,7 +172,11 @@ function FlipCustomize() {
     const MultiValueContainer = props => {
         return (
             <components.MultiValueContainer {...props}>
-                <Tooltip type={'hover'} content={<div {...props.innerProps}>{props.children}</div>} tooltipContent={<span>{props.data.description}</span>} />
+                <Tooltip
+                    type={'hover'}
+                    content={<span style={props.innerProps.css}>{props.children}</span>}
+                    tooltipContent={<span>{props.data.description}</span>}
+                />
             </components.MultiValueContainer>
         )
     }
@@ -498,6 +529,21 @@ function FlipCustomize() {
                                     type="checkbox"
                                 />
                             </Form.Group>
+                            <Form.Group>
+                                <Form.Label className={styles.label} htmlFor="modNoAdjustToPurse">
+                                    Don't show flips that <br /> cost more than purse
+                                </Form.Label>
+                                <Form.Check
+                                    onChange={event => {
+                                        updateApiSetting('modNoAdjustToPurse', !event.target.checked)
+                                        setFlipCustomizeSetting('modNoAdjustToPurse', !event.target.checked)
+                                    }}
+                                    defaultChecked={!flipCustomizeSettings.modNoAdjustToPurse}
+                                    id="modNoAdjustToPurse"
+                                    style={{ display: 'inline' }}
+                                    type="checkbox"
+                                />
+                            </Form.Group>
                         </div>
                     </Form>
                     <div style={{ marginLeft: '30px', marginRight: '30px' }}>
@@ -527,6 +573,28 @@ function FlipCustomize() {
                         {/* This is the "true" upload field. It is called by the "Import"-Button */}
                         <input onChange={readImportFile} style={{ display: 'none' }} type="file" id="fileUpload" />
                     </div>
+                    <Form.Group style={{ marginTop: 15 }}>
+                        <Form.Check
+                            onChange={() => {
+                                let wasDisabled = localStorage.getItem('disableRiskyFinderImportProtection') === 'true'
+                                localStorage.setItem('disableRiskyFinderImportProtection', (!wasDisabled).toString())
+                            }}
+                            defaultChecked={localStorage.getItem('disableRiskyFinderImportProtection') !== 'true'}
+                            id="riskyFinderProtection"
+                            style={{ display: 'inline', marginRight: 10 }}
+                            type="checkbox"
+                        />
+                        <Form.Label className={styles.label} htmlFor="riskyFinderProtection">
+                            Risky finder protection{' '}
+                            <Tooltip
+                                type="hover"
+                                content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />}
+                                tooltipContent={
+                                    <span>This setting disables risky finders when importing settings. Only disable this if you know what you are doing!</span>
+                                }
+                            />
+                        </Form.Label>
+                    </Form.Group>
                 </div>
                 <hr />
             </div>

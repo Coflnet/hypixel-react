@@ -1,17 +1,22 @@
+'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser'
 import FilterElement from '../FilterElement/FilterElement'
-import { AddCircleOutline as AddIcon, Help as HelpIcon, Delete as DeleteIcon } from '@mui/icons-material'
-import { camelCaseToSentenceCase } from '../../utils/Formatter'
+import DeleteIcon from '@mui/icons-material/Delete'
+import HelpIcon from '@mui/icons-material/Help'
+import AddIcon from '@mui/icons-material/AddCircleOutline'
+import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
-import { useRouter } from 'next/router'
 import { btoaUnicode } from '../../utils/Base64Utils'
 import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
+import ModAdvert from './ModAdvert'
+import { isClientSideRendering } from '../../utils/SSRUtils'
+import { usePathname, useRouter } from 'next/navigation'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -20,6 +25,9 @@ interface Props {
     ignoreURL?: boolean
     autoSelect?: boolean
     defaultFilter?: ItemFilter
+    disableLastUsedFilter?: boolean
+    showModAdvert?: boolean
+    onIsValidChange?(newIsValid: boolean)
 }
 
 const groupedFilter = [
@@ -28,27 +36,36 @@ const groupedFilter = [
 ]
 
 function ItemFilter(props: Props) {
-    let [itemFilter, _setItemFilter] = useState<ItemFilter>(props.defaultFilter || {})
+    let router = useRouter()
+    let pathname = usePathname()
+    let [itemFilter, _setItemFilter] = useState<ItemFilter>({})
     let [expanded, setExpanded] = useState(props.forceOpen || false)
     let [selectedFilters, setSelectedFilters] = useState<string[]>([])
     let [showInfoDialog, setShowInfoDialog] = useState(false)
+    let [invalidFilters, _setInvalidFilters] = useState(new Set<string>())
 
     let typeaheadRef = useRef(null)
 
-    let router = useRouter()
-
     useEffect(() => {
-        initFilter()
+        if (props.filters && props.filters.length > 0) {
+            initFilter()
+        }
     }, [JSON.stringify(props.filters)])
 
     function initFilter() {
         if (props.ignoreURL && !props.defaultFilter) {
             return
         }
-        itemFilter = props.defaultFilter ? props.defaultFilter : getPrefillFilter(props.filters, props.ignoreURL)
+        itemFilter = props.defaultFilter
+            ? JSON.parse(JSON.stringify(props.defaultFilter))
+            : getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
+                if (!props.filters?.find(f => f.name === name)) {
+                    delete itemFilter[name]
+                    return
+                }
                 enableFilter(name)
                 getGroupedFilter(name).forEach(filter => enableFilter(filter))
             })
@@ -77,6 +94,17 @@ function ItemFilter(props: Props) {
         }
 
         return result
+    }
+
+    function setUrlFilterString(itemFilterString: string) {
+        if (isClientSideRendering()) {
+            let searchParams = new URLSearchParams(window.location.search)
+            searchParams.set('itemFilter', itemFilterString)
+            router.replace(`${pathname}?${searchParams.toString()}`)
+            window.history.replaceState(null, '', `${pathname}?${searchParams.toString()}`)
+        } else {
+            console.error('Tried to update url query "itemFilter" during serverside rendering')
+        }
     }
 
     let enableFilter = (filterName: string) => {
@@ -117,6 +145,11 @@ function ItemFilter(props: Props) {
     }
 
     function onFilterRemoveClick(filterName: string) {
+        if (invalidFilters.has(filterName)) {
+            let newInvalidFilters = new Set(invalidFilters)
+            newInvalidFilters.delete(filterName)
+            setInvalidFilters(newInvalidFilters)
+        }
         removeFilter(filterName)
         getGroupedFilter(filterName).forEach(filter => removeFilter(filter))
     }
@@ -143,7 +176,7 @@ function ItemFilter(props: Props) {
     }
 
     let setItemFilter = (itemFilter: ItemFilter) => {
-        _setItemFilter(itemFilter)
+        _setItemFilter({ ...itemFilter })
         updateURLQuery(itemFilter)
     }
 
@@ -153,15 +186,15 @@ function ItemFilter(props: Props) {
         }
 
         let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoaUnicode(JSON.stringify(filter))
-
-        router.query.itemFilter = filterString || ''
-        router.replace(router.asPath, undefined, { shallow: true })
+        setUrlFilterString(filterString || '')
     }
 
     function onFilterChange(filter: ItemFilter) {
+        let filterCopy = { ...filter }
+
         let valid = true
-        Object.keys(filter).forEach(key => {
-            if (!checkForValidGroupedFilter(key, filter)) {
+        Object.keys(filterCopy).forEach(key => {
+            if (!checkForValidGroupedFilter(key, filterCopy)) {
                 valid = false
                 return
             }
@@ -171,10 +204,17 @@ function ItemFilter(props: Props) {
             return
         }
 
-        setItemFilter(filter!)
-        localStorage.setItem(LAST_USED_FILTER, JSON.stringify(filter))
+        setItemFilter(filterCopy!)
+        if (!props.disableLastUsedFilter) {
+            localStorage.setItem(LAST_USED_FILTER, JSON.stringify(filterCopy))
+        }
         if (props.onFilterChange) {
-            props.onFilterChange(filter)
+            Object.keys(filterCopy).forEach(key => {
+                if (filterCopy[key] === '' || filterCopy[key] === null) {
+                    delete filterCopy[key]
+                }
+            })
+            props.onFilterChange(filterCopy)
         }
     }
 
@@ -206,17 +246,37 @@ function ItemFilter(props: Props) {
         onFilterChange(newFilter)
     }
 
+    function onIsValidChange(filterName: string, newIsValid: boolean) {
+        let newInvalidFilters = new Set(invalidFilters)
+        if (newIsValid) {
+            newInvalidFilters.delete(filterName)
+        } else {
+            newInvalidFilters.add(filterName)
+        }
+        setInvalidFilters(newInvalidFilters)
+    }
+
+    function setInvalidFilters(newInvalidFilters: Set<string>) {
+        if (props.onIsValidChange) {
+            props.onIsValidChange(newInvalidFilters.size === 0)
+        }
+        _setInvalidFilters(newInvalidFilters)
+    }
+
     function getDefaultValue(filterName: string): string {
         let options = props.filters?.find(f => f.name === filterName)
         let defaultValue: any = ''
         if (options && options.options[0] !== null && options.options[0] !== undefined) {
             // dont set the first option for search-selects
-            if (hasFlag(options.type, FilterType.EQUAL) || hasFlag(options.type, FilterType.BOOLEAN)) {
+            if ((hasFlag(options.type, FilterType.EQUAL) && hasFlag(options.type, FilterType.SIMPLE)) || hasFlag(options.type, FilterType.BOOLEAN)) {
                 defaultValue = options.options[0]
                 if (options.name === 'Everything') {
                     defaultValue = 'true'
                 }
             }
+        }
+        if (filterName === 'Color') {
+            defaultValue = '#000000'
         }
         return defaultValue
     }
@@ -233,7 +293,12 @@ function ItemFilter(props: Props) {
         }
         return (
             <div key={filterName} className={styles.filterElement}>
-                <FilterElement onFilterChange={onFilterElementChange} options={options} defaultValue={defaultValue} />
+                <FilterElement
+                    onFilterChange={onFilterElementChange}
+                    options={options}
+                    defaultValue={defaultValue}
+                    onIsValidChange={newValue => onIsValidChange(filterName, newValue)}
+                />
                 <div className={styles.removeFilter} onClick={() => onFilterRemoveClick(filterName)}>
                     <DeleteIcon color="error" />
                 </div>
@@ -259,7 +324,7 @@ function ItemFilter(props: Props) {
                     }}
                 >
                     <Modal.Header closeButton>
-                        <h4>Item-Filter Information</h4>
+                        <h4>Item Filter Information</h4>
                     </Modal.Header>
                     <Modal.Body>
                         <p>
@@ -268,7 +333,7 @@ function ItemFilter(props: Props) {
                         </p>
                         <hr />
                         <h4>
-                            <Badge variant="danger">Caution</Badge>
+                            <Badge bg="danger">Caution</Badge>
                         </h4>
                         <p>
                             Some filter requests take quite some time to process. That's because we have to search through millions of auctions that potentially
@@ -307,6 +372,7 @@ function ItemFilter(props: Props) {
                         {infoIconElement}
                     </Card.Title>
                     <Card.Body>
+                        {props.showModAdvert ? <ModAdvert /> : null}
                         <Form style={{ marginBottom: '5px' }}>
                             <Form.Group>
                                 {props?.filters && props.filters?.length > 0 ? (
@@ -314,12 +380,12 @@ function ItemFilter(props: Props) {
                                         id="add-filter-typeahead"
                                         autoFocus={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0
                                                 : props.autoSelect
                                         }
                                         defaultOpen={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL)).length === 0
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0
                                                 : props.autoSelect
                                         }
                                         ref={typeaheadRef}
@@ -328,7 +394,23 @@ function ItemFilter(props: Props) {
                                         onChange={addFilter}
                                         options={props.filters}
                                         labelKey={filter => {
-                                            return camelCaseToSentenceCase(filter.name)
+                                            let name = (filter as Record<string, any>).name
+                                            if (name[0].toLowerCase() === name[0]) {
+                                                return convertTagToName(name)
+                                            }
+                                            return camelCaseToSentenceCase(name)
+                                        }}
+                                        filterBy={(option, props) => {
+                                            let searchString = props.text.replace(/\s/g, '').toLowerCase()
+                                            let name = (props.labelKey as Function)(option).toLowerCase()
+                                            let initials = name.match(/\b\w/g).join('')
+                                            let description = (option as any).description ? (option as any).description.replace(/\s/g, '').toLowerCase() : ''
+
+                                            return (
+                                                name.replace(/\s/g, '').includes(searchString) ||
+                                                initials.includes(searchString) ||
+                                                description.includes(searchString)
+                                            )
                                         }}
                                     ></Typeahead>
                                 ) : (
@@ -352,9 +434,9 @@ function ItemFilter(props: Props) {
 }
 export default ItemFilter
 
-export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: boolean = false) {
+export function getPrefillFilter(filterOptions: FilterOptions[] = [], ignoreURL: boolean = false, disableLastUsedFilter: boolean = false) {
     let itemFilter = !ignoreURL ? getItemFilterFromUrl() : {}
-    if (Object.keys(itemFilter).length === 0) {
+    if (Object.keys(itemFilter).length === 0 && !disableLastUsedFilter) {
         itemFilter = getFilterFromLocalStorage(filterOptions) || {}
     }
     return itemFilter
@@ -364,7 +446,7 @@ export function getPrefillFilter(filterOptions: FilterOptions[], ignoreURL: bool
  * Gets the last used filter from the local storage and removes all properties not available in the allowed filters
  * @returns the filter or null if no last used filter is found
  */
-function getFilterFromLocalStorage(filterOptions: FilterOptions[]): ItemFilter {
+function getFilterFromLocalStorage(filterOptions: FilterOptions[] = []): ItemFilter | null {
     let localStorageLastFilter = localStorage.getItem(LAST_USED_FILTER)
     if (localStorageLastFilter === null) {
         return null

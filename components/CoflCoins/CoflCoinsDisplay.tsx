@@ -1,9 +1,9 @@
-import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+'use client'
+import { useEffect, useState } from 'react'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import { useCoflCoins } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { Number } from '../Number/Number'
 import styles from './CoflCoinsDisplay.module.css'
 
 export function CoflCoinsDisplay() {
@@ -32,7 +32,13 @@ export function CoflCoinsDisplay() {
     return (
         <div className="cofl-coins-display">
             <fieldset className={styles.border} style={{ width: 'max-content', borderRadius: '15px', textAlign: 'center' }}>
-                {isLoading ? getLoadingElement(<span />) : <b style={{ fontSize: 'x-large' }}>Balance: {numberWithThousandsSeperators(coflCoins)} CoflCoins</b>}
+                {isLoading ? (
+                    getLoadingElement(<span />)
+                ) : (
+                    <b style={{ fontSize: 'x-large' }}>
+                        Balance: <Number number={coflCoins} /> CoflCoins
+                    </b>
+                )}
             </fieldset>
         </div>
     )

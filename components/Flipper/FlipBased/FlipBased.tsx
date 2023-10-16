@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import { Card, Badge } from 'react-bootstrap'
+'use client'
 import moment from 'moment'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
-import api from '../../../api/ApiHelper'
-import { getLoadingElement } from '../../../utils/LoadingUtils'
-import { useForceUpdate } from '../../../utils/Hooks'
+import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { Badge, Card, Form } from 'react-bootstrap'
+import api from '../../../api/ApiHelper'
+import { useForceUpdate } from '../../../utils/Hooks'
+import { getLoadingElement } from '../../../utils/LoadingUtils'
+import { Number } from '../../Number/Number'
 import styles from './FlipBased.module.css'
 
 interface Props {
@@ -17,13 +19,14 @@ function FlipBased(props: Props) {
     let [auctions, setAuctions] = useState<Auction[]>([])
     let [isLoading, setIsLoading] = useState(true)
     let [hasLoadingFailed, setHasLoadingFailed] = useState(false)
+    let [orderBy, setOrderBy] = useState('time')
 
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
         api.getFlipBasedAuctions(props.auctionUUID)
             .then(auctions => {
-                setAuctions(auctions.sort((a, b) => b.end.getTime() - a.end.getTime()))
+                setAuctions(auctions)
                 setIsLoading(false)
             })
             .catch(() => {
@@ -37,19 +40,21 @@ function FlipBased(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.iconUrl, props.item.name])
 
+    auctions = orderBy === 'time' ? auctions.sort((a, b) => b.end.getTime() - a.end.getTime()) : auctions.sort((a, b) => b.highestBid - a.highestBid)
     let auctionsElement = auctions.map(auction => {
         return (
-            <div className={styles.cardWrapper} style={{ display: 'inline-block' }} key={auction.uuid}>
-                <span className="disableLinkStyle">
-                    <Link href={`/auction/${auction.uuid}`}>
-                        <a className="disableLinkStyle">
+            <>
+                <div className={styles.cardWrapper} style={{ display: 'inline-block' }} key={auction.uuid}>
+                    <span className="disableLinkStyle">
+                        <Link href={`/auction/${auction.uuid}`} className="disableLinkStyle">
                             <Card className="card">
                                 <Card.Header style={{ padding: '10px' }}>
                                     <p className="ellipsis" style={{ width: '180px' }}>
-                                        <img
+                                        <Image
                                             crossOrigin="anonymous"
-                                            src={props.item.iconUrl}
+                                            src={props.item.iconUrl || ''}
                                             height="32"
+                                            width="32"
                                             alt=""
                                             style={{ marginRight: '5px' }}
                                             loading="lazy"
@@ -61,10 +66,12 @@ function FlipBased(props: Props) {
                                     <div>
                                         <ul>
                                             <li>Ended {moment(auction.end).fromNow()}</li>
-                                            <li>{numberWithThousandsSeperators(auction.highestBid || auction.startingBid)} Coins</li>
+                                            <li>
+                                                <Number number={auction.highestBid || auction.startingBid} /> Coins
+                                            </li>
                                             {auction.bin ? (
                                                 <li>
-                                                    <Badge style={{ marginLeft: '5px' }} variant="success">
+                                                    <Badge style={{ marginLeft: '5px' }} bg="success">
                                                         BIN
                                                     </Badge>
                                                 </li>
@@ -75,10 +82,10 @@ function FlipBased(props: Props) {
                                     </div>
                                 </Card.Body>
                             </Card>
-                        </a>
-                    </Link>
-                </span>
-            </div>
+                        </Link>
+                    </span>
+                </div>
+            </>
         )
     })
 
@@ -86,7 +93,25 @@ function FlipBased(props: Props) {
         <div>
             {isLoading ? getLoadingElement() : null}
             {!isLoading && !hasLoadingFailed && auctions.length > 0 ? (
-                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch' }}>{auctionsElement}</div>
+                <>
+                    <div className={styles.filterContainer}>
+                        <Form.Select
+                            className={styles.filterInput}
+                            defaultValue={'time'}
+                            onChange={e => {
+                                setOrderBy(e.target.value)
+                            }}
+                        >
+                            <option key="time" value="time">
+                                Time
+                            </option>
+                            <option key="price" value="price">
+                                Price
+                            </option>
+                        </Form.Select>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch' }}>{auctionsElement}</div>
+                </>
             ) : null}
             {!isLoading && !hasLoadingFailed && auctions.length === 0 ? <p>No auctions found</p> : null}
             {hasLoadingFailed ? <p>An error occured while loading the auctions</p> : null}

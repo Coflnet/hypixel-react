@@ -6,14 +6,14 @@ import { convertTagToName } from '../Formatter'
 
 export function parseItemBidForList(bid: any): BidForList {
     return {
-        uuid: bid.uuid,
+        uuid: bid.uuid || bid.auctionId,
         end: parseDate(bid.end),
         item: {
             name: bid.itemName,
             tag: bid.tag
         },
         highestBid: bid.highestBid,
-        highestOwn: bid.highestOwn,
+        highestOwn: bid.highestOwnBid,
         bin: bid.bin
     } as BidForList
 }
@@ -31,7 +31,7 @@ export function parseItemBid(bid: any): ItemBid {
 
 export function parseAuction(auction: any): Auction {
     let parsedAuction = {
-        uuid: auction.uuid,
+        uuid: auction.uuid || auction.auctionId,
         end: parseDate(auction.end),
         item: {
             tag: auction.tag,
@@ -87,7 +87,19 @@ export function parseItemPrice(priceData: any): ItemPrice {
 }
 
 export function parseItem(item: any): Item {
-    return {
+    const CRAB_HAT_IMAGES = {
+        red: 'https://mc-heads.net/head/56b61f826dd6bfc1e3191a8369aeb0435c5a5335563431a538585ad039da1e0c',
+        orange: 'https://mc-heads.net/head/ae38a15704089676a24e9eeccf4c290644d352c7d8f2b4135fa3538625107db',
+        yellow: 'https://mc-heads.net/head/6b92684647051bd27ee04adb4098ee9bccca45a726a7cbf38e98b7e75cb889f4',
+        lime: 'https://mc-heads.net/head/993c60fd0dd130695e378eef010a7d3c5dfde77f6b82b20b8124cfb830017ff',
+        green: 'https://mc-heads.net/head/98d99983ab5986921251a29bba96c8e734f5de084a296cb627bcd64fd0fba593',
+        aqua: 'https://mc-heads.net/head/2e1556958b1df4fd6228c9dcbd8c053f5d8902a41c4a59376bd0df1c60be8369',
+        purple: 'https://mc-heads.net/head/2e3af5824014b57f4a4a84d4bb7fb88cac9e4ac75d00c7adb09dfe5ab737e224',
+        pink: 'https://mc-heads.net/head/effaf0dc89da58bd1ed08f917407853e58d7bcbf5e6b5f33586389eb863a5bbd',
+        black: 'https://mc-heads.net/head/cb85828267e59e83edc3bef235102e43fb70922622ccc3809a326a8c5632199a'
+    }
+
+    let parsed = {
         tag: item.tag,
         name: item.altNames && item.altNames[0] && item.altNames[0].Name ? item.altNames[0].Name : item.itemName || item.name,
         category: item.category,
@@ -95,33 +107,20 @@ export function parseItem(item: any): Item {
         tier: item.tier,
         bazaar: hasFlag(item.flags, 1)
     }
-}
 
-function _formatName(enchantment: string): string {
-    let formatted: string = enchantment.replace(new RegExp('_', 'g'), ' ')
-    formatted = _capitalizeWords(formatted)
-    return formatted
-}
+    if (item.flatNbt && item.flatNbt['party_hat_color']) {
+        parsed.iconUrl = CRAB_HAT_IMAGES[item.flatNbt['party_hat_color']] || parsed.iconUrl
+    }
 
-function _capitalizeWords(text: string): string {
-    return text.replace(/\w\S*/g, function (txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    })
+    return parsed
 }
 
 export function parseEnchantment(enchantment: any): Enchantment {
     return {
         id: enchantment.id,
         level: enchantment.level,
-        name: enchantment.type ? _formatName(enchantment.type) : '',
+        name: enchantment.type ? convertTagToName(enchantment.type) : '',
         color: enchantment.color
-    }
-}
-
-export function parseReforge(reforge: any): Reforge {
-    return {
-        id: reforge.id,
-        name: _formatName(reforge.name)
     }
 }
 
@@ -148,7 +147,8 @@ export function parseSearchResultItem(item: any): SearchResultItem {
         type: item.type,
         route: _getRoute(),
         urlSearchParams: item.type === 'filter' ? new URLSearchParams(item.id.split('?')[1] + '&apply=true') : undefined,
-        id: item.id
+        id: item.id,
+        tier: item.tier
     }
 }
 
@@ -190,7 +190,8 @@ export function parseAuctionDetails(auctionDetails: any): AuctionDetails {
         profileId: auctionDetails.profileId,
         reforge: auctionDetails.reforge,
         nbtData: auctionDetails.flatNbt ? auctionDetails.flatNbt : undefined,
-        itemCreatedAt: parseDate(auctionDetails.itemCreatedAt)
+        itemCreatedAt: parseDate(auctionDetails.itemCreatedAt),
+        uuid: auctionDetails.uuid
     }
 }
 
@@ -212,8 +213,8 @@ export function parseSubscriptionTypes(typeInNumeric: number): SubscriptionType[
     return subTypes
 }
 
-function _getTypeFromSubTypes(subTypes: SubscriptionType[]): string {
-    let type = ''
+function _getTypeFromSubTypes(subTypes: SubscriptionType[]): 'item' | 'player' | 'auction' {
+    let type
     switch (SubscriptionType[subTypes[0].toString()]) {
         case SubscriptionType.BIN:
         case SubscriptionType.PRICE_HIGHER_THAN:
@@ -317,7 +318,8 @@ export function parseFilterOption(filterOption): FilterOptions {
     return {
         name: filterOption.name,
         options: filterOption.options,
-        type: filterOption.type
+        type: filterOption.type,
+        description: filterOption.description
     }
 }
 
@@ -363,7 +365,8 @@ export function parseCraftIngredient(ingredient): CraftingIngredient {
 export function parseProfitableCraft(craft): ProfitableCraft {
     let c = {
         item: {
-            tag: craft.itemId
+            tag: craft.itemId,
+            name: craft.itemName
         },
         craftCost: craft.craftCost,
         sellPrice: craft.sellPrice,
@@ -383,7 +386,6 @@ export function parseProfitableCraft(craft): ProfitableCraft {
               }
             : null
     } as ProfitableCraft
-    c.item.name = convertTagToName(c.item.tag)
     c.ingredients.forEach(i => {
         i.item.name = convertTagToName(i.item.tag)
         i.item.iconUrl = api.getItemImageUrl(i.item)
@@ -465,7 +467,8 @@ export function parseKatFlip(katFlip): KatFlip {
         referenceAuctionUUID: katFlip.referenceAuction,
         targetRarity: katFlip.targetRarity,
         upgradeCost: katFlip.upgradeCost,
-        volume: katFlip.volume
+        volume: katFlip.volume,
+        originAuctionName: katFlip.originAuctionName
     } as KatFlip
     flip.coreData.item.iconUrl = api.getItemImageUrl(flip.coreData.item)
     return flip
@@ -485,7 +488,13 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
         uId: flip?.uId,
         finder: getFlipFinders([flip.finder || 0])[0],
         sellTime: parseDate(flip?.sellTime),
-        profit: flip?.profit
+        profit: flip?.profit,
+        propertyChanges: flip.propertyChanges?.map(change => {
+            return {
+                description: change.description,
+                effect: change.effect
+            }
+        })
     } as FlipTrackingFlip
     flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip?.item)
     return flipTrackingFlip
@@ -530,18 +539,18 @@ export function parseFlipTrackingResponse(flipTrackingResponse): FlipTrackingRes
 export function parseBazaarPrice(bazaarPrice): BazaarPrice {
     return {
         buyData: {
-            max: bazaarPrice.maxBuy,
-            min: bazaarPrice.minBuy,
-            price: bazaarPrice.buy,
-            volume: bazaarPrice.buyVolume,
-            moving: bazaarPrice.buyMovingWeek
+            max: bazaarPrice.maxBuy || 0,
+            min: bazaarPrice.minBuy || 0,
+            price: bazaarPrice.buy || 0,
+            volume: bazaarPrice.buyVolume || 0,
+            moving: bazaarPrice.buyMovingWeek || 0
         },
         sellData: {
-            max: bazaarPrice.maxSell,
-            min: bazaarPrice.minSell,
-            price: bazaarPrice.sell,
-            volume: bazaarPrice.sellVolume,
-            moving: bazaarPrice.sellMovingWeek
+            max: bazaarPrice.maxSell || 0,
+            min: bazaarPrice.minSell || 0,
+            price: bazaarPrice.sell || 0,
+            volume: bazaarPrice.sellVolume || 0,
+            moving: bazaarPrice.sellMovingWeek || 0
         },
         timestamp: parseDate(bazaarPrice.timestamp)
     }

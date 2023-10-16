@@ -1,3 +1,9 @@
+import { toast } from 'react-toastify'
+import { v4 as generateUUID } from 'uuid'
+import { atobUnicode } from '../utils/Base64Utils'
+import cacheUtils from '../utils/CacheUtils'
+import { getFlipCustomizeSettings } from '../utils/FlipUtils'
+import { enchantmentAndReforgeCompare } from '../utils/Formatter'
 import {
     parseAccountInfo,
     parseAuction,
@@ -24,7 +30,6 @@ import {
     parseProfitableCraft,
     parseRecentAuction,
     parseRefInfo,
-    parseReforge,
     parseSearchResultItem,
     parseSkyblockProfile,
     parseSubscription,
@@ -32,20 +37,23 @@ import {
     parseTEMPet,
     parseTEMPlayer
 } from '../utils/Parser/APIResponseParser'
-import { RequestType, SubscriptionType, Subscription, HttpApi } from './ApiTypes.d'
-import { websocketHelper } from './WebsocketHelper'
-import { v4 as generateUUID } from 'uuid'
-import { enchantmentAndReforgeCompare } from '../utils/Formatter'
-import { toast } from 'react-toastify'
-import cacheUtils from '../utils/CacheUtils'
-import { checkForExpiredPremium } from '../utils/ExpiredPremiumReminderUtils'
-import { getFlipCustomizeSettings } from '../utils/FlipUtils'
-import { getProperty } from '../utils/PropertiesUtils'
-import { isClientSideRendering } from '../utils/SSRUtils'
-import { FLIPPER_FILTER_KEY, getSettingsObject, mapSettingsToApiFormat, RESTRICTIONS_SETTINGS_KEY, setSettingsChangedData } from '../utils/SettingsUtils'
-import { initHttpHelper } from './HttpHelper'
-import { atobUnicode } from '../utils/Base64Utils'
 import { PREMIUM_TYPES } from '../utils/PremiumTypeUtils'
+import { getProperty } from '../utils/PropertiesUtils'
+import {
+    FLIPPER_FILTER_KEY,
+    getSettingsObject,
+    LAST_PREMIUM_PRODUCTS,
+    mapSettingsToApiFormat,
+    RESTRICTIONS_SETTINGS_KEY,
+    setSettingsFromServerSide,
+    storeUsedTagsInLocalStorage
+} from '../utils/SettingsUtils'
+import { isClientSideRendering } from '../utils/SSRUtils'
+import { HttpApi, RequestType, Subscription, SubscriptionType } from './ApiTypes.d'
+import { initHttpHelper } from './HttpHelper'
+import { websocketHelper } from './WebsocketHelper'
+import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
+import properties from '../properties'
 
 function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
@@ -68,15 +76,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }, 20000)
 
     let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
-        if (!error || !error.Message) {
+        if (!error || !error.message) {
             return
         }
-        toast.error(error.Message)
+        if (isClientSideRendering()) {
+            toast.error(error.message, {
+                onClick: () => {
+                    if (error.Trace && canUseClipBoard()) {
+                        writeToClipboard(error.Trace)
+                    }
+                }
+            })
+        }
         console.log('RequestType: ' + requestType)
-        console.log('ErrorMessage: ' + error.Message)
+        console.log('ErrorMessage: ' + error.message)
         console.log('RequestData: ')
         console.log(requestData)
-        console.log('------------------------------')
+        console.log('------------------------------\n')
     }
 
     let search = (searchText: string): Promise<SearchResultItem[]> => {
@@ -95,7 +111,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SEARCH, error, searchText)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -116,7 +132,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ITEM_DETAILS, error, itemTag)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -124,19 +140,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getItemPrices = (itemTag: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]> => {
         return new Promise((resolve, reject) => {
-            let query = ''
-            if (!itemFilter || Object.keys(itemFilter).length === 0) {
-                itemFilter = undefined
-            } else {
-                Object.keys(itemFilter).forEach(key => {
-                    query += `${key}=${itemFilter[key]}&`
-                })
+            let params = new URLSearchParams()
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                params = new URLSearchParams(itemFilter)
             }
 
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_PRICES,
                 data: '',
-                customRequestURL: getApiEndpoint() + `/item/price/${itemTag}/history/${fetchSpan}?${query}`,
+                customRequestURL: getApiEndpoint() + `/item/price/${itemTag}/history/${fetchSpan}?${params.toString()}`,
                 requestMethod: 'GET',
                 requestHeader: {
                     'Content-Type': 'application/json'
@@ -154,7 +166,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         fetchSpan,
                         itemFilter
                     })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -175,7 +187,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         itemTag,
                         fetchSpan
                     })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -223,52 +235,59 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         startDateIso,
                         endDateIso
                     })
-                    reject()
+                    reject(error)
                 }
             })
         })
     }
 
-    let getAuctions = (uuid: string, amount: number, offset: number): Promise<Auction[]> => {
+    let getAuctions = (uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<Auction[]> => {
         return new Promise((resolve, reject) => {
-            let requestData = {
-                uuid: uuid,
-                amount: amount,
-                offset: offset
+            let params = new URLSearchParams()
+            params.append('page', page.toString())
+
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                Object.keys(itemFilter).forEach(key => {
+                    params.append(key, itemFilter[key])
+                })
             }
-            httpApi.sendLimitedCacheRequest(
-                {
-                    type: RequestType.PLAYER_AUCTION,
-                    data: requestData,
-                    resolve: (auctions: any) => {
-                        returnSSRResponse
-                            ? resolve(auctions)
-                            : resolve(
-                                  auctions.map((auction: any) => {
-                                      return parseAuction(auction)
-                                  })
-                              )
-                    },
-                    reject: (error: any) => {
-                        apiErrorHandler(RequestType.PLAYER_AUCTION, error, requestData)
-                        reject()
-                    }
+
+            httpApi.sendApiRequest({
+                type: RequestType.PLAYER_AUCTION,
+                customRequestURL: `${getApiEndpoint()}/player/${uuid}/auctions?${params.toString()}`,
+                data: '',
+                resolve: (auctions: any) => {
+                    returnSSRResponse
+                        ? resolve(auctions)
+                        : resolve(
+                              auctions.map((auction: any) => {
+                                  return parseAuction(auction)
+                              })
+                          )
                 },
-                2
-            )
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.PLAYER_AUCTION, error, { uuid, page })
+                    reject(error)
+                }
+            })
         })
     }
 
-    let getBids = (uuid: string, amount: number, offset: number): Promise<BidForList[]> => {
+    let getBids = (uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<BidForList[]> => {
         return new Promise((resolve, reject) => {
-            let requestData = {
-                uuid: uuid,
-                amount: amount,
-                offset: offset
+            let params = new URLSearchParams()
+            params.append('page', page.toString())
+
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                Object.keys(itemFilter).forEach(key => {
+                    params.append(key, itemFilter[key])
+                })
             }
-            httpApi.sendLimitedCacheRequest({
+
+            httpApi.sendApiRequest({
                 type: RequestType.PLAYER_BIDS,
-                data: requestData,
+                customRequestURL: `${getApiEndpoint()}/player/${uuid}/bids?${params.toString()}`,
+                data: '',
                 resolve: (bids: any) => {
                     resolve(
                         bids.map((bid: any) => {
@@ -277,8 +296,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     )
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.PLAYER_BIDS, error, requestData)
-                    reject()
+                    apiErrorHandler(RequestType.PLAYER_BIDS, error, { uuid, page })
+                    reject(error)
                 }
             })
         })
@@ -305,34 +324,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, '')
-                    reject()
-                }
-            })
-        })
-    }
-
-    let getReforges = (): Promise<Reforge[]> => {
-        return new Promise((resolve, reject) => {
-            httpApi.sendRequest({
-                type: RequestType.ALL_REFORGES,
-                data: '',
-                resolve: (reforges: any) => {
-                    let parsedReforges: Reforge[] = reforges.map(reforge => {
-                        return parseReforge({
-                            name: reforge.label,
-                            id: reforge.id
-                        })
-                    })
-                    parsedReforges = parsedReforges
-                        .filter(reforge => {
-                            return reforge.name!.toLowerCase() !== 'unknown'
-                        })
-                        .sort(enchantmentAndReforgeCompare)
-                    resolve(parsedReforges)
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.ALL_ENCHANTMENTS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -353,7 +345,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctionDetails = (auctionUUID: string): Promise<AuctionDetails> => {
+    let getAuctionDetails = (auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.AUCTION_DETAILS,
@@ -364,15 +356,25 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         return
                     }
                     if (!auctionDetails.auctioneer) {
-                        api.getPlayerName(auctionDetails.auctioneerId).then(name => {
-                            auctionDetails.auctioneer = {
-                                name,
-                                uuid: auctionDetails.auctioneerId
-                            }
-                            returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
-                        })
+                        api.getPlayerName(auctionDetails.auctioneerId)
+                            .then(name => {
+                                auctionDetails.auctioneer = {
+                                    name,
+                                    uuid: auctionDetails.auctioneerId
+                                }
+                            })
+                            .catch(e => {
+                                console.error(`Error fetching playername for ${auctionDetails.auctioneerId}. ${JSON.stringify(e)}`)
+                                auctionDetails.auctioneer = {
+                                    name: '',
+                                    uuid: auctionDetails.auctioneerId
+                                }
+                            })
+                            .finally(() => {
+                                resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
+                            })
                     } else {
-                        returnSSRResponse ? resolve(auctionDetails) : resolve(parseAuctionDetails(auctionDetails))
+                        resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
                     }
                 },
                 reject: (error: any) => {
@@ -383,6 +385,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let getPlayerName = (uuid: string): Promise<string> => {
+        // Reduce amount of API calls during test runs
+        if (properties.isTestRunner) {
+            return Promise.resolve('TestRunnerUser')
+        }
         return new Promise((resolve, reject) => {
             if (!uuid) {
                 resolve('')
@@ -397,7 +403,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_NAME, error, uuid)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -417,7 +423,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.SET_CONNECTION_ID, error, connectionId)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -433,7 +439,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_VERSION, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -496,7 +502,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.UNSUBSCRIBE, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -516,23 +522,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
     }
 
-    let setGoogle = (id: string): Promise<void> => {
+    let loginWithToken = (id: string): Promise<string> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
-                type: RequestType.SET_GOOGLE,
+                type: RequestType.LOGIN_WITH_TOKEN,
                 data: id,
-                resolve: () => {
-                    resolve()
+                resolve: token => {
+                    resolve(token)
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.SET_GOOGLE, error)
-                    reject()
+                    apiErrorHandler(RequestType.LOGIN_WITH_TOKEN, error)
+                    reject(error)
                 }
             })
         })
@@ -551,7 +557,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.FCM_TOKEN, error, token)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -559,25 +565,21 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getRecentAuctions = (itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]> => {
         return new Promise((resolve, reject) => {
-            let query = ''
-            if (!itemFilter || Object.keys(itemFilter).length === 0) {
-                itemFilter = undefined
-            } else {
-                Object.keys(itemFilter).forEach(key => {
-                    query += `${key}=${itemFilter[key]}&`
-                })
+            let params = new URLSearchParams()
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                params = new URLSearchParams(itemFilter)
             }
 
             httpApi.sendApiRequest({
                 type: RequestType.RECENT_AUCTIONS,
-                customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${query}`,
+                customRequestURL: getApiEndpoint() + `/auctions/tag/${itemTag}/recent/overview?${params.toString()}`,
                 data: '',
                 resolve: (data: any) => {
                     resolve(data ? data.map(a => parseRecentAuction(a)) : [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, itemTag)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -593,7 +595,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.RECENT_AUCTIONS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -622,9 +624,12 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         soldCallback?: Function,
         nextUpdateNotificationCallback?: Function,
         onSubscribeSuccessCallback?: Function,
+        onErrorCallback?: Function,
         forceSettingsUpdate: boolean = false
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+
+        storeUsedTagsInLocalStorage(restrictionList)
 
         let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
 
@@ -658,10 +663,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                                 soldCallback,
                                 nextUpdateNotificationCallback,
                                 undefined,
+                                onErrorCallback,
                                 true
                             )
                         } else {
-                            setSettingsChangedData(response.data)
+                            setSettingsFromServerSide(response.data)
                         }
                         break
                     case 'settingsUpdate':
@@ -669,7 +675,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         if (data.changer === window.sessionStorage.getItem('sessionId')) {
                             return
                         }
-                        setSettingsChangedData(response.data)
+                        setSettingsFromServerSide(response.data)
                         break
                     case 'ok':
                         if (onSubscribeSuccessCallback) {
@@ -683,10 +689,94 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             resubscribe: function (subscription) {
                 let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
                 let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-                subscribeFlips(restrictions, filter, getFlipCustomizeSettings(), flipCallback, soldCallback, nextUpdateNotificationCallback, undefined, false)
+                subscribeFlips(
+                    restrictions,
+                    filter,
+                    getFlipCustomizeSettings(),
+                    flipCallback,
+                    soldCallback,
+                    nextUpdateNotificationCallback,
+                    undefined,
+                    onErrorCallback,
+                    false
+                )
+            },
+            onError: function (message) {
+                toast.error(message)
+                if (onErrorCallback) {
+                    onErrorCallback()
+                }
             }
         })
     }
+
+    const debounceSubFlipAnonymFunction = (function () {
+        let timerId
+
+        return (
+            restrictionList: FlipRestriction[],
+            filter: FlipperFilter,
+            flipSettings: FlipCustomizeSettings,
+            flipCallback?: Function,
+            soldCallback?: Function,
+            nextUpdateNotificationCallback?: Function,
+            onSubscribeSuccessCallback?: Function
+        ) => {
+            clearTimeout(timerId)
+            timerId = setTimeout(() => {
+                websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+
+                let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
+
+                websocketHelper.subscribe({
+                    type: RequestType.SUBSCRIBE_FLIPS_ANONYM,
+                    data: requestData,
+                    callback: function (response) {
+                        switch (response.type) {
+                            case 'flip':
+                                if (flipCallback) {
+                                    flipCallback(parseFlipAuction(response.data))
+                                }
+                                break
+                            case 'nextUpdate':
+                                if (nextUpdateNotificationCallback) {
+                                    nextUpdateNotificationCallback()
+                                }
+                                break
+                            case 'sold':
+                                if (soldCallback) {
+                                    soldCallback(response.data)
+                                }
+                                break
+                            case 'ok':
+                                if (onSubscribeSuccessCallback) {
+                                    onSubscribeSuccessCallback()
+                                }
+                                break
+                            default:
+                                break
+                        }
+                    },
+                    resubscribe: function (subscription) {
+                        let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
+                        let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+                        subscribeFlipsAnonym(
+                            restrictions,
+                            filter,
+                            getFlipCustomizeSettings(),
+                            flipCallback,
+                            soldCallback,
+                            nextUpdateNotificationCallback,
+                            undefined
+                        )
+                    },
+                    onError: function (message) {
+                        toast.error(message)
+                    }
+                })
+            }, 2000)
+        }
+    })()
 
     let subscribeFlipsAnonym = (
         restrictionList: FlipRestriction[],
@@ -697,45 +787,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         nextUpdateNotificationCallback?: Function,
         onSubscribeSuccessCallback?: Function
     ) => {
-        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
-
-        let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
-
-        websocketHelper.subscribe({
-            type: RequestType.SUBSCRIBE_FLIPS_ANONYM,
-            data: requestData,
-            callback: function (response) {
-                switch (response.type) {
-                    case 'flip':
-                        if (flipCallback) {
-                            flipCallback(parseFlipAuction(response.data))
-                        }
-                        break
-                    case 'nextUpdate':
-                        if (nextUpdateNotificationCallback) {
-                            nextUpdateNotificationCallback()
-                        }
-                        break
-                    case 'sold':
-                        if (soldCallback) {
-                            soldCallback(response.data)
-                        }
-                        break
-                    case 'ok':
-                        if (onSubscribeSuccessCallback) {
-                            onSubscribeSuccessCallback()
-                        }
-                        break
-                    default:
-                        break
-                }
-            },
-            resubscribe: function (subscription) {
-                let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
-                let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-                subscribeFlips(restrictions, filter, getFlipCustomizeSettings(), flipCallback, soldCallback, nextUpdateNotificationCallback, undefined, false)
-            }
-        })
+        debounceSubFlipAnonymFunction(
+            restrictionList,
+            filter,
+            flipSettings,
+            flipCallback,
+            soldCallback,
+            nextUpdateNotificationCallback,
+            onSubscribeSuccessCallback
+        )
     }
 
     let unsubscribeFlips = (): Promise<void> => {
@@ -748,7 +808,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ACTIVE_AUCTIONS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -781,7 +841,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.NEW_PLAYERS, error, '')
-                        reject()
+                        reject(error)
                     }
                 },
                 5
@@ -800,7 +860,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.NEW_ITEMS, error, '')
-                        reject()
+                        reject(error)
                     }
                 },
                 15
@@ -819,7 +879,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.POPULAR_SEARCHES, error, '')
-                        reject()
+                        reject(error)
                     }
                 },
                 5
@@ -838,7 +898,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.ENDED_AUCTIONS, error, '')
-                        reject()
+                        reject(error)
                     }
                 },
                 1
@@ -857,7 +917,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.NEW_AUCTIONS, error, '')
-                        reject()
+                        reject(error)
                     }
                 },
                 1
@@ -875,7 +935,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_FLIP_BASED_AUCTIONS, error, flipUUID)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -909,7 +969,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: (error: any) => {
                         apiErrorHandler(RequestType.STRIPE_PAYMENT_SESSION, error, data)
-                        reject()
+                        reject(error)
                     }
                 },
                 JSON.stringify({
@@ -957,17 +1017,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let purchaseWithCoflcoins = (productId: string, count?: number): Promise<void> => {
+    let purchaseWithCoflcoins = (productId: string, googleToken: string, count?: number): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId')
-            if (!googleId) {
-                toast.error('You need to be logged in to purchase something.')
-                reject()
-                return
-            }
-
             let data = {
-                userId: googleId,
+                userId: googleToken,
                 productId: productId
             }
 
@@ -985,7 +1038,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.PURCHASE_WITH_COFLCOiNS, error, data)
-                        reject()
+                        reject(error)
                     }
                 },
                 JSON.stringify({
@@ -1025,7 +1078,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_COFLCOIN_BALANCE, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1112,7 +1165,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         filter,
                         order
                     })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1128,7 +1181,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.CONNECT_MINECRAFT_ACCOUNT, error, playerUUID)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1157,7 +1210,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let itemSearch = (searchText: string): Promise<FilterOptions[]> => {
+    let itemSearch = (searchText: string): Promise<SearchResultItem[]> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.ITEM_SEARCH,
@@ -1167,23 +1220,38 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ITEM_SEARCH, error, searchText)
-                    reject()
+                    reject(error)
                 }
             })
         })
     }
 
-    let authenticateModConnection = (conId: string): Promise<void> => {
+    let authenticateModConnection = async (conId: string, googleToken: string): Promise<void> => {
+        let timeout = setTimeout(() => {
+            toast.warn(
+                <span>
+                    The login seems to take longer that expected. Are you using Kaspersky? If so, the "Secure Browsing" feature seems to interfere with the
+                    login
+                </span>
+            )
+        }, 10000)
+        await api.loginWithToken(googleToken)
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.AUTHENTICATE_MOD_CONNECTION,
                 data: conId,
+                requestHeader: {
+                    GoogleToken: googleToken,
+                    'Content-Type': 'application/json'
+                },
                 resolve: function () {
+                    clearTimeout(timeout)
                     resolve()
                 },
                 reject: function (error) {
+                    clearTimeout(timeout)
                     apiErrorHandler(RequestType.AUTHENTICATE_MOD_CONNECTION, error, conId)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1213,7 +1281,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.PLAYER_SEARCH, error, playerName)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1236,7 +1304,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1275,7 +1343,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.SEND_FEEDBACK, error, feedback)
-                        reject()
+                        reject(error)
                     }
                 },
                 JSON.stringify(requestData)
@@ -1295,7 +1363,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_PROFITABLE_CRAFTS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1313,7 +1381,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.TRIGGER_PLAYER_NAME_CHECK, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1348,7 +1416,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_CRAFTING_RECIPE, error, itemTag)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1368,7 +1436,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_LOWEST_BIN, error, itemTag)
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1385,7 +1453,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     reject: function (error) {
                         apiErrorHandler(RequestType.FLIP_FILTERS, error, tag)
-                        reject()
+                        reject(error)
                     }
                 },
                 1
@@ -1403,7 +1471,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_BAZAAR_TAGS, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1422,7 +1490,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.ITEM_PRICE_SUMMARY, error, '')
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1432,6 +1500,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         if (sessionStorage.getItem('googleId') === null) {
             return Promise.resolve()
         }
+
+        storeUsedTagsInLocalStorage(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []))
+
         return new Promise((resolve, reject) => {
             let data = {
                 key,
@@ -1467,23 +1538,34 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getTrackedFlipsForPlayer = (playerUUID: string): Promise<FlipTrackingResponse> => {
+    let getTrackedFlipsForPlayer = (playerUUID: string, days: number = 7, offset?: number): Promise<FlipTrackingResponse> => {
         return new Promise((resolve, reject) => {
+            let params = new URLSearchParams()
+            params.set('days', days.toString())
+            if (offset) {
+                params.set('offset', offset.toString())
+            }
+
+            let googleId = isClientSideRendering() ? sessionStorage.getItem('googleId') : null
+            let requestHeader = googleId ? { GoogleToken: googleId } : {}
+
             httpApi.sendApiRequest({
+                customRequestURL: `${getApiEndpoint()}/flip/stats/player/${playerUUID}?${params.toString()}`,
                 type: RequestType.GET_TRACKED_FLIPS_FOR_PLAYER,
+                requestHeader: requestHeader,
                 data: playerUUID,
                 resolve: function (data) {
                     returnSSRResponse ? resolve(data) : resolve(parseFlipTrackingResponse(data))
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_TRACKED_FLIPS_FOR_PLAYER, error, playerUUID)
-                    reject()
+                    reject(error)
                 }
             })
         })
     }
 
-    let transferCoflCoins = (email: string, mcId: string, amount: number, reference: string): Promise<void> => {
+    let transferCoflCoins = (email: string | undefined, mcId: string | undefined, amount: number, reference: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             let data = {
                 email: email,
@@ -1500,13 +1582,13 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.TRASFER_COFLCOINS, error, data)
-                    reject()
+                    reject(error)
                 }
             })
         })
     }
 
-    let getBazaarSnapshot = (itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot> => {
+    let getBazaarSnapshot = (itemTag: string, timestamp: string | number | Date): Promise<BazaarSnapshot> => {
         return new Promise((resolve, reject) => {
             let isoTimestamp = new Date(timestamp).toISOString()
 
@@ -1542,7 +1624,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_BAZAAR_SNAPSHOT, error, { itemTag, timestamp: isoTimestamp })
-                    reject()
+                    reject(error)
                 }
             })
         })
@@ -1644,6 +1726,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         'Content-Type': 'application/json'
                     },
                     resolve: products => {
+                        localStorage.setItem(LAST_PREMIUM_PRODUCTS, JSON.stringify(products))
                         resolve(parsePremiumProducts(products))
                     },
                     reject: (error: any) => {
@@ -1653,6 +1736,24 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 JSON.stringify(PREMIUM_TYPES.map(type => type.productId))
             )
+        })
+    }
+
+    /**
+     * Uses the last loaded premium products (if available) to instantly call the callback function
+     * The newest premium products are loaded after that and the callback is executed again
+     */
+    let refreshLoadPremiumProducts = (callback: (products: PremiumProduct[]) => void) => {
+        let lastPremiumProducts = localStorage.getItem(LAST_PREMIUM_PRODUCTS)
+        if (lastPremiumProducts) {
+            try {
+                callback(parsePremiumProducts(JSON.parse(lastPremiumProducts)))
+            } catch {
+                callback([])
+            }
+        }
+        getPremiumProducts().then(prodcuts => {
+            callback(prodcuts)
         })
     }
 
@@ -1739,7 +1840,71 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.UNSUBSCRIBE_ALL, error, '')
-                    reject()
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let getItemNames = (items: Item[]): Promise<{ [key: string]: string }> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.GET_ITEM_NAMES,
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: '',
+                    resolve: data => {
+                        resolve(data)
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.GET_ITEM_NAMES, error, items)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(items.map(item => item.tag))
+            )
+        })
+    }
+
+    let checkFilter = (auction: AuctionDetails, filter: ItemFilter): Promise<boolean> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.CHECK_FILTER,
+                    requestMethod: 'POST',
+                    customRequestURL: `${getApiEndpoint()}/Filter`,
+                    requestHeader: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: '',
+                    resolve: data => {
+                        resolve(data)
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.CHECK_FILTER, error, { auction, filter })
+                        reject(error)
+                    }
+                },
+                JSON.stringify({ filters: filter, auction: auction })
+            )
+        })
+    }
+
+    let getRelatedItems = (tag: string): Promise<Item[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.RELATED_ITEMS,
+                customRequestURL: `${getApiEndpoint()}/item/${tag}/similar`,
+                data: '',
+                resolve: data => {
+                    resolve(data.map(item => parseItem(item)))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.RELATED_ITEMS, error, tag)
+                    reject(error)
                 }
             })
         })
@@ -1753,7 +1918,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getAuctions,
         getBids,
         getEnchantments,
-        getReforges,
         getAuctionDetails,
         getItemImageUrl,
         getPlayerName,
@@ -1762,7 +1926,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         subscribe,
         unsubscribe,
         getSubscriptions,
-        setGoogle,
+        loginWithToken,
         stripePurchase,
         setToken,
         getRecentAuctions,
@@ -1816,7 +1980,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getTEMPlayerData,
         getTEMPlayerDataByProfileUUID,
         unsubscribeAll,
-        getTEMPetData
+        getTEMPetData,
+        getItemNames,
+        checkFilter,
+        refreshLoadPremiumProducts,
+        getRelatedItems
     }
 }
 

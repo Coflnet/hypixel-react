@@ -1,7 +1,8 @@
-import React from 'react'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
-import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
+'use client'
+import Image from 'next/image'
 import { Badge } from 'react-bootstrap'
+import { Number } from '../../Number/Number'
+import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import styles from './CraftDetails.module.css'
 
 interface Props {
@@ -20,8 +21,8 @@ export function CraftDetails(props: Props) {
                     <CraftingRecipe itemTag={props.craft.item.tag} onIngredientClick={onItemClick} />
                 </div>
                 <span style={{ marginLeft: '20px' }}>
-                    <Badge style={{ marginLeft: '5px' }} variant="secondary">
-                        {numberWithThousandsSeperators(Math.round(props.craft.sellPrice))} Coins
+                    <Badge style={{ marginLeft: '5px' }} bg="secondary">
+                        <Number number={Math.round(props.craft.sellPrice)} /> Coins
                     </Badge>
                 </span>
             </div>
@@ -36,17 +37,18 @@ export function CraftDetails(props: Props) {
                             onItemClick(ingredient.item.tag)
                         }}
                     >
-                        <img
+                        <Image
                             crossOrigin="anonymous"
-                            src={ingredient.item.iconUrl}
+                            src={ingredient.item.iconUrl || ''}
                             height="24"
+                            width="24"
                             alt=""
                             style={{ marginRight: '5px' }}
                             loading="lazy"
                         />
                         {ingredient.item.name + ' (' + ingredient.count + 'x)'}
-                        <Badge style={{ marginLeft: '5px' }} variant="secondary">
-                            {numberWithThousandsSeperators(Math.round(ingredient.cost))} Coins
+                        <Badge style={{ marginLeft: '5px' }} bg="secondary">
+                            <Number number={Math.round(ingredient.cost)} /> Coins
                         </Badge>
                     </div>
                 )

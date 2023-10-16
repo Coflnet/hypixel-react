@@ -18,24 +18,6 @@
     margin-bottom: 0;
 }
 
-.flipperScrollList::-webkit-scrollbar {
-    width: 20px;
-}
-
-.flipperScrollList::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 5px grey;
-    border-radius: 10px;
-}
-
-.flipperScrollList::-webkit-scrollbar-thumb {
-    background: #3a3f44;
-    border-radius: 10px;
-}
-
-.flipperScrollList::-webkit-scrollbar-thumb:hover {
-    background: #7a8288;
-}
-
 @media all and (max-width: 480px) {
     .cardWrapper {
         width: calc(100vw - 20px - 40px);

@@ -1,8 +1,9 @@
+'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Form, Spinner } from 'react-bootstrap'
-import { camelCaseToSentenceCase } from '../../utils/Formatter'
+import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { FilterType, hasFlag } from './FilterType'
 import { DateFilterElement } from './FilterElements/DateFilterElement'
 import { RangeFilterElement } from './FilterElements/RangeFilterElement'
@@ -15,16 +16,20 @@ import { BooleanFilterElement } from './FilterElements/BooleanFilterElement'
 import styles from './FilterElement.module.css'
 import { NumericalFilterElement } from './FilterElements/NumericalFilterElement'
 import { NumberRangeFilterElement } from './FilterElements/NumberRangeFilterElement'
+import { validateFilterNumber, validateFilterRange } from '../../utils/NumberValidationUtils'
+import Tooltip from '../Tooltip/Tooltip'
+import HelpIcon from '@mui/icons-material/Help'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
     options?: FilterOptions
     defaultValue: any
+    onIsValidChange?(newIsValid: boolean)
 }
 
 function FilterElement(props: Props) {
     let [value, _setValue] = useState<any>()
-    let [isValid, setIsValid] = useState(true)
+    let [isValid, _setIsValid] = useState(true)
     let [errorText, setErrorText] = useState('')
 
     useEffect(() => {
@@ -49,13 +54,11 @@ function FilterElement(props: Props) {
                 return date
             }
             return newValue
-        } else if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
-            if (!newValue) {
-                return 1
+        } else {
+            if (!newValue && newValue !== 0) {
+                return ''
             }
             return newValue
-        } else {
-            return newValue || ''
         }
     }
 
@@ -84,21 +87,61 @@ function FilterElement(props: Props) {
         _setValue(parseValue(value))
     }
 
+    function setIsValid(newValue: boolean) {
+        if (props.onIsValidChange) {
+            props.onIsValidChange(newValue)
+        }
+        _setIsValid(newValue)
+    }
+
     function validate(value?: any) {
         if (!value && value !== 0) {
             setErrorText('Please fill the filter or remove it')
             setIsValid(false)
             return false
         }
-        if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
-            let v = parseInt(value)
-            let lowEnd = parseInt(props.options.options[0])
-            let highEnd = parseInt(props.options.options[1])
-            if (v < lowEnd || v > highEnd) {
-                setErrorText('Please choose a value between ' + lowEnd + ' and ' + highEnd)
+        if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL) && hasFlag(props.options.type, FilterType.RANGE)) {
+            let validationResult = validateFilterRange(value.toString(), props.options)
+            setIsValid(validationResult[0])
+            if (!validationResult[0]) {
+                setErrorText(validationResult[1] || '')
+                return false
+            }
+            return true
+        }
+        if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
+            let date = new Date(value * 1000)
+            if (date < new Date(props.options.options[0])) {
+                setErrorText(`Date needs to be after ${props.options.options[0]}`)
                 setIsValid(false)
                 return false
             }
+            if (date > new Date(props.options.options[1])) {
+                setErrorText(`Date needs to be before ${props.options.options[1]}`)
+                setIsValid(false)
+                return false
+            }
+            setIsValid(true)
+            return true
+        }
+        if (props.options && hasFlag(props.options.type, FilterType.RANGE)) {
+            if (props.options?.options.length === 2 && props.options.options[0] === '000000000000' && props.options.options[1] === 'ffffffffffff') {
+                let result = new RegExp(/^[0-9A-Fa-f]{12}$/).test(value)
+                setIsValid(result)
+                if (!isValid) {
+                    setErrorText('This field needs to be 12 characters long and must only include hex characters.')
+                }
+                return result
+            }
+        }
+        if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
+            let validationResult = validateFilterNumber(value.toString(), props.options)
+            setIsValid(validationResult[0])
+            if (!validationResult[0]) {
+                setErrorText(validationResult[1] || '')
+                return false
+            }
+            return true
         }
         setIsValid(true)
         return true
@@ -110,6 +153,8 @@ function FilterElement(props: Props) {
             return <ColorFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
         }
         if (
+            hasFlag(type, FilterType.NUMERICAL) &&
+            hasFlag(type, FilterType.RANGE) &&
             options.options.length === 2 &&
             !isNaN(parseInt(options.options[0])) &&
             !isNaN(parseInt(options.options[1])) &&
@@ -119,8 +164,8 @@ function FilterElement(props: Props) {
                 <NumberRangeFilterElement
                     key={options.name}
                     defaultValue={props.defaultValue}
-                    min={parseInt(props.options.options[0])}
-                    max={parseInt(props.options.options[1])}
+                    min={props.options ? parseInt(props.options.options[0]) : undefined}
+                    max={props.options ? parseInt(props.options.options[1]) : undefined}
                     onChange={onFilterElementChange}
                 />
             )
@@ -135,7 +180,15 @@ function FilterElement(props: Props) {
             return <PlayerWithRankFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
         }
         if (hasFlag(type, FilterType.PLAYER)) {
-            return <PlayerFilterElement key={options.name} defaultValue={props.defaultValue} returnType="uuid" onChange={onFilterElementChange} />
+            return (
+                <PlayerFilterElement
+                    key={options.name}
+                    defaultValue={props.defaultValue}
+                    isValid={isValid}
+                    returnType="uuid"
+                    onChange={onFilterElementChange}
+                />
+            )
         }
         if (hasFlag(type, FilterType.BOOLEAN)) {
             return <BooleanFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
@@ -152,7 +205,15 @@ function FilterElement(props: Props) {
                     />
                 )
             } else {
-                return <EqualFilterElement key={options.name} options={options} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+                return (
+                    <EqualFilterElement
+                        key={options.name}
+                        isValid={isValid}
+                        options={options}
+                        defaultValue={props.defaultValue}
+                        onChange={onFilterElementChange}
+                    />
+                )
             }
         }
         if (hasFlag(type, FilterType.NUMERICAL)) {
@@ -167,19 +228,26 @@ function FilterElement(props: Props) {
                 <Spinner animation="border" role="status" variant="primary" />
             ) : (
                 <div style={{ display: 'grid' }}>
-                    <Form.Label style={{ float: 'left' }}>
-                        <b>{camelCaseToSentenceCase(props.options.name)}</b>
+                    <Form.Label style={{ float: 'left', display: 'flex', alignContent: 'center' }}>
+                        <b style={{ marginRight: 5 }}>
+                            {props.options.name[0].toLowerCase() === props.options.name[0]
+                                ? convertTagToName(props.options.name)
+                                : camelCaseToSentenceCase(props.options.name)}
+                        </b>
+                        {props.options.description ? (
+                            <Tooltip
+                                type="hover"
+                                content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />}
+                                tooltipContent={<span>{props.options.description}</span>}
+                            />
+                        ) : null}
                     </Form.Label>
                     {getFilterElement(props.options.type, props.options)}
                     {!isValid ? (
                         <div>
-                            <Form.Control.Feedback type="invalid">
-                                <span style={{ color: 'red' }}>{errorText}</span>
-                            </Form.Control.Feedback>
+                            <span style={{ color: 'red' }}>{errorText}</span>
                         </div>
-                    ) : (
-                        ''
-                    )}
+                    ) : null}
                 </div>
             )}
         </div>

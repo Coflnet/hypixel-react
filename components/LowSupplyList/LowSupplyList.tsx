@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react'
+'use client'
+import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
+import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
+import SortIcon from '@mui/icons-material/Sort'
+import { useEffect, useState } from 'react'
 import { Card, Form, Table } from 'react-bootstrap'
-import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { ArrowDownward as ArrowDownIcon, ArrowUpward as ArrowUpIcon, Sort as SortIcon } from '@mui/icons-material'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
+import { NumericFormat } from 'react-number-format'
 import styles from './LowSupplyList.module.css'
-import NumberFormat from 'react-number-format'
+import Image from 'next/image'
+import { Number } from '../Number/Number'
 
 let mounted = true
 
@@ -94,12 +97,14 @@ function LowSupplyList(props: Props) {
               return (
                   <tr>
                       <td>
-                          <img crossOrigin="anonymous" src={item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                          <Image crossOrigin="anonymous" src={item.iconUrl || ''} height="32" width="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
                       </td>
                       <td>{item.name}</td>
                       <td>{item.supply}</td>
                       <td>{item.volume}</td>
-                      <td>{numberWithThousandsSeperators(item.medianPrice)}</td>
+                      <td>
+                          <Number number={item.medianPrice} />
+                      </td>
                   </tr>
               )
           })
@@ -128,7 +133,7 @@ function LowSupplyList(props: Props) {
                                 </th>
                                 <th>
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <NumberFormat
+                                        <NumericFormat
                                             id="volume"
                                             onValueChange={numberObject => {
                                                 setVolumeFilter(numberObject.floatValue)
@@ -148,7 +153,7 @@ function LowSupplyList(props: Props) {
                                 </th>
                                 <th>
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <NumberFormat
+                                        <NumericFormat
                                             id="median-price"
                                             onValueChange={numberObject => {
                                                 setMedianPriceFilter(numberObject.floatValue)

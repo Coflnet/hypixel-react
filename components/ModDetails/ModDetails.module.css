@@ -1,0 +1,28 @@
+.modDetailsFooter{
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+}
+
+.modMono {
+	font-family: monospace;
+}
+
+.modCard {
+	margin-bottom: 20px;
+}
+.modEmbedContainer {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+.modEmbed {
+	width: 50vw;
+	height: 28vw;
+}
+
+@media only screen and (max-height: 500px) {
+    .modDetailsFooter {
+        flex-direction: column;
+    }    
+}

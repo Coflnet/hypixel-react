@@ -1,25 +1,22 @@
+'use client'
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
+import AccountIcon from '@mui/icons-material/AccountCircle'
+import BuildIcon from '@mui/icons-material/Build'
+import ChatIcon from '@mui/icons-material/Chat'
+import DownloadIcon from '@mui/icons-material/Download'
+import HomeIcon from '@mui/icons-material/Home'
+import MenuIcon from '@mui/icons-material/Menu'
+import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
+import PetsIcon from '@mui/icons-material/PetsOutlined'
+import PolicyIcon from '@mui/icons-material/Policy'
+import ShareIcon from '@mui/icons-material/ShareOutlined'
+import StorefrontIcon from '@mui/icons-material/Storefront'
+import Image from 'next/image'
+import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import { ProSidebar, Menu, MenuItem, SidebarHeader, SubMenu } from 'react-pro-sidebar'
-import 'react-pro-sidebar/dist/css/styles.css'
-import {
-    Build as BuildIcon,
-    ShareOutlined as ShareIcon,
-    NotificationsOutlined as NotificationIcon,
-    Home as HomeIcon,
-    Storefront as StorefrontIcon,
-    AccountBalance as AccountBalanceIcon,
-    Policy as PolicyIcon,
-    Chat as ChatIcon,
-    Menu as MenuIcon,
-    ExploreOutlined as ExploreIcon,
-    PetsOutlined as PetsIcon,
-    AccountCircle as AccountIcon,
-    Download as DownloadIcon
-} from '@mui/icons-material'
+import { Menu, MenuItem, Sidebar } from 'react-pro-sidebar'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
-import { isClientSideRendering } from '../../utils/SSRUtils'
-import Link from 'next/link'
 
 let resizePromise: NodeJS.Timeout | null = null
 
@@ -31,36 +28,42 @@ function NavBar(props: Props) {
     let [isWideOpen, setIsWideOpen] = useState(false)
     let [isHovering, setIsHovering] = useState(false)
     let [isSmall, setIsSmall] = useState(true)
+    let [collapsed, setCollapsed] = useState(true)
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
-        if (!isClientSideRendering()) {
-            return
-        }
-
         setIsSmall(document.body.clientWidth < 1500)
 
         window.addEventListener('resize', resizeHandler)
 
         return () => {
-            if (!isClientSideRendering()) {
-                return
-            }
             window.removeEventListener('resize', resizeHandler)
         }
     }, [])
 
     useEffect(() => {
-        if (!isClientSideRendering()) {
-            return
-        }
         if (isWideOpen) {
             document.addEventListener('click', outsideClickHandler, true)
         } else {
             document.removeEventListener('click', outsideClickHandler, true)
         }
+
+        return () => {
+            document.removeEventListener('click', outsideClickHandler, true)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isWideOpen])
+
+    useEffect(() => {
+        setCollapsed(isCollapsed())
+    }, [isSmall, isWideOpen, isHovering])
+
+    function isCollapsed() {
+        if (isSmall) {
+            return false
+        }
+        return !isWideOpen && !isHovering
+    }
 
     function outsideClickHandler(evt) {
         const flyoutEl = document.getElementById('navBar')
@@ -97,13 +100,6 @@ function NavBar(props: Props) {
         setIsHovering(false)
     }
 
-    function isCollapsed() {
-        if (isSmall) {
-            return false
-        }
-        return !isWideOpen && !isHovering
-    }
-
     function resizeHandler() {
         if (resizePromise) {
             return
@@ -118,10 +114,6 @@ function NavBar(props: Props) {
                 el.style.left = '0px'
             }
         }, 500)
-    }
-
-    function isHidden() {
-        return isSmall && !isWideOpen
     }
 
     function onHamburgerClick() {
@@ -144,65 +136,62 @@ function NavBar(props: Props) {
         }
     }
 
-    let style = {
-        position: 'absolute',
-        bottom: 0,
-        zIndex: 100,
-        left: 0,
-        top: 0,
-        minHeight: '100vh'
-    } as React.CSSProperties
-
     return (
         <span>
             <aside className={styles.navBar} id="navBar" onMouseEnter={onMouseMove} onMouseLeave={onMouseOut}>
-                <ProSidebar id="pro-sidebar" style={style} collapsed={isCollapsed()} hidden={isHidden()}>
-                    <SidebarHeader>
-                        <div style={{ padding: '24px', fontWeight: 'bold', fontSize: '20px', letterSpacing: '1px', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                            <ExploreIcon /> {!isCollapsed() ? 'Navigation' : ''}
+                <Sidebar id="pro-sidebar" hidden={isSmall && !isWideOpen} backgroundColor="#1d1d1d" collapsed={collapsed}>
+                    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <div>
+                            <div className={styles.logo}>
+                                <Image src="/logo512.png" alt="Logo" width={40} height={40} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'Coflnet' : ''}
+                            </div>
                         </div>
-                    </SidebarHeader>
-                    <Menu iconShape="square">
-                        <MenuItem className="disableLinkStyle" icon={<HomeIcon />}>
-                            <Link href={'/'}>Home</Link>
-                        </MenuItem>
-                        <MenuItem icon={<StorefrontIcon />}>
-                            <Link href={'/flipper'}>Item-Flipper</Link>
-                        </MenuItem>
-                        <MenuItem icon={<AccountIcon />}>
-                            <Link href={'/account'}>Account</Link>
-                        </MenuItem>
-                        <MenuItem icon={<NotificationIcon />}>
-                            <Link href={'/subscriptions'}>Notifier</Link>
-                        </MenuItem>
-                        <MenuItem icon={<BuildIcon />}>
-                            <Link href={'/crafts'}>Profitable crafts</Link>
-                        </MenuItem>
-                        <MenuItem icon={<AccountBalanceIcon />}>
-                            <Link href={'/premium'}>Premium / Shop</Link>
-                        </MenuItem>
-                        <MenuItem icon={<PetsIcon />}>
-                            <Link href={'/kat'}>Kat flips</Link>
-                        </MenuItem>
-                        <MenuItem icon={<DownloadIcon />}>
-                            <Link href={'/mod'}>Mod</Link>
-                        </MenuItem>
-                        <MenuItem className="disableLinkStyle" icon={<ShareIcon />}>
-                            <Link href={'/ref'}>Referral</Link>
-                        </MenuItem>
-                        <MenuItem icon={<PolicyIcon />}>
-                            <Link href={'/about'}>Links / Legal</Link>
-                        </MenuItem>
-                        <MenuItem icon={<ChatIcon />}>
-                            <Link href={'/feedback'}>Feedback</Link>
-                        </MenuItem>
-                        <MenuItem icon={<img src="/discord_icon.svg" alt="" height="24"></img>}>
-                            <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
+                        <hr />
+                        <Menu>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/'} />} icon={<HomeIcon />}>
+                                Home
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/flipper'} />} icon={<StorefrontIcon />}>
+                                Item Flipper
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/account'} />} icon={<AccountIcon />}>
+                                Account
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/subscriptions'} />} icon={<NotificationIcon />}>
+                                Notifier
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/crafts'} />} icon={<BuildIcon />}>
+                                Profitable Crafts
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/premium'} />} icon={<AccountBalanceIcon />}>
+                                Premium / Shop
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/kat'} />} icon={<PetsIcon />}>
+                                Kat Flips
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/mod'} />} icon={<DownloadIcon />}>
+                                Mod
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/ref'} />} icon={<ShareIcon />}>
+                                Referral
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/about'} />} icon={<PolicyIcon />}>
+                                Links / Legal
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/feedback'} />} icon={<ChatIcon />}>
+                                Feedback
+                            </MenuItem>
+                            <MenuItem
+                                className={styles.menuItem}
+                                component={<Link href={'https://discord.gg/wvKXfTgCfb'} target="_blank" />}
+                                rel="noreferrer"
+                                icon={<Image src="/discord_icon.svg" alt="Discord icon" height={24} width={32} />}
+                            >
                                 Discord
-                            </a>
-                        </MenuItem>
-                    </Menu>
-                </ProSidebar>
+                            </MenuItem>
+                        </Menu>
+                    </div>
+                </Sidebar>
             </aside>
             {isSmall ? (
                 <span onClick={onHamburgerClick} className={styles.hamburgerIcon} id="hamburgerIcon" style={props.hamburgerIconStyle}>

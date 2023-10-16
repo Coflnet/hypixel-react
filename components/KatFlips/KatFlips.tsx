@@ -1,15 +1,20 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Form, ListGroup } from 'react-bootstrap'
-import api from '../../api/ApiHelper'
-import { convertTagToName, getStyleForTier, numberWithThousandsSeperators } from '../../utils/Formatter'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import styles from './KatFlips.module.css'
-import { toast } from 'react-toastify'
+'use client'
+import Image from 'next/image'
 import Link from 'next/link'
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import { Form, ListGroup } from 'react-bootstrap'
+import { toast } from 'react-toastify'
+import api from '../../api/ApiHelper'
+import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { Number } from '../Number/Number'
+import styles from './KatFlips.module.css'
+import { parseKatFlip } from '../../utils/Parser/APIResponseParser'
+import { writeToClipboard } from '../../utils/ClipboardUtils'
 
 interface Props {
-    flips: KatFlip[]
+    flips: any[]
 }
 interface SortOption {
     label: string
@@ -43,16 +48,19 @@ let observer: MutationObserver
 
 export function KatFlips(props: Props) {
     let [nameFilter, setNameFilter] = useState<string | null>()
+    let [minimumProfit, setMinimumProfit] = useState<number>(0)
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
     let [hasPremium, setHasPremium] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
 
+    let flips = useMemo(() => {
+        return (props.flips ? props.flips.map(parseKatFlip) : []) as KatFlip[]
+    }, [props.flips])
+
     useEffect(() => {
         // reset the blur observer, when something changed
-        setTimeout(() => {
-            setBlurObserver()
-        }, 100)
+        setTimeout(setBlurObserver, 100)
     })
 
     function setBlurObserver() {
@@ -77,7 +85,7 @@ export function KatFlips(props: Props) {
 
     function onAfterLogin() {
         setIsLoggedIn(true)
-        return api.getPremiumProducts().then(products => {
+        return api.refreshLoadPremiumProducts(products => {
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
         })
     }
@@ -85,7 +93,9 @@ export function KatFlips(props: Props) {
     function onNameFilterChange(e: any) {
         setNameFilter(e.target.value)
     }
-
+    function onMinimumProfitChange(e: any) {
+        setMinimumProfit(e.target.value)
+    }
     function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
         let selectedIndex = event.target.options.selectedIndex
         let value = event.target.options[selectedIndex].getAttribute('value')!
@@ -98,15 +108,15 @@ export function KatFlips(props: Props) {
     let blurStyle: React.CSSProperties = {
         WebkitFilter: 'blur(5px)',
         msFilter: 'blur(5px)',
-        filter: 'blur(5px)'
+        filter: 'blur(5px)',
+        pointerEvents: 'none'
     }
 
     function onFlipClick(e, flip: KatFlip) {
-        if (e.defaultPrevented) {
+        if (e.defaultPrevented || !flip.originAuctionUUID) {
             return
         }
-
-        window.navigator.clipboard.writeText('/viewauction ' + flip.originAuctionUUID)
+        writeToClipboard('/viewauction ' + flip.originAuctionUUID)
 
         toast.success(
             <p>
@@ -121,7 +131,7 @@ export function KatFlips(props: Props) {
     }
 
     function getListElement(flip: KatFlip, blur: boolean) {
-        if (nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
+        if (nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1 && !blur) {
             return <span />
         }
         return (
@@ -134,7 +144,7 @@ export function KatFlips(props: Props) {
             >
                 {blur ? (
                     <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
-                        The top 3 flips can only be seen with premium
+                        The top 3 flips can only be seen with starter premium or better
                     </p>
                 ) : (
                     ''
@@ -157,14 +167,17 @@ export function KatFlips(props: Props) {
                 ) : (
                     ''
                 )}
-                <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
+                <div className={blur ? 'blur' : ''} style={blur ? blurStyle : {}}>
                     <h4>{getFlipHeader(flip)}</h4>
                     <p>
                         <span className={styles.label}>Purchase Cost:</span>{' '}
-                        <Link href={'auction/' + flip.originAuctionUUID}>{`${numberWithThousandsSeperators(Math.round(flip.purchaseCost))} Coins`}</Link>
+                        <Link href={'auction/' + flip.originAuctionUUID}>
+                            <Number number={Math.round(flip.purchaseCost)} /> Coins
+                        </Link>
                     </p>
                     <p>
-                        <span className={styles.label}>Upgrade Cost:</span> {numberWithThousandsSeperators(Math.round(flip.upgradeCost))} Coins
+                        <span className={styles.label}>Upgrade Cost:</span>
+                        <Number number={flip.upgradeCost} /> Coins
                     </p>
                     {flip.coreData.material ? (
                         <span>
@@ -172,20 +185,22 @@ export function KatFlips(props: Props) {
                                 <span className={styles.label}>Material:</span> {`${flip.coreData.amount}x ${convertTagToName(flip.coreData.material)}`}
                             </p>
                             <p>
-                                <span className={styles.label}>Material Cost:</span> {numberWithThousandsSeperators(Math.round(flip.materialCost))} Coins
+                                <span className={styles.label}>Material Cost:</span> <Number number={Math.round(flip.materialCost)} /> Coins
                             </p>
                         </span>
                     ) : null}
                     <p>
-                        <span className={styles.label}>Median:</span> {numberWithThousandsSeperators(Math.round(flip.median))} Coins
+                        <span className={styles.label}>Median:</span> <Number number={Math.round(flip.median)} /> Coins
                     </p>
                     <p>
                         <span className={styles.label}>Profit:</span>{' '}
-                        <Link href={'auction/' + flip.referenceAuctionUUID}>{`${numberWithThousandsSeperators(Math.round(flip.profit))} Coins`}</Link>
+                        <Link href={'auction/' + flip.referenceAuctionUUID}>
+                            <Number number={flip.profit} /> Coins
+                        </Link>
                     </p>
                     <hr />
                     <p>
-                        <span className={styles.label}>Volume:</span> {numberWithThousandsSeperators(Math.round(flip.volume))}
+                        <span className={styles.label}>Volume:</span> <Number number={Math.round(flip.volume)} />
                     </p>
                     <p>
                         <span className={styles.label}>Target Rarity:</span> <span style={getStyleForTier(flip.targetRarity)}>{flip.targetRarity}</span>
@@ -198,37 +213,69 @@ export function KatFlips(props: Props) {
         )
     }
 
-    function getFlipHeader(flip) {
+    function getFlipHeader(flip: KatFlip) {
         return (
             <span style={getStyleForTier(flip.coreData.item.tier)}>
-                <img crossOrigin="anonymous" src={flip.coreData.item.iconUrl} height="32" alt="" style={{ marginRight: '5px' }} loading="lazy" />
-                {convertTagToName(flip.coreData.item.name) || convertTagToName(flip.coreData.item.tag)}
+                <Image
+                    crossOrigin="anonymous"
+                    src={flip.coreData.item.iconUrl || ''}
+                    height="32"
+                    width="32"
+                    alt=""
+                    style={{ marginRight: '5px' }}
+                    loading="lazy"
+                />
+                {convertTagToName(flip.originAuctionName) || convertTagToName(flip.coreData.item.tag)}
             </span>
         )
     }
 
-    let orderedFlips = props.flips
+    let orderedFlips = [...flips]
     if (orderBy) {
         let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
-        orderedFlips = sortOption?.sortFunction(props.flips)
+        orderedFlips = sortOption?.sortFunction([...flips])
     }
 
     let shown = 0
-    let list = orderedFlips.map((flip, i) => {
-        if (nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
-            return null
-        }
-        shown++
-        return !hasPremium && shown <= 3 ? (
-            <div className={`${styles.flipCard} ${styles.preventSelect}`} key={flip.originAuctionUUID}>
-                {getListElement(flip, true)}
-            </div>
-        ) : (
-            <div className={styles.flipCard} key={flip.originAuctionUUID}>
-                {getListElement(flip, false)}
-            </div>
-        )
-    })
+    let list = orderedFlips
+        .filter(flip => !((nameFilter && flip.coreData.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || flip.profit < minimumProfit))
+        .map(flip => {
+            if (!hasPremium && ++shown <= 3) {
+                let censoredFlip: KatFlip = { ...flip }
+                censoredFlip.coreData = {
+                    amount: -1,
+                    hours: 69,
+                    item: {
+                        tag: '',
+                        name: 'You cheated the blur ☺',
+                        tier: 'LEGENDARY',
+                        iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
+                    },
+                    material: '1 CoflCoin'
+                }
+                censoredFlip.cost = 12345
+                censoredFlip.materialCost = 696969
+                censoredFlip.median = 424242
+                censoredFlip.originAuctionUUID = ''
+                censoredFlip.profit = -100000
+                censoredFlip.purchaseCost = 1
+                censoredFlip.referenceAuctionUUID = ''
+                censoredFlip.volume = -1
+                censoredFlip.upgradeCost = 0
+                censoredFlip.originAuctionName = 'You cheated the blur ☺'
+                return (
+                    <div className={`${styles.flipCard} ${styles.preventSelect}`} key={flip.originAuctionUUID}>
+                        {getListElement(censoredFlip, true)}
+                    </div>
+                )
+            } else {
+                return (
+                    <div className={styles.flipCard} key={flip.originAuctionUUID}>
+                        {getListElement(flip, false)}
+                    </div>
+                )
+            }
+        })
 
     return (
         <div className={styles.catFlips}>
@@ -237,12 +284,15 @@ export function KatFlips(props: Props) {
                 {!isLoggedIn ? <hr /> : ''}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Form.Control style={{ width: '49%' }} placeholder="Item name..." onChange={onNameFilterChange} />
-                <Form.Control style={{ width: '49%' }} defaultValue={orderBy.value} as="select" onChange={updateOrderBy}>
+                <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
+                <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {SORT_OPTIONS.map(option => (
-                        <option value={option.value}>{option.label}</option>
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
                     ))}
-                </Form.Control>
+                </Form.Select>
+                <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />
             </div>
             <hr />
             <p>Click on a craft for further details</p>

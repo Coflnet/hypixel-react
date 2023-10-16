@@ -76,7 +76,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         let equals = findForEqualSentRequest(request)
         if (equals.length > 0) {
             requests.push(request)
-            return
+            return Promise.resolve()
         }
 
         requests.push(request)
@@ -84,13 +84,7 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
     }
 
     function handleServerRequest(request: ApiRequest, url: string, body?: any): Promise<void> {
-        if (!isClientSideRendering()) {
-            console.log('Sending Request...')
-            console.log('URL: ' + url)
-            console.log('Request: ' + JSON.stringify(request))
-            console.log('Body: ' + JSON.stringify(body))
-            console.log('------------------------')
-        }
+        let parsedResponse
         try {
             return fetch(url, {
                 body: body,
@@ -105,15 +99,8 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                     return response.text()
                 })
                 .then(responseText => {
-                    let parsedResponse = parseResponseText(responseText)
-
-                    if (!isClientSideRendering()) {
-                        console.log('Received Response: ')
-                        console.log('mId: ' + request.mId)
-                        console.log('data: ' + JSON.stringify(parsedResponse))
-                        console.log('------------------------')
-                    }
-                    if (!parsedResponse || parsedResponse.Slug !== undefined) {
+                    parsedResponse = parseResponseText(responseText)
+                    if ((!parsedResponse && parsedResponse !== false) || parsedResponse.slug !== undefined) {
                         request.resolve()
                         return
                     }
@@ -134,18 +121,18 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                 })
                 .catch(responseTextPromise => {
                     if (!responseTextPromise || typeof responseTextPromise.then !== 'function') {
-                        request.reject()
+                        request.reject(responseTextPromise || 'no responseTextPromise')
                         return
                     }
                     responseTextPromise.then(responseText => {
-                        request.reject(parseResponseText(responseText))
+                        request.reject(parseResponseText(responseText) || 'no responseTextPromise after parse')
                     })
                 })
                 .finally(() => {
                     // when there are still matching request remove them
                     let equals = findForEqualSentRequest(request)
                     equals.forEach(equal => {
-                        equal.reject()
+                        equal.resolve(parsedResponse)
                     })
                     removeSentRequests([...equals, request])
                 })
@@ -154,10 +141,10 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             console.log('URL: ' + url)
             console.log('Request: ' + JSON.stringify(request))
             console.log('Body: ' + JSON.stringify(body))
+            console.log(JSON.stringify(e))
             console.log('------------------------')
 
-            request.reject()
-            return
+            return request.reject('Fetch threw exception: ' + JSON.stringify(e))
         }
     }
 

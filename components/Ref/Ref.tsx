@@ -1,22 +1,20 @@
-import React, { useState } from 'react'
+'use client'
+import Link from 'next/link'
+import { useState } from 'react'
+import { Card } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import Navbar from '../../components/NavBar/NavBar'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Card } from 'react-bootstrap'
 import { getProperty } from '../../utils/PropertiesUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
-import Link from 'next/link'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { Number } from '../Number/Number'
 import styles from './Ref.module.css'
-import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
 
-interface Props {}
-
-function Ref(props: Props) {
+function Ref() {
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     function onLogin() {
         let googleId = sessionStorage.getItem('googleId')
@@ -45,9 +43,11 @@ function Ref(props: Props) {
             <hr />
             <div>
                 <Card style={{ marginBottom: '15px' }}>
-                    <Card.Header>Referral system</Card.Header>
+                    <Card.Header>
+                        <Card.Title>Referral System</Card.Title>
+                    </Card.Header>
                     <Card.Body>
-                        {isLoggedIn ? (
+                        {isLoggedIn && refInfo ? (
                             <div>
                                 Your Ref-Link: <span style={{ fontStyle: 'italic', color: 'skyblue' }}>{getLink()}</span>
                                 <span style={{ marginLeft: 15 }}>
@@ -64,14 +64,14 @@ function Ref(props: Props) {
                                 <hr />
                             </div>
                         ) : null}
-                        <p>Share your Ref-Link with people which might find Cofnet useful.</p>
+                        <p>Share your referral link with people which might find Coflnet useful.</p>
                         <p>Rewards per invited person:</p>
                         <ul>
                             <li>
-                                You receive <b>100 CoflCoins</b>
+                                You receive <b>200 CoflCoins</b>
                             </li>
                             <li>
-                                The invited person gets <b>1 day of premium</b> to test our services
+                                The invited person gets <b>2 days of premium</b> to test our services
                             </li>
                             <li>
                                 The first time a invited person buys CoflCoins, you get <b>25%</b> of the purchased amount
@@ -83,7 +83,7 @@ function Ref(props: Props) {
                                 account.
                             </span>
                         </p>
-                        {isLoggedIn ? (
+                        {isLoggedIn && refInfo ? (
                             <div>
                                 <hr />
                                 <p>
@@ -103,15 +103,15 @@ function Ref(props: Props) {
                             {!isLoggedIn ? (
                                 <div>
                                     <hr />
-                                    <p>To use the referral program please login with Google</p>
+                                    <p>To use the referral program, please login with Google</p>
                                 </div>
                             ) : null}
                             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
-                            {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
+                            {!refInfo && isLoggedIn ? getLoadingElement() : ''}
                         </div>
                     </Card.Body>
                 </Card>
-                {isLoggedIn ? (
+                {isLoggedIn && refInfo ? (
                     <Card style={{ marginBottom: '15px' }}>
                         <Card.Header>Information</Card.Header>
                         <Card.Body>
@@ -124,7 +124,9 @@ function Ref(props: Props) {
                             </p>
                             <p>
                                 <span className={styles.label}>Referred user coins purchases:</span>{' '}
-                                <b>{numberWithThousandsSeperators(refInfo?.purchasedCoins)}</b>
+                                <b>
+                                    <Number number={refInfo?.purchasedCoins} />
+                                </b>
                             </p>
                             <p>
                                 <span className={styles.label}>Number of validated MC-Accounts:</span> <b>{refInfo?.validatedMinecraft}</b>

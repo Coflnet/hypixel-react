@@ -36,3 +36,13 @@
 .previousSearch {
     color: #c389f6;
 }
+
+.multiInputfield {
+    color: white;
+    color-scheme: dark;
+}
+
+.multiSearch :global(.rbt-token){
+    background-color: #444;
+    color: white;
+}

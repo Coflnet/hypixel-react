@@ -1,9 +1,11 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
-import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
+'use client'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
+import { useEffect, useState } from 'react'
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { getURLSearchParam } from '../../utils/Parser/URLParser'
 import styles from './ItemPriceRange.module.css'
+import { isClientSideRendering } from '../../utils/SSRUtils'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 export enum DateRange {
     ACTIVE = 'active',
@@ -27,9 +29,10 @@ export let DEFAULT_DATE_RANGE = DateRange.DAY
 
 export function ItemPriceRange(props: Props) {
     const { trackEvent } = useMatomo()
-
+    let pathname = usePathname()
     let router = useRouter()
-    let [selectedDateRange, setSelectedDateRange] = useState(DEFAULT_DATE_RANGE)
+    let searchParams = useSearchParams()
+    let [selectedDateRange, _setSelectedDateRange] = useState(searchParams.get('range') || DEFAULT_DATE_RANGE)
 
     if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
         setSelectedDateRange(DateRange.MONTH)
@@ -59,13 +62,21 @@ export function ItemPriceRange(props: Props) {
     }, [props.item.tag])
 
     useEffect(() => {
-        if (!router.isReady) {
-            return
-        }
         let setTo = selectedDateRange === DateRange.ACTIVE ? DateRange.ACTIVE : DEFAULT_DATE_RANGE
         onRangeChange(setTo)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.setToDefaultRangeSwitch])
+
+    function setSelectedDateRange(range: string) {
+        if (isClientSideRendering()) {
+            let searchParams = new URLSearchParams(window.location.search)
+            searchParams.set('range', range)
+            router.replace(`${pathname}?${searchParams.toString()}`)
+            _setSelectedDateRange(range)
+        } else {
+            console.error('Tried to update url query "range" during serverside rendering')
+        }
+    }
 
     let getButtonText = (range: DateRange): string => {
         switch (range) {
@@ -89,9 +100,6 @@ export function ItemPriceRange(props: Props) {
     }
 
     let onRangeChange = (newRange: DateRange) => {
-        router.query.range = newRange
-        router.replace(router)
-
         setSelectedDateRange(newRange)
         if (props.onRangeChange) {
             props.onRangeChange(newRange)
@@ -130,12 +138,14 @@ export function ItemPriceRange(props: Props) {
                 }
                 return (
                     <ToggleButton
+                        id={key}
                         className="price-range-button"
                         value={dateRange}
                         variant={getButtonVariant(dateRange)}
                         disabled={props.disabled || (props.disableAllTime && dateRange === DateRange.ALL)}
                         onChange={removeWrongFocus}
                         size="sm"
+                        key={key}
                     >
                         {getButtonText(dateRange)}
                     </ToggleButton>

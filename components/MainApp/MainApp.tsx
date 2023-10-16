@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+'use client'
+import { useEffect, useState } from 'react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import CookieConsent from 'react-cookie-consent'
 import { ToastContainer } from 'react-toastify'
 import { OfflineBanner } from '../OfflineBanner/OfflineBanner'
@@ -9,15 +10,56 @@ import Cookies from 'js-cookie'
 import { Modal } from 'react-bootstrap'
 import ReloadDialog from '../ReloadDialog/ReloadDialog'
 import { startMigrations } from '../../migrations/MigrationUtils'
-import { useRouter } from 'next/router'
-import { isClientSideRendering } from '../../utils/SSRUtils'
 import { v4 as generateUUID } from 'uuid'
+import { isClientSideRendering } from '../../utils/SSRUtils'
+import { useRouter } from 'next/navigation'
+import '../../styles/bootstrap-react.min.css'
+import '../../styles/bootstrap-dark.min.css'
+import '../../styles/globals.css'
+import TopLoadingAnimation from '../TopLoader/TopLoadingAnimation'
+import { initCoflCoinManager } from '../../utils/CoflCoinsUtils'
+
+interface ErrorLog {
+    error: ErrorEvent
+    timestamp: Date
+}
+
+export const errorLog: ErrorLog[] = []
+
+initCoflCoinManager()
 
 export function MainApp(props: any) {
     const [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false)
     const [isReloadTracked, setIsReloadTracked] = useState(false)
     const { trackPageView, trackEvent, pushInstruction } = useMatomo()
     const router = useRouter()
+
+    useEffect(() => {
+        window.addEventListener('error', function (event) {
+            errorLog.push({
+                error: event,
+                timestamp: new Date()
+            })
+
+            if (event.error.name === 'ChunkLoadError') {
+                let chunkErrorLocalStorage = window.localStorage.getItem('chunkErrorReload')
+                if (chunkErrorLocalStorage && parseInt(chunkErrorLocalStorage) + 5000 > new Date().getTime()) {
+                    alert('There is something wrong with the website-chunks. Please try Control + F5 to hard refresh the page.')
+                    return
+                }
+                window.localStorage.setItem('chunkErrorReload', new Date().getTime().toString())
+                caches
+                    .keys()
+                    .then(keys => {
+                        keys.forEach(key => {
+                            caches.delete(key)
+                        })
+                    })
+                    .catch(() => {})
+                location.reload()
+            }
+        })
+    }, [])
 
     useEffect(() => {
         window.sessionStorage.setItem('sessionId', generateUUID())
@@ -101,8 +143,9 @@ export function MainApp(props: any) {
     )
 
     return (
-        <div>
+        <>
             <OfflineBanner />
+            <TopLoadingAnimation />
             {props.children}
             <CookieConsent
                 enableDeclineButton
@@ -113,19 +156,22 @@ export function MainApp(props: any) {
                 declineButtonText="Decline"
                 cookieName="nonEssentialCookiesAllowed"
                 data-nosnippet
-                style={{ paddingLeft: '40px' }}
+                style={{ paddingLeft: '2vw' }}
                 onAccept={() => {
                     setTrackingAllowed()
                 }}
             >
                 <span data-nosnippet>
-                    <p style={{ margin: '0px' }}>
-                        We use cookies for analytics. <a href="https://coflnet.com/privacy"> privacy policy </a>
+                    <p style={{ margin: '0' }}>
+                        We use cookies for analytics. By clicking the "Yes, I understand" button, you consent our use of cookies. View our{' '}
+                        <a href="https://coflnet.com/privacy" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}>
+                            Privacy Policy ↗️
+                        </a>
                     </p>
                 </span>
             </CookieConsent>
             {refreshFeedbackDialog}
             <ToastContainer theme={'colored'} />
-        </div>
+        </>
     )
 }

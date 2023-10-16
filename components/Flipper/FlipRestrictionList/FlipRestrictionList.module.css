@@ -30,6 +30,27 @@
     border-color: cornflowerblue;
 }
 
+.label {
+    width: 300px;
+    float: left;
+    font-weight: bold;
+}
+
+.sortByNameCheckbox {
+    position: relative !important;
+}
+
+.sortByNameContainer {
+    display: inline-flex;
+    margin-left: 20px;
+    flex: 50%;
+}
+
+.searchFilter {
+    margin-left: 20px;
+    flex: 50%;
+}
+
 @media all and (max-width: 1024px) {
     .restriction {
         width: 100%;

@@ -1,10 +1,11 @@
-import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeparators } from '../../../utils/Formatter'
 
 const ANIMATION_THRESHOLD = 200
 
 let option = {
     tooltip: {
         trigger: 'axis',
+        className: 'priceGraphTooltip',
         axisPointer: {
             type: 'cross',
             crossStyle: {
@@ -13,7 +14,7 @@ let option = {
             label: {
                 formatter: axisObject => {
                     if (axisObject.axisDimension === 'y') {
-                        return `${numberWithThousandsSeperators(axisObject.value)}`
+                        return `${numberWithThousandsSeparators(axisObject.value)}`
                     }
                     return getLocalDateAndTime(new Date(+axisObject.value))
                 }
@@ -47,7 +48,7 @@ let option = {
     xAxis: [
         {
             type: 'category',
-            data: [],
+            data: [] as any[],
             axisPointer: {
                 type: 'shadow'
             },
@@ -72,7 +73,7 @@ let option = {
             position: 'right',
             symbol: 'none',
             axisLabel: {
-                formatter: numberWithThousandsSeperators
+                formatter: numberWithThousandsSeparators
             }
         }
     ],
@@ -90,7 +91,8 @@ let option = {
             animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
                 valueFormatter: formatAsCoins
-            }
+            },
+            data: [] as any[]
         },
         {
             name: 'Min',
@@ -103,7 +105,7 @@ let option = {
             tooltip: {
                 valueFormatter: formatAsCoins
             },
-            data: []
+            data: [] as any[]
         },
         {
             name: 'Max',
@@ -116,7 +118,7 @@ let option = {
             tooltip: {
                 valueFormatter: formatAsCoins
             },
-            data: []
+            data: [] as any[]
         },
         {
             name: 'Volume',
@@ -127,9 +129,9 @@ let option = {
             smooth: true,
             animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
-                valueFormatter: numberWithThousandsSeperators
+                valueFormatter: numberWithThousandsSeparators
             },
-            data: []
+            data: [] as any[]
         }
     ]
 }

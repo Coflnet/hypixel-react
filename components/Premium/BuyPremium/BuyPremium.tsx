@@ -1,14 +1,15 @@
-import React, { ChangeEvent, useState } from 'react'
-import { ToggleButtonGroup, ToggleButton } from 'react-bootstrap'
-import { Button, Card, Form, Modal } from 'react-bootstrap'
+'use client'
+import { ChangeEvent, useState } from 'react'
+import { Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
 import { useCoflCoins } from '../../../utils/Hooks'
 import { getPremiumType, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
+import { Number } from '../../Number/Number'
 import styles from './BuyPremium.module.css'
+import BuyPremiumConfirmationDialog from './BuyPremiumConfirmationDialog'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -30,15 +31,17 @@ function BuyPremium(props: Props) {
 
     function onPremiumTypeChange(productId) {
         let selectedType = PREMIUM_TYPES.find(type => type.productId === productId)
-        setPurchasePremiumType(selectedType)
-        setPurchasePremiumOption(selectedType.options[0])
+        if (selectedType) {
+            setPurchasePremiumType(selectedType)
+            setPurchasePremiumOption(selectedType.options[0])
+        }
     }
 
-    function onPremiumBuy() {
+    function onPremiumBuy(googleToken: string) {
         setShowConfirmationDialog(false)
         setIsPurchasing(true)
 
-        api.purchaseWithCoflcoins(purchasePremiumOption.productId, purchasePremiumOption.value).then(() => {
+        api.purchaseWithCoflcoins(purchasePremiumOption.productId, googleToken, purchasePremiumOption.value).then(() => {
             document.dispatchEvent(
                 new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, {
                     detail: { coflCoins: coflCoins - getPurchasePrice() }
@@ -68,51 +71,6 @@ function BuyPremium(props: Props) {
         return durationString
     }
 
-    let confirmationDialog = (
-        <Modal
-            show={showConfirmationDialog}
-            onHide={() => {
-                setShowConfirmationDialog(false)
-            }}
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>Confirmation</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <ul>
-                    <li>
-                        <span className={styles.label}>Type:</span>
-                        {purchasePremiumType.label}
-                    </li>
-                    <li>
-                        <span className={styles.label}>Duration:</span>
-                        {purchasePremiumOption.label} {getDurationString()}
-                    </li>
-                    <li>
-                        <span className={styles.label}>Price:</span>
-                        {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins
-                    </li>
-                </ul>
-                <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
-                {props.activePremiumProduct && getPremiumType(props.activePremiumProduct).productId !== purchasePremiumType.productId ? (
-                    <div>
-                        <hr />
-                        <p style={{ color: 'yellow' }}>
-                            It seems you already have an active premium product. While the 'better' premium is active, the other will get paused.
-                        </p>
-                    </div>
-                ) : null}
-                <hr />
-                <Button variant="danger" onClick={onPremiumBuyCancel}>
-                    Cancel
-                </Button>
-                <Button variant="success" style={{ float: 'right' }} onClick={onPremiumBuy}>
-                    Confirm
-                </Button>
-            </Modal.Body>
-        </Modal>
-    )
-
     return (
         <>
             <Card className={styles.purchaseCard}>
@@ -132,7 +90,13 @@ function BuyPremium(props: Props) {
                                     onChange={onPremiumTypeChange}
                                 >
                                     {PREMIUM_TYPES.map(premiumType => (
-                                        <ToggleButton value={premiumType.productId} className="price-range-button" size="sm">
+                                        <ToggleButton
+                                            id={premiumType.productId}
+                                            key={premiumType.productId}
+                                            value={premiumType.productId}
+                                            className="price-range-button"
+                                            size="sm"
+                                        >
                                             {premiumType.label}
                                         </ToggleButton>
                                     ))}
@@ -143,27 +107,34 @@ function BuyPremium(props: Props) {
                             </div>
                             <div style={{ marginBottom: '15px' }}>
                                 <label className={styles.label}>Purchase Duration:</label>
-                                <Form.Control
-                                    as="select"
+                                <Form.Select
                                     onChange={onDurationChange}
                                     className={styles.dropdown}
                                     key={purchasePremiumType.productId}
                                     defaultValue={purchasePremiumOption.value}
                                 >
                                     {purchasePremiumType.options.map(option => {
-                                        return <option value={JSON.stringify(option)}>{option.label}</option>
+                                        return (
+                                            <option key={option.label} value={JSON.stringify(option)}>
+                                                {option.label}
+                                            </option>
+                                        )
                                     })}
-                                </Form.Control>
+                                </Form.Select>
                                 <span style={{ marginLeft: '20px' }}>{getDurationString()}</span>
                             </div>
                             <div>
                                 <label className={styles.label}>Price:</label>
-                                <span style={{ fontWeight: 'bold' }}>{numberWithThousandsSeperators(getPurchasePrice())} Coins</span>
+                                <span style={{ fontWeight: 'bold' }}>
+                                    <Number number={getPurchasePrice()} /> Coins
+                                </span>
                             </div>
                             {coflCoins > getPurchasePrice() ? (
                                 <div>
                                     <label className={styles.label}>Remaining after Purchase:</label>
-                                    <span>{numberWithThousandsSeperators(coflCoins - getPurchasePrice())} Coins</span>
+                                    <span>
+                                        <Number number={coflCoins - getPurchasePrice()} /> Coins
+                                    </span>
                                 </div>
                             ) : null}
                             <p style={{ marginTop: '20px' }}>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
@@ -191,12 +162,21 @@ function BuyPremium(props: Props) {
                     ) : (
                         <p style={{ color: 'lime' }}>
                             You successfully bought {purchaseSuccessfulOption.label} {getDurationString()} of {purchasePremiumType.label} for{' '}
-                            {numberWithThousandsSeperators(getPurchasePrice())} CoflCoins!
+                            <Number number={getPurchasePrice()} /> CoflCoins!
                         </p>
                     )}
                 </div>
             </Card>
-            {confirmationDialog}
+            <BuyPremiumConfirmationDialog
+                show={showConfirmationDialog}
+                durationString={getDurationString()}
+                purchasePremiumOption={purchasePremiumOption}
+                purchasePrice={getPurchasePrice()}
+                purchasePremiumType={purchasePremiumType}
+                onHide={onPremiumBuyCancel}
+                onConfirm={onPremiumBuy}
+                activePremiumProduct={props.activePremiumProduct}
+            />
         </>
     )
 }

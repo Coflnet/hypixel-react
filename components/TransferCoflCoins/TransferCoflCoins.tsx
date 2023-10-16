@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+'use client'
+import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { useCoflCoins } from '../../utils/Hooks'
 import { PlayerFilterElement } from '../FilterElement/FilterElements/PlayerFilterElement'
+import { Number } from '../Number/Number'
 import TransferCoflCoinsSummary from './TransferCoflCoinsSummary'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
 
 interface Props {
     onFinish()
@@ -33,7 +34,6 @@ function TransferCoflCoins(props: Props) {
                         <b>By Minecraft name:</b> Search the players Minecraft name (only works if they linked their Minecraft account on the website)
                     </li>
                 </ul>
-                <p>Info: We set a limit, so you can only send CoflCoins 42 times a month, to prevent abuse.</p>
                 <hr />
                 <div style={{ padding: '0 50px 0 50px' }}>
                     <div>
@@ -64,13 +64,15 @@ function TransferCoflCoins(props: Props) {
                     </div>
                     <div style={{ marginBottom: '20px' }}>
                         Amount of CoflCoins{' '}
-                        <NumberFormat
+                        <NumericFormat
                             id="coflcoins-to-send"
                             onValueChange={n => {
-                                setCoflCoinsToSend(n.floatValue)
+                                if (n.floatValue) {
+                                    setCoflCoinsToSend(n.floatValue)
+                                }
                             }}
                             isAllowed={value => {
-                                return value.floatValue <= coflCoinsBalance
+                                return value.floatValue ? value.floatValue <= coflCoinsBalance : false
                             }}
                             customInput={Form.Control}
                             defaultValue={0}
@@ -80,7 +82,9 @@ function TransferCoflCoins(props: Props) {
                             decimalScale={1}
                         />
                     </div>
-                    <span>Your current Balance: {numberWithThousandsSeperators(coflCoinsBalance)}</span>
+                    <span>
+                        Your current Balance: <Number number={coflCoinsBalance} />
+                    </span>
                     <Button
                         variant="success"
                         style={{ float: 'right' }}

@@ -1,4 +1,4 @@
-import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeparators } from '../../../utils/Formatter'
 
 const ANIMATION_THRESHOLD = 200
 
@@ -6,6 +6,7 @@ function getPriceGraphConfigSingle() {
     return {
         tooltip: {
             trigger: 'axis',
+            className: 'priceGraphTooltip',
             axisPointer: {
                 type: 'cross',
                 crossStyle: {
@@ -14,7 +15,7 @@ function getPriceGraphConfigSingle() {
                 label: {
                     formatter: axisObject => {
                         if (axisObject.axisDimension === 'y') {
-                            return `${numberWithThousandsSeperators(axisObject.value)}`
+                            return `${numberWithThousandsSeparators(axisObject.value)}`
                         }
                         return getLocalDateAndTime(new Date(+axisObject.value))
                     }
@@ -94,7 +95,7 @@ function getPriceGraphConfigSingle() {
                 name: 'Number of traded items',
                 position: 'right',
                 axisLabel: {
-                    formatter: numberWithThousandsSeperators
+                    formatter: numberWithThousandsSeparators
                 }
             }
         ],
@@ -116,9 +117,10 @@ function getPriceGraphConfigSingle() {
                         if (!value || (value && value.length === 0)) {
                             return ''
                         }
-                        return `${numberWithThousandsSeperators(value)} Coins`
+                        return `${numberWithThousandsSeparators(value)} Coins`
                     }
-                }
+                },
+                data: [] as any
             },
             {
                 name: 'Min (buy)',
@@ -132,7 +134,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Max (buy)',
@@ -145,7 +147,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Volume (buy)',
@@ -156,9 +158,9 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeparators
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Moving (buy)',
@@ -168,9 +170,9 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeparators
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Price (sell)',
@@ -189,9 +191,10 @@ function getPriceGraphConfigSingle() {
                         if (!value || (value && value.length === 0)) {
                             return ''
                         }
-                        return `${numberWithThousandsSeperators(value)} Coins`
+                        return `${numberWithThousandsSeparators(value)} Coins`
                     }
-                }
+                },
+                data: [] as any
             },
             {
                 name: 'Min (sell)',
@@ -205,7 +208,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Max (sell)',
@@ -219,7 +222,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Volume (sell)',
@@ -231,9 +234,9 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeparators
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Moving (sell)',
@@ -244,9 +247,9 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeparators
                 },
-                data: []
+                data: [] as any[]
             }
         ]
     }

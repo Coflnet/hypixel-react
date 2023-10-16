@@ -1,7 +1,7 @@
-import React from 'react'
-import { getDecimalSeperator, getThousandSeperator } from '../../../utils/Formatter'
-import NumberFormat, { NumberFormatValues } from 'react-number-format'
+'use client'
 import { Form } from 'react-bootstrap'
+import { NumberFormatValues, NumericFormat } from 'react-number-format'
+import { getDecimalSeparator, getThousandSeparator } from '../../../utils/Formatter'
 
 interface Props {
     onChange(n: string)
@@ -15,14 +15,17 @@ export function NumericalFilterElement(props: Props) {
     }
 
     return (
-        <NumberFormat
+        <NumericFormat
             onValueChange={_onChange}
             customInput={Form.Control}
             defaultValue={props.defaultValue}
-            thousandSeparator={getThousandSeperator()}
-            decimalSeparator={getDecimalSeperator()}
+            thousandSeparator={getThousandSeparator()}
+            decimalSeparator={getDecimalSeparator()}
             allowNegative={false}
             isAllowed={value => {
+                if (!value.floatValue) {
+                    return true
+                }
                 let options = props.options?.options
                 if (options.length === 2 && !isNaN(+options[0]) && !isNaN(+options[1])) {
                     return value.floatValue > +options[0] && value.floatValue < +options[1]

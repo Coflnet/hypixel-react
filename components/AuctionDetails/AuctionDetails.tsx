@@ -1,45 +1,55 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useState } from 'react'
-import Countdown from 'react-countdown'
-import api from '../../api/ApiHelper'
-import { Badge, Button, Card, ListGroup, Modal, OverlayTrigger, Tooltip as TooltipBootstrap } from 'react-bootstrap'
-import {
-    getStyleForTier,
-    numberWithThousandsSeperators,
-    convertTagToName,
-    formatDungeonStarsInString as getDungeonStarFormattedItemName
-} from '../../utils/Formatter'
-import { getLoadingElement } from '../../utils/LoadingUtils'
-import { useForceUpdate } from '../../utils/Hooks'
+'use client'
 import moment from 'moment'
-import { v4 as generateUUID } from 'uuid'
-import SubscribeButton from '../SubscribeButton/SubscribeButton'
-import { CopyButton } from '../CopyButton/CopyButton'
-import { toast } from 'react-toastify'
-import Tooltip from '../Tooltip/Tooltip'
 import Link from 'next/link'
-import styles from './AuctionDetails.module.css'
+import { useEffect, useState } from 'react'
+import { Badge, Button, Card, ListGroup, Modal, OverlayTrigger, Tooltip as TooltipBootstrap } from 'react-bootstrap'
+import Countdown from 'react-countdown'
+import { toast } from 'react-toastify'
+import { v4 as generateUUID } from 'uuid'
+import api from '../../api/ApiHelper'
+import {
+    convertTagToName,
+    formatDungeonStarsInString as getDungeonStarFormattedItemName,
+    getMinecraftColorCodedElement,
+    getStyleForTier
+} from '../../utils/Formatter'
+import { useForceUpdate } from '../../utils/Hooks'
+import { getLoadingElement } from '../../utils/LoadingUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import { CopyButton } from '../CopyButton/CopyButton'
 import FlipBased from '../Flipper/FlipBased/FlipBased'
-import { Help as HelpIcon } from '@mui/icons-material'
+import SubscribeButton from '../SubscribeButton/SubscribeButton'
+import Tooltip from '../Tooltip/Tooltip'
+import styles from './AuctionDetails.module.css'
+import { Help as HelpIcon, ArrowDropDown as ArrowDownIcon, ArrowRight as ArrowRightIcon } from '@mui/icons-material'
+import { FilterChecker } from '../FilterChecker/FilterChecker'
+import Image from 'next/image'
+import { Number } from '../Number/Number'
+import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import TEMOwnerHistory from '../TEMItems/TEMOwnerHistory/TEMOwnerHistory'
 
 interface Props {
     auctionUUID: string
-    auctionDetails?: AuctionDetails
+    auctionDetails?: any
     retryCounter?: number
     temItemDetails?: TEM_Item | TEM_Pet
+    unparsedAuctionDetails?: any
 }
 
 function AuctionDetails(props: Props) {
     let [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
-    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails)
+    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
+    let [unparsedAuctionDetails, setUnparsedAuctionDetails] = useState(props.unparsedAuctionDetails)
     let [isLoading, setIsLoading] = useState(false)
     let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
     let [temItemDetails, setTEMItemDetails] = useState<TEM_Item | TEM_Pet>(props.temItemDetails)
+    let [showFilterChecker, setShowFilterChecker] = useState(false)
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
+        // Dont load auction details if
+        // - either the auctionUUID is not present (then it cant be loaded here and needs props.auctionDetails)
+        // - or props.auctionDetails is already filled
         if (!props.auctionUUID || props.auctionDetails) {
             return
         }
@@ -48,9 +58,14 @@ function AuctionDetails(props: Props) {
 
     let tryNumber = 1
     function loadAuctionDetails(auctionUUID: string) {
-        setIsLoading(true)
+        // if auction details are already available, don't show loading animation to prevent flickering
+        if (!auctionDetails) {
+            setIsLoading(true)
+        }
         api.getAuctionDetails(auctionUUID)
-            .then(auctionDetails => {
+            .then(result => {
+                setUnparsedAuctionDetails(result.original)
+                let auctionDetails = result.parsed
                 auctionDetails.bids.sort((a, b) => b.amount - a.amount)
                 auctionDetails.auction.item.iconUrl = api.getItemImageUrl(auctionDetails.auction.item)
                 setAuctionDetails(auctionDetails)
@@ -95,7 +110,7 @@ function AuctionDetails(props: Props) {
                 } else {
                     setIsNoAuctionFound(true)
                     if (error) {
-                        toast.error(error.Message)
+                        toast.error(error.message)
                     }
                 }
             })
@@ -116,14 +131,11 @@ function AuctionDetails(props: Props) {
         return moment(auctionDetails.auction.end).format('MMMM Do YYYY, h:mm:ss a')
     }
 
-    let onAucitonEnd = () => {
-        forceUpdate()
-    }
-
-    function getNBTElement(): JSX.Element {
-        return !auctionDetails?.nbtData ? (
-            <div />
-        ) : (
+    function getNBTElement(): JSX.Element | null {
+        if (!auctionDetails?.nbtData) {
+            return null
+        }
+        return (
             <div>
                 {Object.keys(auctionDetails?.nbtData).map(key => {
                     let currentNBT = auctionDetails?.nbtData[key]
@@ -131,9 +143,9 @@ function AuctionDetails(props: Props) {
                         <div key={key}>
                             <p>
                                 <span className={styles.label}>
-                                    <Badge variant={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
+                                    <Badge bg={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
                                 </span>
-                                {formatNBTValue(key, currentNBT)}
+                                <span className="ellipse">{formatNBTValue(key, currentNBT, auctionDetails)}</span>
                             </p>
                         </div>
                     )
@@ -142,7 +154,7 @@ function AuctionDetails(props: Props) {
         )
     }
 
-    function formatNBTValue(key: string, value: any) {
+    function formatNBTValue(key: string, value: any, auctionDetails?: AuctionDetails) {
         let tagNbt = [
             'heldItem',
             'personal_compact_0',
@@ -198,12 +210,15 @@ function AuctionDetails(props: Props) {
             return <Tooltip type="hover" content={<span>{hexSplits.join('')}</span>} tooltipContent={value} />
         }
 
-        if (!isNaN(value) && Number.isInteger(parseInt(value, 10))) {
-            return numberWithThousandsSeperators(value)
+        if (!isNaN(value)) {
+            return <Number number={value} />
         }
 
         let index = tagNbt.findIndex(tag => tag === key)
         if (index !== -1) {
+            if (key === 'skin' && auctionDetails?.auction?.item?.tag?.startsWith('PET_')) {
+                return <Link href={'/item/PET_SKIN_' + value}>{convertTagToName(value)}</Link>
+            }
             return <Link href={'/item/' + value}>{convertTagToName(value)}</Link>
         }
         return value.toString()
@@ -218,7 +233,7 @@ function AuctionDetails(props: Props) {
             size={'xl'}
             show={showBasedOnDialog}
             onHide={() => {
-                setShowBasedOnDialog(null)
+                setShowBasedOnDialog(false)
             }}
         >
             <Modal.Header closeButton>
@@ -233,33 +248,40 @@ function AuctionDetails(props: Props) {
     ) : (
         <div>
             <Card.Header className={styles.auctionCardHeader}>
-                <Link href={'/item/' + auctionDetails.auction.item.tag}>
-                    <a className="disableLinkStyle">
-                        <h1>
-                            <span className={styles.itemIcon}>
-                                <img crossOrigin="anonymous" src={auctionDetails?.auction.item.iconUrl} height="48" alt="item icon" loading="lazy" />
+                <Link href={'/item/' + auctionDetails.auction.item.tag} className="disableLinkStyle">
+                    <h1>
+                        <span className={styles.itemIcon}>
+                            <Image
+                                crossOrigin="anonymous"
+                                src={auctionDetails?.auction.item.iconUrl || ''}
+                                height={48}
+                                width={48}
+                                alt="item icon"
+                                loading="lazy"
+                            />
+                        </span>
+                        <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
+                            <span style={{ marginRight: '10px' }}>
+                                {auctionDetails?.auction.item.name?.includes('§')
+                                    ? getMinecraftColorCodedElement(auctionDetails?.auction.item.name)
+                                    : getDungeonStarFormattedItemName(
+                                          auctionDetails.auction.item.name,
+                                          getStyleForTier(auctionDetails.auction.item.tier),
+                                          auctionDetails?.nbtData['dungeon_item_level']
+                                      )}
                             </span>
-                            <span style={{ paddingLeft: '10px', display: 'flex', justifyContent: 'center' }}>
-                                <span style={{ marginRight: '10px' }}>
-                                    {getDungeonStarFormattedItemName(
-                                        auctionDetails?.auction.item.name,
-                                        getStyleForTier(auctionDetails.auction.item.tier),
-                                        auctionDetails?.nbtData['dungeon_item_level']
-                                    )}
-                                </span>
-                                <Badge variant={countBadgeVariant} style={{ marginLeft: '5px' }}>
-                                    x{auctionDetails?.count}
+                            <Badge bg={countBadgeVariant} style={{ marginLeft: '5px' }}>
+                                x{auctionDetails?.count}
+                            </Badge>
+                            {auctionDetails.auction.bin ? (
+                                <Badge bg={binBadgeVariant} style={{ marginLeft: '5px' }}>
+                                    BIN
                                 </Badge>
-                                {auctionDetails.auction.bin ? (
-                                    <Badge variant={binBadgeVariant} style={{ marginLeft: '5px' }}>
-                                        BIN
-                                    </Badge>
-                                ) : (
-                                    ''
-                                )}
-                            </span>
-                        </h1>
-                    </a>
+                            ) : (
+                                ''
+                            )}
+                        </span>
+                    </h1>
                 </Link>
                 <div className={styles.cardHeadSubtext}>
                     <OverlayTrigger
@@ -268,7 +290,7 @@ function AuctionDetails(props: Props) {
                             <div>
                                 {isRunning(auctionDetails) ? (
                                     <span>
-                                        End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={onAucitonEnd} /> : '-'}
+                                        End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={forceUpdate} /> : '-'}
                                     </span>
                                 ) : (
                                     <span>
@@ -298,7 +320,7 @@ function AuctionDetails(props: Props) {
                             isRunning(auctionDetails)
                                 ? '/viewauction ' + auctionDetails.auction.uuid
                                 : isClientSideRendering()
-                                ? `${location.hostname}/auction/${auctionDetails.auction.uuid}`
+                                ? `${location.origin}/auction/${auctionDetails.auction.uuid}`
                                 : ''
                         }
                         successMessage={
@@ -326,70 +348,65 @@ function AuctionDetails(props: Props) {
             <Card.Body>
                 <p>
                     <span className={styles.label}>
-                        <Badge variant={labelBadgeVariant}>Tier:</Badge>
+                        <Badge bg={labelBadgeVariant}>Tier:</Badge>
                     </span>
                     <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.tier}</span>
                 </p>
                 <p>
                     <span className={styles.label}>
-                        <Badge variant={labelBadgeVariant}>Category:</Badge>
+                        <Badge bg={labelBadgeVariant}>Category:</Badge>
                     </span>{' '}
                     {convertTagToName(auctionDetails?.auction.item.category)}
                 </p>
                 <p>
                     <span className={styles.label}>
-                        <Badge variant={labelBadgeVariant}>Reforge:</Badge>
+                        <Badge bg={labelBadgeVariant}>Reforge:</Badge>
                     </span>
                     {auctionDetails?.reforge}
                 </p>
 
                 <Link href={`/player/${auctionDetails.auctioneer.uuid}`}>
-                    <a>
-                        <p>
-                            <span className={styles.label}>
-                                <Badge variant={labelBadgeVariant}>Auctioneer:</Badge>
-                            </span>
-                            {auctionDetails?.auctioneer.name}
-                            <img
-                                crossOrigin="anonymous"
-                                className="playerHeadIcon"
-                                src={auctionDetails?.auctioneer.iconUrl}
-                                alt="auctioneer icon"
-                                height="16"
-                                style={{ marginLeft: '5px' }}
-                                loading="lazy"
-                            />
-                        </p>
-                    </a>
+                    <p>
+                        <span className={styles.label}>
+                            <Badge bg={labelBadgeVariant}>Auctioneer:</Badge>
+                        </span>
+                        {auctionDetails?.auctioneer.name}
+                        <Image
+                            crossOrigin="anonymous"
+                            className="playerHeadIcon"
+                            src={auctionDetails?.auctioneer.iconUrl || ''}
+                            alt="auctioneer icon"
+                            height="16"
+                            width="16"
+                            style={{ marginLeft: '5px' }}
+                            loading="lazy"
+                        />
+                    </p>
                 </Link>
 
                 <p>
                     <span className={styles.label}>
-                        <Badge variant={labelBadgeVariant}>Created:</Badge>
+                        <Badge bg={labelBadgeVariant}>Auction Created:</Badge>
+                    </span>
+                    {auctionDetails?.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}
+                </p>
+                <p>
+                    <span className={styles.label}>
+                        <Badge bg={labelBadgeVariant}>Item Created:</Badge>
                     </span>
                     {auctionDetails?.itemCreatedAt.toLocaleDateString() + ' ' + auctionDetails.itemCreatedAt.toLocaleTimeString()}
                 </p>
 
                 <div style={{ overflow: 'auto' }}>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? styles.labelForList : styles.label}>
-                        <Badge variant={labelBadgeVariant}>Enchantments:</Badge>
+                        <Badge bg={labelBadgeVariant}>Enchantments:</Badge>
                     </span>
                     {auctionDetails && auctionDetails!.enchantments.length > 0 ? (
                         <ul className={styles.list}>
                             {auctionDetails?.enchantments.map(enchantment => {
                                 let enchantmentString = <span>{enchantment.name}</span>
                                 if (enchantment.color) {
-                                    enchantmentString = (
-                                        <span
-                                            style={{ float: 'left' }}
-                                            ref={node => {
-                                                if (node && enchantment.color) {
-                                                    node.innerHTML = ''
-                                                    node.append(((enchantment.color + enchantment.name + ' ' + enchantment.level) as any).replaceColorCodes())
-                                                }
-                                            }}
-                                        ></span>
-                                    )
+                                    enchantmentString = getMinecraftColorCodedElement(enchantment.color + enchantment.name + ' ' + enchantment.level)
                                 }
                                 return enchantment.name ? <li key={enchantment.name}>{enchantmentString}</li> : ''
                             })}
@@ -410,24 +427,25 @@ function AuctionDetails(props: Props) {
             auctionDetails?.bids.map((bid, i) => {
                 let headingStyle = i === 0 ? { color: 'green' } : { color: 'red' }
                 return (
-                    <Link href={`/player/${bid.bidder.uuid}`} key={'bid-' + i}>
-                        <a className="disableLinkStyle">
-                            <ListGroup.Item key={bid.amount} action>
-                                <img
-                                    crossOrigin="anonymous"
-                                    className="playerHeadIcon"
-                                    src={bid.bidder.iconUrl}
-                                    height="64"
-                                    alt="bidder minecraft icon"
-                                    style={{ marginRight: '15px', float: 'left' }}
-                                    loading="lazy"
-                                />
-                                <h6 style={headingStyle}>{numberWithThousandsSeperators(bid.amount)} Coins</h6>
-                                <span>{bid.bidder.name}</span>
-                                <br />
-                                <span>{moment(bid.timestamp).fromNow()}</span>
-                            </ListGroup.Item>
-                        </a>
+                    <Link href={`/player/${bid.bidder.uuid}`} key={'bid-' + i} className="disableLinkStyle">
+                        <ListGroup.Item key={bid.amount} action>
+                            <Image
+                                crossOrigin="anonymous"
+                                className="playerHeadIcon"
+                                src={bid.bidder.iconUrl || ''}
+                                height="64"
+                                width="64"
+                                alt="bidder minecraft icon"
+                                style={{ marginRight: '15px', float: 'left' }}
+                                loading="lazy"
+                            />
+                            <h6 style={headingStyle}>
+                                <Number number={bid.amount} /> Coins
+                            </h6>
+                            <span>{bid.bidder.name}</span>
+                            <br />
+                            <span>{moment(bid.timestamp).fromNow()}</span>
+                        </ListGroup.Item>
                     </Link>
                 )
             })
@@ -441,10 +459,8 @@ function AuctionDetails(props: Props) {
                 <div>
                     <p>The auction you tried to see doesn't seem to exist. Please go back.</p>
                     <br />
-                    <Link href="/">
-                        <a className="disableLinkStyle">
-                            <Button>Get back</Button>
-                        </a>
+                    <Link href="/" className="disableLinkStyle">
+                        <Button>Get back</Button>
                     </Link>
                 </div>
             ) : (
@@ -454,7 +470,13 @@ function AuctionDetails(props: Props) {
                         <Card className={styles.auctionCard}>
                             <Card.Header>
                                 <h2>Bids</h2>
-                                {auctionDetails ? <h6>Starting bid: {numberWithThousandsSeperators(auctionDetails?.auction.startingBid)} Coins</h6> : ''}
+                                {auctionDetails ? (
+                                    <h6>
+                                        Starting bid: <Number number={auctionDetails?.auction.startingBid} /> Coins
+                                    </h6>
+                                ) : (
+                                    ''
+                                )}
                             </Card.Header>
                             <Card.Body>
                                 <ListGroup>{bidList || getLoadingElement()}</ListGroup>
@@ -464,6 +486,19 @@ function AuctionDetails(props: Props) {
                     </div>
                 </div>
             )}
+            <div
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                    setShowFilterChecker(!showFilterChecker)
+                }}
+            >
+                Show filter checker {showFilterChecker ? <ArrowDownIcon /> : <ArrowRightIcon />}
+            </div>
+            {showFilterChecker && unparsedAuctionDetails ? (
+                <div style={{ minHeight: 400 }}>
+                    <FilterChecker auctionToCheck={unparsedAuctionDetails} />
+                </div>
+            ) : null}
             {basedOnDialog}
         </div>
     )

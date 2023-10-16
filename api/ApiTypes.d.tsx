@@ -8,7 +8,6 @@ export enum RequestType {
     PLAYER_AUCTION = 'playerAuctions',
     PLAYER_BIDS = 'playerBids',
     ALL_ENCHANTMENTS = 'getEnchantments',
-    ALL_REFORGES = 'getReforges',
     TRACK_SEARCH = 'trackSearch',
     PLAYER_NAME = 'playerName',
     SET_CONNECTION_ID = 'setConId',
@@ -16,7 +15,7 @@ export enum RequestType {
     SUBSCRIBE = 'subscribe',
     UNSUBSCRIBE = 'unsubscribe',
     GET_SUBSCRIPTIONS = 'subscriptions',
-    SET_GOOGLE = 'setGoogle',
+    LOGIN_WITH_TOKEN = 'loginWithToken',
     STRIPE_PAYMENT_SESSION = 'topup/stripe',
     GET_PRODUCTS = 'topup/options',
     PREMIUM_EXPIRATION = 'premiumExpiration',
@@ -69,6 +68,9 @@ export enum RequestType {
     SET_PRIVACY_SETTINGS = 'setPrivacySettings',
     CHECK_FOR_RAT = 'checkForRat',
     GET_PREMIUM_PRODUCTS = 'premium/user/owns',
+    GET_ITEM_NAMES = 'items/names',
+    RELATED_ITEMS = 'realtedItems',
+    CHECK_FILTER = 'checkFilter'
     UNSUBSCRIBE_ALL = 'unsubscribeAll',
     GET_TEM_PLAYER_DATA = 'getTemPlayerData',
     GET_TEM_PLAYER_DATA_BY_PROFILE = 'getTemPlayerDataByProfile',
@@ -105,13 +107,14 @@ export interface ApiSubscription {
     data: any
     callback(request: ApiResponse)
     resubscribe(subscription: ApiSubscription)
+    onError(message: string)
 }
 
 export interface Subscription {
     topicId: string
     price: number
     types: SubscriptionType[]
-    type: string
+    type: 'player' | 'item' | 'auction'
     title?: string
     filter?: ItemFilter
 }

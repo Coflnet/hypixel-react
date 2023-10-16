@@ -1,3 +1,4 @@
+'use client'
 import { useEffect } from 'react'
 import { Card } from 'react-bootstrap'
 
@@ -10,7 +11,7 @@ function FlipperFAQ() {
         if (element) {
             setTimeout(() => {
                 window.scrollTo({
-                    top: element.offsetTop - 50
+                    top: element!.offsetTop - 50
                 })
             }, 200)
         }
@@ -35,7 +36,7 @@ function FlipperFAQ() {
                         Reference auctions depend on the individual item, its modifiers, and how often it is sold. The algorithm to determine which auctions can
                         be used as reference is changing frequently.
                         <br />
-                        You can see the auctions used for reference by clicking on the (?) next to <code>Estimated Profit</code>
+                        You can see the auctions used for reference by clicking on the (?) next to <code>Estimated Profit</code>.
                     </p>
                     <h3>How reliable is the flipper?</h3>
                     <p>
@@ -47,8 +48,8 @@ function FlipperFAQ() {
                         TLDR: Servercosts and compensation for development.
                         <br />
                         To run the flipper and the auction explorer we have to pay for servers to run it on. While we work hard to keep the cost down they are
-                        currently up to about 200$ per month. And will increase further the more auctions we save and the the more users are using the site.
-                        Furthermore we collectively spent more than 2000 hours of our spare time developing it and would like to get a some compensation for our
+                        currently up to about 503$ per month. And will increase further the more auctions we save and the the more users are using the site.
+                        Furthermore we collectively spent more than 4000 hours of our spare time developing it and would like to get a some compensation for our
                         efforts. The best case would be to develop this and similar projects full time if we could.
                     </p>
                     <h3>What can the free version do?</h3>

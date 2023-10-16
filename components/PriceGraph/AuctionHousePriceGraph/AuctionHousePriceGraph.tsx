@@ -1,18 +1,20 @@
+'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef, useState } from 'react'
-import api from '../../../api/ApiHelper'
-import graphConfig from './PriceGraphConfig'
-import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
-import { getLoadingElement } from '../../../utils/LoadingUtils'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
-import ShareButton from '../../ShareButton/ShareButton'
-import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
-import SubscribeButton from '../../SubscribeButton/SubscribeButton'
-import RecentAuctions from '../../RecentAuctions/RecentAuctions'
-import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
-import styles from './AuctionHousePriceGraph.module.css'
 import ReactECharts from 'echarts-for-react'
+import { useEffect, useRef, useState } from 'react'
+import api from '../../../api/ApiHelper'
+import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
+import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
+import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
+import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { Number } from '../../Number/Number'
+import RecentAuctions from '../../RecentAuctions/RecentAuctions'
+import RelatedItems from '../../RelatedItems/RelatedItems'
+import ShareButton from '../../ShareButton/ShareButton'
+import SubscribeButton from '../../SubscribeButton/SubscribeButton'
+import styles from './AuctionHousePriceGraph.module.css'
+import graphConfig from './PriceGraphConfig'
 
 interface Props {
     item: Item
@@ -50,10 +52,10 @@ function AuctionHousePriceGraph(props: Props) {
         loadFilters().then(filters => {
             fetchspan = DEFAULT_DATE_RANGE
             setFetchspan(DEFAULT_DATE_RANGE)
+            setFilters(filters)
             if (props.item) {
                 updateChart(fetchspan, getPrefillFilter(filters))
             }
-            setFilters(filters)
         })
     }, [props.item.tag])
 
@@ -125,7 +127,7 @@ function AuctionHousePriceGraph(props: Props) {
     }
 
     let onFilterChange = (filter: ItemFilter) => {
-        setItemFilter(filter)
+        setItemFilter({ ...filter })
         setDefaultRangeSwitch(!defaultRangeSwitch)
         if (fetchspanRef.current !== DateRange.ACTIVE) {
             updateChart(fetchspanRef.current, filter)
@@ -162,7 +164,7 @@ function AuctionHousePriceGraph(props: Props) {
 
     return (
         <div>
-            <ItemFilter filters={filters} onFilterChange={onFilterChange} />
+            <ItemFilter filters={filters} onFilterChange={onFilterChange} showModAdvert={true} />
             <ItemPriceRange
                 setToDefaultRangeSwitch={defaultRangeSwitch}
                 onRangeChange={onRangeChange}
@@ -181,7 +183,14 @@ function AuctionHousePriceGraph(props: Props) {
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
-                        <b>Avg Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(avgPrice) + ' Coins'}
+                        <b>Avg Price:</b>{' '}
+                        {isLoading ? (
+                            '-'
+                        ) : (
+                            <span>
+                                <Number number={avgPrice} /> Coins
+                            </span>
+                        )}
                     </span>
                     <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
                         <SubscribeButton type="item" topic={props.item.tag} />
@@ -198,7 +207,10 @@ function AuctionHousePriceGraph(props: Props) {
             {fetchspan === DateRange.ACTIVE ? (
                 <ActiveAuctions item={props.item} filter={itemFilter} />
             ) : (
-                <RecentAuctions item={props.item} itemFilter={itemFilter} />
+                <div>
+                    <RelatedItems tag={props.item.tag} />
+                    <RecentAuctions item={props.item} itemFilter={itemFilter || {}} />
+                </div>
             )}
         </div>
     )

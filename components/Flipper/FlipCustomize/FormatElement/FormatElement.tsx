@@ -1,11 +1,15 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react'
-import React, { ChangeEvent, useEffect, useRef } from 'react'
+'use client'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
+import { ChangeEvent, useRef } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEFAULT_MOD_FORMAT } from '../../../../utils/FlipUtils'
 import Tooltip from '../../../Tooltip/Tooltip'
-import { Refresh as RefreshIcon, Help as HelpIcon } from '@mui/icons-material'
+import HelpIcon from '@mui/icons-material/Help'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import { useForceUpdate } from '../../../../utils/Hooks'
 import styles from './FormatElement.module.css'
+import { getMinecraftColorCodedElement } from '../../../../utils/Formatter'
+import { values } from 'idb-keyval'
 
 interface Props {
     onChange(value: string)
@@ -14,23 +18,14 @@ interface Props {
 }
 
 function FormatElement(props: Props) {
-    let formatExampleRef = useRef(null)
     let formatInputRef = useRef(null)
     let forceUpdate = useForceUpdate()
 
     let { trackEvent } = useMatomo()
 
-    useEffect(() => {
-        renderFormatExampleText()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
     function onChange(value: string) {
         props.onChange(value)
         forceUpdate()
-        setTimeout(() => {
-            renderFormatExampleText()
-        }, 0)
     }
 
     function onModDefaultFormatCheckboxChange(event) {
@@ -56,37 +51,34 @@ function FormatElement(props: Props) {
         onChange(e.target.value)
     }
 
-    function renderFormatExampleText() {
+    function getFormatExampleText() {
         let settings = props.settings
         if (!settings.modFormat) {
             return ''
         }
 
         var values = {
-            '0': 'FLIP',
-            '1': '§2',
-            '2': 'Armadillo',
-            '3': '§1',
-            '4': settings.shortNumbers ? '1.49M' : '1.490.000',
-            '5': settings.shortNumbers ? '2M' : '2.000.000',
-            '6': settings.shortNumbers ? '470k' : '470.000',
-            '7': '31%',
-            '8': settings.shortNumbers ? '2M' : '2.000.000',
-            '9': settings.shortNumbers ? '1M' : '1.000.000',
-            '10': '26'
+            '{0}': 'FLIP',
+            '{1}': '§2',
+            '{2}': 'Armadillo',
+            '{3}': '§1',
+            '{4}': settings.shortNumbers ? '1.49M' : '1.490.000',
+            '{5}': settings.shortNumbers ? '2M' : '2.000.000',
+            '{6}': settings.shortNumbers ? '470k' : '470.000',
+            '{7}': '31%',
+            '{8}': settings.shortNumbers ? '2M' : '2.000.000',
+            '{9}': settings.shortNumbers ? '1M' : '1.000.000',
+            '{10}': '26',
+            '[menu]': '§f✥',
+            '[sellerbtn]': '§7sellers ah'
         }
 
-        let resultText = settings.modFormat.replace(/\{([^}]+)\}/g, function (i, match) {
-            return values[match]
+        let result = settings.modFormat
+        Object.keys(values).forEach(key => {
+            result = result.replaceAll(key, values[key])
         })
 
-        // Timeout, to wait for the react-render, as the modFormat may have been hidden before
-        setTimeout(() => {
-            if (formatExampleRef.current) {
-                ;(formatExampleRef.current! as HTMLElement).innerHTML = ''
-                ;(formatExampleRef.current! as HTMLElement).appendChild((resultText as any).replaceColorCodes())
-            }
-        }, 0)
+        return result
     }
 
     const formatHelpTooltip = (
@@ -137,7 +129,7 @@ function FormatElement(props: Props) {
                             Default
                         </Button>
                     </div>
-                    <p ref={formatExampleRef} />
+                    <p>{getMinecraftColorCodedElement(getFormatExampleText(), false)}</p>
                 </div>
             ) : null}
         </div>

@@ -1,16 +1,21 @@
+'use client'
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
-import { convertTagToName } from '../../utils/Formatter'
+import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
 import NavBar from '../NavBar/NavBar'
 import OptionsMenu from '../OptionsMenu/OptionsMenu'
-import { SearchOutlined as SearchIcon, Dangerous as WrongIcon, Refresh } from '@mui/icons-material'
-import { Item, Menu, theme, useContextMenu } from 'react-contexify'
+import SearchIcon from '@mui/icons-material/SearchOutlined'
+import WrongIcon from '@mui/icons-material/Dangerous'
+import Refresh from '@mui/icons-material/Refresh'
+import ClearIcon from '@mui/icons-material/Clear'
+import { Item, Menu, useContextMenu } from 'react-contexify'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
-import { useRouter } from 'next/router'
 import { useForceUpdate } from '../../utils/Hooks'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 interface Props {
     selected?: Player | Item
@@ -23,6 +28,9 @@ interface Props {
     placeholder?: string
     type?: 'player' | 'item'
     preventDisplayOfPreviousSearches?: boolean
+    enableReset?: boolean
+    onResetClick?()
+    hideOptions?: boolean
 }
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
@@ -35,7 +43,7 @@ function Search(props: Props) {
     let router = useRouter()
     let [searchText, setSearchText] = useState('')
     let [results, setResults] = useState<SearchResultItem[]>([])
-    let [isLoading, setIsLoading] = useState(false)
+    let [isSearching, setIsSearching] = useState(false)
     let [noResultsFound, setNoResultsFound] = useState(false)
     let [isSmall, setIsSmall] = useState(true)
     let [selectedIndex, setSelectedIndex] = useState(0)
@@ -46,12 +54,18 @@ function Search(props: Props) {
         id: SEARCH_RESULT_CONTEXT_MENU_ID
     }).show
 
+    let rememberEnterPressRef = useRef(false)
+
     let searchElement = useRef(null)
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
         if (isClientSideRendering()) {
             setIsSmall(isClientSideRendering() ? document.body.clientWidth < 1500 : false)
+        }
+        document.addEventListener('click', outsideClickHandler, true)
+        return () => {
+            document.removeEventListener('click', outsideClickHandler, true)
         }
     }, [])
 
@@ -92,7 +106,11 @@ function Search(props: Props) {
                 setSelectedIndex(0)
                 setNoResultsFound(searchResults.length === 0)
                 setResults(searchResults)
-                setIsLoading(false)
+                setIsSearching(false)
+
+                if (rememberEnterPressRef.current) {
+                    onItemClick(searchResults[0])
+                }
             }
         })
     }
@@ -101,10 +119,11 @@ function Search(props: Props) {
         let newSearchText: string = (e.target as HTMLInputElement).value
         searchText = newSearchText
         setSearchText(newSearchText)
+        setIsSearching(true)
 
         if (newSearchText === '') {
             setResults([])
-            setIsLoading(false)
+            setIsSearching(false)
             return
         }
 
@@ -112,10 +131,28 @@ function Search(props: Props) {
         search()
     }
 
+    function outsideClickHandler(evt) {
+        const flyoutEl = searchElement.current
+        let targetEl = evt.target
+
+        do {
+            if (targetEl === flyoutEl) {
+                return
+            }
+            targetEl = (targetEl as any).parentNode
+        } while (targetEl)
+
+        setResults([])
+    }
+
     let onKeyPress = (e: KeyboardEvent) => {
         switch (e.key) {
             case 'Enter':
                 e.preventDefault()
+                if (isSearching) {
+                    rememberEnterPressRef.current = true
+                    return
+                }
                 if (!results || results.length === 0) {
                     return
                 }
@@ -149,29 +186,33 @@ function Search(props: Props) {
         let previousSearches: SearchResultItem[] = previousSearchesString ? JSON.parse(previousSearchesString) : []
 
         let alreadyFoundIndex = previousSearches.findIndex(r => r.dataItem.name === item.dataItem.name)
-        if (alreadyFoundIndex === -1) {
-            previousSearches.push(item)
-            if (previousSearches.length > MAX_PREVIOUS_SEARCHES_TO_STORE) {
-                previousSearches.shift()
-            }
-            localStorage.setItem(PREVIOUS_SEARCHES_KEY, JSON.stringify(previousSearches))
+        if (alreadyFoundIndex !== -1) {
+            previousSearches.splice(alreadyFoundIndex, 1)
         }
+        previousSearches.push(item)
+        if (previousSearches.length > MAX_PREVIOUS_SEARCHES_TO_STORE) {
+            previousSearches.shift()
+        }
+        localStorage.setItem(PREVIOUS_SEARCHES_KEY, JSON.stringify(previousSearches))
 
         api.trackSearch(item.id, item.type)
-        router.push({
-            pathname: item.route,
-            query: item.urlSearchParams
-                ? {
-                      itemFilter: item.urlSearchParams?.get('itemFilter'),
-                      apply: item.urlSearchParams?.get('apply')
-                  }
-                : {}
-        })
+
+        let searchParams = new URLSearchParams()
+        let itemFilter = item.urlSearchParams?.get('itemFilter')
+        let apply = item.urlSearchParams?.get('apply')
+        if (itemFilter) {
+            searchParams.set('itemFilter', itemFilter)
+        }
+        if (apply) {
+            searchParams.set('apply', apply)
+        }
+
+        router.push(`${item.route}?${searchParams.toString()}`)
     }
 
     let noResultsFoundElement = (
         <ListGroup.Item key={-1} style={getListItemStyle(-1)} onContextMenu={handleSearchContextMenuForSearchResult}>
-            <img className={styles.searchResultIcon} height={32} src="/Barrier.png" alt="" />
+            <Image className={styles.searchResultIcon} height={32} width={32} src="/Barrier.png" alt="" />
             No search results
         </ListGroup.Item>
     )
@@ -191,8 +232,19 @@ function Search(props: Props) {
         }
         return (
             <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
-                <img crossOrigin="anonymous" className="playerHeadIcon" src={props.selected.iconUrl} height="32" alt="" style={{ marginRight: '10px' }} />
+                <img
+                    crossOrigin="anonymous"
+                    className="playerHeadIcon"
+                    src={props.selected.iconUrl}
+                    height="32"
+                    width="32"
+                    alt=""
+                    style={{ marginRight: '10px' }}
+                />
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
+                {props.enableReset ? (
+                    <ClearIcon onClick={props.onResetClick} style={{ cursor: 'pointer', color: 'red', marginLeft: '10px', fontWeight: 'bold' }} />
+                ) : null}
             </h1>
         )
     }
@@ -213,13 +265,25 @@ function Search(props: Props) {
     }
 
     function getListItemStyle(i: number): React.CSSProperties {
-        return {
+        let style = {
             backgroundColor: i === selectedIndex ? props.backgroundColorSelected || '#444' : props.backgroundColor,
             borderRadius: i === results.length - 1 ? '0 0 10px 10px' : '',
             border: 0,
             borderTop: i === 0 ? '1px solid #444' : 0,
-            borderTopWidth: i === 0 ? 0 : undefined
+            borderTopWidth: i === 0 ? 0 : undefined,
+            fontWeigth: 'normal',
+            fontFamily: 'inherit'
         }
+        if (results[i]) {
+            let isDuplicate = results.findIndex((element, index) => element.dataItem.name === results[i].dataItem.name && index !== i) !== -1
+            if (isDuplicate) {
+                return {
+                    ...getStyleForTier(results[i]?.tier),
+                    ...style
+                }
+            }
+        }
+        return style
     }
 
     function isMobile() {
@@ -251,7 +315,7 @@ function Search(props: Props) {
     function handleSearchContextMenuForCurrentElement(event) {
         if (props.selected && props.type === 'player') {
             event.preventDefault()
-            show(event)
+            show({ event: event })
         }
     }
 
@@ -262,7 +326,7 @@ function Search(props: Props) {
 
     let currentItemContextMenuElement = (
         <div>
-            <Menu id={PLAYER_SEARCH_CONEXT_MENU_ID} theme={theme.dark}>
+            <Menu id={PLAYER_SEARCH_CONEXT_MENU_ID} theme={'dark'}>
                 <Item
                     onClick={params => {
                         checkNameChange((props.selected as Player).uuid)
@@ -277,7 +341,7 @@ function Search(props: Props) {
 
     let searchItemContextMenuElement = (
         <div>
-            <Menu id={SEARCH_RESULT_CONTEXT_MENU_ID} theme={theme.dark}>
+            <Menu id={SEARCH_RESULT_CONTEXT_MENU_ID} theme={'dark'}>
                 <Item
                     onClick={() => {
                         api.sendFeedback('badSearchResults', {
@@ -320,6 +384,22 @@ function Search(props: Props) {
                             onKeyDown={(e: any) => {
                                 onKeyPress(e)
                             }}
+                            onClick={() => {
+                                if (!props.preventDisplayOfPreviousSearches && !noResultsFound && results.length === 0 && !searchText) {
+                                    let previousSearches: SearchResultItem[] = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
+                                        ? JSON.parse(localStorage.getItem(PREVIOUS_SEARCHES_KEY)!)
+                                        : []
+                                    setResults(
+                                        previousSearches
+                                            .slice(-5)
+                                            .reverse()
+                                            .map(prevSearch => {
+                                                prevSearch.isPreviousSearch = true
+                                                return prevSearch
+                                            })
+                                    )
+                                }
+                            }}
                         />
                     </InputGroup>
                 </Form.Group>
@@ -335,11 +415,11 @@ function Search(props: Props) {
                                   onItemClick(result)
                               }}
                               style={getListItemStyle(i)}
-                              className={result.isPreviousSearch ? styles.previousSearch : null}
+                              className={result.isPreviousSearch ? styles.previousSearch : undefined}
                               onContextMenu={handleSearchContextMenuForSearchResult}
                           >
                               {result.dataItem.iconUrl ? (
-                                  <img
+                                  <Image
                                       className={`${styles.searchResultIcon} playerHeadIcon`}
                                       crossOrigin="anonymous"
                                       width={32}
@@ -365,7 +445,7 @@ function Search(props: Props) {
             </ListGroup>
             <div className={styles.bar} style={{ marginTop: '20px' }}>
                 {getSelectedElement()}
-                {isLoading ? '' : <OptionsMenu selected={props.selected} />}
+                {!props.hideOptions ? <OptionsMenu selected={props.selected} /> : null}
             </div>
             {searchItemContextMenuElement}
             {currentItemContextMenuElement}

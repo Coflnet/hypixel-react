@@ -1,13 +1,18 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Card, Form } from 'react-bootstrap'
-import api from '../../api/ApiHelper'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
+'use client'
 import moment from 'moment'
-import { getLoadingElement } from '../../utils/LoadingUtils'
+import Image from 'next/image'
 import Link from 'next/link'
-import styles from './RecentAuctions.module.css'
-import { isClientSideRendering } from '../../utils/SSRUtils'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { Button, Card, Form } from 'react-bootstrap'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import api from '../../api/ApiHelper'
+import { useStateWithRef, useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { getMoreAuctionsElement } from '../../utils/ListUtils'
+import { getLoadingElement } from '../../utils/LoadingUtils'
+import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
+import { Number } from '../Number/Number'
+import styles from './RecentAuctions.module.css'
 
 interface Props {
     item: Item
@@ -20,15 +25,23 @@ enum RECENT_AUCTIONS_FETCH_TYPE {
     UNSOLD = 'unsold'
 }
 
+const FETCH_RESULT_SIZE = 12
+
 let currentLoadingString
 
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true
 
 function RecentAuctions(props: Props) {
-    let [recentAuctions, setRecentAuctions] = useState<RecentAuction[]>([])
-    let [isLoading, setIsLoading] = useState(true)
-    let [isSSR, setIsSSR] = useState(!isClientSideRendering())
+    let [recentAuctions, setRecentAuctions, recentAuctionsRef] = useStateWithRef<RecentAuction[]>([])
+    let [isSSR, setIsSSR] = useState(true)
+    let [allElementsLoaded, setAllElementsLoaded] = useState(false)
+    let [premiumType, setPremiumType] = useState<PremiumType>()
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+
+    let itemFilterRef = useRef<ItemFilter>(props.itemFilter)
+    itemFilterRef.current = props.itemFilter
 
     useEffect(() => {
         mounted = true
@@ -39,15 +52,18 @@ function RecentAuctions(props: Props) {
     }, [])
 
     useEffect(() => {
-        loadRecentAuctions()
+        loadRecentAuctions(true)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag, JSON.stringify(props.itemFilter)])
 
-    function loadRecentAuctions() {
-        setIsLoading(true)
-        currentLoadingString = props.item.tag
+    function loadRecentAuctions(reset: boolean = false) {
+        let recentAuctions = reset ? [] : recentAuctionsRef.current
+        if (reset) {
+            setRecentAuctions([])
+        }
 
-        let itemFilter = { ...props.itemFilter }
+        let itemFilter = { ...itemFilterRef.current }
+        currentLoadingString = JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })
 
         if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
             let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
@@ -62,62 +78,107 @@ function RecentAuctions(props: Props) {
                 default:
                     itemFilter['HighestBid'] = '>0'
                     break
-                    break
             }
         }
 
-        api.getRecentAuctions(props.item.tag, itemFilter).then(recentAuctions => {
-            if (!mounted || currentLoadingString !== props.item.tag) {
+        let page = Math.ceil(recentAuctions.length / FETCH_RESULT_SIZE)
+        let maxPages = 10
+        switch (premiumType?.priority) {
+            case PREMIUM_RANK.STARTER:
+                maxPages = 5
+                break
+            case PREMIUM_RANK.PREMIUM:
+            case PREMIUM_RANK.PREMIUM_PLUS:
+                maxPages = 10
+                break
+            default:
+                maxPages = 1
+                break
+        }
+
+        if (page >= maxPages) {
+            setAllElementsLoaded(true)
+            return
+        }
+        itemFilter['page'] = page.toString()
+
+        api.getRecentAuctions(props.item.tag, itemFilter).then(newRecentAuctions => {
+            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
                 return
             }
-
-            setIsLoading(false)
-            setRecentAuctions(recentAuctions)
+            currentLoadingString = null
+            if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
+                setAllElementsLoaded(true)
+            }
+            setRecentAuctions([...recentAuctions, ...newRecentAuctions])
         })
     }
 
-    function onFetchTypeChange(e: ChangeEvent<HTMLInputElement>) {
+    function onFetchTypeChange(e: ChangeEvent<HTMLSelectElement>) {
         localStorage.setItem(RECENT_AUCTIONS_FETCH_TYPE_KEY, e.target.value)
-        loadRecentAuctions()
+        loadRecentAuctions(true)
+    }
+
+    function onAfterLogin() {
+        api.getPremiumProducts().then(products => {
+            setIsLoggedIn(true)
+            let activePremium = getHighestPriorityPremiumProduct(products)
+            if (!activePremium) {
+                return
+            }
+            let highestPremium = getPremiumType(activePremium)
+            premiumType = highestPremium
+            setPremiumType(() => {
+                setAllElementsLoaded(() => {
+                    if (highestPremium !== null) {
+                        loadRecentAuctions()
+                    }
+                    return false
+                })
+                return highestPremium
+            })
+        })
     }
 
     let recentAuctionList = recentAuctions.map(recentAuction => {
         return (
-            <div className={styles.cardWrapper} key={recentAuction.uuid}>
+            <div key={recentAuction.uuid} className={styles.cardWrapper}>
                 <span className="disableLinkStyle">
-                    <Link href={`/auction/${recentAuction.uuid}`}>
-                        <a className="disableLinkStyle">
-                            <Card className="card">
-                                <Card.Header style={{ padding: '10px' }}>
-                                    <div style={{ float: 'left' }}>
-                                        <img
-                                            crossOrigin="anonymous"
-                                            className="playerHeadIcon"
-                                            src={props.item.iconUrl}
-                                            height="32"
-                                            alt=""
-                                            style={{ marginRight: '5px' }}
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                    <div>{numberWithThousandsSeperators(recentAuction.price)} Coins</div>
-                                </Card.Header>
-                                <Card.Body style={{ padding: '10px' }}>
-                                    <img
-                                        style={{ marginRight: '15px' }}
+                    <Link href={`/auction/${recentAuction.uuid}`} className="disableLinkStyle">
+                        <Card className="card">
+                            <Card.Header style={{ padding: '10px' }}>
+                                <div style={{ float: 'left' }}>
+                                    <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
-                                        src={recentAuction.seller.iconUrl}
+                                        src={props.item.iconUrl || ''}
+                                        height="32"
+                                        width="32"
                                         alt=""
-                                        height="24"
+                                        style={{ marginRight: '5px' }}
                                         loading="lazy"
                                     />
-                                    <span>{recentAuction.playerName}</span>
-                                    <hr />
-                                    <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
-                                </Card.Body>
-                            </Card>
-                        </a>
+                                </div>
+                                <div>
+                                    <Number number={recentAuction.price} /> Coins
+                                </div>
+                            </Card.Header>
+                            <Card.Body style={{ padding: '10px' }}>
+                                <Image
+                                    style={{ marginRight: '15px' }}
+                                    crossOrigin="anonymous"
+                                    className="playerHeadIcon"
+                                    src={recentAuction.seller.iconUrl || ''}
+                                    alt=""
+                                    height="24"
+                                    width="24"
+                                    loading="lazy"
+                                />
+                                <span>{recentAuction.playerName}</span>
+                                <hr />
+                                <p>{'ended ' + moment(recentAuction.end).fromNow()}</p>
+                            </Card.Body>
+                        </Card>
                     </Link>
                 </span>
             </div>
@@ -129,8 +190,7 @@ function RecentAuctions(props: Props) {
             <h3>
                 Recent auctions
                 {!isSSR ? (
-                    <Form.Control
-                        as="select"
+                    <Form.Select
                         defaultValue={localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY) || RECENT_AUCTIONS_FETCH_TYPE.SOLD}
                         className={styles.recentAuctionsFetchType}
                         onChange={onFetchTypeChange}
@@ -138,18 +198,48 @@ function RecentAuctions(props: Props) {
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.ALL}>ALL</option>
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.SOLD}>Sold</option>
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.UNSOLD}>Unsold</option>
-                    </Form.Control>
+                    </Form.Select>
                 ) : null}
             </h3>
             <div>
-                {isLoading ? (
-                    getLoadingElement()
-                ) : recentAuctions.length > 0 ? (
-                    recentAuctionList
+                {recentAuctions.length > 0 ? (
+                    <InfiniteScroll
+                        style={{ overflow: 'clip' }}
+                        dataLength={recentAuctions.length}
+                        next={() => {
+                            loadRecentAuctions()
+                        }}
+                        hasMore={!allElementsLoaded}
+                        loader={
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <div>
+                                    <div>{getLoadingElement()}</div>
+                                    <Button
+                                        onClick={() => {
+                                            loadRecentAuctions()
+                                        }}
+                                    >
+                                        Click here to manually load new data...
+                                    </Button>
+                                </div>
+                            </div>
+                        }
+                    >
+                        {recentAuctionList}
+                    </InfiniteScroll>
                 ) : (
                     <p style={{ textAlign: 'center' }}>No recent auctions found</p>
                 )}
             </div>
+            {getMoreAuctionsElement(
+                isLoggedIn,
+                wasAlreadyLoggedIn,
+                premiumType,
+                onAfterLogin,
+                <span>
+                    You currently use Starter Premium. You can see up to 120 recent auctions with <Link href={'/premium'}>Premium</Link>
+                </span>
+            )}
         </div>
     )
 }

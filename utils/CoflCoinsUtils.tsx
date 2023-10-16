@@ -1,7 +1,7 @@
-import { v4 as generateUUID } from 'uuid'
 import api from '../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
 import { isClientSideRendering } from './SSRUtils'
+import { v4 as generateUUID } from 'uuid'
 
 interface RegisteredCallback {
     uuid: string
@@ -48,13 +48,11 @@ export function initCoflCoinManager() {
     }
 
     function initCoflCoinBalanceAndSubscriptions() {
-        if (!!(window as any).googleAuthObj) {
-            api.subscribeCoflCoinChange()
-            api.getCoflcoinBalance().then(coflCoins => {
-                currentCoflCoins = coflCoins
-                notifyAboutCoflCoinUpdate(coflCoins)
-            })
-        }
+        api.subscribeCoflCoinChange()
+        api.getCoflcoinBalance().then(coflCoins => {
+            currentCoflCoins = coflCoins
+            notifyAboutCoflCoinUpdate(coflCoins)
+        })
     }
 
     document.addEventListener(CUSTOM_EVENTS.GOOGLE_LOGIN, initCoflCoinBalanceAndSubscriptions)

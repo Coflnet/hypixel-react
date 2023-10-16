@@ -1,38 +1,36 @@
-import React, { useEffect, useRef, useState } from 'react'
-import api from '../../api/ApiHelper'
+'use client'
+import DeleteIcon from '@mui/icons-material/Delete'
+import HelpIcon from '@mui/icons-material/Help'
+import ArrowRightIcon from '@mui/icons-material/KeyboardTab'
+import HandIcon from '@mui/icons-material/PanTool'
+import SearchIcon from '@mui/icons-material/Search'
+import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
 import { Button, Card, Form, Modal } from 'react-bootstrap'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import FlipperFilter from './FlipperFilter/FlipperFilter'
-import { getLoadingElement } from '../../utils/LoadingUtils'
-import {
-    KeyboardTab as ArrowRightIcon,
-    Delete as DeleteIcon,
-    Help as HelpIcon,
-    Settings as SettingsIcon,
-    PanTool as HandIcon,
-    Search as SearchIcon
-} from '@mui/icons-material'
-import FlipBased from './FlipBased/FlipBased'
-import { CopyButton } from '../CopyButton/CopyButton'
+import { Item, Menu, useContextMenu } from 'react-contexify'
+import Countdown, { zeroPad } from 'react-countdown'
+import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList as List } from 'react-window'
+import { v4 as generateUUID } from 'uuid'
+import api from '../../api/ApiHelper'
+import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
+import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { getLoadingElement } from '../../utils/LoadingUtils'
+import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, handleSettingsImport, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils'
+import AuctionDetails from '../AuctionDetails/AuctionDetails'
+import { CopyButton } from '../CopyButton/CopyButton'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import Flip from './Flip/Flip'
-import FlipCustomize from './FlipCustomize/FlipCustomize'
-import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
-import { Menu, Item, useContextMenu, theme } from 'react-contexify'
-import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting, setSettingsChangedData } from '../../utils/SettingsUtils'
-import Countdown, { zeroPad } from 'react-countdown'
+import FlipBased from './FlipBased/FlipBased'
 import styles from './Flipper.module.css'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import AuctionDetails from '../AuctionDetails/AuctionDetails'
-import { v4 as generateUUID } from 'uuid'
-import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
-import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import FlipperFAQ from './FlipperFAQ/FlipperFAQ'
-import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import FlipperFilter from './FlipperFilter/FlipperFilter'
+import { useRouter } from 'next/navigation'
+import { parseFlipAuction } from '../../utils/Parser/APIResponseParser'
 
 // Not a state
 // Update should not trigger a rerender for performance reasons
@@ -48,13 +46,19 @@ let mounted = true
 const FLIP_CONEXT_MENU_ID = 'flip-context-menu'
 
 interface Props {
-    flips?: FlipAuction[]
+    flips?: any[]
 }
 
 function Flipper(props: Props) {
-    let [flips, setFlips] = useState<FlipAuction[]>(props.flips || [])
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
+    let [flips, setFlips] = useState<FlipAuction[]>(
+        props.flips
+            ? props.flips.map(parseFlipAuction).filter(flip => {
+                  return flipperFilter.onlyUnsold ? !flip.sold : true
+              })
+            : []
+    )
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [autoscroll, setAutoscroll] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
@@ -62,7 +66,6 @@ function Flipper(props: Props) {
     let [isLoading, setIsLoading] = useState(false)
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null)
-    let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
     let [lastFlipFetchTimeSeconds, setLastFlipFetchTimeSeconds] = useState<number>()
     let [lastFlipFetchTimeLoading, setLastFlipFetchTimeLoading] = useState<boolean>(false)
     let [countdownDateObject, setCountdownDateObject] = useState<Date>()
@@ -73,7 +76,6 @@ function Flipper(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID())
-    let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(generateUUID())
 
     let router = useRouter()
 
@@ -105,27 +107,39 @@ function Flipper(props: Props) {
         )
         getLastFlipFetchTime()
 
-        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
+        const debounceSubFlipAnonymFunction = (function () {
+            let timerId
+
+            return () => {
+                clearTimeout(timerId)
+                timerId = setTimeout(() => {
+                    api.subscribeFlipsAnonym(
+                        getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
+                        getSettingsObject(FLIPPER_FILTER_KEY, {}),
+                        getFlipCustomizeSettings(),
+                        onNewFlip,
+                        onAuctionSold,
+                        onNextFlipNotification
+                    )
+                }, 1000)
+            }
+        })()
+
+        let onFlipSettingsChange = e => {
             if ((e as any).detail?.apiUpdate) {
                 setFlipperFilterKey(generateUUID())
-                setFlipCustomizeKey(generateUUID())
             }
             if (sessionStorage.getItem('googleId') === null) {
-                api.subscribeFlipsAnonym(
-                    getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
-                    getSettingsObject(FLIPPER_FILTER_KEY, {}),
-                    getFlipCustomizeSettings(),
-                    onNewFlip,
-                    onAuctionSold,
-                    onNextFlipNotification
-                )
+                debounceSubFlipAnonymFunction()
             }
-        })
+        }
+        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, onFlipSettingsChange)
 
         setIsSmall(document.body.clientWidth < 1000)
 
         return () => {
             mounted = false
+            document.removeEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, onFlipSettingsChange)
             api.unsubscribeFlips()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -133,13 +147,15 @@ function Flipper(props: Props) {
 
     useEffect(() => {
         if (sessionStorage.getItem('googleId') !== null && !isLoggedIn) {
+            setFlips([])
             setIsLoading(true)
         }
     }, [wasAlreadyLoggedIn, isLoggedIn])
 
     function handleFlipContextMenu(event, flip: FlipAuction) {
         event.preventDefault()
-        show(event, {
+        show({
+            event: event,
             props: {
                 flip: flip
             }
@@ -164,6 +180,7 @@ function Flipper(props: Props) {
     }
 
     function onLogin() {
+        setFlips([])
         setIsLoggedIn(true)
         setIsLoading(true)
         loadHasPremium()
@@ -177,8 +194,8 @@ function Flipper(props: Props) {
     }
 
     function onArrowRightClick() {
-        if (listRef && listRef.current) {
-            ;(listRef!.current! as any).scrollToItem(flips?.length - 1)
+        if (listRef.current) {
+            ;(listRef.current as any).scrollToItem(flips.length - 1)
         }
     }
 
@@ -191,11 +208,9 @@ function Flipper(props: Props) {
     }
 
     function attachScrollEvent(scrollContainer: Element | null = null) {
-        if (isSSR) {
+        if (isSSR || enabledScroll) {
             return
         }
-
-        if (enabledScroll) return
         if (!scrollContainer)
             scrollContainer =
                 document.getElementsByClassName(styles.flipperScrollList).length > 0 ? document.getElementsByClassName(styles.flipperScrollList).item(0) : null
@@ -217,9 +232,7 @@ function Flipper(props: Props) {
     }
 
     function clearFlips() {
-        setFlips(() => {
-            return []
-        })
+        setFlips([])
     }
 
     function onAuctionSold(uuid: string) {
@@ -304,36 +317,36 @@ function Flipper(props: Props) {
             totalFlips: missedInfo.totalFlips + 1
         }
 
-        setFlips(flips => [...flips, newFlipAuction])
-
-        if (autoscrollRef.current) {
-            let element =
-                document.getElementsByClassName(styles.flipperScrollList).length > 0 ? document.getElementsByClassName(styles.flipperScrollList).item(0) : null
-            if (element) {
-                element.scrollBy({ left: 16000, behavior: 'smooth' })
-                attachScrollEvent(element)
+        setFlips(flips => {
+            let newFlips = [...flips, newFlipAuction]
+            if (autoscrollRef.current && listRef.current) {
+                setTimeout(() => {
+                    let element =
+                        document.getElementsByClassName(styles.flipperScrollList).length > 0
+                            ? document.getElementsByClassName(styles.flipperScrollList).item(0)
+                            : null
+                    if (element) {
+                        element.scrollBy({ left: 16000, behavior: 'smooth' })
+                        attachScrollEvent(element)
+                    }
+                }, 200)
             }
-        }
+            return newFlips
+        })
     }
 
     function onFilterChange(newFilter) {
-        flipperFilter = newFilter
         setFlipperFilter(newFilter)
-        setTimeout(() => {
-            setFlips([])
-
-            setTimeout(() => {
-                if (listRef && listRef.current) {
-                    ;(listRef!.current! as any).scrollToItem(flips.length - 1)
-                }
-            })
-        })
+        setFlips([])
+        if (listRef.current) {
+            ;(listRef.current as any)?.scrollToItem(flips.length - 1)
+        }
     }
 
     function onCopyFlip(flip: FlipAuction) {
         let settings = getFlipCustomizeSettings()
         let currentMissedInfo = missedInfo
-        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip, settings.useLowestBinForProfit)
+        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip, settings)
         flip.isCopied = true
         setFlips(flips)
     }
@@ -342,7 +355,11 @@ function Flipper(props: Props) {
         let { data, index, style } = listData
         let { flips } = data
 
-        return <div key={'flip-' + index}>{getFlipElement(flips[index], style)}</div>
+        return (
+            <div key={'flip-' + index} id={'flip-' + index}>
+                {getFlipElement(flips[index], style)}
+            </div>
+        )
     }
 
     function addItemToBlacklist(flip: FlipAuction) {
@@ -355,7 +372,10 @@ function Flipper(props: Props) {
         }
         parsed.push({
             type: 'blacklist',
-            item: flip.item,
+            item: {
+                tag: flip.item.tag,
+                name: flip.item.name
+            },
             itemFilter: {}
         })
 
@@ -364,9 +384,7 @@ function Flipper(props: Props) {
     }
 
     function redirectToSeller(sellerName: string) {
-        router.push({
-            pathname: 'player/' + sellerName
-        })
+        router.push('/player/' + sellerName)
     }
 
     function resetSettingsToDefault() {
@@ -380,6 +398,7 @@ function Flipper(props: Props) {
             () => {
                 window.location.reload()
             },
+            () => {},
             true
         )
         localStorage.removeItem('userSettings')
@@ -415,38 +434,54 @@ function Flipper(props: Props) {
             return <h2>Free Auction Flipper</h2>
         }
         if (hasPremium) {
-            let type = getPremiumType(activePremiumProduct)
-            if (type.priority === PREMIUM_RANK.STARTER) {
-                return (
-                    <span>
-                        You are using <Link href="/premium">starter premium</Link>.
-                    </span>
-                )
+            let type = getPremiumType(activePremiumProduct!)
+            if (!type) {
+                return null
             }
-            if (type.priority === PREMIUM_RANK.PREMIUM) {
-                return (
-                    <span>
-                        You are using <Link href="/premium">premium</Link>.
-                    </span>
-                )
-            }
-            if (type.priority === PREMIUM_RANK.PREMIUM_PLUS) {
-                return (
-                    <span>
-                        You are using <Link href="/premium">premium+</Link>.
-                    </span>
-                )
-            }
+            return (
+                <span>
+                    You are using{' '}
+                    <Link href="/premium">
+                        {
+                            {
+                                1: 'Starter Premium',
+                                2: 'Premium',
+                                3: 'Premium+'
+                            }[type.priority]
+                        }
+                    </Link>
+                </span>
+            )
         }
         return (
             <span>
-                These auctions are delayed by 5 min. Please purchase{' '}
+                These auctions are delayed by about one minute. Please purchase{' '}
                 <a target="_blank" rel="noreferrer" href="/premium">
                     premium
                 </a>{' '}
                 if you want real time flips.
             </span>
         )
+    }
+
+    function onDrop(e) {
+        e.preventDefault()
+        var output = '' //placeholder for text output
+        let reader = new FileReader()
+        let file = e.dataTransfer.items[0].getAsFile()
+        if (file) {
+            reader.onload = function (e) {
+                output = e.target!.result!.toString()
+                handleSettingsImport(output)
+                //handleSettingsImport(output)
+            } //end onload()
+            reader.readAsText(file)
+        }
+        return true
+    }
+
+    function onDragOver(e) {
+        e.preventDefault()
     }
 
     let basedOnDialog =
@@ -467,26 +502,9 @@ function Flipper(props: Props) {
             </Modal>
         )
 
-    let customizeFlipDialog = (
-        <Modal
-            size={'xl'}
-            show={showCustomizeFlip}
-            onHide={() => {
-                setShowCustomizeFlip(false)
-            }}
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>Customize the style of flips</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <FlipCustomize key={flipCustomizeKey} />
-            </Modal.Body>
-        </Modal>
-    )
-
     let flipContextMenu = (
         <div>
-            <Menu id={FLIP_CONEXT_MENU_ID} theme={theme.dark}>
+            <Menu id={FLIP_CONEXT_MENU_ID} theme={'dark'}>
                 <Item
                     onClick={params => {
                         addItemToBlacklist(params.props.flip as FlipAuction)
@@ -550,7 +568,7 @@ function Flipper(props: Props) {
     )
 
     return (
-        <div className={styles.flipper}>
+        <div className={styles.flipper} onDragOver={onDragOver} onDrop={onDrop}>
             <Card>
                 <Card.Header>
                     <Card.Title>
@@ -588,40 +606,40 @@ function Flipper(props: Props) {
                                     <DeleteIcon color="error" />
                                 </div>
                             </Form.Group>
-                            <Form.Group
-                                onClick={() => {
-                                    setShowCustomizeFlip(true)
-                                }}
-                            >
-                                <Form.Label style={{ cursor: 'pointer', marginRight: '10px' }}>Settings</Form.Label>
-                                <span style={{ cursor: 'pointer' }}>
-                                    {' '}
-                                    <SettingsIcon />
-                                </span>
-                            </Form.Group>
                             {hasPremium ? (
-                                <span>
-                                    Next update:{' '}
-                                    {lastFlipFetchTimeSeconds !== undefined && !lastFlipFetchTimeLoading ? (
-                                        <Countdown
-                                            date={getCountdownDateObject()}
-                                            onComplete={onCountdownComplete}
-                                            renderer={({ seconds }) => <span>{zeroPad(seconds)}</span>}
-                                        />
-                                    ) : (
-                                        '...'
-                                    )}
-                                </span>
-                            ) : (
-                                ''
-                            )}
-                            <Form.Group onClick={onArrowRightClick}>
-                                <Form.Label style={{ cursor: 'pointer', marginRight: '10px' }}>To newest flip</Form.Label>
-                                <span style={{ cursor: 'pointer' }}>
-                                    {' '}
-                                    <ArrowRightIcon />
-                                </span>
-                            </Form.Group>
+                                <Tooltip
+                                    type="hover"
+                                    content={
+                                        <span>
+                                            Next update:{' '}
+                                            {lastFlipFetchTimeSeconds !== undefined && !lastFlipFetchTimeLoading ? (
+                                                <Countdown
+                                                    date={getCountdownDateObject()}
+                                                    onComplete={onCountdownComplete}
+                                                    renderer={({ seconds }) => <span>{zeroPad(seconds)}</span>}
+                                                />
+                                            ) : (
+                                                '...'
+                                            )}
+                                        </span>
+                                    }
+                                    tooltipContent={
+                                        <p>
+                                            The Hypixel API updates once a minute. This is the estimated time (in seconds) until the next batch of flips will be
+                                            shown.
+                                        </p>
+                                    }
+                                />
+                            ) : null}
+                            {!autoscroll ? (
+                                <Form.Group onClick={onArrowRightClick}>
+                                    <Form.Label style={{ cursor: 'pointer', marginRight: '10px' }}>To newest flip</Form.Label>
+                                    <span style={{ cursor: 'pointer' }}>
+                                        {' '}
+                                        <ArrowRightIcon />
+                                    </span>
+                                </Form.Group>
+                            ) : null}
                         </Form>
                         <hr />
                         {!isSSR ? (
@@ -656,7 +674,7 @@ function Flipper(props: Props) {
                     </div>
                 </Card.Body>
                 <Card.Footer>
-                    This flipper is work in progress (open beta). Anything you see here is subject to change. Please leave suggestions and opinions on our{' '}
+                    For support and suggestions, join our{' '}
                     <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
                         Discord
                     </a>
@@ -667,7 +685,7 @@ function Flipper(props: Props) {
                     ) : (
                         <div>
                             <span>
-                                These are flips that were previosly found (~5 min ago). Anyone can use these and there is no cap on estimated profit. Keep in
+                                These are flips that were previously found (~5 min ago). Anyone can use these and there is no cap on estimated profit. Keep in
                                 mind that these are delayed to protect our paying supporters. If you want more recent flips purchase our{' '}
                                 <a target="_blank" rel="noreferrer" href="/premium">
                                     premium plan.
@@ -684,21 +702,19 @@ function Flipper(props: Props) {
                     <hr />
                     <Card className="card">
                         <Card.Header>
-                            <Card.Title>Auction-Details</Card.Title>
+                            <Card.Title>Auction Details</Card.Title>
                         </Card.Header>
                         <Card.Body>
                             <AuctionDetails auctionUUID={selectedAuctionUUID} retryCounter={5} />
                         </Card.Body>
                     </Card>
                 </div>
-            ) : (
-                ''
-            )}
+            ) : null}
             <div>
                 <hr />
                 <Card>
                     <Card.Header>
-                        <Card.Title>Flipper summary</Card.Title>
+                        <Card.Title>Flipper Summary</Card.Title>
                     </Card.Header>
                     <Card.Body>
                         <div className={styles.flipperSummaryWrapper}>
@@ -708,8 +724,12 @@ function Flipper(props: Props) {
                                 </Card.Header>
                                 <Card.Body>
                                     <ul>
-                                        <li>Total flips received: {numberWithThousandsSeperators(missedInfo.totalFlips)}</li>
-                                        <li>Profit of copied flips: {numberWithThousandsSeperators(missedInfo.estimatedProfitCopiedAuctions)} Coins</li>
+                                        <li>
+                                            Total flips received: <Number number={missedInfo.totalFlips} />
+                                        </li>
+                                        <li>
+                                            Profit of copied flips: <Number number={missedInfo.estimatedProfitCopiedAuctions} /> Coins
+                                        </li>
                                     </ul>
                                 </Card.Body>
                             </Card>
@@ -722,7 +742,7 @@ function Flipper(props: Props) {
                                         <ul>
                                             <li>
                                                 <span style={{ marginRight: '10px' }}>
-                                                    Missed Profit: {numberWithThousandsSeperators(missedInfo.missedEstimatedProfit)} Coins
+                                                    Missed Profit: <Number number={missedInfo.missedEstimatedProfit} /> Coins
                                                 </span>
                                                 <Tooltip
                                                     type="hover"
@@ -735,7 +755,9 @@ function Flipper(props: Props) {
                                                     }
                                                 />
                                             </li>
-                                            <li>Missed Flips: {numberWithThousandsSeperators(missedInfo.missedFlipsCount)}</li>
+                                            <li>
+                                                Missed Flips: <Number number={missedInfo.missedFlipsCount} />
+                                            </li>
                                         </ul>
                                     </Card.Body>
                                 </Card>
@@ -752,7 +774,7 @@ function Flipper(props: Props) {
                                     <Card.Body>
                                         <p>
                                             Get free premium time by inviting other people to our website. For further information check out our{' '}
-                                            <Link href="/ref">Referral-Program</Link>.
+                                            <Link href="/ref">Referral Program</Link>.
                                         </p>
                                         <p>
                                             Your Link to invite people:{' '}
@@ -761,7 +783,7 @@ function Flipper(props: Props) {
                                             </span>{' '}
                                             <CopyButton
                                                 copyValue={!isSSR ? window.location.href.split('?')[0] + '?refId=' + refInfo?.oldInfo.refId : ''}
-                                                successMessage={<span>Copied Ref-Link</span>}
+                                                successMessage={<span>Copied Referral Link</span>}
                                             />
                                         </p>
                                     </Card.Body>
@@ -777,7 +799,6 @@ function Flipper(props: Props) {
                 <Flip flip={DEMO_FLIP} />
             </div>
             {basedOnDialog}
-            {customizeFlipDialog}
             {flipContextMenu}
         </div>
     )

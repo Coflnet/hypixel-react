@@ -1,23 +1,23 @@
-import React, { useRef, useState } from 'react'
+'use client'
+import { useRef, useState } from 'react'
 import { Card, Form } from 'react-bootstrap'
-import * as SparkMD5 from 'spark-md5'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import styles from './RatChecker.module.css'
 
 function RatChecker() {
     let [isChecking, setIsChecking] = useState(false)
-    let [checkingResults, setCheckingResults] = useState<[string, RatCheckingResponse][]>(null)
-    let ratFileInput = useRef(null)
+    let [checkingResults, setCheckingResults] = useState<[string, RatCheckingResponse][]>()
+    let ratFileInput = useRef<HTMLInputElement>(null)
 
-    function onFileUpload(e) {
+    function onFileUpload(files) {
         setIsChecking(true)
         let checkingPromises: Promise<[string, RatCheckingResponse]>[] = []
 
-        for (const file of e.target.files) {
+        for (const file of files) {
             checkingPromises.push(
-                new Promise((resolve, reject) => {
-                    getFileHash(file).then(hash => {
+                new Promise(resolve => {
+                    generateSHA256FromFile(file).then(hash => {
                         api.checkRat(hash).then(result => resolve([file.name, result]))
                     })
                 })
@@ -27,47 +27,27 @@ function RatChecker() {
         Promise.all(checkingPromises).then(results => {
             setIsChecking(false)
             setCheckingResults(results)
-            ratFileInput.current.value = ''
+            if (ratFileInput.current) {
+                ratFileInput.current.value = ''
+            }
         })
     }
 
-    function getFileHash(file): Promise<string> {
-        return new Promise((resolve, reject) => {
-            var blobSlice = File.prototype.slice || (File.prototype as any).mozSlice || (File.prototype as any).webkitSlice,
-                chunkSize = 2097152, // Read in chunks of 2MB
-                chunks = Math.ceil(file.size / chunkSize),
-                currentChunk = 0,
-                spark = new SparkMD5.ArrayBuffer(),
-                fileReader = new FileReader()
+    async function generateSHA256FromFile(file) {
+        // Read the file as an ArrayBuffer
+        const buffer = await file.arrayBuffer()
+        // Convert ArrayBuffer to Uint8Array
+        const data = new Uint8Array(buffer)
 
-            fileReader.onload = function (e) {
-                spark.append(e.target.result) // Append array buffer
-                currentChunk++
+        // Generate SHA-256 hash
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+        const hashArray = Array.from(new Uint8Array(hashBuffer))
+        const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('')
 
-                if (currentChunk < chunks) {
-                    loadNext()
-                } else {
-                    let hash = spark.end()
-                    resolve(hash)
-                }
-            }
-
-            fileReader.onerror = function () {
-                console.warn('oops, something went wrong.')
-            }
-
-            function loadNext() {
-                var start = currentChunk * chunkSize,
-                    end = start + chunkSize >= file.size ? file.size : start + chunkSize
-
-                fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
-            }
-
-            loadNext()
-        })
+        return hashHex
     }
 
-    function getResultElement(): JSX.Element {
+    function getResultElement(): JSX.Element | null {
         if (!checkingResults || checkingResults.length === 0 || isChecking) {
             return null
         }
@@ -94,7 +74,8 @@ function RatChecker() {
                     if (checkingResult[1].rat.includes('No')) {
                         return (
                             <li style={{ color: 'lime', fontSize: 'large' }}>
-                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: No harmful code was found in this mod. It should be safe to use.
+                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: No harmful code was found in this mod. It should be safe to
+                                use.
                             </li>
                         )
                     }
@@ -112,9 +93,32 @@ function RatChecker() {
                 </Card.Header>
                 <Card.Body>
                     {!isChecking ? (
-                        <div>
-                            <p>Received a suspicious (or any other mod) that you want to check? Select it here and get quick results for known rats or legitimate mods (you can select multiple at once):</p>
-                            <Form.Control type="file" className={'form-control'} ref={ratFileInput} onChange={onFileUpload} multiple />
+                        <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                            <p>
+                                Received a suspicious (or any other mod) that you want to check? Select it here and get quick results for known rats or
+                                legitimate mods (you can select multiple at once):
+                            </p>
+                            <Form.Control
+                                type="file"
+                                className={'form-control'}
+                                style={{ display: 'none' }}
+                                ref={ratFileInput}
+                                onChange={e => onFileUpload((e.target as HTMLInputElement).files)}
+                                multiple
+                                accept=".jar"
+                            />
+                            <div
+                                className={styles.dNd}
+                                onClick={e => ratFileInput.current?.click()}
+                                onDrop={e => {
+                                    onFileUpload(e.dataTransfer.files)
+                                    e.preventDefault()
+                                }}
+                                onDragOver={e => e.preventDefault()}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <div className={styles['dNd-content']}>Drag and Drop Files or click to open file</div>
+                            </div>
                         </div>
                     ) : (
                         getLoadingElement(<p>Checking file</p>)

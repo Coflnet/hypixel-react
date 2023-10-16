@@ -2,16 +2,14 @@ import { CSSProperties } from 'react'
 import { isClientSideRendering } from './SSRUtils'
 
 /*
- Returns a given number as string with thousands-seperators. Example:
+ Returns a given number as string with thousands-separators. Example:
  1234567 => 1.234.567
 */
-export function numberWithThousandsSeperators(number?: number): string {
+export function numberWithThousandsSeparators(number?: number, thousandSeperator?: string, decimalSeperator?: string): string {
     if (!number) {
         return '0'
     }
-    var parts = number.toString().split('.')
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, getThousandSeperator())
-    return parts.join(getDecimalSeperator())
+    return number.toLocaleString()
 }
 
 /**
@@ -25,6 +23,11 @@ export function convertTagToName(itemTag?: string): string {
         return ''
     }
 
+    // special case for PET_SKIN to avoid confusion
+    if (itemTag === 'PET_SKIN') {
+        return 'Pet Skin (unapplied)'
+    }
+
     // words that should remain lowercase
     const exceptions = ['of', 'the']
 
@@ -33,17 +36,22 @@ export function convertTagToName(itemTag?: string): string {
             if (exceptions.findIndex(a => a === txt) > -1) {
                 return txt
             }
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+            return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()
         })
     }
 
     let formatted: string = itemTag.toString().replace(new RegExp('_', 'g'), ' ').toLowerCase()
 
     formatted = capitalizeWords(formatted)
+
     // special per item Formating
     formatted = formatted?.replace('Pet Item', '')
-    if (formatted?.startsWith('Pet')) formatted = formatted?.replace('Pet', '') + ' Pet'
-    if (formatted?.startsWith('Ring')) formatted = formatted?.replace('Ring ', '') + ' Ring'
+    if (formatted?.startsWith('Pet')) {
+        formatted = formatted?.replace('Pet', '') + ' Pet'
+    }
+    if (formatted?.startsWith('Ring')) {
+        formatted = formatted?.replace('Ring ', '') + ' Ring'
+    }
     return formatted
 }
 
@@ -78,7 +86,7 @@ export function getStyleForTier(tier?: string | number): CSSProperties {
     }
 
     let tierColors: TierColour[] = [
-        { type: 'UNKOWN', colourCode: 'black' },
+        { type: 'UNKNOWN', colourCode: 'black' },
         { type: 'COMMON', colourCode: 'white' },
         { type: 'UNCOMMON', colourCode: '#55ff55' },
         { type: 'RARE', colourCode: '#5555ff' },
@@ -104,7 +112,7 @@ export function getStyleForTier(tier?: string | number): CSSProperties {
     }
 
     return {
-        color: color ? color.colourCode : tierColors[0].colourCode,
+        color: color ? color.colourCode : undefined,
         fontFamily: 'monospace',
         fontWeight: 'bold'
     }
@@ -125,18 +133,28 @@ export function enchantmentAndReforgeCompare(a: Enchantment | Reforge, b: Enchan
 }
 
 export function formatToPriceToShorten(num: number, decimals: number = 0): string {
-    // Ensure number has max 3 significant digits (no rounding up can happen)
-    let i = Math.pow(10, Math.max(0, Math.log10(num) - 2))
-    num = (num / i) * i
+    let multMap = [
+        { mult: 1e12, suffix: 'T' },
+        { mult: 1e9, suffix: 'B' },
+        { mult: 1e6, suffix: 'M' },
+        { mult: 1e3, suffix: 'k' },
+        { mult: 1, suffix: '' }
+    ]
+    let multIndex = multMap.findIndex(m => num >= m.mult)
+    if (multIndex === -1) {
+        multIndex = multMap.length - 1
+    }
+    if (multIndex !== 0) {
+        if (Math.round(num / multMap[multIndex].mult) === 1000) {
+            multIndex -= 1
+        }
+    }
 
-    if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(decimals) + 'B'
-    if (num >= 1_000_000) return (num / 1_000_000).toFixed(decimals) + 'M'
-    if (num >= 1_000) return (num / 1_000).toFixed(decimals) + 'k'
-
-    return num.toFixed(0)
+    let mult = multMap[multIndex]
+    return (num / mult.mult).toFixed(decimals) + mult.suffix
 }
 
-export function getThousandSeperator() {
+export function getThousandSeparator() {
     let langTag = isClientSideRendering() ? navigator.language : 'en'
     if (langTag.startsWith('en')) {
         return ','
@@ -145,7 +163,7 @@ export function getThousandSeperator() {
     }
 }
 
-export function getDecimalSeperator() {
+export function getDecimalSeparator() {
     let langTag = isClientSideRendering() ? navigator.language : 'en'
     if (langTag.startsWith('en')) {
         return '.'
@@ -155,7 +173,7 @@ export function getDecimalSeperator() {
 }
 
 /**
- * Returs a number from a short represantation string of a price (e.g. 12M => 12_000_000)
+ * Returs a number from a short representation string of a price (e.g. 12M => 12_000_000)
  * @param shortString A string representing a larger number (e.g. 12M)
  * @returns The number represented by the string (e.g. 12_000_000)
  */
@@ -163,27 +181,18 @@ export function getNumberFromShortenString(shortString?: string): number | undef
     if (!shortString) {
         return
     }
-    let split
-    let multiplier
-    if (shortString.indexOf('B') !== -1) {
-        split = shortString.split('B')
-        multiplier = 1000000000
-    }
-    if (shortString.indexOf('M') !== -1) {
-        split = shortString.split('M')
-        multiplier = 1000000
-    }
-    if (shortString.indexOf('K') !== -1) {
-        split = shortString.split('K')
-        multiplier = 1000
-    }
-    if (!split) {
-        split = [shortString]
-        multiplier = 1
-    }
-    if (split[0] && !isNaN(+split[0])) {
-        return parseInt(split[0]) * multiplier
-    }
+    let val = [
+        { value: 1e12, suffix: 'T' },
+        { value: 1e12, suffix: 't' },
+        { value: 1e9, suffix: 'B' },
+        { value: 1e9, suffix: 'b' },
+        { value: 1e6, suffix: 'M' },
+        { value: 1e6, suffix: 'm' },
+        { value: 1e3, suffix: 'K' },
+        { value: 1e3, suffix: 'k' },
+        { value: 1, suffix: '' }
+    ].find(val => shortString.includes(val.suffix)) || { value: 1, suffix: '' }
+    return parseFloat(shortString.at(-1) == val.suffix ? shortString.slice(0, -1) : shortString) * val.value
 }
 
 export function getLocalDateAndTime(d: Date): string {
@@ -201,10 +210,10 @@ export function formatAsCoins(number: number): string {
             return ''
         }
     }
-    return `${numberWithThousandsSeperators(number)} Coins`
+    return `${numberWithThousandsSeparators(number)} Coins`
 }
-export function formatDungeonStarsInString(stringWithStars: string, style: CSSProperties = {}, dungeonItemLevelString?: string): JSX.Element {
-    let yellowStarStyle = { color: 'yellow', fontWeight: 'normal', height: '100%' }
+export function formatDungeonStarsInString(stringWithStars: string = '', style: CSSProperties = {}, dungeonItemLevelString?: string): JSX.Element {
+    let yellowStarStyle = { color: '#ffaa00', fontWeight: 'normal', height: '100%' }
     let redStarStyle = { color: 'red', fontWeight: 'normal', height: '100%' }
     let itemNameStyle = {
         height: '32px',
@@ -212,13 +221,10 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
     }
     let stars = stringWithStars?.match(/✪.*/gm)
 
-    let numberOfMasterstars = undefined
+    let numberOfMasterstars = 0
     if (dungeonItemLevelString) {
         try {
-            let number = parseInt(dungeonItemLevelString)
-            if (number > 5) {
-                numberOfMasterstars = number - 5
-            }
+            numberOfMasterstars = Math.max(parseInt(dungeonItemLevelString) - 5, 0)
         } catch {}
     }
 
@@ -231,32 +237,74 @@ export function formatDungeonStarsInString(stringWithStars: string, style: CSSPr
     let starsLastChar = starsString.charAt(starsString.length - 1)
     let starWithNumber = starsLastChar === '✪' ? undefined : starsLastChar
 
-    let normalStarElement = <span style={yellowStarStyle}>{starsString}</span>
-    if (!starWithNumber && numberOfMasterstars) {
-        let redStarsString = ''
-        let yellowStarsString = ''
-        for (let index = 0; index < numberOfMasterstars; index++) {
-            redStarsString += '✪'
-        }
-        for (let index = 0; index < starsString.length - numberOfMasterstars; index++) {
-            yellowStarsString += '✪'
-        }
-        normalStarElement = (
-            <span>
-                <span style={redStarStyle}>{redStarsString}</span>
-                <span style={yellowStarStyle}>{yellowStarsString}</span>
-            </span>
-        )
-    }
+    let normalStarElement = <span style={yellowStarStyle}>{'✪'.repeat(starsString.length - numberOfMasterstars)}</span>
     if (starWithNumber) {
         normalStarElement = <span style={yellowStarStyle}>{starsString.substring(0, starsString.length - 1)}</span>
     }
 
     return (
         <span style={style}>
-            {itemName ? <span style={itemNameStyle}>{itemName}</span> : null}
-            {normalStarElement}
-            {starWithNumber ? <span style={redStarStyle}>{starWithNumber}</span> : null}
+            {itemName ? <span style={itemNameStyle}>{itemName}</span> : null} {normalStarElement}
+            {starWithNumber || numberOfMasterstars ? (
+                <span style={redStarStyle}>{starWithNumber ? starWithNumber : '✪'.repeat(numberOfMasterstars)}</span>
+            ) : null}
         </span>
     )
+}
+
+export function getMinecraftColorCodedElement(text: string = '', autoFormat = true): JSX.Element {
+    let styleMap: { [key: string]: React.CSSProperties } = {
+        '0': { color: '#000000' },
+        '1': { color: '#0000aa' },
+        '2': { color: '#00aa00' },
+        '3': { color: '#00aaaa' },
+        '4': { color: '#aa0000' },
+        '5': { color: '#aa00aa' },
+        '6': { color: '#ffaa00' },
+        '7': { color: '#aaaaaa' },
+        '8': { color: '#555555' },
+        '9': { color: '#5555ff' },
+        a: { color: '#55ff55' },
+        b: { color: '#55ffff' },
+        c: { color: '#FF5555' },
+        d: { color: '#FF55FF' },
+        e: { color: '#FFFF55' },
+        f: { color: '#FFFFFF' },
+        l: { fontWeight: 'bold' },
+        n: { textDecorationLine: 'underline', textDecorationSkip: 'spaces' },
+        o: { fontStyle: 'italic' },
+        m: { textDecoration: 'line-through', textDecorationSkip: 'spaces' },
+        r: { textDecoration: 'none', textDecorationLine: 'none', textDecorationSkip: 'none', fontWeight: 'normal', fontStyle: 'normal', color: '#FFFFFF' }
+    }
+
+    let splits = text.split('§')
+    let elements: JSX.Element[] = []
+    let currentStyle = {}
+
+    splits.forEach((split, i) => {
+        if (i === 0) {
+            if (split !== '') {
+                elements.push(<span key={i}>{split}</span>)
+            }
+            return
+        }
+        let code = split.substring(0, 1)
+        let text = autoFormat ? convertTagToName(split.substring(1, split.length)) : split.substring(1, split.length)
+
+        // get new style. Use reset if a unknown color code is used
+        let newStyle = styleMap[code] || styleMap['r']
+
+        currentStyle = { ...currentStyle, ...newStyle }
+        elements.push(
+            <span key={i} style={currentStyle}>
+                {text}
+            </span>
+        )
+    })
+
+    return <span>{elements}</span>
+}
+
+export function removeMinecraftColorCoding(text: string = ''): string {
+    return text.replace(/§[0-9a-fk-or]/gi, '')
 }

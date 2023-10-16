@@ -3,14 +3,22 @@
     display: inline-block;
 }
 
-.recentAuctions :global(a) {
-    text-decoration: none !important;
-    color: #fff;
+.recent-auctions > h3 {
+    text-align: center;
+}
+
+.recentAuctionsFetchType {
+    width: 200px;
+    float: right;
+    display: inline;
 }
 
 @media all and (max-width: 480px) {
     .cardWrapper {
         width: 100%;
+    }
+    .recentAuctionsFetchType {
+        width: 100px;
     }
 }
 
@@ -30,14 +38,4 @@
     .cardWrapper {
         width: 16.66666666666666666666666666666%;
     }
-}
-
-.recent-auctions > h3 {
-    text-align: center;
-}
-
-.recentAuctionsFetchType {
-    width: 200px;
-    float: right;
-    display: inline;
 }

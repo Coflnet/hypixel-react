@@ -53,7 +53,7 @@ export const DEMO_FLIP: FlipAuction = {
     ]
 }
 
-export const DEFAULT_MOD_FORMAT = '§6{0}: {1}{2} {3}{4} -> {5} (+{6} §4{7}{3}) §7Med: §b{8} §7Lbin: §b{9} §7Volume: §b{10}'
+export const DEFAULT_MOD_FORMAT = '{0}: {1}{2} {3}{4} -> {5} (+{6} {7}) Med: {8} Lbin: {9} Volume: {10}'
 
 export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     let settings: FlipCustomizeSettings
@@ -61,7 +61,7 @@ export function getFlipCustomizeSettings(): FlipCustomizeSettings {
     try {
         settings = JSON.parse(getSetting(FLIP_CUSTOMIZING_KEY))
 
-        // Felder, die spezielle default values haben
+        // Fields that have special default values
         if (settings.hideSecondLowestBin !== false) {
             settings.hideSecondLowestBin = true
         }
@@ -106,8 +106,47 @@ export const FLIP_FINDERS = [
         selectable: true
     },
     { value: '8', label: 'AI', shortLabel: 'AI', default: false, description: '', selectable: false },
-    { value: '32', label: 'TFM', shortLabel: 'TFM', default: false, description: '', selectable: false },
-    { value: '64', label: 'Stonks', shortLabel: 'Stonks', default: false, description: '', selectable: false },
+    {
+        value: '16',
+        label: 'User',
+        shortLabel: 'User',
+        default: false,
+        description: (
+            <span>
+                Forwards all new auctions with a target value set to the starting bid (0 profit)
+                <br /> You can use this together with whitelist/blacklist of <b>Starting Bid</b> and other filters to create your own flip rules.
+                <br /> Different to the other finders this one won't pre-filter auctions its all up to you.",
+            </span>
+        ),
+        selectable: true
+    },
+    {
+        value: '32',
+        label: 'TFM',
+        shortLabel: 'TFM',
+        default: false,
+        description: (
+            <span>
+                These are flips from TFM (TheFlippingMod)
+                <br />
+                The integration is currently under development.",
+            </span>
+        ),
+        selectable: true
+    },
+    {
+        value: '64',
+        label: 'Stonks',
+        shortLabel: 'Stonks',
+        default: false,
+        description: (
+            <span>
+                Experimental finder trying to predict the value of an item without references <br />
+                This is under active development and will occasionally overvalue flips, use with caution.",
+            </span>
+        ),
+        selectable: true
+    },
     { value: '128', label: 'External', shortLabel: 'External', default: false, description: '', selectable: false }
 ]
 
@@ -146,13 +185,14 @@ export const DEFAULT_FLIP_SETTINGS = {
         hideLore: true,
         hideModChat: false,
         hideSellerOpenBtn: false,
+        modNoAdjustToPurse: false,
         modFormat: '',
         modCountdown: false
     } as FlipCustomizeSettings,
     RESTRICTIONS: [] as FlipRestriction[],
     FILTER: {
         onlyBin: false,
-        maxCost: 2147483647,
+        maxCost: 10000000000,
         minProfit: 0,
         minProfitPercent: 0,
         minVolume: 0,
@@ -161,8 +201,12 @@ export const DEFAULT_FLIP_SETTINGS = {
     } as FlipperFilter
 }
 
-export function calculateProfit(flip: FlipAuction, useLowestBinForProfit?: boolean) {
-    if (useLowestBinForProfit) {
+export function isCurrentCalculationBasedOnLbin(flipCustomizeSettings: FlipCustomizeSettings) {
+    return (flipCustomizeSettings.finders?.length === 1 && flipCustomizeSettings.finders[0].toString() === '2') || flipCustomizeSettings.useLowestBinForProfit
+}
+
+export function calculateProfit(flip: FlipAuction, settings?: FlipCustomizeSettings) {
+    if (flip.finder === 2 || (settings && isCurrentCalculationBasedOnLbin(settings))) {
         return flip.lowestBin - flip.cost
     } else {
         return flip.median - flip.cost

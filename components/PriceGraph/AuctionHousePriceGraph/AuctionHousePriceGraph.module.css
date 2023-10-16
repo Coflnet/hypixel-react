@@ -34,3 +34,7 @@
     width: 100%;
     margin-bottom: 20px;
 }
+
+.chartWrapper :global(.priceGraphTooltip) {
+    z-index: 18 !important
+}

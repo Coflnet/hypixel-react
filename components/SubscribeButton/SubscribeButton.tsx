@@ -1,26 +1,32 @@
-import React, { useState } from 'react'
+'use client'
+import { useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import api from '../../api/ApiHelper'
-import { SubscriptionType } from '../../api/ApiTypes.d'
+import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { toast } from 'react-toastify'
-import { useHistory } from 'react-router-dom'
 import askForNotificationPermissons from '../../utils/NotificationPermisson'
-import { NotificationsOutlined as NotificationIcon } from '@mui/icons-material'
+import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
 import styles from './SubscribeButton.module.css'
 import SubscribeItemContent from './SubscribeItemContent/SubscribeItemContent'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import SubscribePlayerContent from './SubscribePlayerContent/SubscribePlayerContent'
 import SubscribeAuctionContent from './SubscribeAuctionContent/SubscribeAuctionContent'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import EditIcon from '@mui/icons-material/Edit'
 
 interface Props {
     topic: string
     type: 'player' | 'item' | 'auction'
-    hideText?: boolean
     buttonContent?: JSX.Element
+    isEditButton?: boolean
+    onAfterSubscribe?()
+    prefill?: Subscription
+    popupTitle?: string
+    popupButtonText?: string
+    successMessage?: string
 }
 
 const MAX_FILTERS = 5
@@ -36,7 +42,8 @@ function SubscribeButton(props: Props) {
     let [isSold, setIsSold] = useState(false)
     let [isPlayerAuctionCreation, setIsPlayerAuctionCreation] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [itemFilter, setItemFilter] = useState<ItemFilter>()
+    let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.filter || undefined)
+    let [isItemFilterValid, setIsItemFilterValid] = useState(true)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     function onSubscribe() {
@@ -49,20 +56,19 @@ function SubscribeButton(props: Props) {
         }
         api.subscribe(props.topic, getSubscriptionTypes(), price ? parseInt(price) : undefined, itemFilter)
             .then(() => {
-                toast.success('Notifier successfully created!', {
+                toast.success(props.successMessage || 'Notifier successfully created!', {
                     onClick: () => {
-                        router.push({
-                            pathname: '/subscriptions'
-                        })
+                        router.push('/subscriptions')
                     }
                 })
+                if (props.onAfterSubscribe) {
+                    props.onAfterSubscribe()
+                }
             })
             .catch(error => {
-                toast.error(error.Message, {
+                toast.error(error.message, {
                     onClick: () => {
-                        router.push({
-                            pathname: '/subscriptions'
-                        })
+                        router.push('/subscriptions')
                     }
                 })
             })
@@ -135,7 +141,7 @@ function SubscribeButton(props: Props) {
     let dialog = (
         <Modal show={showDialog} onHide={closeDialog} className={styles.subscribeDialog}>
             <Modal.Header closeButton>
-                <Modal.Title>Create a Notifier</Modal.Title>
+                <Modal.Title>{props.popupTitle || 'Create a Notifier'}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {isLoggedIn ? (
@@ -143,10 +149,14 @@ function SubscribeButton(props: Props) {
                         {props.type === 'item' ? (
                             <SubscribeItemContent
                                 itemTag={props.topic}
-                                onFilterChange={setItemFilter}
+                                onFilterChange={filter => {
+                                    setItemFilter({ ...filter })
+                                }}
                                 onIsPriceAboveChange={setIsPriceAbove}
                                 onOnlyInstantBuyChange={setOnlyInstantBuy}
                                 onPriceChange={setPrice}
+                                prefill={props.prefill}
+                                onIsFilterValidChange={setIsItemFilterValid}
                             />
                         ) : null}
                         {props.type === 'player' ? (
@@ -154,11 +164,12 @@ function SubscribeButton(props: Props) {
                                 onGotOutbidChange={setGotOutbid}
                                 onIsSoldChange={setIsSold}
                                 onIsPlayerAuctionCreation={setIsPlayerAuctionCreation}
+                                prefill={props.prefill}
                             />
                         ) : null}
                         {props.type === 'auction' ? <SubscribeAuctionContent /> : null}
-                        <Button block onClick={onSubscribe} disabled={isNotifyDisabled()} className="notifyButton">
-                            Notify me
+                        <Button onClick={onSubscribe} disabled={isNotifyDisabled() || !isItemFilterValid} className="notifyButton">
+                            {props.popupButtonText || 'Notify me'}
                         </Button>
                         {itemFilter && Object.keys(itemFilter).length > MAX_FILTERS ? (
                             <p style={{ color: 'red' }}>You currently can't use more than 5 filters for Notifiers</p>
@@ -176,10 +187,16 @@ function SubscribeButton(props: Props) {
     return (
         <div className={styles.subscribeButton}>
             {dialog}
-            <Button style={{ width: 'max-content' }} onClick={openDialog}>
-                <NotificationIcon />
-                {props.buttonContent || ' Notify'}
-            </Button>
+            {props.isEditButton ? (
+                <div onClick={openDialog}>
+                    <EditIcon />
+                </div>
+            ) : (
+                <Button style={{ width: 'max-content' }} onClick={openDialog}>
+                    <NotificationIcon />
+                    {props.buttonContent || ' Notify'}
+                </Button>
+            )}
         </div>
     )
 }

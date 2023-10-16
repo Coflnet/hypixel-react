@@ -1,21 +1,23 @@
+'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
+import ReactECharts from 'echarts-for-react'
+import { ChangeEvent, Suspense, useEffect, useState } from 'react'
+import { Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
+import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
+import { getLoadingElement } from '../../../utils/LoadingUtils'
+import { getURLSearchParam } from '../../../utils/Parser/URLParser'
+import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE } from '../../../utils/SettingsUtils'
+import { isClientSideRendering } from '../../../utils/SSRUtils'
+import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { Number } from '../../Number/Number'
+import RelatedItems from '../../RelatedItems/RelatedItems'
+import ShareButton from '../../ShareButton/ShareButton'
+import styles from './BazaarPriceGraph.module.css'
+import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
 import getPriceGraphConfigSingle from './PriceGraphConfigSingle'
 import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
-import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
-import { getLoadingElement } from '../../../utils/LoadingUtils'
-import { numberWithThousandsSeperators } from '../../../utils/Formatter'
-import ShareButton from '../../ShareButton/ShareButton'
-import { isClientSideRendering } from '../../../utils/SSRUtils'
-import styles from './BazaarPriceGraph.module.css'
-import ReactECharts from 'echarts-for-react'
-import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
-import { getURLSearchParam } from '../../../utils/Parser/URLParser'
-import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE, getSetting, setSetting } from '../../../utils/SettingsUtils'
-import { Form } from 'react-bootstrap'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
 
 interface Props {
     item: Item
@@ -135,12 +137,14 @@ function BazaarPriceGraph(props: Props) {
                 s.type = 'line'
                 if (s.name === 'Min' || s.name === 'Max') {
                     s.tooltip.show = false
+                    s.data = []
                 }
             })
             chartOptionsSecondary.series.forEach(s => {
                 s.type = 'line'
                 if (s.name.includes('Min') || s.name.includes('Max')) {
                     s.tooltip.show = false
+                    s.data = []
                 }
             })
         } else {
@@ -208,25 +212,11 @@ function BazaarPriceGraph(props: Props) {
     function onChartsEvents(chartOptions, localStorageKey: string): Record<string, Function> {
         return {
             datazoom: e => {
-                /*
-                if (e.preventDefault) {
-                    return
-                }
-                */
                 let mid = (e.start + e.end) / 2
                 let midDate = new Date(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * (mid / 100))])
 
                 setTimeout(() => {
                     document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: midDate } }))
-
-                    /*
-                        primaryChartRef.current.getEchartsInstance().dispatchAction({
-                            type: 'dataZoom',
-                            start: 0,
-                            end: 90,
-                            preventDefault: true
-                        })
-                    */
                 }, 100)
             },
             legendselectchanged: e => {
@@ -275,35 +265,45 @@ function BazaarPriceGraph(props: Props) {
             )
 
             if (graphType === GRAPH_TYPE.SINGLE) {
-                chartOptionsPrimary.series[1].data.push(item.buyData.min.toFixed(2))
-                chartOptionsPrimary.series[2].data.push(item.buyData.max.toFixed(2))
-                chartOptionsPrimary.series[3].data.push(item.buyData.volume.toFixed(2))
-                chartOptionsPrimary.series[4].data.push(item.buyData.moving.toFixed(2))
+                chartOptionsPrimary.series[1].data.push(item.buyData.min?.toFixed(2))
+                chartOptionsPrimary.series[2].data.push(item.buyData.max?.toFixed(2))
+                chartOptionsPrimary.series[3].data.push(item.buyData.volume?.toFixed(2))
+                chartOptionsPrimary.series[4].data.push(item.buyData.moving?.toFixed(2))
 
                 chartOptionsPrimary.series[5].data.push(
                     fetchspan === DateRange.HOUR
-                        ? item.sellData.price.toFixed(2)
-                        : [item.sellData.price.toFixed(2), prices[i + 1] ? prices[i + 1].sellData.price.toFixed(2) : item.sellData.price.toFixed(2), item.sellData.min.toFixed(2), item.sellData.max.toFixed(2)]
+                        ? item.sellData.price?.toFixed(2)
+                        : [
+                              item.sellData.price?.toFixed(2),
+                              prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
+                              item.sellData.min?.toFixed(2),
+                              item.sellData.max?.toFixed(2)
+                          ]
                 )
-                chartOptionsPrimary.series[6].data.push(item.sellData.min.toFixed(2))
-                chartOptionsPrimary.series[7].data.push(item.sellData.max.toFixed(2))
-                chartOptionsPrimary.series[8].data.push(item.sellData.volume.toFixed(2))
-                chartOptionsPrimary.series[9].data.push(item.sellData.moving.toFixed(2))
+                chartOptionsPrimary.series[6].data.push(item.sellData.min?.toFixed(2))
+                chartOptionsPrimary.series[7].data.push(item.sellData.max?.toFixed(2))
+                chartOptionsPrimary.series[8].data.push(item.sellData.volume?.toFixed(2))
+                chartOptionsPrimary.series[9].data.push(item.sellData.moving?.toFixed(2))
             } else {
-                chartOptionsPrimary.series[1].data.push(item.buyData.min.toFixed(2))
-                chartOptionsPrimary.series[2].data.push(item.buyData.max.toFixed(2))
-                chartOptionsPrimary.series[3].data.push(item.buyData.volume.toFixed(2))
-                chartOptionsPrimary.series[4].data.push(item.buyData.moving.toFixed(2))
+                chartOptionsPrimary.series[1].data.push(item.buyData.min?.toFixed(2))
+                chartOptionsPrimary.series[2].data.push(item.buyData.max?.toFixed(2))
+                chartOptionsPrimary.series[3].data.push(item.buyData.volume?.toFixed(2))
+                chartOptionsPrimary.series[4].data.push(item.buyData.moving?.toFixed(2))
 
                 chartOptionsSecondary.series[0].data.push(
                     fetchspan === DateRange.HOUR
-                        ? item.sellData.price.toFixed(2)
-                        : [item.sellData.price.toFixed(2), prices[i + 1] ? prices[i + 1].sellData.price.toFixed(2) : item.sellData.price.toFixed(2), item.sellData.min.toFixed(2), item.sellData.max.toFixed(2)]
+                        ? item.sellData.price?.toFixed(2)
+                        : [
+                              item.sellData.price?.toFixed(2),
+                              prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
+                              item.sellData.min?.toFixed(2),
+                              item.sellData.max?.toFixed(2)
+                          ]
                 )
-                chartOptionsSecondary.series[1].data.push(item.sellData.min.toFixed(2))
-                chartOptionsSecondary.series[2].data.push(item.sellData.max.toFixed(2))
-                chartOptionsSecondary.series[3].data.push(item.sellData.volume.toFixed(2))
-                chartOptionsSecondary.series[4].data.push(item.sellData.moving.toFixed(2))
+                chartOptionsSecondary.series[1].data.push(item.sellData.min?.toFixed(2))
+                chartOptionsSecondary.series[2].data.push(item.sellData.max?.toFixed(2))
+                chartOptionsSecondary.series[3].data.push(item.sellData.volume?.toFixed(2))
+                chartOptionsSecondary.series[4].data.push(item.sellData.moving?.toFixed(2))
             }
         })
 
@@ -317,7 +317,7 @@ function BazaarPriceGraph(props: Props) {
         chartOptions.xAxis[0].data = prices.map(p => p.timestamp.getTime())
     }
 
-    function onGraphTypeChange(e: ChangeEvent<HTMLInputElement>) {
+    function onGraphTypeChange(e: ChangeEvent<HTMLSelectElement>) {
         let graphType = e.target.value
         setGraphType(graphType as GRAPH_TYPE)
         localStorage.setItem(BAZAAR_GRAPH_TYPE, graphType)
@@ -340,12 +340,14 @@ function BazaarPriceGraph(props: Props) {
 
     return (
         <div>
-            <ItemPriceRange
-                dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.ALL]}
-                onRangeChange={onRangeChange}
-                disableAllTime={false}
-                item={props.item}
-            />
+            <Suspense>
+                <ItemPriceRange
+                    dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.ALL]}
+                    onRangeChange={onRangeChange}
+                    disableAllTime={false}
+                    item={props.item}
+                />
+            </Suspense>
 
             <div>
                 <div className={styles.chartsWrapper}>
@@ -382,22 +384,35 @@ function BazaarPriceGraph(props: Props) {
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>
-                        <b>Avg Sell Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(+avgSellPrice.toFixed(1)) + ' Coins'}
+                        <b>Avg Sell Price:</b>{' '}
+                        {isLoading ? (
+                            '-'
+                        ) : (
+                            <span>
+                                <Number number={+avgSellPrice.toFixed(1)} /> Coins
+                            </span>
+                        )}
                     </span>
                     <span className={styles.avgPrice}>
-                        <b>Avg Buy Price:</b> {isLoading ? '-' : numberWithThousandsSeperators(+avgBuyPrice.toFixed(1)) + ' Coins'}
+                        <b>Avg Buy Price:</b>{' '}
+                        {isLoading ? (
+                            '-'
+                        ) : (
+                            <span>
+                                <Number number={+avgBuyPrice.toFixed(1)} /> Coins
+                            </span>
+                        )}
                     </span>
                     <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
                         {!isSSR ? (
-                            <Form.Control
-                                as="select"
+                            <Form.Select
                                 defaultValue={localStorage.getItem(BAZAAR_GRAPH_TYPE) || DEFAULT_GRAPH_TYPE}
                                 className={styles.recentAuctionsFetchType}
                                 onChange={onGraphTypeChange}
                             >
                                 <option value={GRAPH_TYPE.SINGLE}>Single</option>
                                 <option value={GRAPH_TYPE.SPLIT}>Split</option>
-                            </Form.Control>
+                            </Form.Select>
                         ) : null}
                     </div>
                     <div style={{ float: 'right' }}>
@@ -405,6 +420,7 @@ function BazaarPriceGraph(props: Props) {
                     </div>
                 </div>
                 <hr />
+                <RelatedItems tag={props.item.tag} />
                 <BazaarSnapshot item={props.item} />
             </div>
         </div>

@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+'use client'
+import { useState } from 'react'
 import { Modal, OverlayTrigger, Tooltip as BootstrapTooltip } from 'react-bootstrap'
 import { v4 as generateUUID } from 'uuid'
 
@@ -11,12 +12,13 @@ import { v4 as generateUUID } from 'uuid'
 interface Props {
     type: 'hover' | 'click'
     content: JSX.Element
-    tooltipContent: JSX.Element
+    tooltipContent?: JSX.Element
     tooltipTitle?: JSX.Element
     size?: 'sm' | 'lg' | 'xl'
     onClick?: Function
     id?: any
     className?: any
+    hoverPlacement?: any
     hoverPlacement?: any
 }
 

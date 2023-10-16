@@ -1,4 +1,4 @@
-import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeparators } from '../../../utils/Formatter'
 
 const ANIMATION_THRESHOLD = 200
 
@@ -6,6 +6,7 @@ function getPriceGraphConfigSplit() {
     return {
         tooltip: {
             trigger: 'axis',
+            className: 'priceGraphTooltip',
             axisPointer: {
                 type: 'cross',
                 crossStyle: {
@@ -14,7 +15,7 @@ function getPriceGraphConfigSplit() {
                 label: {
                     formatter: axisObject => {
                         if (axisObject.axisDimension === 'y') {
-                            return `${numberWithThousandsSeperators(axisObject.value)}`
+                            return `${numberWithThousandsSeparators(axisObject.value)}`
                         }
                         return getLocalDateAndTime(new Date(+axisObject.value))
                     }
@@ -78,7 +79,7 @@ function getPriceGraphConfigSplit() {
                 name: 'Number of traded items',
                 position: 'right',
                 axisLabel: {
-                    formatter: numberWithThousandsSeperators
+                    formatter: numberWithThousandsSeparators
                 }
             }
         ],
@@ -102,7 +103,8 @@ function getPriceGraphConfigSplit() {
                         }
                         return formatAsCoins(value)
                     }
-                }
+                },
+                data: [] as any[]
             },
             {
                 name: 'Min',
@@ -116,7 +118,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Max',
@@ -130,7 +132,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Volume',
@@ -142,9 +144,9 @@ function getPriceGraphConfigSplit() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeparators
                 },
-                data: []
+                data: [] as any[]
             },
             {
                 name: 'Moving',
@@ -155,9 +157,9 @@ function getPriceGraphConfigSplit() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeperators
+                    valueFormatter: numberWithThousandsSeparators
                 },
-                data: []
+                data: [] as any[]
             }
         ]
     }

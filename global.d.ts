@@ -44,10 +44,12 @@ interface AuctionDetails {
     coop: string[]
     bids: ItemBid[]
     anvilUses: number
-    reforge: Reforge
+    reforge: string
     enchantments: Enchantment[]
     nbtData: any
     itemCreatedAt: Date
+    start: Date
+    uuid: string
 }
 
 interface Auction {
@@ -100,6 +102,7 @@ interface FilterOptions {
     name: string
     options: string[]
     type: FilterType
+    description: string | null
 }
 
 interface ItemPrice {
@@ -121,6 +124,7 @@ interface SearchResultItem {
     urlSearchParams?: URLSearchParams
     id: string
     isPreviousSearch?: boolean
+    tier: string
 }
 
 interface FlipAuction {
@@ -155,18 +159,17 @@ interface API {
     getItemImageUrl(item: Item): string
     getItemDetails(itemTag: string): Promise<Item>
     getItemPrices(itemTagOrName: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]>
-    getAuctions(uuid: string, amount: number, offset: number): Promise<Auction[]>
-    getBids(uuid: string, amount: number, offset: number): Promise<BidForList[]>
+    getAuctions(uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<Auction[]>
+    getBids(uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<BidForList[]>
     getEnchantments(): Promise<Enchantment[]>
-    getReforges(): Promise<Reforge[]>
-    getAuctionDetails(auctionUUID: string): Promise<AuctionDetails>
+    getAuctionDetails(auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }>
     getPlayerName(uuid: string): Promise<string>
     setConnectionId(): Promise<void>
     getVersion(): Promise<string>
     subscribe(topic: string, type: SubscriptionType[], price?: number, itemFilter?: ItemFilter): Promise<void>
     unsubscribe(subscription: Subscription): Promise<Number>
     getSubscriptions(): Promise<Subscription[]>
-    setGoogle(id: string): Promise<void>
+    loginWithToken(id: string): Promise<string>
     stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
     setToken(token: string): Promise<void>
@@ -180,6 +183,7 @@ interface API {
         soldCallback?: Function,
         nextUpdateNotificationCallback?: Function,
         onSubscribeSuccessCallback?: Function,
+        onErrorCallback?: Function,
         forceSettingsUpdate: boolean = false
     ): void
     subscribeFlipsAnonym(
@@ -205,8 +209,8 @@ interface API {
     getActiveAuctions(item: Item, order: string, filter?: ItemFilter): Promise<RecentAuction[]>
     connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>
     getAccountInfo(): Promise<AccountInfo>
-    itemSearch(searchText: string): Promise<FilterOptions[]>
-    authenticateModConnection(conId: string): Promise<void>
+    itemSearch(searchText: string): Promise<SearchResultItem[]>
+    authenticateModConnection(conId: string, googleToken: string): Promise<void>
     getFlipUpdateTime(): Promise<Date>
     playerSearch(playerName: string): Promise<Player[]>
     sendFeedback(feedbackKey: string, feedback: any): Promise<void>
@@ -221,13 +225,13 @@ interface API {
     getBazaarTags(): Promise<string[]>
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
-    purchaseWithCoflcoins(productId: string, count?: number): Promise<void>
+    purchaseWithCoflcoins(productId: string, googleToken: string, count?: number): Promise<void>
     subscribeCoflCoinChange()
     getCoflcoinBalance(): Promise<number>
     setFlipSetting(identifier: string, value: any): Promise<void>
     getKatFlips(): Promise<KatFlip[]>
-    getTrackedFlipsForPlayer(playerUUID: string): Promise<FlipTrackingResponse>
-    transferCoflCoins(email: string, mcId: string, amount: number, reference: string): Promise<void>
+    getTrackedFlipsForPlayer(playerUUID: string, days?: number, offset?: number): Promise<FlipTrackingResponse>
+    transferCoflCoins(email: string | undefined, mcId: string | undefined, amount: number, reference: string): Promise<void>
     getBazaarSnapshot(itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot>
     getBazaarPrices(itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]>
     getBazaarPricesByRange(itemTag: string, startDate: Date | string | number, endDate: Date | string | number): Promise<BazaarPrice[]>
@@ -236,6 +240,10 @@ interface API {
     checkRat(hash: string): Promise<RatCheckingResponse>
     getPremiumProducts(): Promise<PremiumProduct[]>
     unsubscribeAll(): Promise<void>
+    getItemNames(items: Item[]): Promise<{ [key: string]: string }>
+    checkFilter(auction: AuctionDetails, filter: ItemFilter): Promise<boolean>
+    refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void)
+    getRelatedItems(tag: string): Promise<Item[]>
     getTEMPlayerData(playerUUID: string): Promise<TEM_Player>
     getTEMPlayerDataByProfileUUID(profileUUID: string): Promise<TEM_Player>
     getTEMItemData(itemUid: string): Promise<TEM_Item>
@@ -320,6 +328,7 @@ interface FlipCustomizeSettings {
     hideLore?: boolean
     modFormat?: string
     modCountdown?: boolean
+    modNoAdjustToPurse?: boolean
 }
 
 interface FlipRestriction {
@@ -327,6 +336,8 @@ interface FlipRestriction {
     item?: Item
     itemFilter?: ItemFilter
     isEdited?: boolean
+    originalIndex?: number
+    tags?: string[]
 }
 
 interface MinecraftConnectionInfo {
@@ -428,7 +439,14 @@ interface KatFlip {
     referenceAuctionUUID: string
     purchaseCost: number
     cost: number
+    originAuctionName: string
 }
+
+interface FlipTrackingPropertyChange {
+    description: string
+    effect: number
+}
+
 interface FlipTrackingFlip {
     pricePaid: number
     soldFor: number
@@ -439,6 +457,7 @@ interface FlipTrackingFlip {
     item: Item
     sellTime: Date
     profit: number
+    propertyChanges: FlipTrackingPropertyChange[]
 }
 
 interface FlipTrackingResponse {

@@ -1,17 +1,20 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
-import { Form, Modal } from 'react-bootstrap'
-import Tooltip from '../../Tooltip/Tooltip'
-import Countdown, { zeroPad } from 'react-countdown'
+'use client'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
+import FilterIcon from '@mui/icons-material/BallotOutlined'
+import SettingsIcon from '@mui/icons-material/Settings'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Button, Form, Modal } from 'react-bootstrap'
+import { NumericFormat } from 'react-number-format'
 import { v4 as generateUUID } from 'uuid'
-import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
-import { BallotOutlined as FilterIcon } from '@mui/icons-material'
-import NumberFormat, { NumberFormatValues } from 'react-number-format'
-import { FLIPPER_FILTER_KEY, getSettingsObject, mapRestrictionsToApiFormat, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
-import styles from './FlipperFilter.module.css'
 import api from '../../../api/ApiHelper'
-import { getDecimalSeperator, getThousandSeperator } from '../../../utils/Formatter'
-import { DEFAULT_FLIP_SETTINGS } from '../../../utils/FlipUtils'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
+import { getFlipCustomizeSettings, isCurrentCalculationBasedOnLbin } from '../../../utils/FlipUtils'
+import { getDecimalSeparator, getThousandSeparator } from '../../../utils/Formatter'
+import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSettingsObject, mapRestrictionsToApiFormat, setSetting } from '../../../utils/SettingsUtils'
+import Tooltip from '../../Tooltip/Tooltip'
+import FlipCustomize from '../FlipCustomize/FlipCustomize'
+import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
+import styles from './FlipperFilter.module.css'
 
 interface Props {
     onChange(filter: FlipperFilter)
@@ -19,51 +22,29 @@ interface Props {
     isPremium?: boolean
 }
 
-let FREE_PREMIUM_SPAN = 1000 * 60 * 5
-let FREE_LOGIN_SPAN = 1000 * 60 * 6
-
-let FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN
-let FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN
-
 function FlipperFilter(props: Props) {
-    let defaultFilter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, DEFAULT_FLIP_SETTINGS.FILTER)
-
-    let [onlyBin, setOnlyBin] = useState(defaultFilter.onlyBin || DEFAULT_FLIP_SETTINGS.FILTER.onlyBin)
-    let [onlyUnsold, setOnlyUnsold] = useState(props.isPremium == null ? false : defaultFilter.onlyUnsold || DEFAULT_FLIP_SETTINGS.FILTER.onlyUnsold)
-    let [minProfit, setMinProfit] = useState(defaultFilter.minProfit || DEFAULT_FLIP_SETTINGS.FILTER.minProfit)
-    let [minProfitPercent, setMinProfitPercent] = useState(defaultFilter.minProfitPercent || DEFAULT_FLIP_SETTINGS.FILTER.minProfitPercent)
-    let [minVolume, setMinVolume] = useState(defaultFilter.minVolume || DEFAULT_FLIP_SETTINGS.FILTER.minVolume)
-    let [maxCost, setMaxCost] = useState<number>(defaultFilter.maxCost || DEFAULT_FLIP_SETTINGS.FILTER.maxCost)
-    let [freePremiumFilters, setFreePremiumFilters] = useState(false)
-    let [freeLoginFilters, setFreeLoginFilters] = useState(false)
-    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, []))
-    let [uuids, setUUIDs] = useState<string[]>([])
     let [showRestrictionList, setShowRestrictionList] = useState(false)
+    let [isAdvanced, setIsAdvanced] = useState(false)
+    let [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
+    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
+    let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
+    let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(generateUUID())
 
-    let onlyUnsoldRef = useRef(null)
+    let { trackEvent } = useMatomo()
 
     useEffect(() => {
-        let newUuids: string[] = []
-        for (let index = 0; index < 10; index++) {
-            newUuids.push(generateUUID())
-        }
-        setUUIDs(newUuids)
-        FREE_PREMIUM_FILTER_TIME = new Date().getTime() + FREE_PREMIUM_SPAN
-        FREE_LOGIN_FILTER_TIME = new Date().getTime() + FREE_LOGIN_SPAN
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        setFlipCustomizeSettings(getFlipCustomizeSettings())
+        setFlipperFilter(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
+        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
+            if ((e as any).detail?.apiUpdate) {
+                setFlipCustomizeKey(generateUUID())
+            }
+            setFlipCustomizeSettings(getFlipCustomizeSettings())
+            setFlipperFilter(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
+        })
     }, [])
 
-    function getCurrentFilter(): FlipperFilter {
-        return {
-            onlyBin: onlyBin,
-            minProfit: minProfit,
-            maxCost: maxCost,
-            minProfitPercent: minProfitPercent,
-            onlyUnsold: onlyUnsold,
-            minVolume: minVolume
-        }
-    }
+    let onlyUnsoldRef = useRef(null)
 
     function onFilterChange(filter: FlipperFilter) {
         if (props.isLoggedIn) {
@@ -81,84 +62,53 @@ function FlipperFilter(props: Props) {
         props.onChange(filter)
     }
 
-    function onOnlyBinChange(event: ChangeEvent<HTMLInputElement>) {
-        setOnlyBin(event.target.checked)
-        let filter = getCurrentFilter()
-        filter.onlyBin = event.target.checked
-        api.setFlipSetting('onlyBin', event.target.checked)
+    function onSettingsChange(key: string, value: any, apiKey?: string) {
+        let filter = flipperFilter
+        filter[key] = value
+        api.setFlipSetting(apiKey || key, value)
+        setFlipperFilter(flipperFilter)
         onFilterChange(filter)
     }
 
-    function onOnlyUnsoldChange(event: ChangeEvent<HTMLInputElement>) {
-        let isActive = event.target.checked
-        updateOnlyUnsold(isActive)
-    }
-
-    function onMinProfitChange(value: NumberFormatValues) {
-        let val = value.floatValue || 0
-        setMinProfit(val)
-        let filter = getCurrentFilter()
-        filter.minProfit = val
-        api.setFlipSetting('minProfit', val)
-        onFilterChange(filter)
-    }
-
-    function onMinProfitPercentChange(value: NumberFormatValues) {
-        let val = value.floatValue || 0
-        setMinProfitPercent(val)
-        let filter = getCurrentFilter()
-        filter.minProfitPercent = val
-        api.setFlipSetting('minProfitPercent', val)
-        onFilterChange(filter)
-    }
-
-    function onMaxCostChange(value: NumberFormatValues) {
-        let val = value.floatValue || 0
-        setMaxCost(val)
-        let filter = getCurrentFilter()
-        filter.maxCost = val
-        api.setFlipSetting('maxCost', val)
-        onFilterChange(filter)
-    }
-
-    function updateOnlyUnsold(isActive: boolean) {
-        setOnlyUnsold(isActive)
-        let filter = getCurrentFilter()
-        filter.onlyUnsold = isActive
-        api.setFlipSetting('showHideSold', isActive)
-        onFilterChange(filter)
-    }
-
-    function onMinVolumeChange(value: NumberFormatValues) {
-        let val = value.floatValue || 0
-        setMinVolume(val)
-        let filter = getCurrentFilter()
-        filter.minVolume = val
-        api.setFlipSetting('minVolume', val)
-        onFilterChange(filter)
-    }
-
-    function onRestrictionsChange(restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') {
-        setRestrictions(restrictions)
+    let onRestrictionsChange = useCallback((restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') => {
         api.setFlipSetting(type, mapRestrictionsToApiFormat(restrictions.filter(restriction => restriction.type === type)))
-    }
-
-    function onFreePremiumComplete() {
-        setFreePremiumFilters(true)
-    }
-
-    function onFreeLoginComplete() {
-        setFreeLoginFilters(true)
-    }
-
-    const countdownRenderer = ({ minutes, seconds }) => (
-        <span>
-            {zeroPad(minutes)}:{zeroPad(seconds)}
-        </span>
-    )
+    }, [])
 
     function numberFieldMaxValue(value: number = 0, maxValue: number) {
         return value <= maxValue
+    }
+
+    function onProfitCalculationButtonClick() {
+        if (isCurrentCalculationBasedOnLbin(flipCustomizeSettings)) {
+            flipCustomizeSettings.finders = [1, 4]
+            flipCustomizeSettings.useLowestBinForProfit = false
+            api.setFlipSetting('lbin', false)
+            api.setFlipSetting('finders', 5)
+            trackEvent({
+                category: 'customizeFlipStyle',
+                action: 'finders: 1,4'
+            })
+            trackEvent({
+                category: 'customizeFlipStyle',
+                action: 'lbin: false'
+            })
+        } else {
+            flipCustomizeSettings.finders = [2]
+            flipCustomizeSettings.useLowestBinForProfit = true
+            api.setFlipSetting('lbin', true)
+            api.setFlipSetting('finders', 2)
+            trackEvent({
+                category: 'customizeFlipStyle',
+                action: 'finders: 2'
+            })
+            trackEvent({
+                category: 'customizeFlipStyle',
+                action: 'lbin: false'
+            })
+        }
+        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
+        setFlipCustomizeSettings({ ...flipCustomizeSettings })
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
     }
 
     let restrictionListDialog = (
@@ -169,6 +119,7 @@ function FlipperFilter(props: Props) {
                 setShowRestrictionList(false)
             }}
             scrollable={true}
+            contentClassName={styles.restrictionListContent}
         >
             <Modal.Header closeButton>
                 <Modal.Title>Restrict the flip results</Modal.Title>
@@ -179,170 +130,276 @@ function FlipperFilter(props: Props) {
         </Modal>
     )
 
-    const nonPremiumTooltip = (
-        <span key="nonPremiumTooltip">
-            This is a premium feature.
-            <br />
-            (to use for free wait <Countdown key={uuids[0]} date={FREE_PREMIUM_FILTER_TIME} renderer={countdownRenderer} />)
-        </span>
-    )
-    const nonLoggedInTooltip = (
-        <span key="nonLoggedInTooltip">
-            Login to use these filters.
-            <br />
-            (or wait <Countdown key={uuids[1]} date={FREE_LOGIN_FILTER_TIME} renderer={countdownRenderer} />)
-        </span>
-    )
-
-    const binFilter = (
-        <Form.Group className={styles.filterCheckbox}>
-            <Form.Label htmlFor="onlyBinCheckbox" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
-                Only BIN-Auctions
-            </Form.Label>
-            <Form.Check
-                id="onlyBinCheckbox"
-                onChange={onOnlyBinChange}
-                defaultChecked={onlyBin}
-                className={styles.flipperFilterFormfield}
-                type="checkbox"
-                disabled={!props.isPremium && !freePremiumFilters}
-            />
-        </Form.Group>
-    )
-
-    const soldFilter = (
-        <Form.Group className={styles.filterCheckbox}>
-            <Form.Label htmlFor="onlyUnsoldCheckbox" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
-                Hide SOLD Auctions
-            </Form.Label>
-            <Form.Check
-                ref={onlyUnsoldRef}
-                id="onlyUnsoldCheckbox"
-                onChange={onOnlyUnsoldChange}
-                defaultChecked={onlyUnsold}
-                className={styles.flipperFilterFormfield}
-                type="checkbox"
-                disabled={!props.isPremium && !freePremiumFilters}
-            />
-        </Form.Group>
-    )
-
-    const openRestrictionListDialog = (
-        <div
-            onClick={() => {
-                setShowRestrictionList(true)
+    let customizeFlipDialog = (
+        <Modal
+            size={'xl'}
+            show={showCustomizeFlip}
+            onHide={() => {
+                setShowCustomizeFlip(false)
             }}
-            className={styles.filterCheckbox}
-            style={{ cursor: 'pointer' }}
         >
-            <span className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Blacklist</span>
-            <FilterIcon className={styles.flipperFilterFormfield} style={{ marginLeft: '-4px' }} />
-        </div>
-    )
-
-    const numberFilters = (
-        <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'flex-start' }}>
-            <Form.Group className={styles.filterTextfield}>
-                <Form.Label htmlFor="min-profit" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
-                    Min. Profit:
-                </Form.Label>
-                <NumberFormat
-                    id="min-profit"
-                    onValueChange={onMinProfitChange}
-                    className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
-                    type="text"
-                    disabled={!props.isLoggedIn && !freeLoginFilters}
-                    isAllowed={value => {
-                        return numberFieldMaxValue(value.floatValue, 2147483647)
-                    }}
-                    customInput={Form.Control}
-                    defaultValue={minProfit}
-                    thousandSeparator={getThousandSeperator()}
-                    decimalSeparator={getDecimalSeperator()}
-                    allowNegative={false}
-                    decimalScale={0}
-                />
-            </Form.Group>
-            <Form.Group className={styles.filterTextfield}>
-                <Form.Label htmlFor="min-profit-percent" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
-                    Min. Profit (%):
-                </Form.Label>
-                <NumberFormat
-                    id="min-profit-percent"
-                    onValueChange={onMinProfitPercentChange}
-                    className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
-                    disabled={!props.isLoggedIn && !freeLoginFilters}
-                    isAllowed={value => {
-                        return numberFieldMaxValue(value.floatValue, 2147483647)
-                    }}
-                    customInput={Form.Control}
-                    defaultValue={minProfitPercent}
-                    thousandSeparator={getThousandSeperator()}
-                    decimalSeparator={getDecimalSeperator()}
-                    allowNegative={false}
-                    decimalScale={0}
-                />
-            </Form.Group>
-            <Form.Group className={styles.filterTextfield}>
-                <Form.Label htmlFor="min-volume" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
-                    Min. Volume:
-                </Form.Label>
-                <NumberFormat
-                    id="min-volume"
-                    onValueChange={onMinVolumeChange}
-                    className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
-                    disabled={!props.isLoggedIn && !freeLoginFilters}
-                    isAllowed={value => {
-                        return numberFieldMaxValue(value.floatValue, 120)
-                    }}
-                    customInput={Form.Control}
-                    defaultValue={minVolume}
-                    thousandSeparator={getThousandSeperator()}
-                    decimalSeparator={getDecimalSeperator()}
-                    allowNegative={false}
-                    decimalScale={1}
-                />
-            </Form.Group>
-            <Form.Group className={styles.filterTextfield}>
-                <Form.Label htmlFor="max-cost" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
-                    Max. Cost:
-                </Form.Label>
-                <NumberFormat
-                    id="max-cost"
-                    onValueChange={onMaxCostChange}
-                    className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
-                    disabled={!props.isLoggedIn && !freeLoginFilters}
-                    isAllowed={value => {
-                        return numberFieldMaxValue(value.floatValue, 2147483647)
-                    }}
-                    customInput={Form.Control}
-                    defaultValue={maxCost}
-                    thousandSeparator={getThousandSeperator()}
-                    decimalSeparator={getDecimalSeperator()}
-                    allowNegative={false}
-                    decimalScale={0}
-                />
-            </Form.Group>
-        </div>
+            <Modal.Header closeButton>
+                <Modal.Title>Customize the style of flips</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <FlipCustomize key={flipCustomizeKey} />
+            </Modal.Body>
+        </Modal>
     )
 
     return (
         <div className={styles.flipperFilter}>
-            <Form style={{ marginBottom: '5px' }}>
-                {!props.isLoggedIn && !freeLoginFilters ? <Tooltip type="hover" content={numberFilters} tooltipContent={nonLoggedInTooltip} /> : numberFilters}
-                <div className={styles.premiumFilters}>
-                    {!props.isPremium && !freePremiumFilters ? <Tooltip type="hover" content={binFilter} tooltipContent={nonPremiumTooltip} /> : binFilter}
-
-                    {!props.isPremium && !freePremiumFilters ? <Tooltip type="hover" content={soldFilter} tooltipContent={nonPremiumTooltip} /> : soldFilter}
-                    {openRestrictionListDialog}
+            <div className={styles.flipperFilterGroup}>
+                <Form.Group className={styles.filterTextfield}>
+                    <Tooltip
+                        type="hover"
+                        content={
+                            <Form.Label htmlFor="min-profit" className={`${styles.flipperFilterFormfieldLabel}`}>
+                                Min. Profit:
+                            </Form.Label>
+                        }
+                        tooltipContent={
+                            <span>
+                                How much estimated profit do you at least want from each flip. Note that there is naturally more competition on higher profit
+                                flips{' '}
+                            </span>
+                        }
+                    />
+                    <NumericFormat
+                        id="min-profit"
+                        onValueChange={value => {
+                            onSettingsChange('minProfit', value.floatValue || 0)
+                        }}
+                        placeholder={!props.isLoggedIn ? 'Please login first' : null}
+                        className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
+                        type="text"
+                        disabled={!props.isLoggedIn}
+                        isAllowed={value => {
+                            return numberFieldMaxValue(value.floatValue, 10000000000)
+                        }}
+                        customInput={Form.Control}
+                        defaultValue={flipperFilter.minProfit}
+                        thousandSeparator={getThousandSeparator()}
+                        decimalSeparator={getDecimalSeparator()}
+                        allowNegative={false}
+                        decimalScale={0}
+                    />
+                </Form.Group>
+                <div
+                    onClick={() => {
+                        setShowRestrictionList(true)
+                    }}
+                    className={styles.filterCheckbox}
+                    style={{ cursor: 'pointer' }}
+                >
+                    <span className={styles.filterBorder}>
+                        <Tooltip
+                            type="hover"
+                            content={<span className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>Filter Rules</span>}
+                            tooltipContent={<span>Make custom rules which items should show up and which should not</span>}
+                        />
+                        <FilterIcon className={styles.flipperFilterFormfield} style={{ marginLeft: '-4px' }} />
+                    </span>
                 </div>
-
-                <div style={{ visibility: 'hidden', height: 0 }}>
-                    <Countdown key={uuids[2]} onComplete={onFreePremiumComplete} date={FREE_PREMIUM_FILTER_TIME} />
-                    <Countdown key={uuids[3]} onComplete={onFreeLoginComplete} date={FREE_LOGIN_FILTER_TIME} />
-                </div>
-            </Form>
+                <Form.Group className={styles.filterCheckbox}>
+                    <Tooltip
+                        type="hover"
+                        content={
+                            <Form.Label
+                                htmlFor="onlyBinCheckbox"
+                                className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}
+                                defaultChecked={flipperFilter.onlyBin}
+                            >
+                                Only BIN Auctions
+                            </Form.Label>
+                        }
+                        tooltipContent={
+                            <span>
+                                {flipperFilter.onlyBin ? 'Do not display' : 'Display'} auction flips that are about to end and could be profited from with the
+                                current bid
+                            </span>
+                        }
+                    />
+                    <Form.Check
+                        id="onlyBinCheckbox"
+                        onChange={e => {
+                            onSettingsChange('onlyBin', e.target.checked)
+                        }}
+                        defaultChecked={flipperFilter.onlyBin}
+                        className={styles.flipperFilterFormfield}
+                        type="checkbox"
+                    />
+                </Form.Group>
+                <Form.Group className={styles.filterTextfield}>
+                    <Tooltip
+                        type="hover"
+                        content={<Form.Label className={`${styles.flipperFilterFormfieldLabel}`}>Profit based on</Form.Label>}
+                        tooltipContent={
+                            isCurrentCalculationBasedOnLbin(flipCustomizeSettings) ? (
+                                <span>
+                                    Profit is currently based off the lowest bin of similar items. Lbin Flips (also called snipes) will not show if there is no
+                                    similar auction on ah. Auctions shown are expected to sell quickly. There is very high competition for these types of
+                                    auctions.
+                                </span>
+                            ) : (
+                                <span>
+                                    Profit is currently based off the weighted median sell value of similar items (so called references). This is the
+                                    recommended setting as it makes the most money over all and prices items based on daily and weekly price swings. But items
+                                    may only sell after days.
+                                </span>
+                            )
+                        }
+                    />
+                    <Button onClick={onProfitCalculationButtonClick}>{isCurrentCalculationBasedOnLbin(flipCustomizeSettings) ? 'Lowest BIN' : 'Median'}</Button>
+                </Form.Group>
+                <Form.Group
+                    onClick={() => {
+                        setShowCustomizeFlip(true)
+                    }}
+                    className={styles.filterCheckbox}
+                >
+                    <span className={styles.filterBorder}>
+                        <Tooltip
+                            type="hover"
+                            content={<span style={{ cursor: 'pointer', marginRight: '10px' }}>Settings</span>}
+                            tooltipContent={<span>Edit flip appearance and general settings</span>}
+                        />
+                        <span style={{ cursor: 'pointer' }}>
+                            {' '}
+                            <SettingsIcon />
+                        </span>
+                    </span>
+                </Form.Group>
+                <Form.Group className={styles.filterCheckbox}>
+                    <Tooltip
+                        type="hover"
+                        content={
+                            <Form.Label htmlFor="advancedCheckbox" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                                Advanced
+                            </Form.Label>
+                        }
+                        tooltipContent={<span>Get more advanced config options. (You shouldn't need them by default)</span>}
+                    />
+                    <Form.Check
+                        id="advancedCheckbox"
+                        onChange={e => {
+                            setIsAdvanced(e.target.checked)
+                        }}
+                        className={styles.flipperFilterFormfield}
+                        type="checkbox"
+                    />
+                </Form.Group>
+            </div>
+            {isAdvanced ? (
+                <>
+                    <hr />
+                    <div className={styles.flipperFilterGroupAdvanced}>
+                        <Form.Group className={styles.filterTextfield}>
+                            <Tooltip
+                                type="hover"
+                                content={
+                                    <Form.Label htmlFor="min-profit-percent" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                                        Min. Profit (%):
+                                    </Form.Label>
+                                }
+                                tooltipContent={
+                                    <span>
+                                        A 94m item wort an estimated 100m would have 3m (3%) estimated profit. This includes a total of 3% ah tax and would
+                                        block any flip below the value chosen, using 2% would show the flip
+                                    </span>
+                                }
+                            />
+                            <NumericFormat
+                                id="min-profit-percent"
+                                onValueChange={value => {
+                                    onSettingsChange('minProfitPercent', value.floatValue || 0)
+                                }}
+                                className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
+                                disabled={!props.isLoggedIn}
+                                placeholder={!props.isLoggedIn ? 'Please login first' : null}
+                                isAllowed={value => {
+                                    return numberFieldMaxValue(value.floatValue, 10000000000)
+                                }}
+                                customInput={Form.Control}
+                                defaultValue={flipperFilter.minProfitPercent}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
+                                allowNegative={false}
+                                decimalScale={0}
+                            />
+                        </Form.Group>
+                        <Form.Group className={styles.filterTextfield}>
+                            <Tooltip
+                                type="hover"
+                                content={
+                                    <Form.Label htmlFor="min-volume" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                                        Min. Volume:
+                                    </Form.Label>
+                                }
+                                tooltipContent={<span>Minimum average amount of sells in 24 hours</span>}
+                            />
+                            <NumericFormat
+                                id="min-volume"
+                                onValueChange={value => {
+                                    onSettingsChange('minVolume', value.floatValue || 0)
+                                }}
+                                className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
+                                disabled={!props.isLoggedIn}
+                                placeholder={!props.isLoggedIn ? 'Please login first' : null}
+                                isAllowed={value => {
+                                    return numberFieldMaxValue(value.floatValue, 120)
+                                }}
+                                customInput={Form.Control}
+                                defaultValue={flipperFilter.minVolume}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
+                                allowNegative={false}
+                                decimalScale={1}
+                            />
+                        </Form.Group>
+                        <Form.Group className={styles.filterTextfield}>
+                            <Form.Label htmlFor="max-cost" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                                Max. Cost:
+                            </Form.Label>
+                            <NumericFormat
+                                id="max-cost"
+                                onValueChange={value => {
+                                    onSettingsChange('maxCost', value.floatValue || 0)
+                                }}
+                                className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
+                                disabled={!props.isLoggedIn}
+                                placeholder={!props.isLoggedIn ? 'Please login first' : null}
+                                isAllowed={value => {
+                                    return numberFieldMaxValue(value.floatValue, 10000000000)
+                                }}
+                                customInput={Form.Control}
+                                defaultValue={flipperFilter.maxCost}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
+                                allowNegative={false}
+                                decimalScale={0}
+                            />
+                        </Form.Group>
+                        <Form.Group className={styles.filterCheckbox}>
+                            <Form.Label htmlFor="onlyUnsoldCheckbox" className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}>
+                                Hide SOLD Auctions
+                            </Form.Label>
+                            <Form.Check
+                                ref={onlyUnsoldRef}
+                                id="onlyUnsoldCheckbox"
+                                onChange={e => {
+                                    onSettingsChange('onlyUnsold', e.target.checked, 'showHideSold')
+                                }}
+                                defaultChecked={flipperFilter.onlyUnsold}
+                                className={styles.flipperFilterFormfield}
+                                type="checkbox"
+                            />
+                        </Form.Group>
+                    </div>
+                </>
+            ) : null}
             {restrictionListDialog}
+            {customizeFlipDialog}
         </div>
     )
 }

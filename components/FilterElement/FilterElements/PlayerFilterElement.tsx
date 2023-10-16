@@ -1,9 +1,9 @@
-import React, { forwardRef, useState } from 'react'
+'use client'
+import { forwardRef, Ref, useState } from 'react'
 import { AsyncTypeahead } from 'react-bootstrap-typeahead'
 import api from '../../../api/ApiHelper'
 import { v4 as generateUUID } from 'uuid'
-import { parsePlayer } from '../../../utils/Parser/APIResponseParser'
-
+import Typeahead from 'react-bootstrap-typeahead/types/core/Typeahead'
 interface Props {
     onChange(n: string | Player)
     disabled?: boolean
@@ -11,9 +11,10 @@ interface Props {
     defaultValue: string
     ref?(ref)
     placeholder?: string
+    isValid?: boolean
 }
 
-export let PlayerFilterElement = forwardRef((props: Props, ref) => {
+export let PlayerFilterElement = forwardRef((props: Props, ref: Ref<Typeahead>) => {
     // for player search
     let [players, setPlayers] = useState<Player[]>([])
     let [isLoading, setIsLoading] = useState(false)
@@ -39,7 +40,7 @@ export let PlayerFilterElement = forwardRef((props: Props, ref) => {
             isLoading={isLoading}
             labelKey="name"
             minLength={1}
-            default
+            isInvalid={!props.isValid}
             onSearch={handlePlayerSearch}
             defaultInputValue={props.defaultValue}
             options={players}

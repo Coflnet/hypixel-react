@@ -1,14 +1,18 @@
-import React, { useEffect } from 'react'
+'use client'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
+import HelpIcon from '@mui/icons-material/Help'
+import Image from 'next/image'
+import { useEffect } from 'react'
 import { Badge, Card } from 'react-bootstrap'
-import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter'
-import { Help as HelpIcon } from '@mui/icons-material'
-import { CopyButton } from '../../CopyButton/CopyButton'
-import { useForceUpdate } from '../../../utils/Hooks'
-import { calculateProfit, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
 import { toast } from 'react-toastify'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
-import styles from './Flip.module.css'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
+import { calculateProfit, getFlipCustomizeSettings, getFlipFinders } from '../../../utils/FlipUtils'
+import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier } from '../../../utils/Formatter'
+import { useForceUpdate } from '../../../utils/Hooks'
+import { CopyButton } from '../../CopyButton/CopyButton'
+import { Number } from '../../Number/Number'
+import styles from './Flip.module.css'
+import { writeToClipboard } from '../../../utils/ClipboardUtils'
 
 interface Props {
     flip: FlipAuction
@@ -54,7 +58,7 @@ function Flip(props: Props) {
             return
         }
 
-        window.navigator.clipboard.writeText('/viewauction ' + props.flip.uuid)
+        writeToClipboard('/viewauction ' + props.flip.uuid)
         if (props.onCopy) {
             props.onCopy(props.flip)
         }
@@ -78,12 +82,14 @@ function Flip(props: Props) {
 
     function getProfitElement(flip: FlipAuction): JSX.Element {
         let settings = getFlipCustomizeSettings()
-        let profit = calculateProfit(flip, settings.useLowestBinForProfit)
+        let profit = calculateProfit(flip, settings)
         let preSymbol = profit > 0 ? '+' : ''
         let profitPercentElement = <span>({Math.round((profit / flip.cost) * 100)}%)</span>
         return (
             <b style={{ color: profit > 0 ? 'lime' : 'white' }}>
-                {preSymbol + formatPrices(profit) + ' Coins '}
+                <span>{preSymbol}</span>
+                <span>{formatPrices(profit)}</span>
+                <span> Coins </span>
                 {!settings.hideProfitPercent ? profitPercentElement : null}
             </b>
         )
@@ -99,11 +105,11 @@ function Flip(props: Props) {
         window.open('/player/' + props.flip.sellerName)
     }
 
-    function formatPrices(price: number) {
+    function formatPrices(price: number): JSX.Element {
         if (settings.shortNumbers) {
-            return formatToPriceToShorten(price)
+            return <span>{formatToPriceToShorten(price)}</span>
         }
-        return numberWithThousandsSeperators(price)
+        return <Number number={price} />
     }
 
     let stars = props.flip.item.name?.match(/✪+/gm)
@@ -114,19 +120,27 @@ function Flip(props: Props) {
             <Card className={styles.flipAuctionCard} style={{ cursor: 'pointer' }} onMouseDown={onCardClick}>
                 <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
                     <div className="ellipse">
-                        <img crossOrigin="anonymous" src={props.flip.item.iconUrl} height="24" alt="" style={{ marginRight: '5px' }} loading="lazy" />
+                        <Image
+                            crossOrigin="anonymous"
+                            src={props.flip.item.iconUrl || ''}
+                            height="24"
+                            width="24"
+                            alt=""
+                            style={{ marginRight: '5px' }}
+                            loading="lazy"
+                        />
                         <span style={getStyleForTier(props.flip.item.tier)}>{itemName}</span>
                     </div>
                     {stars ? formatDungeonStarsInString(stars[0]) : null}
                     {props.flip.bin ? (
-                        <Badge style={{ marginLeft: '5px' }} variant="success">
+                        <Badge style={{ marginLeft: '5px' }} bg="success">
                             BIN
                         </Badge>
                     ) : (
                         ''
                     )}
                     {props.flip.sold ? (
-                        <Badge style={{ marginLeft: '5px' }} variant="danger">
+                        <Badge style={{ marginLeft: '5px' }} bg="danger">
                             SOLD
                         </Badge>
                     ) : (
@@ -145,7 +159,7 @@ function Flip(props: Props) {
                         <p>
                             <span>Target price: </span>
                             <br />
-                            <b>{formatPrices(props.flip.median)} Coins</b>
+                            <b>{formatPrices(props.flip.finder === 2 ? props.flip.lowestBin : props.flip.median)} Coins</b>
                         </p>
                     )}
                     {settings.hideEstimatedProfit ? null : (
@@ -228,7 +242,7 @@ function Flip(props: Props) {
                         )}
                         {getFlipFinders([props.flip.finder]).map(finder => {
                             return (
-                                <Badge key={finder.shortLabel} variant="dark">
+                                <Badge key={finder.shortLabel} bg="dark">
                                     {finder.shortLabel}
                                 </Badge>
                             )

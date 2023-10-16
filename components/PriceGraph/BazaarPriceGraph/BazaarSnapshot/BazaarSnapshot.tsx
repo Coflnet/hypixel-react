@@ -1,10 +1,12 @@
+'use client'
 import moment from 'moment'
-import React, { useEffect, useRef, useState } from 'react'
-import { Card, ListGroup, Table } from 'react-bootstrap'
+import { useEffect, useRef, useState } from 'react'
+import Card from 'react-bootstrap/Card'
+import { Table } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../../api/ApiTypes.d'
-import { numberWithThousandsSeperators } from '../../../../utils/Formatter'
 import { useDebounce } from '../../../../utils/Hooks'
+import { Number } from '../../../Number/Number'
 import styles from './BazaarSnapshot.module.css'
 
 interface Props {
@@ -12,14 +14,13 @@ interface Props {
 }
 
 function BazaarSnapshot(props: Props) {
-    let [timestamp, setTimestamp] = useState(null)
+    let [timestamp, setTimestamp] = useState<Date>(new Date())
     let [bazaarSnapshot, setBazaarSnapshot] = useState<BazaarSnapshot>()
 
     let debouncedTimestamp = useDebounce(timestamp, 100)
     let bazaarSnapshotDateRef = useRef(null)
 
     useEffect(() => {
-        setTimestamp(new Date())
         document.addEventListener(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, onTimestampChangeEvent)
 
         return () => {
@@ -60,19 +61,19 @@ function BazaarSnapshot(props: Props) {
             <div>
                 <p>
                     <span className={styles.label}>Orders:</span>
-                    {numberWithThousandsSeperators(data.orderCount)}
+                    <Number number={data.orderCount} />
                 </p>
                 <p>
                     <span className={styles.label}>Price:</span>
-                    {numberWithThousandsSeperators(data.price)} Coins
+                    <Number number={data.price} /> Coins
                 </p>
                 <p>
                     <span className={styles.label}>Volume:</span>
-                    {data.volume}
+                    <Number number={data.volume} />
                 </p>
                 <p>
                     <span className={styles.label}>Movement:</span>
-                    {numberWithThousandsSeperators(data.moving)} Coins
+                    <Number number={data.moving} /> Coins
                 </p>
             </div>
         )
@@ -91,7 +92,9 @@ function BazaarSnapshot(props: Props) {
                 <tbody>
                     {orders.map(order => (
                         <tr>
-                            <td>{numberWithThousandsSeperators(order.pricePerUnit)} Coins</td>
+                            <td>
+                                <Number number={order.pricePerUnit} /> Coins
+                            </td>
                             <td>{order.amount}</td>
                             <td>{order.orders}</td>
                         </tr>
@@ -127,13 +130,13 @@ function BazaarSnapshot(props: Props) {
             <div className={styles.flex}>
                 <Card className={styles.informationField}>
                     <Card.Header>
-                        <Card.Title>Buy orders</Card.Title>
+                        <Card.Title>Sell orders</Card.Title>
                     </Card.Header>
                     <Card.Body>{getOrderListElement(bazaarSnapshot.buyOrders)}</Card.Body>
                 </Card>
                 <Card className={styles.informationField}>
                     <Card.Header>
-                        <Card.Title>Sell orders</Card.Title>
+                        <Card.Title>Buy orders</Card.Title>
                     </Card.Header>
                     <Card.Body>{getOrderListElement(bazaarSnapshot.sellOrders)}</Card.Body>
                 </Card>

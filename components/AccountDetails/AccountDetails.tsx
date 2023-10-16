@@ -1,24 +1,27 @@
-import moment from 'moment'
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Button, Form, Modal } from 'react-bootstrap'
+'use client'
+import { useMatomo } from '@jonkoops/matomo-tracker-react'
+import { googleLogout } from '@react-oauth/google'
 import Cookies from 'js-cookie'
+import Image from 'next/image'
+import { ChangeEvent, useEffect, useState } from 'react'
+import { Button, Form, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
+import { atobUnicode } from '../../utils/Base64Utils'
 import cacheUtils from '../../utils/CacheUtils'
+import { useCoflCoins } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import NavBar from '../NavBar/NavBar'
+import { Number } from '../Number/Number'
+import PremiumStatus from '../Premium/PremiumStatus/PremiumStatus'
 import Tooltip from '../Tooltip/Tooltip'
-import styles from './AccountDetails.module.css'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
-import { useCoflCoins } from '../../utils/Hooks'
-import { numberWithThousandsSeperators } from '../../utils/Formatter'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
-import { atobUnicode } from '../../utils/Base64Utils'
+import styles from './AccountDetails.module.css'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
-import { getHighestPriorityPremiumProduct, getPremiumType } from '../../utils/PremiumTypeUtils'
-import { googleLogout } from '@react-oauth/google'
+import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting } from '../../utils/SettingsUtils'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -27,7 +30,7 @@ function AccountDetails() {
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
-    let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
+    let [products, setProducts] = useState<PremiumProduct[]>([])
     let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
     let coflCoins = useCoflCoins()
     let { pushInstruction } = useMatomo()
@@ -40,36 +43,22 @@ function AccountDetails() {
     }, [])
 
     function getAccountElement(): JSX.Element {
-        let googleId = sessionStorage.getItem('googleId')
-        if (googleId) {
-            try {
-                let parts = googleId.split('.')
-                let obj = JSON.parse(atobUnicode(parts[1]))
-                let imageElement = obj.picture ? <img src={obj.picture} height={24} width={24} alt="" /> : <span />
-                return (
-                    <span>
-                        {imageElement} {`${obj.name} (${obj.email})`}
-                    </span>
-                )
-            } catch {
-                setHasWrongFormattedGoogleToken(true)
-            }
-        }
-        return <span />
+        let picture = getSetting(GOOGLE_PROFILE_PICTURE_URL)
+        let email = getSetting(GOOGLE_EMAIL)
+        let name = getSetting(GOOGLE_NAME)
+
+        let imageElement = picture ? <Image src={picture} height={24} width={24} alt="" /> : <span />
+        return (
+            <span>
+                {imageElement} {`${name} (${email})`}
+            </span>
+        )
     }
 
     function loadPremiumProducts(): Promise<void> {
-        return api.getPremiumProducts().then(products => {
+        return api.refreshLoadPremiumProducts(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
-            let activeProduct = getHighestPriorityPremiumProduct(products)
-
-            if (!activeProduct) {
-                setHasPremium(false)
-            } else {
-                setHasPremium(true)
-                setHasPremiumUntil(activeProduct.expires)
-                setActivePremiumProduct(activeProduct)
-            }
+            setProducts(products)
             setIsLoading(false)
         })
     }
@@ -79,6 +68,7 @@ function AccountDetails() {
         setIsLoading(false)
         googleLogout()
         sessionStorage.removeItem('googleId')
+        localStorage.removeItem('googleId')
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
         toast.warn('Successfully logged out')
     }
@@ -123,6 +113,7 @@ function AccountDetails() {
 
     function deleteGoogleToken() {
         sessionStorage.removeItem('googleId')
+        localStorage.removeItem('googleId')
         setIsLoggedIn(false)
         setRerenderGoogleSignIn(!rerenderGoogleSignIn)
     }
@@ -165,24 +156,9 @@ function AccountDetails() {
                             </p>
                         </div>
                     )}
+                    <PremiumStatus products={products} labelStyle={{ width: '300px', fontWeight: 'bold' }} />
                     <p>
-                        <span className={styles.label}>Premium-Status:</span> {activePremiumProduct ? getPremiumType(activePremiumProduct).label : 'No Premium'}
-                    </p>
-                    {hasPremium ? (
-                        <p>
-                            <Tooltip
-                                type="hover"
-                                content={
-                                    <span>
-                                        <span className={styles.label}>Your premium ends:</span> {moment(hasPremiumUntil).fromNow()}
-                                    </span>
-                                }
-                                tooltipContent={<span>{hasPremiumUntil?.toDateString()}</span>}
-                            />
-                        </p>
-                    ) : null}
-                    <p>
-                        <span className={styles.label}>CoflCoins:</span> {numberWithThousandsSeperators(coflCoins)}
+                        <span className={styles.label}>CoflCoins:</span> <Number number={coflCoins} />
                         <Button
                             className={styles.sendCoflCoinsButton}
                             onClick={() => {
@@ -221,13 +197,13 @@ function AccountDetails() {
             ) : null}
             <hr />
             <h2 style={{ marginBottom: '30px' }}>Settings</h2>
-            <p>
-                <div style={{ display: 'inline-block' }}>
+            <div style={{ paddingBottom: '1rem' }}>
+                <div>
                     <span className={styles.label}>Allow cookies for analytics: </span>
                     <Form.Check onChange={setTrackingAllowed} defaultChecked={isTrackingAllowed()} type="checkbox" />
                 </div>
-            </p>
-            <p>
+            </div>
+            <div style={{ paddingBottom: '1rem' }}>
                 <span className={styles.label}>Login problems?</span>
                 <div>
                     <Tooltip
@@ -240,9 +216,9 @@ function AccountDetails() {
                         tooltipContent={<span>Make sure your browser doesn't block popups. Otherwise use this button to reset your Google login</span>}
                     />
                 </div>
-            </p>
+            </div>
             {isLoggedIn ? (
-                <p>
+                <div style={{ paddingBottom: '1rem' }}>
                     <div style={{ display: 'inline-block' }}>
                         <span className={styles.label}>Mod data settings: </span>
                         <Tooltip
@@ -252,9 +228,9 @@ function AccountDetails() {
                             tooltipTitle={<span>Mod data settings</span>}
                         />
                     </div>
-                </p>
+                </div>
             ) : null}
-            <p>
+            <div style={{ paddingBottom: '1rem' }}>
                 <span className={styles.label}>Delete Caches/Cookies and hard refresh:</span>
                 <Tooltip
                     type="click"
@@ -269,7 +245,7 @@ function AccountDetails() {
                     }
                     tooltipTitle={<span>Are you sure?</span>}
                 />
-            </p>
+            </div>
         </>
     )
 }
