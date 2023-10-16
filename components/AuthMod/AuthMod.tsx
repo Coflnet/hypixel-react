@@ -15,7 +15,6 @@ export default function AuthMod() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasAuthenticationFailed, setHasAuthenticationFailed] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
-    let [googleToken, setGoogleToken] = useState('')
 
     useEffect(() => {
         setIsSSR(false)
@@ -23,14 +22,13 @@ export default function AuthMod() {
 
     function onLogin(response: CredentialResponse) {
         setIsLoggedIn(true)
-        setGoogleToken(response.credential!)
 
         if (conId) {
-            authenticateModConnection()
+            authenticateModConnection(response.credential!)
         }
     }
 
-    function authenticateModConnection() {
+    function authenticateModConnection(googleToken: string) {
         setIsAuthenticated(false)
         setHasAuthenticationFailed(false)
         api.authenticateModConnection(conId!, googleToken)
@@ -62,7 +60,14 @@ export default function AuthMod() {
                     {isLoggedIn && !isAuthenticated && !hasAuthenticationFailed && conId !== null ? getLoadingElement(<p>Authorizing connection...</p>) : null}
                     {hasAuthenticationFailed ? (
                         <p>
-                            Authentication failed. <Button onClick={authenticateModConnection}>Try again</Button>
+                            Authentication failed.{' '}
+                            <Button
+                                onClick={() => {
+                                    setIsLoggedIn(false)
+                                }}
+                            >
+                                Try again
+                            </Button>
                         </p>
                     ) : null}
                     {conId === null ? <p>This is an invalid link. There is no connection id present.</p> : null}
