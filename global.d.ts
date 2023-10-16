@@ -244,6 +244,7 @@ interface API {
     checkFilter(auction: AuctionDetails, filter: ItemFilter): Promise<boolean>
     refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void)
     getRelatedItems(tag: string): Promise<Item[]>
+    getOwnerHistory(uid: string): Promise<OwnerHistory[]>
 }
 
 interface CacheUtils {
@@ -544,4 +545,11 @@ interface PremiumType {
 interface RatCheckingResponse {
     rat: string
     md5return: string
+}
+
+interface OwnerHistory {
+    seller: string
+    uuid: string
+    buyer: string
+    timestamp: string
 }

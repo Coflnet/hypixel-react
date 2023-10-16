@@ -1835,6 +1835,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getOwnerHistory = (uid: string): Promise<OwnerHistory[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.OWNER_HISOTRY,
+                customRequestURL: `${getApiEndpoint()}/auctions/uid/${uid}/sold`,
+                data: '',
+                resolve: data => {
+                    resolve(data)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.OWNER_HISOTRY, error, uid)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1905,7 +1922,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getItemNames,
         checkFilter,
         refreshLoadPremiumProducts,
-        getRelatedItems
+        getRelatedItems,
+        getOwnerHistory
     }
 }
 
