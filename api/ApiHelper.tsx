@@ -1223,7 +1223,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let authenticateModConnection = (conId: string, googleToken: string): Promise<void> => {
+    let authenticateModConnection = async (conId: string, googleToken: string): Promise<void> => {
         let timeout = setTimeout(() => {
             toast.warn(
                 <span>
@@ -1232,17 +1232,17 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 </span>
             )
         }, 10000)
+        await api.loginWithToken(googleToken)
         return new Promise((resolve, reject) => {
-            httpApi.sendApiRequest({
+            websocketHelper.sendRequest({
                 type: RequestType.AUTHENTICATE_MOD_CONNECTION,
-                requestMethod: 'POST',
+                data: conId,
                 requestHeader: {
                     GoogleToken: googleToken,
                     'Content-Type': 'application/json'
                 },
-                customRequestURL: `${getApiEndpoint()}/mod/auth?newId=${conId}`,
-                data: '',
                 resolve: function () {
+                    clearTimeout(timeout)
                     resolve()
                 },
                 reject: function (error) {
