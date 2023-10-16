@@ -70,7 +70,7 @@ export enum RequestType {
     GET_PREMIUM_PRODUCTS = 'premium/user/owns',
     GET_ITEM_NAMES = 'items/names',
     RELATED_ITEMS = 'realtedItems',
-    CHECK_FILTER = 'checkFilter'
+    CHECK_FILTER = 'checkFilter',
     UNSUBSCRIBE_ALL = 'unsubscribeAll',
     GET_TEM_PLAYER_DATA = 'getTemPlayerData',
     GET_TEM_PLAYER_DATA_BY_PROFILE = 'getTemPlayerDataByProfile',
