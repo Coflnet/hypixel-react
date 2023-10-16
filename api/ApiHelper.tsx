@@ -1232,15 +1232,16 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 </span>
             )
         }, 10000)
-        await api.loginWithToken(googleToken)
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            httpApi.sendApiRequest({
                 type: RequestType.AUTHENTICATE_MOD_CONNECTION,
-                data: conId,
+                requestMethod: 'POST',
+                data: '',
                 requestHeader: {
                     GoogleToken: googleToken,
                     'Content-Type': 'application/json'
                 },
+                customRequestURL: `${getApiEndpoint()}/mod/auth?newId=${encodeURIComponent(conId)}`,
                 resolve: function () {
                     clearTimeout(timeout)
                     resolve()
