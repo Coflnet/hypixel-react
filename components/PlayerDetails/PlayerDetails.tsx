@@ -127,7 +127,7 @@ export default function PlayerDetails(props: Props) {
                 <ToggleButton id="bidsToggleButton" value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">
                     Bids
                 </ToggleButton>
-                <ToggleButton value={DetailType.ITEMS} variant={getButtonVariant(DetailType.ITEMS)} size="lg">
+                <ToggleButton id="itemsToggleButton" value={DetailType.ITEMS} variant={getButtonVariant(DetailType.ITEMS)} size="lg">
                     Items
                 </ToggleButton>
             </ToggleButtonGroup>
