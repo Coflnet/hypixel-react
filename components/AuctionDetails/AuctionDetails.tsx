@@ -42,7 +42,7 @@ function AuctionDetails(props: Props) {
     let [unparsedAuctionDetails, setUnparsedAuctionDetails] = useState(props.unparsedAuctionDetails)
     let [isLoading, setIsLoading] = useState(false)
     let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
-    let [temItemDetails, setTEMItemDetails] = useState<TEM_Item | TEM_Pet>(props.temItemDetails)
+    let [temItemDetails, setTEMItemDetails] = useState<TEM_Item | TEM_Pet | null>(props.temItemDetails || null)
     let [showFilterChecker, setShowFilterChecker] = useState(false)
     let forceUpdate = useForceUpdate()
 

@@ -1,12 +1,12 @@
 import moment from 'moment'
 import { notFound } from 'next/navigation'
-import { initAPI } from '../../../api/ApiHelper'
+import api, { initAPI } from '../../../api/ApiHelper'
 import { getHeadMetadata } from '../../../utils/SSRUtils'
 import { numberWithThousandsSeparators } from '../../../utils/Formatter'
 import RBContainer from '../../../components/ReactBootstrapWrapper/Container'
 import AuctionDetails from '../../../components/AuctionDetails/AuctionDetails'
 import Search from '../../../components/Search/Search'
-import { parseAuctionDetails } from '../../../utils/Parser/APIResponseParser'
+import { parseAuctionDetails, parseTEMItem, parseTEMPet } from '../../../utils/Parser/APIResponseParser'
 
 async function getAuctionDetails(auctionUUID: string) {
     let api = initAPI(true)
@@ -93,6 +93,38 @@ export default async function Page({ params }) {
     let auctionUUID = params.auctionUUID
     let auctionDetailsResult = await getAuctionDetails(auctionUUID)
     let auctionDetails = auctionDetailsResult?.auctionDetails
+    let temDetails: TEM_Item | TEM_Pet | null = null
+    let temType: 'pet' | 'item' = 'item'
+    let api = initAPI(true)
+
+    try {
+        if (auctionDetails.tag.startsWith('PET_') && auctionDetails.flatNbt.uuid) {
+            temType = 'pet'
+            await api
+                .getTEMPetData(auctionDetails.flatNbt.uuid)
+                .then(details => {
+                    temDetails = details
+                })
+                .catch(() => {
+                    console.log('TEM details not found for uId: ' + auctionDetails.flatNbt.uid)
+                    console.log('------------------------')
+                })
+        } else if (auctionDetails.flatNbt.uid) {
+            temType = 'item'
+            await api
+                .getTEMItemData(auctionDetails.flatNbt.uid)
+                .then(details => {
+                    temDetails = details
+                })
+                .catch(() => {
+                    console.log('TEM details not found for uId: ' + auctionDetails.flatNbt.uid)
+                    console.log('------------------------')
+                })
+        }
+    } catch {
+        console.log('error fetching TEM details for uId: ' + auctionDetails.flatNbt.uid)
+        console.log('------------------------')
+    }
 
     if (!auctionDetails) {
         notFound()
@@ -109,7 +141,12 @@ export default async function Page({ params }) {
         <>
             <RBContainer>
                 <Search />
-                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} unparsedAuctionDetails={getOriginalAuctionDetails()} />
+                <AuctionDetails
+                    auctionUUID={auctionUUID}
+                    auctionDetails={auctionDetails}
+                    unparsedAuctionDetails={getOriginalAuctionDetails()}
+                    temItemDetails={temDetails ? (temType === 'pet' ? parseTEMPet(temDetails) : parseTEMItem(temDetails)) : undefined}
+                />
             </RBContainer>
         </>
     )

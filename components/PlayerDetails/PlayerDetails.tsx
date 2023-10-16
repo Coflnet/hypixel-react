@@ -11,10 +11,12 @@ import api from '../../api/ApiHelper'
 import styles from './index.module.css'
 import ClaimAccount from '../ClaimAccount/ClaimAccount'
 import Tooltip from '../Tooltip/Tooltip'
+import TEMItems from '../TEMItems/TEMItems'
 
 enum DetailType {
     AUCTIONS = 'auctions',
-    BIDS = 'bids'
+    BIDS = 'bids',
+    ITEMS = 'items'
 }
 
 // save Detailtype for after navigation
@@ -38,11 +40,21 @@ export default function PlayerDetails(props: Props) {
     }, [])
 
     function onSwipeRight() {
-        setDetailType(DetailType.AUCTIONS)
+        if (detailType === DetailType.BIDS) {
+            setDetailType(DetailType.AUCTIONS)
+        }
+        if (detailType === DetailType.ITEMS) {
+            setDetailType(DetailType.BIDS)
+        }
     }
 
     function onSwipeLeft() {
-        setDetailType(DetailType.BIDS)
+        if (detailType === DetailType.AUCTIONS) {
+            setDetailType(DetailType.BIDS)
+        }
+        if (detailType === DetailType.BIDS) {
+            setDetailType(DetailType.ITEMS)
+        }
     }
 
     let onDetailTypeChange = (newType: DetailType) => {
@@ -115,6 +127,9 @@ export default function PlayerDetails(props: Props) {
                 <ToggleButton id="bidsToggleButton" value={DetailType.BIDS} variant={getButtonVariant(DetailType.BIDS)} size="lg">
                     Bids
                 </ToggleButton>
+                <ToggleButton value={DetailType.ITEMS} variant={getButtonVariant(DetailType.ITEMS)} size="lg">
+                    Items
+                </ToggleButton>
             </ToggleButtonGroup>
             {detailType === DetailType.AUCTIONS ? (
                 <PlayerDetailsList
@@ -137,6 +152,7 @@ export default function PlayerDetails(props: Props) {
                     onAfterLogin={onAfterLogin}
                 />
             ) : undefined}
+            {detailType === DetailType.ITEMS ? <TEMItems playerUUID={props.player.uuid} /> : null}
         </>
     )
 }
