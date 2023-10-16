@@ -19,7 +19,6 @@ interface Props {
     id?: any
     className?: any
     hoverPlacement?: any
-    hoverPlacement?: any
 }
 
 function Tooltip(props: Props) {
