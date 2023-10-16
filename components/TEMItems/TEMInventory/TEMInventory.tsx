@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from 'react-bootstrap'
-import { convertTagToName, getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { convertTagToName, getStyleForTier, numberWithThousandsSeparators } from '../../../utils/Formatter'
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './TEMInventory.module.css'
 
@@ -95,7 +95,7 @@ function TEMInventory(props: Props) {
                                               return <li>{`${convertTagToName(key)}: ${convertTagToName(item.extraAttributes[key])}`}</li>
                                           }
                                           if (typeof item.extraAttributes[key] === 'number') {
-                                              return <li>{`${convertTagToName(key)}: ${numberWithThousandsSeperators(item.extraAttributes[key])}`}</li>
+                                              return <li>{`${convertTagToName(key)}: ${numberWithThousandsSeparators(item.extraAttributes[key])}`}</li>
                                           }
                                           return <li>{`${convertTagToName(key)}: ${item.extraAttributes[key]}`}</li>
                                       })

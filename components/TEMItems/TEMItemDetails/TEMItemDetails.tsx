@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
 import { Badge, Card } from 'react-bootstrap'
-import { convertTagToName, getStyleForTier, numberWithThousandsSeperators } from '../../../utils/Formatter'
+import { convertTagToName, getStyleForTier, numberWithThousandsSeparators } from '../../../utils/Formatter'
 import TEMOwnerHistory from '../TEMOwnerHistory/TEMOwnerHistory'
 import styles from './TEMItemDetails.module.css'
 
@@ -51,14 +51,14 @@ function TEMItemDetails(props: Props) {
                 <div style={{ float: 'left' }}>
                     <p>
                         <span className={styles.label}>
-                            <Badge variant="primary">Candy</Badge>
+                            <Badge bg="primary">Candy</Badge>
                         </span>
                         {pet.candy}
                     </p>
                     {pet.heldItem ? (
                         <p>
                             <span className={styles.label}>
-                                <Badge variant="primary">Item</Badge>
+                                <Badge bg="primary">Item</Badge>
                             </span>
                             {convertTagToName(pet.heldItem)}
                         </p>
@@ -66,7 +66,7 @@ function TEMItemDetails(props: Props) {
                     {pet.skin ? (
                         <p>
                             <span className={styles.label}>
-                                <Badge variant="primary">Skin</Badge>
+                                <Badge bg="primary">Skin</Badge>
                             </span>
                             {convertTagToName(pet.skin)}
                         </p>
@@ -80,31 +80,31 @@ function TEMItemDetails(props: Props) {
                 <div style={{ float: 'left' }}>
                     <p>
                         <span className={styles.label}>
-                            <Badge variant="primary">ID</Badge>
+                            <Badge bg="primary">ID</Badge>
                         </span>
                         {item.id}
                     </p>
                     <p>
                         <span className={styles.label}>
-                            <Badge variant="primary">Color</Badge>
+                            <Badge bg="primary">Color</Badge>
                         </span>
                         {item.colour}
                     </p>
                     <p>
                         <span className={styles.label}>
-                            <Badge variant="primary">Created</Badge>
+                            <Badge bg="primary">Created</Badge>
                         </span>
                         {getDateString(item.created)}
                     </p>
                     <p>
                         <span className={styles.label}>
-                            <Badge variant="primary">Last checked</Badge>
+                            <Badge bg="primary">Last checked</Badge>
                         </span>
                         {getDateString(item.lastChecked)}
                     </p>
                     <p>
                         <span className={styles.label}>
-                            <Badge variant="primary">Start</Badge>
+                            <Badge bg="primary">Start</Badge>
                         </span>
                         {getDateString(item.start)}
                     </p>
@@ -115,7 +115,7 @@ function TEMItemDetails(props: Props) {
                                   return (
                                       <p>
                                           <span className={styles.label}>
-                                              <Badge variant="primary">{convertTagToName(key)}</Badge>
+                                              <Badge bg="primary">{convertTagToName(key)}</Badge>
                                           </span>
                                           <span>{`${convertTagToName(item.extraAttributes[key])}`}</span>
                                       </p>
@@ -125,16 +125,16 @@ function TEMItemDetails(props: Props) {
                                   return (
                                       <p>
                                           <span className={styles.label}>
-                                              <Badge variant="primary">{convertTagToName(key)}</Badge>
+                                              <Badge bg="primary">{convertTagToName(key)}</Badge>
                                           </span>
-                                          {`${numberWithThousandsSeperators(item.extraAttributes[key])}`}
+                                          {`${numberWithThousandsSeparators(item.extraAttributes[key])}`}
                                       </p>
                                   )
                               }
                               return (
                                   <p>
                                       <span className={styles.label}>
-                                          <Badge variant="primary">{convertTagToName(key)}</Badge>
+                                          <Badge bg="primary">{convertTagToName(key)}</Badge>
                                       </span>
                                       {`${item.extraAttributes[key]}`}
                                   </p>
@@ -144,7 +144,7 @@ function TEMItemDetails(props: Props) {
                     {item.enchantments ? (
                         <p>
                             <span className={styles.label}>
-                                <Badge variant="primary">Enchantments:</Badge>
+                                <Badge bg="primary">Enchantments:</Badge>
                             </span>
                             <ul style={{ float: 'left' }}>
                                 {item.enchantments

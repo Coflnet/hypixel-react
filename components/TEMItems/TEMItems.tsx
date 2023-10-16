@@ -5,6 +5,7 @@ import { getStyleForTier } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import TEMInventory from './TEMInventory/TEMInventory'
 import TEMItemDetails from './TEMItemDetails/TEMItemDetails'
+import { toast } from 'react-toastify'
 
 interface Props {
     playerUUID: string
@@ -21,6 +22,10 @@ function TEMItems(props: Props) {
     useEffect(() => {
         api.getPlayerProfiles(props.playerUUID).then(profiles => {
             let selectedProfile = profiles.find(profile => profile.current)
+            if (!selectedProfile) {
+                toast.error('No current profile found')
+                return
+            }
             setSelectedProfile(selectedProfile)
             setProfiles(profiles)
             api.getTEMPlayerDataByProfileUUID(selectedProfile.id).then(playerData => {
@@ -59,7 +64,7 @@ function TEMItems(props: Props) {
         let newSelectedProfile = profiles?.find(p => p.cuteName === value)
         setSelectedProfile(newSelectedProfile)
         setIsLoading(true)
-        api.getTEMPlayerDataByProfileUUID(newSelectedProfile.id).then(playerData => {
+        api.getTEMPlayerDataByProfileUUID(newSelectedProfile!.id).then(playerData => {
             setPlayerData(playerData)
             setIsLoading(false)
         })
@@ -70,15 +75,13 @@ function TEMItems(props: Props) {
             size={'xl'}
             show={!!detailEntry}
             onHide={() => {
-                setDetailEntry(null)
+                setDetailEntry(undefined)
             }}
         >
             <Modal.Header closeButton>
                 <Modal.Title>Item-Details</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                <TEMItemDetails detailEntry={detailEntry} type={detailEntryType} />
-            </Modal.Body>
+            <Modal.Body>{!!detailEntryType ? <TEMItemDetails detailEntry={detailEntry} type={detailEntryType} /> : null}</Modal.Body>
         </Modal>
     ) : null
     return (
@@ -87,13 +90,13 @@ function TEMItems(props: Props) {
                 {profiles ? (
                     <p>
                         <span style={{ float: 'left', marginRight: '15px' }}>Profile: </span>
-                        <Form.Control style={{ width: 'auto' }} defaultValue={selectedProfile?.cuteName} as="select" onChange={onProfileChange}>
+                        <Form.Select style={{ width: 'auto' }} defaultValue={selectedProfile?.cuteName} onChange={onProfileChange}>
                             {profiles.map(profile => (
                                 <option key={profile.cuteName} value={profile.cuteName}>
                                     {profile.cuteName}
                                 </option>
                             ))}
-                        </Form.Control>
+                        </Form.Select>
                     </p>
                 ) : null}
             </div>
