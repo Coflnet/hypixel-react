@@ -18,6 +18,7 @@ import styles from './BazaarPriceGraph.module.css'
 import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
 import getPriceGraphConfigSingle from './PriceGraphConfigSingle'
 import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
+import { applyMayorDataToChart } from '../../../utils/GraphUtils'
 
 interface Props {
     item: Item
@@ -45,6 +46,7 @@ function BazaarPriceGraph(props: Props) {
     let [chartOptionsPrimary, setChartOptionsPrimary] = useState(graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit())
     let [chartOptionsSecondary, setChartOptionsSecondary] = useState(getPriceGraphConfigSplit())
     let [prices, setPrices] = useState<BazaarPrice[]>([])
+    let [mayorData, setMayorData] = useState<MayorData[]>([])
     let [isSSR, setIsSSR] = useState(true)
     let { trackEvent } = useMatomo()
 
@@ -80,7 +82,7 @@ function BazaarPriceGraph(props: Props) {
 
             setSelectedLegendOptionsFromLocalStorage()
             setChartOptionsPrimary(chartOptions)
-            setChartData(prices)
+            setChartData(prices, mayorData)
         }
     }, [graphType])
 
@@ -99,7 +101,7 @@ function BazaarPriceGraph(props: Props) {
         }, 100)
     }
 
-    function updateChart(fetchspan: DateRange) {
+    async function updateChart(fetchspan: DateRange) {
         // active auction is selected
         // no need to get new price data
         if (fetchspan === DateRange.ACTIVE) {
@@ -111,22 +113,27 @@ function BazaarPriceGraph(props: Props) {
 
         currentLoadingString = JSON.stringify({ tag: props.item.tag, fetchspan })
 
+        try {
+            let prices = await loadBazaarPrices(props.item.tag, fetchspan)
+            let mayorData = await api.getMayorData(prices[0].timestamp, prices[prices.length - 1].timestamp)
+            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan })) {
+                return
+            }
+            setPrices(prices)
+            setMayorData(mayorData)
+            setChartData(prices, mayorData)
+            setIsLoading(false)
+            setNoDataFound(prices.length === 0)
+        } catch {
+            setIsLoading(false)
+            setNoDataFound(true)
+            setAvgBuyPrice(0)
+            setAvgBuyPrice(0)
+        }
+
         loadBazaarPrices(props.item.tag, fetchspan)
-            .then(prices => {
-                if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan })) {
-                    return
-                }
-                setPrices(prices)
-                setChartData(prices)
-                setIsLoading(false)
-                setNoDataFound(prices.length === 0)
-            })
-            .catch(() => {
-                setIsLoading(false)
-                setNoDataFound(true)
-                setAvgBuyPrice(0)
-                setAvgBuyPrice(0)
-            })
+            .then(prices => {})
+            .catch(() => {})
     }
 
     function checkForSpecialFetchspanConfiguration() {
@@ -242,7 +249,7 @@ function BazaarPriceGraph(props: Props) {
         setChartOptionsSecondary(chartOptionsSecondary)
     }
 
-    function setChartData(prices: BazaarPrice[]) {
+    function setChartData(prices: BazaarPrice[], mayorData: MayorData[]) {
         clearChartData()
 
         setXAxisData(chartOptionsPrimary, prices)
@@ -284,6 +291,7 @@ function BazaarPriceGraph(props: Props) {
                 chartOptionsPrimary.series[7].data.push(item.sellData.max?.toFixed(2))
                 chartOptionsPrimary.series[8].data.push(item.sellData.volume?.toFixed(2))
                 chartOptionsPrimary.series[9].data.push(item.sellData.moving?.toFixed(2))
+                applyMayorDataToChart(chartOptionsPrimary, mayorData, 10)
             } else {
                 chartOptionsPrimary.series[1].data.push(item.buyData.min?.toFixed(2))
                 chartOptionsPrimary.series[2].data.push(item.buyData.max?.toFixed(2))
@@ -304,6 +312,8 @@ function BazaarPriceGraph(props: Props) {
                 chartOptionsSecondary.series[2].data.push(item.sellData.max?.toFixed(2))
                 chartOptionsSecondary.series[3].data.push(item.sellData.volume?.toFixed(2))
                 chartOptionsSecondary.series[4].data.push(item.sellData.moving?.toFixed(2))
+                applyMayorDataToChart(chartOptionsPrimary, mayorData, 5)
+                applyMayorDataToChart(chartOptionsSecondary, mayorData, 5)
             }
         })
 

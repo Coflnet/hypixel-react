@@ -33,7 +33,8 @@ function getPriceGraphConfigSingle() {
                 'Min (sell)',
                 'Max (sell)',
                 'Volume (sell)',
-                'Moving (sell)'
+                'Moving (sell)',
+                'Mayors'
             ],
             selected: {
                 'Price (buy)': true,
@@ -45,7 +46,8 @@ function getPriceGraphConfigSingle() {
                 'Min (sell)': false,
                 'Max (sell)': false,
                 'Volume (sell)': false,
-                'Moving (sell)': false
+                'Moving (sell)': false,
+                Mayors: false
             },
             icon: 'roundRect',
             itemStyle: {},
@@ -242,6 +244,20 @@ function getPriceGraphConfigSingle() {
                 name: 'Moving (sell)',
                 type: 'line',
                 yAxisIndex: 1,
+                smooth: true,
+                symbol: 'none',
+                animationThreshold: ANIMATION_THRESHOLD,
+                tooltip: {
+                    show: true,
+                    valueFormatter: numberWithThousandsSeparators
+                },
+                data: [] as any[]
+            },
+            {
+                name: 'Mayors',
+                type: 'line',
+                yAxisIndex: 1,
+                color: 'RGBA(31, 97, 141, 0.3)',
                 smooth: true,
                 symbol: 'none',
                 animationThreshold: ANIMATION_THRESHOLD,

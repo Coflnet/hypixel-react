@@ -15,6 +15,7 @@ import ShareButton from '../../ShareButton/ShareButton'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import styles from './AuctionHousePriceGraph.module.css'
 import graphConfig from './PriceGraphConfig'
+import { applyMayorDataToChart } from '../../../utils/GraphUtils'
 
 interface Props {
     item: Item
@@ -34,6 +35,7 @@ function AuctionHousePriceGraph(props: Props) {
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true)
     let [chartOptions, setChartOptions] = useState(graphConfig)
+    let [showMayorHistory, setShowMayorHistory] = useState(false)
 
     let fetchspanRef = useRef(fetchspan)
     fetchspanRef.current = fetchspan
@@ -82,7 +84,7 @@ function AuctionHousePriceGraph(props: Props) {
         })
 
         api.getItemPrices(props.item.tag, fetchspan as globalThis.DateRange, itemFilter)
-            .then(prices => {
+            .then(async prices => {
                 if (
                     !mounted ||
                     currentLoadingString !==
@@ -95,6 +97,9 @@ function AuctionHousePriceGraph(props: Props) {
                     return
                 }
 
+                let minDate = prices[0].time
+                let maxDate = prices[prices.length - 1].time
+
                 chartOptions.xAxis[0].data = prices.map(item => item.time.getTime())
 
                 let priceSum = 0
@@ -106,6 +111,9 @@ function AuctionHousePriceGraph(props: Props) {
                     chartOptions.series[2].data.push(item.max.toFixed(2))
                     chartOptions.series[3].data.push(item.volume.toFixed(2))
                 })
+
+                let mayorData = await api.getMayorData(minDate, maxDate)
+                applyMayorDataToChart(chartOptions, mayorData, 4)
 
                 setAvgPrice(Math.round(priceSum / prices.length))
                 setNoDataFound(prices.length === 0)

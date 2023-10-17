@@ -43,7 +43,25 @@ function FlipRestrictionList(props: Props) {
     }
 
     function addNewRestriction(newRestrictions: FlipRestriction[] = []) {
-        let restrictionCopies = [...restrictions, ...newRestrictions]
+        let restrictionCopies = [...restrictions]
+
+        // Placing the new restrictions at the positions they will be after a reload
+        // => first whitelist entries, then blacklist entries. From oldest to newest
+        newRestrictions.forEach(newRestriction => {
+            if (newRestriction.type === 'blacklist') {
+                restrictionCopies.push(newRestriction)
+                return
+            }
+            if (newRestriction.type === 'whitelist') {
+                let firstBlacklist = restrictionCopies.findIndex(element => element.type === 'blacklist')
+                if (firstBlacklist === -1) {
+                    restrictionCopies.push(newRestriction)
+                } else {
+                    restrictionCopies.splice(firstBlacklist, 0, newRestriction)
+                }
+            }
+        })
+
         setRestrictions(restrictionCopies)
         setIsNewFlipperExtended(false)
 
@@ -55,6 +73,8 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictionCopies), 'blacklist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictionCopies), 'whitelist')
         }
+
+        toast.success('New restriction added')
     }
 
     function onNewRestrictionCancel() {
@@ -93,6 +113,7 @@ function FlipRestrictionList(props: Props) {
 
         setRestrictionsInEditModeIndex([])
         setRestrictions(newRestrictions)
+        toast.success('Restriction updated')
     }
 
     function overrideEditedFilter(updateState: UpdateState) {
@@ -110,6 +131,7 @@ function FlipRestrictionList(props: Props) {
         }
         setRestrictionsInEditModeIndex([])
         setRestrictions(newRestrictions)
+        toast.success('Restriction(s) updated')
     }
 
     function removeRestrictionByIndex(restrictions: FlipRestriction[], index: number) {
@@ -124,6 +146,7 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), deletedRestriction[0].type)
         }
         setRestrictions(newRestrictions)
+        toast.success('Restriction removed')
     }
 
     function createDuplicate(restrictions: FlipRestriction[], index: number) {
@@ -382,7 +405,7 @@ function FlipRestrictionList(props: Props) {
                         }
                     }
                     return (
-                        <Card className={`${styles.restriction} ${restriction.isEdited ? styles.restrictionMarkedAsEdit : null}`}>
+                        <Card className={`${styles.restriction} ${restriction.isEdited ? styles.restrictionMarkedAsEdit : ''}`}>
                             <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
                                 {restriction.isEdited ? (
                                     <ToggleButtonGroup

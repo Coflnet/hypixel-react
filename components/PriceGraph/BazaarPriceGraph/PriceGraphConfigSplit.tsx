@@ -23,13 +23,14 @@ function getPriceGraphConfigSplit() {
             }
         },
         legend: {
-            data: ['Price', 'Min', 'Max', 'Volume', 'Moving'],
+            data: ['Price', 'Min', 'Max', 'Volume', 'Moving', 'Mayors'],
             selected: {
                 Price: true,
                 Min: false,
                 Max: false,
                 Volume: false,
-                Moving: false
+                Moving: false,
+                Mayors: false
             },
             icon: 'roundRect',
             itemStyle: {},
@@ -152,6 +153,20 @@ function getPriceGraphConfigSplit() {
                 name: 'Moving',
                 type: 'line',
                 yAxisIndex: 0,
+                smooth: true,
+                symbol: 'none',
+                animationThreshold: ANIMATION_THRESHOLD,
+                tooltip: {
+                    show: true,
+                    valueFormatter: numberWithThousandsSeparators
+                },
+                data: [] as any[]
+            },
+            {
+                name: 'Mayors',
+                type: 'line',
+                yAxisIndex: 1,
+                color: 'RGBA(31, 97, 141, 0.3)',
                 smooth: true,
                 symbol: 'none',
                 animationThreshold: ANIMATION_THRESHOLD,

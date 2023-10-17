@@ -245,6 +245,7 @@ interface API {
     refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void)
     getRelatedItems(tag: string): Promise<Item[]>
     getOwnerHistory(uid: string): Promise<OwnerHistory[]>
+    getMayorData(start: Date, end: Date): Promise<MayorData[]>
 }
 
 interface CacheUtils {
@@ -335,6 +336,7 @@ interface FlipRestriction {
     isEdited?: boolean
     originalIndex?: number
     tags?: string[]
+    order?: number
 }
 
 interface MinecraftConnectionInfo {
@@ -552,4 +554,22 @@ interface OwnerHistory {
     uuid: string
     buyer: string
     timestamp: string
+}
+
+interface Perk {
+    description: string
+    name: string
+}
+
+interface Mayor {
+    key: string
+    name: string
+    perks: Perk[]
+}
+
+interface MayorData {
+    start: Date
+    end: Date
+    winner: Mayor
+    year: number
 }
