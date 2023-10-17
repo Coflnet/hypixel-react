@@ -584,3 +584,12 @@ export function parsePremiumProducts(productsObject): PremiumProduct[] {
     })
     return products
 }
+
+export function parseMayorData(mayorData): MayorData {
+    return {
+        end: parseDate(mayorData.end),
+        start: parseDate(mayorData.start),
+        winner: mayorData.winner,
+        year: mayorData.yearF
+    }
+}

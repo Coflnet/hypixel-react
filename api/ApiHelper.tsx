@@ -21,6 +21,7 @@ import {
     parseItemSummary,
     parseKatFlip,
     parseLowSupplyItem,
+    parseMayorData,
     parseMinecraftConnectionInfo,
     parsePaymentResponse,
     parsePlayer,
@@ -1835,6 +1836,44 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getOwnerHistory = (uid: string): Promise<OwnerHistory[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.OWNER_HISOTRY,
+                customRequestURL: `${getApiEndpoint()}/auctions/uid/${uid}/sold`,
+                data: '',
+                resolve: data => {
+                    resolve(data)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.OWNER_HISOTRY, error, uid)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let getMayorData = (start: Date, end: Date): Promise<MayorData[]> => {
+        let params = new URLSearchParams()
+        params.set('from', start.toISOString())
+        params.set('to', end.toISOString())
+
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.MAYOR_DATA,
+                customRequestURL: `${getApiEndpoint()}/mayor?${params.toString()}`,
+                data: '',
+                resolve: data => {
+                    resolve(data.map(parseMayorData))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.MAYOR_DATA, error, { start, end })
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1905,7 +1944,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getItemNames,
         checkFilter,
         refreshLoadPremiumProducts,
-        getRelatedItems
+        getRelatedItems,
+        getOwnerHistory,
+        getMayorData
     }
 }
 

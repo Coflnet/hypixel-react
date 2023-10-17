@@ -22,12 +22,13 @@ let option = {
         }
     },
     legend: {
-        data: ['Price', 'Min', 'Max', 'Volume'],
+        data: ['Price', 'Min', 'Max', 'Volume', 'Mayors'],
         selected: {
             Price: true,
             Min: true,
             Max: false,
-            Volume: false
+            Volume: false,
+            Mayors: false
         },
         icon: 'roundRect',
         itemStyle: {},
@@ -131,6 +132,19 @@ let option = {
             tooltip: {
                 valueFormatter: numberWithThousandsSeparators
             },
+            data: [] as any[]
+        },
+        {
+            name: 'Mayors',
+            type: 'line',
+            color: 'RGBA(31, 97, 141, 0.3)',
+            symbol: 'none',
+            lineStyle: {
+                width: 4
+            },
+            yAxisIndex: 0,
+            smooth: true,
+            animationThreshold: ANIMATION_THRESHOLD,
             data: [] as any[]
         }
     ]
