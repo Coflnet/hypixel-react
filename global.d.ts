@@ -334,6 +334,7 @@ interface FlipRestriction {
     isEdited?: boolean
     originalIndex?: number
     tags?: string[]
+    order?: number
 }
 
 interface MinecraftConnectionInfo {
