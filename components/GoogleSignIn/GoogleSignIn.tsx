@@ -122,10 +122,14 @@ function GoogleSignIn(props: Props) {
                     <div className={styles.googleButton}>
                         <GoogleLogin
                             onSuccess={response => {
-                                let userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
-                                setSetting(GOOGLE_PROFILE_PICTURE_URL, userObject.picture)
-                                setSetting(GOOGLE_EMAIL, userObject.email)
-                                setSetting(GOOGLE_NAME, userObject.name)
+                                try {
+                                    let userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
+                                    setSetting(GOOGLE_PROFILE_PICTURE_URL, userObject.picture)
+                                    setSetting(GOOGLE_EMAIL, userObject.email)
+                                    setSetting(GOOGLE_NAME, userObject.name)
+                                } catch {
+                                    toast.warn('Parsing issue with the google token. There might be issues when displaying details on the account page!')
+                                }
                                 onLoginSucces(response.credential!)
                             }}
                             onError={onLoginFail}
@@ -150,8 +154,12 @@ export function isValidTokenAvailable(token?: string | null) {
     if (!token || token === 'null') {
         return
     }
-    let details = JSON.parse(atob(token.split('.')[1]))
-    let expirationDate = new Date(parseInt(details.exp) * 1000)
-    let result = expirationDate.getTime() - 10000 > new Date().getTime()
-    return result
+    try {
+        let details = JSON.parse(atobUnicode(token.split('.')[1]))
+        let expirationDate = new Date(parseInt(details.exp) * 1000)
+        return expirationDate.getTime() - 10000 > new Date().getTime()
+    } catch (e) {
+        toast.warn("Parsing issue with the google token. Can't automatically login!")
+        return false
+    }
 }
