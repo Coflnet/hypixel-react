@@ -1,0 +1,29 @@
+.listGroupItem {
+    border-radius: 20px !important;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    flex-direction: initial;
+    width: 100%;
+}
+
+
+.playerField {
+    width: 45%;
+    text-align: center;
+    border-color: transparent !important;
+    cursor: pointer;
+}
+
+.playerFieldHeader {
+    border-radius: 20px !important;
+}
+
+.playerFieldHeader:hover {
+    background-color: #3a3a3a;
+}

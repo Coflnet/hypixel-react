@@ -26,6 +26,7 @@ import { FilterChecker } from '../FilterChecker/FilterChecker'
 import Image from 'next/image'
 import { Number } from '../Number/Number'
 import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
+import ItemHistory from '../OwnerHistory/OwnerHistory'
 
 interface Props {
     auctionUUID: string
@@ -41,6 +42,7 @@ function AuctionDetails(props: Props) {
     let [isLoading, setIsLoading] = useState(false)
     let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
     let [showFilterChecker, setShowFilterChecker] = useState(false)
+    let [showItemHistoryDialog, setShowItemHistoryDialog] = useState(false)
     let forceUpdate = useForceUpdate()
 
     useEffect(() => {
@@ -234,6 +236,23 @@ function AuctionDetails(props: Props) {
         </Modal>
     ) : null
 
+    let previousOwnersDialog = showItemHistoryDialog ? (
+        <Modal
+            size={'xl'}
+            show={showItemHistoryDialog}
+            onHide={() => {
+                setShowItemHistoryDialog(false)
+            }}
+        >
+            <Modal.Header closeButton>
+                <Modal.Title>Previous Owners</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <ItemHistory uid={auctionDetails?.nbtData.uid} />
+            </Modal.Body>
+        </Modal>
+    ) : null
+
     let auctionCardContent = !auctionDetails ? (
         getLoadingElement()
     ) : (
@@ -334,6 +353,16 @@ function AuctionDetails(props: Props) {
                         <HelpIcon />
                         <span className={styles.topRowButtonContent}>Compare to ended auctions</span>
                     </Button>
+                    {auctionDetails?.nbtData.uid ? (
+                        <Button
+                            onClick={() => {
+                                setShowItemHistoryDialog(true)
+                            }}
+                        >
+                            <HelpIcon />
+                            <span className={styles.topRowButtonContent}>Show previous owners</span>
+                        </Button>
+                    ) : null}
                 </div>
             </Card.Header>
             <Card.Body>
@@ -490,6 +519,7 @@ function AuctionDetails(props: Props) {
                 </div>
             ) : null}
             {basedOnDialog}
+            {previousOwnersDialog}
         </div>
     )
 }
