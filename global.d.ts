@@ -246,6 +246,7 @@ interface API {
     getRelatedItems(tag: string): Promise<Item[]>
     getOwnerHistory(uid: string): Promise<OwnerHistory[]>
     getMayorData(start: Date, end: Date): Promise<MayorData[]>
+    lemonsqueezyPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
 }
 
 interface CacheUtils {

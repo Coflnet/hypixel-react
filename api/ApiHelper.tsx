@@ -1015,6 +1015,44 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let lemonsqueezyPurchase = (productId: string, coinAmount?: number): Promise<PaymentResponse> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to purchase something.')
+                reject()
+                return
+            }
+
+            let data = {
+                userId: googleId,
+                productId: productId
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.LEMONSQUEEZY_PAYMENT,
+                    requestMethod: 'POST',
+                    data: data.productId,
+                    requestHeader: {
+                        GoogleToken: data.userId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: (response: any) => {
+                        resolve(parsePaymentResponse(response))
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.LEMONSQUEEZY_PAYMENT, error, data)
+                        reject(error)
+                    }
+                },
+                JSON.stringify({
+                    coinAmount
+                })
+            )
+        })
+    }
+
     let purchaseWithCoflcoins = (productId: string, googleToken: string, count?: number): Promise<void> => {
         return new Promise((resolve, reject) => {
             let data = {
@@ -1904,6 +1942,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getNewAuctions,
         getFlipBasedAuctions,
         paypalPurchase,
+        lemonsqueezyPurchase,
         getRefInfo,
         setRef,
         getActiveAuctions,

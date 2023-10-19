@@ -10,15 +10,23 @@ interface Props {
     stripePrice: number
     paypalProductId: string
     paypalPrice: number
+    lemonsqueezyPrice: number
+    lemonsqueezyProductId: string
     disabledTooltip: JSX.Element | undefined
     loadingProductId: string
     onPayPalPay(prodcutId: string, coflCoins?: number)
     onStripePay(producctId: string, coflCoins?: number)
+    onLemonSqeezyPay(productId: string, coflCoins?: number)
     isDisabled: boolean
     redirectLink?: string
+    countryCode?: string
     discount?: number
     isSpecial1800CoinsMultiplier?: boolean
 }
+
+// prettier-ignore
+const EU_Countries = ["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE" ]
+let PAYPAL_STRIPE_ALLOWED = [...EU_Countries, 'UK', 'US']
 
 export default function PurchaseElement(props: Props) {
     return (
@@ -42,38 +50,59 @@ export default function PurchaseElement(props: Props) {
                         <hr />
                     </>
                 ) : null}
-                <GenericProviderPurchaseCard
-                    type="PayPal"
-                    isDisabled={props.isDisabled}
-                    onPay={() => {
-                        props.onPayPalPay(props.paypalProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
-                    }}
-                    price={props.paypalPrice}
-                    redirectLink={props.redirectLink}
-                    discount={props.discount}
-                    isRedirecting={
-                        !props.isSpecial1800CoinsMultiplier
-                            ? props.paypalProductId === props.loadingProductId
-                            : `${props.paypalProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
-                    }
-                    disabledTooltip={props.disabledTooltip}
-                />
-                <GenericProviderPurchaseCard
-                    type="Stripe"
-                    isDisabled={props.isDisabled}
-                    onPay={() => {
-                        props.onStripePay(props.stripeProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
-                    }}
-                    price={props.stripePrice}
-                    redirectLink={props.redirectLink}
-                    discount={props.discount}
-                    isRedirecting={
-                        !props.isSpecial1800CoinsMultiplier
-                            ? props.stripeProductId === props.loadingProductId
-                            : `${props.stripeProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
-                    }
-                    disabledTooltip={props.disabledTooltip}
-                />
+                {PAYPAL_STRIPE_ALLOWED.includes(props.countryCode) ? (
+                    <>
+                        <GenericProviderPurchaseCard
+                            type="PayPal"
+                            isDisabled={props.isDisabled}
+                            onPay={() => {
+                                props.onPayPalPay(props.paypalProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
+                            }}
+                            price={props.paypalPrice}
+                            redirectLink={props.redirectLink}
+                            discount={props.discount}
+                            isRedirecting={
+                                !props.isSpecial1800CoinsMultiplier
+                                    ? props.paypalProductId === props.loadingProductId
+                                    : `${props.paypalProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
+                            }
+                            disabledTooltip={props.disabledTooltip}
+                        />
+                        <GenericProviderPurchaseCard
+                            type="Stripe"
+                            isDisabled={props.isDisabled}
+                            onPay={() => {
+                                props.onStripePay(props.stripeProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
+                            }}
+                            price={props.stripePrice}
+                            redirectLink={props.redirectLink}
+                            discount={props.discount}
+                            isRedirecting={
+                                !props.isSpecial1800CoinsMultiplier
+                                    ? props.stripeProductId === props.loadingProductId
+                                    : `${props.stripeProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
+                            }
+                            disabledTooltip={props.disabledTooltip}
+                        />
+                    </>
+                ) : (
+                    <GenericProviderPurchaseCard
+                        type="LemonSqueezy"
+                        isDisabled={props.isDisabled}
+                        onPay={() => {
+                            props.onLemonSqeezyPay(props.lemonsqueezyProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
+                        }}
+                        price={props.lemonsqueezyPrice}
+                        redirectLink={props.redirectLink}
+                        discount={props.discount}
+                        isRedirecting={
+                            !props.isSpecial1800CoinsMultiplier
+                                ? props.lemonsqueezyProductId === props.loadingProductId
+                                : `${props.lemonsqueezyProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
+                        }
+                        disabledTooltip={props.disabledTooltip}
+                    />
+                )}
             </Card.Body>
         </Card>
     )
