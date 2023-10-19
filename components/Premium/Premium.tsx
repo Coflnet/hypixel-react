@@ -80,9 +80,7 @@ function Premium() {
             <hr />
             {isLoading ? (
                 getLoadingElement()
-            ) : hasPremium === undefined ? (
-                ''
-            ) : hasPremium ? (
+            ) : hasPremium === undefined ? null : hasPremium ? (
                 <p style={{ color: '#00bc8c' }}>You have a Premium account. Thank you for your support.</p>
             ) : (
                 <div>
@@ -93,9 +91,7 @@ function Premium() {
                 <p>
                     <a href="#buyPremium">I want Premium!</a>
                 </p>
-            ) : (
-                ''
-            )}
+            ) : null}
             <hr />
             <div style={{ marginBottom: '20px' }}>
                 <PremiumStatus products={products} />
