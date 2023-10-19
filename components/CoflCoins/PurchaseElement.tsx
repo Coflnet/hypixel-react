@@ -29,6 +29,8 @@ const EU_Countries = ["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR
 let PAYPAL_STRIPE_ALLOWED = [...EU_Countries, 'UK', 'US']
 
 export default function PurchaseElement(props: Props) {
+    let isDisabled = props.isDisabled || !props.countryCode
+
     return (
         <Card className={styles.premiumPlanCard} style={props.isSpecial1800CoinsMultiplier ? { width: '100%' } : {}}>
             <Card.Header>
@@ -50,11 +52,11 @@ export default function PurchaseElement(props: Props) {
                         <hr />
                     </>
                 ) : null}
-                {PAYPAL_STRIPE_ALLOWED.includes(props.countryCode) ? (
+                {props.countryCode && PAYPAL_STRIPE_ALLOWED.includes(props.countryCode) ? (
                     <>
                         <GenericProviderPurchaseCard
                             type="PayPal"
-                            isDisabled={props.isDisabled}
+                            isDisabled={isDisabled}
                             onPay={() => {
                                 props.onPayPalPay(props.paypalProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
                             }}
@@ -70,7 +72,7 @@ export default function PurchaseElement(props: Props) {
                         />
                         <GenericProviderPurchaseCard
                             type="Stripe"
-                            isDisabled={props.isDisabled}
+                            isDisabled={isDisabled}
                             onPay={() => {
                                 props.onStripePay(props.stripeProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
                             }}
@@ -88,7 +90,7 @@ export default function PurchaseElement(props: Props) {
                 ) : (
                     <GenericProviderPurchaseCard
                         type="LemonSqueezy"
-                        isDisabled={props.isDisabled}
+                        isDisabled={isDisabled}
                         onPay={() => {
                             props.onLemonSqeezyPay(props.lemonsqueezyProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
                         }}
