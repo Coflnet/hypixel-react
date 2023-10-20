@@ -21,19 +21,11 @@ function Premium() {
     let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
     let [products, setProducts] = useState<PremiumProduct[]>([])
     let [isLoading, setIsLoading] = useState(false)
-    let [isLoggingIn, setIsLoggingIn] = useState(false)
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
     let [cancellationRightLossConfirmed, setCancellationRightLossConfirmed] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
-        if (!wasAlreadyLoggedIn && !isLoggedIn) {
-            setHasPremium(false)
-        }
-        if (sessionStorage.getItem('googleId') !== null) {
-            setIsLoggingIn(true)
-        }
         setIsSSR(false)
         setCancellationRightLossConfirmed(localStorage.getItem(CANCELLATION_RIGHT_CONFIRMED) === 'true')
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,14 +51,12 @@ function Premium() {
         let googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoading(true)
-            setIsLoggingIn(false)
             setIsLoggedIn(true)
             loadPremiumProducts()
         }
     }
 
     function onLoginFail() {
-        setIsLoggingIn(false)
         setIsLoggedIn(false)
         setHasPremium(false)
     }
@@ -80,11 +70,15 @@ function Premium() {
             <hr />
             {isLoading ? (
                 getLoadingElement()
-            ) : hasPremium === undefined ? null : hasPremium ? (
+            ) : !isLoggedIn ? (
+                <div>
+                    <p style={{ color: 'yellow', margin: 0 }}>To use Premium please login with Google.</p>
+                </div>
+            ) : hasPremium ? (
                 <p style={{ color: '#00bc8c' }}>You have a Premium account. Thank you for your support.</p>
             ) : (
                 <div>
-                    <p style={{ color: 'red', margin: 0 }}>You do not have a Premium account</p>
+                    <p style={{ color: 'red', margin: 0 }}>You do not have a Premium account.</p>
                 </div>
             )}
             {isLoggedIn && !hasPremium ? (
@@ -94,10 +88,9 @@ function Premium() {
             ) : null}
             <hr />
             <div style={{ marginBottom: '20px' }}>
-                <PremiumStatus products={products} />
-                {!isLoggingIn && !isLoggedIn ? <p>To use Premium please login with Google</p> : ''}
+                {isLoggedIn ? <PremiumStatus products={products} /> : null}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
-                <div>{isLoggingIn ? getLoadingElement() : ''}</div>
+                <div>{isLoading ? getLoadingElement() : ''}</div>
             </div>
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>
