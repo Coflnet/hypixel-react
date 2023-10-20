@@ -36,6 +36,7 @@
     "react-number-format": "^5.1.4",
     "react-pro-sidebar": "^1.1.0-alpha.1",
     "react-select": "^5.7.2",
+    "react-select-country-list": "^2.2.3",
     "react-toastify": "^9.1.2",
     "react-virtualized-auto-sizer": "^1.0.20",
     "react-window": "^1.8.8",
