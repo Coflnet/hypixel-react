@@ -16,6 +16,10 @@ export function getCountries(): Country[] {
     return result
 }
 
+export function getCountry(countryCode?: string) {
+    return getCountries().find(country => country.value === countryCode)
+}
+
 export function getCountryFromUserLanguage(): Country | undefined {
     if (!isClientSideRendering()) {
         return

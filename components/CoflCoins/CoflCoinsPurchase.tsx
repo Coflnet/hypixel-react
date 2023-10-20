@@ -1,25 +1,24 @@
 'use client'
-import { useMemo, useState } from 'react'
-import { Button, Form, InputGroup } from 'react-bootstrap'
+import { useState } from 'react'
+import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { useCoflCoins } from '../../utils/Hooks'
 import styles from './CoflCoinsPurchase.module.css'
-import { isClientSideRendering } from '../../utils/SSRUtils'
-import { Menu, MenuItem, Typeahead, useItem } from 'react-bootstrap-typeahead'
 import PurchaseElement from './PurchaseElement'
-import { getCountryFromUserLanguage } from '../../utils/CountryUtils'
+import { getCountry, getCountryFromUserLanguage } from '../../utils/CountryUtils'
 import CountrySelect from '../CountrySelect/CountrySelect'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
+    userCountry?: string
 }
 
 function Payment(props: Props) {
     let [loadingId, setLoadingId] = useState('')
     let [currentRedirectLink, setCurrentRedirectLink] = useState('')
     let [showAll, setShowAll] = useState(false)
-    let [selectedCountry, setSelectedCountry] = useState(getCountryFromUserLanguage())
+    let [selectedCountry, setSelectedCountry] = useState(getCountry(props.userCountry) ?? getCountryFromUserLanguage())
     let coflCoins = useCoflCoins()
     let isDisabled = !props.cancellationRightLossConfirmed || !selectedCountry
 

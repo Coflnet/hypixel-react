@@ -15,7 +15,11 @@ import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
 import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import PremiumStatus from './PremiumStatus/PremiumStatus'
 
-function Premium() {
+interface Props {
+    userCountry?: string
+}
+
+function Premium(props: Props) {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasPremium, setHasPremium] = useState<boolean>()
     let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
@@ -147,7 +151,7 @@ function Premium() {
                             </label>
                         </div>
                     ) : null}
-                    <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
+                    <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} userCountry={props.userCountry} />
                 </div>
             ) : null}
             <hr />
