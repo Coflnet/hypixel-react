@@ -1,13 +1,14 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { useCoflCoins } from '../../utils/Hooks'
 import styles from './CoflCoinsPurchase.module.css'
 import PurchaseElement from './PurchaseElement'
-import { getCountry, getCountryFromUserLanguage } from '../../utils/CountryUtils'
+import { Country, getCountry, getCountryFromUserLanguage } from '../../utils/CountryUtils'
 import CountrySelect from '../CountrySelect/CountrySelect'
+import { USER_COUNTRY_CODE } from '../../utils/SettingsUtils'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
@@ -18,9 +19,35 @@ function Payment(props: Props) {
     let [loadingId, setLoadingId] = useState('')
     let [currentRedirectLink, setCurrentRedirectLink] = useState('')
     let [showAll, setShowAll] = useState(false)
-    let [selectedCountry, setSelectedCountry] = useState(getCountry(props.userCountry) ?? getCountryFromUserLanguage())
+    let [defaultCountry, setDefaultCountry] = useState<Country>()
+    let [selectedCountry, setSelectedCountry] = useState<Country>()
     let coflCoins = useCoflCoins()
     let isDisabled = !props.cancellationRightLossConfirmed || !selectedCountry
+
+    useEffect(() => {
+        loadDefaultCountry()
+    }, [])
+
+    async function loadDefaultCountry() {
+        let cachedCountryCode = localStorage.getItem(USER_COUNTRY_CODE)
+        if (cachedCountryCode) {
+            setDefaultCountry(getCountry(cachedCountryCode))
+            setSelectedCountry(getCountry(cachedCountryCode))
+            return
+        }
+        let response = await fetch('https://api.country.is')
+        if (response.ok) {
+            let result = await response.json()
+            let country = getCountry(result.country) || getCountryFromUserLanguage()
+            setDefaultCountry(country)
+            setSelectedCountry(country)
+            localStorage.setItem(USER_COUNTRY_CODE, result.country)
+        } else {
+            let country = getCountryFromUserLanguage()
+            setDefaultCountry(country)
+            setSelectedCountry(country)
+        }
+    }
 
     function onPayPaypal(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
@@ -75,7 +102,7 @@ function Payment(props: Props) {
     return (
         <div>
             <div>
-                <CountrySelect defaultCountry={selectedCountry} onCountryChange={setSelectedCountry} />
+                {defaultCountry ? <CountrySelect defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} /> : null}
                 <div className={styles.productGrid}>
                     <PurchaseElement
                         coflCoinsToBuy={1800}

@@ -7,7 +7,6 @@ import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
 import styles from './Premium.module.css'
-import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
@@ -15,11 +14,7 @@ import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
 import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import PremiumStatus from './PremiumStatus/PremiumStatus'
 
-interface Props {
-    userCountry?: string
-}
-
-function Premium(props: Props) {
+function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasPremium, setHasPremium] = useState<boolean>()
     let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
@@ -151,7 +146,7 @@ function Premium(props: Props) {
                             </label>
                         </div>
                     ) : null}
-                    <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} userCountry={props.userCountry} />
+                    <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
                 </div>
             ) : null}
             <hr />
