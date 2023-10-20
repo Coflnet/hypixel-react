@@ -1,9 +1,10 @@
 'use client'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Menu, MenuItem, Typeahead } from 'react-bootstrap-typeahead'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { Form, InputGroup } from 'react-bootstrap'
 import { Country, getCountries, getCountryFromUserLanguage } from '../../utils/CountryUtils'
+import { default as TypeaheadType } from 'react-bootstrap-typeahead/types/core/Typeahead'
 
 interface Props {
     onCountryChange(country: Country)
@@ -13,6 +14,7 @@ interface Props {
 export default function CountrySelect(props: Props) {
     const countryOptions = getCountries()
     let [selectedCountry, setSelectedCountryCode] = useState<any>(props.defaultCountry)
+    let ref = useRef<TypeaheadType>(null)
 
     function getCountryImage(countryCode: string): JSX.Element {
         return (
@@ -32,6 +34,7 @@ export default function CountrySelect(props: Props) {
             <Typeahead
                 id="countryTypeahead"
                 style={{ width: 'auto' }}
+                ref={ref}
                 defaultSelected={selectedCountry ? [selectedCountry] : []}
                 onChange={e => {
                     if (e[0]) {
@@ -41,6 +44,11 @@ export default function CountrySelect(props: Props) {
                 }}
                 labelKey={option => {
                     return option ? (option as any).label : ''
+                }}
+                onFocus={e => {
+                    if (ref.current) {
+                        ref.current.clear()
+                    }
                 }}
                 options={countryOptions}
                 selectHint={(shouldSelect, event) => {
