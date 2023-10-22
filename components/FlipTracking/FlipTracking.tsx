@@ -159,7 +159,6 @@ export function FlipTracking(props: Props) {
         setTrackedFlips([])
         setIsLoading(true)
         let newFlips: FlipTrackingFlip[] = []
-        let newTotalProfit = 0
         Promise.all(promises).then(results => {
             results.forEach(result => {
                 newFlips.push(...result.flips)
