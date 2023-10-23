@@ -16,4 +16,4 @@ export default function Mod() {
     )
 }
 
-export const metadata = getHeadMetadata('Mod')
+export const metadata = getHeadMetadata('Mod', 'The Coflnet Minecraft Mod')
