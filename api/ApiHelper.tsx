@@ -1575,13 +1575,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getTrackedFlipsForPlayer = (playerUUID: string, days: number = 7, offset?: number): Promise<FlipTrackingResponse> => {
+    let getTrackedFlipsForPlayer = (playerUUID: string, from: Date, to: Date): Promise<FlipTrackingResponse> => {
         return new Promise((resolve, reject) => {
             let params = new URLSearchParams()
-            params.set('days', days.toString())
-            if (offset) {
-                params.set('offset', offset.toString())
-            }
+            params.set('start', from.toISOString())
+            params.set('end', to.toISOString())
 
             let googleId = isClientSideRendering() ? sessionStorage.getItem('googleId') : null
             let requestHeader = googleId ? { GoogleToken: googleId } : {}

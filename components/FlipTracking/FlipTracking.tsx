@@ -136,36 +136,11 @@ export function FlipTracking(props: Props) {
         return batches
     }
 
-    function getDaysDifference(date1: Date, date2: Date): number {
-        date1.setHours(0, 0, 0, 0)
-        date2.setHours(0, 0, 0, 0)
-        const timeDifference = Math.abs(date1.getTime() - date2.getTime())
-        const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24))
-
-        return daysDifference
-    }
-
-    function loadFlipsForTimespan(from: Date, to: Date) {
-        let batches = splitIntoBatches(from, to)
-        let offset = 0
-        let promises: Promise<FlipTrackingResponse>[] = []
-        batches.forEach(batch => {
-            let diff = getDaysDifference(batch[0], batch[1])
-            let promise = api.getTrackedFlipsForPlayer(props.playerUUID, diff, offset)
-            promises.push(promise)
-            offset += diff
-        })
-
-        setTrackedFlips([])
+    async function loadFlipsForTimespan(from: Date, to: Date) {
         setIsLoading(true)
-        let newFlips: FlipTrackingFlip[] = []
-        Promise.all(promises).then(results => {
-            results.forEach(result => {
-                newFlips.push(...result.flips)
-            })
-            setIsLoading(false)
-            setTrackedFlips(newFlips)
-        })
+        let newFlips = await api.getTrackedFlipsForPlayer(props.playerUUID, from, to)
+        setTrackedFlips(newFlips.flips)
+        setIsLoading(false)
     }
 
     function onAfterLogin() {
