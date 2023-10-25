@@ -16,6 +16,7 @@ import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import styles from './AuctionHousePriceGraph.module.css'
 import graphConfig from './PriceGraphConfig'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
+import EChartsReact from 'echarts-for-react'
 
 interface Props {
     item: Item
@@ -35,7 +36,8 @@ function AuctionHousePriceGraph(props: Props) {
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true)
     let [chartOptions, setChartOptions] = useState(graphConfig)
-    let [showMayorHistory, setShowMayorHistory] = useState(false)
+    let [mayorData, setMayorData] = useState<MayorData[]>([])
+    let graphRef = useRef<EChartsReact>(null)
 
     let fetchspanRef = useRef(fetchspan)
     fetchspanRef.current = fetchspan
@@ -113,6 +115,7 @@ function AuctionHousePriceGraph(props: Props) {
                 })
 
                 let mayorData = await api.getMayorData(minDate, maxDate)
+                setMayorData(mayorData)
                 applyMayorDataToChart(chartOptions, mayorData, 4)
 
                 setAvgPrice(Math.round(priceSum / prices.length))
@@ -156,6 +159,14 @@ function AuctionHousePriceGraph(props: Props) {
         return {
             legendselectchanged: e => {
                 localStorage.setItem(AUCTION_GRAPH_LEGEND_SELECTION, JSON.stringify(e.selected))
+            },
+            datazoom: (e: { start: number; end: number }) => {
+                let newChartOptions = { ...graphRef.current?.getEchartsInstance().getOption() }
+                applyMayorDataToChart(newChartOptions, mayorData, 4, e)
+
+                graphRef.current?.getEchartsInstance().setOption({
+                    series: newChartOptions.series
+                })
             }
         }
     }
@@ -184,7 +195,7 @@ function AuctionHousePriceGraph(props: Props) {
             <div style={fetchspan === DateRange.ACTIVE ? { display: 'none' } : {}}>
                 <div className={styles.chartWrapper}>
                     {!isLoading && !noDataFound ? (
-                        <ReactECharts option={chartOptions} className={styles.chart} onEvents={onChartsEvents()} />
+                        <ReactECharts option={chartOptions} className={styles.chart} ref={graphRef} onEvents={onChartsEvents()} />
                     ) : (
                         graphOverlayElement
                     )}

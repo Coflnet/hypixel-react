@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import ReactECharts from 'echarts-for-react'
-import { ChangeEvent, Suspense, useEffect, useState } from 'react'
+import { ChangeEvent, RefObject, Suspense, useEffect, useRef, useState } from 'react'
 import { Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
@@ -49,6 +49,9 @@ function BazaarPriceGraph(props: Props) {
     let [mayorData, setMayorData] = useState<MayorData[]>([])
     let [isSSR, setIsSSR] = useState(true)
     let { trackEvent } = useMatomo()
+
+    let primaryChartRef = useRef<ReactECharts>(null)
+    let secondaryChartRef = useRef<ReactECharts>(null)
 
     useEffect(() => {
         mounted = true
@@ -130,10 +133,6 @@ function BazaarPriceGraph(props: Props) {
             setAvgBuyPrice(0)
             setAvgBuyPrice(0)
         }
-
-        loadBazaarPrices(props.item.tag, fetchspan)
-            .then(prices => {})
-            .catch(() => {})
     }
 
     function checkForSpecialFetchspanConfiguration() {
@@ -216,12 +215,17 @@ function BazaarPriceGraph(props: Props) {
         setChartOptionsSecondary(chartOptionsSecondary)
     }
 
-    function onChartsEvents(chartOptions, localStorageKey: string): Record<string, Function> {
+    function onChartsEvents(chartOptions, localStorageKey: string, chartRef: RefObject<ReactECharts>): Record<string, Function> {
         return {
             datazoom: e => {
-                let mid = (e.start + e.end) / 2
-                let midDate = new Date(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * (mid / 100))])
+                let newChartOptions = { ...chartRef.current?.getEchartsInstance().getOption() }
+                applyMayorDataToChart(newChartOptions, mayorData, graphType === GRAPH_TYPE.SINGLE ? 10 : 5, e)
+                chartRef.current?.getEchartsInstance().setOption({
+                    series: newChartOptions.series
+                })
 
+                let midPercentage = (e.start + e.end) / 2 / 100
+                let midDate = new Date(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * midPercentage)])
                 setTimeout(() => {
                     document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: midDate } }))
                 }, 100)
@@ -367,9 +371,10 @@ function BazaarPriceGraph(props: Props) {
                                 <h3 className={styles.graphHeadline}>{graphType === GRAPH_TYPE.SINGLE ? 'Bazaar data' : 'Buy data'}</h3>
                                 {!isLoading && !noDataFound ? (
                                     <ReactECharts
+                                        ref={primaryChartRef}
                                         option={chartOptionsPrimary}
                                         className={styles.chart}
-                                        onEvents={onChartsEvents(chartOptionsPrimary, getLegendLocalStorageKey(true))}
+                                        onEvents={onChartsEvents(chartOptionsPrimary, getLegendLocalStorageKey(true), primaryChartRef)}
                                     />
                                 ) : (
                                     graphOverlayElement
@@ -380,9 +385,10 @@ function BazaarPriceGraph(props: Props) {
                                     <h3 className={styles.graphHeadline}>Sell data</h3>
                                     {!isLoading && !noDataFound ? (
                                         <ReactECharts
+                                            ref={secondaryChartRef}
                                             option={chartOptionsSecondary}
                                             className={styles.chart}
-                                            onEvents={onChartsEvents(chartOptionsSecondary, getLegendLocalStorageKey(false))}
+                                            onEvents={onChartsEvents(chartOptionsSecondary, getLegendLocalStorageKey(false), secondaryChartRef)}
                                         />
                                     ) : (
                                         graphOverlayElement
