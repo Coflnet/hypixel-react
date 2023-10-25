@@ -230,7 +230,7 @@ interface API {
     getCoflcoinBalance(): Promise<number>
     setFlipSetting(identifier: string, value: any): Promise<void>
     getKatFlips(): Promise<KatFlip[]>
-    getTrackedFlipsForPlayer(playerUUID: string, from: Date, to: Date): Promise<FlipTrackingResponse>
+    getTrackedFlipsForPlayer(playerUUID: string, from?: Date, to?: Date): Promise<FlipTrackingResponse>
     transferCoflCoins(email: string | undefined, mcId: string | undefined, amount: number, reference: string): Promise<void>
     getBazaarSnapshot(itemTag: string, timestamp?: string | number | Date): Promise<BazaarSnapshot>
     getBazaarPrices(itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]>
