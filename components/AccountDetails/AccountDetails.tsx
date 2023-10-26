@@ -25,11 +25,8 @@ import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting } fro
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [hasWrongFormattedGoogleToken, setHasWrongFormattedGoogleToken] = useState(false)
     let [isLoading, setIsLoading] = useState(true)
-    let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(false)
-    let [hasPremium, setHasPremium] = useState(false)
-    let [hasPremiumUntil, setHasPremiumUntil] = useState<Date | undefined>()
+    let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
     let [products, setProducts] = useState<PremiumProduct[]>([])
     let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
     let coflCoins = useCoflCoins()
@@ -69,7 +66,7 @@ function AccountDetails() {
         googleLogout()
         sessionStorage.removeItem('googleId')
         localStorage.removeItem('googleId')
-        setRerenderGoogleSignIn(!rerenderGoogleSignIn)
+        setRerenderGoogleSignIn(rerenderGoogleSignIn + 1)
         toast.warn('Successfully logged out')
     }
 
@@ -84,7 +81,7 @@ function AccountDetails() {
 
     function onLoginFail() {
         setIsLoggedIn(false)
-        setRerenderGoogleSignIn(!rerenderGoogleSignIn)
+        setRerenderGoogleSignIn(rerenderGoogleSignIn + 1)
     }
 
     function deleteCaches() {
@@ -115,7 +112,7 @@ function AccountDetails() {
         sessionStorage.removeItem('googleId')
         localStorage.removeItem('googleId')
         setIsLoggedIn(false)
-        setRerenderGoogleSignIn(!rerenderGoogleSignIn)
+        setRerenderGoogleSignIn(rerenderGoogleSignIn + 1)
     }
 
     return (
@@ -126,36 +123,9 @@ function AccountDetails() {
             </h2>
             {!isLoading && isLoggedIn ? (
                 <div>
-                    {!hasWrongFormattedGoogleToken ? (
-                        <p>
-                            <span className={styles.label}>Account:</span> {getAccountElement()}
-                        </p>
-                    ) : (
-                        <div>
-                            <hr />
-                            <p>
-                                Some problem occured while processing your Google login. Everything should still work as expected, but we cant display certain
-                                information like your username or profile picture.
-                            </p>
-                            <p style={{ color: 'red', fontWeight: 'bold' }}>
-                                IMPORTANT: Do not give out the following information to a untrusted third party. This token could be used to access your google
-                                account!
-                            </p>
-                            <p>
-                                Your Goolge token:{' '}
-                                <CopyButton
-                                    copyValue={sessionStorage.getItem('googleId')}
-                                    successMessage={
-                                        <div>
-                                            Copied your Google token.
-                                            <br />
-                                            <b>Be careful who you trust with this!</b>
-                                        </div>
-                                    }
-                                />
-                            </p>
-                        </div>
-                    )}
+                    <p>
+                        <span className={styles.label}>Account:</span> {getAccountElement()}
+                    </p>
                     <PremiumStatus products={products} labelStyle={{ width: '300px', fontWeight: 'bold' }} />
                     <p>
                         <span className={styles.label}>CoflCoins:</span> <Number number={coflCoins} />

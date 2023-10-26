@@ -10,15 +10,14 @@ import { GoogleLogin } from '@react-oauth/google'
 import styles from './GoogleSignIn.module.css'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, setSetting } from '../../utils/SettingsUtils'
 import { atobUnicode } from '../../utils/Base64Utils'
+import { Card, Modal, ModalBody } from 'react-bootstrap'
 
 interface Props {
     onAfterLogin?(): void
     onLoginFail?(): void
     onManualLoginClick?(): void
-    rerenderFlip?: boolean
+    rerenderFlip?: number
 }
-
-let gotResponse = false
 
 function GoogleSignIn(props: Props) {
     let [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(
@@ -27,6 +26,8 @@ function GoogleSignIn(props: Props) {
 
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
+    let [isLoginNotShowing, setIsLoginNotShowing] = useState(false)
+    let [showButtonNotRenderingModal, setShowButtonNotRenderingModal] = useState(false)
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 
@@ -34,17 +35,21 @@ function GoogleSignIn(props: Props) {
         setIsSSR(false)
         if (wasAlreadyLoggedInThisSession) {
             onLoginSucces(localStorage.getItem('googleId')!)
-            setTimeout(() => {
-                if (!gotResponse) {
-                    toast.error('We had problems authenticating your account with google. Please try to log in again.')
-                    setIsLoggedIn(false)
-                    if (props.onLoginFail) {
-                        props.onLoginFail()
-                    }
-                    sessionStorage.removeItem('googleId')
-                }
-            }, 15000)
         }
+        setTimeout(() => {
+            let isShown = false
+            document.querySelectorAll('iframe').forEach(e => {
+                if (e.src && e.src.includes('accounts.google.com')) {
+                    isShown = true
+                }
+            })
+            if (!isShown) {
+                setIsLoggedIn(false)
+                setIsLoginNotShowing(true)
+                sessionStorage.removeItem('googleId')
+                localStorage.removeItem('googleId')
+            }
+        }, 5000)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -61,7 +66,6 @@ function GoogleSignIn(props: Props) {
     }, [props.rerenderFlip])
 
     function onLoginSucces(token: string) {
-        gotResponse = true
         setIsLoggedIn(true)
         api.loginWithToken(token)
             .then(token => {
@@ -115,6 +119,28 @@ function GoogleSignIn(props: Props) {
         return null
     }
 
+    let buttonNotRenderingModal = (
+        <Modal
+            show={showButtonNotRenderingModal}
+            onHide={() => {
+                setShowButtonNotRenderingModal(false)
+            }}
+        >
+            <Modal.Header>
+                <Modal.Title>Google Login button not showing up?</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <p>This is most likely caused by either an external software like an anti virus or your browser/extension blocking it.</p>
+                <hr />
+                <p>Known issues:</p>
+                <ul>
+                    <li>Kaspersky's "Secure Browse" feature seems to block the Google login.</li>
+                    <li>Opera GX seems to sometimes blocks the login button. The specific setting or reason on when it blocks it is unknown.</li>
+                </ul>
+            </Modal.Body>
+        </Modal>
+    )
+
     return (
         <div style={style} onClickCapture={onLoginClick}>
             {!wasAlreadyLoggedInThisSession ? (
@@ -142,8 +168,23 @@ function GoogleSignIn(props: Props) {
                     <p>
                         I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
                     </p>
+                    {isLoginNotShowing ? (
+                        <p>
+                            Login button not showing? Click{' '}
+                            <span
+                                style={{ color: '#007bff', cursor: 'pointer' }}
+                                onClick={() => {
+                                    setShowButtonNotRenderingModal(true)
+                                }}
+                            >
+                                here
+                            </span>
+                            .
+                        </p>
+                    ) : null}
                 </>
             ) : null}
+            {buttonNotRenderingModal}
         </div>
     )
 }
