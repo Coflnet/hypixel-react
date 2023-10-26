@@ -1,7 +1,7 @@
+import { Container } from 'react-bootstrap'
 import { initAPI } from '../../api/ApiHelper'
 import LowSupply from '../../components/LowSupply/LowSupply'
 import NavBar from '../../components/NavBar/NavBar'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 
 export default async function Page() {
@@ -10,14 +10,14 @@ export default async function Page() {
 
     return (
         <>
-            <RBContainer>
+            <Container>
                 <h2>
                     <NavBar />
                     Low Supply Items
                 </h2>
                 <hr />
                 <LowSupply lowSupplyItems={lowSupplyItems} />
-            </RBContainer>
+            </Container>
         </>
     )
 }

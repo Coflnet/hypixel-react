@@ -1,14 +1,14 @@
 import React from 'react'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import Premium from '../../components/Premium/Premium'
+import { Container } from 'react-bootstrap'
 
 export default async function Page() {
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Premium />
-            </RBContainer>
+            </Container>
         </>
     )
 }

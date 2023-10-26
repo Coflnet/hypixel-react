@@ -1,14 +1,14 @@
 import React from 'react'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
 import AccountDetails from '../../components/AccountDetails/AccountDetails'
 import { getHeadMetadata } from '../../utils/SSRUtils'
+import { Container } from 'react-bootstrap'
 
 export default function Page() {
     return (
         <>
-            <RBContainer>
+            <Container>
                 <AccountDetails />
-            </RBContainer>
+            </Container>
         </>
     )
 }

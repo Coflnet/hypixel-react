@@ -1,6 +1,6 @@
+import { Container } from 'react-bootstrap'
 import { initAPI } from '../../api/ApiHelper'
 import { KatFlips } from '../../components/KatFlips/KatFlips'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
 import Search from '../../components/Search/Search'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 
@@ -9,12 +9,12 @@ export default async function Page() {
     let flips = await api.getKatFlips()
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Search />
                 <h2>Kat Flips</h2>
                 <hr />
                 <KatFlips flips={flips} />
-            </RBContainer>
+            </Container>
         </>
     )
 }

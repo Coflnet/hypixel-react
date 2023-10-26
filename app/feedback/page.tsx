@@ -1,13 +1,12 @@
 import React from 'react'
 import { getHeadMetadata } from '../../utils/SSRUtils'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
 import NavBar from '../../components/NavBar/NavBar'
-import RBButton from '../../components/ReactBootstrapWrapper/Button'
+import { Container, Button } from 'react-bootstrap'
 
 export default function Page() {
     return (
         <>
-            <RBContainer>
+            <Container>
                 <h2>
                     <NavBar />
                     Feedback
@@ -25,22 +24,22 @@ export default function Page() {
                     <p>We will try to use your feedback to improve the experience for all the Skyblock players who use this application.</p>
                     <p>Thank you very much.</p>
                     <a href="mailto:support@coflnet.com">
-                        <RBButton>Send feedback</RBButton>
+                        <Button>Send feedback</Button>
                     </a>
                     <hr />
                     <h4>Contact: </h4>
                     <p>
                         <a href="mailto:support@coflnet.com">
-                            <RBButton>support@coflnet.com</RBButton>
+                            <Button>support@coflnet.com</Button>
                         </a>
                     </p>
                     <p>
                         <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                            <RBButton>Discord</RBButton>
+                            <Button>Discord</Button>
                         </a>
                     </p>
                 </div>
-            </RBContainer>
+            </Container>
         </>
     )
 }

@@ -7,7 +7,7 @@ import Search from '../../../../components/Search/Search'
 import { numberWithThousandsSeparators, removeMinecraftColorCoding } from '../../../../utils/Formatter'
 import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata } from '../../../../utils/SSRUtils'
-import RBContainer from '../../../../components/ReactBootstrapWrapper/Container'
+import { Container } from 'react-bootstrap'
 
 export default async function Page({ params }) {
     let flipData = await getFlipData(params.uuid)
@@ -17,7 +17,7 @@ export default async function Page({ params }) {
 
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Search
                     type="player"
                     currentElement={
@@ -43,7 +43,7 @@ export default async function Page({ params }) {
                 <Suspense>
                     <FlipTracking totalProfit={flipTrackingResponse.totalProfit} trackedFlips={flipTrackingResponse.flips} playerUUID={params.uuid} />
                 </Suspense>
-            </RBContainer>
+            </Container>
         </>
     )
 }

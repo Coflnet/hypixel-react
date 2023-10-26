@@ -1,8 +1,8 @@
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
 import Search from '../../components/Search/Search'
 import { initAPI } from '../../api/ApiHelper'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import Flipper from '../../components/Flipper/Flipper'
+import { Container } from 'react-bootstrap'
 
 export default async function Page() {
     let api = initAPI(true)
@@ -16,12 +16,12 @@ export default async function Page() {
 
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Search />
                 <h2>Item Flipper</h2>
                 <hr />
                 <Flipper flips={flips} />
-            </RBContainer>
+            </Container>
         </>
     )
 }

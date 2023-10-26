@@ -8,8 +8,8 @@ import { atobUnicode } from '../../../utils/Base64Utils'
 import Search from '../../../components/Search/Search'
 import BazaarPriceGraph from '../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'
 import AuctionHousePriceGraph from '../../../components/PriceGraph/AuctionHousePriceGraph/AuctionHousePriceGraph'
-import RBContainer from '../../../components/ReactBootstrapWrapper/Container'
 import { hasFlag } from '../../../components/FilterElement/FilterType'
+import { Container } from 'react-bootstrap'
 
 export default async function Page({ searchParams, params }) {
     let tag = params.tag as string
@@ -31,10 +31,10 @@ export default async function Page({ searchParams, params }) {
     return (
         <>
             {}
-            <RBContainer>
+            <Container>
                 <Search selected={getItem()} type="item" />
                 {item.bazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
-            </RBContainer>
+            </Container>
         </>
     )
 }

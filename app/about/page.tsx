@@ -1,19 +1,18 @@
 import React from 'react'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
-import RBCard from '../../components/ReactBootstrapWrapper/Card'
+import { Card, Container } from 'react-bootstrap'
 
 export default function Page() {
     return (
         <>
-            <RBContainer>
+            <Container>
                 <h2>
                     <NavBar />
                     Links/Legal
                 </h2>
                 <hr />
-                <RBCard style={{ padding: '30px' }}>
+                <Card style={{ padding: '30px' }}>
                     <p>
                         This is an OpenSource project developed on <a href="https://github.com/matthias-luger/hypixel-react">GitHub</a>.
                     </p>
@@ -110,8 +109,8 @@ export default function Page() {
                     <p>
                         <a href="https://coflnet.com/impressum">Imprint</a>
                     </p>
-                </RBCard>
-            </RBContainer>
+                </Card>
+            </Container>
         </>
     )
 }
