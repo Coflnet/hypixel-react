@@ -4,7 +4,7 @@ import Search from '../components/Search/Search'
 import { initAPI } from '../api/ApiHelper'
 import { parseAuction, parseItem, parsePlayer, parsePopularSearch } from '../utils/Parser/APIResponseParser'
 import { getHeadMetadata } from '../utils/SSRUtils'
-import RBContainer from '../components/ReactBootstrapWrapper/Container'
+import { Container } from 'react-bootstrap'
 
 export default async function Page() {
     let api = initAPI(true)
@@ -24,7 +24,7 @@ export default async function Page() {
 
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Search />
                 <StartpageComponent
                     newAuctions={data.newAuctions?.map(parseAuction)}
@@ -32,7 +32,7 @@ export default async function Page() {
                     newPlayers={data.newPlayers?.map(parsePlayer)}
                     popularSearches={data.popularSearches?.map(parsePopularSearch)}
                 />
-            </RBContainer>
+            </Container>
         </>
     )
 }

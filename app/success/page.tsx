@@ -1,14 +1,13 @@
 import Link from 'next/link'
 import Confetti from '../../components/Confetti/Confetti'
 import { getHeadMetadata } from '../../utils/SSRUtils'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
-import RBButton from '../../components/ReactBootstrapWrapper/Button'
 import NavBar from '../../components/NavBar/NavBar'
+import { Button, Container } from 'react-bootstrap'
 
 export default function Page() {
     return (
         <>
-            <RBContainer>
+            <Container>
                 <h2>
                     <NavBar />
                     <span style={{ color: 'lime' }}>Payment successful</span>
@@ -19,9 +18,9 @@ export default function Page() {
                     payment method).
                 </p>
                 <Link href="/premium" className="disableLinkStyle">
-                    <RBButton>Return to the Premium page</RBButton>
+                    <Button>Return to the Premium page</Button>
                 </Link>
-            </RBContainer>
+            </Container>
             <Confetti recycle={false} />
         </>
     )

@@ -9,7 +9,7 @@ import { FlipTracking } from '../../../../../components/FlipTracking/FlipTrackin
 import Search from '../../../../../components/Search/Search'
 import { getHeadMetadata } from '../../../../../utils/SSRUtils'
 import { getEmbedDescription } from '../page'
-import RBContainer from '../../../../../components/ReactBootstrapWrapper/Container'
+import { Container } from 'react-bootstrap'
 
 export default async function Page({ params }) {
     let flipData = await getFlipData(params.uuid, params.flipUid)
@@ -20,7 +20,7 @@ export default async function Page({ params }) {
 
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Search
                     type="player"
                     currentElement={
@@ -51,7 +51,7 @@ export default async function Page({ params }) {
                         playerUUID={params.uuid}
                     />
                 </Suspense>
-            </RBContainer>
+            </Container>
         </>
     )
 }

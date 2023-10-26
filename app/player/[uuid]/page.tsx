@@ -1,16 +1,16 @@
 import { initAPI } from '../../../api/ApiHelper'
 import { getHeadMetadata } from '../../../utils/SSRUtils'
 import { notFound } from 'next/navigation'
-import RBContainer from '../../../components/ReactBootstrapWrapper/Container'
 import PlayerDetails from '../../../components/PlayerDetails/PlayerDetails'
 import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponseParser'
+import { Container } from 'react-bootstrap'
 
 export default async function Page({ params }) {
     let playerInfo = await getPlayerInfo(params.uuid)
     return (
-        <RBContainer>
+        <Container>
             <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} />
-        </RBContainer>
+        </Container>
     )
 }
 

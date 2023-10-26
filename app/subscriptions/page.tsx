@@ -1,19 +1,19 @@
+import { Container } from 'react-bootstrap'
 import NavBar from '../../components/NavBar/NavBar'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
 import SubscriptionList from '../../components/SubscriptionList/SubscriptionList'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 
 export default function Page() {
     return (
         <>
-            <RBContainer>
+            <Container>
                 <h2>
                     <NavBar />
                     Your Notifiers
                 </h2>
                 <hr />
                 <SubscriptionList />
-            </RBContainer>
+            </Container>
         </>
     )
 }

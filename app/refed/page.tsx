@@ -1,15 +1,15 @@
 import { getHeadMetadata } from '../../utils/SSRUtils'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
 import Search from '../../components/Search/Search'
 import Refed from '../../components/Refed/Refed'
+import { Container } from 'react-bootstrap'
 
 export default function Page() {
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Search />
                 <Refed />
-            </RBContainer>
+            </Container>
         </>
     )
 }

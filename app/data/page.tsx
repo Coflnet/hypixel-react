@@ -1,23 +1,19 @@
 import Link from 'next/link'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
-import RBCard from '../../components/ReactBootstrapWrapper/Card'
-import RBCardHeader from '../../components/ReactBootstrapWrapper/RBCardHeader'
-import RBCardTitle from '../../components/ReactBootstrapWrapper/RBCardTitle'
 import Search from '../../components/Search/Search'
-import RBCardBody from '../../components/ReactBootstrapWrapper/RBCardBody'
 import { getHeadMetadata } from '../../utils/SSRUtils'
+import { Container, Card, CardHeader, CardTitle, CardBody } from 'react-bootstrap'
 
 export default function Page() {
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Search />
                 <hr />
-                <RBCard>
-                    <RBCardHeader>
-                        <RBCardTitle>An app you use gets the data from us</RBCardTitle>
-                    </RBCardHeader>
-                    <RBCardBody>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>An app you use gets the data from us</CardTitle>
+                    </CardHeader>
+                    <CardBody>
                         <p>
                             If you want to make another app yourself take a look at the API docs at{' '}
                             <a href="https://sky.coflnet.com/api" target="_blank">
@@ -66,9 +62,9 @@ export default function Page() {
 
                             <li>You use the API as well? Tell use and get listed here :)</li>
                         </ul>
-                    </RBCardBody>
-                </RBCard>
-            </RBContainer>
+                    </CardBody>
+                </Card>
+            </Container>
         </>
     )
 }

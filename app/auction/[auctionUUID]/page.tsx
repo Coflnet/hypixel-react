@@ -3,10 +3,10 @@ import { notFound } from 'next/navigation'
 import { initAPI } from '../../../api/ApiHelper'
 import { getHeadMetadata } from '../../../utils/SSRUtils'
 import { numberWithThousandsSeparators } from '../../../utils/Formatter'
-import RBContainer from '../../../components/ReactBootstrapWrapper/Container'
 import AuctionDetails from '../../../components/AuctionDetails/AuctionDetails'
 import Search from '../../../components/Search/Search'
 import { parseAuctionDetails } from '../../../utils/Parser/APIResponseParser'
+import { Container } from 'react-bootstrap'
 
 async function getAuctionDetails(auctionUUID: string) {
     let api = initAPI(true)
@@ -107,10 +107,10 @@ export default async function Page({ params }) {
 
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Search />
                 <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} unparsedAuctionDetails={getOriginalAuctionDetails()} />
-            </RBContainer>
+            </Container>
         </>
     )
 }
@@ -142,7 +142,7 @@ export async function generateMetadata({ params }) {
     let auctionDetails = (await getAuctionDetails(auctionUUID))?.auctionDetails
 
     if (!auctionDetails) {
-        return
+        return {}
     }
 
     auctionDetails = parseAuctionDetails(auctionDetails)

@@ -1,6 +1,6 @@
+import { Container } from 'react-bootstrap'
 import { initAPI } from '../../api/ApiHelper'
 import { CraftsList } from '../../components/CraftsList/CraftsList'
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
 import Search from '../../components/Search/Search'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 
@@ -10,12 +10,12 @@ export default async function Page() {
 
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Search />
                 <h2>Profitable Hypixel Skyblock Craft Flips</h2>
                 <hr />
                 <CraftsList crafts={crafts} bazaarTags={bazaarTags} />
-            </RBContainer>
+            </Container>
         </>
     )
 }

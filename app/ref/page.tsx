@@ -1,13 +1,13 @@
-import RBContainer from '../../components/ReactBootstrapWrapper/Container'
+import { Container } from 'react-bootstrap'
 import Ref from '../../components/Ref/Ref'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 
 export default function Page() {
     return (
         <>
-            <RBContainer>
+            <Container>
                 <Ref />
-            </RBContainer>
+            </Container>
         </>
     )
 }
