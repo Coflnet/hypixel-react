@@ -68,6 +68,16 @@ function NewRestriction(props: Props) {
         return range === createState.type ? 'primary' : 'secondary'
     }
 
+    function getEmptyLabel() {
+        if (!createState.selectedItems || createState.selectedItems.length === 0) {
+            return 'No matching filter found.'
+        }
+        if (createState.selectedItems && createState.selectedItems.length === 1) {
+            return 'No matching filter found. Maybe the filter you are looking is not available for your selected item?'
+        }
+        return 'No matching filter found. Maybe the filter you are looking is not available for all your selected items?'
+    }
+
     return (
         <div>
             <ToggleButtonGroup
@@ -109,6 +119,7 @@ function NewRestriction(props: Props) {
                 onFilterChange={filter => {
                     setCreateState({ ...createState, itemFilter: filter })
                 }}
+                emptyLabel={getEmptyLabel()}
                 ignoreURL={true}
                 autoSelect={false}
                 disableLastUsedFilter={true}

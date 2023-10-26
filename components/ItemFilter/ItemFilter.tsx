@@ -28,6 +28,7 @@ interface Props {
     disableLastUsedFilter?: boolean
     showModAdvert?: boolean
     onIsValidChange?(newIsValid: boolean)
+    emptyLabel?: string
 }
 
 const groupedFilter = [
@@ -412,6 +413,7 @@ function ItemFilter(props: Props) {
                                                 description.includes(searchString)
                                             )
                                         }}
+                                        emptyLabel={props.emptyLabel}
                                     ></Typeahead>
                                 ) : (
                                     <Spinner animation="border" role="status" variant="primary" />
