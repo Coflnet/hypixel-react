@@ -1,8 +1,9 @@
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
+import TradingOverview from '../../components/TradingOverview/TradingOverview'
 
-export default function Page() {
+export default async function Page() {
     return (
         <>
             <Container>
@@ -10,6 +11,7 @@ export default function Page() {
                     <NavBar />
                     <span>Trading</span>
                 </h2>
+                <TradingOverview />
             </Container>
         </>
     )

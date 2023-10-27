@@ -593,3 +593,21 @@ export function parseMayorData(mayorData): MayorData {
         year: mayorData.yearF
     }
 }
+
+export function parseInventoryData(data): InventoryData {
+    Object.keys(data.enchantments).forEach(key => {
+        data.enchantments[key] = data.enchantments[key].toString()
+    })
+
+    return {
+        color: data.data,
+        count: data.count,
+        description: data.description,
+        enchantments: data.enchantments,
+        extraAttributes: data.extraAttributes,
+        icon: api.getItemImageUrl({ tag: data.tag }),
+        id: data.id,
+        itemName: data.itemName,
+        tag: data.tag
+    }
+}

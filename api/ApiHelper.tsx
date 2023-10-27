@@ -1912,6 +1912,33 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getPlayerInventory = (): Promise<InventoryData[]> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to purchase something.')
+                reject()
+                return
+            }
+            httpApi.sendApiRequest({
+                type: RequestType.INVENTORY_DATA,
+                customRequestURL: `${getApiEndpoint()}/inventory`,
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                data: '',
+                resolve: data => {
+                    resolve(data)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.INVENTORY_DATA, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -1985,7 +2012,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         refreshLoadPremiumProducts,
         getRelatedItems,
         getOwnerHistory,
-        getMayorData
+        getMayorData,
+        getPlayerInventory
     }
 }
 

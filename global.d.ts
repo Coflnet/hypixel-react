@@ -247,6 +247,7 @@ interface API {
     getOwnerHistory(uid: string): Promise<OwnerHistory[]>
     getMayorData(start: Date, end: Date): Promise<MayorData[]>
     lemonsqueezyPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
+    getPlayerInventory(): Promise<InventoryData[]>
 }
 
 interface CacheUtils {
@@ -573,4 +574,16 @@ interface MayorData {
     end: Date
     winner: Mayor
     year: number
+}
+
+interface InventoryData {
+    id: number
+    itemName: string
+    tag: string
+    icon: string
+    extraAttributes: { [key: string]: string }
+    enchantments: { [key: string]: string }
+    color: number
+    description: string
+    count: number
 }
