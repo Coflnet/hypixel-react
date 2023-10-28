@@ -13,12 +13,9 @@ export default function PlayerInventory(props: Props) {
     let [inventoryEntires, setInventoryEntries] = useState<InventoryData[]>([])
 
     useEffect(() => {
-        /* 
-        Endpoint is not working yet
-        
         api.getPlayerInventory().then(entry => {
             setInventoryEntries(entry)
-        }) */
+        })
     })
 
     function getItemEntryElement(item: InventoryData) {

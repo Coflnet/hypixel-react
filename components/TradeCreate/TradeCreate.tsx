@@ -6,11 +6,13 @@ import styles from './TradeCreate.module.css'
 import AddIcon from '@mui/icons-material/AddCircleOutline'
 import TradeInventory from '../PlayerInventory/PlayerInventory'
 import PlayerInventory from '../PlayerInventory/PlayerInventory'
+import TradeCreateWantedItem from '../TradeCreateWantedItem/TradeCreateWantedItem'
 
 export default function TradeCreate() {
     let [accountDetails, setAccountDetails] = useState<AccountInfo>()
     let [offer, setOffer] = useState<InventoryData>()
     let [showOfferModal, setShowOfferModal] = useState(false)
+    let [showCreateWantedItemModal, setShowCreateWantedItemModal] = useState(false)
 
     useEffect(() => {
         api.getAccountInfo().then(accountInfo => {
@@ -31,6 +33,29 @@ export default function TradeCreate() {
             </Modal.Header>
             <Modal.Body>
                 <PlayerInventory />
+            </Modal.Body>
+        </Modal>
+    )
+
+    let createWantedItemModal = (
+        <Modal
+            size={'lg'}
+            show={showCreateWantedItemModal}
+            onHide={() => {
+                setShowCreateWantedItemModal(false)
+            }}
+        >
+            <Modal.Header closeButton>
+                <Modal.Title>Create your wanted item</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <TradeCreateWantedItem
+                    onTradeOfferCreated={(item, filter) => {
+                        setShowCreateWantedItemModal(false)
+                        console.log(item)
+                        console.log(filter)
+                    }}
+                />
             </Modal.Body>
         </Modal>
     )
@@ -68,11 +93,20 @@ export default function TradeCreate() {
                         </div>
                         <div style={{ width: '40%' }}>
                             <h2>Want</h2>
+                            <p
+                                onClick={() => {
+                                    setShowCreateWantedItemModal(true)
+                                }}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <AddIcon /> Add wanted item
+                            </p>
                         </div>
                     </div>
                 </Card.Body>
             </Card>
             {selectOfferModal}
+            {createWantedItemModal}
         </>
     )
 }
