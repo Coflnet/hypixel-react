@@ -1,12 +1,8 @@
 'use client'
 import { getHeadMetadata } from '../../utils/SSRUtils'
-import { Button, Container } from 'react-bootstrap'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { Button } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
-import { parsePlayer } from '../../utils/Parser/APIResponseParser'
 import { useEffect, useState } from 'react'
-import TradeInventory from '../PlayerInventory/PlayerInventory'
-import TradeCreate from '../TradeCreate/TradeCreate'
 import Search from '../Search/Search'
 import ItemFilter from '../ItemFilter/ItemFilter'
 
