@@ -284,7 +284,7 @@ function Startpage(props: Props) {
             <div style={{ textAlign: 'center' }}>
                 <hr />
                 <h1>Skyblock Auction House History</h1>
-                <p style={{ fontSize: 'larger' }}>Browse through over 500 million auctions, over two million players and the bazaar of hypixel skyblock</p>
+                <p style={{ fontSize: 'larger' }}>Browse through over 600 million auctions, over two million players and the bazaar of hypixel skyblock</p>
                 <hr />
             </div>
             <Card className={styles.startpageCard}>
@@ -350,7 +350,7 @@ function Startpage(props: Props) {
                     <p>View, search, browse, and filter by reforge or enchantment.</p>
                     <p>You can find all current and historic prices for the auction house and bazaar on this web tracker.</p>
                     <p>
-                        We're tracking over 500 million auctions. We've saved more than 350 million bazaar prices in intervals of 10 seconds. Furthermore, there
+                        We're tracking over 600 million auctions. We've saved more than 350 million bazaar prices in intervals of 10 seconds. Furthermore, there
                         are over three million skyblock players that you can search by their Minecraft usernames. You can browse through the auctions they made
                         over the past two years. New items are added automatically and are available within two minutes after the first auction is started.
                     </p>
