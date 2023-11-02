@@ -473,8 +473,7 @@ function Flipper(props: Props) {
             reader.onload = function (e) {
                 output = e.target!.result!.toString()
                 handleSettingsImport(output)
-                //handleSettingsImport(output)
-            } //end onload()
+            }
             reader.readAsText(file)
         }
         return true

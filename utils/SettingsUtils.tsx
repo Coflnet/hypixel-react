@@ -56,7 +56,8 @@ export function setSetting(key: any, value: any) {
 }
 
 export function setSettingsFromServerSide(
-    settings: any
+    settings: any,
+    updateLocalSettings = true
 ): Promise<{ flipCustomizing: FlipCustomizeSettings; filter: FlipperFilter; restrictions: FlipRestriction[] }> {
     return new Promise(resolve => {
         settings.visibility = settings.visibility || {}
@@ -170,14 +171,18 @@ export function setSettingsFromServerSide(
             })
         }
 
-        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizing))
-        setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
+        if (updateLocalSettings) {
+            setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizing))
+            setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
+        }
 
         Promise.all([_addListToRestrictions(settings.whitelist, 'whitelist'), _addListToRestrictions(settings.blacklist, 'blacklist')]).then(results => {
             let newRestrictions = getCleanRestrictionsForApi(results[0].concat(results[1]))
-            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(newRestrictions))
 
-            document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
+            if (updateLocalSettings) {
+                setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(newRestrictions))
+                document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
+            }
             resolve({
                 filter,
                 flipCustomizing,
@@ -197,7 +202,7 @@ export async function handleSettingsImport(importString: string) {
         let importObject = JSON.parse(importString)
         if (importObject.whitelist !== undefined) {
             // Handle import in server-side format
-            let settings = await setSettingsFromServerSide(importObject)
+            let settings = await setSettingsFromServerSide(importObject, false)
             filter = settings.filter
             flipCustomizeSettings = settings.flipCustomizing
             restrictions = settings.restrictions
@@ -359,9 +364,10 @@ export async function handleSettingsImport(importString: string) {
         })
     }
 
-    setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
-    setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
-    setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+    let toastId = toast('Uploading config...', {
+        type: 'info',
+        autoClose: false
+    })
 
     api.subscribeFlips(
         restrictions || [],
@@ -371,19 +377,16 @@ export async function handleSettingsImport(importString: string) {
         undefined,
         undefined,
         () => {
+            setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
+            setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
+            setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
             window.location.reload()
         },
         () => {
-            sleep(2000)
-            window.location.reload()
+            toast.dismiss(toastId)
         },
         true
     )
-
-    toast('Uploading config...', {
-        type: 'info',
-        autoClose: false
-    })
 }
 
 export function sleep(ms: number): Promise<void> {
