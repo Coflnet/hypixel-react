@@ -123,7 +123,6 @@ function BazaarPriceGraph(props: Props) {
             try {
                 mayorData = await api.getMayorData(prices[0].timestamp, prices[prices.length - 1].timestamp)
             } catch {
-                toast.error("Mayor data could'n be loaded")
                 mayorData = []
             }
             if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan })) {

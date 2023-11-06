@@ -119,9 +119,7 @@ function AuctionHousePriceGraph(props: Props) {
                     let mayorData = await api.getMayorData(minDate, maxDate)
                     setMayorData(mayorData)
                     applyMayorDataToChart(chartOptions, mayorData, 4)
-                } catch (e) {
-                    toast.error("Mayors couldn't be loaded")
-                }
+                } catch (e) {}
 
                 setAvgPrice(Math.round(priceSum / prices.length))
                 setNoDataFound(prices.length === 0)

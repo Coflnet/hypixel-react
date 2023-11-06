@@ -1905,7 +1905,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     resolve(data.map(parseMayorData))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.MAYOR_DATA, error, { start, end })
+                    // temporarly don't show mayor errors
+                    //apiErrorHandler(RequestType.MAYOR_DATA, error, { start, end })
                     reject(error)
                 }
             })
