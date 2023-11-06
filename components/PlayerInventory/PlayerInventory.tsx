@@ -1,9 +1,10 @@
 import { Card } from 'react-bootstrap'
-import { convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter'
 import styles from './PlayerInventory.module.css'
 import { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import Tooltip from '../Tooltip/Tooltip'
+import { getLoadingElement } from '../../utils/LoadingUtils'
 
 interface Props {
     onItemClick?(InventoryData)
@@ -11,14 +12,22 @@ interface Props {
 
 export default function PlayerInventory(props: Props) {
     let [inventoryEntires, setInventoryEntries] = useState<InventoryData[]>([])
+    let [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        api.getPlayerInventory().then(entry => {
-            setInventoryEntries(entry)
-        })
-    })
+        api.getPlayerInventory()
+            .then(entry => {
+                setInventoryEntries(entry)
+            })
+            .finally(() => {
+                setIsLoading(false)
+            })
+    }, [])
 
     function getItemEntryElement(item: InventoryData) {
+        if (!item || item.itemName === null) {
+            return <div className={styles.gridCell}></div>
+        }
         return (
             <div className={styles.gridCell}>
                 <Tooltip
@@ -29,10 +38,11 @@ export default function PlayerInventory(props: Props) {
                         <img
                             title={convertTagToName(item.itemName)}
                             className={styles.image}
-                            src={item.icon}
+                            src={api.getItemImageUrl({ tag: item.tag })}
                             alt=""
                             crossOrigin="anonymous"
                             height={48}
+                            style={{ cursor: 'pointer' }}
                             onClick={() => {
                                 if (props.onItemClick) {
                                     props.onItemClick(item)
@@ -42,7 +52,7 @@ export default function PlayerInventory(props: Props) {
                     }
                     tooltipContent={
                         <div>
-                            <p style={{ color: `#${item.color.toString(16)}`, marginBottom: 5 }}>
+                            <p>
                                 <img
                                     title={convertTagToName(item.tag)}
                                     className={styles.image}
@@ -51,32 +61,18 @@ export default function PlayerInventory(props: Props) {
                                     crossOrigin="anonymous"
                                     height={24}
                                 />
-                                {convertTagToName(`${item.itemName}`)}
+                                {getMinecraftColorCodedElement(`${item.itemName}`)}
                             </p>
-                            <ul>
-                                {item.extraAttributes
-                                    ? Object.keys(item.extraAttributes).map(key => {
-                                          if (typeof item.extraAttributes[key] === 'string') {
-                                              return <li>{`${convertTagToName(key)}: ${convertTagToName(item.extraAttributes[key])}`}</li>
-                                          }
-                                          if (!isNaN(parseInt(item.extraAttributes[key]))) {
-                                              return (
-                                                  <li>{`${convertTagToName(key)}: ${numberWithThousandsSeparators(parseInt(item.extraAttributes[key]))}`}</li>
-                                              )
-                                          }
-                                          return <li>{`${convertTagToName(key)}: ${item.extraAttributes[key]}`}</li>
-                                      })
-                                    : null}
-                                {item.extraAttributes && item.enchantments ? <hr style={{ margin: '8px 0px 8px -30px' }} /> : null}
-                                {item.enchantments
-                                    ? Object.keys(item.enchantments).map(key => <li>{`${convertTagToName(key)}: ${item.enchantments[key]}`}</li>)
-                                    : null}
-                            </ul>
+                            {getMinecraftColorCodedElement(item.description, false)}
                         </div>
                     }
                 />
             </div>
         )
+    }
+
+    if (isLoading) {
+        return getLoadingElement()
     }
 
     return (

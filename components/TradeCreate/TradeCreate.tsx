@@ -1,24 +1,55 @@
-import { Card, Modal } from 'react-bootstrap'
+import { Button, Card, Modal } from 'react-bootstrap'
 import { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 import styles from './TradeCreate.module.css'
 import AddIcon from '@mui/icons-material/AddCircleOutline'
-import TradeInventory from '../PlayerInventory/PlayerInventory'
+import MinusIcon from '@mui/icons-material/RemoveCircleOutline'
 import PlayerInventory from '../PlayerInventory/PlayerInventory'
 import TradeCreateWantedItem from '../TradeCreateWantedItem/TradeCreateWantedItem'
+import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
+import { getLoadingElement } from '../../utils/LoadingUtils'
+
+export interface WantedItem {
+    item: Item
+    filter: ItemFilter | undefined
+}
 
 export default function TradeCreate() {
     let [accountDetails, setAccountDetails] = useState<AccountInfo>()
     let [offer, setOffer] = useState<InventoryData>()
+    let [wantedItems, setWantedItems] = useState<WantedItem[]>([])
     let [showOfferModal, setShowOfferModal] = useState(false)
     let [showCreateWantedItemModal, setShowCreateWantedItemModal] = useState(false)
+    let [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        api.getAccountInfo().then(accountInfo => {
-            setAccountDetails(accountInfo)
-        })
+        api.getAccountInfo()
+            .then(accountInfo => {
+                setAccountDetails(accountInfo)
+                setIsLoading(false)
+            })
+            .catch(() => {
+                setIsLoading(false)
+            })
     }, [])
+
+    function onAddWanted(newWanted: WantedItem) {
+        let updatedWanted = [...wantedItems, newWanted]
+        setWantedItems(updatedWanted)
+    }
+
+    function onRemoveWantedByIndex(filteredIndex: number) {
+        let updatedWanted = wantedItems.filter((_, index) => index !== filteredIndex)
+        setWantedItems(updatedWanted)
+    }
+
+    function onSelectOffer(newOffer: InventoryData) {
+        setOffer(newOffer)
+        setShowOfferModal(false)
+    }
+
+    function createTradeOffer() {}
 
     let selectOfferModal = (
         <Modal
@@ -32,7 +63,7 @@ export default function TradeCreate() {
                 <Modal.Title>Select the item you want to offer</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <PlayerInventory />
+                <PlayerInventory onItemClick={onSelectOffer} />
             </Modal.Body>
         </Modal>
     )
@@ -52,13 +83,19 @@ export default function TradeCreate() {
                 <TradeCreateWantedItem
                     onTradeOfferCreated={(item, filter) => {
                         setShowCreateWantedItemModal(false)
-                        console.log(item)
-                        console.log(filter)
+                        onAddWanted({
+                            item,
+                            filter: filter
+                        })
                     }}
                 />
             </Modal.Body>
         </Modal>
     )
+
+    if (isLoading) {
+        return getLoadingElement()
+    }
 
     return (
         <>
@@ -73,26 +110,64 @@ export default function TradeCreate() {
                             {offer ? (
                                 <Card>
                                     <Card.Header>
-                                        <Card.Title>{offer?.itemName}</Card.Title>
+                                        <Card.Title>
+                                            <img
+                                                title={convertTagToName(offer.tag)}
+                                                className={styles.image}
+                                                src={api.getItemImageUrl(offer)}
+                                                alt=""
+                                                crossOrigin="anonymous"
+                                                height={24}
+                                            />
+                                            {getMinecraftColorCodedElement(`${offer.itemName}`)}
+                                        </Card.Title>
                                     </Card.Header>
-                                    <Card.Body>
-                                        <ItemFilterPropertiesDisplay filter={offer.extraAttributes} />
-                                        <ItemFilterPropertiesDisplay filter={offer.enchantments} />
-                                    </Card.Body>
+                                    <Card.Body>{getMinecraftColorCodedElement(offer.description, false)}</Card.Body>
                                 </Card>
-                            ) : (
-                                <p
-                                    onClick={() => {
-                                        setShowOfferModal(true)
-                                    }}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    <AddIcon /> Select item you want to offer
-                                </p>
-                            )}
+                            ) : null}
+                            <p
+                                onClick={() => {
+                                    setShowOfferModal(true)
+                                }}
+                                style={{ cursor: 'pointer', marginTop: 10 }}
+                            >
+                                <AddIcon /> Select item you want to offer
+                            </p>
                         </div>
                         <div style={{ width: '40%' }}>
                             <h2>Want</h2>
+                            {wantedItems.map((wantedItem, i) => {
+                                return (
+                                    <Card style={{ marginBottom: '10px' }}>
+                                        <Card.Header>
+                                            <Card.Title>
+                                                <img
+                                                    title={convertTagToName(wantedItem.item.tag)}
+                                                    className={styles.image}
+                                                    src={api.getItemImageUrl(wantedItem.item)}
+                                                    alt=""
+                                                    crossOrigin="anonymous"
+                                                    height={24}
+                                                />
+                                                {wantedItem.item.name}
+                                                <span
+                                                    style={{ float: 'right', color: 'red', cursor: 'pointer' }}
+                                                    onClick={() => {
+                                                        onRemoveWantedByIndex(i)
+                                                    }}
+                                                >
+                                                    <MinusIcon />
+                                                </span>
+                                            </Card.Title>
+                                        </Card.Header>
+                                        {wantedItem.filter ? (
+                                            <Card.Body>
+                                                <ItemFilterPropertiesDisplay filter={wantedItem.filter} />
+                                            </Card.Body>
+                                        ) : null}
+                                    </Card>
+                                )
+                            })}
                             <p
                                 onClick={() => {
                                     setShowCreateWantedItemModal(true)
@@ -104,6 +179,11 @@ export default function TradeCreate() {
                         </div>
                     </div>
                 </Card.Body>
+                <Card.Footer style={{ cursor: 'pointer' }}>
+                    <Button variant="success" onClick={createTradeOffer}>
+                        <AddIcon /> Create trade offer
+                    </Button>
+                </Card.Footer>
             </Card>
             {selectOfferModal}
             {createWantedItemModal}

@@ -35,6 +35,7 @@ export default function TradeCreateWantedItem(props: Props) {
                 }}
                 selected={selectedItem}
                 hideNavbar
+                hideOptions
                 searchFunction={api.itemSearch}
             />
             <ItemFilter

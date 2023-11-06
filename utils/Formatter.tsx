@@ -1,5 +1,6 @@
-import { CSSProperties } from 'react'
+import { CSSProperties, ReactElement, cloneElement } from 'react'
 import { isClientSideRendering } from './SSRUtils'
+import { update } from 'idb-keyval'
 
 /*
  Returns a given number as string with thousands-separators. Example:
@@ -301,6 +302,44 @@ export function getMinecraftColorCodedElement(text: string = '', autoFormat = tr
             </span>
         )
     })
+
+    function textContent(elem: React.ReactElement | string): string {
+        if (!elem) {
+            return ''
+        }
+        if (typeof elem === 'string') {
+            return elem
+        }
+        const children = elem.props && elem.props.children
+        if (children instanceof Array) {
+            return children.map(textContent).join('')
+        }
+        return textContent(children)
+    }
+
+    function addBreaks(elements: JSX.Element[]) {
+        const updatedElements = elements.map(element => {
+            if (element.type === 'span' && element.props.children) {
+                let text = textContent(element)
+                if (text.includes('\n')) {
+                    const parts = text.split('\n')
+                    return cloneElement(
+                        element,
+                        element.props,
+                        <>
+                            <span>{parts[0]}</span>
+                            <br />
+                            <span>{parts[1]}</span>
+                        </>
+                    )
+                }
+            }
+            return element
+        })
+        return updatedElements
+    }
+
+    elements = addBreaks(elements)
 
     return <span>{elements}</span>
 }

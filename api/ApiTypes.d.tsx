@@ -75,7 +75,8 @@ export enum RequestType {
     CHECK_FILTER = 'checkFilter',
     OWNER_HISOTRY = 'ownerHistory',
     MAYOR_DATA = 'mayorData',
-    INVENTORY_DATA = 'inventoryData'
+    INVENTORY_DATA = 'inventoryData',
+    CREATE_TRADE_OFFER = 'createTradeOffer'
 }
 
 export enum SubscriptionType {

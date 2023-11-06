@@ -31,3 +31,7 @@
 .hoverElement li {
     text-align: left;
 }
+
+.hoverElement {
+    min-width: "800px" !important;
+}

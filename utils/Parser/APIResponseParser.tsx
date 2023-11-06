@@ -595,9 +595,15 @@ export function parseMayorData(mayorData): MayorData {
 }
 
 export function parseInventoryData(data): InventoryData {
-    Object.keys(data.enchantments).forEach(key => {
-        data.enchantments[key] = data.enchantments[key].toString()
-    })
+    if (data === null || data.itemName === null) {
+        return data
+    }
+
+    if (data.enchantments !== null) {
+        Object.keys(data?.enchantments).forEach(key => {
+            data.enchantments[key] = data.enchantments[key].toString()
+        })
+    }
 
     return {
         color: data.data,
