@@ -247,6 +247,7 @@ interface API {
     getOwnerHistory(uid: string): Promise<OwnerHistory[]>
     getMayorData(start: Date, end: Date): Promise<MayorData[]>
     lemonsqueezyPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
+    getTransactions(): Promise<Transaction[]>
 }
 
 interface CacheUtils {
@@ -573,4 +574,11 @@ interface MayorData {
     end: Date
     winner: Mayor
     year: number
+}
+
+interface Transaction {
+    productId: string
+    reference: string
+    amount: number
+    timeStamp: Date
 }

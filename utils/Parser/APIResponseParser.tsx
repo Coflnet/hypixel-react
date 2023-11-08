@@ -593,3 +593,12 @@ export function parseMayorData(mayorData): MayorData {
         year: mayorData.yearF
     }
 }
+
+export function parseTransaction(transaction): Transaction {
+    return {
+        productId: transaction.productId,
+        reference: transaction.reference,
+        amount: transaction.amount,
+        timeStamp: parseDate(transaction.timeStamp)
+    }
+}

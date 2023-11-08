@@ -7,12 +7,9 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
-import { atobUnicode } from '../../utils/Base64Utils'
 import cacheUtils from '../../utils/CacheUtils'
 import { useCoflCoins } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
-import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import NavBar from '../NavBar/NavBar'
 import { Number } from '../Number/Number'
@@ -22,6 +19,7 @@ import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import styles from './AccountDetails.module.css'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting } from '../../utils/SettingsUtils'
+import TransactionHistory from './TransactionHistory/TransactionHistory'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -155,6 +153,15 @@ function AccountDetails() {
                                 />
                             </Modal.Body>
                         </Modal>
+                    </p>
+                    <p>
+                        <span className={styles.label}>Transaction history:</span>
+                        <Tooltip
+                            type="click"
+                            content={<span className={styles.link}>View transactions</span>}
+                            tooltipContent={<TransactionHistory />}
+                            tooltipTitle={<span>Transaction History</span>}
+                        />
                     </p>
                 </div>
             ) : null}
