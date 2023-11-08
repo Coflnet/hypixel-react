@@ -1943,23 +1943,45 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let createTradeOffer = (playerUUID: string, offer: InventoryData, wantedItems: WantedItem[]): Promise<void> => {
         return new Promise((resolve, reject) => {
-            httpApi.sendApiRequest({
-                type: RequestType.CREATE_TRADE_OFFER,
-                requestMethod: 'POST',
-                customRequestURL: `${getApiEndpoint()}/trades`,
-                data: {
-                    playerUuid: playerUUID,
-                    item: offer,
-                    wantedItems: wantedItems
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to load the inventory.')
+                reject()
+                return
+            }
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.CREATE_TRADE_OFFER,
+                    requestMethod: 'POST',
+                    customRequestURL: `${getApiEndpoint()}/trades`,
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    data: '',
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.INVENTORY_DATA, error)
+                        reject(error)
+                    }
                 },
-                resolve: () => {
-                    resolve()
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.INVENTORY_DATA, error)
-                    reject(error)
-                }
-            })
+                JSON.stringify([
+                    {
+                        playerUuid: playerUUID,
+                        item: offer,
+                        wantedItems: wantedItems.map(wantedItem => {
+                            return {
+                                filters: {
+                                    ItemTag: wantedItem.item.tag,
+                                    ...wantedItem.filter
+                                }
+                            }
+                        })
+                    }
+                ])
+            )
         })
     }
 

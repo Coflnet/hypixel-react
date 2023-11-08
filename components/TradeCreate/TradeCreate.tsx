@@ -9,6 +9,7 @@ import PlayerInventory from '../PlayerInventory/PlayerInventory'
 import TradeCreateWantedItem from '../TradeCreateWantedItem/TradeCreateWantedItem'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { toast } from 'react-toastify'
 
 export interface WantedItem {
     item: Item
@@ -49,7 +50,13 @@ export default function TradeCreate() {
         setShowOfferModal(false)
     }
 
-    function createTradeOffer() {}
+    function createTradeOffer() {
+        if (accountDetails?.mcId && offer) {
+            api.createTradeOffer(accountDetails?.mcId, offer, wantedItems)
+        } else {
+            toast.error("Couln't create trade. Missing data.")
+        }
+    }
 
     let selectOfferModal = (
         <Modal
@@ -180,7 +187,7 @@ export default function TradeCreate() {
                     </div>
                 </Card.Body>
                 <Card.Footer style={{ cursor: 'pointer' }}>
-                    <Button variant="success" onClick={createTradeOffer}>
+                    <Button variant="success" onClick={createTradeOffer} disabled={!offer || !wantedItems || wantedItems.length === 0}>
                         <AddIcon /> Create trade offer
                     </Button>
                 </Card.Footer>

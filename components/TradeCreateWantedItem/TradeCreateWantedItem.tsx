@@ -31,7 +31,7 @@ export default function TradeCreateWantedItem(props: Props) {
         <>
             <Search
                 onSearchresultClick={result => {
-                    setSelectedItem(result.dataItem as Item)
+                    setSelectedItem({ tag: result.id, ...result.dataItem })
                 }}
                 selected={selectedItem}
                 hideNavbar
