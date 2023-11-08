@@ -74,7 +74,8 @@ export enum RequestType {
     RELATED_ITEMS = 'realtedItems',
     CHECK_FILTER = 'checkFilter',
     OWNER_HISOTRY = 'ownerHistory',
-    MAYOR_DATA = 'mayorData'
+    MAYOR_DATA = 'mayorData',
+    GET_TRANSACTIONS = 'getTransactions'
 }
 
 export enum SubscriptionType {
