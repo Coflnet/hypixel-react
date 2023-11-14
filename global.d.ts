@@ -249,6 +249,7 @@ interface API {
     lemonsqueezyPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     getPlayerInventory(): Promise<InventoryData[]>
     createTradeOffer(playerUUID: string, offer: InventoryData, wantedItems: WantedItem[]): Promise<void>
+    getTradeOffers(filter?: ItemFilter): Promise<TradeObject[]>
 }
 
 interface CacheUtils {
@@ -587,4 +588,22 @@ interface InventoryData {
     color: number
     description: string
     count: number
+}
+
+interface TradeObject {
+    playerUuid: string
+    playerName: string
+    buyerUuid: string
+    item: InventoryData
+    wantedItems: [
+        {
+            filters: any
+        }
+    ]
+    timestamp: Date
+}
+
+interface WantedItem {
+    item: Item
+    filter: ItemFilter | undefined
 }

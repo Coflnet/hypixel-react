@@ -11,11 +11,6 @@ import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/For
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { toast } from 'react-toastify'
 
-export interface WantedItem {
-    item: Item
-    filter: ItemFilter | undefined
-}
-
 export default function TradeCreate() {
     let [accountDetails, setAccountDetails] = useState<AccountInfo>()
     let [offer, setOffer] = useState<InventoryData>()
@@ -108,7 +103,7 @@ export default function TradeCreate() {
         <>
             <Card className={styles.card}>
                 <Card.Header>
-                    <Card.Title>{accountDetails?.mcName}</Card.Title>
+                    <Card.Title>Create Trade</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>

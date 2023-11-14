@@ -1,31 +1,46 @@
 'use client'
 import { getHeadMetadata } from '../../utils/SSRUtils'
-import { Container } from 'react-bootstrap'
+import { Button, Container } from 'react-bootstrap'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import api from '../../api/ApiHelper'
-import { parsePlayer } from '../../utils/Parser/APIResponseParser'
 import { useState } from 'react'
-import TradeInventory from '../PlayerInventory/PlayerInventory'
 import TradeCreate from '../TradeCreate/TradeCreate'
-
-interface TradeOffer {
-    player: Player
-    offer: Item[]
-    request: Item[]
-}
+import TradeList from '../TradeList/TradeList'
 
 export default function TradingOverview() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [isCreateTradeOpen, setIsCreateTradeOpen] = useState(false)
 
-    return (
-        <>
+    if (!isLoggedIn) {
+        return (
             <Container>
-                {isLoggedIn ? <TradeCreate /> : <p>You need to be logged in, to use the trading feature.</p>}
+                <p>You need to be logged in, to use the trading feature.</p>
                 <GoogleSignIn
                     onAfterLogin={() => {
                         setIsLoggedIn(true)
                     }}
                 />
+            </Container>
+        )
+    }
+
+    return (
+        <>
+            <Container>
+                {isCreateTradeOpen ? (
+                    <TradeCreate />
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
+                        <Button
+                            onClick={() => {
+                                setIsCreateTradeOpen(true)
+                            }}
+                        >
+                            Create Trade
+                        </Button>
+                    </div>
+                )}
+                <hr />
+                <TradeList />
             </Container>
         </>
     )

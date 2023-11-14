@@ -76,7 +76,8 @@ export enum RequestType {
     OWNER_HISOTRY = 'ownerHistory',
     MAYOR_DATA = 'mayorData',
     INVENTORY_DATA = 'inventoryData',
-    CREATE_TRADE_OFFER = 'createTradeOffer'
+    CREATE_TRADE_OFFER = 'createTradeOffer',
+    GET_TRADES = 'getTrades'
 }
 
 export enum SubscriptionType {

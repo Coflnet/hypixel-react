@@ -53,7 +53,6 @@ import { initHttpHelper } from './HttpHelper'
 import { websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import properties from '../properties'
-import { WantedItem } from '../components/TradeCreate/TradeCreate'
 
 function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
@@ -1985,6 +1984,29 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getTradeOffers = (filter?: ItemFilter): Promise<TradeObject[]> => {
+        let params = new URLSearchParams()
+        if (filter) {
+            params = new URLSearchParams({
+                filters: JSON.stringify(filter)
+            })
+        }
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TRADES,
+                customRequestURL: `${getApiEndpoint()}/trades?${filter ? `filters=${params.toString()}` : ''}`,
+                data: '',
+                resolve: data => {
+                    resolve(data)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.INVENTORY_DATA, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -2060,7 +2082,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getOwnerHistory,
         getMayorData,
         getPlayerInventory,
-        createTradeOffer
+        createTradeOffer,
+        getTradeOffers
     }
 }
 
