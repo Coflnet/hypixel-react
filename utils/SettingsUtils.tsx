@@ -83,7 +83,6 @@ export function setSettingsFromServerSide(
             blockTenSecMsg: settings.mod.blockTenSecMsg,
             hideModChat: !settings.mod.chat,
             modFormat: settings.mod.format,
-            modNoAdjustToPurse: settings.mod.noAdjustToPurse,
             modCountdown: settings.mod.countdown,
             disableLinks: !settings.visibility.links,
             hideCopySuccessMessage: !settings.visibility.copySuccessMessage,
@@ -414,7 +413,6 @@ export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: Flip
             blockTenSecMsg: flipSettings.blockTenSecMsg,
             format: flipSettings.modFormat,
             chat: !flipSettings.hideModChat,
-            noAdjustToPurse: flipSettings.modNoAdjustToPurse,
             countdown: flipSettings.modCountdown
         },
         visibility: {
