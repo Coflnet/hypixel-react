@@ -15,6 +15,7 @@ export default function TradingOverview() {
             <Container>
                 <p>You need to be logged in, to use the trading feature.</p>
                 <GoogleSignIn
+                    key={'googleLogin'}
                     onAfterLogin={() => {
                         setIsLoggedIn(true)
                     }}
@@ -41,6 +42,12 @@ export default function TradingOverview() {
                 )}
                 <hr />
                 <TradeList />
+                <GoogleSignIn
+                    key={'googleLogin'}
+                    onAfterLogin={() => {
+                        setIsLoggedIn(true)
+                    }}
+                />
             </Container>
         </>
     )
