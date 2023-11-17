@@ -1930,7 +1930,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 data: '',
                 resolve: data => {
-                    resolve(data.map(parseInventoryData))
+                    resolve(data ? (data as TradeObject[]).slice(Math.max(data.length - 36, 0)).map(parseInventoryData) : [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.INVENTORY_DATA, error)
