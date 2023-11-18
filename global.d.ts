@@ -250,6 +250,7 @@ interface API {
     getPlayerInventory(): Promise<InventoryData[]>
     createTradeOffer(playerUUID: string, offer: InventoryData, wantedItems: WantedItem[]): Promise<void>
     getTradeOffers(filter?: ItemFilter): Promise<TradeObject[]>
+    deleteTradeOffer(tradeId: string): Promise<void>
 }
 
 interface CacheUtils {
@@ -591,19 +592,17 @@ interface InventoryData {
 }
 
 interface TradeObject {
+    id: string
     playerUuid: string
     playerName: string
     buyerUuid: string
     item: InventoryData
-    wantedItems: [
-        {
-            filters: any
-        }
-    ]
+    wantedItems: WantedItem[]
     timestamp: Date
 }
 
 interface WantedItem {
-    item: Item
-    filter: ItemFilter | undefined
+    tag: string
+    itemName: string
+    filters: ItemFilter | undefined
 }

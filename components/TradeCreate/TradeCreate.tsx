@@ -11,24 +11,16 @@ import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/For
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { toast } from 'react-toastify'
 
-export default function TradeCreate() {
-    let [accountDetails, setAccountDetails] = useState<AccountInfo>()
+interface Props {
+    onAfterTradeCreate()
+    currentUserUUID: string
+}
+
+export default function TradeCreate(props: Props) {
     let [offer, setOffer] = useState<InventoryData>()
     let [wantedItems, setWantedItems] = useState<WantedItem[]>([])
     let [showOfferModal, setShowOfferModal] = useState(false)
     let [showCreateWantedItemModal, setShowCreateWantedItemModal] = useState(false)
-    let [isLoading, setIsLoading] = useState(true)
-
-    useEffect(() => {
-        api.getAccountInfo()
-            .then(accountInfo => {
-                setAccountDetails(accountInfo)
-                setIsLoading(false)
-            })
-            .catch(() => {
-                setIsLoading(false)
-            })
-    }, [])
 
     function onAddWanted(newWanted: WantedItem) {
         let updatedWanted = [...wantedItems, newWanted]
@@ -46,8 +38,11 @@ export default function TradeCreate() {
     }
 
     function createTradeOffer() {
-        if (accountDetails?.mcId && offer) {
-            api.createTradeOffer(accountDetails?.mcId, offer, wantedItems)
+        if (props.currentUserUUID && offer) {
+            api.createTradeOffer(props.currentUserUUID, offer, wantedItems).then(() => {
+                toast.success('Trade successfully created')
+                props.onAfterTradeCreate()
+            })
         } else {
             toast.error("Couln't create trade. Missing data.")
         }
@@ -83,21 +78,14 @@ export default function TradeCreate() {
             </Modal.Header>
             <Modal.Body>
                 <TradeCreateWantedItem
-                    onTradeOfferCreated={(item, filter) => {
+                    onTradeOfferCreated={item => {
                         setShowCreateWantedItemModal(false)
-                        onAddWanted({
-                            item,
-                            filter: filter
-                        })
+                        onAddWanted(item)
                     }}
                 />
             </Modal.Body>
         </Modal>
     )
-
-    if (isLoading) {
-        return getLoadingElement()
-    }
 
     return (
         <>
@@ -144,14 +132,14 @@ export default function TradeCreate() {
                                         <Card.Header>
                                             <Card.Title>
                                                 <img
-                                                    title={convertTagToName(wantedItem.item.tag)}
+                                                    title={convertTagToName(wantedItem.itemName)}
                                                     className={styles.image}
-                                                    src={api.getItemImageUrl(wantedItem.item)}
+                                                    src={api.getItemImageUrl({ tag: wantedItem.tag })}
                                                     alt=""
                                                     crossOrigin="anonymous"
                                                     height={24}
                                                 />
-                                                {wantedItem.item.name}
+                                                {wantedItem.itemName}
                                                 <span
                                                     style={{ float: 'right', color: 'red', cursor: 'pointer' }}
                                                     onClick={() => {
@@ -162,9 +150,9 @@ export default function TradeCreate() {
                                                 </span>
                                             </Card.Title>
                                         </Card.Header>
-                                        {wantedItem.filter ? (
+                                        {wantedItem.filters ? (
                                             <Card.Body>
-                                                <ItemFilterPropertiesDisplay filter={wantedItem.filter} />
+                                                <ItemFilterPropertiesDisplay filter={wantedItem.filters} />
                                             </Card.Body>
                                         ) : null}
                                     </Card>

@@ -6,8 +6,13 @@ import { useEffect, useState } from 'react'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 import ItemFilter from '../ItemFilter/ItemFilter'
+import DeleteIcon from '@mui/icons-material/Delete'
 
-export default function TradeList() {
+interface Props {
+    currentUserUUID?: string
+}
+
+export default function TradeList(props: Props) {
     let [trades, setTrades] = useState<TradeObject[]>([])
     let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([])
     let [filter, setFilter] = useState<ItemFilter>()
@@ -36,14 +41,31 @@ export default function TradeList() {
         })
     }
 
+    function deleteTrade(tradeId: string) {
+        api.deleteTradeOffer(tradeId).then(() => {
+            let newTrades = [...trades]
+            setTrades(newTrades.filter(trade => trade.id !== tradeId))
+        })
+    }
+
     return (
         <>
             <Container>
                 <ItemFilter onFilterChange={onFilterChange} filters={filterOptions} ignoreURL disableLastUsedFilter />
                 {trades.map(trade => (
-                    <Card>
+                    <Card key={trade.id} style={{ marginBottom: '15px' }}>
                         <Card.Header>
-                            <Card.Title>{trade.playerName}</Card.Title>
+                            <Card.Title>
+                                {trade.playerName}
+                                {props.currentUserUUID && trade.playerUuid === props.currentUserUUID ? (
+                                    <DeleteIcon
+                                        onClick={() => {
+                                            deleteTrade(trade.id)
+                                        }}
+                                        style={{ float: 'right', color: 'red', cursor: 'pointer' }}
+                                    />
+                                ) : null}
+                            </Card.Title>
                         </Card.Header>
                         <Card.Body>
                             <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
@@ -70,10 +92,10 @@ export default function TradeList() {
                                     {trade.wantedItems.map((wantedItem, i) => {
                                         return (
                                             <Card style={{ marginBottom: '10px' }}>
-                                                <Card.Header>{convertTagToName(wantedItem.filters['ItemTag'])}</Card.Header>
+                                                <Card.Header>{wantedItem.itemName}</Card.Header>
                                                 {wantedItem.filters ? (
                                                     <Card.Body>
-                                                        <ItemFilterPropertiesDisplay filter={{ ...wantedItem.filters, ItemTag: undefined }} />
+                                                        <ItemFilterPropertiesDisplay filter={wantedItem.filters} />
                                                     </Card.Body>
                                                 ) : null}
                                             </Card>

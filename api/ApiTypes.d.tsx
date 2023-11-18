@@ -77,6 +77,7 @@ export enum RequestType {
     MAYOR_DATA = 'mayorData',
     INVENTORY_DATA = 'inventoryData',
     CREATE_TRADE_OFFER = 'createTradeOffer',
+    DELETE_TRADE_OFFER = 'deleteTradeOffer',
     GET_TRADES = 'getTrades'
 }
 

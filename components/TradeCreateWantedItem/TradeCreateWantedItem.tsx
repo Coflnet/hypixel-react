@@ -7,7 +7,7 @@ import Search from '../Search/Search'
 import ItemFilter from '../ItemFilter/ItemFilter'
 
 interface Props {
-    onTradeOfferCreated(item: Item, filter?: ItemFilter)
+    onTradeOfferCreated(wantedItem: WantedItem)
 }
 
 export default function TradeCreateWantedItem(props: Props) {
@@ -50,7 +50,11 @@ export default function TradeCreateWantedItem(props: Props) {
                 <Button
                     variant="success"
                     onClick={() => {
-                        props.onTradeOfferCreated(selectedItem!, selectedFilter)
+                        props.onTradeOfferCreated({
+                            filters: selectedFilter,
+                            itemName: selectedItem?.name || '',
+                            tag: selectedItem?.tag || ''
+                        })
                     }}
                     disabled={!selectedItem}
                 >

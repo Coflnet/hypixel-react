@@ -5,10 +5,14 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { useState } from 'react'
 import TradeCreate from '../TradeCreate/TradeCreate'
 import TradeList from '../TradeList/TradeList'
+import api from '../../api/ApiHelper'
+import { v4 as generateUUID } from 'uuid'
 
 export default function TradingOverview() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [isCreateTradeOpen, setIsCreateTradeOpen] = useState(false)
+    let [playerData, setPlayerData] = useState<AccountInfo>()
+    let [tradeListKey, setTradeListKey] = useState(generateUUID())
 
     if (!isLoggedIn) {
         return (
@@ -17,18 +21,32 @@ export default function TradingOverview() {
                 <GoogleSignIn
                     key={'googleLogin'}
                     onAfterLogin={() => {
-                        setIsLoggedIn(true)
+                        loadPlayerData().then(() => {
+                            setIsLoggedIn(true)
+                        })
                     }}
                 />
             </Container>
         )
     }
 
+    function loadPlayerData(): Promise<void> {
+        return api.getAccountInfo().then(data => {
+            console.log(data)
+            setPlayerData(data)
+        })
+    }
+
+    function onAfterTradeCreate() {
+        setTradeListKey(generateUUID())
+        setIsCreateTradeOpen(false)
+    }
+
     return (
         <>
             <Container>
-                {isCreateTradeOpen ? (
-                    <TradeCreate />
+                {isCreateTradeOpen && playerData && playerData.mcId ? (
+                    <TradeCreate currentUserUUID={playerData.mcId} onAfterTradeCreate={onAfterTradeCreate} />
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
                         <Button
@@ -41,11 +59,13 @@ export default function TradingOverview() {
                     </div>
                 )}
                 <hr />
-                <TradeList />
+                <TradeList key={tradeListKey} currentUserUUID={playerData?.mcId} />
                 <GoogleSignIn
                     key={'googleLogin'}
                     onAfterLogin={() => {
-                        setIsLoggedIn(true)
+                        loadPlayerData().then(() => {
+                            setIsLoggedIn(true)
+                        })
                     }}
                 />
             </Container>

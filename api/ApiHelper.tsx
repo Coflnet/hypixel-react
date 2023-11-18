@@ -1962,7 +1962,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         resolve()
                     },
                     reject: (error: any) => {
-                        apiErrorHandler(RequestType.INVENTORY_DATA, error)
+                        apiErrorHandler(RequestType.CREATE_TRADE_OFFER, error)
                         reject(error)
                     }
                 },
@@ -1970,17 +1970,38 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     {
                         playerUuid: playerUUID,
                         item: offer,
-                        wantedItems: wantedItems.map(wantedItem => {
-                            return {
-                                filters: {
-                                    ItemTag: wantedItem.item.tag,
-                                    ...wantedItem.filter
-                                }
-                            }
-                        })
+                        wantedItems: wantedItems
                     }
                 ])
             )
+        })
+    }
+
+    let deleteTradeOffer = (tradeId: number): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to delete your trades.')
+                reject()
+                return
+            }
+            httpApi.sendApiRequest({
+                type: RequestType.DELETE_TRADE_OFFER,
+                requestMethod: 'DELETE',
+                customRequestURL: `${getApiEndpoint()}/trades/${tradeId}`,
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                data: '',
+                resolve: () => {
+                    resolve()
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.DELETE_TRADE_OFFER, error, tradeId)
+                    reject(error)
+                }
+            })
         })
     }
 
@@ -2000,7 +2021,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     resolve(data)
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.INVENTORY_DATA, error)
+                    apiErrorHandler(RequestType.GET_TRADES, error)
                     reject(error)
                 }
             })
@@ -2083,7 +2104,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getMayorData,
         getPlayerInventory,
         createTradeOffer,
-        getTradeOffers
+        getTradeOffers,
+        deleteTradeOffer
     }
 }
 
