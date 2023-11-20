@@ -1,12 +1,13 @@
 'use client'
 import { getHeadMetadata } from '../../utils/SSRUtils'
-import { Card, Container } from 'react-bootstrap'
+import { Card, Container, Form } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { useEffect, useState } from 'react'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 import ItemFilter from '../ItemFilter/ItemFilter'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { getLoadingElement } from '../../utils/LoadingUtils'
 
 interface Props {
     currentUserUUID?: string
@@ -16,15 +17,17 @@ export default function TradeList(props: Props) {
     let [trades, setTrades] = useState<TradeObject[]>([])
     let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([])
     let [filter, setFilter] = useState<ItemFilter>()
+    let [onlyOwnTrades, setOnlyOwnTrades] = useState(false)
+    let [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
-        loadTrades(filter)
+        loadTrades(onlyOwnTrades, filter)
         loadFilters()
     }, [])
 
     function onFilterChange(newFilter: ItemFilter) {
         setFilter({ ...newFilter })
-        loadTrades(newFilter)
+        loadTrades(onlyOwnTrades, newFilter)
     }
 
     function loadFilters(): Promise<FilterOptions[]> {
@@ -35,9 +38,11 @@ export default function TradeList(props: Props) {
         })
     }
 
-    function loadTrades(filter?: ItemFilter) {
-        api.getTradeOffers(filter).then(newTrades => {
+    function loadTrades(onlyOwn: boolean, filter?: ItemFilter) {
+        setIsLoading(true)
+        api.getTradeOffers(onlyOwn || onlyOwnTrades, filter).then(newTrades => {
             setTrades(newTrades)
+            setIsLoading(false)
         })
     }
 
@@ -51,77 +56,92 @@ export default function TradeList(props: Props) {
     return (
         <>
             <Container>
+                <div style={{ display: 'flex' }}>
+                    <Form.Check
+                        id="onlyOwnTradesCheckbox"
+                        defaultChecked={onlyOwnTrades}
+                        onChange={check => {
+                            setOnlyOwnTrades(check.target.checked)
+                            loadTrades(check.target.checked, filter)
+                        }}
+                    />
+                    <Form.Label htmlFor="onlyOwnTradesCheckbox" style={{ marginLeft: '5px' }}>
+                        Show only own trades
+                    </Form.Label>
+                </div>
                 <ItemFilter onFilterChange={onFilterChange} filters={filterOptions} ignoreURL disableLastUsedFilter />
-                {trades.map(trade => (
-                    <Card key={trade.id} style={{ marginBottom: '15px' }}>
-                        <Card.Header>
-                            <Card.Title>
-                                <img
-                                    title={trade.playerName}
-                                    src={'https://crafatar.com/avatars/' + trade.playerUuid + '?size=8'}
-                                    alt=""
-                                    crossOrigin="anonymous"
-                                    height={24}
-                                />
-                                {trade.playerName}
-                                {props.currentUserUUID && trade.playerUuid === props.currentUserUUID ? (
-                                    <DeleteIcon
-                                        onClick={() => {
-                                            deleteTrade(trade.id)
-                                        }}
-                                        style={{ float: 'right', color: 'red', cursor: 'pointer' }}
-                                    />
-                                ) : null}
-                            </Card.Title>
-                        </Card.Header>
-                        <Card.Body>
-                            <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                                <div style={{ width: '40%' }}>
-                                    <h2>Has</h2>
-                                    <Card>
-                                        <Card.Header>
-                                            <Card.Title>
-                                                <img
-                                                    title={convertTagToName(trade.item.tag)}
-                                                    src={api.getItemImageUrl(trade.item)}
-                                                    alt=""
-                                                    crossOrigin="anonymous"
-                                                    height={24}
-                                                />
-                                                {getMinecraftColorCodedElement(`${trade.item.itemName}`)}
-                                            </Card.Title>
-                                        </Card.Header>
-                                        <Card.Body>{getMinecraftColorCodedElement(trade.item.description, false)}</Card.Body>
-                                    </Card>
-                                </div>
-                                <div style={{ width: '40%' }}>
-                                    <h2>Want</h2>
-                                    {trade.wantedItems.map((wantedItem, i) => {
-                                        return (
-                                            <Card style={{ marginBottom: '10px' }}>
-                                                <Card.Header>
-                                                    <img
-                                                        title={convertTagToName(wantedItem.itemName)}
-                                                        src={api.getItemImageUrl(wantedItem)}
-                                                        alt=""
-                                                        crossOrigin="anonymous"
-                                                        height={24}
-                                                    />
-                                                    {wantedItem.itemName}
-                                                </Card.Header>
-                                                {wantedItem.filters ? (
-                                                    <Card.Body>
-                                                        <ItemFilterPropertiesDisplay filter={wantedItem.filters} />
-                                                    </Card.Body>
-                                                ) : null}
-                                            </Card>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                ))}
+                {isLoading
+                    ? getLoadingElement()
+                    : trades.map(trade => (
+                          <Card key={trade.id} style={{ marginBottom: '15px' }}>
+                              <Card.Header>
+                                  <Card.Title>
+                                      <img
+                                          title={trade.playerName}
+                                          src={'https://crafatar.com/avatars/' + trade.playerUuid + '?size=8'}
+                                          alt=""
+                                          crossOrigin="anonymous"
+                                          height={24}
+                                      />
+                                      {trade.playerName}
+                                      {props.currentUserUUID && trade.playerUuid === props.currentUserUUID ? (
+                                          <DeleteIcon
+                                              onClick={() => {
+                                                  deleteTrade(trade.id)
+                                              }}
+                                              style={{ float: 'right', color: 'red', cursor: 'pointer' }}
+                                          />
+                                      ) : null}
+                                  </Card.Title>
+                              </Card.Header>
+                              <Card.Body>
+                                  <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
+                                      <div style={{ width: '40%' }}>
+                                          <h2>Has</h2>
+                                          <Card>
+                                              <Card.Header>
+                                                  <Card.Title>
+                                                      <img
+                                                          title={convertTagToName(trade.item.tag)}
+                                                          src={api.getItemImageUrl(trade.item)}
+                                                          alt=""
+                                                          crossOrigin="anonymous"
+                                                          height={24}
+                                                      />
+                                                      {getMinecraftColorCodedElement(`${trade.item.itemName}`)}
+                                                  </Card.Title>
+                                              </Card.Header>
+                                              <Card.Body>{getMinecraftColorCodedElement(trade.item.description, false)}</Card.Body>
+                                          </Card>
+                                      </div>
+                                      <div style={{ width: '40%' }}>
+                                          <h2>Want</h2>
+                                          {trade.wantedItems.map((wantedItem, i) => {
+                                              return (
+                                                  <Card style={{ marginBottom: '10px' }}>
+                                                      <Card.Header>
+                                                          <img
+                                                              title={convertTagToName(wantedItem.itemName)}
+                                                              src={api.getItemImageUrl(wantedItem)}
+                                                              alt=""
+                                                              crossOrigin="anonymous"
+                                                              height={24}
+                                                          />
+                                                          {wantedItem.itemName}
+                                                      </Card.Header>
+                                                      {wantedItem.filters ? (
+                                                          <Card.Body>
+                                                              <ItemFilterPropertiesDisplay filter={wantedItem.filters} />
+                                                          </Card.Body>
+                                                      ) : null}
+                                                  </Card>
+                                              )
+                                          })}
+                                      </div>
+                                  </div>
+                              </Card.Body>
+                          </Card>
+                      ))}
             </Container>
         </>
     )

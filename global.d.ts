@@ -249,7 +249,7 @@ interface API {
     lemonsqueezyPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     getPlayerInventory(): Promise<InventoryData[]>
     createTradeOffer(playerUUID: string, offer: InventoryData, wantedItems: WantedItem[]): Promise<void>
-    getTradeOffers(filter?: ItemFilter): Promise<TradeObject[]>
+    getTradeOffers(onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]>
     deleteTradeOffer(tradeId: string): Promise<void>
     getTransactions(): Promise<Transaction[]>
 }

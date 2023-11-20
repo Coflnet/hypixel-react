@@ -2038,18 +2038,29 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getTradeOffers = (filter?: ItemFilter): Promise<TradeObject[]> => {
-        let params = new URLSearchParams()
-        if (filter) {
-            params = new URLSearchParams({
-                filters: JSON.stringify(filter)
-            })
-        }
+    let getTradeOffers = (onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]> => {
         return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to use the trade feature.')
+                reject()
+                return
+            }
+            let params = new URLSearchParams()
+            if (filter) {
+                params = new URLSearchParams({
+                    filters: JSON.stringify(filter)
+                })
+            }
+
             httpApi.sendApiRequest({
                 type: RequestType.GET_TRADES,
-                customRequestURL: `${getApiEndpoint()}/trades?${filter ? `${params.toString()}` : ''}`,
+                customRequestURL: `${getApiEndpoint()}/trades${onlyOwn ? '/own' : ''}?${filter ? `${params.toString()}` : ''}`,
                 data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
                 resolve: data => {
                     resolve(data)
                 },
