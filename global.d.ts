@@ -247,6 +247,10 @@ interface API {
     getOwnerHistory(uid: string): Promise<OwnerHistory[]>
     getMayorData(start: Date, end: Date): Promise<MayorData[]>
     lemonsqueezyPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
+    getPlayerInventory(): Promise<InventoryData[]>
+    createTradeOffer(playerUUID: string, offer: InventoryData, wantedItems: WantedItem[]): Promise<void>
+    getTradeOffers(onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]>
+    deleteTradeOffer(tradeId: string): Promise<void>
     getTransactions(): Promise<Transaction[]>
 }
 
@@ -573,6 +577,34 @@ interface MayorData {
     end: Date
     winner: Mayor
     year: number
+}
+
+interface InventoryData {
+    id: number
+    itemName: string
+    tag: string
+    icon: string
+    extraAttributes: { [key: string]: string }
+    enchantments: { [key: string]: string }
+    color: number
+    description: string
+    count: number
+}
+
+interface TradeObject {
+    id: string
+    playerUuid: string
+    playerName: string
+    buyerUuid: string
+    item: InventoryData
+    wantedItems: WantedItem[]
+    timestamp: Date
+}
+
+interface WantedItem {
+    tag: string
+    itemName: string
+    filters: ItemFilter | undefined
 }
 
 interface Transaction {

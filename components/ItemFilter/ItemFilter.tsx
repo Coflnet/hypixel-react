@@ -27,6 +27,7 @@ interface Props {
     defaultFilter?: ItemFilter
     disableLastUsedFilter?: boolean
     showModAdvert?: boolean
+    showFilterInfoElement?: boolean
     onIsValidChange?(newIsValid: boolean)
     emptyLabel?: string
 }
@@ -370,7 +371,7 @@ function ItemFilter(props: Props) {
                 <Card>
                     <Card.Title style={{ margin: '10px' }}>
                         Filter
-                        {infoIconElement}
+                        {props.showFilterInfoElement ? infoIconElement : null}
                     </Card.Title>
                     <Card.Body>
                         {props.showModAdvert ? <ModAdvert /> : null}

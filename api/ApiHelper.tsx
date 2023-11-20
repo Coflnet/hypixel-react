@@ -15,6 +15,7 @@ import {
     parseFilterOption,
     parseFlipAuction,
     parseFlipTrackingResponse,
+    parseInventoryData,
     parseItem,
     parseItemBidForList,
     parseItemPrice,
@@ -1945,6 +1946,132 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getPlayerInventory = (): Promise<InventoryData[]> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to load the inventory.')
+                reject()
+                return
+            }
+            httpApi.sendApiRequest({
+                type: RequestType.INVENTORY_DATA,
+                customRequestURL: `${getApiEndpoint()}/inventory`,
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                data: '',
+                resolve: data => {
+                    resolve(data ? (data as TradeObject[]).slice(Math.max(data.length - 36, 0)).map(parseInventoryData) : [])
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.INVENTORY_DATA, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let createTradeOffer = (playerUUID: string, offer: InventoryData, wantedItems: WantedItem[]): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to load the inventory.')
+                reject()
+                return
+            }
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.CREATE_TRADE_OFFER,
+                    requestMethod: 'POST',
+                    customRequestURL: `${getApiEndpoint()}/trades`,
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    data: '',
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.CREATE_TRADE_OFFER, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify([
+                    {
+                        playerUuid: playerUUID,
+                        item: offer,
+                        wantedItems: wantedItems
+                    }
+                ])
+            )
+        })
+    }
+
+    let deleteTradeOffer = (tradeId: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to delete your trades.')
+                reject()
+                return
+            }
+            httpApi.sendApiRequest({
+                type: RequestType.DELETE_TRADE_OFFER,
+                requestMethod: 'DELETE',
+                customRequestURL: `${getApiEndpoint()}/trades/${tradeId}`,
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                data: '',
+                resolve: () => {
+                    resolve()
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.DELETE_TRADE_OFFER, error, tradeId)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let getTradeOffers = (onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to use the trade feature.')
+                reject()
+                return
+            }
+            let params = new URLSearchParams()
+            if (filter) {
+                params = new URLSearchParams({
+                    filters: JSON.stringify(filter)
+                })
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TRADES,
+                customRequestURL: `${getApiEndpoint()}/trades${onlyOwn ? '/own' : ''}?${filter ? `${params.toString()}` : ''}`,
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: data => {
+                    resolve(data)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_TRADES, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -2019,6 +2146,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getRelatedItems,
         getOwnerHistory,
         getMayorData,
+        getPlayerInventory,
+        createTradeOffer,
+        getTradeOffers,
+        deleteTradeOffer,
         getTransactions
     }
 }

@@ -16,6 +16,7 @@ interface Props {
     tooltipTitle?: JSX.Element
     size?: 'sm' | 'lg' | 'xl'
     onClick?: Function
+    className?: string
     id?: any
     hoverPlacement?: any
 }
@@ -26,7 +27,11 @@ function Tooltip(props: Props) {
     function getHoverElement() {
         return props.tooltipContent ? (
             <OverlayTrigger
-                overlay={<BootstrapTooltip id={props.id || generateUUID()}>{props.tooltipContent}</BootstrapTooltip>}
+                overlay={
+                    <BootstrapTooltip id={props.id || generateUUID()} className={props.className}>
+                        {props.tooltipContent}
+                    </BootstrapTooltip>
+                }
                 placement={props.hoverPlacement}
             >
                 {props.content}

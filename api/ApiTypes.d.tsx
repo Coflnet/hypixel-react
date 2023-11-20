@@ -75,6 +75,10 @@ export enum RequestType {
     CHECK_FILTER = 'checkFilter',
     OWNER_HISOTRY = 'ownerHistory',
     MAYOR_DATA = 'mayorData',
+    INVENTORY_DATA = 'inventoryData',
+    CREATE_TRADE_OFFER = 'createTradeOffer',
+    DELETE_TRADE_OFFER = 'deleteTradeOffer',
+    GET_TRADES = 'getTrades',
     GET_TRANSACTIONS = 'getTransactions'
 }
 

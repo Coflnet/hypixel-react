@@ -35,21 +35,22 @@ function GoogleSignIn(props: Props) {
         setIsSSR(false)
         if (wasAlreadyLoggedInThisSession) {
             onLoginSucces(localStorage.getItem('googleId')!)
-        }
-        setTimeout(() => {
-            let isShown = false
-            document.querySelectorAll('iframe').forEach(e => {
-                if (e.src && e.src.includes('accounts.google.com')) {
-                    isShown = true
+        } else {
+            setTimeout(() => {
+                let isShown = false
+                document.querySelectorAll('iframe').forEach(e => {
+                    if (e.src && e.src.includes('accounts.google.com')) {
+                        isShown = true
+                    }
+                })
+                if (!isShown) {
+                    setIsLoggedIn(false)
+                    setIsLoginNotShowing(true)
+                    sessionStorage.removeItem('googleId')
+                    localStorage.removeItem('googleId')
                 }
-            })
-            if (!isShown) {
-                setIsLoggedIn(false)
-                setIsLoginNotShowing(true)
-                sessionStorage.removeItem('googleId')
-                localStorage.removeItem('googleId')
-            }
-        }, 5000)
+            }, 5000)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

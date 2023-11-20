@@ -594,6 +594,30 @@ export function parseMayorData(mayorData): MayorData {
     }
 }
 
+export function parseInventoryData(data): InventoryData {
+    if (data === null || data.itemName === null) {
+        return data
+    }
+
+    if (data.enchantments !== null) {
+        Object.keys(data?.enchantments).forEach(key => {
+            data.enchantments[key] = data.enchantments[key].toString()
+        })
+    }
+
+    return {
+        color: data.data,
+        count: data.count,
+        description: data.description,
+        enchantments: data.enchantments || {},
+        extraAttributes: data.extraAttributes,
+        icon: api.getItemImageUrl({ tag: data.tag }),
+        id: data.id,
+        itemName: data.itemName,
+        tag: data.tag
+    }
+}
+
 export function parseTransaction(transaction): Transaction {
     return {
         productId: transaction.productId,

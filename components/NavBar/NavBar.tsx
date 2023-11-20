@@ -11,6 +11,7 @@ import PetsIcon from '@mui/icons-material/PetsOutlined'
 import PolicyIcon from '@mui/icons-material/Policy'
 import ShareIcon from '@mui/icons-material/ShareOutlined'
 import StorefrontIcon from '@mui/icons-material/Storefront'
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
@@ -165,6 +166,9 @@ function NavBar(props: Props) {
                             </MenuItem>
                             <MenuItem className={styles.menuItem} component={<Link href={'/premium'} />} icon={<AccountBalanceIcon />}>
                                 Premium / Shop
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/trade'} />} icon={<CurrencyExchangeIcon />}>
+                                Trading
                             </MenuItem>
                             <MenuItem className={styles.menuItem} component={<Link href={'/kat'} />} icon={<PetsIcon />}>
                                 Kat Flips
