@@ -80,6 +80,7 @@ export default function TradeList(props: Props) {
                                           title={trade.playerName}
                                           src={'https://crafatar.com/avatars/' + trade.playerUuid + '?size=8'}
                                           alt=""
+                                          style={{ marginRight: 10 }}
                                           crossOrigin="anonymous"
                                           height={24}
                                       />
