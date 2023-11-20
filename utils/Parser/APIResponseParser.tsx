@@ -609,7 +609,7 @@ export function parseInventoryData(data): InventoryData {
         color: data.data,
         count: data.count,
         description: data.description,
-        enchantments: data.enchantments,
+        enchantments: data.enchantments || {},
         extraAttributes: data.extraAttributes,
         icon: api.getItemImageUrl({ tag: data.tag }),
         id: data.id,

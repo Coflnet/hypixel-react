@@ -1977,7 +1977,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let deleteTradeOffer = (tradeId: number): Promise<void> => {
+    let deleteTradeOffer = (tradeId: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -2015,7 +2015,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.GET_TRADES,
-                customRequestURL: `${getApiEndpoint()}/trades?${filter ? `filters=${params.toString()}` : ''}`,
+                customRequestURL: `${getApiEndpoint()}/trades?${filter ? `${params.toString()}` : ''}`,
                 data: '',
                 resolve: data => {
                     resolve(data)

@@ -46,7 +46,13 @@ export default function TradingOverview() {
         <>
             <Container>
                 {isCreateTradeOpen && playerData && playerData.mcId ? (
-                    <TradeCreate currentUserUUID={playerData.mcId} onAfterTradeCreate={onAfterTradeCreate} />
+                    <TradeCreate
+                        currentUserUUID={playerData.mcId}
+                        onAfterTradeCreate={onAfterTradeCreate}
+                        onWindowClose={() => {
+                            setIsCreateTradeOpen(false)
+                        }}
+                    />
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
                         <Button

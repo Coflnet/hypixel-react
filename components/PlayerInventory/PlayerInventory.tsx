@@ -7,7 +7,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 
 interface Props {
-    onItemClick?(InventoryData)
+    onItemClick?(item: InventoryData)
 }
 
 export default function PlayerInventory(props: Props) {

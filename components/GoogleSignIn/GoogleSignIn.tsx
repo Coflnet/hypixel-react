@@ -35,21 +35,22 @@ function GoogleSignIn(props: Props) {
         setIsSSR(false)
         if (wasAlreadyLoggedInThisSession) {
             onLoginSucces(localStorage.getItem('googleId')!)
-        }
-        setTimeout(() => {
-            let isShown = false
-            document.querySelectorAll('iframe').forEach(e => {
-                if (e.src && e.src.includes('accounts.google.com')) {
-                    isShown = true
+        } else {
+            setTimeout(() => {
+                let isShown = false
+                document.querySelectorAll('iframe').forEach(e => {
+                    if (e.src && e.src.includes('accounts.google.com')) {
+                        isShown = true
+                    }
+                })
+                if (!isShown) {
+                    setIsLoggedIn(false)
+                    setIsLoginNotShowing(true)
+                    sessionStorage.removeItem('googleId')
+                    localStorage.removeItem('googleId')
                 }
-            })
-            if (!isShown) {
-                setIsLoggedIn(false)
-                setIsLoginNotShowing(true)
-                sessionStorage.removeItem('googleId')
-                localStorage.removeItem('googleId')
-            }
-        }, 5000)
+            }, 5000)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -66,9 +67,11 @@ function GoogleSignIn(props: Props) {
     }, [props.rerenderFlip])
 
     function onLoginSucces(token: string) {
+        console.log('on login success')
         setIsLoggedIn(true)
         api.loginWithToken(token)
             .then(token => {
+                console.log('setting token')
                 localStorage.setItem('googleId', token)
                 sessionStorage.setItem('googleId', token)
                 let refId = (window as any).refId
@@ -81,6 +84,7 @@ function GoogleSignIn(props: Props) {
                 }
             })
             .catch(error => {
+                console.log('error')
                 // dont show the error message for the invalid token error
                 // the google sign component sometimes sends an outdated token, causing this error
                 if (error.slug !== 'invalid_token') {

@@ -1,5 +1,5 @@
-import { Button, Card, Modal } from 'react-bootstrap'
-import { useEffect, useState } from 'react'
+import { Button, Card, Modal, Spinner } from 'react-bootstrap'
+import { useState } from 'react'
 import api from '../../api/ApiHelper'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 import styles from './TradeCreate.module.css'
@@ -8,11 +8,13 @@ import MinusIcon from '@mui/icons-material/RemoveCircleOutline'
 import PlayerInventory from '../PlayerInventory/PlayerInventory'
 import TradeCreateWantedItem from '../TradeCreateWantedItem/TradeCreateWantedItem'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
-import { getLoadingElement } from '../../utils/LoadingUtils'
 import { toast } from 'react-toastify'
+import CircularProgress from '@mui/material/CircularProgress'
+import CloseIcon from '@mui/icons-material/Close'
 
 interface Props {
     onAfterTradeCreate()
+    onWindowClose()
     currentUserUUID: string
 }
 
@@ -21,6 +23,7 @@ export default function TradeCreate(props: Props) {
     let [wantedItems, setWantedItems] = useState<WantedItem[]>([])
     let [showOfferModal, setShowOfferModal] = useState(false)
     let [showCreateWantedItemModal, setShowCreateWantedItemModal] = useState(false)
+    let [isCurrentlyCreatingTrade, setIsCurrentlyCreatingTrade] = useState(false)
 
     function onAddWanted(newWanted: WantedItem) {
         let updatedWanted = [...wantedItems, newWanted]
@@ -39,8 +42,10 @@ export default function TradeCreate(props: Props) {
 
     function createTradeOffer() {
         if (props.currentUserUUID && offer) {
+            setIsCurrentlyCreatingTrade(true)
             api.createTradeOffer(props.currentUserUUID, offer, wantedItems).then(() => {
                 toast.success('Trade successfully created')
+                setIsCurrentlyCreatingTrade(false)
                 props.onAfterTradeCreate()
             })
         } else {
@@ -91,7 +96,9 @@ export default function TradeCreate(props: Props) {
         <>
             <Card className={styles.card}>
                 <Card.Header>
-                    <Card.Title>Create Trade</Card.Title>
+                    <Card.Title>
+                        Create Trade <CloseIcon style={{ float: 'right', cursor: 'pointer' }} onClick={props.onWindowClose} />
+                    </Card.Title>
                 </Card.Header>
                 <Card.Body>
                     <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
@@ -170,8 +177,12 @@ export default function TradeCreate(props: Props) {
                     </div>
                 </Card.Body>
                 <Card.Footer style={{ cursor: 'pointer' }}>
-                    <Button variant="success" onClick={createTradeOffer} disabled={!offer || !wantedItems || wantedItems.length === 0}>
-                        <AddIcon /> Create trade offer
+                    <Button
+                        variant="success"
+                        onClick={createTradeOffer}
+                        disabled={!offer || !wantedItems || wantedItems.length === 0 || isCurrentlyCreatingTrade}
+                    >
+                        {isCurrentlyCreatingTrade ? <CircularProgress size="15px" /> : <AddIcon />} Create trade offer
                     </Button>
                 </Card.Footer>
             </Card>
