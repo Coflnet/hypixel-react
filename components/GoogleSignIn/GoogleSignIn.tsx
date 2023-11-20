@@ -67,11 +67,9 @@ function GoogleSignIn(props: Props) {
     }, [props.rerenderFlip])
 
     function onLoginSucces(token: string) {
-        console.log('on login success')
         setIsLoggedIn(true)
         api.loginWithToken(token)
             .then(token => {
-                console.log('setting token')
                 localStorage.setItem('googleId', token)
                 sessionStorage.setItem('googleId', token)
                 let refId = (window as any).refId
@@ -84,7 +82,6 @@ function GoogleSignIn(props: Props) {
                 }
             })
             .catch(error => {
-                console.log('error')
                 // dont show the error message for the invalid token error
                 // the google sign component sometimes sends an outdated token, causing this error
                 if (error.slug !== 'invalid_token') {

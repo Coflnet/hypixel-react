@@ -32,7 +32,6 @@ export default function TradingOverview() {
 
     function loadPlayerData(): Promise<void> {
         return api.getAccountInfo().then(data => {
-            console.log(data)
             setPlayerData(data)
         })
     }
