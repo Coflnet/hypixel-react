@@ -6,7 +6,7 @@ export function isClientSideRendering() {
 
 export function getHeadMetadata(
     title: string = 'Skyblock Auction House History | Hypixel SkyBlock AH history',
-    description: string = 'Browse over 500 million auctions, and the bazaar of Hypixel SkyBlock.',
+    description: string = 'Browse over 600 million auctions, and the bazaar of Hypixel SkyBlock.',
     imageUrl: string = 'https://sky.coflnet.com/logo192.png',
     keywords: string[] = [],
     embedTitle: string = 'Skyblock Auction House History | Hypixel SkyBlock AH history'

@@ -251,6 +251,7 @@ interface API {
     createTradeOffer(playerUUID: string, offer: InventoryData, wantedItems: WantedItem[]): Promise<void>
     getTradeOffers(filter?: ItemFilter): Promise<TradeObject[]>
     deleteTradeOffer(tradeId: string): Promise<void>
+    getTransactions(): Promise<Transaction[]>
 }
 
 interface CacheUtils {
@@ -331,7 +332,6 @@ interface FlipCustomizeSettings {
     hideLore?: boolean
     modFormat?: string
     modCountdown?: boolean
-    modNoAdjustToPurse?: boolean
 }
 
 interface FlipRestriction {
@@ -605,4 +605,11 @@ interface WantedItem {
     tag: string
     itemName: string
     filters: ItemFilter | undefined
+}
+
+interface Transaction {
+    productId: string
+    reference: string
+    amount: number
+    timeStamp: Date
 }

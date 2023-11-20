@@ -414,7 +414,7 @@ function ItemFilter(props: Props) {
                                                 description.includes(searchString)
                                             )
                                         }}
-                                        emptyLabel={props.emptyLabel}
+                                        emptyLabel={props.emptyLabel || 'No matches found. Filters which would not show any results are hidden'}
                                     ></Typeahead>
                                 ) : (
                                     <Spinner animation="border" role="status" variant="primary" />

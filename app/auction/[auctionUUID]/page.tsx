@@ -118,7 +118,7 @@ export default async function Page({ params }) {
 export async function generateMetadata({ params }) {
     function getAuctionDescription(auctionDetails): string {
         if (!auctionDetails) {
-            return 'Browse over 500 million auctions, and the bazaar of Hypixel SkyBlock.'
+            return 'Browse over 600 million auctions, and the bazaar of Hypixel SkyBlock.'
         }
 
         let description = ''

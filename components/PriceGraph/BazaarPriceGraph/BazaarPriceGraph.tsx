@@ -19,6 +19,7 @@ import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
 import getPriceGraphConfigSingle from './PriceGraphConfigSingle'
 import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
+import { toast } from 'react-toastify'
 
 interface Props {
     item: Item
@@ -118,7 +119,12 @@ function BazaarPriceGraph(props: Props) {
 
         try {
             let prices = await loadBazaarPrices(props.item.tag, fetchspan)
-            let mayorData = await api.getMayorData(prices[0].timestamp, prices[prices.length - 1].timestamp)
+            let mayorData
+            try {
+                mayorData = await api.getMayorData(prices[0].timestamp, prices[prices.length - 1].timestamp)
+            } catch {
+                mayorData = []
+            }
             if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan })) {
                 return
             }

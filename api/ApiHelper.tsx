@@ -34,7 +34,8 @@ import {
     parseRefInfo,
     parseSearchResultItem,
     parseSkyblockProfile,
-    parseSubscription
+    parseSubscription,
+    parseTransaction
 } from '../utils/Parser/APIResponseParser'
 import { PREMIUM_TYPES } from '../utils/PremiumTypeUtils'
 import { getProperty } from '../utils/PropertiesUtils'
@@ -1906,7 +1907,39 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     resolve(data.map(parseMayorData))
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.MAYOR_DATA, error, { start, end })
+                    // temporarly don't show mayor errors
+                    //apiErrorHandler(RequestType.MAYOR_DATA, error, { start, end })
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let getTransactions = (): Promise<Transaction[]> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to load transactions.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_TRANSACTIONS,
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                customRequestURL: `${getApiEndpoint()}/premium/transactions`,
+                data: '',
+                resolve: (data: any) => {
+                    if (!data) {
+                        return []
+                    }
+                    resolve(data.map(parseTransaction))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.STRIPE_PAYMENT_SESSION, error, '')
                     reject(error)
                 }
             })
@@ -2105,7 +2138,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getPlayerInventory,
         createTradeOffer,
         getTradeOffers,
-        deleteTradeOffer
+        deleteTradeOffer,
+        getTransactions
     }
 }
 

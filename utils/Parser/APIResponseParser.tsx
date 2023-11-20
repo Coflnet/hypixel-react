@@ -617,3 +617,12 @@ export function parseInventoryData(data): InventoryData {
         tag: data.tag
     }
 }
+
+export function parseTransaction(transaction): Transaction {
+    return {
+        productId: transaction.productId,
+        reference: transaction.reference,
+        amount: transaction.amount,
+        timeStamp: parseDate(transaction.timeStamp)
+    }
+}

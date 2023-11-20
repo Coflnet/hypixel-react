@@ -17,6 +17,7 @@ import styles from './AuctionHousePriceGraph.module.css'
 import graphConfig from './PriceGraphConfig'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
 import EChartsReact from 'echarts-for-react'
+import { toast } from 'react-toastify'
 
 interface Props {
     item: Item
@@ -114,9 +115,11 @@ function AuctionHousePriceGraph(props: Props) {
                     chartOptions.series[3].data.push(item.volume.toFixed(2))
                 })
 
-                let mayorData = await api.getMayorData(minDate, maxDate)
-                setMayorData(mayorData)
-                applyMayorDataToChart(chartOptions, mayorData, 4)
+                try {
+                    let mayorData = await api.getMayorData(minDate, maxDate)
+                    setMayorData(mayorData)
+                    applyMayorDataToChart(chartOptions, mayorData, 4)
+                } catch (e) {}
 
                 setAvgPrice(Math.round(priceSum / prices.length))
                 setNoDataFound(prices.length === 0)
