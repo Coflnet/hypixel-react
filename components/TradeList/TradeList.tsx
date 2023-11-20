@@ -56,6 +56,13 @@ export default function TradeList(props: Props) {
                     <Card key={trade.id} style={{ marginBottom: '15px' }}>
                         <Card.Header>
                             <Card.Title>
+                                <img
+                                    title={trade.playerName}
+                                    src={'https://crafatar.com/avatars/' + trade.playerUuid + '?size=8'}
+                                    alt=""
+                                    crossOrigin="anonymous"
+                                    height={24}
+                                />
                                 {trade.playerName}
                                 {props.currentUserUUID && trade.playerUuid === props.currentUserUUID ? (
                                     <DeleteIcon
@@ -92,7 +99,16 @@ export default function TradeList(props: Props) {
                                     {trade.wantedItems.map((wantedItem, i) => {
                                         return (
                                             <Card style={{ marginBottom: '10px' }}>
-                                                <Card.Header>{wantedItem.itemName}</Card.Header>
+                                                <Card.Header>
+                                                    <img
+                                                        title={convertTagToName(wantedItem.itemName)}
+                                                        src={api.getItemImageUrl(wantedItem)}
+                                                        alt=""
+                                                        crossOrigin="anonymous"
+                                                        height={24}
+                                                    />
+                                                    {wantedItem.itemName}
+                                                </Card.Header>
                                                 {wantedItem.filters ? (
                                                     <Card.Body>
                                                         <ItemFilterPropertiesDisplay filter={wantedItem.filters} />
