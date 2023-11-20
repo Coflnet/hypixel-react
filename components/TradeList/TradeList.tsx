@@ -3,11 +3,12 @@ import { getHeadMetadata } from '../../utils/SSRUtils'
 import { Card, Container, Form } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { useEffect, useState } from 'react'
-import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
+import { convertTagToName, getMinecraftColorCodedElement, removeMinecraftColorCoding } from '../../utils/Formatter'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 import ItemFilter from '../ItemFilter/ItemFilter'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { CopyButton } from '../CopyButton/CopyButton'
 
 interface Props {
     currentUserUUID?: string
@@ -40,7 +41,7 @@ export default function TradeList(props: Props) {
 
     function loadTrades(onlyOwn: boolean, filter?: ItemFilter) {
         setIsLoading(true)
-        api.getTradeOffers(onlyOwn || onlyOwnTrades, filter).then(newTrades => {
+        api.getTradeOffers(onlyOwn, filter).then(newTrades => {
             setTrades(newTrades)
             setIsLoading(false)
         })
@@ -85,6 +86,13 @@ export default function TradeList(props: Props) {
                                           height={24}
                                       />
                                       {trade.playerName}
+                                      <CopyButton
+                                          buttonStyle={{ marginLeft: '30px' }}
+                                          buttonVariant="primary"
+                                          buttonContent={<span style={{ marginLeft: 5 }}>Copy party command</span>}
+                                          copyValue={`/p ${trade.playerName} I would like to buy your ${removeMinecraftColorCoding(trade.item.itemName)}`}
+                                          successMessage={<span>Copied party command</span>}
+                                      />
                                       {props.currentUserUUID && trade.playerUuid === props.currentUserUUID ? (
                                           <DeleteIcon
                                               onClick={() => {

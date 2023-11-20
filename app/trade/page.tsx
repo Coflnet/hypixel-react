@@ -9,7 +9,7 @@ export default async function Page() {
             <Container>
                 <h2>
                     <NavBar />
-                    <span>Trading (WIP)</span>
+                    <span>Trading (WIP - Please report bugs)</span>
                 </h2>
                 <TradingOverview />
             </Container>
