@@ -35,3 +35,7 @@
 .hoverElement {
     min-width: "800px" !important;
 }
+
+#tooltipHoverId :global(.tooltip-inner){
+    max-width: 100%;
+  }

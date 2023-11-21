@@ -1,5 +1,5 @@
 import { Card } from 'react-bootstrap'
-import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSeparators } from '../../utils/Formatter'
+import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSeparators, removeMinecraftColorCoding } from '../../utils/Formatter'
 import styles from './PlayerInventory.module.css'
 import { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
@@ -24,26 +24,37 @@ export default function PlayerInventory(props: Props) {
             })
     }, [])
 
+    function isItemSouldbound(item: InventoryData) {
+        return item.description?.includes('§8§l* §8Co-op Soulbound §8§l*') || item.description?.includes('§8§l* §8Soulbound §8§l*')
+    }
+
     function getItemEntryElement(item: InventoryData) {
         if (!item || item.itemName === null) {
             return <div className={styles.gridCell}></div>
         }
+
+        let isSouldbound = isItemSouldbound(item)
+        let isTradeable = !isSouldbound && item.tag !== 'SKYBLOCK_MENU'
         return (
             <div className={styles.gridCell}>
                 <Tooltip
                     type="hover"
                     className={styles.hoverElement}
                     hoverPlacement="bottom"
+                    id={styles.tooltipHoverId}
                     content={
                         <img
-                            title={convertTagToName(item.itemName)}
+                            title={removeMinecraftColorCoding(item.itemName)}
                             className={styles.image}
                             src={api.getItemImageUrl({ tag: item.tag })}
                             alt=""
                             crossOrigin="anonymous"
                             height={48}
-                            style={{ cursor: 'pointer' }}
+                            style={isTradeable ? { cursor: 'pointer' } : {}}
                             onClick={() => {
+                                if (!isTradeable) {
+                                    return
+                                }
                                 if (props.onItemClick) {
                                     props.onItemClick(item)
                                 }
@@ -51,7 +62,8 @@ export default function PlayerInventory(props: Props) {
                         />
                     }
                     tooltipContent={
-                        <div>
+                        <div style={{ maxWidth: '100%' }}>
+                            {isSouldbound ? <p>{getMinecraftColorCodedElement(`§4§lNot tradeable - Item is Soulbound`)}</p> : null}
                             <p>
                                 <img
                                     title={convertTagToName(item.tag)}
