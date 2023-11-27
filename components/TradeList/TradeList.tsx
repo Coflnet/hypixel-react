@@ -90,7 +90,7 @@ export default function TradeList(props: Props) {
                                           buttonStyle={{ marginLeft: '30px' }}
                                           buttonVariant="primary"
                                           buttonContent={<span style={{ marginLeft: 5 }}>Copy party command</span>}
-                                          copyValue={`/p ${trade.playerName} I would like to buy your ${removeMinecraftColorCoding(trade.item.itemName)}`}
+                                          copyValue={`/p ${trade.playerName}`}
                                           successMessage={<span>Copied party command</span>}
                                       />
                                       {props.currentUserUUID && trade.playerUuid === props.currentUserUUID ? (
