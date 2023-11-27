@@ -1963,6 +1963,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 data: '',
                 resolve: data => {
+                    console.log(data)
                     resolve(data ? (data as TradeObject[]).slice(Math.max(data.length - 36, 0)).map(parseInventoryData) : [])
                 },
                 reject: (error: any) => {

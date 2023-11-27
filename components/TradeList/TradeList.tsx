@@ -117,6 +117,7 @@ export default function TradeList(props: Props) {
                                                           crossOrigin="anonymous"
                                                           height={24}
                                                       />
+                                                      {trade.item.count !== 1 ? `${trade.item.count}x` : null}{' '}
                                                       {getMinecraftColorCodedElement(`${trade.item.itemName}`)}
                                                   </Card.Title>
                                               </Card.Header>

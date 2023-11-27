@@ -116,7 +116,7 @@ export default function TradeCreate(props: Props) {
                                                 crossOrigin="anonymous"
                                                 height={24}
                                             />
-                                            {getMinecraftColorCodedElement(`${offer.itemName}`)}
+                                            {offer.count !== 1 ? `${offer.count}x` : null} {getMinecraftColorCodedElement(`${offer.itemName}`)}
                                         </Card.Title>
                                     </Card.Header>
                                     <Card.Body>{getMinecraftColorCodedElement(offer.description, false)}</Card.Body>
