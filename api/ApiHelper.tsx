@@ -35,6 +35,7 @@ import {
     parseSearchResultItem,
     parseSkyblockProfile,
     parseSubscription,
+    parseTradeObject,
     parseTransaction
 } from '../utils/Parser/APIResponseParser'
 import { PREMIUM_TYPES } from '../utils/PremiumTypeUtils'
@@ -2063,7 +2064,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     'Content-Type': 'application/json'
                 },
                 resolve: data => {
-                    resolve(data)
+                    resolve(data ? data.map(parseTradeObject) : [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_TRADES, error)

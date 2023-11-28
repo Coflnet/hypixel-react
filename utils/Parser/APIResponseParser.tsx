@@ -614,7 +614,21 @@ export function parseInventoryData(data): InventoryData {
         icon: api.getItemImageUrl({ tag: data.tag }),
         id: data.id,
         itemName: data.itemName,
-        tag: data.tag
+        tag: data.tag,
+        coins: data.coins
+    }
+}
+
+export function parseTradeObject(data): TradeObject {
+    return {
+        id: data.id,
+        playerUuid: data.playerUuid,
+        playerName: data.playerName,
+        buyerUuid: data.buyerUuid,
+        item: parseInventoryData(data.item),
+        wantedItems: data.wantedItems ? data.wantedItems.filter(wantedItem => wantedItem.tag !== 'SKYBLOCK_COIN') : [],
+        wantedCoins: data.wantedItems ? data.wantedItems.find(wantedItem => wantedItem.tag === 'SKYBLOCK_COIN')?.filter?.count : null,
+        timestamp: parseDate(data.timestamp)
     }
 }
 

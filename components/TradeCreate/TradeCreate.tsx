@@ -1,4 +1,4 @@
-import { Button, Card, Modal, Spinner } from 'react-bootstrap'
+import { Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
 import { useState } from 'react'
 import api from '../../api/ApiHelper'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
@@ -7,10 +7,11 @@ import AddIcon from '@mui/icons-material/AddCircleOutline'
 import MinusIcon from '@mui/icons-material/RemoveCircleOutline'
 import PlayerInventory from '../PlayerInventory/PlayerInventory'
 import TradeCreateWantedItem from '../TradeCreateWantedItem/TradeCreateWantedItem'
-import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
+import { convertTagToName, getDecimalSeparator, getMinecraftColorCodedElement, getThousandSeparator } from '../../utils/Formatter'
 import { toast } from 'react-toastify'
 import CircularProgress from '@mui/material/CircularProgress'
 import CloseIcon from '@mui/icons-material/Close'
+import { NumericFormat } from 'react-number-format'
 
 interface Props {
     onAfterTradeCreate()
@@ -21,6 +22,7 @@ interface Props {
 export default function TradeCreate(props: Props) {
     let [offer, setOffer] = useState<InventoryData>()
     let [wantedItems, setWantedItems] = useState<WantedItem[]>([])
+    let [wantedCoins, setWantedCoins] = useState<number>(0)
     let [showOfferModal, setShowOfferModal] = useState(false)
     let [showCreateWantedItemModal, setShowCreateWantedItemModal] = useState(false)
     let [isCurrentlyCreatingTrade, setIsCurrentlyCreatingTrade] = useState(false)
@@ -42,8 +44,19 @@ export default function TradeCreate(props: Props) {
 
     function createTradeOffer() {
         if (props.currentUserUUID && offer) {
+            let wantedItemsToSend = [...wantedItems]
+            if (wantedCoins > 0) {
+                let wantedCoinsItem = {
+                    itemName: 'Skyblock Coins',
+                    tag: 'SKYBLOCK_COIN',
+                    filters: {
+                        COUNT: wantedCoins.toString()
+                    }
+                } as WantedItem
+                wantedItemsToSend.push(wantedCoinsItem)
+            }
             setIsCurrentlyCreatingTrade(true)
-            api.createTradeOffer(props.currentUserUUID, offer, wantedItems).then(() => {
+            api.createTradeOffer(props.currentUserUUID, offer, wantedItemsToSend).then(() => {
                 toast.success('Trade successfully created')
                 setIsCurrentlyCreatingTrade(false)
                 props.onAfterTradeCreate()
@@ -104,7 +117,7 @@ export default function TradeCreate(props: Props) {
                     <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
                         <div style={{ width: '40%' }}>
                             <h2>Has</h2>
-                            {offer ? (
+                            {offer && offer.tag ? (
                                 <Card>
                                     <Card.Header>
                                         <Card.Title>
@@ -130,6 +143,24 @@ export default function TradeCreate(props: Props) {
                             >
                                 <AddIcon /> Select item you want to offer
                             </p>
+                            <hr />
+                            <Form.Label htmlFor="coins-have">Coins you offer:</Form.Label>
+                            <NumericFormat
+                                id="coins-have"
+                                placeholder="Add coins you want to offer"
+                                onValueChange={value => {
+                                    let newOffer = { ...offer } as InventoryData
+                                    newOffer.coins = value.floatValue || 0
+                                    setOffer(newOffer)
+                                }}
+                                customInput={Form.Control}
+                                suffix=" Coins"
+                                defaultValue={0}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
+                                allowNegative={false}
+                                decimalScale={0}
+                            />
                         </div>
                         <div style={{ width: '40%' }}>
                             <h2>Want</h2>
@@ -173,6 +204,23 @@ export default function TradeCreate(props: Props) {
                             >
                                 <AddIcon /> Add wanted item
                             </p>
+
+                            <hr />
+                            <Form.Label htmlFor="coins-want">Coins you want:</Form.Label>
+                            <NumericFormat
+                                id="coins-want"
+                                placeholder="Add coins you want to offer"
+                                onValueChange={value => {
+                                    setWantedCoins(value.floatValue || 0)
+                                }}
+                                customInput={Form.Control}
+                                suffix=" Coins"
+                                defaultValue={0}
+                                thousandSeparator={getThousandSeparator()}
+                                decimalSeparator={getDecimalSeparator()}
+                                allowNegative={false}
+                                decimalScale={0}
+                            />
                         </div>
                     </div>
                 </Card.Body>

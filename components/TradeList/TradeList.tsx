@@ -123,12 +123,20 @@ export default function TradeList(props: Props) {
                                               </Card.Header>
                                               <Card.Body>{getMinecraftColorCodedElement(trade.item.description, false)}</Card.Body>
                                           </Card>
+                                          {trade.item.coins ? (
+                                              <>
+                                                  <hr />
+                                                  <p>
+                                                      Offered Coins: <b>{trade.item.coins}</b>
+                                                  </p>
+                                              </>
+                                          ) : null}
                                       </div>
                                       <div style={{ width: '40%' }}>
                                           <h2>Want</h2>
                                           {trade.wantedItems.map((wantedItem, i) => {
                                               return (
-                                                  <Card style={{ marginBottom: '10px' }}>
+                                                  <Card style={{ marginBottom: '10px' }} key={`${trade.id}-wantedItem-${i}`}>
                                                       <Card.Header>
                                                           <img
                                                               title={convertTagToName(wantedItem.itemName)}
@@ -147,6 +155,14 @@ export default function TradeList(props: Props) {
                                                   </Card>
                                               )
                                           })}
+                                          {trade.item.coins ? (
+                                              <>
+                                                  <hr />
+                                                  <p>
+                                                      Wanted Coins: <b>{trade.wantedCoins}</b>
+                                                  </p>
+                                              </>
+                                          ) : null}
                                       </div>
                                   </div>
                               </Card.Body>

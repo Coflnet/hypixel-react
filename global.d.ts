@@ -589,6 +589,7 @@ interface InventoryData {
     color: number
     description: string
     count: number
+    coins: number
 }
 
 interface TradeObject {
@@ -598,6 +599,7 @@ interface TradeObject {
     buyerUuid: string
     item: InventoryData
     wantedItems: WantedItem[]
+    wantedCoins: number
     timestamp: Date
 }
 
