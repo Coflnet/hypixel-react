@@ -44,3 +44,8 @@
 .datePicker {
     margin-right: 15px
 }
+
+.filterContainer{
+    display: flex;
+    align-items: center;
+}

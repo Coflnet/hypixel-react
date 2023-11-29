@@ -462,6 +462,7 @@ interface FlipTrackingFlip {
     sellTime: Date
     profit: number
     propertyChanges: FlipTrackingPropertyChange[]
+    flags: 'None' | 'DifferentBuyer' | 'ViaTrade' | 'MultiItemTrade'
 }
 
 interface FlipTrackingResponse {

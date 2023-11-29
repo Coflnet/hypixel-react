@@ -58,11 +58,17 @@ const SORT_OPTIONS: SortOption[] = [
     }
 ]
 
+const FLAG_FILTER_OPTIONS: { label: string; value: string }[] = [
+    { label: '-', value: 'all' },
+    { label: 'Only Trades', value: 'viaTrade' }
+]
+
 const TRACKED_FLIP_CONTEXT_MENU_ID = 'tracked-flip-context-menu'
 
 export function FlipTracking(props: Props) {
     let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
+    let [filterByFlag, setFilterByFlag] = useState(FLAG_FILTER_OPTIONS[0].value)
     let [ignoreProfitMap, setIgnoreProfitMap] = useState(getSettingsObject(IGNORE_FLIP_TRACKING_PROFIT, {}))
     let [rangeStartDate, setRangeStartDate] = useState(new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7))
     let [rangeEndDate, setRangeEndDate] = useState(new Date())
@@ -115,27 +121,6 @@ export function FlipTracking(props: Props) {
         show({ event: event, props: { uid: event.currentTarget.id } })
     }
 
-    function splitIntoBatches(startDate: Date, endDate: Date): [Date, Date][] {
-        const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000
-        const batches: [Date, Date][] = []
-
-        let currentDate = new Date(endDate)
-
-        while (currentDate.getTime() > startDate.getTime()) {
-            const batchStartDate = new Date(currentDate.getTime() - sevenDaysInMilliseconds)
-
-            if (batchStartDate.getTime() < startDate.getTime()) {
-                batches.push([startDate, currentDate])
-            } else {
-                batches.push([batchStartDate, currentDate])
-            }
-
-            currentDate = new Date(batchStartDate.getTime() - 1) // Move to the previous day
-        }
-
-        return batches
-    }
-
     async function loadFlipsForTimespan(from: Date, to: Date) {
         setIsLoading(true)
         let newFlips = await api.getTrackedFlipsForPlayer(props.playerUUID, from, to)
@@ -161,6 +146,11 @@ export function FlipTracking(props: Props) {
         orderedFlips = sortOption?.sortFunction(trackedFlips)
     }
 
+    let filteredFlips = orderedFlips
+    if (filterByFlag !== 'all') {
+        filteredFlips = orderedFlips.filter(flip => flip.flags === filterByFlag)
+    }
+
     let currentItemContextMenuElement = (
         <div>
             <Menu id={TRACKED_FLIP_CONTEXT_MENU_ID} theme={'dark'}>
@@ -179,7 +169,7 @@ export function FlipTracking(props: Props) {
         </div>
     )
 
-    let list = orderedFlips.map((trackedFlip, i) => {
+    let list = filteredFlips.map((trackedFlip, i) => {
         return (
             <FlipTrackingListItem
                 key={trackedFlip.uId + ' - ' + ignoreProfitMap[trackedFlip.uId.toString(16)]}
@@ -201,15 +191,41 @@ export function FlipTracking(props: Props) {
         <div>
             <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
-                <Form.Select style={{ width: 'auto', marginTop: '20px' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
-                    {SORT_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>
-                            {option.label}
-                        </option>
-                    ))}
-                </Form.Select>
+                <div style={{ display: 'flex', gap: 10 }}>
+                    <div className={styles.filterContainer}>
+                        <label htmlFor="flag-filter" style={{ marginRight: 15 }}>
+                            Sort:
+                        </label>
+                        <Form.Select style={{ width: 'auto' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
+                            {SORT_OPTIONS.map(option => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </Form.Select>
+                    </div>
+                    <div className={styles.filterContainer}>
+                        <label htmlFor="flag-filter" style={{ marginRight: 15 }}>
+                            Filter:
+                        </label>
+                        <Form.Select
+                            id="flag-filter"
+                            style={{ width: 'auto' }}
+                            defaultValue={filterByFlag}
+                            onChange={e => {
+                                setFilterByFlag(e.target.value)
+                            }}
+                        >
+                            {FLAG_FILTER_OPTIONS.map(option => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </Form.Select>
+                    </div>
+                </div>
                 {hasPremium ? (
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className={styles.filterContainer}>
                         <label style={{ marginRight: 15 }}>From: </label>
                         <div style={{ paddingRight: 15 }}>
                             <DatePicker
