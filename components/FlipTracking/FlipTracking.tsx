@@ -73,7 +73,12 @@ const SORT_OPTIONS: SortOption[] = [
 
 const FILTER_OPTIONS: FilterOption[] = [
     { label: '-', value: 'all', filterFunction: flips => flips },
-    { label: 'Only Trades', value: 'only-trades', filterFunction: flips => flips.filter(flip => flip.flags.has(FlipTrackingFlags.ViaTrade)) }
+    { label: 'Only Trades', value: 'only-trades', filterFunction: flips => flips.filter(flip => flip.flags.has(FlipTrackingFlags.ViaTrade)) },
+    {
+        label: 'Only Same Buyer',
+        value: 'same-buyer',
+        filterFunction: flips => flips.filter(flip => !flip.flags.has(FlipTrackingFlags.DifferentBuyer))
+    }
 ]
 
 const TRACKED_FLIP_CONTEXT_MENU_ID = 'tracked-flip-context-menu'

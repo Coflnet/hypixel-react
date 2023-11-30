@@ -11,6 +11,7 @@ import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
 import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'
 import Tooltip from '../Tooltip/Tooltip'
 import moment from 'moment'
+import HelpIcon from '@mui/icons-material/Help'
 
 interface Props {
     trackedFlip: FlipTrackingFlip
@@ -118,6 +119,7 @@ export function FlipTrackingListItem(props: Props) {
                             />
                         </span>
                     </p>
+                    <p>Flags: {props.trackedFlip.flags}</p>
                     <p
                         style={{ cursor: 'pointer' }}
                         onClick={() => {
@@ -154,7 +156,14 @@ export function FlipTrackingListItem(props: Props) {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'end' }}>
                     <Suspense>
-                        <FlipTrackingCopyButton trackedFlip={props.trackedFlip} />
+                        <div>
+                            <Tooltip
+                                type="hover"
+                                content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer', marginRight: 5 }} />}
+                                tooltipContent={<p>Flags: {props.trackedFlip.flags}</p>}
+                            />
+                            <FlipTrackingCopyButton trackedFlip={props.trackedFlip} />
+                        </div>
                     </Suspense>
                 </div>
             </div>
