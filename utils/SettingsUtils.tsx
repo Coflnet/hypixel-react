@@ -5,7 +5,7 @@ import { hasFlag } from '../components/FilterElement/FilterType'
 import { DEFAULT_FLIP_SETTINGS, FLIP_FINDERS, getFlipCustomizeSettings, getFlipFinders } from './FlipUtils'
 import { isClientSideRendering } from './SSRUtils'
 import { getNumberFromShortenString } from './Formatter'
-import { BMConvert } from './BMParser'
+import { parseBMConfig } from './Parser/ParseBMConfig'
 
 const LOCAL_STORAGE_SETTINGS_KEY = 'userSettings'
 
@@ -201,7 +201,7 @@ export async function handleSettingsImport(importString: string) {
         let importObject = JSON.parse(importString)
         // Check for global field (BM format)
         if (importObject.global !== undefined) {
-            const converted = BMConvert(importObject)
+            const converted = parseBMConfig(importObject)
             filter = converted.filter
             flipCustomizeSettings = converted.flipCustomizeSettings
             restrictions = converted.restrictions
@@ -217,7 +217,8 @@ export async function handleSettingsImport(importString: string) {
             flipCustomizeSettings = importObject[FLIP_CUSTOMIZING_KEY] ? JSON.parse(importObject[FLIP_CUSTOMIZING_KEY]) : {}
             restrictions = importObject[RESTRICTIONS_SETTINGS_KEY] ? JSON.parse(importObject[RESTRICTIONS_SETTINGS_KEY]) : []
         }
-    } catch {
+    } catch (e) {
+        console.log(e)
         // Handle toml settings import
         try {
             var json = (await import('toml')).parse(importString)
