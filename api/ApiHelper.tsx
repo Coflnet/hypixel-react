@@ -35,6 +35,7 @@ import {
     parseSearchResultItem,
     parseSkyblockProfile,
     parseSubscription,
+    parseTradeObject,
     parseTransaction
 } from '../utils/Parser/APIResponseParser'
 import { PREMIUM_TYPES } from '../utils/PremiumTypeUtils'
@@ -1974,7 +1975,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let createTradeOffer = (playerUUID: string, offer: InventoryData, wantedItems: WantedItem[]): Promise<void> => {
+    let createTradeOffer = (playerUUID: string, offer: InventoryData, wantedItems: WantedItem[], offeredCoins: number): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -2004,6 +2005,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     {
                         playerUuid: playerUUID,
                         item: offer,
+                        coins: offeredCoins,
                         wantedItems: wantedItems
                     }
                 ])
@@ -2063,7 +2065,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     'Content-Type': 'application/json'
                 },
                 resolve: data => {
-                    resolve(data)
+                    resolve(data ? data.map(parseTradeObject) : [])
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_TRADES, error)
