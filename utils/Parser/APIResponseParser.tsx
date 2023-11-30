@@ -618,6 +618,20 @@ export function parseInventoryData(data): InventoryData {
     }
 }
 
+export function parseTradeObject(data): TradeObject {
+    return {
+        id: data.id,
+        playerUuid: data.playerUuid,
+        playerName: data.playerName,
+        buyerUuid: data.buyerUuid,
+        item: parseInventoryData(data.item),
+        wantedItems: data.wantedItems ? data.wantedItems.filter(wantedItem => wantedItem.tag !== 'SKYBLOCK_COIN') : [],
+        wantedCoins: data.wantedItems ? data.wantedItems.find(wantedItem => wantedItem.tag === 'SKYBLOCK_COIN')?.filters?.Count : null,
+        timestamp: parseDate(data.timestamp),
+        coins: data.coins
+    }
+}
+
 export function parseTransaction(transaction): Transaction {
     return {
         productId: transaction.productId,

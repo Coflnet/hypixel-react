@@ -248,7 +248,7 @@ interface API {
     getMayorData(start: Date, end: Date): Promise<MayorData[]>
     lemonsqueezyPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     getPlayerInventory(): Promise<InventoryData[]>
-    createTradeOffer(playerUUID: string, offer: InventoryData, wantedItems: WantedItem[]): Promise<void>
+    createTradeOffer(playerUUID: string, offer: InventoryData, wantedItems: WantedItem[], offeredCoins: number): Promise<void>
     getTradeOffers(onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]>
     deleteTradeOffer(tradeId: string): Promise<void>
     getTransactions(): Promise<Transaction[]>
@@ -599,7 +599,9 @@ interface TradeObject {
     buyerUuid: string
     item: InventoryData
     wantedItems: WantedItem[]
+    wantedCoins: number
     timestamp: Date
+    coins: number
 }
 
 interface WantedItem {
