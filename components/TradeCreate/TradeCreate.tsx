@@ -21,6 +21,7 @@ interface Props {
 
 export default function TradeCreate(props: Props) {
     let [offer, setOffer] = useState<InventoryData>()
+    let [offeredCoins, setOfferedCoins] = useState<number>(0)
     let [wantedItems, setWantedItems] = useState<WantedItem[]>([])
     let [wantedCoins, setWantedCoins] = useState<number>(0)
     let [showOfferModal, setShowOfferModal] = useState(false)
@@ -50,13 +51,13 @@ export default function TradeCreate(props: Props) {
                     itemName: 'Skyblock Coins',
                     tag: 'SKYBLOCK_COIN',
                     filters: {
-                        COUNT: wantedCoins.toString()
+                        Count: wantedCoins.toString()
                     }
                 } as WantedItem
                 wantedItemsToSend.push(wantedCoinsItem)
             }
             setIsCurrentlyCreatingTrade(true)
-            api.createTradeOffer(props.currentUserUUID, offer, wantedItemsToSend).then(() => {
+            api.createTradeOffer(props.currentUserUUID, offer, wantedItemsToSend, offeredCoins).then(() => {
                 toast.success('Trade successfully created')
                 setIsCurrentlyCreatingTrade(false)
                 props.onAfterTradeCreate()
@@ -64,6 +65,16 @@ export default function TradeCreate(props: Props) {
         } else {
             toast.error("Couln't create trade. Missing data.")
         }
+    }
+
+    function isButtonDisabled() {
+        if (isCurrentlyCreatingTrade) {
+            return true
+        }
+        if ((!offer || !offer.tag) && (!wantedItems || !wantedItems.length)) {
+            return true
+        }
+        return !((offer || offeredCoins) && (wantedItems.length > 0 || wantedCoins > 0))
     }
 
     let selectOfferModal = (
@@ -149,9 +160,7 @@ export default function TradeCreate(props: Props) {
                                 id="coins-have"
                                 placeholder="Add coins you want to offer"
                                 onValueChange={value => {
-                                    let newOffer = { ...offer } as InventoryData
-                                    newOffer.coins = value.floatValue || 0
-                                    setOffer(newOffer)
+                                    setOfferedCoins(value.floatValue || 0)
                                 }}
                                 customInput={Form.Control}
                                 suffix=" Coins"
@@ -225,11 +234,7 @@ export default function TradeCreate(props: Props) {
                     </div>
                 </Card.Body>
                 <Card.Footer style={{ cursor: 'pointer' }}>
-                    <Button
-                        variant="success"
-                        onClick={createTradeOffer}
-                        disabled={!offer || !wantedItems || wantedItems.length === 0 || isCurrentlyCreatingTrade}
-                    >
+                    <Button variant="success" onClick={createTradeOffer} disabled={isButtonDisabled()}>
                         {isCurrentlyCreatingTrade ? <CircularProgress size="15px" /> : <AddIcon />} Create trade offer
                     </Button>
                 </Card.Footer>

@@ -123,11 +123,11 @@ export default function TradeList(props: Props) {
                                               </Card.Header>
                                               <Card.Body>{getMinecraftColorCodedElement(trade.item.description, false)}</Card.Body>
                                           </Card>
-                                          {trade.item.coins ? (
+                                          {trade.coins ? (
                                               <>
                                                   <hr />
                                                   <p>
-                                                      Offered Coins: <b>{trade.item.coins}</b>
+                                                      Offered Coins: <b>{trade.coins}</b>
                                                   </p>
                                               </>
                                           ) : null}
@@ -155,7 +155,7 @@ export default function TradeList(props: Props) {
                                                   </Card>
                                               )
                                           })}
-                                          {trade.item.coins ? (
+                                          {trade.wantedCoins ? (
                                               <>
                                                   <hr />
                                                   <p>

@@ -1975,7 +1975,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let createTradeOffer = (playerUUID: string, offer: InventoryData, wantedItems: WantedItem[]): Promise<void> => {
+    let createTradeOffer = (playerUUID: string, offer: InventoryData, wantedItems: WantedItem[], offeredCoins: number): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -2005,6 +2005,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     {
                         playerUuid: playerUUID,
                         item: offer,
+                        coins: offeredCoins,
                         wantedItems: wantedItems
                     }
                 ])
