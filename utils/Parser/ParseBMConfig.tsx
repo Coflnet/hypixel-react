@@ -48,6 +48,9 @@ const attributes = new Set([
 // return the filter:{...} portion
 const parseModifiers = (name: string, modifiers: string): { [modifier: string]: string } => {
     const filter = {}
+    if (modifiers.length == 0) {
+        return filter
+    }
     const modifiersList = modifiers.split('&')
     for (const modifier of modifiersList) {
         const tokens = modifier.split(':')
@@ -55,11 +58,12 @@ const parseModifiers = (name: string, modifiers: string): { [modifier: string]: 
         if (tokens[0] == 'ultimate_reiterate') {
             tokens[0] = 'ultimate_duplex'
         }
-        // sometimes OFA doesnt use a secondary identifier
-        if (tokens.length == 1 && !reforges.has(tokens[0])) {
-            filter[tokens[0]] = '>0'
-        } else if (tokens[0] == 'nil') {
+        if (tokens[0] == 'nil') {
             filter['Clean'] = 'yes'
+        }
+        // sometimes OFA doesnt use a secondary identifier
+        else if (tokens.length == 1 && !reforges.has(tokens[0])) {
+            filter[tokens[0]] = '>0'
         } else {
             if (tokens.length != 2) throw new Error(`malformed bm config at current modifier ${modifier} at ${modifiers} on ${name}`)
             const [arg, val] = tokens
@@ -90,9 +94,9 @@ const parseModifiers = (name: string, modifiers: string): { [modifier: string]: 
                 if (val == 'high') {
                     winningBid = `>=${maxBid}m`
                 } else if (val == 'medium') {
-                    winningBid = `>=${((maxBid * 2) / 3).toFixed(4)}m`
+                    winningBid = `${((maxBid * 2) / 3).toFixed(4)}m-${maxBid}m`
                 } else {
-                    winningBid = `>=0`
+                    winningBid = `0-${((maxBid * 2) / 3).toFixed(4)}m`
                 }
                 filter['WinningBid'] = winningBid
             } else if (arg !== 'global') {
