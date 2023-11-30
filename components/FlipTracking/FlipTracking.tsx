@@ -30,6 +30,19 @@ interface SortOption {
     sortFunction(flips: FlipTrackingFlip[])
 }
 
+interface FilterOption {
+    label: string
+    value: string
+    filterFunction(flips: FlipTrackingFlip[])
+}
+
+enum FlipTrackingFlags {
+    None = 'None',
+    DifferentBuyer = 'DifferentBuyer',
+    ViaTrade = 'ViaTrade',
+    MultiItemTrade = 'MultiItemTrade'
+}
+
 const SORT_OPTIONS: SortOption[] = [
     {
         label: 'Time',
@@ -58,9 +71,9 @@ const SORT_OPTIONS: SortOption[] = [
     }
 ]
 
-const FLAG_FILTER_OPTIONS: { label: string; value: string }[] = [
-    { label: '-', value: 'all' },
-    { label: 'Only Trades', value: 'viaTrade' }
+const FILTER_OPTIONS: FilterOption[] = [
+    { label: '-', value: 'all', filterFunction: flips => flips },
+    { label: 'Only Trades', value: 'only-trades', filterFunction: flips => flips.filter(flip => flip.flags.has(FlipTrackingFlags.ViaTrade)) }
 ]
 
 const TRACKED_FLIP_CONTEXT_MENU_ID = 'tracked-flip-context-menu'
@@ -68,7 +81,7 @@ const TRACKED_FLIP_CONTEXT_MENU_ID = 'tracked-flip-context-menu'
 export function FlipTracking(props: Props) {
     let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
-    let [filterByFlag, setFilterByFlag] = useState(FLAG_FILTER_OPTIONS[0].value)
+    let [filterBy, setFilterBy] = useState(FILTER_OPTIONS[0])
     let [ignoreProfitMap, setIgnoreProfitMap] = useState(getSettingsObject(IGNORE_FLIP_TRACKING_PROFIT, {}))
     let [rangeStartDate, setRangeStartDate] = useState(new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7))
     let [rangeEndDate, setRangeEndDate] = useState(new Date())
@@ -140,16 +153,13 @@ export function FlipTracking(props: Props) {
         })
     }
 
-    let orderedFlips = trackedFlips
+    let flipsToDisplay = [...trackedFlips]
     if (orderBy) {
         let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
-        orderedFlips = sortOption?.sortFunction(trackedFlips)
+        flipsToDisplay = sortOption?.sortFunction(trackedFlips)
     }
 
-    let filteredFlips = orderedFlips
-    if (filterByFlag !== 'all') {
-        filteredFlips = orderedFlips.filter(flip => flip.flags === filterByFlag)
-    }
+    flipsToDisplay = filterBy.filterFunction(flipsToDisplay)
 
     let currentItemContextMenuElement = (
         <div>
@@ -169,7 +179,7 @@ export function FlipTracking(props: Props) {
         </div>
     )
 
-    let list = filteredFlips.map((trackedFlip, i) => {
+    let list = flipsToDisplay.map((trackedFlip, i) => {
         return (
             <FlipTrackingListItem
                 key={trackedFlip.uId + ' - ' + ignoreProfitMap[trackedFlip.uId.toString(16)]}
@@ -211,12 +221,12 @@ export function FlipTracking(props: Props) {
                         <Form.Select
                             id="flag-filter"
                             style={{ width: 'auto' }}
-                            defaultValue={filterByFlag}
+                            defaultValue={filterBy.value}
                             onChange={e => {
-                                setFilterByFlag(e.target.value)
+                                setFilterBy(FILTER_OPTIONS.find(option => option.value === e.target.value) || FILTER_OPTIONS[0])
                             }}
                         >
-                            {FLAG_FILTER_OPTIONS.map(option => (
+                            {FILTER_OPTIONS.map(option => (
                                 <option key={option.value} value={option.value}>
                                     {option.label}
                                 </option>
