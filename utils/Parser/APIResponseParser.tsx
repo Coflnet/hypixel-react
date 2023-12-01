@@ -494,7 +494,8 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
                 description: change.description,
                 effect: change.effect
             }
-        })
+        }),
+        flags: flip.flags ? new Set(flip.flags.split(', ')) : new Set()
     } as FlipTrackingFlip
     flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip?.item)
     return flipTrackingFlip
