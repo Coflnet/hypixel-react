@@ -119,7 +119,6 @@ export function FlipTrackingListItem(props: Props) {
                             />
                         </span>
                     </p>
-                    <p>Flags: {props.trackedFlip.flags}</p>
                     <p
                         style={{ cursor: 'pointer' }}
                         onClick={() => {
@@ -157,11 +156,13 @@ export function FlipTrackingListItem(props: Props) {
                 <div style={{ display: 'flex', alignItems: 'end' }}>
                     <Suspense>
                         <div>
-                            <Tooltip
-                                type="hover"
-                                content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer', marginRight: 5 }} />}
-                                tooltipContent={<p>Flags: {props.trackedFlip.flags}</p>}
-                            />
+                            {!props.trackedFlip.flags.has('None') ? (
+                                <Tooltip
+                                    type="hover"
+                                    content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer', marginRight: 5 }} />}
+                                    tooltipContent={<p>Flags: {Array.from(props.trackedFlip.flags).join(', ')}</p>}
+                                />
+                            ) : null}
                             <FlipTrackingCopyButton trackedFlip={props.trackedFlip} />
                         </div>
                     </Suspense>
