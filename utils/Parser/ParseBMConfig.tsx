@@ -145,6 +145,7 @@ export const parseBMName = (entry: string): { item: Item; itemFilter: ItemFilter
     const replacements = {
         PIONEER_PICKAXE: 'ALPHA_PICK',
         FLAKE_THE_FISH: 'SNOWFLAKE_THE_FISH',
+        SPIRIT_SCEPTRE: 'BAT_WAND',
         // a common filter has these typo so i will fix it here
         POCKET_ESPRESSO_MACINE: 'POCKET_ESPRESSO_MACHINE',
         ADVENT_CALENDER_DISPLAY: 'ADVENT_CALENDAR_DISPLAY'
