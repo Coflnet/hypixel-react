@@ -1,20 +1,22 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
-import { Card } from 'react-bootstrap'
+import { Button, Card } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import Navbar from '../../components/NavBar/NavBar'
-import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getProperty } from '../../utils/PropertiesUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { Number } from '../Number/Number'
 import styles from './Ref.module.css'
+import Tooltip from '../Tooltip/Tooltip'
+import ClaimAccountTutorial from '../ClaimAccount/ClaimAccountTutorial'
 
 function Ref() {
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [showClaimAccountDialog, setShowClaimAccountDialog] = useState(false)
 
     function onLogin() {
         let googleId = sessionStorage.getItem('googleId')
@@ -33,6 +35,16 @@ function Ref() {
     function getLink() {
         return getProperty('refLink') + '?refId=' + refInfo?.oldInfo.refId
     }
+
+    let claimAccountElement = (
+        <Tooltip
+            type="click"
+            content={<Button>How do I verify my account?</Button>}
+            tooltipContent={<ClaimAccountTutorial />}
+            size="xl"
+            tooltipTitle={<span>Claim Minecraft account</span>}
+        />
+    )
 
     return (
         <div>
@@ -83,6 +95,7 @@ function Ref() {
                                 account.
                             </span>
                         </p>
+                        {claimAccountElement}
                         {isLoggedIn && refInfo ? (
                             <div>
                                 <hr />

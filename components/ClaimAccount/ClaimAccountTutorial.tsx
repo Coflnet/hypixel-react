@@ -1,9 +1,8 @@
 'use client'
 import Link from 'next/link'
-import { getLoadingElement } from '../../utils/LoadingUtils'
 import { Card } from 'react-bootstrap'
 
-function ClaimAccount() {
+function ClaimAccountTutorial() {
     const whyText = (
         <div>
             <Card style={{ marginBottom: '10px' }}>
@@ -29,9 +28,9 @@ function ClaimAccount() {
                 <h3>How do I claim my Minecraft Account?</h3>
                 <p>
                     <p>
-                        To verify that this account is yours, please use our mod. The mod will give you a 3 digit number. Create or bid
-                        on an auction. After at most 3 minutes your account will automatically be verified by our server. If your account hasn't been verified
-                        within 5 minutes please try again.
+                        To verify that a account is yours, please use our mod. The mod will give you a 3 digit number. Create or bid on an auction. After at
+                        most 3 minutes your account will automatically be verified by our server. If your account hasn't been verified within 5 minutes please
+                        try again.
                     </p>
                 </p>
                 <Link href="/mod">Get the mod here</Link>
@@ -58,9 +57,22 @@ function ClaimAccount() {
                 <hr />
                 <h3>Why?</h3>
                 {whyText}
+                <hr />
+                <h3>Tutorial</h3>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <iframe
+                        width="560"
+                        height="315"
+                        src="https://www.youtube.com/embed/Ysqn_JaC13A?si=Kopmhagbhma2GCkP"
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                    ></iframe>
+                </div>
             </div>
         </div>
     )
 }
 
-export default ClaimAccount
+export default ClaimAccountTutorial

@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { useSwipe } from '../../utils/Hooks'
 import api from '../../api/ApiHelper'
 import styles from './index.module.css'
-import ClaimAccount from '../ClaimAccount/ClaimAccount'
+import ClaimAccountTutorial from '../ClaimAccount/ClaimAccountTutorial'
 import Tooltip from '../Tooltip/Tooltip'
 
 enum DetailType {
@@ -70,7 +70,7 @@ export default function PlayerDetails(props: Props) {
                 <Tooltip
                     type="click"
                     content={<span style={{ color: '#007bff', cursor: 'pointer' }}>You? Claim account.</span>}
-                    tooltipContent={<ClaimAccount />}
+                    tooltipContent={<ClaimAccountTutorial />}
                     size="xl"
                     tooltipTitle={<span>Claim Minecraft account</span>}
                 />
