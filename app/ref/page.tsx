@@ -13,3 +13,5 @@ export default function Page() {
 }
 
 export const metadata = getHeadMetadata('Referral', 'Our referral system allows you to get a reward for inviting others')
+
+export const revalidate = 0
