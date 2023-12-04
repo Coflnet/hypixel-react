@@ -78,7 +78,7 @@ const parseModifiers = (name: string, modifiers: string): { [modifier: string]: 
                 if (val == 'false') {
                     filter['Candy'] = '0'
                 } else {
-                    filter['Candy'] = 'any'
+                    filter['Candy'] = '1-10'
                 }
             } else if (arg == 'rounded_level') {
                 filter['PetLevel'] = `<=${val}`
@@ -107,7 +107,7 @@ const parseModifiers = (name: string, modifiers: string): { [modifier: string]: 
     return filter
 }
 
-const petRarities = new Set(['COMMON', 'RARE', 'EPIC', 'LEGENDARY'])
+const petRarities = new Set(['COMMON', 'UNCOMMON', 'RARE', 'EPIC', 'LEGENDARY'])
 
 export const parseBMName = (entry: string): { item: Item; itemFilter: ItemFilter } => {
     let [name, modifiers] = entry.includes('=') ? entry.split('=') : [entry, '']
@@ -119,6 +119,37 @@ export const parseBMName = (entry: string): { item: Item; itemFilter: ItemFilter
         name = name.substring(0, i)
         filter['Rarity'] = rarity
     }
+    if (/^.*_RUNE_\d$/.test(name)) {
+        const i = name.lastIndexOf('_')
+        const level = name.substring(i + 1)
+        name = name.substring(0, i)
+        const suffixIndex = name.indexOf('_RUNE')
+        name = `RUNE_${name.substring(0, suffixIndex)}`
+        const runeLevel = name.toLowerCase().replace(/(_.)|^./g, group => group.toUpperCase().replace('_', ''))
+        // most runes not supporting levels of runes yet
+        const inclusions = new Set(['EnchantRune', 'EndRune', 'GrandSearingRune', 'MusicRune'])
+        if (inclusions.has(runeLevel)) {
+            filter[runeLevel] = level
+        }
+    }
+    if (name.startsWith('POTION_')) {
+        const i = name.indexOf('_')
+        name = `POTION_${name.substring(i + 1, name.length)}`
+    }
+    // common error in popular filter
+    if (name.startsWith('STARRED_FROZEN_BLAZE')) {
+        const i = name.indexOf('_')
+        name = name.substring(i + 1, name.length)
+    }
+    // random exceptions
+    const replacements = {
+        PIONEER_PICKAXE: 'ALPHA_PICK',
+        FLAKE_THE_FISH: 'SNOWFLAKE_THE_FISH',
+        // a common filter has these typo so i will fix it here
+        POCKET_ESPRESSO_MACINE: 'POCKET_ESPRESSO_MACHINE',
+        ADVENT_CALENDER_DISPLAY: 'ADVENT_CALENDAR_DISPLAY'
+    }
+    if (name in replacements) name = replacements[name]
     // handle modifiers
     const modifierFilter = parseModifiers(name, modifiers)
     return { item: { tag: name }, itemFilter: { ...filter, ...modifierFilter } }
