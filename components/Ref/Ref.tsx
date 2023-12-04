@@ -16,7 +16,6 @@ import ClaimAccountTutorial from '../ClaimAccount/ClaimAccountTutorial'
 function Ref() {
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [showClaimAccountDialog, setShowClaimAccountDialog] = useState(false)
 
     function onLogin() {
         let googleId = sessionStorage.getItem('googleId')

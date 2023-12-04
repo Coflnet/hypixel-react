@@ -63,7 +63,7 @@ function ClaimAccountTutorial() {
                     <iframe
                         width="560"
                         height="315"
-                        src="https://www.youtube.com/embed/Ysqn_JaC13A?si=Kopmhagbhma2GCkP"
+                        src="https://www.youtube-nocookie.com/embed/Ysqn_JaC13A?si=YQ4_FZjhvOZhT9Dh"
                         title="YouTube video player"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

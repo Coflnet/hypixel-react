@@ -33,12 +33,14 @@ function ModDetails() {
                     <hr />
                     <div className={styles.modEmbedContainer}>
                         <iframe
-                            src="https://www.youtube.com/embed/videoseries?list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699"
+                            width="560"
+                            height="315"
+                            src="https://www.youtube-nocookie.com/embed/kOSmuky_wjg?si=74mVWza3el6LEaMR"
                             title="YouTube video player"
                             frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            className={styles.modEmbed}
                             allowFullScreen
+                            className={styles.modEmbed}
                         ></iframe>
                     </div>
                     <hr />
