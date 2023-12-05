@@ -5,6 +5,7 @@ import { hasFlag } from '../components/FilterElement/FilterType'
 import { DEFAULT_FLIP_SETTINGS, FLIP_FINDERS, getFlipCustomizeSettings, getFlipFinders } from './FlipUtils'
 import { isClientSideRendering } from './SSRUtils'
 import { getNumberFromShortenString } from './Formatter'
+import { parseBMConfig } from './Parser/ParseBMConfig'
 
 const LOCAL_STORAGE_SETTINGS_KEY = 'userSettings'
 
@@ -196,10 +197,15 @@ export async function handleSettingsImport(importString: string) {
     let flipCustomizeSettings: FlipCustomizeSettings = DEFAULT_FLIP_SETTINGS.FLIP_CUSTOMIZE
     let restrictions: FlipRestriction[] = DEFAULT_FLIP_SETTINGS.RESTRICTIONS
     let promises: Promise<any>[] = []
-
     try {
         let importObject = JSON.parse(importString)
-        if (importObject.whitelist !== undefined) {
+        // Check for global field (BM format)
+        if (importObject.global !== undefined) {
+            const converted = parseBMConfig(importObject)
+            filter = converted.filter
+            flipCustomizeSettings = converted.flipCustomizeSettings
+            restrictions = converted.restrictions
+        } else if (importObject.whitelist !== undefined) {
             // Handle import in server-side format
             let settings = await setSettingsFromServerSide(importObject, false)
             filter = settings.filter
@@ -211,7 +217,8 @@ export async function handleSettingsImport(importString: string) {
             flipCustomizeSettings = importObject[FLIP_CUSTOMIZING_KEY] ? JSON.parse(importObject[FLIP_CUSTOMIZING_KEY]) : {}
             restrictions = importObject[RESTRICTIONS_SETTINGS_KEY] ? JSON.parse(importObject[RESTRICTIONS_SETTINGS_KEY]) : []
         }
-    } catch {
+    } catch (e) {
+        console.log(e)
         // Handle toml settings import
         try {
             var json = (await import('toml')).parse(importString)
