@@ -374,7 +374,6 @@ export async function handleSettingsImport(importString: string) {
         autoClose: false
     })
 
-    debugger
     api.subscribeFlips(
         restrictions || [],
         filter,
