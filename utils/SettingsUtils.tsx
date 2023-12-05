@@ -218,7 +218,6 @@ export async function handleSettingsImport(importString: string) {
             restrictions = importObject[RESTRICTIONS_SETTINGS_KEY] ? JSON.parse(importObject[RESTRICTIONS_SETTINGS_KEY]) : []
         }
     } catch (e) {
-        console.log(e)
         // Handle toml settings import
         try {
             var json = (await import('toml')).parse(importString)
@@ -375,10 +374,11 @@ export async function handleSettingsImport(importString: string) {
         autoClose: false
     })
 
+    debugger
     api.subscribeFlips(
         restrictions || [],
         filter,
-        getFlipCustomizeSettings(),
+        flipCustomizeSettings,
         undefined,
         undefined,
         undefined,
