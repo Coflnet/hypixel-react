@@ -109,7 +109,7 @@ const parseModifiers = (name: string, modifiers: string): { [modifier: string]: 
 
 const petRarities = new Set(['COMMON', 'UNCOMMON', 'RARE', 'EPIC', 'LEGENDARY'])
 
-export const parseBMName = (entry: string): { item: Item; itemFilter: ItemFilter } => {
+export const parseBMName = (entry: string): { item: Item; itemFilter: ItemFilter } | undefined => {
     let [name, modifiers] = entry.includes('=') ? entry.split('=') : [entry, '']
     const filter: ItemFilter = {}
     // handle pets
@@ -123,14 +123,35 @@ export const parseBMName = (entry: string): { item: Item; itemFilter: ItemFilter
         const i = name.lastIndexOf('_')
         const level = name.substring(i + 1)
         name = name.substring(0, i)
-        const suffixIndex = name.indexOf('_RUNE')
-        name = `RUNE_${name.substring(0, suffixIndex)}`
-        const runeLevel = name.toLowerCase().replace(/(_.)|^./g, group => group.toUpperCase().replace('_', ''))
-        // most runes not supporting levels of runes yet
-        const inclusions = new Set(['EnchantRune', 'EndRune', 'GrandSearingRune', 'MusicRune'])
-        if (inclusions.has(runeLevel)) {
-            filter[runeLevel] = level
+        const incorrectIDReplacements = {
+            PESTILENCE_RUNE: 'ZOMBIE_SLAYER_RUNE',
+            MAGICAL_RUNE: 'MAGIC_RUNE'
         }
+        // mistake in common filters
+        if (name in incorrectIDReplacements) {
+            name = incorrectIDReplacements[name]
+        }
+        const suffixIndex = name.indexOf('_RUNE')
+        let shortenedName = name.substring(0, suffixIndex)
+        name = `RUNE_${shortenedName}`
+        // end rune is common error, blood rune item id coded incorrect, rest dont have levels yet
+        const exceptions = new Set(['RUNE_END', 'RUNE_BLOOD', 'RUNE_HEARTS', 'RUNE_ICE', 'RUNE_SNOW', 'RUNE_MAGIC', 'RUNE_ZOMBIE_SLAYER'])
+        if (exceptions.has(name)) {
+            return
+        }
+        const levelNameReplacements = {
+            RUNE_DRAGON: 'END',
+            RUNE_HEARTS: 'COEURS',
+            RUNE_ICE: 'GLACE',
+            RUNE_SNOW: 'NEVE',
+            ZOMBIE_SLAYER: 'PESTILENCE',
+            RUNE_MAGIC: 'MAGICAL'
+        }
+        if (name in levelNameReplacements) {
+            shortenedName = levelNameReplacements[name]
+        }
+        const runeLevel = `${shortenedName}_RUNE`.toLowerCase().replace(/(_.)|^./g, group => group.toUpperCase().replace('_', ''))
+        filter[runeLevel] = level
     }
     if (name.startsWith('POTION_')) {
         const i = name.indexOf('_')
@@ -180,19 +201,24 @@ export const parseBMConfig = (
     }
     // regular blacklist
     for (const BLEntry of input.blacklist) {
-        output.restrictions.push({
-            type: 'blacklist' as const,
-            ...parseBMName(BLEntry)
-        })
+        const parsed = parseBMName(BLEntry)
+        if (parsed)
+            output.restrictions.push({
+                type: 'blacklist' as const,
+                ...parsed
+            })
     }
     for (const [WLEntry, { profit, profit_percentage }] of Object.entries(input.whitelist)) {
-        const entry = {
-            type: 'whitelist' as const,
-            ...parseBMName(WLEntry)
+        const parsed = parseBMName(WLEntry)
+        if (parsed) {
+            const entry = {
+                type: 'whitelist' as const,
+                ...parsed
+            }
+            entry['itemFilter']['MinProfit'] = `${profit}`
+            entry['itemFilter']['MinProfitPercentage'] = `${profit_percentage}`
+            output.restrictions.push(entry)
         }
-        entry['itemFilter']['MinProfit'] = `${profit}`
-        entry['itemFilter']['MinProfitPercentage'] = `${profit_percentage}`
-        output.restrictions.push(entry)
     }
     output.filter.minProfit = input.global.profit
     output.filter.minProfitPercent = input.global.profit_percentage
