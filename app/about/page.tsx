@@ -3,7 +3,7 @@ import { getHeadMetadata } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Card, Container } from 'react-bootstrap'
 
-export default function Page() {
+export default async function Page() {
     return (
         <>
             <Container>
@@ -116,3 +116,5 @@ export default function Page() {
 }
 
 export const metadata = getHeadMetadata('About')
+
+export const revalidate = 0
