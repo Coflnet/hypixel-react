@@ -99,7 +99,7 @@ export default function Page() {
                     </p>
                     <hr />
                     <h2>Legal</h2>
-                    <p>We are not affiliated with Mojang nor HyPixel</p>
+                    <p>We are not affiliated with Mojang or HyPixel</p>
                     <p>
                         <a href="https://coflnet.com/legal">Terms of use</a>
                     </p>
