@@ -27,8 +27,6 @@ enum RECENT_AUCTIONS_FETCH_TYPE {
 
 const FETCH_RESULT_SIZE = 12
 
-let currentLoadingString
-
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true
 
@@ -63,7 +61,7 @@ function RecentAuctions(props: Props) {
         }
 
         let itemFilter = { ...itemFilterRef.current }
-        currentLoadingString = JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })
+        let currentLoadingString = JSON.stringify({ tag: props.item.tag, filter: itemFilter })
 
         if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
             let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
@@ -106,7 +104,6 @@ function RecentAuctions(props: Props) {
             if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
                 return
             }
-            currentLoadingString = null
             if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
                 setAllElementsLoaded(true)
             }
