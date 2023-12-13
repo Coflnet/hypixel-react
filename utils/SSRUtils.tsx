@@ -15,12 +15,6 @@ export function getHeadMetadata(
         title: title,
         description: description,
         manifest: '/manifest.json',
-        themeColor: {
-            color: '#000000'
-        },
-        viewport: {
-            width: 'device-width, initial-scale=1'
-        },
         openGraph: {
             title: embedTitle,
             description: description,
