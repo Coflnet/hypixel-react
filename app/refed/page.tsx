@@ -15,5 +15,3 @@ export default function Page() {
 }
 
 export const metadata = getHeadMetadata()
-
-export const revalidate = 0

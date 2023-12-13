@@ -26,6 +26,4 @@ export default async function Page() {
     )
 }
 
-export const revalidate = 0
-
 export const metadata = getHeadMetadata(undefined, 'Free auction house item flipper for Hypixel Skyblock', undefined, ['flipper'])
