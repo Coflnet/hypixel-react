@@ -4,10 +4,10 @@
   "scripts": {
     "dev": "npx next dev",
     "build": "next build",
-    "test": "cross-env TEST_RUNNER=true npx playwright test",
-    "build-test": "npm run build && cross-env TEST_RUNNER=true npx playwright test",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cypress:open": "cypress open",
+    "cypress:run": "cross-env TEST_RUNNER=true cypress run"
   },
   "dependencies": {
     "@jonkoops/matomo-tracker-react": "^0.7.0",
@@ -47,10 +47,10 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.32.1",
     "@types/node": "^18.15.11",
     "@types/react": "^18.2.45",
     "cross-env": "^6.0.3",
+    "cypress": "^13.6.1",
     "typescript": "^5.0.2"
   }
 }
