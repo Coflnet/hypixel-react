@@ -12,6 +12,7 @@ describe('Auction page', () => {
         cy.contains('p', 'Soul Durability:11').parent('div').should('be.visible')
         cy.contains('§7Whitelisted§7').should('be.visible')
         cy.contains('h6', 'Starting bid: 10 Coins').should('be.visible')
+        cy.get('.list-group>a').first().click()
         cy.contains('button', '400.000.000 Coins').click()
         cy.location().should(loc => {
             expect(loc.pathname).to.match(/.*\/player\/0ae0f0282ee846fea7b1606a9fdf5128/i)
