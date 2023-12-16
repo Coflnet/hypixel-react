@@ -5,17 +5,13 @@ on:
   pull_request:
     branches: [ main, master, develop ]
 jobs:
-  test:
+  cypress-run:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 20
-    - name: Install dependencies
-      run: npm ci
-    - name: build app
-      run: npm run build 
-    - name: Run Cypress tests
-      run: npm run cypress:run
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm start
