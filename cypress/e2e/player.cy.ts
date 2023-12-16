@@ -29,5 +29,5 @@ describe('Player page', () => {
 
 function switchToBids() {
     cy.contains('Bids').click()
-    cy.wait(500)
+    cy.contains('Highest Own')
 }
