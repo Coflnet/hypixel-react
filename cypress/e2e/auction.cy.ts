@@ -13,8 +13,6 @@ describe('Auction page', () => {
         cy.contains('§7Whitelisted§7').should('be.visible')
         cy.contains('h6', 'Starting bid: 10 Coins').should('be.visible')
         cy.get('.list-group>a').first().click()
-        cy.location().should(loc => {
-            expect(loc.pathname).to.match(/.*\/player\/0ae0f0282ee846fea7b1606a9fdf5128/i)
-        })
+        cy.location('pathname').should('eq', '/player/0ae0f0282ee846fea7b1606a9fdf5128')
     })
 })

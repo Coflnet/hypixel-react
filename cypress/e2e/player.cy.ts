@@ -2,18 +2,14 @@ describe('Player page', () => {
     it('Player auction opens', () => {
         cy.visit('/player/b876ec32e396476ba1158438d83c67d4')
         cy.get('.list-group>button').first().click()
-        cy.location().should(loc => {
-            expect(loc.pathname).to.match(/.*\/auction\/73137bc47df84d31a9d8b010078ada0f/i)
-        })
+        cy.location('pathname', { timeout: 10000 }).should('eq', '/auction/73137bc47df84d31a9d8b010078ada0f')
     })
 
     it('Opens last bid', () => {
         cy.visit('/player/b876ec32e396476ba1158438d83c67d4')
         switchToBids()
         cy.get('.list-group>button').first().click()
-        cy.location().should(loc => {
-            expect(loc.pathname).to.match(/.*\/auction\/c5ce8b40320b4b178e53cdfb746d8953/i)
-        })
+        cy.location('pathname').should('eq', '/auction/c5ce8b40320b4b178e53cdfb746d8953')
     })
 
     it('Scroll down to older bid', () => {
