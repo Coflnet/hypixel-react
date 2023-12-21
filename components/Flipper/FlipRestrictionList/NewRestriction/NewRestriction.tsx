@@ -6,13 +6,15 @@ import ItemFilter from '../../../ItemFilter/ItemFilter'
 import TagSelect from '../TagSelect/TagSelect'
 import styles from './NewRestriction.module.css'
 import { MultiSearch } from '../../../Search/MultiSearch'
+import { CopyButton } from '../../../CopyButton/CopyButton'
 
 interface Props {
-    onSaveRestrictions(restrictions: FlipRestriction[])
-    onCancel()
+    onSaveRestrictions(restrictions: FlipRestriction[]): void
+    onCancel(): void
+    prefillRestriction?: RestrictionCreateState
 }
 
-interface RestrictionCreateState {
+export interface RestrictionCreateState {
     selectedItems?: Item[]
     type: 'blacklist' | 'whitelist'
     itemFilter?: ItemFilter
@@ -21,7 +23,9 @@ interface RestrictionCreateState {
 
 function NewRestriction(props: Props) {
     let [createState, setCreateState] = useState<RestrictionCreateState>({
-        type: 'blacklist'
+        type: props.prefillRestriction ? props.prefillRestriction.type : 'blacklist',
+        itemFilter: props.prefillRestriction ? props.prefillRestriction.itemFilter : undefined,
+        selectedItems: props.prefillRestriction ? props.prefillRestriction.selectedItems : undefined
     })
     let [isFilterValid, setIsFilterValid] = useState(true)
     let [filters, setFilters] = useState<FilterOptions[]>([])
@@ -111,6 +115,16 @@ function NewRestriction(props: Props) {
                         })
                     }}
                     searchFunction={api.itemSearch}
+                    defaultSelected={createState.selectedItems?.map(item => {
+                        return {
+                            dataItem: {
+                                name: item.name,
+                                iconUrl: item.iconUrl
+                            },
+                            label: item.name,
+                            id: item.tag
+                        } as unknown as SearchResultItem
+                    })}
                 />
             </div>
             <ItemFilter
@@ -119,6 +133,7 @@ function NewRestriction(props: Props) {
                 onFilterChange={filter => {
                     setCreateState({ ...createState, itemFilter: filter })
                 }}
+                defaultFilter={createState.itemFilter}
                 emptyLabel={getEmptyLabel()}
                 ignoreURL={true}
                 autoSelect={false}
@@ -131,7 +146,7 @@ function NewRestriction(props: Props) {
                     setCreateState({ ...createState, tags: tags })
                 }}
             />
-            <span>
+            <span style={{ display: 'grid', gridTemplateColumns: 'max(20%,100px) max(10%,80px) auto max(20%,100px)', gap: 10 }}>
                 <Button
                     variant="success"
                     onClick={() => {
@@ -150,9 +165,16 @@ function NewRestriction(props: Props) {
                 >
                     Save new restriction
                 </Button>
-                <Button variant="danger" onClick={props.onCancel} style={{ marginLeft: '5px' }}>
+                <Button variant="danger" onClick={props.onCancel}>
                     Cancel
                 </Button>
+                <div />
+                <div style={{ display: 'flex', justifyContent: 'end' }}>
+                    <CopyButton
+                        copyValue={true ? window.location.href.split('?')[0] + '?prefillRestriction=' + JSON.stringify(createState) : ''}
+                        successMessage={<span>Copied Restriction Link</span>}
+                    />
+                </div>
             </span>
         </div>
     )
