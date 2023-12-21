@@ -13,18 +13,19 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import ItemFilterPropertiesDisplay from '../../ItemFilter/ItemFilterPropertiesDisplay'
 import styles from './FlipRestrictionList.module.css'
 import EditRestriction, { UpdateState } from './EditRestriction/EditRestriction'
-import NewRestriction from './NewRestriction/NewRestriction'
+import NewRestriction, { RestrictionCreateState } from './NewRestriction/NewRestriction'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import Tooltip from '../../Tooltip/Tooltip'
 import { toast } from 'react-toastify'
 import Image from 'next/image'
 
 interface Props {
-    onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist')
+    onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist'): void
+    prefillRestriction?: RestrictionCreateState
 }
 
 function FlipRestrictionList(props: Props) {
-    let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(false)
+    let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(props.prefillRestriction !== undefined)
     let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getInitialFlipRestrictions())
     let [restrictionInEditModeIndex, setRestrictionsInEditModeIndex] = useState<number[]>([])
     let [showClearListDialog, setShowClearListDialog] = useState(false)
@@ -336,7 +337,7 @@ function FlipRestrictionList(props: Props) {
                         onCancel={onEditRestrictionCancel}
                     />
                 ) : isAddNewFlipperExtended ? (
-                    <NewRestriction onCancel={onNewRestrictionCancel} onSaveRestrictions={addNewRestriction} />
+                    <NewRestriction onCancel={onNewRestrictionCancel} onSaveRestrictions={addNewRestriction} prefillRestriction={props.prefillRestriction} />
                 ) : (
                     <span>
                         <span style={{ cursor: 'pointer' }} onClick={() => setIsNewFlipperExtended(true)}>

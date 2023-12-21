@@ -15,6 +15,9 @@ import Tooltip from '../../Tooltip/Tooltip'
 import FlipCustomize from '../FlipCustomize/FlipCustomize'
 import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
 import styles from './FlipperFilter.module.css'
+import { getURLSearchParam } from '../../../utils/Parser/URLParser'
+import { RestrictionCreateState } from '../FlipRestrictionList/NewRestriction/NewRestriction'
+import { isValidTokenAvailable } from '../../GoogleSignIn/GoogleSignIn'
 
 interface Props {
     onChange(filter: FlipperFilter)
@@ -23,18 +26,25 @@ interface Props {
 }
 
 function FlipperFilter(props: Props) {
-    let [showRestrictionList, setShowRestrictionList] = useState(false)
+    let [prefillRestriction] = useState<RestrictionCreateState>(
+        getURLSearchParam('prefillRestriction') ? JSON.parse(getURLSearchParam('prefillRestriction')!) : undefined
+    )
+    let [showRestrictionList, setShowRestrictionList] = useState(!!prefillRestriction)
     let [isAdvanced, setIsAdvanced] = useState(false)
     let [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
     let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(generateUUID())
+    let [isSSR, setIsSSR] = useState(true)
+
+    let disabled = isSSR ? true : !props.isLoggedIn && isValidTokenAvailable(localStorage.getItem('googleId'))
 
     let { trackEvent } = useMatomo()
 
     useEffect(() => {
         setFlipCustomizeSettings(getFlipCustomizeSettings())
         setFlipperFilter(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
+        setIsSSR(false)
         document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
             if ((e as any).detail?.apiUpdate) {
                 setFlipCustomizeKey(generateUUID())
@@ -114,7 +124,7 @@ function FlipperFilter(props: Props) {
     let restrictionListDialog = (
         <Modal
             size={'xl'}
-            show={showRestrictionList}
+            show={showRestrictionList && !disabled}
             onHide={() => {
                 setShowRestrictionList(false)
             }}
@@ -125,7 +135,7 @@ function FlipperFilter(props: Props) {
                 <Modal.Title>Restrict the flip results</Modal.Title>
             </Modal.Header>
             <Modal.Body className={styles.restrictionModal}>
-                <FlipRestrictionList onRestrictionsChange={onRestrictionsChange} />
+                <FlipRestrictionList onRestrictionsChange={onRestrictionsChange} prefillRestriction={prefillRestriction} />
             </Modal.Body>
         </Modal>
     )
@@ -133,7 +143,7 @@ function FlipperFilter(props: Props) {
     let customizeFlipDialog = (
         <Modal
             size={'xl'}
-            show={showCustomizeFlip}
+            show={showCustomizeFlip && !disabled}
             onHide={() => {
                 setShowCustomizeFlip(false)
             }}
@@ -187,6 +197,7 @@ function FlipperFilter(props: Props) {
                 </Form.Group>
                 <div
                     onClick={() => {
+                        if (disabled) return
                         setShowRestrictionList(true)
                     }}
                     className={styles.filterCheckbox}
@@ -225,6 +236,7 @@ function FlipperFilter(props: Props) {
                         onChange={e => {
                             onSettingsChange('onlyBin', e.target.checked)
                         }}
+                        disabled={disabled}
                         defaultChecked={flipperFilter.onlyBin}
                         className={styles.flipperFilterFormfield}
                         type="checkbox"
@@ -254,6 +266,7 @@ function FlipperFilter(props: Props) {
                 </Form.Group>
                 <Form.Group
                     onClick={() => {
+                        if (disabled) return
                         setShowCustomizeFlip(true)
                     }}
                     className={styles.filterCheckbox}
@@ -285,6 +298,7 @@ function FlipperFilter(props: Props) {
                         onChange={e => {
                             setIsAdvanced(e.target.checked)
                         }}
+                        disabled={disabled}
                         className={styles.flipperFilterFormfield}
                         type="checkbox"
                     />
@@ -393,6 +407,7 @@ function FlipperFilter(props: Props) {
                                 defaultChecked={flipperFilter.onlyUnsold}
                                 className={styles.flipperFilterFormfield}
                                 type="checkbox"
+                                disabled={disabled}
                             />
                         </Form.Group>
                     </div>

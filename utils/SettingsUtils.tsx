@@ -175,13 +175,18 @@ export function setSettingsFromServerSide(
             setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizing))
             setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
         }
-
         Promise.all([_addListToRestrictions(settings.whitelist, 'whitelist'), _addListToRestrictions(settings.blacklist, 'blacklist')]).then(results => {
             let newRestrictions = getCleanRestrictionsForApi(results[0].concat(results[1]))
 
             if (updateLocalSettings) {
+                let newRestrictionsString = JSON.stringify(newRestrictions)
+                let oldRestrictionsString = getSetting(RESTRICTIONS_SETTINGS_KEY, '[]')
+
                 setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(newRestrictions))
-                document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
+
+                if (newRestrictionsString !== oldRestrictionsString) {
+                    document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
+                }
             }
             resolve({
                 filter,

@@ -8,12 +8,14 @@ import { Option } from 'react-bootstrap-typeahead/types/types'
 import styles from './Search.module.css'
 import Image from 'next/image'
 import { getStyleForTier } from '../../utils/Formatter'
+
 interface Props {
     onChange(selected: SearchResultItem[])
     disabled?: boolean
     placeholder?: string
     defaultValue?: string
     searchFunction?(searchText: string): Promise<SearchResultItem[]>
+    defaultSelected?: SearchResultItem[]
 }
 
 export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
@@ -72,6 +74,7 @@ export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
             minLength={1}
             onSearch={handleSearch}
             defaultInputValue={props.defaultValue}
+            defaultSelected={props.defaultSelected}
             options={results}
             placeholder={props.placeholder || 'Search item...'}
             onChange={_onChange}
