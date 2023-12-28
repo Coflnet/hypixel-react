@@ -15,6 +15,7 @@ import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDispl
 import { Number } from '../Number/Number'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import styles from './SubscriptionList.module.css'
+import NotificationTargets from '../NotificationTargets/NotificationTargets'
 
 let mounted = true
 
@@ -22,6 +23,7 @@ function SubscriptionList() {
     let [subscriptions, setSubscriptions] = useState<Subscription[]>([])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [showDeleteAllSubscriptionDialog, setShowDeleteAllSubscriptionDialog] = useState(false)
+    let [showNotificationTargets, setShowNotificationTargets] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     let forceUpdate = useForceUpdate()
@@ -285,14 +287,39 @@ function SubscriptionList() {
         </Modal>
     )
 
+    let notificationTargetsElement = (
+        <Modal
+            show={showNotificationTargets}
+            size="lg"
+            onHide={() => {
+                setShowNotificationTargets(false)
+            }}
+        >
+            <Modal.Header closeButton>
+                <Modal.Title>Notification Targets</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <NotificationTargets />
+            </Modal.Body>
+        </Modal>
+    )
+
     return (
         <div className={styles.subscriptionList}>
             {isLoggedIn ? (
                 subscriptions.length > 0 ? (
                     <>
-                        <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+                        <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                             <Button
-                                style={{ backgroundColor: 'red', float: 'right' }}
+                                variant="primary"
+                                onClick={() => {
+                                    setShowNotificationTargets(true)
+                                }}
+                            >
+                                Notification Targets
+                            </Button>
+                            <Button
+                                variant="danger"
                                 onClick={() => {
                                     setShowDeleteAllSubscriptionDialog(true)
                                 }}
@@ -305,13 +332,12 @@ function SubscriptionList() {
                 ) : (
                     <p>You dont have any notifiers</p>
                 )
-            ) : (
-                ''
-            )}
+            ) : null}
             {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
             {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use subscriptions, please login with Google:</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             {resetSettingsElement}
+            {notificationTargetsElement}
         </div>
     )
 }

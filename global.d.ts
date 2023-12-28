@@ -252,6 +252,10 @@ interface API {
     getTradeOffers(onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]>
     deleteTradeOffer(tradeId: string): Promise<void>
     getTransactions(): Promise<Transaction[]>
+    getNotificationTargets(): Promise<NotificationTarget[]>
+    addNotificationTarget(target: NotificationTarget): Promise<NotificationTarget>
+    deleteNotificationTarget(target: NotificationTarget): Promise<void>
+    updateNotificationTarget(target: NotificationTarget): Promise<void>
 }
 
 interface CacheUtils {
@@ -615,4 +619,13 @@ interface Transaction {
     reference: string
     amount: number
     timeStamp: Date
+}
+
+interface NotificationTarget {
+    type: 'UNKOWN' | 'WEBHOOK' | 'DISCORD' | 'DISCORD_WEBHOOK' | 'FIREBASE' | 'EMAIL'
+    when: 'NEVER' | 'AFTER_FAIL' | 'ALWAYS'
+    target: string | null
+    userId: string | null
+    name: string | null
+    useCount: number
 }

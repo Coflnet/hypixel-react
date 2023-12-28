@@ -79,7 +79,11 @@ export enum RequestType {
     CREATE_TRADE_OFFER = 'createTradeOffer',
     DELETE_TRADE_OFFER = 'deleteTradeOffer',
     GET_TRADES = 'getTrades',
-    GET_TRANSACTIONS = 'getTransactions'
+    GET_TRANSACTIONS = 'getTransactions',
+    GET_NOTIFICATION_TARGETS = 'getNotificationTargets',
+    ADD_NOTIFICATION_TARGETS = 'addNotificationTargets',
+    DELETE_NOTIFICATION_TARGETS = 'deleteNotificationTargets',
+    UPDATE_NOTIFICATION_TARGET = 'updateNotificationTarget'
 }
 
 export enum SubscriptionType {

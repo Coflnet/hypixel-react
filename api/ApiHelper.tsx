@@ -2075,6 +2075,130 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getNotificationTargets = (): Promise<NotificationTarget[]> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to load notification targets')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_NOTIFICATION_TARGETS,
+                customRequestURL: `${getApiEndpoint()}/notifications/targets`,
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: data => {
+                    resolve(data ? data : [])
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_NOTIFICATION_TARGETS, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let addNotificationTarget = (target: NotificationTarget): Promise<NotificationTarget> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to add a notification targets')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.ADD_NOTIFICATION_TARGETS,
+                    customRequestURL: `${getApiEndpoint()}/notifications/targets`,
+                    requestMethod: 'POST',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: data => {
+                        resolve(data ? data : [])
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.ADD_NOTIFICATION_TARGETS, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(target)
+            )
+        })
+    }
+
+    let deleteNotificationTarget = (target: NotificationTarget): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to delete a notification targets')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.ADD_NOTIFICATION_TARGETS,
+                    customRequestURL: `${getApiEndpoint()}/notifications/targets`,
+                    requestMethod: 'DELETE',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: data => {
+                        resolve(data ? data : [])
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.ADD_NOTIFICATION_TARGETS, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(target)
+            )
+        })
+    }
+
+    let updateNotificationTarget = (target: NotificationTarget): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to update a notification targets')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.UPDATE_NOTIFICATION_TARGET,
+                    customRequestURL: `${getApiEndpoint()}/notifications/targets`,
+                    requestMethod: 'UPDATE',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: data => {
+                        resolve(data ? data : [])
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.ADD_NOTIFICATION_TARGETS, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(target)
+            )
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -2153,7 +2277,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         createTradeOffer,
         getTradeOffers,
         deleteTradeOffer,
-        getTransactions
+        getTransactions,
+        getNotificationTargets,
+        addNotificationTarget,
+        deleteNotificationTarget,
+        updateNotificationTarget
     }
 }
 
