@@ -18,12 +18,18 @@ import styles from './FlipperFilter.module.css'
 import { getURLSearchParam } from '../../../utils/Parser/URLParser'
 import { RestrictionCreateState } from '../FlipRestrictionList/NewRestriction/NewRestriction'
 import { isValidTokenAvailable } from '../../GoogleSignIn/GoogleSignIn'
+import _ from 'lodash';
 
 interface Props {
     onChange(filter: FlipperFilter)
     isLoggedIn?: boolean
     isPremium?: boolean
 }
+
+// Create a debounced version of onSettingsChange function
+const debouncedOnSettingsChange = _.debounce((key, value) => {
+    onSettingsChange(key, value);
+}, 500); // 500ms delay
 
 function FlipperFilter(props: Props) {
     let [prefillRestriction] = useState<RestrictionCreateState>(
@@ -178,7 +184,7 @@ function FlipperFilter(props: Props) {
                     <NumericFormat
                         id="min-profit"
                         onValueChange={value => {
-                            onSettingsChange('minProfit', value.floatValue || 0)
+                            debouncedOnSettingsChange('minProfit', value.floatValue || 0);
                         }}
                         placeholder={!props.isLoggedIn ? 'Please login first' : null}
                         className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
