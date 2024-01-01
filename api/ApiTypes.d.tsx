@@ -83,7 +83,8 @@ export enum RequestType {
     GET_NOTIFICATION_TARGETS = 'getNotificationTargets',
     ADD_NOTIFICATION_TARGETS = 'addNotificationTargets',
     DELETE_NOTIFICATION_TARGETS = 'deleteNotificationTargets',
-    UPDATE_NOTIFICATION_TARGET = 'updateNotificationTarget'
+    UPDATE_NOTIFICATION_TARGET = 'updateNotificationTarget',
+    SEND_TEST_NOTIFICATION = 'sendTestNotification'
 }
 
 export enum SubscriptionType {

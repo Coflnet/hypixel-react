@@ -33,6 +33,10 @@ function NotificationTargets() {
         })
     }
 
+    function sendTestNotification(target: NotificationTarget) {
+        api.sendTestNotification(target)
+    }
+
     return (
         <>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -71,6 +75,7 @@ function NotificationTargets() {
                         <th>Use Count</th>
                         <th></th>
                         <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,11 +87,25 @@ function NotificationTargets() {
                         notificationTargets.map(target => {
                             return (
                                 <tr>
-                                    <td>{target.name}</td>
-                                    <td>{target.target}</td>
+                                    <td className="ellipse" style={{ maxWidth: '250px' }} title={target.target || ''}>
+                                        {target.name}
+                                    </td>
+                                    <td className="ellipse" style={{ maxWidth: '250px' }} title={target.target || ''}>
+                                        {target.target}
+                                    </td>
                                     <td>{target.type}</td>
                                     <td>{target.when}</td>
                                     <td>{target.useCount}</td>
+                                    <td>
+                                        <Button
+                                            variant="primary"
+                                            onClick={() => {
+                                                sendTestNotification(target)
+                                            }}
+                                        >
+                                            Test
+                                        </Button>
+                                    </td>
                                     <td>
                                         <Button
                                             variant="primary"

@@ -115,10 +115,7 @@ function SubscriptionList() {
         )
     }
     function onDelete(subscription: Subscription) {
-        api.unsubscribe(subscription).then(n => {
-            if (n === 0) {
-                return
-            }
+        api.unsubscribe(subscription).then(() => {
             let subs = subscriptions.filter(s => s !== subscription)
             subscriptions = subs
             setSubscriptions(subs)

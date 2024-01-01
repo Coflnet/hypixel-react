@@ -167,7 +167,7 @@ interface API {
     setConnectionId(): Promise<void>
     getVersion(): Promise<string>
     subscribe(topic: string, type: SubscriptionType[], price?: number, itemFilter?: ItemFilter): Promise<void>
-    unsubscribe(subscription: Subscription): Promise<Number>
+    unsubscribe(subscription: Subscription): Promise<void>
     getSubscriptions(): Promise<Subscription[]>
     loginWithToken(id: string): Promise<string>
     stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
@@ -256,6 +256,7 @@ interface API {
     addNotificationTarget(target: NotificationTarget): Promise<NotificationTarget>
     deleteNotificationTarget(target: NotificationTarget): Promise<void>
     updateNotificationTarget(target: NotificationTarget): Promise<void>
+    sendTestNotification(target: NotificationTarget): Promise<void>
 }
 
 interface CacheUtils {
@@ -622,7 +623,7 @@ interface Transaction {
 }
 
 interface NotificationTarget {
-    type: 'UNKOWN' | 'WEBHOOK' | 'DISCORD' | 'DISCORD_WEBHOOK' | 'FIREBASE' | 'EMAIL'
+    type: 'WEBHOOK' | 'DISCORD' | 'DISCORD_WEBHOOK' | 'FIREBASE' | 'EMAIL'
     when: 'NEVER' | 'AFTER_FAIL' | 'ALWAYS'
     target: string | null
     userId: string | null
