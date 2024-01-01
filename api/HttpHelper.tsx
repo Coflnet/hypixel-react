@@ -173,6 +173,9 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
     function parseResponseText(responseText) {
         let parsedResponse: any
         try {
+            if (!isNaN(responseText)) {
+                return responseText
+            }
             parsedResponse = JSON.parse(responseText)
         } catch {
             parsedResponse = responseText
