@@ -62,7 +62,7 @@ function FlipperFAQ() {
                     <h3>What do I get if I buy premium?</h3>
                     <p>
                         You get flips as soon as they are found. That allows you to buy up the most profitable flips before anyone else. Furthermore you get
-                        more filter options. Which allow yous to only see flips that you are actually interested in. For a full list see{' '}
+                        more filter options. Which allow you to only see flips that you are actually interested in. For a full list see{' '}
                         <a target="_blank" href="/premium" rel="noreferrer">
                             the premium page
                         </a>
