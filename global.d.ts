@@ -460,6 +460,7 @@ interface FlipTrackingFlip {
     finder: FlipFinder
     item: Item
     sellTime: Date
+    buyTime: Date
     profit: number
     propertyChanges: FlipTrackingPropertyChange[]
     flags: Set

@@ -488,6 +488,7 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
         uId: flip?.uId,
         finder: getFlipFinders([flip.finder || 0])[0],
         sellTime: parseDate(flip?.sellTime),
+        buyTime: parseDate(flip?.buyTime),
         profit: flip?.profit,
         propertyChanges: flip.propertyChanges?.map(change => {
             return {
