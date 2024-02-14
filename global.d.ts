@@ -389,15 +389,20 @@ interface SkyblockProfile {
     id: string
 }
 interface CraftingRecipe {
-    A1: string
-    A2: string
-    A3: string
-    B1: string
-    B2: string
-    B3: string
-    C1: string
-    C2: string
-    C3: string
+    A1: CraftingRecipeSlot
+    A2: CraftingRecipeSlot
+    A3: CraftingRecipeSlot
+    B1: CraftingRecipeSlot
+    B2: CraftingRecipeSlot
+    B3: CraftingRecipeSlot
+    C1: CraftingRecipeSlot
+    C2: CraftingRecipeSlot
+    C3: CraftingRecipeSlot
+}
+
+interface CraftingRecipeSlot {
+    tag: string,
+    count: number
 }
 
 interface LowestBin {

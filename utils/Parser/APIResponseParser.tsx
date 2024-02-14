@@ -415,15 +415,42 @@ export function parseSkyblockProfile(profile): SkyblockProfile {
 
 export function parseCraftingRecipe(recipe): CraftingRecipe {
     return {
-        A1: recipe.A1.split(':')[0],
-        A2: recipe.A2.split(':')[0],
-        A3: recipe.A3.split(':')[0],
-        B1: recipe.B1.split(':')[0],
-        B2: recipe.B2.split(':')[0],
-        B3: recipe.B3.split(':')[0],
-        C1: recipe.C1.split(':')[0],
-        C2: recipe.C2.split(':')[0],
-        C3: recipe.C3.split(':')[0]
+        A1: {
+            tag: recipe.A1.split(':')[0],
+            count: recipe.A1.split(':')[1]
+        },
+        A2: {
+            tag: recipe.A2.split(':')[0],
+            count: recipe.A2.split(':')[1]
+        },
+        A3: {
+            tag: recipe.A3.split(':')[0],
+            count: recipe.A3.split(':')[1]
+        },
+        B1: {
+            tag: recipe.B1.split(':')[0],
+            count: recipe.B1.split(':')[1]
+        },
+        B2: {
+            tag: recipe.B2.split(':')[0],
+            count: recipe.B2.split(':')[1]
+        },
+        B3: {
+            tag: recipe.B3.split(':')[0],
+            count: recipe.B3.split(':')[1]
+        },
+        C1: {
+            tag: recipe.C1.split(':')[0],
+            count: recipe.C1.split(':')[1]
+        },
+        C2: {
+            tag: recipe.C2.split(':')[0],
+            count: recipe.C2.split(':')[1]
+        },
+        C3: {
+            tag: recipe.C3.split(':')[0],
+            count: recipe.C3.split(':')[1]
+        }
     }
 }
 
