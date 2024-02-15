@@ -415,42 +415,26 @@ export function parseSkyblockProfile(profile): SkyblockProfile {
 
 export function parseCraftingRecipe(recipe): CraftingRecipe {
     return {
-        A1: {
-            tag: recipe.A1.split(':')[0],
-            count: recipe.A1.split(':')[1]
-        },
-        A2: {
-            tag: recipe.A2.split(':')[0],
-            count: recipe.A2.split(':')[1]
-        },
-        A3: {
-            tag: recipe.A3.split(':')[0],
-            count: recipe.A3.split(':')[1]
-        },
-        B1: {
-            tag: recipe.B1.split(':')[0],
-            count: recipe.B1.split(':')[1]
-        },
-        B2: {
-            tag: recipe.B2.split(':')[0],
-            count: recipe.B2.split(':')[1]
-        },
-        B3: {
-            tag: recipe.B3.split(':')[0],
-            count: recipe.B3.split(':')[1]
-        },
-        C1: {
-            tag: recipe.C1.split(':')[0],
-            count: recipe.C1.split(':')[1]
-        },
-        C2: {
-            tag: recipe.C2.split(':')[0],
-            count: recipe.C2.split(':')[1]
-        },
-        C3: {
-            tag: recipe.C3.split(':')[0],
-            count: recipe.C3.split(':')[1]
-        }
+        A1: parseCraftingRecipeSlot(recipe.A1),
+        A2: parseCraftingRecipeSlot(recipe.A2),
+        A3: parseCraftingRecipeSlot(recipe.A3),
+        B1: parseCraftingRecipeSlot(recipe.B1),
+        B2: parseCraftingRecipeSlot(recipe.B2),
+        B3: parseCraftingRecipeSlot(recipe.B3),
+        C1: parseCraftingRecipeSlot(recipe.C1),
+        C2: parseCraftingRecipeSlot(recipe.C2),
+        C3: parseCraftingRecipeSlot(recipe.C3)
+    }
+}
+
+// parses a crafting recipe slot string into a CraftingRecipeSlot object
+// example input: "ENCHANTED_EYE_OF_ENDER:16"
+export function parseCraftingRecipeSlot(craftingRecipeSlotString: string): CraftingRecipeSlot | undefined {
+    if (!craftingRecipeSlotString) return undefined
+    let count = parseInt(craftingRecipeSlotString.split(':')[1])
+    return {
+        tag: craftingRecipeSlotString.split(':')[0],
+        count: count || 0
     }
 }
 

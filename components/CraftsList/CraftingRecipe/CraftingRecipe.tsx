@@ -32,7 +32,11 @@ export function CraftingRecipe(props: Props) {
 
     function getGridElement(craftingRecipeSlot: CraftingRecipeSlot | undefined) {
         if (!craftingRecipeSlot) {
-            return <div style={{ height: '36px', width: '36px' }} />
+            return (
+                <div className={styles.gridCell}>
+                    <div style={{ height: '36px', width: '36px' }}></div>
+                </div>
+            )
         }
         return (
             <div

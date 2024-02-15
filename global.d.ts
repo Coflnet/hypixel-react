@@ -389,19 +389,19 @@ interface SkyblockProfile {
     id: string
 }
 interface CraftingRecipe {
-    A1: CraftingRecipeSlot
-    A2: CraftingRecipeSlot
-    A3: CraftingRecipeSlot
-    B1: CraftingRecipeSlot
-    B2: CraftingRecipeSlot
-    B3: CraftingRecipeSlot
-    C1: CraftingRecipeSlot
-    C2: CraftingRecipeSlot
-    C3: CraftingRecipeSlot
+    A1: CraftingRecipeSlot | undefined
+    A2: CraftingRecipeSlot | undefined
+    A3: CraftingRecipeSlot | undefined
+    B1: CraftingRecipeSlot | undefined
+    B2: CraftingRecipeSlot | undefined
+    B3: CraftingRecipeSlot | undefined
+    C1: CraftingRecipeSlot | undefined
+    C2: CraftingRecipeSlot | undefined
+    C3: CraftingRecipeSlot | undefined
 }
 
 interface CraftingRecipeSlot {
-    tag: string,
+    tag: string
     count: number
 }
 
