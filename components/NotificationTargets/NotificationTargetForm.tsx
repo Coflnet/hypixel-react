@@ -23,12 +23,12 @@ function NotificationTargetForm(props: Props) {
     function addNotificationTarget() {
         setDisabled(true)
         let notificationTarget: NotificationTarget = {
+            id: props.defaultNotificationTarget?.id,
             name: name,
             type: type,
             target: target,
             when: when,
-            useCount: 0,
-            userId: '0'
+            useCount: 0
         }
         let updateOrCreateFunction = props.type === 'CREATE' ? api.addNotificationTarget : api.updateNotificationTarget
         updateOrCreateFunction(notificationTarget)
@@ -45,7 +45,7 @@ function NotificationTargetForm(props: Props) {
             <Form>
                 <Form.Group className="mb-3">
                     <Form.Label>Name</Form.Label>
-                    <Form.Control type="text" onChange={e => setName(e.target.value)} placeholder="Enter name" />
+                    <Form.Control defaultValue={name} type="text" onChange={e => setName(e.target.value)} placeholder="Enter name" />
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Type</Form.Label>
@@ -59,7 +59,7 @@ function NotificationTargetForm(props: Props) {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Target</Form.Label>
-                    <Form.Control type="text" onChange={e => setTarget(e.target.value)} placeholder="Enter target" />
+                    <Form.Control defaultValue={target || undefined} type="text" onChange={e => setTarget(e.target.value)} placeholder="Enter target" />
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>When</Form.Label>
@@ -72,7 +72,7 @@ function NotificationTargetForm(props: Props) {
                     </Form.Select>
                 </Form.Group>
                 <Button variant="primary" onClick={addNotificationTarget} disabled={disabled}>
-                    Add
+                    {props.type === 'CREATE' ? 'Add' : 'Update'}
                 </Button>
             </Form>
         </>

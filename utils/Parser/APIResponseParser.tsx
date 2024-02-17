@@ -235,6 +235,7 @@ function _getTypeFromSubTypes(subTypes: SubscriptionType[]): 'item' | 'player' |
 
 export function parseSubscription(subscription: any): Subscription {
     return {
+        id: subscription.id,
         price: subscription.price,
         topicId: subscription.topicId,
         types: parseSubscriptionTypes(subscription.type),

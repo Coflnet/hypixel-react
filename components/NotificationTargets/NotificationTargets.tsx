@@ -95,7 +95,7 @@ function NotificationTargets() {
                                     </td>
                                     <td>{target.type}</td>
                                     <td>{target.when}</td>
-                                    <td>{target.useCount}</td>
+                                    <td>{target.useCount || 0}</td>
                                     <td>
                                         <Button
                                             variant="primary"

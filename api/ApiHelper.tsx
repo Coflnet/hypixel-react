@@ -446,7 +446,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let subscribe = (topic: string, types: SubscriptionType[], price?: number, filter?: ItemFilter): Promise<void> => {
+    let subscribe = (topic: string, types: SubscriptionType[], targets: NotificationTarget[], price?: number, filter?: ItemFilter): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -484,8 +484,26 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         GoogleToken: googleId,
                         'Content-Type': 'application/json'
                     },
-                    resolve: () => {
-                        resolve()
+                    resolve: (listener: Subscription) => {
+                        createNotificationSubscription({
+                            id: undefined,
+                            sourceSubIdRegex: listener.id?.toString() || '',
+                            sourceType: 'SUBSCRIPTION',
+                            targets: targets.map(t => {
+                                return {
+                                    name: t.name || '',
+                                    isDisabled: false,
+                                    priority: 0
+                                }
+                            })
+                        })
+                            .then(() => {
+                                resolve()
+                            })
+                            .catch(e => {
+                                apiErrorHandler(RequestType.SUBSCRIBE, e)
+                                reject(e)
+                            })
                     },
                     reject: (error: any) => {
                         apiErrorHandler(RequestType.SUBSCRIBE, error)
@@ -2229,7 +2247,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 {
                     type: RequestType.UPDATE_NOTIFICATION_TARGET,
                     customRequestURL: `${getApiEndpoint()}/notifications/targets`,
-                    requestMethod: 'UPDATE',
+                    requestMethod: 'PUT',
                     data: '',
                     requestHeader: {
                         GoogleToken: googleId,
@@ -2276,6 +2294,99 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     }
                 },
                 JSON.stringify(target)
+            )
+        })
+    }
+
+    let getNotificationSubscriptions = (): Promise<NotificationSubscription[]> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to load notification subscriptions')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_NOTIFICATION_SUBSCRIPTION,
+                customRequestURL: `${getApiEndpoint()}/notifications/subscriptions`,
+                requestMethod: 'GET',
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: data => {
+                    resolve(data ? data : [])
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_NOTIFICATION_SUBSCRIPTION, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let createNotificationSubscription = (subscription: NotificationSubscription): Promise<NotificationSubscription> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to create a notification subscription')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.ADD_NOTIFICATION_SUBSCRIPTION,
+                    customRequestURL: `${getApiEndpoint()}/notifications/targets`,
+                    requestMethod: 'POST',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: data => {
+                        resolve(data)
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.ADD_NOTIFICATION_SUBSCRIPTION, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(subscription)
+            )
+        })
+    }
+
+    let deleteNotificationSubscription = (subscription: NotificationSubscription): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to delete a notification subscription')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.DELETE_NOTIFICATION_SUBSCRIPTION,
+                    customRequestURL: `${getApiEndpoint()}/notifications/subscriptions`,
+                    requestMethod: 'DELETE',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.DELETE_NOTIFICATION_SUBSCRIPTION, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(subscription)
             )
         })
     }
@@ -2363,7 +2474,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         addNotificationTarget,
         deleteNotificationTarget,
         updateNotificationTarget,
-        sendTestNotification
+        sendTestNotification,
+        createNotificationSubscription,
+        deleteNotificationSubscription,
+        getNotificationSubscriptions
     }
 }
 

@@ -84,7 +84,10 @@ export enum RequestType {
     ADD_NOTIFICATION_TARGETS = 'addNotificationTargets',
     DELETE_NOTIFICATION_TARGETS = 'deleteNotificationTargets',
     UPDATE_NOTIFICATION_TARGET = 'updateNotificationTarget',
-    SEND_TEST_NOTIFICATION = 'sendTestNotification'
+    SEND_TEST_NOTIFICATION = 'sendTestNotification',
+    GET_NOTIFICATION_SUBSCRIPTION = 'getNotificationSubscription',
+    ADD_NOTIFICATION_SUBSCRIPTION = 'addNotificationSubscription',
+    DELETE_NOTIFICATION_SUBSCRIPTION = 'deleteNotificationSubscription'
 }
 
 export enum SubscriptionType {
@@ -120,6 +123,7 @@ export interface ApiSubscription {
 }
 
 export interface Subscription {
+    id: number | undefined
     topicId: string
     price: number
     types: SubscriptionType[]

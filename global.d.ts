@@ -166,7 +166,7 @@ interface API {
     getPlayerName(uuid: string): Promise<string>
     setConnectionId(): Promise<void>
     getVersion(): Promise<string>
-    subscribe(topic: string, type: SubscriptionType[], price?: number, itemFilter?: ItemFilter): Promise<void>
+    subscribe(topic: string, type: SubscriptionType[], targets: NotificationTarget[], price?: number, itemFilter?: ItemFilter): Promise<void>
     unsubscribe(subscription: Subscription): Promise<void>
     getSubscriptions(): Promise<Subscription[]>
     loginWithToken(id: string): Promise<string>
@@ -257,6 +257,9 @@ interface API {
     deleteNotificationTarget(target: NotificationTarget): Promise<void>
     updateNotificationTarget(target: NotificationTarget): Promise<void>
     sendTestNotification(target: NotificationTarget): Promise<void>
+    getNotificationSubscriptions(): Promise<NotificationSubscription[]>
+    createNotificationSubscription(subscription: NotificationSubscription): Promise<NotificationSubscription>
+    deleteNotificationSubscription(subscription: NotificationSubscription): Promise<void>
 }
 
 interface CacheUtils {
@@ -623,10 +626,21 @@ interface Transaction {
 }
 
 interface NotificationTarget {
+    id: number | undefined
     type: 'WEBHOOK' | 'DISCORD' | 'DISCORD_WEBHOOK' | 'FIREBASE' | 'EMAIL'
     when: 'NEVER' | 'AFTER_FAIL' | 'ALWAYS'
     target: string | null
-    userId: string | null
     name: string | null
     useCount: number
+}
+
+interface NotificationSubscription {
+    sourceType: string
+    id: number | undefined
+    sourceSubIdRegex: string
+    targets: {
+        name: string
+        priority: number
+        isDisabled: boolean
+    }[]
 }
