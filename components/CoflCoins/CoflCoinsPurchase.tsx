@@ -108,9 +108,9 @@ function Payment(props: Props) {
                         coflCoinsToBuy={1800}
                         loadingProductId={loadingId}
                         redirectLink={currentRedirectLink}
-                        paypalPrice={6.99}
-                        stripePrice={6.69}
-                        lemonsqueezyPrice={6.99}
+                        paypalPrice={8.69}
+                        stripePrice={8.42}
+                        lemonsqueezyPrice={8.69}
                         disabledTooltip={disabledTooltip}
                         isDisabled={isDisabled}
                         onPayPalPay={onPayPaypal}
@@ -189,9 +189,9 @@ function Payment(props: Props) {
                                     coflCoinsToBuy={1800 + (1800 - (coflCoins % 1800))}
                                     loadingProductId={loadingId}
                                     redirectLink={currentRedirectLink}
-                                    paypalPrice={(6.99 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
-                                    stripePrice={(6.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
-                                    lemonsqueezyPrice={(6.99 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
+                                    paypalPrice={(8.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
+                                    stripePrice={(8.42 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
+                                    lemonsqueezyPrice={(8.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
                                     disabledTooltip={disabledTooltip}
                                     isDisabled={isDisabled}
                                     onPayPalPay={onPayPaypal}
