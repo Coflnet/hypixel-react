@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import api from '../../api/ApiHelper'
@@ -16,6 +16,7 @@ import SubscribeAuctionContent from './SubscribeAuctionContent/SubscribeAuctionC
 import { useRouter } from 'next/navigation'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import EditIcon from '@mui/icons-material/Edit'
+import { AsyncTypeahead, Typeahead } from 'react-bootstrap-typeahead'
 
 interface Props {
     topic: string
@@ -45,6 +46,14 @@ function SubscribeButton(props: Props) {
     let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.filter || undefined)
     let [isItemFilterValid, setIsItemFilterValid] = useState(true)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
+    let [selectedNotificationTargets, setSelectedNotificationTargets] = useState<NotificationTarget[]>([])
+
+    useEffect(() => {
+        api.getNotificationTargets().then(targets => {
+            setNotificationTargets(targets)
+        })
+    }, [])
 
     function onSubscribe() {
         trackEvent({ action: 'subscribed', category: 'subscriptions' })
@@ -54,7 +63,7 @@ function SubscribeButton(props: Props) {
         if (props.type === 'item' && !price) {
             price = '0'
         }
-        api.subscribe(props.topic, getSubscriptionTypes(), price ? parseInt(price) : undefined, itemFilter)
+        api.subscribe(props.topic, getSubscriptionTypes(), selectedNotificationTargets, price ? parseInt(price) : undefined, itemFilter)
             .then(() => {
                 toast.success(props.successMessage || 'Notifier successfully created!', {
                     onClick: () => {
@@ -168,6 +177,15 @@ function SubscribeButton(props: Props) {
                             />
                         ) : null}
                         {props.type === 'auction' ? <SubscribeAuctionContent /> : null}
+                        <Typeahead
+                            labelKey="name"
+                            options={notificationTargets}
+                            placeholder={'Select targets...'}
+                            onChange={selected => {
+                                console.log(selected)
+                            }}
+                            multiple={true}
+                        />
                         <Button onClick={onSubscribe} disabled={isNotifyDisabled() || !isItemFilterValid} className="notifyButton">
                             {props.popupButtonText || 'Notify me'}
                         </Button>

@@ -491,6 +491,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                             sourceType: 'SUBSCRIPTION',
                             targets: targets.map(t => {
                                 return {
+                                    id: t.id || '', 
                                     name: t.name || '',
                                     isDisabled: false,
                                     priority: 0
