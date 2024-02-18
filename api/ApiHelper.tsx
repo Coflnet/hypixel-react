@@ -479,7 +479,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     type: RequestType.SUBSCRIBE,
                     customRequestURL: `${getApiEndpoint()}/notifications/listeners`,
                     data: '',
-                    requestMethod: 'DELETE',
+                    requestMethod: 'POST',
                     requestHeader: {
                         GoogleToken: googleId,
                         'Content-Type': 'application/json'
