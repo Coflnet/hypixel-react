@@ -122,7 +122,7 @@ export interface ApiSubscription {
     onError(message: string)
 }
 
-export interface Subscription {
+export interface NotificationListener {
     id: number | undefined
     topicId: string
     price: number

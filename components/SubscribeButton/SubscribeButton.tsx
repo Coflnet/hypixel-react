@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import api from '../../api/ApiHelper'
-import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
+import { NotificationListener, SubscriptionType } from '../../api/ApiTypes.d'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { toast } from 'react-toastify'
 import askForNotificationPermissons from '../../utils/NotificationPermisson'
@@ -24,7 +24,7 @@ interface Props {
     buttonContent?: JSX.Element
     isEditButton?: boolean
     onAfterSubscribe?()
-    prefill?: Subscription
+    prefill?: NotificationListener
     popupTitle?: string
     popupButtonText?: string
     successMessage?: string
@@ -48,12 +48,7 @@ function SubscribeButton(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
     let [selectedNotificationTargets, setSelectedNotificationTargets] = useState<NotificationTarget[]>([])
-
-    useEffect(() => {
-        api.getNotificationTargets().then(targets => {
-            setNotificationTargets(targets)
-        })
-    }, [])
+    let [isLoadingNotificationTargets, setIsLoadingNotificationTargets] = useState(false)
 
     function onSubscribe() {
         trackEvent({ action: 'subscribed', category: 'subscriptions' })
@@ -144,6 +139,11 @@ function SubscribeButton(props: Props) {
 
     function openDialog() {
         trackEvent({ action: 'subscription dialog opened', category: 'subscriptions' })
+        setIsLoadingNotificationTargets(true)
+        api.getNotificationTargets().then(targets => {
+            setNotificationTargets(targets)
+            setIsLoadingNotificationTargets(false)
+        })
         setShowDialog(true)
     }
 
@@ -178,11 +178,13 @@ function SubscribeButton(props: Props) {
                         ) : null}
                         {props.type === 'auction' ? <SubscribeAuctionContent /> : null}
                         <Typeahead
+                            id="notificationTargetsTypeahead"
+                            isLoading={isLoadingNotificationTargets}
                             labelKey="name"
                             options={notificationTargets}
                             placeholder={'Select targets...'}
                             onChange={selected => {
-                                console.log(selected)
+                                setSelectedNotificationTargets(selected as NotificationTarget[])
                             }}
                             multiple={true}
                         />

@@ -50,7 +50,7 @@ import {
     storeUsedTagsInLocalStorage
 } from '../utils/SettingsUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
-import { HttpApi, RequestType, Subscription, SubscriptionType } from './ApiTypes.d'
+import { HttpApi, RequestType, NotificationListener, SubscriptionType } from './ApiTypes.d'
 import { initHttpHelper } from './HttpHelper'
 import { websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
@@ -459,6 +459,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             typesToSend.push(SubscriptionType.NONE)
 
             if (filter) {
+                console.log('filter', filter)
                 filter._hide = undefined
                 filter._sellerName = undefined
             }
@@ -484,14 +485,14 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         GoogleToken: googleId,
                         'Content-Type': 'application/json'
                     },
-                    resolve: (listener: Subscription) => {
+                    resolve: (listener: NotificationListener) => {
                         createNotificationSubscription({
                             id: undefined,
                             sourceSubIdRegex: listener.id?.toString() || '',
                             sourceType: 'SUBSCRIPTION',
                             targets: targets.map(t => {
                                 return {
-                                    id: t.id || '', 
+                                    id: t.id || 0,
                                     name: t.name || '',
                                     isDisabled: false,
                                     priority: 0
@@ -516,7 +517,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let unsubscribe = (subscription: Subscription): Promise<void> => {
+    let unsubscribe = (subscription: NotificationListener): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -569,7 +570,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getSubscriptions = (): Promise<Subscription[]> => {
+    let getNotificationListener = (): Promise<NotificationListener[]> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -2340,7 +2341,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             httpApi.sendApiRequest(
                 {
                     type: RequestType.ADD_NOTIFICATION_SUBSCRIPTION,
-                    customRequestURL: `${getApiEndpoint()}/notifications/targets`,
+                    customRequestURL: `${getApiEndpoint()}/notifications/subscriptions`,
                     requestMethod: 'POST',
                     data: '',
                     requestHeader: {
@@ -2407,7 +2408,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getVersion,
         subscribe,
         unsubscribe,
-        getSubscriptions,
+        getNotificationListener,
         loginWithToken,
         stripePurchase,
         setToken,

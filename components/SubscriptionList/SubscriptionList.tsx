@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { Badge, Button, ListGroup, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
-import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
+import { NotificationListener, SubscriptionType } from '../../api/ApiTypes.d'
 import { convertTagToName } from '../../utils/Formatter'
 import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -20,7 +20,8 @@ import NotificationTargets from '../NotificationTargets/NotificationTargets'
 let mounted = true
 
 function SubscriptionList() {
-    let [subscriptions, setSubscriptions] = useState<Subscription[]>([])
+    let [listener, setListener] = useState<NotificationListener[]>([])
+    let [subscriptions, setSubscriptions] = useState<NotificationSubscription[]>([])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [showDeleteAllSubscriptionDialog, setShowDeleteAllSubscriptionDialog] = useState(false)
     let [showNotificationTargets, setShowNotificationTargets] = useState(false)
@@ -38,8 +39,35 @@ function SubscriptionList() {
         }
     }, [])
 
-    function loadSubscriptions() {
-        api.getSubscriptions().then(subscriptions => {
+    let subscriptionsToListenerMap = getListenerToTargetsMap()
+
+    function getListenerToTargetsMap() {
+        if (!listener) {
+            return {}
+        }
+        let map: {
+            [key: string]: {
+                id: number
+                name: string
+                priority: number
+                isDisabled: boolean
+            }[]
+        } = {}
+        listener.forEach(l => {
+            if (l.id) {
+                map[l.id.toString()] = []
+            }
+        })
+        subscriptions.forEach(s => {
+            if (s.sourceType === 'SUBSCRIPTION' && map[s.sourceSubIdRegex] !== undefined) {
+                map[s.sourceSubIdRegex].push(...s.targets)
+            }
+        })
+        return map
+    }
+
+    function loadListener() {
+        api.getNotificationListener().then(subscriptions => {
             if (!mounted) {
                 return
             }
@@ -48,10 +76,19 @@ function SubscriptionList() {
                 getSubscriptionTitle(subscription).then(title => {
                     let newSubscriptions = subscriptions
                     newSubscriptions[i].title = title
-                    setSubscriptions(newSubscriptions)
+                    setListener(newSubscriptions)
                     forceUpdate()
                 })
             })
+            setListener(subscriptions)
+        })
+    }
+
+    function loadSubscriptions() {
+        api.getNotificationSubscriptions().then(subscriptions => {
+            if (!mounted) {
+                return
+            }
             setSubscriptions(subscriptions)
         })
     }
@@ -60,6 +97,7 @@ function SubscriptionList() {
         let googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoggedIn(true)
+            loadListener()
             loadSubscriptions()
         }
     }
@@ -67,6 +105,7 @@ function SubscriptionList() {
     function onLoginFail() {
         setIsLoggedIn(false)
     }
+
     function getSubTypesAsList(subTypes: SubscriptionType[], price: number): JSX.Element {
         return (
             <ul>
@@ -114,11 +153,11 @@ function SubscriptionList() {
             </ul>
         )
     }
-    function onDelete(subscription: Subscription) {
+    function onDelete(subscription: NotificationListener) {
         api.unsubscribe(subscription).then(() => {
-            let subs = subscriptions.filter(s => s !== subscription)
-            subscriptions = subs
-            setSubscriptions(subs)
+            let subs = listener.filter(s => s !== subscription)
+            listener = subs
+            setListener(subs)
 
             toast.success(
                 <span>
@@ -140,7 +179,7 @@ function SubscriptionList() {
     function deleteAll() {
         api.unsubscribeAll()
             .then(() => {
-                setSubscriptions([])
+                setListener([])
                 toast.success('All notifiers were sucessfully removed')
             })
             .catch(() => {
@@ -149,19 +188,23 @@ function SubscriptionList() {
         setShowDeleteAllSubscriptionDialog(false)
     }
 
-    function resubscribe(subscription: Subscription) {
-        api.subscribe(subscription.topicId, subscription.types, subscription.price, subscription.filter).then(() => {
-            loadSubscriptions()
+    function resubscribe(subscription: NotificationListener) {
+        let targets: any[] = []
+        if (subscription.id) {
+            targets = subscriptionsToListenerMap[subscription.id.toString()]
+        }
+        api.subscribe(subscription.topicId, subscription.types, targets, subscription.price, subscription.filter).then(() => {
+            loadListener()
         })
     }
 
-    function onAfterSubscribeEdit(oldSubscription: Subscription) {
+    function onAfterSubscribeEdit(oldSubscription: NotificationListener) {
         api.unsubscribe(oldSubscription).then(() => {
-            loadSubscriptions()
+            loadListener()
         })
     }
 
-    function getSubscriptionTitle(subscription: Subscription): Promise<string> {
+    function getSubscriptionTitle(subscription: NotificationListener): Promise<string> {
         return new Promise((resolve, reject) => {
             switch (subscription.type) {
                 case 'item':
@@ -193,7 +236,7 @@ function SubscriptionList() {
         })
     }
 
-    function getSubscriptionTitleElement(subscription: Subscription) {
+    function getSubscriptionTitleElement(subscription: NotificationListener) {
         switch (subscription.type) {
             case 'item':
                 return (
@@ -218,7 +261,7 @@ function SubscriptionList() {
         }
     }
 
-    let subscriptionsTableBody = subscriptions.map((subscription, i) => (
+    let subscriptionsTableBody = listener.map((subscription, i) => (
         <ListGroup.Item key={i}>
             <h5>
                 <Badge style={{ marginRight: '5px' }} bg="primary">
@@ -229,6 +272,9 @@ function SubscriptionList() {
             {getSubTypesAsList(subscription.types, subscription.price)}
             {subscription.filter ? <hr /> : null}
             <ItemFilterPropertiesDisplay filter={subscription.filter} />
+            <div style={{ float: 'right' }}>
+                <p>Notification Targets: {subscription.id ? subscriptionsToListenerMap[subscription.id.toString()].map(t => t.name).toString() : 'None'}</p>
+            </div>
             <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
                 <SubscribeButton
                     topic={subscription.topicId}
@@ -265,7 +311,7 @@ function SubscriptionList() {
             <Modal.Body>
                 <p>Are you sure you want to delete all your notifiers?</p>
                 <p>
-                    <b>All {subscriptions.length} notifier will be deleted!</b>
+                    <b>All {listener.length} notifier will be deleted!</b>
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Button variant="danger" style={{ width: '45%' }} onClick={deleteAll}>
@@ -304,7 +350,7 @@ function SubscriptionList() {
     return (
         <div className={styles.subscriptionList}>
             {isLoggedIn ? (
-                subscriptions.length > 0 ? (
+                listener.length > 0 ? (
                     <>
                         <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                             <Button

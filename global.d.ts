@@ -168,7 +168,7 @@ interface API {
     getVersion(): Promise<string>
     subscribe(topic: string, type: SubscriptionType[], targets: NotificationTarget[], price?: number, itemFilter?: ItemFilter): Promise<void>
     unsubscribe(subscription: Subscription): Promise<void>
-    getSubscriptions(): Promise<Subscription[]>
+    getNotificationListener(): Promise<NotificationListener[]>
     loginWithToken(id: string): Promise<string>
     stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
@@ -639,6 +639,7 @@ interface NotificationSubscription {
     id: number | undefined
     sourceSubIdRegex: string
     targets: {
+        id: number
         name: string
         priority: number
         isDisabled: boolean
