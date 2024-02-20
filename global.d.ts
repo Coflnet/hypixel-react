@@ -130,6 +130,7 @@ interface SearchResultItem {
 interface FlipAuction {
     uuid: string
     median: number
+    profit: number
     cost: number
     volume: number
     showLink: boolean

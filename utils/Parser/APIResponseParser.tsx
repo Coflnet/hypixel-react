@@ -283,7 +283,8 @@ export function parseFlipAuction(flip): FlipAuction {
         sellerName: flip.sellerName,
         lowestBin: flip.lowestBin,
         props: flip.prop,
-        finder: flip.finder
+        finder: flip.finder,
+        profit: flip.Profit
     } as FlipAuction
     parsedFlip.item.iconUrl = api.getItemImageUrl(parsedFlip.item)
 
