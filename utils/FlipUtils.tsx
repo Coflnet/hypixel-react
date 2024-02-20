@@ -10,6 +10,7 @@ export const DEMO_FLIP: FlipAuction = {
         tier: 'LEGENDARY',
         iconUrl: 'https://sky.coflnet.com/static/icon/MIDAS_SWORD'
     },
+    profit: 5000000,
     lowestBin: 46000000,
     secondLowestBin: 47000000,
     median: 50000000,
