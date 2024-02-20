@@ -9,6 +9,7 @@ import ItemFilter from '../ItemFilter/ItemFilter'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
+import { Number } from '../Number/Number'
 
 interface Props {
     currentUserUUID?: string
@@ -127,7 +128,10 @@ export default function TradeList(props: Props) {
                                               <>
                                                   <hr />
                                                   <p>
-                                                      Offered Coins: <b>{trade.coins}</b>
+                                                      Offered Coinst:{' '}
+                                                      <b>
+                                                          <Number number={trade.coins} />
+                                                      </b>
                                                   </p>
                                               </>
                                           ) : null}
