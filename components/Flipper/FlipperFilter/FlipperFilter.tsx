@@ -121,6 +121,17 @@ function FlipperFilter(props: Props) {
         document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
     }
 
+    const debounceMinProfitChangeFunction = (function () {
+        let timerId
+
+        return (minProfit: number) => {
+            clearTimeout(timerId)
+            timerId = setTimeout(() => {
+                onSettingsChange('minProfit', minProfit || 0)
+            }, 1000)
+        }
+    })()
+
     let restrictionListDialog = (
         <Modal
             size={'xl'}
@@ -178,7 +189,7 @@ function FlipperFilter(props: Props) {
                     <NumericFormat
                         id="min-profit"
                         onValueChange={value => {
-                            onSettingsChange('minProfit', value.floatValue || 0)
+                            debounceMinProfitChangeFunction(value.floatValue || 0)
                         }}
                         placeholder={!props.isLoggedIn ? 'Please login first' : null}
                         className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}

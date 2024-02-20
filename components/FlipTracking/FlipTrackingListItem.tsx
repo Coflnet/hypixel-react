@@ -25,6 +25,18 @@ export function FlipTrackingListItem(props: Props) {
     let router = useRouter()
     let [showPropertyChanges, setShowPropertyChanges] = useState(false)
 
+    function convertMilliSecondsIntoLegibleString(milliSecondsIn: number) {
+        var secsIn = milliSecondsIn / 1000
+
+        var days = Math.floor(secsIn / 86400),
+            remainderAfterDays = secsIn % 86400,
+            hours = Math.floor(remainderAfterDays / 3600),
+            remainderAfterHours = remainderAfterDays % 3600,
+            minutes = Math.floor(remainderAfterHours / 60)
+
+        return `${days > 0 ? days + 'days ' : ''}  ${hours > 0 ? hours + 'h ' : ''}  ${minutes > 0 ? minutes + 'min' : ''}`
+    }
+
     return (
         <ListGroup.Item
             className={styles.listGroupItem}
@@ -114,7 +126,14 @@ export function FlipTrackingListItem(props: Props) {
                                     </span>
                                 }
                                 tooltipContent={
-                                    <span>{props.trackedFlip.sellTime.toLocaleDateString() + ' ' + props.trackedFlip.sellTime.toLocaleTimeString()}</span>
+                                    <div>
+                                        <p>Buy: {props.trackedFlip.buyTime.toLocaleDateString() + ' ' + props.trackedFlip.buyTime.toLocaleTimeString()}</p>
+                                        <p>Sell: {props.trackedFlip.sellTime.toLocaleDateString() + ' ' + props.trackedFlip.sellTime.toLocaleTimeString()}</p>
+                                        <p>
+                                            Sold in:{' '}
+                                            {convertMilliSecondsIntoLegibleString(props.trackedFlip.sellTime.getTime() - props.trackedFlip.buyTime.getTime())}
+                                        </p>
+                                    </div>
                                 }
                             />
                         </span>

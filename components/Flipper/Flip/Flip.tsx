@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import { Badge, Card } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { calculateProfit, getFlipCustomizeSettings, getFlipFinders } from '../../../utils/FlipUtils'
+import { getFlipCustomizeSettings, getFlipFinders } from '../../../utils/FlipUtils'
 import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
 import { CopyButton } from '../../CopyButton/CopyButton'
@@ -82,7 +82,7 @@ function Flip(props: Props) {
 
     function getProfitElement(flip: FlipAuction): JSX.Element {
         let settings = getFlipCustomizeSettings()
-        let profit = calculateProfit(flip, settings)
+        let profit = flip.profit
         let preSymbol = profit > 0 ? '+' : ''
         let profitPercentElement = <span>({Math.round((profit / flip.cost) * 100)}%)</span>
         return (

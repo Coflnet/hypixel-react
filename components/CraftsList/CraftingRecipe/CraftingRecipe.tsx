@@ -30,28 +30,45 @@ export function CraftingRecipe(props: Props) {
         cursor: props.onIngredientClick ? 'pointer' : 'default'
     } as React.CSSProperties
 
-    function getGridElement(tag?: string) {
+    function getGridElement(craftingRecipeSlot: CraftingRecipeSlot | undefined) {
+        if (!craftingRecipeSlot) {
+            return (
+                <div className={styles.gridCell}>
+                    <div style={{ height: '36px', width: '36px' }}></div>
+                </div>
+            )
+        }
         return (
             <div
                 onClick={() => {
-                    onIngredientClick(tag)
+                    onIngredientClick(craftingRecipeSlot.tag)
                 }}
                 style={style}
                 className={styles.gridCell}
             >
-                {tag ? (
+                <div style={{ position: 'relative' }}>
                     <Image
-                        title={convertTagToName(tag)}
+                        title={convertTagToName(craftingRecipeSlot.tag)}
                         className={styles.ingredienceImage}
-                        src={api.getItemImageUrl({ tag: tag })}
+                        src={api.getItemImageUrl({ tag: craftingRecipeSlot.tag })}
                         alt=""
                         crossOrigin="anonymous"
                         height={36}
                         width={36}
                     />
-                ) : (
-                    <div style={{ height: '36px', width: '36px' }} />
-                )}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            right: 0,
+                            color: 'white',
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        {craftingRecipeSlot.count}
+                    </div>
+                </div>
             </div>
         )
     }

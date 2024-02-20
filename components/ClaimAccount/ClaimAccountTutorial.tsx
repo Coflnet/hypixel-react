@@ -12,11 +12,18 @@ function ClaimAccountTutorial() {
                     verified your account. This is to prevent people from abusing the ref system by creating new emails.
                 </Card.Body>
             </Card>
-            <Card>
+            <Card style={{ marginBottom: '10px' }}>
                 <Card.Header>Flipping</Card.Header>
                 <Card.Body>
                     As part of our fairness system unverified accounts receive flips delayed. Some parts (like the in game `/cofl profit`) use the list of
                     verified accounts to compute summaries over all your minecraft accounts.
+                </Card.Body>
+            </Card>
+            <Card>
+                <Card.Header>Trading</Card.Header>
+                <Card.Body>
+                    Our Trading feature tries to use inventory data from your minecraft account. So the trading feature is only available if you have your
+                    account connected.
                 </Card.Body>
             </Card>
         </div>

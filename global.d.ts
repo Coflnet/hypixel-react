@@ -130,6 +130,7 @@ interface SearchResultItem {
 interface FlipAuction {
     uuid: string
     median: number
+    profit: number
     cost: number
     volume: number
     showLink: boolean
@@ -397,15 +398,20 @@ interface SkyblockProfile {
     id: string
 }
 interface CraftingRecipe {
-    A1: string
-    A2: string
-    A3: string
-    B1: string
-    B2: string
-    B3: string
-    C1: string
-    C2: string
-    C3: string
+    A1: CraftingRecipeSlot | undefined
+    A2: CraftingRecipeSlot | undefined
+    A3: CraftingRecipeSlot | undefined
+    B1: CraftingRecipeSlot | undefined
+    B2: CraftingRecipeSlot | undefined
+    B3: CraftingRecipeSlot | undefined
+    C1: CraftingRecipeSlot | undefined
+    C2: CraftingRecipeSlot | undefined
+    C3: CraftingRecipeSlot | undefined
+}
+
+interface CraftingRecipeSlot {
+    tag: string
+    count: number
 }
 
 interface LowestBin {
@@ -468,6 +474,7 @@ interface FlipTrackingFlip {
     finder: FlipFinder
     item: Item
     sellTime: Date
+    buyTime: Date
     profit: number
     propertyChanges: FlipTrackingPropertyChange[]
     flags: Set

@@ -284,7 +284,8 @@ export function parseFlipAuction(flip): FlipAuction {
         sellerName: flip.sellerName,
         lowestBin: flip.lowestBin,
         props: flip.prop,
-        finder: flip.finder
+        finder: flip.finder,
+        profit: flip.Profit
     } as FlipAuction
     parsedFlip.item.iconUrl = api.getItemImageUrl(parsedFlip.item)
 
@@ -416,15 +417,26 @@ export function parseSkyblockProfile(profile): SkyblockProfile {
 
 export function parseCraftingRecipe(recipe): CraftingRecipe {
     return {
-        A1: recipe.A1.split(':')[0],
-        A2: recipe.A2.split(':')[0],
-        A3: recipe.A3.split(':')[0],
-        B1: recipe.B1.split(':')[0],
-        B2: recipe.B2.split(':')[0],
-        B3: recipe.B3.split(':')[0],
-        C1: recipe.C1.split(':')[0],
-        C2: recipe.C2.split(':')[0],
-        C3: recipe.C3.split(':')[0]
+        A1: parseCraftingRecipeSlot(recipe.A1),
+        A2: parseCraftingRecipeSlot(recipe.A2),
+        A3: parseCraftingRecipeSlot(recipe.A3),
+        B1: parseCraftingRecipeSlot(recipe.B1),
+        B2: parseCraftingRecipeSlot(recipe.B2),
+        B3: parseCraftingRecipeSlot(recipe.B3),
+        C1: parseCraftingRecipeSlot(recipe.C1),
+        C2: parseCraftingRecipeSlot(recipe.C2),
+        C3: parseCraftingRecipeSlot(recipe.C3)
+    }
+}
+
+// parses a crafting recipe slot string into a CraftingRecipeSlot object
+// example input: "ENCHANTED_EYE_OF_ENDER:16"
+export function parseCraftingRecipeSlot(craftingRecipeSlotString: string): CraftingRecipeSlot | undefined {
+    if (!craftingRecipeSlotString) return undefined
+    let count = parseInt(craftingRecipeSlotString.split(':')[1])
+    return {
+        tag: craftingRecipeSlotString.split(':')[0],
+        count: count || 0
     }
 }
 
@@ -489,6 +501,7 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
         uId: flip?.uId,
         finder: getFlipFinders([flip.finder || 0])[0],
         sellTime: parseDate(flip?.sellTime),
+        buyTime: parseDate(flip?.buyTime),
         profit: flip?.profit,
         propertyChanges: flip.propertyChanges?.map(change => {
             return {

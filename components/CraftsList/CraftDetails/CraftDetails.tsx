@@ -27,7 +27,7 @@ export function CraftDetails(props: Props) {
                 </span>
             </div>
             <hr />
-            <h3 style={{ marginBottom: '20px' }}>Ingredience Costs</h3>
+            <h3 style={{ marginBottom: '20px' }}>Ingredient Costs</h3>
             {props.craft.ingredients.map(ingredient => {
                 return (
                     <div
