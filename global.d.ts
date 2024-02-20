@@ -627,7 +627,7 @@ interface Transaction {
 
 interface NotificationTarget {
     id: number | undefined
-    type: 'WEBHOOK' | 'DISCORD' | 'DISCORD_WEBHOOK' | 'FIREBASE' | 'EMAIL'
+    type: 'WEBHOOK' | 'DISCORD' | 'DiscordWebhook' | 'FIREBASE' | 'EMAIL' | 'InGame'
     when: 'NEVER' | 'AFTER_FAIL' | 'ALWAYS'
     target: string | null
     name: string | null

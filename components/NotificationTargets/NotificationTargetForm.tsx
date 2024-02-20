@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 
-const TYPE_OPTIONS = ['WEBHOOK', 'DISCORD', 'DISCORD_WEBHOOK', 'FIREBASE', 'EMAIL']
+const TYPE_OPTIONS = ['WEBHOOK', 'DISCORD', 'DiscordWebhook', 'FIREBASE', 'EMAIL', 'InGame']
 const WHEN_OPITIONS = ['NEVER', 'AFTER_FAIL', 'ALWAYS']
 
 interface Props {
@@ -15,9 +15,11 @@ interface Props {
 
 function NotificationTargetForm(props: Props) {
     let [name, setName] = useState<string>(props.defaultNotificationTarget?.name || '')
-    let [type, setType] = useState<'WEBHOOK' | 'DISCORD' | 'DISCORD_WEBHOOK' | 'FIREBASE' | 'EMAIL'>(props.defaultNotificationTarget?.type || 'FIREBASE')
+    let [type, setType] = useState<'WEBHOOK' | 'DISCORD' | 'DiscordWebhook' | 'FIREBASE' | 'EMAIL' | 'InGame'>(
+        props.defaultNotificationTarget?.type || 'FIREBASE'
+    )
     let [target, setTarget] = useState<string | null>(props.defaultNotificationTarget?.target || null)
-    let [when, setWhen] = useState<'NEVER' | 'AFTER_FAIL' | 'ALWAYS'>(props.defaultNotificationTarget?.when || 'NEVER')
+    let [when, setWhen] = useState<'NEVER' | 'AFTER_FAIL' | 'ALWAYS'>(props.defaultNotificationTarget?.when || 'ALWAYS')
     let [disabled, setDisabled] = useState(false)
 
     function addNotificationTarget() {

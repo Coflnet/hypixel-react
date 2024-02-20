@@ -16,7 +16,7 @@ import SubscribeAuctionContent from './SubscribeAuctionContent/SubscribeAuctionC
 import { useRouter } from 'next/navigation'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import EditIcon from '@mui/icons-material/Edit'
-import { AsyncTypeahead, Typeahead } from 'react-bootstrap-typeahead'
+import { Typeahead } from 'react-bootstrap-typeahead'
 
 interface Props {
     topic: string
@@ -24,7 +24,10 @@ interface Props {
     buttonContent?: JSX.Element
     isEditButton?: boolean
     onAfterSubscribe?()
-    prefill?: NotificationListener
+    prefill?: {
+        listener: NotificationListener
+        targetNames: string[]
+    }
     popupTitle?: string
     popupButtonText?: string
     successMessage?: string
@@ -43,7 +46,7 @@ function SubscribeButton(props: Props) {
     let [isSold, setIsSold] = useState(false)
     let [isPlayerAuctionCreation, setIsPlayerAuctionCreation] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.filter || undefined)
+    let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.listener?.filter || undefined)
     let [isItemFilterValid, setIsItemFilterValid] = useState(true)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
@@ -141,6 +144,9 @@ function SubscribeButton(props: Props) {
         trackEvent({ action: 'subscription dialog opened', category: 'subscriptions' })
         setIsLoadingNotificationTargets(true)
         api.getNotificationTargets().then(targets => {
+            if (props.prefill?.targetNames) {
+                setSelectedNotificationTargets(targets.filter(target => (target.name ? props.prefill?.targetNames.includes(target.name) : false)))
+            }
             setNotificationTargets(targets)
             setIsLoadingNotificationTargets(false)
         })
@@ -164,7 +170,7 @@ function SubscribeButton(props: Props) {
                                 onIsPriceAboveChange={setIsPriceAbove}
                                 onOnlyInstantBuyChange={setOnlyInstantBuy}
                                 onPriceChange={setPrice}
-                                prefill={props.prefill}
+                                prefill={props.prefill?.listener}
                                 onIsFilterValidChange={setIsItemFilterValid}
                             />
                         ) : null}
@@ -173,16 +179,20 @@ function SubscribeButton(props: Props) {
                                 onGotOutbidChange={setGotOutbid}
                                 onIsSoldChange={setIsSold}
                                 onIsPlayerAuctionCreation={setIsPlayerAuctionCreation}
-                                prefill={props.prefill}
+                                prefill={props.prefill?.listener}
                             />
                         ) : null}
                         {props.type === 'auction' ? <SubscribeAuctionContent /> : null}
+                        <label htmlFor="notificationTargetsTypeahead">Targets: </label>
                         <Typeahead
                             id="notificationTargetsTypeahead"
+                            className={styles.multiSearch}
                             isLoading={isLoadingNotificationTargets}
                             labelKey="name"
+                            style={{ marginBottom: '10px' }}
                             options={notificationTargets}
                             placeholder={'Select targets...'}
+                            selected={selectedNotificationTargets}
                             onChange={selected => {
                                 setSelectedNotificationTargets(selected as NotificationTarget[])
                             }}

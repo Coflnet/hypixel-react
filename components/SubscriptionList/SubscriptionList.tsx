@@ -16,6 +16,7 @@ import { Number } from '../Number/Number'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import styles from './SubscriptionList.module.css'
 import NotificationTargets from '../NotificationTargets/NotificationTargets'
+import { Typeahead } from 'react-bootstrap-typeahead'
 
 let mounted = true
 
@@ -25,6 +26,7 @@ function SubscriptionList() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [showDeleteAllSubscriptionDialog, setShowDeleteAllSubscriptionDialog] = useState(false)
     let [showNotificationTargets, setShowNotificationTargets] = useState(false)
+    let [isLoading, setIsLoading] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     let forceUpdate = useForceUpdate()
@@ -59,7 +61,7 @@ function SubscriptionList() {
             }
         })
         subscriptions.forEach(s => {
-            if (s.sourceType === 'SUBSCRIPTION' && map[s.sourceSubIdRegex] !== undefined) {
+            if (s.sourceType === 'Subscription' && map[s.sourceSubIdRegex] !== undefined) {
                 map[s.sourceSubIdRegex].push(...s.targets)
             }
         })
@@ -67,7 +69,7 @@ function SubscriptionList() {
     }
 
     function loadListener() {
-        api.getNotificationListener().then(subscriptions => {
+        return api.getNotificationListener().then(subscriptions => {
             if (!mounted) {
                 return
             }
@@ -85,7 +87,7 @@ function SubscriptionList() {
     }
 
     function loadSubscriptions() {
-        api.getNotificationSubscriptions().then(subscriptions => {
+        return api.getNotificationSubscriptions().then(subscriptions => {
             if (!mounted) {
                 return
             }
@@ -97,8 +99,10 @@ function SubscriptionList() {
         let googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoggedIn(true)
-            loadListener()
-            loadSubscriptions()
+            setIsLoading(true)
+            Promise.all([loadListener(), loadSubscriptions()]).then(() => {
+                setIsLoading(false)
+            })
         }
     }
 
@@ -200,7 +204,13 @@ function SubscriptionList() {
 
     function onAfterSubscribeEdit(oldSubscription: NotificationListener) {
         api.unsubscribe(oldSubscription).then(() => {
-            loadListener()
+            setListener([])
+            setSubscriptions([])
+
+            setIsLoading(true)
+            Promise.all([loadListener(), loadSubscriptions()]).then(() => {
+                setIsLoading(false)
+            })
         })
     }
 
@@ -273,7 +283,17 @@ function SubscriptionList() {
             {subscription.filter ? <hr /> : null}
             <ItemFilterPropertiesDisplay filter={subscription.filter} />
             <div style={{ float: 'right' }}>
-                <p>Notification Targets: {subscription.id ? subscriptionsToListenerMap[subscription.id.toString()].map(t => t.name).toString() : 'None'}</p>
+                <p>Notification Targets: {subscription.id && subscriptionsToListenerMap[subscription.id.toString()].length > 0 ? null : 'None'}</p>
+                {subscription.id && subscriptionsToListenerMap[subscription.id.toString()].length > 0 ? (
+                    <Typeahead
+                        disabled
+                        id={`notificationTargetsTypeahead-${subscription.id}`}
+                        multiple
+                        labelKey={'name'}
+                        defaultSelected={subscriptionsToListenerMap[subscription.id.toString()]}
+                        options={subscription.id ? subscriptionsToListenerMap[subscription.id.toString()] : []}
+                    />
+                ) : null}
             </div>
             <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
                 <SubscribeButton
@@ -283,7 +303,13 @@ function SubscriptionList() {
                     onAfterSubscribe={() => {
                         onAfterSubscribeEdit(subscription)
                     }}
-                    prefill={subscription}
+                    prefill={{
+                        listener: subscription,
+                        targetNames:
+                            subscription.id && subscriptionsToListenerMap[subscription.id.toString()].length > 0
+                                ? subscriptionsToListenerMap[subscription.id.toString()].map(t => t.name)
+                                : []
+                    }}
                     popupTitle="Update Notifier"
                     popupButtonText="Update"
                     successMessage="Notifier successfully updated"
@@ -350,7 +376,9 @@ function SubscriptionList() {
     return (
         <div className={styles.subscriptionList}>
             {isLoggedIn ? (
-                listener.length > 0 ? (
+                isLoading ? (
+                    getLoadingElement()
+                ) : listener.length > 0 ? (
                     <>
                         <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                             <Button

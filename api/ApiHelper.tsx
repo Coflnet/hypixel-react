@@ -459,7 +459,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             typesToSend.push(SubscriptionType.NONE)
 
             if (filter) {
-                console.log('filter', filter)
                 filter._hide = undefined
                 filter._sellerName = undefined
             }
@@ -489,7 +488,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         createNotificationSubscription({
                             id: undefined,
                             sourceSubIdRegex: listener.id?.toString() || '',
-                            sourceType: 'SUBSCRIPTION',
+                            sourceType: 'Subscription',
                             targets: targets.map(t => {
                                 return {
                                     id: t.id || 0,
