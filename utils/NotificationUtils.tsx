@@ -35,3 +35,44 @@ export default function registerNotificationCallback(router) {
         cacheUtils.setIntoCache('auctionDetails', JSON.stringify(auction.uuid), auction, 60)
     }
 }
+
+export function getNotificationTypeAsString(type: NotificationType | number): string {
+    switch (type) {
+        case 1:
+        case 'WEBHOOK':
+            return 'Webhook'
+        case 2:
+        case 'DISCORD':
+            return 'Discord'
+        case 3:
+        case 'DiscordWebhook':
+            return 'Discord Webhook'
+        case 4:
+        case 'FIREBASE':
+            return 'Firebase'
+        case 5:
+        case 'EMAIL':
+            return 'E-Mail'
+        case 6:
+        case 'InGame':
+            return 'InGame'
+        default:
+            return 'Unknown'
+    }
+}
+
+export function getNotficationWhenEnumAsString(when: NotificationWhen | number): string {
+    switch (when) {
+        case 0:
+        case 'NEVER':
+            return 'Never'
+        case 1:
+        case 'AFTER_FAIL':
+            return 'After fail'
+        case 2:
+        case 'ALWAYS':
+            return 'Always'
+        default:
+            return 'Never'
+    }
+}

@@ -7,6 +7,7 @@ import NotificationTargetForm from './NotificationTargetForm'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { getNotficationWhenEnumAsString, getNotificationTypeAsString } from '../../utils/NotificationUtils'
 
 function NotificationTargets() {
     let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
@@ -93,8 +94,8 @@ function NotificationTargets() {
                                     <td className="ellipse" style={{ maxWidth: '250px' }} title={target.target || ''}>
                                         {target.target}
                                     </td>
-                                    <td>{target.type}</td>
-                                    <td>{target.when}</td>
+                                    <td>{getNotificationTypeAsString(target.type as number)}</td>
+                                    <td>{getNotficationWhenEnumAsString(target.when as number)}</td>
                                     <td>{target.useCount || 0}</td>
                                     <td>
                                         <Button

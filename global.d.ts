@@ -632,10 +632,14 @@ interface Transaction {
     timeStamp: Date
 }
 
+type NotificationType = 'WEBHOOK' | 'DISCORD' | 'DiscordWebhook' | 'FIREBASE' | 'EMAIL' | 'InGame' | 'DiscordWebhook'
+
+type NotificationWhen = 'NEVER' | 'AFTER_FAIL' | 'ALWAYS'
+
 interface NotificationTarget {
     id: number | undefined
-    type: 'WEBHOOK' | 'DISCORD' | 'DiscordWebhook' | 'FIREBASE' | 'EMAIL' | 'InGame'
-    when: 'NEVER' | 'AFTER_FAIL' | 'ALWAYS'
+    type: NotificaitonType | number
+    when: NotificationWhen | number
     target: string | null
     name: string | null
     useCount: number

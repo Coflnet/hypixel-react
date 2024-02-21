@@ -18,7 +18,7 @@ export default function askForNotificationPermissons(): Promise<string> {
                     vapidKey: 'BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7UQ_1XnEPqShuQtGj8lvtjBlkfoV86m_PadW30'
                 })
                 .then((token: string) => {
-                    localStorage.fcmToken = token
+                    localStorage.setItem('fcmToken', token)
                     resolve(token)
                 })
         }

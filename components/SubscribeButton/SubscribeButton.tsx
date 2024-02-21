@@ -53,7 +53,7 @@ function SubscribeButton(props: Props) {
     let [selectedNotificationTargets, setSelectedNotificationTargets] = useState<NotificationTarget[]>([])
     let [isLoadingNotificationTargets, setIsLoadingNotificationTargets] = useState(false)
 
-    function onSubscribe() {
+    async function onSubscribe() {
         trackEvent({ action: 'subscribed', category: 'subscriptions' })
         setShowDialog(false)
         // Set price to 0 per default for item subscriptions
@@ -61,6 +61,7 @@ function SubscribeButton(props: Props) {
         if (props.type === 'item' && !price) {
             price = '0'
         }
+
         api.subscribe(props.topic, getSubscriptionTypes(), selectedNotificationTargets, price ? parseInt(price) : undefined, itemFilter)
             .then(() => {
                 toast.success(props.successMessage || 'Notifier successfully created!', {
@@ -113,14 +114,6 @@ function SubscribeButton(props: Props) {
 
     function onLogin() {
         setIsLoggedIn(true)
-        askForNotificationPermissons().then(token => {
-            api.setToken(token).then(() => {
-                if (props.type === 'auction') {
-                    onSubscribe()
-                    setShowDialog(false)
-                }
-            })
-        })
     }
 
     function isNotifyDisabled() {
