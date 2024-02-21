@@ -7,23 +7,22 @@ import Image from 'next/image'
 import { getMinecraftColorCodedElement, getStyleForTier } from '../../utils/Formatter'
 import FlipTrackingCopyButton from './FlipTrackingCopyButton'
 import { Number } from '../Number/Number'
-import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
 import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'
 import Tooltip from '../Tooltip/Tooltip'
 import moment from 'moment'
 import HelpIcon from '@mui/icons-material/Help'
+import ShowMoreText from '../ShowMoreText/ShowMoreText'
 
 interface Props {
     trackedFlip: FlipTrackingFlip
     isHighlighted: boolean
     onContextMenu: MouseEventHandler<HTMLElement> | undefined
     ignoreProfit: boolean
-    onRemoveFlipFromIgnoreMap()
+    onRemoveFlipFromIgnoreMap(): void
 }
 
 export function FlipTrackingListItem(props: Props) {
     let router = useRouter()
-    let [showPropertyChanges, setShowPropertyChanges] = useState(false)
 
     function convertMilliSecondsIntoLegibleString(milliSecondsIn: number) {
         var secsIn = milliSecondsIn / 1000
@@ -138,39 +137,36 @@ export function FlipTrackingListItem(props: Props) {
                             />
                         </span>
                     </p>
-                    <p
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => {
-                            setShowPropertyChanges(!showPropertyChanges)
-                        }}
-                    >
-                        Profit changes: {showPropertyChanges ? <ArrowDownIcon /> : <ArrowRightIcon />}
-                    </p>
-                    {showPropertyChanges ? (
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <Table>
-                                <tbody>
-                                    {props.trackedFlip.propertyChanges.map(change => (
-                                        <tr>
-                                            <td>{change.description}</td>
-                                            <td>
-                                                {' '}
-                                                {change.effect > 0 ? (
-                                                    <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
-                                                        +<Number number={change.effect} /> Coins
-                                                    </span>
-                                                ) : (
-                                                    <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>
-                                                        <Number number={change.effect} />
-                                                    </span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-                        </div>
-                    ) : null}
+                    <p>Profit changes:</p>
+                    <ShowMoreText
+                        alwaysShowAll={props.trackedFlip.propertyChanges.length < 2}
+                        allowShowLess={false}
+                        content={
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Table>
+                                    <tbody>
+                                        {props.trackedFlip.propertyChanges.map(change => (
+                                            <tr>
+                                                <td>{change.description}</td>
+                                                <td>
+                                                    {change.effect > 0 ? (
+                                                        <span style={{ color: 'lime', whiteSpace: 'nowrap', marginLeft: '5px' }}>
+                                                            +<Number number={change.effect} /> Coins
+                                                        </span>
+                                                    ) : (
+                                                        <span style={{ color: 'red', whiteSpace: 'nowrap', marginLeft: '5px' }}>
+                                                            <Number number={change.effect} />
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        }
+                        initialHeight={50}
+                    />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'end' }}>
                     <Suspense>
