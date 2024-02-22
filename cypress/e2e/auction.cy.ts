@@ -1,4 +1,9 @@
 describe('Auction page', () => {
+    afterEach(() => {
+        // Prevents running into the rate limit
+        cy.wait(10000)
+    })
+
     it('contains relevant information', () => {
         cy.visit('/auction/73137bc47df84d31a9d8b010078ada0f')
         cy.contains('Category: Misc').should('be.visible')
