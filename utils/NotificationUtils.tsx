@@ -49,7 +49,7 @@ export function getNotificationTypeAsString(type: NotificationType | number): st
             return 'Discord Webhook'
         case 4:
         case 'FIREBASE':
-            return 'Firebase'
+            return 'Push-Notification'
         case 5:
         case 'EMAIL':
             return 'E-Mail'

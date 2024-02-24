@@ -91,7 +91,7 @@ function NotificationTargets() {
                                     <td className="ellipse" style={{ maxWidth: '250px' }} title={target.target || ''}>
                                         {target.name}
                                     </td>
-                                    <td className="ellipse" style={{ maxWidth: '250px' }} title={target.target || ''}>
+                                    <td className="ellipse" style={{ maxWidth: '150px' }} title={target.target || ''}>
                                         {target.target}
                                     </td>
                                     <td>{getNotificationTypeAsString(target.type as number)}</td>

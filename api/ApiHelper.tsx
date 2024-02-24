@@ -536,6 +536,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             }
 
             let requestData = {
+                id: subscription.id,
                 topicId: subscription.topicId,
                 price: subscription.price || undefined,
                 type: typesToSend.reduce((a, b) => {

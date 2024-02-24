@@ -157,9 +157,18 @@ function SubscriptionList() {
             </ul>
         )
     }
-    function onDelete(subscription: NotificationListener) {
-        api.unsubscribe(subscription).then(() => {
-            let subs = listener.filter(s => s !== subscription)
+    function onDelete(notificationListener: NotificationListener) {
+        if (!notificationListener.id) {
+            toast.error('Could not delete notifier, no id available...')
+            return
+        }
+        let subscriptionToDelete = subscriptions.find(s => s.sourceSubIdRegex === notificationListener.id!.toString())
+
+        Promise.all([
+            subscriptionToDelete ? api.deleteNotificationSubscription(subscriptionToDelete) : Promise.resolve(),
+            api.unsubscribe(notificationListener)
+        ]).then(() => {
+            let subs = listener.filter(s => s !== notificationListener)
             listener = subs
             setListener(subs)
 
@@ -170,7 +179,7 @@ function SubscriptionList() {
                         style={{ float: 'right', marginRight: '5px' }}
                         variant="info"
                         onClick={() => {
-                            resubscribe(subscription)
+                            resubscribe(notificationListener, subscriptionToDelete!)
                         }}
                     >
                         <UndoIcon /> Undo
@@ -192,13 +201,17 @@ function SubscriptionList() {
         setShowDeleteAllSubscriptionDialog(false)
     }
 
-    function resubscribe(subscription: NotificationListener) {
-        let targets: any[] = []
-        if (subscription.id) {
-            targets = subscriptionsToListenerMap[subscription.id.toString()]
-        }
-        api.subscribe(subscription.topicId, subscription.types, targets, subscription.price, subscription.filter).then(() => {
-            loadListener()
+    function resubscribe(listener: NotificationListener, subscription: NotificationSubscription) {
+        let promises = [
+            api.subscribe(listener.topicId, listener.types, subscription.targets as any, listener.price, listener.filter),
+            api.createNotificationSubscription(subscription)
+        ]
+
+        Promise.all(promises).then(() => {
+            setIsLoading(true)
+            Promise.all([loadListener(), loadSubscriptions()]).then(() => {
+                setIsLoading(false)
+            })
         })
     }
 
