@@ -82,16 +82,7 @@ function SubscriptionList() {
                     forceUpdate()
                 })
             })
-            setListener([
-                {
-                    id: 1,
-                    title: 'Test',
-                    topicId: 'Test',
-                    types: [SubscriptionType.BIN],
-                    type: 'auction',
-                    price: 0
-                }
-            ])
+            setListener(subscriptions)
         })
     }
 
