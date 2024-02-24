@@ -67,7 +67,7 @@ export function getNotficationWhenEnumAsString(when: NotificationWhen | number):
         case 'NEVER':
             return 'Never'
         case 1:
-        case 'AFTER_FAIL':
+        case 'AfterFail':
             return 'After fail'
         case 2:
         case 'ALWAYS':

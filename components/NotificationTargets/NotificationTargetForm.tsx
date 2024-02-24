@@ -7,7 +7,7 @@ import askForNotificationPermissons from '../../utils/NotificationPermisson'
 import { getNotficationWhenEnumAsString, getNotificationTypeAsString } from '../../utils/NotificationUtils'
 
 const TYPE_OPTIONS: NotificationType[] = ['WEBHOOK', 'DISCORD', 'DiscordWebhook', 'FIREBASE', 'EMAIL', 'InGame']
-const WHEN_OPITIONS: NotificationWhen[] = ['NEVER', 'AFTER_FAIL', 'ALWAYS']
+const WHEN_OPITIONS: NotificationWhen[] = ['NEVER', 'AfterFail', 'ALWAYS']
 
 interface Props {
     type: 'CREATE' | 'UPDATE'
@@ -21,7 +21,7 @@ function NotificationTargetForm(props: Props) {
         props.defaultNotificationTarget?.type || 'FIREBASE'
     )
     let [target, setTarget] = useState<string | null>(props.defaultNotificationTarget?.target || null)
-    let [when, setWhen] = useState<'NEVER' | 'AFTER_FAIL' | 'ALWAYS' | number>(props.defaultNotificationTarget?.when || 'ALWAYS')
+    let [when, setWhen] = useState<'NEVER' | 'AfterFail' | 'ALWAYS' | number>(props.defaultNotificationTarget?.when || 'ALWAYS')
     let [disabled, setDisabled] = useState(false)
 
     async function addNotificationTarget() {
