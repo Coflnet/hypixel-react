@@ -1,5 +1,8 @@
-// cypress/integration/search.spec.js
 describe('Search', () => {
+    afterEach(() => {
+        // Prevents running into the rate limit
+        cy.wait(10000)
+    })
     it('search player technoblade with special player search query', () => {
         cy.visit('/')
         cy.get('[placeholder="Search player/item"]').click().type('player technoblade{enter}')

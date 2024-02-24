@@ -108,11 +108,6 @@ option {
     text-overflow: ellipsis;
 }
 
-[data-darkreader-mode='dynamic'] .form-check-input {
-    background-color: #444;
-    border: 2px solid rgb(84, 91, 94);
-}
-
 /* Google shows a white box if the color-scheme is black for some reason */
 #credential_picker_container{
     color-scheme: light;

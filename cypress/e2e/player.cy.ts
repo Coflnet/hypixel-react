@@ -1,4 +1,8 @@
 describe('Player page', () => {
+    afterEach(() => {
+        // Prevents running into the rate limit
+        cy.wait(10000)
+    })
     it('Player auction opens', () => {
         cy.visit('/player/b876ec32e396476ba1158438d83c67d4')
         cy.get('.list-group>button').first().click()

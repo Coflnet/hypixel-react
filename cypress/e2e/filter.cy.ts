@@ -1,5 +1,9 @@
 // cypress/integration/item.spec.js
 describe('Item page', () => {
+    afterEach(() => {
+        // Prevents running into the rate limit
+        cy.wait(10000)
+    })
     it('opens item with sharpness 5', () => {
         cy.visit('/item/ASPECT_OF_THE_DRAGON')
         cy.contains('Add Filter').click()
