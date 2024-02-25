@@ -14,7 +14,7 @@ import { FixedSizeList as List } from 'react-window'
 import { v4 as generateUUID } from 'uuid'
 import api from '../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
-import { calculateProfit, DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
+import { DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -312,7 +312,7 @@ function Flipper(props: Props) {
 
         missedInfo = {
             estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
-            missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + calculateProfit(newFlipAuction) : missedInfo.missedEstimatedProfit,
+            missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + newFlipAuction.profit : missedInfo.missedEstimatedProfit,
             missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
             totalFlips: missedInfo.totalFlips + 1
         }
@@ -346,7 +346,7 @@ function Flipper(props: Props) {
     function onCopyFlip(flip: FlipAuction) {
         let settings = getFlipCustomizeSettings()
         let currentMissedInfo = missedInfo
-        currentMissedInfo.estimatedProfitCopiedAuctions += calculateProfit(flip, settings)
+        currentMissedInfo.estimatedProfitCopiedAuctions += flip.profit
         flip.isCopied = true
         setFlips(flips)
     }
