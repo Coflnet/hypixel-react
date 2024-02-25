@@ -329,7 +329,7 @@ function FlipperFilter(props: Props) {
                                 }
                                 tooltipContent={
                                     <span>
-                                        A 94m item wort an estimated 100m would have 3m (3%) estimated profit. This includes a total of 3% ah tax and would
+                                        A 94m item worth an estimated 100m would have 3m (3%) estimated profit. This includes a total of 3% ah tax and would
                                         block any flip below the value chosen, using 2% would show the flip
                                     </span>
                                 }
