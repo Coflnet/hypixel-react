@@ -53,6 +53,7 @@ export function initCoflCoinManager() {
             currentCoflCoins = coflCoins
             notifyAboutCoflCoinUpdate(coflCoins)
         })
+        document.removeEventListener(CUSTOM_EVENTS.GOOGLE_LOGIN, initCoflCoinBalanceAndSubscriptions)
     }
 
     document.addEventListener(CUSTOM_EVENTS.GOOGLE_LOGIN, initCoflCoinBalanceAndSubscriptions)
