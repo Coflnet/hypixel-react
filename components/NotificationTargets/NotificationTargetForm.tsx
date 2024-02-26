@@ -25,7 +25,6 @@ function NotificationTargetForm(props: Props) {
     let [disabled, setDisabled] = useState(false)
 
     async function addNotificationTarget() {
-        console.log(when)
         let targetToSend = target
 
         if (type === 'FIREBASE') {

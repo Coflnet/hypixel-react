@@ -11,7 +11,7 @@ export default function registerNotificationCallback(router) {
 
         messaging.onMessage(function (payload) {
             let notification = payload.notification
-            if (payload.data.type === 'auction') {
+            if (payload.data?.type === 'auction') {
                 savePayloadIntoCache(payload)
             }
             displayNotification(notification)

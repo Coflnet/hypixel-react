@@ -73,10 +73,13 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
         }
 
         // don't resend in progress requests
-        let equals = findForEqualSentRequest(request)
-        if (equals.length > 0) {
-            requests.push(request)
-            return Promise.resolve()
+        // ignore requests with a body, as they are currently not stored and therefore not checked
+        if (!body) {
+            let equals = findForEqualSentRequest(request)
+            if (equals.length > 0) {
+                requests.push(request)
+                return Promise.resolve()
+            }
         }
 
         requests.push(request)
@@ -166,7 +169,12 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
 
     function findForEqualSentRequest(request: ApiRequest) {
         return requests.filter(r => {
-            return r.type === request.type && r.data === request.data && r.customRequestURL === request.customRequestURL && r.mId !== request.mId
+            return (
+                r.type === request.type &&
+                JSON.stringify(r.data) === JSON.stringify(request.data) &&
+                r.customRequestURL === request.customRequestURL &&
+                r.mId !== request.mId
+            )
         })
     }
 

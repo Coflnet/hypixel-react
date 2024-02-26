@@ -198,6 +198,10 @@ function SubscriptionList() {
             .catch(() => {
                 toast.error('Could not unsubscribe, please try again in a few minutes')
             })
+
+        subscriptions.forEach(subscription => {
+            api.deleteNotificationSubscription({ ...subscription, sourceSubIdRegex: 't' })
+        })
         setShowDeleteAllSubscriptionDialog(false)
     }
 
@@ -216,7 +220,12 @@ function SubscriptionList() {
     }
 
     function onAfterSubscribeEdit(oldSubscription: NotificationListener) {
-        api.unsubscribe(oldSubscription).then(() => {
+        let subscriptionToDelete = subscriptions.find(s => s.sourceSubIdRegex === oldSubscription.id!.toString())
+
+        Promise.all([
+            subscriptionToDelete ? api.deleteNotificationSubscription(subscriptionToDelete) : Promise.resolve(),
+            api.unsubscribe(oldSubscription)
+        ]).then(() => {
             setListener([])
             setSubscriptions([])
 
@@ -391,7 +400,7 @@ function SubscriptionList() {
             {isLoggedIn ? (
                 isLoading ? (
                     getLoadingElement()
-                ) : listener.length > 0 ? (
+                ) : (
                     <>
                         <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                             <Button
@@ -407,14 +416,19 @@ function SubscriptionList() {
                                 onClick={() => {
                                     setShowDeleteAllSubscriptionDialog(true)
                                 }}
+                                disabled={listener.length === 0}
                             >
                                 Delete all notifiers
                             </Button>
                         </div>
-                        <ListGroup style={{ marginTop: '20px' }}>{subscriptionsTableBody}</ListGroup>
+                        {listener.length > 0 ? (
+                            <>
+                                <ListGroup style={{ marginTop: '20px' }}>{subscriptionsTableBody}</ListGroup>
+                            </>
+                        ) : (
+                            <p>You dont have any notifiers</p>
+                        )}
                     </>
-                ) : (
-                    <p>You dont have any notifiers</p>
                 )
             ) : null}
             {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
