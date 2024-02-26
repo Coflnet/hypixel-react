@@ -21,9 +21,7 @@ if ('serviceWorker' in navigator) {
         // sadly the extension doesn't set it's meta tag correctly to detect it (it's only set the moment you switch something in the extension)
         var styleTags = document.head.getElementsByTagName('style')
         for (var i = 0; i < styleTags.length; i++) {
-            console.log(styleTags[i])
             if (styleTags[i].classList.contains('darkreader')) {
-                console.log('contains')
                 var styleElement = document.createElement('style')
                 document.head.appendChild(styleElement)
 
