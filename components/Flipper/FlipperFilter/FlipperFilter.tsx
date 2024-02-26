@@ -8,7 +8,7 @@ import { NumericFormat } from 'react-number-format'
 import { v4 as generateUUID } from 'uuid'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { getFlipCustomizeSettings, isCurrentCalculationBasedOnLbin } from '../../../utils/FlipUtils'
+import { getFlipCustomizeSettings, getCurrentProfitCalculationState } from '../../../utils/FlipUtils'
 import { getDecimalSeparator, getThousandSeparator } from '../../../utils/Formatter'
 import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSettingsObject, mapRestrictionsToApiFormat, setSetting } from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
@@ -89,7 +89,9 @@ function FlipperFilter(props: Props) {
     }
 
     function onProfitCalculationButtonClick() {
-        if (isCurrentCalculationBasedOnLbin(flipCustomizeSettings)) {
+        let flipPriceCalculationState = getCurrentProfitCalculationState(flipCustomizeSettings)
+
+        if (flipPriceCalculationState === 'lbin' || flipPriceCalculationState === 'custom') {
             flipCustomizeSettings.finders = [1, 4]
             flipCustomizeSettings.useLowestBinForProfit = false
             api.setFlipSetting('lbin', false)
@@ -167,6 +169,8 @@ function FlipperFilter(props: Props) {
             </Modal.Body>
         </Modal>
     )
+
+    let flipPriceCalculationState = getCurrentProfitCalculationState(flipCustomizeSettings)
 
     return (
         <div className={styles.flipperFilter}>
@@ -258,22 +262,24 @@ function FlipperFilter(props: Props) {
                         type="hover"
                         content={<Form.Label className={`${styles.flipperFilterFormfieldLabel}`}>Profit based on</Form.Label>}
                         tooltipContent={
-                            isCurrentCalculationBasedOnLbin(flipCustomizeSettings) ? (
+                            flipPriceCalculationState === 'lbin' ? (
                                 <span>
                                     Profit is currently based off the lowest bin of similar items. Lbin Flips (also called snipes) will not show if there is no
                                     similar auction on ah. Auctions shown are expected to sell quickly. There is very high competition for these types of
                                     auctions.
                                 </span>
-                            ) : (
+                            ) : flipPriceCalculationState === 'median' ? (
                                 <span>
                                     Profit is currently based off the weighted median sell value of similar items (so called references). This is the
                                     recommended setting as it makes the most money over all and prices items based on daily and weekly price swings. But items
                                     may only sell after days.
                                 </span>
-                            )
+                            ) : undefined
                         }
                     />
-                    <Button onClick={onProfitCalculationButtonClick}>{isCurrentCalculationBasedOnLbin(flipCustomizeSettings) ? 'Lowest BIN' : 'Median'}</Button>
+                    <Button onClick={onProfitCalculationButtonClick}>
+                        {flipPriceCalculationState === 'lbin' ? 'Lowest BIN' : flipPriceCalculationState === 'median' ? 'Median' : 'Custom'}
+                    </Button>
                 </Form.Group>
                 <Form.Group
                     onClick={() => {
@@ -329,7 +335,7 @@ function FlipperFilter(props: Props) {
                                 }
                                 tooltipContent={
                                     <span>
-                                        A 94m item wort an estimated 100m would have 3m (3%) estimated profit. This includes a total of 3% ah tax and would
+                                        A 94m item worth an estimated 100m would have 3m (3%) estimated profit. This includes a total of 3% ah tax and would
                                         block any flip below the value chosen, using 2% would show the flip
                                     </span>
                                 }

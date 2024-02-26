@@ -1,7 +1,7 @@
 'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
 import { getItemFilterFromUrl } from '../../utils/Parser/URLParser'
 import FilterElement from '../FilterElement/FilterElement'
@@ -13,7 +13,7 @@ import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
 import { btoaUnicode } from '../../utils/Base64Utils'
-import { LAST_USED_FILTER } from '../../utils/SettingsUtils'
+import { ITEM_FILTER_USE_COUNT, LAST_USED_FILTER, getSetting, getSettingsObject, setSetting } from '../../utils/SettingsUtils'
 import ModAdvert from './ModAdvert'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { usePathname, useRouter } from 'next/navigation'
@@ -53,6 +53,21 @@ function ItemFilter(props: Props) {
             initFilter()
         }
     }, [JSON.stringify(props.filters)])
+
+    let sortedFilterOptions = useMemo(() => {
+        if (!props.filters) {
+            return undefined
+        }
+        let sorting = getSettingsObject<{ [key: string]: number }>(ITEM_FILTER_USE_COUNT, {})
+
+        let sorted = props.filters.sort((a, b) => {
+            let aCount = sorting[a.name] || 0
+            let bCount = sorting[b.name] || 0
+            return bCount - aCount
+        })
+
+        return sorted
+    }, [props.filters])
 
     function initFilter() {
         if (props.ignoreURL && !props.defaultFilter) {
@@ -129,6 +144,15 @@ function ItemFilter(props: Props) {
         if (!selectedFilter) {
             return
         }
+
+        debugger
+        let sortingByUsedMost = getSettingsObject<{ [key: string]: number }>(ITEM_FILTER_USE_COUNT, {})
+        if (sortingByUsedMost[selectedFilter.name] !== undefined) {
+            sortingByUsedMost[selectedFilter.name] = sortingByUsedMost[selectedFilter.name] + 1
+        } else {
+            sortingByUsedMost[selectedFilter.name] = 1
+        }
+        setSetting(ITEM_FILTER_USE_COUNT, JSON.stringify(sortingByUsedMost))
 
         if (typeaheadRef.current && (typeaheadRef.current as any).clear && (typeaheadRef.current as any).blur) {
             ;(typeaheadRef!.current as any).clear()
@@ -394,7 +418,7 @@ function ItemFilter(props: Props) {
                                         placeholder="Add filter"
                                         className={styles.addFilterSelect}
                                         onChange={addFilter}
-                                        options={props.filters}
+                                        options={sortedFilterOptions || []}
                                         labelKey={filter => {
                                             let name = (filter as Record<string, any>).name
                                             if (name[0].toLowerCase() === name[0]) {

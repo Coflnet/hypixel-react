@@ -120,7 +120,7 @@ async function getItemData(searchParams, params) {
         let prices: any = null
 
         if (isBazaar) {
-            if (range === 'all') {
+            if (range === 'full') {
                 prices = await api.getBazaarPricesByRange(tag, new Date(0), new Date())
             } else {
                 prices = await api.getBazaarPrices(tag, range as any)

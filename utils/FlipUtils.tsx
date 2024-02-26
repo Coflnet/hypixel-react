@@ -201,14 +201,26 @@ export const DEFAULT_FLIP_SETTINGS = {
     } as FlipperFilter
 }
 
-export function isCurrentCalculationBasedOnLbin(flipCustomizeSettings: FlipCustomizeSettings) {
-    return (flipCustomizeSettings.finders?.length === 1 && flipCustomizeSettings.finders[0].toString() === '2') || flipCustomizeSettings.useLowestBinForProfit
-}
-
-export function calculateProfit(flip: FlipAuction, settings?: FlipCustomizeSettings) {
-    if (flip.finder === 2 || (settings && isCurrentCalculationBasedOnLbin(settings))) {
-        return flip.lowestBin - flip.cost
-    } else {
-        return flip.median - flip.cost
+export function getCurrentProfitCalculationState(flipCustomizeSettings: FlipCustomizeSettings): 'lbin' | 'median' | 'custom' {
+    if (flipCustomizeSettings.useLowestBinForProfit) {
+        return 'lbin'
     }
+    if (flipCustomizeSettings.finders?.length === 1 && flipCustomizeSettings.finders[0].toString() === '2') {
+        return 'lbin'
+    }
+    if (flipCustomizeSettings.finders?.length === 1 && flipCustomizeSettings.finders[0].toString() === '1') {
+        return 'median'
+    }
+    if (flipCustomizeSettings.finders?.length === 1 && flipCustomizeSettings.finders[0].toString() === '4') {
+        return 'median'
+    }
+    if (
+        flipCustomizeSettings.finders?.length === 2 &&
+        flipCustomizeSettings.finders.find(f => f.toString() === '1') &&
+        flipCustomizeSettings.finders.find(f => f.toString() === '4')
+    ) {
+        return 'median'
+    }
+
+    return 'custom'
 }
