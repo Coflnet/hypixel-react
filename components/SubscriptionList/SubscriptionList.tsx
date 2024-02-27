@@ -48,21 +48,12 @@ function SubscriptionList() {
             return {}
         }
         let map: {
-            [key: string]: {
-                id: number
-                name: string
-                priority: number
-                isDisabled: boolean
-            }[]
+            [key: number]: NotificationListener | undefined
         } = {}
-        listener.forEach(l => {
-            if (l.id) {
-                map[l.id.toString()] = []
-            }
-        })
+
         subscriptions.forEach(s => {
-            if (s.sourceType === 'Subscription' && map[s.sourceSubIdRegex] !== undefined) {
-                map[s.sourceSubIdRegex].push(...s.targets)
+            if (s.sourceType === 'Subscription' && s.id !== undefined) {
+                map[s.id] = listener.find(l => l.id?.toString() === s.sourceSubIdRegex)
             }
         })
         return map
@@ -293,58 +284,100 @@ function SubscriptionList() {
         }
     }
 
-    let subscriptionsTableBody = listener.map((subscription, i) => (
-        <ListGroup.Item key={i}>
-            <h5>
-                <Badge style={{ marginRight: '5px' }} bg="primary">
-                    {i + 1}
-                </Badge>
-                {getSubscriptionTitleElement(subscription)}
-            </h5>
-            {getSubTypesAsList(subscription.types, subscription.price)}
-            {subscription.filter ? <hr /> : null}
-            <ItemFilterPropertiesDisplay filter={subscription.filter} />
-            <div style={{ float: 'right' }}>
-                <p>Notification Targets: {subscription.id && subscriptionsToListenerMap[subscription.id.toString()].length > 0 ? null : 'None'}</p>
-                {subscription.id && subscriptionsToListenerMap[subscription.id.toString()].length > 0 ? (
-                    <Typeahead
-                        disabled
-                        id={`notificationTargetsTypeahead-${subscription.id}`}
-                        multiple
-                        labelKey={'name'}
-                        defaultSelected={subscriptionsToListenerMap[subscription.id.toString()]}
-                        options={subscription.id ? subscriptionsToListenerMap[subscription.id.toString()] : []}
-                    />
-                ) : null}
-            </div>
-            <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
-                <SubscribeButton
-                    topic={subscription.topicId}
-                    type={subscription.type}
-                    isEditButton={true}
-                    onAfterSubscribe={() => {
-                        onAfterSubscribeEdit(subscription)
-                    }}
-                    prefill={{
-                        listener: subscription,
-                        targetNames:
-                            subscription.id && subscriptionsToListenerMap[subscription.id.toString()].length > 0
-                                ? subscriptionsToListenerMap[subscription.id.toString()].map(t => t.name)
-                                : []
-                    }}
-                    popupTitle="Update Notifier"
-                    popupButtonText="Update"
-                    successMessage="Notifier successfully updated"
-                />
-                <DeleteIcon
-                    color="error"
-                    onClick={() => {
-                        onDelete(subscription)
-                    }}
-                />
-            </div>
-        </ListGroup.Item>
-    ))
+    let subscriptionsTableBody = subscriptions.map((subscription, i) => {
+        let listener
+        if (subscription.id) {
+            listener = subscriptionsToListenerMap[subscription.id?.toString()]
+        }
+        // Show a generic entry for subscription without a listener
+        if (!listener) {
+            return (
+                <ListGroup.Item key={i}>
+                    <h5>
+                        <Badge style={{ marginRight: '5px' }} bg="primary">
+                            {i + 1}
+                        </Badge>
+                        {subscription.sourceType}
+                    </h5>
+                    <p>SourceSubIdRegex: {subscription.sourceSubIdRegex}</p>
+                    <div style={{ float: 'right' }}>
+                        <p>Notification Targets: {subscription.targets.length > 0 ? null : 'None'}</p>
+                        {subscriptions.length > 0 ? (
+                            <Typeahead
+                                disabled
+                                id={`notificationTargetsTypeahead-${subscription.id}`}
+                                multiple
+                                labelKey={'name'}
+                                defaultSelected={subscription.targets}
+                                options={subscription.targets ? subscription.targets : []}
+                            />
+                        ) : null}
+                    </div>
+                    <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
+                        <DeleteIcon
+                            color="error"
+                            onClick={() => {
+                                onDelete(listener)
+                            }}
+                        />
+                    </div>
+                </ListGroup.Item>
+            )
+        }
+
+        // Show normal entry for subscriptions with a listener
+        if (listener) {
+            return (
+                <ListGroup.Item key={i}>
+                    <h5>
+                        <Badge style={{ marginRight: '5px' }} bg="primary">
+                            {i + 1}
+                        </Badge>
+                        {getSubscriptionTitleElement(listener)}
+                    </h5>
+                    {getSubTypesAsList(listener.types, listener.price)}
+                    {listener.filter ? <hr /> : null}
+                    <ItemFilterPropertiesDisplay filter={listener.filter} />
+                    <div style={{ float: 'right' }}>
+                        <p>Notification Targets: {subscription.targets.length > 0 ? null : 'None'}</p>
+                        {subscriptions.length > 0 ? (
+                            <Typeahead
+                                disabled
+                                id={`notificationTargetsTypeahead-${subscription.id}`}
+                                multiple
+                                labelKey={'name'}
+                                defaultSelected={subscription.targets}
+                                options={subscription.targets ? subscription.targets : []}
+                            />
+                        ) : null}
+                    </div>
+                    <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
+                        <SubscribeButton
+                            topic={listener.topicId}
+                            type={listener.type}
+                            isEditButton={true}
+                            onAfterSubscribe={() => {
+                                onAfterSubscribeEdit(listener)
+                            }}
+                            prefill={{
+                                listener: listener,
+                                targetNames: subscription.id && subscription.targets.length > 0 ? subscription.targets.map(t => t.name) : []
+                            }}
+                            popupTitle="Update Notifier"
+                            popupButtonText="Update"
+                            successMessage="Notifier successfully updated"
+                        />
+                        <DeleteIcon
+                            color="error"
+                            onClick={() => {
+                                onDelete(listener)
+                            }}
+                        />
+                    </div>
+                </ListGroup.Item>
+            )
+        }
+    })
 
     let resetSettingsElement = (
         <Modal
