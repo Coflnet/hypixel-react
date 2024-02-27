@@ -58,7 +58,7 @@ export enum RequestType {
     GET_KAT_FLIPS = 'kat/profit',
     GET_TRACKED_FLIPS_FOR_PLAYER = 'flip/stats/player',
     PURCHASE_WITH_COFLCOiNS = 'service/purchase',
-    SUBSCRIBE_COFLCOINS = 'subscribeCoflCoins',
+    SUBSCRIBE_EVENTS = 'subEvents',
     GET_COFLCOIN_BALANCE = 'getCoflBalance',
     GET_FLIP_SETTINGS = 'getFlipSettings',
     SET_FLIP_SETTING = 'setFlipSetting',
