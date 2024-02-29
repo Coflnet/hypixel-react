@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { camelCaseToSentenceCase, getStyleForTier } from '../../../utils/Formatter'
@@ -18,6 +18,9 @@ import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import Tooltip from '../../Tooltip/Tooltip'
 import { toast } from 'react-toastify'
 import Image from 'next/image'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { VariableSizeGrid as Grid } from 'react-window'
+import { v4 as generateUUID } from 'uuid'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist'): void
@@ -32,6 +35,11 @@ function FlipRestrictionList(props: Props) {
     let [isRefreshingItemNames, setIsRefreshingItemNames] = useState(false)
     let [searchText, setSearchText] = useState('')
     let [sortByName, setSortByName] = useState(false)
+    let [isSSR, setIsSSR] = useState(true)
+
+    useEffect(() => {
+        setIsSSR(false)
+    }, [])
 
     function getInitialFlipRestrictions() {
         let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
@@ -304,6 +312,33 @@ function FlipRestrictionList(props: Props) {
         restriction.originalIndex = i
     })
 
+    if (searchText) {
+        restrictionsToDisplay = restrictionsToDisplay.filter(restriction => {
+            let isValid = false
+            let lowerCaseSearchText = searchText.toLowerCase()
+            if (restriction.item?.name && restriction.item?.name.toLowerCase().includes(lowerCaseSearchText)) {
+                isValid = true
+            }
+            if (restriction.itemFilter && !isValid) {
+                Object.keys(restriction.itemFilter).forEach(key => {
+                    if (isValid) {
+                        return
+                    }
+                    if (
+                        restriction.itemFilter![key].toString().toLocaleLowerCase().includes(lowerCaseSearchText) ||
+                        camelCaseToSentenceCase(key).toLowerCase().includes(lowerCaseSearchText)
+                    ) {
+                        isValid = true
+                    }
+                })
+            }
+            if (restriction.tags && restriction.tags.findIndex(tag => tag.toLowerCase().includes(lowerCaseSearchText)) !== -1 && !isValid) {
+                isValid = true
+            }
+            return isValid
+        })
+    }
+
     if (sortByName) {
         restrictionsToDisplay = restrictionsToDisplay.sort((a, b) => {
             if (!a.item) {
@@ -378,159 +413,182 @@ function FlipRestrictionList(props: Props) {
                 </div>
             </div>
             <div className={styles.restrictionList}>
-                {restrictionsToDisplay.map(restriction => {
-                    if (searchText) {
-                        let isValid = false
-                        let lowerCaseSearchText = searchText.toLowerCase()
-                        if (restriction.item?.name && restriction.item?.name.toLowerCase().includes(lowerCaseSearchText)) {
-                            isValid = true
-                        }
-                        if (restriction.itemFilter && !isValid) {
-                            Object.keys(restriction.itemFilter).forEach(key => {
-                                if (isValid) {
-                                    return
-                                }
-                                if (
-                                    restriction.itemFilter![key].toString().toLocaleLowerCase().includes(lowerCaseSearchText) ||
-                                    camelCaseToSentenceCase(key).toLowerCase().includes(lowerCaseSearchText)
-                                ) {
-                                    isValid = true
-                                }
-                            })
-                        }
-                        if (restriction.tags && restriction.tags.findIndex(tag => tag.toLowerCase().includes(lowerCaseSearchText)) !== -1 && !isValid) {
-                            isValid = true
-                        }
-                        if (!isValid) {
-                            return null
-                        }
-                    }
-                    return (
-                        <Card className={`${styles.restriction} ${restriction.isEdited ? styles.restrictionMarkedAsEdit : ''}`}>
-                            <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                                {restriction.isEdited ? (
-                                    <ToggleButtonGroup
-                                        style={{ maxWidth: '200px', marginBottom: '5px' }}
-                                        type="radio"
-                                        name="options"
-                                        value={restriction.type}
-                                        onChange={newValue => {
-                                            let newRestrictions = [...restrictions]
-                                            newRestrictions[restriction.originalIndex!].type = newValue
-                                            setRestrictions(newRestrictions)
-                                        }}
-                                    >
-                                        <ToggleButton
-                                            id={'blacklistToggleButton-' + restriction.originalIndex!}
-                                            value={'blacklist'}
-                                            variant={restriction.type === 'blacklist' ? 'primary' : 'secondary'}
-                                            size="sm"
-                                        >
-                                            Blacklist
-                                        </ToggleButton>
-                                        <ToggleButton
-                                            id={'whitelistToggleButton-' + restriction.originalIndex!}
-                                            value={'whitelist'}
-                                            variant={restriction.type === 'whitelist' ? 'primary' : 'secondary'}
-                                            size="sm"
-                                        >
-                                            Whitelist
-                                        </ToggleButton>
-                                    </ToggleButtonGroup>
-                                ) : (
-                                    <Badge style={{ marginRight: '10px' }} bg={restriction.type === 'blacklist' ? 'danger' : 'success'}>
-                                        {restriction.type.toUpperCase()}
-                                    </Badge>
-                                )}
-                                {restriction.item ? (
-                                    <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}>
-                                        <Image
-                                            crossOrigin="anonymous"
-                                            src={restriction.item?.iconUrl || ''}
-                                            height="24"
-                                            width="24"
-                                            alt=""
-                                            style={{ marginRight: '5px' }}
-                                            loading="lazy"
-                                        />
-                                        <span style={getStyleForTier(restriction.item?.tier)}>{restriction.item?.name}</span>
-                                        {restriction.isEdited ? (
-                                            <Tooltip
-                                                type="hover"
-                                                content={
-                                                    <RemoveIcon
-                                                        style={{ cursor: 'pointer' }}
-                                                        onClick={() => {
-                                                            removeItemOfRestriction(restrictions, restriction.originalIndex!)
-                                                        }}
-                                                    />
-                                                }
-                                                tooltipContent={<p>Remove item</p>}
-                                            />
-                                        ) : null}
-                                    </div>
-                                ) : (
-                                    <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}></div>
-                                )}
-                                <div style={{ display: 'flex' }}>
-                                    {restriction.isEdited ? (
-                                        <div
-                                            className={styles.cancelEditButton}
-                                            onClick={() => {
-                                                saveRestrictionEdit(restrictions, restriction.originalIndex!)
-                                            }}
-                                        >
-                                            <Tooltip type="hover" content={<SaveIcon />} tooltipContent={<p>Save</p>} />
-                                        </div>
-                                    ) : (
-                                        <div
-                                            className={styles.editButton}
-                                            onClick={() => {
-                                                editRestriction(restrictions, restriction.originalIndex!)
-                                            }}
-                                        >
-                                            <Tooltip type="hover" content={<EditIcon />} tooltipContent={<p>Edit restriction</p>} />
-                                        </div>
-                                    )}
-                                    {restrictionInEditModeIndex.length === 0 ? (
-                                        <>
-                                            <div className={styles.removeFilter} onClick={() => createDuplicate(restrictions, restriction.originalIndex!)}>
-                                                <Tooltip type="hover" content={<DuplicateIcon />} tooltipContent={<p>Create duplicate</p>} />
-                                            </div>
-                                            <div
-                                                className={styles.removeFilter}
-                                                onClick={() => removeRestrictionByIndex(restrictions, restriction.originalIndex!)}
-                                            >
-                                                <Tooltip type="hover" content={<DeleteIcon color="error" />} tooltipContent={<p>Remove restriction</p>} />
-                                            </div>
-                                        </>
-                                    ) : null}
-                                </div>
-                            </Card.Header>
-                            <Card.Body>
-                                {restriction.itemFilter ? (
-                                    <ItemFilterPropertiesDisplay
-                                        filter={restriction.itemFilter}
-                                        onAfterEdit={
-                                            restriction.isEdited
-                                                ? filter => {
-                                                      let newRestrictions = [...restrictions]
-                                                      newRestrictions[restriction.originalIndex!].itemFilter = { ...filter }
-                                                      setRestrictions(newRestrictions)
-                                                  }
-                                                : undefined
+                <div style={{ flex: 1 }}>
+                    {!isSSR ? (
+                        <AutoSizer>
+                            {({ height, width }) => (
+                                <Grid
+                                    classNAme="testGrid"
+                                    key={generateUUID()}
+                                    columnCount={2}
+                                    columnWidth={() => width / 2}
+                                    height={height}
+                                    rowCount={Math.floor(restrictionsToDisplay.length / 2)}
+                                    rowHeight={index => {
+                                        console.log(index)
+                                        function getCellHeight(index) {
+                                            let defaultHeight = 81.5
+                                            let margin = 16
+                                            let restriction = restrictionsToDisplay[index]
+                                            let tags = restriction.tags && restriction.tags.length > 0 ? 24 : 0
+                                            let filterCount = 0
+                                            if (restriction.itemFilter) {
+                                                filterCount = Object.keys(restriction.itemFilter).length
+                                            }
+                                            return defaultHeight + margin + tags + filterCount * 40
                                         }
-                                    />
-                                ) : null}
-                                {restriction.tags?.map(tag => (
-                                    <Badge key={tag} bg="dark" style={{ marginRight: '5px' }}>
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </Card.Body>
-                        </Card>
-                    )
-                })}
+                                        return Math.max(getCellHeight(index * 2), getCellHeight(index * 2 + 1))
+                                    }}
+                                    width={width}
+                                >
+                                    {({ columnIndex, rowIndex, style }) => {
+                                        let restriction = restrictionsToDisplay[rowIndex * 2 + columnIndex]
+                                        return (
+                                            <div className={styles.restrictionContainer} style={style}>
+                                                <Card className={`${styles.restriction} ${restriction.isEdited ? styles.restrictionMarkedAsEdit : ''}`}>
+                                                    <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
+                                                        {restriction.isEdited ? (
+                                                            <ToggleButtonGroup
+                                                                style={{ maxWidth: '200px', marginBottom: '5px' }}
+                                                                type="radio"
+                                                                name="options"
+                                                                value={restriction.type}
+                                                                onChange={newValue => {
+                                                                    let newRestrictions = [...restrictions]
+                                                                    newRestrictions[restriction.originalIndex!].type = newValue
+                                                                    setRestrictions(newRestrictions)
+                                                                }}
+                                                            >
+                                                                <ToggleButton
+                                                                    id={'blacklistToggleButton-' + restriction.originalIndex!}
+                                                                    value={'blacklist'}
+                                                                    variant={restriction.type === 'blacklist' ? 'primary' : 'secondary'}
+                                                                    size="sm"
+                                                                >
+                                                                    Blacklist
+                                                                </ToggleButton>
+                                                                <ToggleButton
+                                                                    id={'whitelistToggleButton-' + restriction.originalIndex!}
+                                                                    value={'whitelist'}
+                                                                    variant={restriction.type === 'whitelist' ? 'primary' : 'secondary'}
+                                                                    size="sm"
+                                                                >
+                                                                    Whitelist
+                                                                </ToggleButton>
+                                                            </ToggleButtonGroup>
+                                                        ) : (
+                                                            <Badge style={{ marginRight: '10px' }} bg={restriction.type === 'blacklist' ? 'danger' : 'success'}>
+                                                                {restriction.type.toUpperCase()}
+                                                            </Badge>
+                                                        )}
+                                                        {restriction.item ? (
+                                                            <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}>
+                                                                <Image
+                                                                    crossOrigin="anonymous"
+                                                                    src={restriction.item?.iconUrl || ''}
+                                                                    height="24"
+                                                                    width="24"
+                                                                    alt=""
+                                                                    style={{ marginRight: '5px' }}
+                                                                    loading="lazy"
+                                                                />
+                                                                <span style={getStyleForTier(restriction.item?.tier)}>{restriction.item?.name}</span>
+                                                                {restriction.isEdited ? (
+                                                                    <Tooltip
+                                                                        type="hover"
+                                                                        content={
+                                                                            <RemoveIcon
+                                                                                style={{ cursor: 'pointer' }}
+                                                                                onClick={() => {
+                                                                                    removeItemOfRestriction(restrictions, restriction.originalIndex!)
+                                                                                }}
+                                                                            />
+                                                                        }
+                                                                        tooltipContent={<p>Remove item</p>}
+                                                                    />
+                                                                ) : null}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}></div>
+                                                        )}
+                                                        <div style={{ display: 'flex' }}>
+                                                            {restriction.isEdited ? (
+                                                                <div
+                                                                    className={styles.cancelEditButton}
+                                                                    onClick={() => {
+                                                                        saveRestrictionEdit(restrictions, restriction.originalIndex!)
+                                                                    }}
+                                                                >
+                                                                    <Tooltip type="hover" content={<SaveIcon />} tooltipContent={<p>Save</p>} />
+                                                                </div>
+                                                            ) : (
+                                                                <div
+                                                                    className={styles.editButton}
+                                                                    onClick={() => {
+                                                                        editRestriction(restrictions, restriction.originalIndex!)
+                                                                    }}
+                                                                >
+                                                                    <Tooltip type="hover" content={<EditIcon />} tooltipContent={<p>Edit restriction</p>} />
+                                                                </div>
+                                                            )}
+                                                            {restrictionInEditModeIndex.length === 0 ? (
+                                                                <>
+                                                                    <div
+                                                                        className={styles.removeFilter}
+                                                                        onClick={() => createDuplicate(restrictions, restriction.originalIndex!)}
+                                                                    >
+                                                                        <Tooltip
+                                                                            type="hover"
+                                                                            content={<DuplicateIcon />}
+                                                                            tooltipContent={<p>Create duplicate</p>}
+                                                                        />
+                                                                    </div>
+                                                                    <div
+                                                                        className={styles.removeFilter}
+                                                                        onClick={() => removeRestrictionByIndex(restrictions, restriction.originalIndex!)}
+                                                                    >
+                                                                        <Tooltip
+                                                                            type="hover"
+                                                                            content={<DeleteIcon color="error" />}
+                                                                            tooltipContent={<p>Remove restriction</p>}
+                                                                        />
+                                                                    </div>
+                                                                </>
+                                                            ) : null}
+                                                        </div>
+                                                    </Card.Header>
+                                                    <Card.Body>
+                                                        {restriction.itemFilter ? (
+                                                            <ItemFilterPropertiesDisplay
+                                                                filter={restriction.itemFilter}
+                                                                onAfterEdit={
+                                                                    restriction.isEdited
+                                                                        ? filter => {
+                                                                              let newRestrictions = [...restrictions]
+                                                                              newRestrictions[restriction.originalIndex!].itemFilter = { ...filter }
+                                                                              setRestrictions(newRestrictions)
+                                                                          }
+                                                                        : undefined
+                                                                }
+                                                            />
+                                                        ) : null}
+                                                        <div className="ellipse">
+                                                            {restriction.tags?.map(tag => (
+                                                                <Badge key={tag} bg="dark" style={{ marginRight: '5px' }}>
+                                                                    {tag}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    </Card.Body>
+                                                </Card>
+                                            </div>
+                                        )
+                                    }}
+                                </Grid>
+                            )}
+                        </AutoSizer>
+                    ) : null}
+                </div>
             </div>
             {clearListDialog}
         </>
