@@ -425,7 +425,6 @@ function FlipRestrictionList(props: Props) {
                                     height={height}
                                     rowCount={Math.floor(restrictionsToDisplay.length / 2)}
                                     rowHeight={index => {
-                                        console.log(index)
                                         function getCellHeight(index) {
                                             let defaultHeight = 81.5
                                             let margin = 16
