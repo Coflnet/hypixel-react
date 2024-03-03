@@ -21,6 +21,7 @@ import Image from 'next/image'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeGrid as Grid } from 'react-window'
 import { v4 as generateUUID } from 'uuid'
+import { set } from 'cypress/types/lodash'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist'): void
@@ -36,6 +37,7 @@ function FlipRestrictionList(props: Props) {
     let [searchText, setSearchText] = useState('')
     let [sortByName, setSortByName] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
+    let [restrictionListKey, setRestrictionListKey] = useState(generateUUID())
 
     useEffect(() => {
         setIsSSR(false)
@@ -84,6 +86,7 @@ function FlipRestrictionList(props: Props) {
         }
 
         toast.success('New restriction added')
+        setRestrictionListKey(generateUUID())
     }
 
     function onNewRestrictionCancel() {
@@ -123,6 +126,7 @@ function FlipRestrictionList(props: Props) {
         setRestrictionsInEditModeIndex([])
         setRestrictions(newRestrictions)
         toast.success('Restriction updated')
+        setRestrictionListKey(generateUUID())
     }
 
     function overrideEditedFilter(updateState: UpdateState) {
@@ -141,6 +145,7 @@ function FlipRestrictionList(props: Props) {
         setRestrictionsInEditModeIndex([])
         setRestrictions(newRestrictions)
         toast.success('Restriction(s) updated')
+        setRestrictionListKey(generateUUID())
     }
 
     function removeRestrictionByIndex(restrictions: FlipRestriction[], index: number) {
@@ -156,6 +161,7 @@ function FlipRestrictionList(props: Props) {
         }
         setRestrictions(newRestrictions)
         toast.success('Restriction removed')
+        setRestrictionListKey(generateUUID())
     }
 
     function createDuplicate(restrictions: FlipRestriction[], index: number) {
@@ -168,6 +174,7 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
         }
         setRestrictions(newRestrictions)
+        setRestrictionListKey(generateUUID())
     }
 
     function removeItemOfRestriction(restrictions: FlipRestriction[], index: number) {
@@ -191,6 +198,7 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
         }
+        setRestrictionListKey(generateUUID())
     }
 
     function editRestriction(restrictions: FlipRestriction[], index: number) {
@@ -223,6 +231,7 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
         }
+        setRestrictionListKey(generateUUID())
     }
 
     const debounceSearchFunction = (function () {
@@ -232,6 +241,7 @@ function FlipRestrictionList(props: Props) {
             clearTimeout(timerId)
             timerId = setTimeout(() => {
                 setSearchText(searchText)
+                setRestrictionListKey(generateUUID())
             }, 1000)
         }
     })()
@@ -418,8 +428,10 @@ function FlipRestrictionList(props: Props) {
                         <AutoSizer>
                             {({ height, width }) => (
                                 <Grid
-                                    classNAme="testGrid"
-                                    key={generateUUID()}
+                                    key={restrictionListKey}
+                                    itemKey={(index, data) => {
+                                        return restrictionsToDisplay[index].originalIndex
+                                    }}
                                     columnCount={2}
                                     columnWidth={() => width / 2}
                                     height={height}
