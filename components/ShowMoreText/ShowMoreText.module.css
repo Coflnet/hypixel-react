@@ -24,7 +24,7 @@ display: none;
 .showMoreContainer {
     width: 100%;
     position: absolute;
-    bottom: 0;
+    bottom: -4px;
     cursor: pointer;
     z-index: 2;
 }
