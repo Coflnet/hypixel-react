@@ -200,7 +200,28 @@ function AuctionDetails(props: Props) {
             decSplits.forEach(split => {
                 hexSplits.push(parseInt(split).toString(16).padStart(2, '0'))
             })
-            return <Tooltip type="hover" content={<span>{hexSplits.join('')}</span>} tooltipContent={value} />
+            return (
+                <Tooltip
+                    type="hover"
+                    content={
+                        <span>
+                            <span>{hexSplits.join('')}</span>{' '}
+                            <span
+                                style={{
+                                    textAlign: 'center',
+                                    display: 'inline-block',
+                                    width: '16px',
+                                    height: '16px',
+                                    backgroundColor: `#${hexSplits.join('')}`,
+                                    borderRadius: '50%',
+                                    marginLeft: '4px'
+                                }}
+                            ></span>
+                        </span>
+                    }
+                    tooltipContent={value}
+                />
+            )
         }
 
         if (!isNaN(value)) {
