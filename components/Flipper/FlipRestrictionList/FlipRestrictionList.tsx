@@ -21,7 +21,6 @@ import Image from 'next/image'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeGrid as Grid } from 'react-window'
 import { v4 as generateUUID } from 'uuid'
-import { set } from 'cypress/types/lodash'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist'): void
@@ -37,7 +36,6 @@ function FlipRestrictionList(props: Props) {
     let [searchText, setSearchText] = useState('')
     let [sortByName, setSortByName] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
-    let [restrictionListKey, setRestrictionListKey] = useState(generateUUID())
 
     useEffect(() => {
         setIsSSR(false)
@@ -49,6 +47,7 @@ function FlipRestrictionList(props: Props) {
             if (restriction.item && restriction.item.tag) {
                 restriction.item.iconUrl = api.getItemImageUrl(restriction.item)
             }
+            restriction.itemKey = generateUUID()
         })
         return restrictions
     }
@@ -59,6 +58,7 @@ function FlipRestrictionList(props: Props) {
         // Placing the new restrictions at the positions they will be after a reload
         // => first whitelist entries, then blacklist entries. From oldest to newest
         newRestrictions.forEach(newRestriction => {
+            newRestriction.itemKey = generateUUID()
             if (newRestriction.type === 'blacklist') {
                 restrictionCopies.push(newRestriction)
                 return
@@ -86,7 +86,6 @@ function FlipRestrictionList(props: Props) {
         }
 
         toast.success('New restriction added')
-        setRestrictionListKey(generateUUID())
     }
 
     function onNewRestrictionCancel() {
@@ -106,6 +105,7 @@ function FlipRestrictionList(props: Props) {
         let newRestrictions = [...restrictions]
         restrictionInEditModeIndex.forEach(index => {
             let toUpdate = newRestrictions[index]
+            toUpdate.itemKey = generateUUID()
             Object.keys(updateState.itemFilter || {}).forEach(key => {
                 if (toUpdate.itemFilter && updateState.itemFilter && toUpdate.itemFilter[key] === undefined) {
                     toUpdate.itemFilter[key] = updateState.itemFilter[key]
@@ -126,12 +126,12 @@ function FlipRestrictionList(props: Props) {
         setRestrictionsInEditModeIndex([])
         setRestrictions(newRestrictions)
         toast.success('Restriction updated')
-        setRestrictionListKey(generateUUID())
     }
 
     function overrideEditedFilter(updateState: UpdateState) {
         let newRestrictions = [...restrictions]
         restrictionInEditModeIndex.forEach(index => {
+            newRestrictions[index].itemKey = generateUUID()
             newRestrictions[index].itemFilter = { ...updateState.itemFilter }
             newRestrictions[index].tags = updateState.tags
             newRestrictions[index].isEdited = false
@@ -145,12 +145,15 @@ function FlipRestrictionList(props: Props) {
         setRestrictionsInEditModeIndex([])
         setRestrictions(newRestrictions)
         toast.success('Restriction(s) updated')
-        setRestrictionListKey(generateUUID())
     }
 
     function removeRestrictionByIndex(restrictions: FlipRestriction[], index: number) {
         let newRestrictions = [...restrictions]
         let deletedRestriction = newRestrictions.splice(index, 1)
+
+        newRestrictions.forEach((restriction, i) => {
+            restriction.itemKey = generateUUID()
+        })
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
 
@@ -161,25 +164,29 @@ function FlipRestrictionList(props: Props) {
         }
         setRestrictions(newRestrictions)
         toast.success('Restriction removed')
-        setRestrictionListKey(generateUUID())
     }
 
     function createDuplicate(restrictions: FlipRestriction[], index: number) {
         let duplicate = { ...restrictions[index] }
         let newRestrictions = [...restrictions]
         newRestrictions.splice(index + 1, 0, duplicate)
+
+        newRestrictions.forEach((restriction, i) => {
+            restriction.itemKey = generateUUID()
+        })
+
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
         if (props.onRestrictionsChange) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
         }
         setRestrictions(newRestrictions)
-        setRestrictionListKey(generateUUID())
     }
 
     function removeItemOfRestriction(restrictions: FlipRestriction[], index: number) {
         let newRestrictions = [...restrictions]
         newRestrictions[index].item = undefined
+        newRestrictions[index].itemKey = generateUUID()
         setRestrictions(newRestrictions)
     }
 
@@ -188,6 +195,7 @@ function FlipRestrictionList(props: Props) {
         let newIndexArray = [...restrictionInEditModeIndex]
 
         newRestrictions[index].isEdited = false
+        newRestrictions[index].itemKey = generateUUID()
         let i = newIndexArray.indexOf(index)
         newIndexArray.splice(i, 1)
 
@@ -198,7 +206,6 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
         }
-        setRestrictionListKey(generateUUID())
     }
 
     function editRestriction(restrictions: FlipRestriction[], index: number) {
@@ -231,7 +238,6 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
         }
-        setRestrictionListKey(generateUUID())
     }
 
     const debounceSearchFunction = (function () {
@@ -240,8 +246,12 @@ function FlipRestrictionList(props: Props) {
         return searchText => {
             clearTimeout(timerId)
             timerId = setTimeout(() => {
+                let newRestrictions = [...restrictions]
+                newRestrictions.forEach((restriction, i) => {
+                    restriction.itemKey = generateUUID()
+                })
+                setRestrictions(newRestrictions)
                 setSearchText(searchText)
-                setRestrictionListKey(generateUUID())
             }, 1000)
         }
     })()
@@ -361,86 +371,108 @@ function FlipRestrictionList(props: Props) {
         })
     }
 
+    console.log(restrictionsToDisplay.length)
+
     return (
         <>
-            <div
-                style={{
-                    position: 'sticky',
-                    top: 0,
-                    backgroundColor: '#303030',
-                    padding: '10px 20px 0 20px',
-                    zIndex: 10,
-                    overflowY: 'auto',
-                    maxHeight: '80vh'
-                }}
-            >
-                {restrictionInEditModeIndex.length > 0 ? (
-                    <EditRestriction
-                        defaultRestriction={restrictions[restrictionInEditModeIndex[0]]}
-                        onAdd={addEditedFilter}
-                        onOverride={overrideEditedFilter}
-                        onCancel={onEditRestrictionCancel}
-                    />
-                ) : isAddNewFlipperExtended ? (
-                    <NewRestriction onCancel={onNewRestrictionCancel} onSaveRestrictions={addNewRestriction} prefillRestriction={props.prefillRestriction} />
-                ) : (
-                    <span>
-                        <span style={{ cursor: 'pointer' }} onClick={() => setIsNewFlipperExtended(true)}>
-                            {addIcon}
-                            <span> Add new restriction</span>
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <div
+                    style={{
+                        backgroundColor: '#303030',
+                        padding: '10px 20px 0 20px',
+                        zIndex: 10,
+                        flexShrink: 0,
+                        width: '100%',
+                        position: 'sticky',
+                        top: 0
+                    }}
+                >
+                    {restrictionInEditModeIndex.length > 0 ? (
+                        <EditRestriction
+                            defaultRestriction={restrictions[restrictionInEditModeIndex[0]]}
+                            onAdd={addEditedFilter}
+                            onOverride={overrideEditedFilter}
+                            onCancel={onEditRestrictionCancel}
+                        />
+                    ) : isAddNewFlipperExtended ? (
+                        <NewRestriction
+                            onCancel={onNewRestrictionCancel}
+                            onSaveRestrictions={addNewRestriction}
+                            prefillRestriction={props.prefillRestriction}
+                        />
+                    ) : (
+                        <span>
+                            <span style={{ cursor: 'pointer' }} onClick={() => setIsNewFlipperExtended(true)}>
+                                {addIcon}
+                                <span> Add new restriction</span>
+                            </span>
+                            <span style={{ float: 'right' }}>
+                                <Button
+                                    variant="info"
+                                    style={{ marginRight: '10px', padding: '5px' }}
+                                    onClick={refreshItemNames}
+                                    disabled={isRefreshingItemNames}
+                                >
+                                    <Refresh /> Refresh item names
+                                </Button>
+                                <Button
+                                    variant="danger"
+                                    onClick={() => {
+                                        setShowClearListDialog(true)
+                                    }}
+                                >
+                                    <DeleteIcon /> Clear list
+                                </Button>
+                            </span>
                         </span>
-                        <span style={{ float: 'right' }}>
-                            <Button variant="info" style={{ marginRight: '10px', padding: '5px' }} onClick={refreshItemNames} disabled={isRefreshingItemNames}>
-                                <Refresh /> Refresh item names
-                            </Button>
-                            <Button
-                                variant="danger"
-                                onClick={() => {
-                                    setShowClearListDialog(true)
+                    )}
+                    <hr />
+                    <div style={{ display: 'flex' }}>
+                        <Form.Control className={styles.searchFilter} placeholder="Search..." onChange={e => debounceSearchFunction(e.target.value)} />
+                        <div className={styles.sortByNameContainer}>
+                            <Form.Label style={{ width: '200px' }} htmlFor="sortByNameCheckbox">
+                                Sort by name
+                            </Form.Label>
+                            <Form.Check
+                                id="sortByNameCheckbox"
+                                className={styles.sortByNameCheckbox}
+                                onChange={e => {
+                                    let newRestrictions = [...restrictions]
+                                    newRestrictions.forEach((restriction, i) => {
+                                        restriction.itemKey = generateUUID()
+                                    })
+                                    setRestrictions(newRestrictions)
+                                    setSortByName(e.target.checked)
+                                    onEditRestrictionCancel()
                                 }}
-                            >
-                                <DeleteIcon /> Clear list
-                            </Button>
-                        </span>
-                    </span>
-                )}
-                <hr />
-            </div>
-            <div style={{ display: 'flex' }}>
-                <Form.Control className={styles.searchFilter} placeholder="Search..." onChange={e => debounceSearchFunction(e.target.value)} />
-                <div className={styles.sortByNameContainer}>
-                    <Form.Label style={{ width: '200px' }} htmlFor="sortByNameCheckbox">
-                        Sort by name
-                    </Form.Label>
-                    <Form.Check
-                        id="sortByNameCheckbox"
-                        className={styles.sortByNameCheckbox}
-                        onChange={e => {
-                            setSortByName(e.target.checked)
-                            onEditRestrictionCancel()
-                        }}
-                    />
+                            />
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div className={styles.restrictionList}>
-                <div style={{ flex: 1 }}>
+                <div className={styles.restrictionList}>
                     {!isSSR ? (
                         <AutoSizer>
                             {({ height, width }) => (
                                 <Grid
-                                    key={restrictionListKey}
-                                    itemKey={(index, data) => {
-                                        return restrictionsToDisplay[index].originalIndex
+                                    itemKey={({ columnIndex, rowIndex, data }) => {
+                                        let r = restrictionsToDisplay[rowIndex * 2 + columnIndex]
+                                        if (!r) {
+                                            return null
+                                        }
+                                        return r.itemKey
                                     }}
                                     columnCount={2}
                                     columnWidth={() => width / 2}
                                     height={height}
-                                    rowCount={Math.floor(restrictionsToDisplay.length / 2)}
+                                    rowCount={Math.ceil(restrictionsToDisplay.length / 2)}
                                     rowHeight={index => {
                                         function getCellHeight(index) {
                                             let defaultHeight = 81.5
                                             let margin = 16
                                             let restriction = restrictionsToDisplay[index]
+                                            if (!restriction) {
+                                                return 0
+                                            }
                                             let tags = restriction.tags && restriction.tags.length > 0 ? 24 : 0
                                             let filterCount = 0
                                             if (restriction.itemFilter) {
@@ -451,9 +483,13 @@ function FlipRestrictionList(props: Props) {
                                         return Math.max(getCellHeight(index * 2), getCellHeight(index * 2 + 1))
                                     }}
                                     width={width}
+                                    style={{ overflowX: 'hidden' }}
                                 >
                                     {({ columnIndex, rowIndex, style }) => {
                                         let restriction = restrictionsToDisplay[rowIndex * 2 + columnIndex]
+                                        if (!restriction) {
+                                            return null
+                                        }
                                         return (
                                             <div className={styles.restrictionContainer} style={style}>
                                                 <Card className={`${styles.restriction} ${restriction.isEdited ? styles.restrictionMarkedAsEdit : ''}`}>
@@ -577,6 +613,7 @@ function FlipRestrictionList(props: Props) {
                                                                         ? filter => {
                                                                               let newRestrictions = [...restrictions]
                                                                               newRestrictions[restriction.originalIndex!].itemFilter = { ...filter }
+                                                                              newRestrictions[restriction.originalIndex!].itemKey = generateUUID()
                                                                               setRestrictions(newRestrictions)
                                                                           }
                                                                         : undefined
