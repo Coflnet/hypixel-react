@@ -1090,7 +1090,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let subscribeCoflCoinChange = () => {
-        console.log('subscribe cofl coin change')
         websocketHelper.subscribe({
             type: RequestType.SUBSCRIBE_EVENTS,
             data: '',
@@ -1967,7 +1966,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 data: '',
                 resolve: data => {
-                    console.log(data)
                     resolve(data ? (data as TradeObject[]).slice(Math.max(data.length - 36, 0)).map(parseInventoryData) : [])
                 },
                 reject: (error: any) => {

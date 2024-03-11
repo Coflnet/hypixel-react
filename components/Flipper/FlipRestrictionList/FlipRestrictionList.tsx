@@ -371,8 +371,6 @@ function FlipRestrictionList(props: Props) {
         })
     }
 
-    console.log(restrictionsToDisplay.length)
-
     return (
         <>
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
