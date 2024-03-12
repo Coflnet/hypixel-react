@@ -145,7 +145,6 @@ function ItemFilter(props: Props) {
             return
         }
 
-        debugger
         let sortingByUsedMost = getSettingsObject<{ [key: string]: number }>(ITEM_FILTER_USE_COUNT, {})
         if (sortingByUsedMost[selectedFilter.name] !== undefined) {
             sortingByUsedMost[selectedFilter.name] = sortingByUsedMost[selectedFilter.name] + 1

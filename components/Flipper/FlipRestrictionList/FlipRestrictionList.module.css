@@ -1,14 +1,12 @@
 .restrictionList {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: stretch;
-    justify-content: flex-start;
+    flex: 1 1 auto;
+    overflow-y: auto;
 }
 
-.restriction {
-    margin: 1%;
-    width: 48%;
-    height: fit-content;
+.restrictionContainer {
+    padding-right: 24px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .removeFilter {
