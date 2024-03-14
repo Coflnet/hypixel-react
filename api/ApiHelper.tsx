@@ -2076,6 +2076,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getBazaarSpreadFlips = (): Promise<BazaarSpreadFlip[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_BAZAAR_SPREAD_FLIPS,
+                customRequestURL: `${getApiEndpoint()}/flip/bazaar/spread`,
+                data: '',
+                resolve: data => {
+                    resolve(data as BazaarSpreadFlip[])
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_BAZAAR_SPREAD_FLIPS, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -2154,7 +2171,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         createTradeOffer,
         getTradeOffers,
         deleteTradeOffer,
-        getTransactions
+        getTransactions,
+        getBazaarSpreadFlips
     }
 }
 

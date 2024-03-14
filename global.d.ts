@@ -253,6 +253,7 @@ interface API {
     getTradeOffers(onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]>
     deleteTradeOffer(tradeId: string): Promise<void>
     getTransactions(): Promise<Transaction[]>
+    getBazaarSpreadFlips(): Promise<BazaarSpreadFlip[]>
 }
 
 interface CacheUtils {
@@ -623,4 +624,17 @@ interface Transaction {
     reference: string
     amount: number
     timeStamp: Date
+}
+
+interface BazaarSpreadFlip {
+    flip: {
+        itemTag: string
+        buyPrice: number
+        sellPrice: number
+        profitPerHour: number
+        volume: number
+        timestamp: string
+    }
+    itemName: string
+    isManipulated: boolean
 }

@@ -79,7 +79,8 @@ export enum RequestType {
     CREATE_TRADE_OFFER = 'createTradeOffer',
     DELETE_TRADE_OFFER = 'deleteTradeOffer',
     GET_TRADES = 'getTrades',
-    GET_TRANSACTIONS = 'getTransactions'
+    GET_TRANSACTIONS = 'getTransactions',
+    GET_BAZAAR_SPREAD_FLIPS = 'getBazaarSpreadFlips'
 }
 
 export enum SubscriptionType {
