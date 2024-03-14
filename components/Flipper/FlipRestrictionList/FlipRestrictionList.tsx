@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { camelCaseToSentenceCase, getStyleForTier } from '../../../utils/Formatter'
@@ -36,9 +36,23 @@ function FlipRestrictionList(props: Props) {
     let [searchText, setSearchText] = useState('')
     let [sortByName, setSortByName] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
+    let searchFieldRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
+        function onControlF(event: KeyboardEvent) {
+            if (event.ctrlKey && event.key === 'f' && searchFieldRef.current) {
+                event.preventDefault()
+                searchFieldRef.current.focus()
+            }
+        }
+
+        window.addEventListener('keydown', onControlF)
+
         setIsSSR(false)
+
+        return () => {
+            window.removeEventListener('keydown', onControlF)
+        }
     }, [])
 
     function getInitialFlipRestrictions() {
@@ -426,7 +440,12 @@ function FlipRestrictionList(props: Props) {
                     )}
                     <hr />
                     <div style={{ display: 'flex' }}>
-                        <Form.Control className={styles.searchFilter} placeholder="Search..." onChange={e => debounceSearchFunction(e.target.value)} />
+                        <Form.Control
+                            ref={searchFieldRef}
+                            className={styles.searchFilter}
+                            placeholder="Search..."
+                            onChange={e => debounceSearchFunction(e.target.value)}
+                        />
                         <div className={styles.sortByNameContainer}>
                             <Form.Label style={{ width: '200px' }} htmlFor="sortByNameCheckbox">
                                 Sort by name
