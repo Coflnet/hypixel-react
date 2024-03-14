@@ -55,6 +55,11 @@ const SORT_OPTIONS: SortOption[] = [
                     }
                     return true
                 })
+    },
+    {
+        label: 'Volume',
+        value: 'volume',
+        sortFunction: crafts => crafts.sort((a, b) => b.volume - a.volume)
     }
 ]
 
