@@ -387,7 +387,7 @@ function FlipRestrictionList(props: Props) {
 
     return (
         <>
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div className={styles.restrictionListContainer}>
                 <div
                     style={{
                         backgroundColor: '#303030',
@@ -395,7 +395,6 @@ function FlipRestrictionList(props: Props) {
                         zIndex: 10,
                         flexShrink: 0,
                         width: '100%',
-                        position: 'sticky',
                         top: 0
                     }}
                 >
