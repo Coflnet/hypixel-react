@@ -1,6 +1,6 @@
 'use client'
 import { forwardRef, Ref, useState } from 'react'
-import { AsyncTypeahead, Highlighter } from 'react-bootstrap-typeahead'
+import { AsyncTypeahead } from 'react-bootstrap-typeahead'
 import { v4 as generateUUID } from 'uuid'
 import Typeahead from 'react-bootstrap-typeahead/types/core/Typeahead'
 import api from '../../api/ApiHelper'
@@ -15,7 +15,8 @@ interface Props {
     placeholder?: string
     defaultValue?: string
     searchFunction?(searchText: string): Promise<SearchResultItem[]>
-    defaultSelected?: SearchResultItem[]
+    selected?: SearchResultItem[]
+    className?: string
 }
 
 export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
@@ -48,7 +49,7 @@ export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
     return (
         <AsyncTypeahead
             id={uuid}
-            className={styles.multiSearch}
+            className={`${styles.multiSearch} ${props.className}`}
             disabled={props.disabled}
             inputProps={{ className: styles.multiInputfield }}
             filterBy={() => true}
@@ -74,7 +75,7 @@ export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
             minLength={1}
             onSearch={handleSearch}
             defaultInputValue={props.defaultValue}
-            defaultSelected={props.defaultSelected}
+            selected={props.selected}
             options={results}
             placeholder={props.placeholder || 'Search item...'}
             onChange={_onChange}
