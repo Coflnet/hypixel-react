@@ -42,6 +42,7 @@ function Bazaar(props: Props) {
     let [flips, setFlips] = useState<BazaarSpreadFlip[]>(props.flips.map(flip => ({ ...flip, key: generateUUID() })))
     let [nameFilter, setNameFilter] = useState<string>('')
     let [orderBy, setOrderBy] = useState<SortOption<BazaarSpreadFlip>>(SORT_OPTIONS[0])
+    let [showManipulated, setShowManipulated] = useState<boolean>(false)
 
     function onNameFilterChange(e: any) {
         setNameFilter(e.target.value)
@@ -64,6 +65,10 @@ function Bazaar(props: Props) {
             flip.key = generateUUID()
         })
         setFlips(newFlips)
+    }
+
+    function onShowManipulatedChange(event: ChangeEvent<HTMLInputElement>) {
+        setShowManipulated(event.target.checked)
     }
 
     function getBazaarFlipElement(flip: BazaarSpreadFlip, style: React.CSSProperties) {
@@ -114,9 +119,14 @@ function Bazaar(props: Props) {
     }
 
     let flipsToDisplay = [...flips]
-    if (nameFilter) {
-        flipsToDisplay = flipsToDisplay.filter(flip => flip.itemName.toLowerCase().includes(nameFilter.toLowerCase()))
-    }
+    flipsToDisplay = flipsToDisplay.filter(flip => {
+        if (!showManipulated && flip.isManipulated) return false
+        if (nameFilter) {
+            let match = flip.itemName.toLowerCase().includes(nameFilter.toLowerCase())
+            if (!match) return false
+        }
+        return true
+    })
     if (orderBy) {
         let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
         flipsToDisplay = sortOption?.sortFunction(flipsToDisplay)
@@ -134,6 +144,12 @@ function Bazaar(props: Props) {
                             </option>
                         ))}
                     </Form.Select>
+                    <div className={styles.filterInput} style={{ display: 'flex' }}>
+                        <label htmlFor="showManipulated" style={{ whiteSpace: 'nowrap', marginRight: 10 }}>
+                            Show Manipulated
+                        </label>
+                        <Form.Check onChange={onShowManipulatedChange} defaultChecked={showManipulated} />
+                    </div>
                 </div>
                 <div className={styles.flipListContainer}>
                     <AutoSizer>
