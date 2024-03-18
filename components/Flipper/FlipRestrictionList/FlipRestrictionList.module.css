@@ -1,6 +1,6 @@
 .restrictionList {
     flex: 1 1 auto;
-    overflow-y: auto;
+    overflow-y: hidden;
     min-height: 200px;
 }
 
