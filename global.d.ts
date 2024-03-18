@@ -253,6 +253,7 @@ interface API {
     getTradeOffers(onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]>
     deleteTradeOffer(tradeId: string): Promise<void>
     getTransactions(): Promise<Transaction[]>
+    getPlayerNames(uuids: string[]): Promise<{ [key: string]: string }>
 }
 
 interface CacheUtils {

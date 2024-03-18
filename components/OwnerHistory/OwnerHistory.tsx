@@ -34,16 +34,25 @@ function ItemHistory(props: Props) {
 
         let ownerHistory = await api.getOwnerHistory(props.uid)
 
+        console.log(ownerHistory)
+
         let prevOwnerObjects: HistoryEntry[] = []
         let promises: Promise<void>[] = []
 
+        let namesToFetch: string[] = []
+        ownerHistory.forEach(history => {
+            namesToFetch.push(history.buyer)
+            namesToFetch.push(history.seller)
+        })
+        let names = await api.getPlayerNames(namesToFetch)
+
         ownerHistory.forEach(history => {
             promises.push(
-                Promise.all([api.getPlayerName(history.buyer), api.getPlayerName(history.seller), api.getAuctionDetails(history.uuid)]).then(results => {
+                api.getAuctionDetails(history.uuid).then(auctionDetails => {
                     let prevOwnerObject: HistoryEntry = {
-                        buyer: parsePlayer({ name: results[0], uuid: history.buyer }),
-                        seller: parsePlayer({ name: results[1], uuid: history.seller }),
-                        auctionDetails: results[2].parsed,
+                        buyer: parsePlayer({ name: names[history.buyer], uuid: history.buyer }),
+                        seller: parsePlayer({ name: names[history.seller], uuid: history.seller }),
+                        auctionDetails: auctionDetails.parsed,
                         timestamp: new Date(history.timestamp)
                     }
                     prevOwnerObjects.push(prevOwnerObject)
