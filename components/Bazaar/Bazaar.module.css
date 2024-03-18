@@ -2,3 +2,18 @@
     width: 150px;
     float: left;
 }
+
+.filterInput {
+    width: 100%;
+    margin-right: 3vw;
+}
+
+.flipListContainer {
+    height: 80vh;
+}
+
+.filterInputContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}

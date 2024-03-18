@@ -637,4 +637,11 @@ interface BazaarSpreadFlip {
     }
     itemName: string
     isManipulated: boolean
+    key?: string
+}
+
+interface SortOption<T> {
+    label: string
+    value: string
+    sortFunction(crafts: T[], additionalData?: any)
 }

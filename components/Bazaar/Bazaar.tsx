@@ -1,24 +1,74 @@
 'use client'
-import { Card } from 'react-bootstrap'
+import { Badge, Card, Form } from 'react-bootstrap'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import Image from 'next/image'
 import api from '../../api/ApiHelper'
 import styles from './Bazaar.module.css'
 import { Number } from '../Number/Number'
+import { ChangeEvent, useState } from 'react'
+import { v4 as generateUUID } from 'uuid'
 
 interface Props {
     flips: BazaarSpreadFlip[]
 }
 
+const SORT_OPTIONS: SortOption<BazaarSpreadFlip>[] = [
+    {
+        label: 'Profit Per Hour',
+        value: 'profitPerHour',
+        sortFunction: crafts => crafts.sort((a, b) => b.flip.profitPerHour - a.flip.profitPerHour)
+    },
+    {
+        label: 'Buy Price',
+        value: 'buyPrice',
+        sortFunction: crafts => crafts.sort((a, b) => b.flip.buyPrice - a.flip.buyPrice)
+    },
+    {
+        label: 'Sell Price',
+        value: 'sellPrice',
+        sortFunction: crafts => crafts.sort((a, b) => b.flip.sellPrice - a.flip.sellPrice)
+    },
+    {
+        label: 'Volume',
+        value: 'volume',
+        sortFunction: crafts => crafts.sort((a, b) => b.flip.volume - a.flip.volume)
+    }
+]
+
+const FLIP_ELEMENT_HEIGHT = 330
+
 function Bazaar(props: Props) {
-    const { flips } = props
+    let [flips, setFlips] = useState<BazaarSpreadFlip[]>(props.flips.map(flip => ({ ...flip, key: generateUUID() })))
+    let [nameFilter, setNameFilter] = useState<string>('')
+    let [orderBy, setOrderBy] = useState<SortOption<BazaarSpreadFlip>>(SORT_OPTIONS[0])
 
-    const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
-        const flip: BazaarSpreadFlip = flips[index]
+    function onNameFilterChange(e: any) {
+        setNameFilter(e.target.value)
+        let newFlips = [...flips]
+        newFlips.forEach(flip => {
+            flip.key = generateUUID()
+        })
+        setFlips(newFlips)
+    }
 
+    function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
+        let selectedIndex = event.target.options.selectedIndex
+        let value = event.target.options[selectedIndex].getAttribute('value')!
+        let sortOption = SORT_OPTIONS.find(option => option.value === value)
+        if (sortOption) {
+            setOrderBy(sortOption)
+        }
+        let newFlips = [...flips]
+        newFlips.forEach(flip => {
+            flip.key = generateUUID()
+        })
+        setFlips(newFlips)
+    }
+
+    function getBazaarFlipElement(flip: BazaarSpreadFlip, style: React.CSSProperties) {
         return (
-            <div style={{ ...style, height: 350, paddingRight: 15 }}>
+            <div style={{ ...style, height: FLIP_ELEMENT_HEIGHT, paddingRight: 15 }}>
                 <Card>
                     <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
                         <div className="ellipse" style={{ fontSize: 'larger' }}>
@@ -32,27 +82,29 @@ function Bazaar(props: Props) {
                                 loading="lazy"
                             />
                             {flip.itemName}
+                            {flip.isManipulated && (
+                                <Badge bg="danger" style={{ marginLeft: '5px' }}>
+                                    Manipulated
+                                </Badge>
+                            )}
                         </div>
                     </Card.Header>
                     <Card.Body>
                         <Card.Text>
                             <p>
-                                <span className={styles.label}>Buy Price:</span> <Number number={flip.flip.buyPrice} />
+                                <span className={styles.label}>Buy Price:</span> <Number number={Math.round(flip.flip.buyPrice)} /> Coins
                             </p>
                             <p>
-                                <span className={styles.label}>Sell Price:</span> <Number number={flip.flip.sellPrice} />
+                                <span className={styles.label}>Sell Price:</span> <Number number={flip.flip.sellPrice} /> Coins
                             </p>
                             <p>
-                                <span className={styles.label}>Profit Per Hour:</span> <Number number={flip.flip.profitPerHour} />
+                                <span className={styles.label}>Profit Per Hour:</span> <Number number={flip.flip.profitPerHour} /> Coins
                             </p>
                             <p>
                                 <span className={styles.label}>Volume:</span> <Number number={flip.flip.volume} />
                             </p>
                             <p>
-                                <span className={styles.label}>Timestamp:</span> {flip.flip.timestamp}
-                            </p>
-                            <p>
-                                <span className={styles.label}>Is Manipulated:</span> {flip.isManipulated ? 'Yes' : 'No'}
+                                <span className={styles.label}>Timestamp:</span> {new Date(flip.flip.timestamp).toLocaleString()}
                             </p>
                         </Card.Text>
                     </Card.Body>
@@ -61,16 +113,49 @@ function Bazaar(props: Props) {
         )
     }
 
+    let flipsToDisplay = [...flips]
+    if (nameFilter) {
+        flipsToDisplay = flipsToDisplay.filter(flip => flip.itemName.toLowerCase().includes(nameFilter.toLowerCase()))
+    }
+    if (orderBy) {
+        let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
+        flipsToDisplay = sortOption?.sortFunction(flipsToDisplay)
+    }
+
     return (
         <>
-            <div style={{ height: '80vh' }}>
-                <AutoSizer>
-                    {({ height, width }) => (
-                        <FixedSizeList height={height} width={width} itemData={flips} itemCount={flips.length} itemSize={350}>
-                            {Row}
-                        </FixedSizeList>
-                    )}
-                </AutoSizer>
+            <div>
+                <div className={styles.filterInputContainer}>
+                    <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
+                    <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
+                        {SORT_OPTIONS.map(option => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </Form.Select>
+                </div>
+                <div className={styles.flipListContainer}>
+                    <AutoSizer>
+                        {({ height, width }) => (
+                            <FixedSizeList
+                                itemKey={(index, data) => {
+                                    return data[index].key
+                                }}
+                                height={height}
+                                width={width}
+                                itemData={flipsToDisplay}
+                                itemCount={flipsToDisplay.length}
+                                itemSize={FLIP_ELEMENT_HEIGHT}
+                            >
+                                {({ index, style }) => {
+                                    let flipToShow = flipsToDisplay[index]
+                                    return getBazaarFlipElement(flipToShow, style)
+                                }}
+                            </FixedSizeList>
+                        )}
+                    </AutoSizer>
+                </div>
             </div>
         </>
     )
