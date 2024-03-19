@@ -35,8 +35,15 @@ function Payment(props: Props) {
             setSelectedCountry(getCountry(cachedCountryCode))
             return
         }
-        let response = await fetch('https://api.country.is')
-        if (response.ok) {
+
+        let response: Response | null = null
+        try {
+            response = await fetch('https://api.country.is')
+        } catch {
+            console.error('Failed to fetch country from api.country.is')
+        }
+
+        if (response && response.ok) {
             let result = await response.json()
             let country = getCountry(result.country) || getCountryFromUserLanguage()
             setDefaultCountry(country)
@@ -102,7 +109,12 @@ function Payment(props: Props) {
     return (
         <div>
             <div>
-                {defaultCountry ? <CountrySelect defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} /> : null}
+                {defaultCountry ? (
+                    <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
+                ) : (
+                    <CountrySelect key="loading-country-select" isLoading />
+                )}
+
                 <div className={styles.productGrid}>
                     <PurchaseElement
                         coflCoinsToBuy={1800}
