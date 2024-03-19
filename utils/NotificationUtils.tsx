@@ -11,7 +11,7 @@ export default function registerNotificationCallback(router) {
 
         messaging.onMessage(function (payload) {
             let notification = payload.notification
-            if (payload.data.type === 'auction') {
+            if (payload.data?.type === 'auction') {
                 savePayloadIntoCache(payload)
             }
             displayNotification(notification)
@@ -33,5 +33,46 @@ export default function registerNotificationCallback(router) {
     function savePayloadIntoCache(payload: any) {
         let auction = JSON.parse(payload.data.auction)
         cacheUtils.setIntoCache('auctionDetails', JSON.stringify(auction.uuid), auction, 60)
+    }
+}
+
+export function getNotificationTypeAsString(type: NotificationType | number): string {
+    switch (type) {
+        case 1:
+        case 'WEBHOOK':
+            return 'Webhook'
+        case 2:
+        case 'DISCORD':
+            return 'Discord'
+        case 3:
+        case 'DiscordWebhook':
+            return 'Discord Webhook'
+        case 4:
+        case 'FIREBASE':
+            return 'Push-Notification'
+        case 5:
+        case 'EMAIL':
+            return 'E-Mail'
+        case 6:
+        case 'InGame':
+            return 'InGame'
+        default:
+            return 'Unknown'
+    }
+}
+
+export function getNotficationWhenEnumAsString(when: NotificationWhen | number): string {
+    switch (when) {
+        case 0:
+        case 'NEVER':
+            return 'Never'
+        case 1:
+        case 'AfterFail':
+            return 'After fail'
+        case 2:
+        case 'ALWAYS':
+            return 'Always'
+        default:
+            return 'Never'
     }
 }

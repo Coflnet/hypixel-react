@@ -1,5 +1,5 @@
 import api from '../../api/ApiHelper'
-import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
+import { NotificationListener, SubscriptionType } from '../../api/ApiTypes.d'
 import { hasFlag } from '../../components/FilterElement/FilterType'
 import { getFlipFinders } from '../FlipUtils'
 import { convertTagToName } from '../Formatter'
@@ -233,8 +233,9 @@ function _getTypeFromSubTypes(subTypes: SubscriptionType[]): 'item' | 'player' |
     return type
 }
 
-export function parseSubscription(subscription: any): Subscription {
+export function parseSubscription(subscription: any): NotificationListener {
     return {
+        id: subscription.id,
         price: subscription.price,
         topicId: subscription.topicId,
         types: parseSubscriptionTypes(subscription.type),

@@ -106,7 +106,7 @@ messaging.usePublicVapidKey('BESZjJEHTRUVz5_8NW-jjOToWiSJFZHDzK9AYZP6No8cqGHkP7U
 messaging.onBackgroundMessage(function (payload) {
     const request = indexedDB.open('keyval-store', 1)
     let db
-    if (payload.data.type != 'auction') {
+    if (payload.data?.type != 'auction') {
         return
     }
 

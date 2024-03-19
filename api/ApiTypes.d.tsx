@@ -79,7 +79,15 @@ export enum RequestType {
     CREATE_TRADE_OFFER = 'createTradeOffer',
     DELETE_TRADE_OFFER = 'deleteTradeOffer',
     GET_TRADES = 'getTrades',
-    GET_TRANSACTIONS = 'getTransactions'
+    GET_TRANSACTIONS = 'getTransactions',
+    GET_NOTIFICATION_TARGETS = 'getNotificationTargets',
+    ADD_NOTIFICATION_TARGETS = 'addNotificationTargets',
+    DELETE_NOTIFICATION_TARGETS = 'deleteNotificationTargets',
+    UPDATE_NOTIFICATION_TARGET = 'updateNotificationTarget',
+    SEND_TEST_NOTIFICATION = 'sendTestNotification',
+    GET_NOTIFICATION_SUBSCRIPTION = 'getNotificationSubscription',
+    ADD_NOTIFICATION_SUBSCRIPTION = 'addNotificationSubscription',
+    DELETE_NOTIFICATION_SUBSCRIPTION = 'deleteNotificationSubscription'
 }
 
 export enum SubscriptionType {
@@ -114,7 +122,8 @@ export interface ApiSubscription {
     onError(message: string)
 }
 
-export interface Subscription {
+export interface NotificationListener {
+    id: number | undefined
     topicId: string
     price: number
     types: SubscriptionType[]
