@@ -1,14 +1,26 @@
 .restrictionList {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: stretch;
-    justify-content: flex-start;
+    flex: 1 1 auto;
+    overflow-y: hidden;
+    min-height: 200px;
 }
 
-.restriction {
-    margin: 1%;
-    width: 48%;
-    height: fit-content;
+.restrictionListContainer{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+}
+
+@media all and (max-height: 1000px) {
+    .restrictionListContainer {
+        overflow-y: auto;
+    }
+}
+
+.restrictionContainer {
+    padding-right: 24px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .removeFilter {

@@ -116,6 +116,15 @@ async function getItemData(searchParams, params) {
             }
         }
 
+        if (range === 'active') {
+            return {
+                item: itemDetails,
+                prices: [],
+                range: range || null,
+                filter: itemFilter ? JSON.parse(atobUnicode(itemFilter)) : null
+            }
+        }
+
         let isBazaar = hasFlag(itemDetails.flags, 1)
         let prices: any = null
 

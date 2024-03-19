@@ -50,11 +50,12 @@ import {
     storeUsedTagsInLocalStorage
 } from '../utils/SettingsUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
-import { HttpApi, RequestType, NotificationListener, SubscriptionType } from './ApiTypes.d'
+import { HttpApi, RequestType, SubscriptionType, CUSTOM_EVENTS, NotificationListener } from './ApiTypes.d'
 import { initHttpHelper } from './HttpHelper'
 import { websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import properties from '../properties'
+import { getCurrentCoflCoins } from '../utils/CoflCoinsUtils'
 
 function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
@@ -1158,22 +1159,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let subscribeCoflCoinChange = () => {
-        // TODO: Has yet to be implemented by the backend
-        /*
         websocketHelper.subscribe({
-            type: RequestType.SUBSCRIBE_COFLCOINS,
+            type: RequestType.SUBSCRIBE_EVENTS,
             data: '',
+            resubscribe: function (subscription) {
+                subscribeCoflCoinChange()
+            },
+            onError: function (message) {
+                toast.error(message)
+            },
             callback: function (response) {
-                switch (response.type) {
-                    case 'coflCoinUpdate':
-                        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: response.data } }))
-                        break
-                    default:
-                        break
+                if (response.data.sourceType === 'purchase' || response.data.sourceType === 'topup') {
+                    document.dispatchEvent(
+                        new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: getCurrentCoflCoins() + Math.round(response.data.data.amount) } })
+                    )
                 }
             }
         })
-        */
     }
 
     let getCoflcoinBalance = (): Promise<number> => {
@@ -2033,7 +2035,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 data: '',
                 resolve: data => {
-                    console.log(data)
                     resolve(data ? (data as TradeObject[]).slice(Math.max(data.length - 36, 0)).map(parseInventoryData) : [])
                 },
                 reject: (error: any) => {

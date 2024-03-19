@@ -140,7 +140,7 @@ export function FlipTrackingListItem(props: Props) {
                     <p>Profit changes:</p>
                     <ShowMoreText
                         alwaysShowAll={props.trackedFlip.propertyChanges.length < 2}
-                        allowShowLess={false}
+                        allowShowLess={true}
                         content={
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Table>
