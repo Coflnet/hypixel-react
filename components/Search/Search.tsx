@@ -110,6 +110,7 @@ function Search(props: Props) {
 
                 if (rememberEnterPressRef.current) {
                     onItemClick(searchResults[0])
+                    rememberEnterPressRef.current = false
                 }
             }
         })
