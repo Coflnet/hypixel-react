@@ -6,7 +6,7 @@ import api from '../../api/ApiHelper'
 import askForNotificationPermissons from '../../utils/NotificationPermisson'
 import { getNotficationWhenEnumAsString, getNotificationTypeAsString } from '../../utils/NotificationUtils'
 
-const TYPE_OPTIONS: NotificationType[] = ['WEBHOOK', 'DISCORD', 'DiscordWebhook', 'FIREBASE', 'EMAIL', 'InGame']
+const TYPE_OPTIONS: NotificationType[] = ['DiscordWebhook', 'FIREBASE', 'InGame']
 const WHEN_OPITIONS: NotificationWhen[] = ['NEVER', 'AfterFail', 'ALWAYS']
 
 interface Props {
@@ -17,11 +17,11 @@ interface Props {
 
 function NotificationTargetForm(props: Props) {
     let [name, setName] = useState<string>(props.defaultNotificationTarget?.name || '')
-    let [type, setType] = useState<'WEBHOOK' | 'DISCORD' | 'DiscordWebhook' | 'FIREBASE' | 'EMAIL' | 'InGame' | number>(
+    let [type, setType] = useState<NotificationType | number>(
         props.defaultNotificationTarget?.type || 'FIREBASE'
     )
     let [target, setTarget] = useState<string | null>(props.defaultNotificationTarget?.target || null)
-    let [when, setWhen] = useState<'NEVER' | 'AfterFail' | 'ALWAYS' | number>(props.defaultNotificationTarget?.when || 'ALWAYS')
+    let [when, setWhen] = useState<NotificationWhen | number>(props.defaultNotificationTarget?.when || 'ALWAYS')
     let [disabled, setDisabled] = useState(false)
 
     async function addNotificationTarget() {
