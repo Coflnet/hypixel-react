@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import EditIcon from '@mui/icons-material/Edit'
 import { Typeahead } from 'react-bootstrap-typeahead'
+import NotificationTargetForm from '../NotificationTargets/NotificationTargetForm'
 
 interface Props {
     topic: string
@@ -54,6 +55,7 @@ function SubscribeButton(props: Props) {
     let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
     let [selectedNotificationTargets, setSelectedNotificationTargets] = useState<NotificationTarget[]>([])
     let [isLoadingNotificationTargets, setIsLoadingNotificationTargets] = useState(false)
+    let [showCreateTargetDialog, setShowCreateTargetDialog] = useState(false)
 
     async function onSubscribe() {
         trackEvent({ action: 'subscribed', category: 'subscriptions' })
@@ -116,6 +118,14 @@ function SubscribeButton(props: Props) {
 
     function onLogin() {
         setIsLoggedIn(true)
+        setIsLoadingNotificationTargets(true)
+        api.getNotificationTargets().then(targets => {
+            if (props.prefill?.targetNames) {
+                setSelectedNotificationTargets(targets.filter(target => (target.name ? props.prefill?.targetNames.includes(target.name) : false)))
+            }
+            setNotificationTargets(targets)
+            setIsLoadingNotificationTargets(false)
+        })
     }
 
     function isNotifyDisabled() {
@@ -137,16 +147,30 @@ function SubscribeButton(props: Props) {
 
     function openDialog() {
         trackEvent({ action: 'subscription dialog opened', category: 'subscriptions' })
-        setIsLoadingNotificationTargets(true)
-        api.getNotificationTargets().then(targets => {
-            if (props.prefill?.targetNames) {
-                setSelectedNotificationTargets(targets.filter(target => (target.name ? props.prefill?.targetNames.includes(target.name) : false)))
-            }
-            setNotificationTargets(targets)
-            setIsLoadingNotificationTargets(false)
-        })
         setShowDialog(true)
     }
+
+    let dialog2 = (
+        <Modal
+            show={showCreateTargetDialog}
+            onHide={() => {
+                setShowCreateTargetDialog(false)
+            }}
+            className={styles.subscribeDialog}
+        >
+            <Modal.Header closeButton>
+                <Modal.Title>{props.popupTitle || 'Create a Notifier'}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <NotificationTargetForm
+                    type="CREATE"
+                    onSubmit={target => {
+                        setSelectedNotificationTargets([...selectedNotificationTargets, target])
+                    }}
+                />
+            </Modal.Body>
+        </Modal>
+    )
 
     let dialog = (
         <Modal show={showDialog} onHide={closeDialog} className={styles.subscribeDialog}>
@@ -179,21 +203,30 @@ function SubscribeButton(props: Props) {
                         ) : null}
                         {props.type === 'auction' ? <SubscribeAuctionContent /> : null}
                         <label htmlFor="notificationTargetsTypeahead">Targets: </label>
-                        <Typeahead
-                            id="notificationTargetsTypeahead"
-                            className={styles.multiSearch}
-                            isLoading={isLoadingNotificationTargets}
-                            labelKey="name"
-                            style={{ marginBottom: '10px' }}
-                            options={notificationTargets}
-                            placeholder={'Select targets...'}
-                            selected={selectedNotificationTargets}
-                            onChange={selected => {
-                                setSelectedNotificationTargets(selected as NotificationTarget[])
-                            }}
-                            multiple={true}
-                        />
-                        <Button onClick={onSubscribe} disabled={isNotifyDisabled() || !isItemFilterValid} className="notifyButton">
+                        <div style={{ display: 'flex', gap: 10 }}>
+                            <Typeahead
+                                id="notificationTargetsTypeahead"
+                                className={styles.multiSearch}
+                                isLoading={isLoadingNotificationTargets}
+                                labelKey="name"
+                                style={{ flex: 1 }}
+                                options={notificationTargets}
+                                placeholder={'Select targets...'}
+                                selected={selectedNotificationTargets}
+                                onChange={selected => {
+                                    setSelectedNotificationTargets(selected as NotificationTarget[])
+                                }}
+                                multiple={true}
+                            />
+                            <Button
+                                onClick={() => {
+                                    setShowCreateTargetDialog(true)
+                                }}
+                            >
+                                Create new target
+                            </Button>
+                        </div>
+                        <Button onClick={onSubscribe} disabled={isNotifyDisabled() || !isItemFilterValid} className={styles.notifyButton}>
                             {props.popupButtonText || 'Notify me'}
                         </Button>
                         {itemFilter && Object.keys(itemFilter).length > MAX_FILTERS ? (
@@ -212,6 +245,7 @@ function SubscribeButton(props: Props) {
     return (
         <div className={styles.subscribeButton}>
             {dialog}
+            {dialog2}
             {props.isEditButton ? (
                 <div onClick={openDialog}>
                     <EditIcon />
