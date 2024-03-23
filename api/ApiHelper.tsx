@@ -24,6 +24,7 @@ import {
     parseLowSupplyItem,
     parseMayorData,
     parseMinecraftConnectionInfo,
+    parseOwnerHistory,
     parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
@@ -1918,7 +1919,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: `${getApiEndpoint()}/auctions/uid/${uid}/sold`,
                 data: '',
                 resolve: data => {
-                    resolve(data)
+                    resolve(data.map(parseOwnerHistory))
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.OWNER_HISOTRY, error, uid)

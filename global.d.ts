@@ -565,10 +565,12 @@ interface RatCheckingResponse {
 }
 
 interface OwnerHistory {
-    seller: string
+    seller: Player
     uuid: string
-    buyer: string
-    timestamp: string
+    buyer: Player
+    timestamp: Date
+    highestBid: number
+    itemTag: string
 }
 
 interface Perk {

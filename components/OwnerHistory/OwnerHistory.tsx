@@ -1,8 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { Button, Card, ListGroup } from 'react-bootstrap'
+import { Card, ListGroup } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
-import { parsePlayer } from '../../utils/Parser/APIResponseParser'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import styles from './OwnerHistory.module.css'
 import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'
@@ -14,15 +13,8 @@ interface Props {
     uid: string
 }
 
-interface HistoryEntry {
-    buyer: Player
-    seller: Player
-    timestamp: Date | null
-    auctionDetails: AuctionDetails | null
-}
-
 function ItemHistory(props: Props) {
-    let [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([])
+    let [historyEntries, setHistoryEntries] = useState<OwnerHistory[]>([])
     let [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
@@ -34,52 +26,42 @@ function ItemHistory(props: Props) {
 
         let ownerHistory = await api.getOwnerHistory(props.uid)
 
-        console.log(ownerHistory)
-
-        let prevOwnerObjects: HistoryEntry[] = []
-        let promises: Promise<void>[] = []
+        let prevOwnerObjects: OwnerHistory[] = []
 
         let namesToFetch: string[] = []
         ownerHistory.forEach(history => {
-            namesToFetch.push(history.buyer)
-            namesToFetch.push(history.seller)
+            namesToFetch.push(history.buyer.uuid)
+            namesToFetch.push(history.seller.uuid)
         })
         let names = await api.getPlayerNames(namesToFetch)
 
         ownerHistory.forEach(history => {
-            promises.push(
-                api.getAuctionDetails(history.uuid).then(auctionDetails => {
-                    let prevOwnerObject: HistoryEntry = {
-                        buyer: parsePlayer({ name: names[history.buyer], uuid: history.buyer }),
-                        seller: parsePlayer({ name: names[history.seller], uuid: history.seller }),
-                        auctionDetails: auctionDetails.parsed,
-                        timestamp: new Date(history.timestamp)
-                    }
-                    prevOwnerObjects.push(prevOwnerObject)
-                })
-            )
+            history.seller.name = names[history.seller.uuid]
+            history.buyer.name = names[history.buyer.uuid]
+
+            prevOwnerObjects.push(history)
         })
 
-        Promise.all(promises).then(() => {
-            let sorted = prevOwnerObjects.sort((a, b) => a.timestamp!.getTime() - b.timestamp!.getTime())
-            for (let i = 0; i < sorted.length; i++) {
-                let entry = sorted[i]
-                if (i === sorted.length - 1) {
-                    continue
-                }
-                if (entry.buyer.uuid !== sorted[i + 1].seller.uuid) {
-                    sorted.splice(i + 1, 0, {
-                        auctionDetails: null,
-                        timestamp: null,
-                        buyer: sorted[i + 1].seller,
-                        seller: entry.buyer
-                    })
-                    i++
-                }
+        let sorted = prevOwnerObjects.sort((a, b) => a.timestamp!.getTime() - b.timestamp!.getTime())
+        for (let i = 0; i < sorted.length; i++) {
+            let entry = sorted[i]
+            if (i === sorted.length - 1) {
+                continue
             }
-            setHistoryEntries(prevOwnerObjects)
-            setIsLoading(false)
-        })
+            if (entry.buyer.uuid !== sorted[i + 1].seller.uuid) {
+                sorted.splice(i + 1, 0, {
+                    highestBid: 0,
+                    itemTag: sorted[i + 1].itemTag,
+                    timestamp: new Date(),
+                    buyer: sorted[i + 1].seller,
+                    seller: entry.buyer,
+                    uuid: entry.uuid
+                })
+                i++
+            }
+        }
+        setHistoryEntries(prevOwnerObjects)
+        setIsLoading(false)
     }
 
     function getPlayerElement(player: Player) {
@@ -109,28 +91,20 @@ function ItemHistory(props: Props) {
                         return (
                             <ListGroup.Item className={styles.listGroupItem}>
                                 <h1 style={{ fontSize: 'large' }}>
-                                    {historyEntry.auctionDetails?.auction.item || historyEntries[i - 1].auctionDetails?.auction.item ? (
-                                        <img
-                                            crossOrigin="anonymous"
-                                            className="playerHeadIcon"
-                                            src={api.getItemImageUrl(
-                                                historyEntry.auctionDetails
-                                                    ? historyEntry.auctionDetails?.auction.item
-                                                    : historyEntries[i - 1].auctionDetails!.auction.item
-                                            )}
-                                            alt="player icon"
-                                            height="36"
-                                            style={{ marginRight: '10px' }}
-                                            loading="lazy"
-                                        />
-                                    ) : null}
+                                    <img
+                                        crossOrigin="anonymous"
+                                        className="playerHeadIcon"
+                                        src={api.getItemImageUrl({
+                                            tag: historyEntry.itemTag
+                                        })}
+                                        alt="player icon"
+                                        height="36"
+                                        style={{ marginRight: '10px' }}
+                                        loading="lazy"
+                                    />
                                     {historyEntry.timestamp ? moment(historyEntry.timestamp).format('MMMM Do YYYY, h:mm:ss a') : 'Outside of AH'}
-                                    {historyEntry.auctionDetails ? (
-                                        <a
-                                            style={{ float: 'right', cursor: 'pointer' }}
-                                            href={`/auction/${historyEntry.auctionDetails.uuid}`}
-                                            className="disableLinkStyle"
-                                        >
+                                    {historyEntry.uuid ? (
+                                        <a style={{ float: 'right', cursor: 'pointer' }} href={`/auction/${historyEntry.uuid}`} className="disableLinkStyle">
                                             Open auction
                                             <OpenInNewIcon />
                                         </a>
@@ -147,7 +121,7 @@ function ItemHistory(props: Props) {
                                     </Card>
                                     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                                         <ArrowRightIcon style={{ fontSize: '50px' }} />
-                                        {historyEntry.auctionDetails ? <Number number={historyEntry.auctionDetails.auction.highestBid} /> : null}
+                                        <Number number={historyEntry.highestBid} />
                                     </div>
                                     <Card className={styles.playerField}>
                                         <a href={`/player/${historyEntry.buyer.uuid}`} target={'_blank'} className="disableLinkStyle">
