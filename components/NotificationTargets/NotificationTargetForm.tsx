@@ -17,9 +17,7 @@ interface Props {
 
 function NotificationTargetForm(props: Props) {
     let [name, setName] = useState<string>(props.defaultNotificationTarget?.name || '')
-    let [type, setType] = useState<NotificationType | number>(
-        props.defaultNotificationTarget?.type || 'FIREBASE'
-    )
+    let [type, setType] = useState<NotificationType | number>(props.defaultNotificationTarget?.type || 'FIREBASE')
     let [target, setTarget] = useState<string | null>(props.defaultNotificationTarget?.target || null)
     let [when, setWhen] = useState<NotificationWhen | number>(props.defaultNotificationTarget?.when || 'ALWAYS')
     let [disabled, setDisabled] = useState(false)
@@ -75,7 +73,7 @@ function NotificationTargetForm(props: Props) {
                         ))}
                     </Form.Select>
                 </Form.Group>
-                {type === 'WEBHOOK' || type === 'DiscordWebhook' ? (
+                {type === 'WEBHOOK' || type === 'DiscordWebhook' || type === 3 || type === 1 ? (
                     <Form.Group className="mb-3">
                         <Form.Label>Target</Form.Label>
                         <Form.Control defaultValue={target || undefined} type="text" onChange={e => setTarget(e.target.value)} placeholder="Enter target" />
