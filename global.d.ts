@@ -167,9 +167,9 @@ interface API {
     getPlayerName(uuid: string): Promise<string>
     setConnectionId(): Promise<void>
     getVersion(): Promise<string>
-    subscribe(topic: string, type: SubscriptionType[], price?: number, itemFilter?: ItemFilter): Promise<void>
-    unsubscribe(subscription: Subscription): Promise<Number>
-    getSubscriptions(): Promise<Subscription[]>
+    subscribe(topic: string, type: SubscriptionType[], targets: NotificationTarget[], price?: number, itemFilter?: ItemFilter): Promise<void>
+    unsubscribe(subscription: Subscription): Promise<void>
+    getNotificationListener(): Promise<NotificationListener[]>
     loginWithToken(id: string): Promise<string>
     stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     setToken(token: string): Promise<void>
@@ -254,6 +254,14 @@ interface API {
     deleteTradeOffer(tradeId: string): Promise<void>
     getTransactions(): Promise<Transaction[]>
     getPlayerNames(uuids: string[]): Promise<{ [key: string]: string }>
+    getNotificationTargets(): Promise<NotificationTarget[]>
+    addNotificationTarget(target: NotificationTarget): Promise<NotificationTarget>
+    deleteNotificationTarget(target: NotificationTarget): Promise<void>
+    updateNotificationTarget(target: NotificationTarget): Promise<void>
+    sendTestNotification(target: NotificationTarget): Promise<void>
+    getNotificationSubscriptions(): Promise<NotificationSubscription[]>
+    createNotificationSubscription(subscription: NotificationSubscription): Promise<NotificationSubscription>
+    deleteNotificationSubscription(subscription: NotificationSubscription): Promise<void>
 }
 
 interface CacheUtils {
@@ -626,4 +634,29 @@ interface Transaction {
     reference: string
     amount: number
     timeStamp: Date
+}
+
+type NotificationType = 'WEBHOOK' | 'DISCORD' | 'DiscordWebhook' | 'FIREBASE' | 'EMAIL' | 'InGame' | 'DiscordWebhook'
+
+type NotificationWhen = 'NEVER' | 'AfterFail' | 'ALWAYS'
+
+interface NotificationTarget {
+    id: number | undefined
+    type: NotificaitonType | number
+    when: NotificationWhen | number
+    target: string | null
+    name: string | null
+    useCount: number
+}
+
+interface NotificationSubscription {
+    sourceType: string
+    id: number | undefined
+    sourceSubIdRegex: string
+    targets: {
+        id: number
+        name: string
+        priority: number
+        isDisabled: boolean
+    }[]
 }

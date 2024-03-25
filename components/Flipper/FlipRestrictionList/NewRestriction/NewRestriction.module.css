@@ -1,3 +1,14 @@
-.newRestrictionSearchbar {
+.newRestrictionSearchbarContainer {
     margin-top: 20px;
+}
+
+.newRestrictionSearchbarContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.multiSearch {
+    flex: 1;
 }

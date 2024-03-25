@@ -37,6 +37,7 @@ function FlipRestrictionList(props: Props) {
     let [sortByName, setSortByName] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
     let searchFieldRef = useRef<HTMLInputElement>(null)
+    let listRef = useRef(null)
 
     useEffect(() => {
         function onControlF(event: KeyboardEvent) {
@@ -119,7 +120,6 @@ function FlipRestrictionList(props: Props) {
         let newRestrictions = [...restrictions]
         restrictionInEditModeIndex.forEach(index => {
             let toUpdate = newRestrictions[index]
-            toUpdate.itemKey = generateUUID()
             Object.keys(updateState.itemFilter || {}).forEach(key => {
                 if (toUpdate.itemFilter && updateState.itemFilter && toUpdate.itemFilter[key] === undefined) {
                     toUpdate.itemFilter[key] = updateState.itemFilter[key]
@@ -140,12 +140,12 @@ function FlipRestrictionList(props: Props) {
         setRestrictionsInEditModeIndex([])
         setRestrictions(newRestrictions)
         toast.success('Restriction updated')
+        recalculateListHeight()
     }
 
     function overrideEditedFilter(updateState: UpdateState) {
         let newRestrictions = [...restrictions]
         restrictionInEditModeIndex.forEach(index => {
-            newRestrictions[index].itemKey = generateUUID()
             newRestrictions[index].itemFilter = { ...updateState.itemFilter }
             newRestrictions[index].tags = updateState.tags
             newRestrictions[index].isEdited = false
@@ -159,15 +159,12 @@ function FlipRestrictionList(props: Props) {
         setRestrictionsInEditModeIndex([])
         setRestrictions(newRestrictions)
         toast.success('Restriction(s) updated')
+        recalculateListHeight()
     }
 
     function removeRestrictionByIndex(restrictions: FlipRestriction[], index: number) {
         let newRestrictions = [...restrictions]
         let deletedRestriction = newRestrictions.splice(index, 1)
-
-        newRestrictions.forEach((restriction, i) => {
-            restriction.itemKey = generateUUID()
-        })
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
 
@@ -178,6 +175,7 @@ function FlipRestrictionList(props: Props) {
         }
         setRestrictions(newRestrictions)
         toast.success('Restriction removed')
+        recalculateListHeight()
     }
 
     function createDuplicate(restrictions: FlipRestriction[], index: number) {
@@ -185,23 +183,20 @@ function FlipRestrictionList(props: Props) {
         let newRestrictions = [...restrictions]
         newRestrictions.splice(index + 1, 0, duplicate)
 
-        newRestrictions.forEach((restriction, i) => {
-            restriction.itemKey = generateUUID()
-        })
-
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
         if (props.onRestrictionsChange) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
         }
         setRestrictions(newRestrictions)
+        recalculateListHeight()
     }
 
     function removeItemOfRestriction(restrictions: FlipRestriction[], index: number) {
         let newRestrictions = [...restrictions]
         newRestrictions[index].item = undefined
-        newRestrictions[index].itemKey = generateUUID()
         setRestrictions(newRestrictions)
+        recalculateListHeight()
     }
 
     function saveRestrictionEdit(restrictions: FlipRestriction[], index: number) {
@@ -209,7 +204,6 @@ function FlipRestrictionList(props: Props) {
         let newIndexArray = [...restrictionInEditModeIndex]
 
         newRestrictions[index].isEdited = false
-        newRestrictions[index].itemKey = generateUUID()
         let i = newIndexArray.indexOf(index)
         newIndexArray.splice(i, 1)
 
@@ -220,6 +214,7 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
         }
+        recalculateListHeight()
     }
 
     function editRestriction(restrictions: FlipRestriction[], index: number) {
@@ -260,12 +255,8 @@ function FlipRestrictionList(props: Props) {
         return searchText => {
             clearTimeout(timerId)
             timerId = setTimeout(() => {
-                let newRestrictions = [...restrictions]
-                newRestrictions.forEach((restriction, i) => {
-                    restriction.itemKey = generateUUID()
-                })
-                setRestrictions(newRestrictions)
                 setSearchText(searchText)
+                recalculateListHeight()
             }, 1000)
         }
     })()
@@ -298,6 +289,10 @@ function FlipRestrictionList(props: Props) {
             .catch(() => {
                 toast.error('Error reloaded item names')
             })
+    }
+
+    function recalculateListHeight() {
+        ;(listRef.current as any).resetAfterRowIndex(0, false)
     }
 
     let clearListDialog = (
@@ -453,13 +448,9 @@ function FlipRestrictionList(props: Props) {
                                 id="sortByNameCheckbox"
                                 className={styles.sortByNameCheckbox}
                                 onChange={e => {
-                                    let newRestrictions = [...restrictions]
-                                    newRestrictions.forEach((restriction, i) => {
-                                        restriction.itemKey = generateUUID()
-                                    })
-                                    setRestrictions(newRestrictions)
                                     setSortByName(e.target.checked)
                                     onEditRestrictionCancel()
+                                    recalculateListHeight()
                                 }}
                             />
                         </div>
@@ -470,6 +461,7 @@ function FlipRestrictionList(props: Props) {
                         <AutoSizer>
                             {({ height, width }) => (
                                 <Grid
+                                    ref={listRef}
                                     itemKey={({ columnIndex, rowIndex, data }) => {
                                         let r = restrictionsToDisplay[rowIndex * 2 + columnIndex]
                                         if (!r) {
@@ -626,11 +618,8 @@ function FlipRestrictionList(props: Props) {
                                                                 filter={restriction.itemFilter}
                                                                 onAfterEdit={
                                                                     restriction.isEdited
-                                                                        ? filter => {
-                                                                              let newRestrictions = [...restrictions]
-                                                                              newRestrictions[restriction.originalIndex!].itemFilter = { ...filter }
-                                                                              newRestrictions[restriction.originalIndex!].itemKey = generateUUID()
-                                                                              setRestrictions(newRestrictions)
+                                                                        ? () => {
+                                                                              recalculateListHeight()
                                                                           }
                                                                         : undefined
                                                                 }

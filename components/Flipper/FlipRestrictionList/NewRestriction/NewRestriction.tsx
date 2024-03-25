@@ -29,6 +29,7 @@ function NewRestriction(props: Props) {
     })
     let [isFilterValid, setIsFilterValid] = useState(true)
     let [filters, setFilters] = useState<FilterOptions[]>([])
+    let [showFillLastUsedItems, setShowFillLastUsedItems] = useState(sessionStorage.getItem('lastUsedItemsForNewRestrictions') !== null)
 
     useEffect(() => {
         loadFilters()
@@ -68,6 +69,11 @@ function NewRestriction(props: Props) {
         }
     }
 
+    function fillLastUsedItems() {
+        let lastUsedItems = JSON.parse(sessionStorage.getItem('lastUsedItemsForNewRestrictions') || '[]')
+        setCreateState({ ...createState, selectedItems: lastUsedItems })
+    }
+
     let getButtonVariant = (range: string): string => {
         return range === createState.type ? 'primary' : 'secondary'
     }
@@ -100,8 +106,9 @@ function NewRestriction(props: Props) {
                     Whitelist
                 </ToggleButton>
             </ToggleButtonGroup>
-            <div className={styles.newRestrictionSearchbar}>
+            <div className={styles.newRestrictionSearchbarContainer}>
                 <MultiSearch
+                    className={styles.multiSearch}
                     onChange={items => {
                         setCreateState({
                             ...createState,
@@ -115,7 +122,7 @@ function NewRestriction(props: Props) {
                         })
                     }}
                     searchFunction={api.itemSearch}
-                    defaultSelected={createState.selectedItems?.map(item => {
+                    selected={createState.selectedItems?.map(item => {
                         return {
                             dataItem: {
                                 name: item.name,
@@ -126,6 +133,7 @@ function NewRestriction(props: Props) {
                         } as unknown as SearchResultItem
                     })}
                 />
+                {showFillLastUsedItems && <Button onClick={fillLastUsedItems}>Last used Items</Button>}
             </div>
             <ItemFilter
                 filters={filters}
@@ -150,6 +158,7 @@ function NewRestriction(props: Props) {
                 <Button
                     variant="success"
                     onClick={() => {
+                        sessionStorage.setItem('lastUsedItemsForNewRestrictions', JSON.stringify(createState.selectedItems))
                         props.onSaveRestrictions(
                             (createState.selectedItems || [null]).map(item => {
                                 return {

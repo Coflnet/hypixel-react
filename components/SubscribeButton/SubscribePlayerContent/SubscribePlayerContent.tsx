@@ -1,12 +1,12 @@
 import React from 'react'
-import { Subscription, SubscriptionType } from '../../../api/ApiTypes.d'
+import { NotificationListener, SubscriptionType } from '../../../api/ApiTypes.d'
 import styles from './SubscribePlayerContent.module.css'
 
 interface Props {
     onGotOutbidChange(value: boolean)
     onIsSoldChange(value: boolean)
     onIsPlayerAuctionCreation(value: boolean)
-    prefill?: Subscription
+    prefill?: NotificationListener
 }
 
 function SubscribePlayerContent(props: Props) {

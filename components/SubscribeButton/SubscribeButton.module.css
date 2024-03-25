@@ -13,3 +13,12 @@
 .notifyButton {
     margin-top: 20px;
 }
+
+.multiSearch :global(.rbt-token){
+    background-color: #444;
+    color: white;
+}
+
+.notifyButton{
+    margin-top: 20px;
+}
