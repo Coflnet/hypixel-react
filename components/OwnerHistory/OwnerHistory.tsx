@@ -42,18 +42,18 @@ function ItemHistory(props: Props) {
             prevOwnerObjects.push(history)
         })
 
-        let sorted = prevOwnerObjects.sort((a, b) => a.timestamp!.getTime() - b.timestamp!.getTime())
+        let sorted = prevOwnerObjects.sort((a, b) => b.timestamp!.getTime() - a.timestamp!.getTime())
         for (let i = 0; i < sorted.length; i++) {
             let entry = sorted[i]
-            if (i === sorted.length - 1) {
+            if (i === 0) {
                 continue
             }
-            if (entry.buyer.uuid !== sorted[i + 1].seller.uuid) {
-                sorted.splice(i + 1, 0, {
-                    highestBid: 0,
-                    itemTag: sorted[i + 1].itemTag,
-                    timestamp: new Date(),
-                    buyer: sorted[i + 1].seller,
+            if (entry.buyer.uuid !== sorted[i - 1].seller.uuid) {
+                sorted.splice(i, 0, {
+                    highestBid: -1,
+                    itemTag: sorted[i - 1].itemTag,
+                    timestamp: null,
+                    buyer: sorted[i - 1].seller,
                     seller: entry.buyer,
                     uuid: entry.uuid
                 })
@@ -121,7 +121,7 @@ function ItemHistory(props: Props) {
                                     </Card>
                                     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                                         <ArrowRightIcon style={{ fontSize: '50px' }} />
-                                        <Number number={historyEntry.highestBid} />
+                                        {historyEntry.highestBid === -1 ? null : <Number number={historyEntry.highestBid} />}
                                     </div>
                                     <Card className={styles.playerField}>
                                         <a href={`/player/${historyEntry.buyer.uuid}`} target={'_blank'} className="disableLinkStyle">

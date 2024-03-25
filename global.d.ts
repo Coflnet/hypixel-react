@@ -568,7 +568,7 @@ interface OwnerHistory {
     seller: Player
     uuid: string
     buyer: Player
-    timestamp: Date
+    timestamp: Date | null
     highestBid: number
     itemTag: string
 }
