@@ -147,24 +147,26 @@ function GoogleSignIn(props: Props) {
             {!wasAlreadyLoggedInThisSession ? (
                 <>
                     <div className={styles.googleButton}>
-                        <GoogleLogin
-                            onSuccess={response => {
-                                try {
-                                    let userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
-                                    setSetting(GOOGLE_PROFILE_PICTURE_URL, userObject.picture)
-                                    setSetting(GOOGLE_EMAIL, userObject.email)
-                                    setSetting(GOOGLE_NAME, userObject.name)
-                                } catch {
-                                    toast.warn('Parsing issue with the google token. There might be issues when displaying details on the account page!')
-                                }
-                                onLoginSucces(response.credential!)
-                            }}
-                            onError={onLoginFail}
-                            theme={'filled_blue'}
-                            size={'large'}
-                            useOneTap
-                            auto_select
-                        />
+                        {!isSSR ? (
+                            <GoogleLogin
+                                onSuccess={response => {
+                                    try {
+                                        let userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
+                                        setSetting(GOOGLE_PROFILE_PICTURE_URL, userObject.picture)
+                                        setSetting(GOOGLE_EMAIL, userObject.email)
+                                        setSetting(GOOGLE_NAME, userObject.name)
+                                    } catch {
+                                        toast.warn('Parsing issue with the google token. There might be issues when displaying details on the account page!')
+                                    }
+                                    onLoginSucces(response.credential!)
+                                }}
+                                onError={onLoginFail}
+                                theme={'filled_blue'}
+                                size={'large'}
+                                useOneTap
+                                auto_select
+                            />
+                        ) : null}
                     </div>
                     <p>
                         I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
