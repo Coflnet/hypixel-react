@@ -10,6 +10,7 @@ export enum RequestType {
     ALL_ENCHANTMENTS = 'getEnchantments',
     TRACK_SEARCH = 'trackSearch',
     PLAYER_NAME = 'playerName',
+    PLAYER_NAMES = 'playerNames',
     SET_CONNECTION_ID = 'setConId',
     GET_VERSION = 'version',
     SUBSCRIBE = 'subscribe',

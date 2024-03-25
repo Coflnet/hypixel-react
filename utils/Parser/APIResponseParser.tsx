@@ -155,7 +155,8 @@ export function parseSearchResultItem(item: any): SearchResultItem {
 export function parsePlayer(player: any): Player {
     if (typeof player === 'string') {
         player = {
-            uuid: player
+            uuid: player,
+            name: player
         }
     }
     return {
@@ -653,5 +654,16 @@ export function parseTransaction(transaction): Transaction {
         reference: transaction.reference,
         amount: transaction.amount,
         timeStamp: parseDate(transaction.timeStamp)
+    }
+}
+
+export function parseOwnerHistory(ownerHistory): OwnerHistory {
+    return {
+        buyer: parsePlayer(ownerHistory.buyer),
+        seller: parsePlayer(ownerHistory.seller),
+        highestBid: ownerHistory.highestBid,
+        itemTag: ownerHistory.itemTag,
+        uuid: ownerHistory.uuid,
+        timestamp: parseDate(ownerHistory.timestamp)
     }
 }

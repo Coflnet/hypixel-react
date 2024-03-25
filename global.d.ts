@@ -253,6 +253,7 @@ interface API {
     getTradeOffers(onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]>
     deleteTradeOffer(tradeId: string): Promise<void>
     getTransactions(): Promise<Transaction[]>
+    getPlayerNames(uuids: string[]): Promise<{ [key: string]: string }>
     getNotificationTargets(): Promise<NotificationTarget[]>
     addNotificationTarget(target: NotificationTarget): Promise<NotificationTarget>
     deleteNotificationTarget(target: NotificationTarget): Promise<void>
@@ -572,10 +573,12 @@ interface RatCheckingResponse {
 }
 
 interface OwnerHistory {
-    seller: string
+    seller: Player
     uuid: string
-    buyer: string
-    timestamp: string
+    buyer: Player
+    timestamp: Date | null
+    highestBid: number
+    itemTag: string
 }
 
 interface Perk {

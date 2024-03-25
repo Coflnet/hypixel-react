@@ -24,6 +24,7 @@ import {
     parseLowSupplyItem,
     parseMayorData,
     parseMinecraftConnectionInfo,
+    parseOwnerHistory,
     parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
@@ -408,6 +409,38 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     reject(error)
                 }
             })
+        })
+    }
+
+    let getPlayerNames = (uuids: string[]): Promise<{ [key: string]: string }> => {
+        // Reduce amount of API calls during test runs
+        if (properties.isTestRunner) {
+            let result = {}
+            uuids.forEach(uuid => {
+                result[uuid] = 'TestRunnerUser'
+            })
+            return Promise.resolve(result)
+        }
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.PLAYER_NAMES,
+                    customRequestURL: `${getApiEndpoint()}/player/names`,
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: '',
+                    resolve: names => {
+                        resolve(names)
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.PLAYER_NAMES, error, '')
+                        reject(error)
+                    }
+                },
+                JSON.stringify(uuids)
+            )
         })
     }
 
@@ -1955,7 +1988,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: `${getApiEndpoint()}/auctions/uid/${uid}/sold`,
                 data: '',
                 resolve: data => {
-                    resolve(data)
+                    resolve(data.map(parseOwnerHistory))
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.OWNER_HISOTRY, error, uid)
@@ -2405,6 +2438,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getAuctionDetails,
         getItemImageUrl,
         getPlayerName,
+        getPlayerNames,
         setConnectionId,
         getVersion,
         subscribe,
