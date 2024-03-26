@@ -94,8 +94,9 @@ function BuyPremium(props: Props) {
                                             id={premiumType.productId}
                                             key={premiumType.productId}
                                             value={premiumType.productId}
-                                            className="price-range-button"
-                                            size="sm"
+                                            className={styles.priceRangeButton}
+                                            size="lg"
+                                            variant="primary"
                                         >
                                             {premiumType.label}
                                         </ToggleButton>
