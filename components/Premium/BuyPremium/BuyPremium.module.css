@@ -10,7 +10,7 @@
 
 .dropdown {
     display: inline;
-    width: 110px;
+    width: auto;
 }
 
 .dropdown::-webkit-scrollbar {

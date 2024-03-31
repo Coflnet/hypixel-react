@@ -10,6 +10,7 @@ import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import { Number } from '../../Number/Number'
 import styles from './BuyPremium.module.css'
 import BuyPremiumConfirmationDialog from './BuyPremiumConfirmationDialog'
+import Countdown from 'react-countdown'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -77,96 +78,116 @@ function BuyPremium(props: Props) {
                 <Card.Header>
                     <Card.Title>Buy premium for a certain duration with your CoflCoins. Your premium time starts shortly after your purchase.</Card.Title>
                 </Card.Header>
-                <div style={{ padding: '15px' }}>
-                    {!purchaseSuccessfulOption ? (
-                        <div>
-                            <div style={{ marginBottom: '15px' }}>
-                                <label className={styles.label}>Premium type:</label>
-                                <ToggleButtonGroup
-                                    style={{ width: '250px', display: 'inline' }}
-                                    type="radio"
-                                    name="options"
-                                    value={purchasePremiumType.productId}
-                                    onChange={onPremiumTypeChange}
-                                >
-                                    {PREMIUM_TYPES.map(premiumType => (
-                                        <ToggleButton
-                                            id={premiumType.productId}
-                                            key={premiumType.productId}
-                                            value={premiumType.productId}
-                                            className={styles.priceRangeButton}
-                                            size="lg"
-                                            variant="primary"
-                                        >
-                                            {premiumType.label}
-                                        </ToggleButton>
-                                    ))}
-                                </ToggleButtonGroup>
-                                <div className={styles.coinBalance}>
-                                    <CoflCoinsDisplay />
-                                </div>
-                            </div>
-                            <div style={{ marginBottom: '15px' }}>
-                                <label className={styles.label}>Purchase Duration:</label>
-                                <Form.Select
-                                    onChange={onDurationChange}
-                                    className={styles.dropdown}
-                                    key={purchasePremiumType.productId}
-                                    defaultValue={purchasePremiumOption.value}
-                                >
-                                    {purchasePremiumType.options.map(option => {
-                                        return (
-                                            <option key={option.label} value={JSON.stringify(option)}>
-                                                {option.label}
-                                            </option>
-                                        )
-                                    })}
-                                </Form.Select>
-                                <span style={{ marginLeft: '20px' }}>{getDurationString()}</span>
-                            </div>
+                <Card.Body>
+                    <div
+                        style={{
+                            backgroundColor: '#4CAF50',
+                            color: 'white',
+                            textAlign: 'center',
+                            padding: '10px',
+                            position: 'relative', // Change to relative positioning
+                            width: '100%',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                            fontFamily: 'Arial, sans-serif'
+                        }}
+                    >
+                        Easter Offer: Get 100 days of Premium Plus for 21.600 CoflCoins (26% cheaper than weekly purchases)
+                        <br />
+                        Time left: <Countdown date={new Date('2024-04-02T00:00:00.000Z')} />
+                    </div>
+                    <div style={{ padding: '15px' }}>
+                        {!purchaseSuccessfulOption ? (
                             <div>
-                                <label className={styles.label}>Price:</label>
-                                <span style={{ fontWeight: 'bold' }}>
-                                    <Number number={getPurchasePrice()} /> Coins
-                                </span>
-                            </div>
-                            {coflCoins > getPurchasePrice() ? (
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label className={styles.label}>Premium type:</label>
+                                    <ToggleButtonGroup
+                                        style={{ width: '250px', display: 'inline' }}
+                                        type="radio"
+                                        name="options"
+                                        value={purchasePremiumType.productId}
+                                        onChange={onPremiumTypeChange}
+                                    >
+                                        {PREMIUM_TYPES.map(premiumType => (
+                                            <ToggleButton
+                                                id={premiumType.productId}
+                                                key={premiumType.productId}
+                                                value={premiumType.productId}
+                                                className={styles.priceRangeButton}
+                                                size="lg"
+                                                variant="primary"
+                                            >
+                                                {premiumType.label}
+                                            </ToggleButton>
+                                        ))}
+                                    </ToggleButtonGroup>
+                                    <div className={styles.coinBalance}>
+                                        <CoflCoinsDisplay />
+                                    </div>
+                                </div>
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label className={styles.label}>Purchase Duration:</label>
+                                    <Form.Select
+                                        onChange={onDurationChange}
+                                        className={styles.dropdown}
+                                        key={purchasePremiumType.productId}
+                                        defaultValue={purchasePremiumOption.value}
+                                    >
+                                        {purchasePremiumType.options.map(option => {
+                                            return (
+                                                <option key={option.label} value={JSON.stringify(option)}>
+                                                    {option.label}
+                                                </option>
+                                            )
+                                        })}
+                                    </Form.Select>
+                                    <span style={{ marginLeft: '20px' }}>{getDurationString()}</span>
+                                </div>
                                 <div>
-                                    <label className={styles.label}>Remaining after Purchase:</label>
-                                    <span>
-                                        <Number number={coflCoins - getPurchasePrice()} /> Coins
+                                    <label className={styles.label}>Price:</label>
+                                    <span style={{ fontWeight: 'bold' }}>
+                                        <Number number={getPurchasePrice()} /> Coins
                                     </span>
                                 </div>
-                            ) : null}
-                            <p style={{ marginTop: '20px' }}>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
-                            <hr />
-                            <Button
-                                style={{ marginTop: '10px' }}
-                                variant="success"
-                                onClick={() => {
-                                    setShowConfirmationDialog(true)
-                                }}
-                                disabled={getPurchasePrice() > coflCoins || isPurchasing}
-                            >
-                                Purchase
-                            </Button>
-                            {getPurchasePrice() > coflCoins && !isPurchasing ? (
-                                <span>
-                                    <p>
-                                        <span style={{ color: 'red' }}>You don't have enough CoflCoins to buy this.</span>{' '}
-                                    </p>
-                                </span>
-                            ) : (
-                                ''
-                            )}
-                        </div>
-                    ) : (
-                        <p style={{ color: 'lime' }}>
-                            You successfully bought {purchaseSuccessfulOption.label} {getDurationString()} of {purchasePremiumType.label} for{' '}
-                            <Number number={getPurchasePrice()} /> CoflCoins!
-                        </p>
-                    )}
-                </div>
+                                {coflCoins > getPurchasePrice() ? (
+                                    <div>
+                                        <label className={styles.label}>Remaining after Purchase:</label>
+                                        <span>
+                                            <Number number={coflCoins - getPurchasePrice()} /> Coins
+                                        </span>
+                                    </div>
+                                ) : null}
+                                <p style={{ marginTop: '20px' }}>
+                                    This is a prepaid service. We won't automatically charge you after your premium time runs out!
+                                </p>
+                                <hr />
+                                <Button
+                                    style={{ marginTop: '10px' }}
+                                    variant="success"
+                                    onClick={() => {
+                                        setShowConfirmationDialog(true)
+                                    }}
+                                    disabled={getPurchasePrice() > coflCoins || isPurchasing}
+                                >
+                                    Purchase
+                                </Button>
+                                {getPurchasePrice() > coflCoins && !isPurchasing ? (
+                                    <span>
+                                        <p>
+                                            <span style={{ color: 'red' }}>You don't have enough CoflCoins to buy this.</span>{' '}
+                                        </p>
+                                    </span>
+                                ) : (
+                                    ''
+                                )}
+                            </div>
+                        ) : (
+                            <p style={{ color: 'lime' }}>
+                                You successfully bought {purchaseSuccessfulOption.label} {getDurationString()} of {purchasePremiumType.label} for{' '}
+                                <Number number={getPurchasePrice()} /> CoflCoins!
+                            </p>
+                        )}
+                    </div>
+                </Card.Body>
             </Card>
             <BuyPremiumConfirmationDialog
                 show={showConfirmationDialog}
