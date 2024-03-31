@@ -109,16 +109,6 @@ function Payment(props: Props) {
 
     return (
         <div>
-            <div className={styles.easterSale}>
-                <p className={`${styles.easterSaleHighlight} ${styles.easterSaleText}`}>EASTER SALE:</p>
-                <p className={styles.easterSaleText}>Products over 1.800 CoflCoins are reduced by up to 20%!</p>
-                <p className={styles.easterSaleText}>
-                    End:{' '}
-                    <span className={styles.easterSaleText}>
-                        <Countdown date={new Date('2024-04-02T00:00:00.000Z')} />
-                    </span>
-                </p>
-            </div>
             <div>
                 {defaultCountry ? (
                     <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
@@ -126,6 +116,16 @@ function Payment(props: Props) {
                     <CountrySelect key="loading-country-select" isLoading />
                 )}
 
+                <div className={styles.easterSale}>
+                    <p className={`${styles.easterSaleHighlight} ${styles.easterSaleText}`}>EASTER SALE:</p>
+                    <p className={styles.easterSaleText}>Products over 1.800 CoflCoins are reduced by up to 20%!</p>
+                    <p className={styles.easterSaleText}>
+                        End:{' '}
+                        <span className={styles.easterSaleText}>
+                            <Countdown date={new Date('2024-04-02T00:00:00.000Z')} />
+                        </span>
+                    </p>
+                </div>
                 <div className={styles.productGrid}>
                     <PurchaseElement
                         coflCoinsToBuy={1800}
