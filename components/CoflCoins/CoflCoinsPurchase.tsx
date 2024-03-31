@@ -9,6 +9,7 @@ import PurchaseElement from './PurchaseElement'
 import { Country, getCountry, getCountryFromUserLanguage } from '../../utils/CountryUtils'
 import CountrySelect from '../CountrySelect/CountrySelect'
 import { USER_COUNTRY_CODE } from '../../utils/SettingsUtils'
+import Countdown from 'react-countdown'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
@@ -108,6 +109,16 @@ function Payment(props: Props) {
 
     return (
         <div>
+            <div className={styles.easterSale}>
+                <p className={`${styles.easterSaleHighlight} ${styles.easterSaleText}`}>EASTER SALE:</p>
+                <p className={styles.easterSaleText}>Products over 1.800 CoflCoins are reduced by up to 20%!</p>
+                <p className={styles.easterSaleText}>
+                    End:{' '}
+                    <span className={styles.easterSaleText}>
+                        <Countdown date={new Date('2024-04-02T00:00:00.000Z')} />
+                    </span>
+                </p>
+            </div>
             <div>
                 {defaultCountry ? (
                     <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
@@ -132,6 +143,7 @@ function Payment(props: Props) {
                         stripeProductId="s_cc_1800"
                         lemonsqueezyProductId="l_cc_1800"
                         countryCode={selectedCountry ? selectedCountry.value : undefined}
+                        discount={0.8}
                     />
                     <PurchaseElement
                         coflCoinsToBuy={5400}
@@ -149,6 +161,7 @@ function Payment(props: Props) {
                         stripeProductId="s_cc_5400"
                         lemonsqueezyProductId="l_cc_5400"
                         countryCode={selectedCountry ? selectedCountry.value : undefined}
+                        discount={0.8}
                     />
                     {!showAll ? (
                         <Button
@@ -178,6 +191,7 @@ function Payment(props: Props) {
                                 stripeProductId="s_cc_10800"
                                 lemonsqueezyProductId="l_cc_10800"
                                 countryCode={selectedCountry ? selectedCountry.value : undefined}
+                                discount={0.8}
                             />
                             <PurchaseElement
                                 coflCoinsToBuy={21600}
@@ -195,6 +209,7 @@ function Payment(props: Props) {
                                 stripeProductId="s_cc_21600"
                                 lemonsqueezyProductId="l_cc_21600"
                                 countryCode={selectedCountry ? selectedCountry.value : undefined}
+                                discount={0.8}
                             />
                             {coflCoins % 1800 != 0 ? (
                                 <PurchaseElement
@@ -214,6 +229,7 @@ function Payment(props: Props) {
                                     stripeProductId="s_cc_1800"
                                     lemonsqueezyProductId="l_cc_1800"
                                     countryCode={selectedCountry ? selectedCountry.value : undefined}
+                                    discount={0.8}
                                 />
                             ) : null}
                         </>

@@ -48,3 +48,32 @@
 .paymentLabel {
     width: 50%;
 }
+
+.easterSale {
+    font-size: larger;
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+.easterSaleHighlight {
+    color: #FF4500;
+    font-weight: bold;
+    background-clip: text;
+	-webkit-background-clip: text;
+	color: transparent;
+	background-image: url('/easter.png');
+    font-size: xx-large;
+}
+
+.easterSaleText {
+    margin: 10px 0;
+}
+
+.coflCoinsText {
+    text-align: center;
+	font-size: 80px;
+	font-weight: 700;
+
+}
