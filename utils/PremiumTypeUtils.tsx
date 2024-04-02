@@ -18,7 +18,6 @@ export const PREMIUM_TYPES: PremiumType[] = [
         durationString: '',
         priority: PREMIUM_RANK.PREMIUM_PLUS,
         options: [
-            { value: 1, label: '100 days (Easter Special)', productId: 'premium_plus-100', price: 21600 },
             { value: 1, label: '1 week', productId: 'premium_plus', price: 1800 },
             { value: 1, label: '1 hour', productId: 'premium_plus-hour', price: 200 },
             { value: 1, label: '1 day', productId: 'premium_plus-day', price: 600 }
