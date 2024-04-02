@@ -431,7 +431,7 @@ function AuctionDetails(props: Props) {
                     </span>
                     {auctionDetails?.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}
                 </p>
-                {auctionDetails && auctionDetails.itemCreatedAt && auctionDetails.itemCreatedAt.getTime() > 0 ? (
+                {auctionDetails?.itemCreatedAt?.getTime() > 0 ? (
                     <p>
                         <span className={styles.label}>
                             <Badge bg={labelBadgeVariant}>Item Created:</Badge>
