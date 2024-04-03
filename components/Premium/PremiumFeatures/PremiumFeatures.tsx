@@ -93,6 +93,49 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
+                        <td className={styles.featureColumn}>Filter auction histories</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>
+                            More mod commands
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Todo: Add tooltip help text</p>}
+                            />
+                        </td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>
+                            Replay flips{' '}
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Todo: Add tooltip help text</p>}
+                            />
+                        </td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
                         <td className={styles.featureColumn}>Support the Project</td>
                         {xIconElement}
                         {checkIconElement}
@@ -117,6 +160,13 @@ function PremiumFeatures() {
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Discord Role</td>
+                        {xIconElement}
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Longer flip history</td>
                         {xIconElement}
                         {xIconElement}
                         {checkIconElement}
