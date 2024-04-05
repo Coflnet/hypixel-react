@@ -31,7 +31,7 @@ function FlipRestrictionList(props: Props) {
     let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(props.prefillRestriction !== undefined)
     let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getInitialFlipRestrictions())
     let [restrictionInEditModeIndex, setRestrictionsInEditModeIndex] = useState<number[]>([])
-    let [showClearListDialog, setShowClearListDialog] = useState(false)
+    let [showDeleteRestrictionsDialog, setShowDeleteRestrictionsDialog] = useState(false)
     let [isRefreshingItemNames, setIsRefreshingItemNames] = useState(false)
     let [searchText, setSearchText] = useState('')
     let [sortByName, setSortByName] = useState(false)
@@ -237,15 +237,15 @@ function FlipRestrictionList(props: Props) {
     function clearRestrictions() {
         let newRestrictions = getRestrictionsFilteredBySearch(restrictions, true)
         setRestrictions(newRestrictions)
-        setShowClearListDialog(false)
+        setShowDeleteRestrictionsDialog(false)
 
         document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
 
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
 
         if (props.onRestrictionsChange) {
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
         }
     }
 
@@ -327,9 +327,9 @@ function FlipRestrictionList(props: Props) {
 
     let clearListDialog = (
         <Modal
-            show={showClearListDialog}
+            show={showDeleteRestrictionsDialog}
             onHide={() => {
-                setShowClearListDialog(false)
+                setShowDeleteRestrictionsDialog(false)
             }}
         >
             <Modal.Header closeButton>
@@ -347,7 +347,7 @@ function FlipRestrictionList(props: Props) {
                     <Button
                         style={{ width: '45%' }}
                         onClick={() => {
-                            setShowClearListDialog(false)
+                            setShowDeleteRestrictionsDialog(false)
                         }}
                     >
                         Cancel
@@ -431,10 +431,10 @@ function FlipRestrictionList(props: Props) {
                                 <Button
                                     variant="danger"
                                     onClick={() => {
-                                        setShowClearListDialog(true)
+                                        setShowDeleteRestrictionsDialog(true)
                                     }}
                                 >
-                                    <DeleteIcon /> Clear list
+                                    <DeleteIcon /> Delete restrictions
                                 </Button>
                             </span>
                         </span>
