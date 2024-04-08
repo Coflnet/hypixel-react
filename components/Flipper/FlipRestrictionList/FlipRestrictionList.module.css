@@ -48,23 +48,48 @@
     font-weight: bold;
 }
 
-.sortByNameCheckbox {
-    position: relative !important;
+.searchBarContainer{
+    display:  flex;
+    justify-content: space-between;
 }
 
 .sortByNameContainer {
-    display: inline-flex;
-    margin-left: 20px;
-    flex: 50%;
+    flex: 1;
+    display: flex;
+    justify-content: end;
 }
 
 .searchFilter {
-    margin-left: 20px;
-    flex: 50%;
+    flex: 1;
+}
+
+
+.refreshAndDeleteButtonContainer{
+    display: flex;
+    gap: 5px;
 }
 
 @media all and (max-width: 1024px) {
     .restriction {
         width: 100%;
+    }
+
+    .searchBarContainer{
+        flex-wrap: wrap;
+        row-gap: 10px;
+    }
+    .sortByNameContainer {
+        flex: auto;
+        justify-content: start;
+    }
+    
+    .searchFilter {
+        flex: auto;
+    }
+    
+    
+
+    .refreshAndDeleteButtonContainer{
+        flex-wrap: wrap;
     }
 }

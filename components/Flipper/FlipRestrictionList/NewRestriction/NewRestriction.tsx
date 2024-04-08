@@ -178,7 +178,7 @@ function NewRestriction(props: Props) {
                     Cancel
                 </Button>
                 <div />
-                <div style={{ display: 'flex', justifyContent: 'end' }}>
+                <div className={styles.copyButtonContainer}>
                     <CopyButton
                         copyValue={true ? window.location.href.split('?')[0] + '?prefillRestriction=' + JSON.stringify(createState) : ''}
                         successMessage={<span>Copied Restriction Link</span>}

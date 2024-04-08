@@ -12,3 +12,14 @@
 .multiSearch {
     flex: 1;
 }
+
+.copyButtonContainer{
+    display: flex;
+    justify-content: end;
+}
+
+@media all and (max-width: 1024px) {
+    .copyButtonContainer{
+        justify-content: initial;
+    }
+}

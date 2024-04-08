@@ -357,6 +357,8 @@ function FlipRestrictionList(props: Props) {
         </Modal>
     )
 
+    let windowWidth = isSSR ? 1920 : window.innerWidth
+
     let addIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle" viewBox="0 0 16 16">
             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
@@ -414,33 +416,26 @@ function FlipRestrictionList(props: Props) {
                             prefillRestriction={props.prefillRestriction}
                         />
                     ) : (
-                        <span>
-                            <span style={{ cursor: 'pointer' }} onClick={() => setIsNewFlipperExtended(true)}>
+                        <div className={styles.refreshAndDeleteButtonContainer}>
+                            <div style={{ cursor: 'pointer', marginBottom: '5px', flex: 1 }} onClick={() => setIsNewFlipperExtended(true)}>
                                 {addIcon}
                                 <span> Add new restriction</span>
-                            </span>
-                            <span style={{ float: 'right' }}>
-                                <Button
-                                    variant="info"
-                                    style={{ marginRight: '10px', padding: '5px' }}
-                                    onClick={refreshItemNames}
-                                    disabled={isRefreshingItemNames}
-                                >
-                                    <Refresh /> Refresh item names
-                                </Button>
-                                <Button
-                                    variant="danger"
-                                    onClick={() => {
-                                        setShowDeleteRestrictionsDialog(true)
-                                    }}
-                                >
-                                    <DeleteIcon /> Delete restrictions
-                                </Button>
-                            </span>
-                        </span>
+                            </div>
+                            <Button variant="info" style={{ marginRight: '10px' }} onClick={refreshItemNames} disabled={isRefreshingItemNames}>
+                                <Refresh /> Refresh item names
+                            </Button>
+                            <Button
+                                variant="danger"
+                                onClick={() => {
+                                    setShowDeleteRestrictionsDialog(true)
+                                }}
+                            >
+                                <DeleteIcon /> Delete restrictions
+                            </Button>
+                        </div>
                     )}
                     <hr />
-                    <div style={{ display: 'flex' }}>
+                    <div className={styles.searchBarContainer}>
                         <Form.Control
                             ref={searchFieldRef}
                             className={styles.searchFilter}
@@ -453,7 +448,7 @@ function FlipRestrictionList(props: Props) {
                             </Form.Label>
                             <Form.Check
                                 id="sortByNameCheckbox"
-                                className={styles.sortByNameCheckbox}
+                                inline
                                 onChange={e => {
                                     setSortByName(e.target.checked)
                                     onEditRestrictionCancel()
@@ -476,10 +471,10 @@ function FlipRestrictionList(props: Props) {
                                         }
                                         return r.itemKey
                                     }}
-                                    columnCount={2}
-                                    columnWidth={() => width / 2}
+                                    columnCount={windowWidth < 1024 ? 1 : 2}
+                                    columnWidth={() => (windowWidth < 1024 ? width : width / 2)}
                                     height={height}
-                                    rowCount={Math.ceil(restrictionsToDisplay.length / 2)}
+                                    rowCount={windowWidth < 1024 ? restrictionsToDisplay.length : Math.ceil(restrictionsToDisplay.length / 2)}
                                     rowHeight={index => {
                                         function getCellHeight(index) {
                                             let defaultHeight = 81.5

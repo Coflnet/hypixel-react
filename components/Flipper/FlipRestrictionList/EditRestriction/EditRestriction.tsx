@@ -60,7 +60,7 @@ function EditRestriction(props: Props) {
                     setUpdateState({ ...updateState, tags: tags })
                 }}
             />
-            <span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                 <Tooltip
                     type="hover"
                     content={
@@ -99,7 +99,7 @@ function EditRestriction(props: Props) {
                 <Button variant="danger" onClick={props.onCancel} style={{ marginLeft: '20px' }}>
                     Cancel
                 </Button>
-            </span>
+            </div>
         </div>
     )
 }
