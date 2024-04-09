@@ -3,7 +3,7 @@ import NavBar from '../../components/NavBar/NavBar'
 import AuthMod from '../../components/AuthMod/AuthMod'
 import { Container } from 'react-bootstrap'
 import { initAPI } from '../../api/ApiHelper'
-import Bazaar from '../../components/Bazaar/Bazaar'
+import Bazaar from '../../components/BazaarSpreadFlipList/BazaarSpreadFlipList'
 
 export default async function Page() {
     let api = initAPI(true)
