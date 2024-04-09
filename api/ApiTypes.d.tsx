@@ -10,6 +10,7 @@ export enum RequestType {
     ALL_ENCHANTMENTS = 'getEnchantments',
     TRACK_SEARCH = 'trackSearch',
     PLAYER_NAME = 'playerName',
+    PLAYER_NAMES = 'playerNames',
     SET_CONNECTION_ID = 'setConId',
     GET_VERSION = 'version',
     SUBSCRIBE = 'subscribe',
@@ -80,7 +81,15 @@ export enum RequestType {
     DELETE_TRADE_OFFER = 'deleteTradeOffer',
     GET_TRADES = 'getTrades',
     GET_TRANSACTIONS = 'getTransactions',
-    GET_BAZAAR_SPREAD_FLIPS = 'getBazaarSpreadFlips'
+    GET_BAZAAR_SPREAD_FLIPS = 'getBazaarSpreadFlips',
+    GET_NOTIFICATION_TARGETS = 'getNotificationTargets',
+    ADD_NOTIFICATION_TARGETS = 'addNotificationTargets',
+    DELETE_NOTIFICATION_TARGETS = 'deleteNotificationTargets',
+    UPDATE_NOTIFICATION_TARGET = 'updateNotificationTarget',
+    SEND_TEST_NOTIFICATION = 'sendTestNotification',
+    GET_NOTIFICATION_SUBSCRIPTION = 'getNotificationSubscription',
+    ADD_NOTIFICATION_SUBSCRIPTION = 'addNotificationSubscription',
+    DELETE_NOTIFICATION_SUBSCRIPTION = 'deleteNotificationSubscription'
 }
 
 export enum SubscriptionType {
@@ -115,7 +124,8 @@ export interface ApiSubscription {
     onError(message: string)
 }
 
-export interface Subscription {
+export interface NotificationListener {
+    id: number | undefined
     topicId: string
     price: number
     types: SubscriptionType[]

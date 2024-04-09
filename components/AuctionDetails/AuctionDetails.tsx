@@ -431,12 +431,14 @@ function AuctionDetails(props: Props) {
                     </span>
                     {auctionDetails?.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}
                 </p>
-                <p>
-                    <span className={styles.label}>
-                        <Badge bg={labelBadgeVariant}>Item Created:</Badge>
-                    </span>
-                    {auctionDetails?.itemCreatedAt.toLocaleDateString() + ' ' + auctionDetails.itemCreatedAt.toLocaleTimeString()}
-                </p>
+                {auctionDetails?.itemCreatedAt?.getTime() > 0 ? (
+                    <p>
+                        <span className={styles.label}>
+                            <Badge bg={labelBadgeVariant}>Item Created:</Badge>
+                        </span>
+                        {auctionDetails?.itemCreatedAt.toLocaleDateString() + ' ' + auctionDetails.itemCreatedAt.toLocaleTimeString()}
+                    </p>
+                ) : null}
 
                 <div style={{ overflow: 'auto' }}>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? styles.labelForList : styles.label}>

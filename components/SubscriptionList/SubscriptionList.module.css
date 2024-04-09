@@ -9,3 +9,8 @@
     margin-bottom: 15px;
     border-radius: 10px;
 }
+
+.multiSearch :global(.rbt-token){
+    background-color: #444;
+    color: white;
+}

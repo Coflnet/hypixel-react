@@ -1,14 +1,14 @@
 'use client'
-import { useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Menu, MenuItem, Typeahead } from 'react-bootstrap-typeahead'
-import { isClientSideRendering } from '../../utils/SSRUtils'
 import { Form, InputGroup } from 'react-bootstrap'
-import { Country, getCountries, getCountryFromUserLanguage } from '../../utils/CountryUtils'
+import { Country, getCountries } from '../../utils/CountryUtils'
 import { default as TypeaheadType } from 'react-bootstrap-typeahead/types/core/Typeahead'
 
 interface Props {
-    onCountryChange(country: Country)
+    onCountryChange?(country: Country)
     defaultCountry?: Country
+    isLoading?: boolean
 }
 
 export default function CountrySelect(props: Props) {
@@ -34,12 +34,17 @@ export default function CountrySelect(props: Props) {
             <Typeahead
                 id="countryTypeahead"
                 style={{ width: 'auto' }}
+                disabled={props.isLoading}
+                placeholder={props.isLoading ? 'Loading...' : 'Select your country'}
                 ref={ref}
                 defaultSelected={selectedCountry ? [selectedCountry] : []}
+                isLoading={props.isLoading}
                 onChange={e => {
                     if (e[0]) {
                         setSelectedCountryCode(e[0])
-                        props.onCountryChange(e[0] as Country)
+                        if (props.onCountryChange) {
+                            props.onCountryChange(e[0] as Country)
+                        }
                     }
                 }}
                 labelKey={option => {

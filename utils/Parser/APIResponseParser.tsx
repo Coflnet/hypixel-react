@@ -1,5 +1,5 @@
 import api from '../../api/ApiHelper'
-import { Subscription, SubscriptionType } from '../../api/ApiTypes.d'
+import { NotificationListener, SubscriptionType } from '../../api/ApiTypes.d'
 import { hasFlag } from '../../components/FilterElement/FilterType'
 import { getFlipFinders } from '../FlipUtils'
 import { convertTagToName } from '../Formatter'
@@ -155,7 +155,8 @@ export function parseSearchResultItem(item: any): SearchResultItem {
 export function parsePlayer(player: any): Player {
     if (typeof player === 'string') {
         player = {
-            uuid: player
+            uuid: player,
+            name: player
         }
     }
     return {
@@ -233,8 +234,9 @@ function _getTypeFromSubTypes(subTypes: SubscriptionType[]): 'item' | 'player' |
     return type
 }
 
-export function parseSubscription(subscription: any): Subscription {
+export function parseSubscription(subscription: any): NotificationListener {
     return {
+        id: subscription.id,
         price: subscription.price,
         topicId: subscription.topicId,
         types: parseSubscriptionTypes(subscription.type),
@@ -652,5 +654,16 @@ export function parseTransaction(transaction): Transaction {
         reference: transaction.reference,
         amount: transaction.amount,
         timeStamp: parseDate(transaction.timeStamp)
+    }
+}
+
+export function parseOwnerHistory(ownerHistory): OwnerHistory {
+    return {
+        buyer: parsePlayer(ownerHistory.buyer),
+        seller: parsePlayer(ownerHistory.seller),
+        highestBid: ownerHistory.highestBid,
+        itemTag: ownerHistory.itemTag,
+        uuid: ownerHistory.uuid,
+        timestamp: parseDate(ownerHistory.timestamp)
     }
 }

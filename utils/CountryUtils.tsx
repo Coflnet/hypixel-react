@@ -22,11 +22,11 @@ export function getCountry(countryCode?: string) {
 
 export function getCountryFromUserLanguage(): Country | undefined {
     if (!isClientSideRendering()) {
-        return
+        return undefined
     }
     let language = navigator.language
     if (!language) {
-        return
+        language = 'en-US'
     }
     if (language.includes('-')) {
         language = language.split('-')[1]

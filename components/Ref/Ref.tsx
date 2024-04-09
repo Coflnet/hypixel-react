@@ -85,7 +85,7 @@ function Ref() {
                                 The invited person gets <b>2 days of premium</b> to test our services
                             </li>
                             <li>
-                                The first time a invited person buys CoflCoins, you get <b>25%</b> of the purchased amount
+                                The first time an invited person buys CoflCoins, you get <b>25%</b> of the purchased amount
                             </li>
                         </ul>
                         <p>

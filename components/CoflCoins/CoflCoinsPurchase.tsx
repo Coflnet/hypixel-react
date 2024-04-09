@@ -35,8 +35,15 @@ function Payment(props: Props) {
             setSelectedCountry(getCountry(cachedCountryCode))
             return
         }
-        let response = await fetch('https://api.country.is')
-        if (response.ok) {
+
+        let response: Response | null = null
+        try {
+            response = await fetch('https://api.country.is')
+        } catch {
+            console.error('Failed to fetch country from api.country.is')
+        }
+
+        if (response && response.ok) {
             let result = await response.json()
             let country = getCountry(result.country) || getCountryFromUserLanguage()
             setDefaultCountry(country)
@@ -102,15 +109,20 @@ function Payment(props: Props) {
     return (
         <div>
             <div>
-                {defaultCountry ? <CountrySelect defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} /> : null}
+                {defaultCountry ? (
+                    <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
+                ) : (
+                    <CountrySelect key="loading-country-select" isLoading />
+                )}
+
                 <div className={styles.productGrid}>
                     <PurchaseElement
                         coflCoinsToBuy={1800}
                         loadingProductId={loadingId}
                         redirectLink={currentRedirectLink}
-                        paypalPrice={6.99}
-                        stripePrice={6.69}
-                        lemonsqueezyPrice={6.99}
+                        paypalPrice={8.69}
+                        stripePrice={8.42}
+                        lemonsqueezyPrice={8.69}
                         disabledTooltip={disabledTooltip}
                         isDisabled={isDisabled}
                         onPayPalPay={onPayPaypal}
@@ -189,9 +201,9 @@ function Payment(props: Props) {
                                     coflCoinsToBuy={1800 + (1800 - (coflCoins % 1800))}
                                     loadingProductId={loadingId}
                                     redirectLink={currentRedirectLink}
-                                    paypalPrice={(6.99 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
-                                    stripePrice={(6.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
-                                    lemonsqueezyPrice={(6.99 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
+                                    paypalPrice={(8.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
+                                    stripePrice={(8.42 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
+                                    lemonsqueezyPrice={(8.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
                                     disabledTooltip={disabledTooltip}
                                     isDisabled={isDisabled}
                                     onPayPalPay={onPayPaypal}

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { FormControl, InputGroup } from 'react-bootstrap'
 import { Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
-import { Subscription, SubscriptionType } from '../../../api/ApiTypes.d'
+import { NotificationListener, SubscriptionType } from '../../../api/ApiTypes.d'
 import ItemFilter from '../../ItemFilter/ItemFilter'
 import styles from './SubscribeItemContent.module.css'
 
@@ -13,7 +13,7 @@ interface Props {
     onOnlyInstantBuyChange(value: boolean)
     onFilterChange(filter: ItemFilter)
     itemTag: string
-    prefill?: Subscription
+    prefill?: NotificationListener
     onIsFilterValidChange?(newIsFilter: boolean)
 }
 

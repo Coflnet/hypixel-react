@@ -24,6 +24,7 @@ import {
     parseLowSupplyItem,
     parseMayorData,
     parseMinecraftConnectionInfo,
+    parseOwnerHistory,
     parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
@@ -50,7 +51,7 @@ import {
     storeUsedTagsInLocalStorage
 } from '../utils/SettingsUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
-import { HttpApi, RequestType, SubscriptionType, CUSTOM_EVENTS, Subscription } from './ApiTypes.d'
+import { HttpApi, RequestType, SubscriptionType, CUSTOM_EVENTS, NotificationListener } from './ApiTypes.d'
 import { initHttpHelper } from './HttpHelper'
 import { websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
@@ -411,6 +412,38 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getPlayerNames = (uuids: string[]): Promise<{ [key: string]: string }> => {
+        // Reduce amount of API calls during test runs
+        if (properties.isTestRunner) {
+            let result = {}
+            uuids.forEach(uuid => {
+                result[uuid] = 'TestRunnerUser'
+            })
+            return Promise.resolve(result)
+        }
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.PLAYER_NAMES,
+                    customRequestURL: `${getApiEndpoint()}/player/names`,
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: '',
+                    resolve: names => {
+                        resolve(names)
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.PLAYER_NAMES, error, '')
+                        reject(error)
+                    }
+                },
+                JSON.stringify(uuids)
+            )
+        })
+    }
+
     let connectionId = null
 
     let setConnectionId = (): Promise<void> => {
@@ -447,10 +480,17 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let subscribe = (topic: string, types: SubscriptionType[], price?: number, filter?: ItemFilter): Promise<void> => {
+    let subscribe = (topic: string, types: SubscriptionType[], targets: NotificationTarget[], price?: number, filter?: ItemFilter): Promise<void> => {
         return new Promise((resolve, reject) => {
-            // Add none, so reduce works (doesnt change the result)
-            types.push(SubscriptionType.NONE)
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to create a notification listeners')
+                reject()
+                return
+            }
+
+            let typesToSend: SubscriptionType[] = [...types]
+            typesToSend.push(SubscriptionType.NONE)
 
             if (filter) {
                 filter._hide = undefined
@@ -458,72 +498,134 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             }
 
             let requestData = {
-                topic: topic,
+                topicId: topic,
                 price: price || undefined,
-                type: types.reduce((a, b) => {
+                type: typesToSend.reduce((a, b) => {
                     let aNum: number = typeof a === 'number' ? (a as number) : parseInt(SubscriptionType[a])
                     let bNum: number = typeof b === 'number' ? (b as number) : parseInt(SubscriptionType[b])
                     return aNum + bNum
                 }),
                 filter: filter ? JSON.stringify(filter) : undefined
             }
-            websocketHelper.sendRequest({
-                type: RequestType.SUBSCRIBE,
-                data: requestData,
-                resolve: () => {
-                    resolve()
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.SUBSCRIBE,
+                    customRequestURL: `${getApiEndpoint()}/notifications/listeners`,
+                    data: '',
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: (listener: NotificationListener) => {
+                        createNotificationSubscription({
+                            id: undefined,
+                            sourceSubIdRegex: listener.id?.toString() || '',
+                            sourceType: 'Subscription',
+                            targets: targets.map(t => {
+                                return {
+                                    id: t.id || 0,
+                                    name: t.name || '',
+                                    isDisabled: false,
+                                    priority: 0
+                                }
+                            })
+                        })
+                            .then(() => {
+                                resolve()
+                            })
+                            .catch(e => {
+                                apiErrorHandler(RequestType.SUBSCRIBE, e)
+                                reject(e)
+                            })
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.SUBSCRIBE, error)
+                        reject(error)
+                    }
                 },
-                reject: error => {
-                    reject(error)
-                }
-            })
+                JSON.stringify(requestData)
+            )
         })
     }
 
-    let unsubscribe = (subscription: Subscription): Promise<Number> => {
+    let unsubscribe = (subscription: NotificationListener): Promise<void> => {
         return new Promise((resolve, reject) => {
-            // Add none, so reduce works (doesnt change the result)
-            subscription.types.push(SubscriptionType.NONE)
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to delete notification listeners')
+                reject()
+                return
+            }
+
+            let typesToSend: SubscriptionType[] = [...subscription.types]
+            typesToSend.push(SubscriptionType.NONE)
+
+            let filterToSend = { ...subscription.filter }
+
+            if (subscription.filter) {
+                filterToSend._hide = undefined
+                filterToSend._sellerName = undefined
+            }
 
             let requestData = {
-                topic: subscription.topicId,
-                price: subscription.price,
-                type: subscription.types.reduce((a, b) => {
+                id: subscription.id,
+                topicId: subscription.topicId,
+                price: subscription.price || undefined,
+                type: typesToSend.reduce((a, b) => {
                     let aNum: number = typeof a === 'number' ? (a as number) : parseInt(SubscriptionType[a])
                     let bNum: number = typeof b === 'number' ? (b as number) : parseInt(SubscriptionType[b])
                     return aNum + bNum
                 }),
-                filter: subscription.filter ? JSON.stringify(subscription.filter) : undefined
+                filter: filterToSend ? JSON.stringify(filterToSend) : undefined
             }
 
-            websocketHelper.sendRequest({
-                type: RequestType.UNSUBSCRIBE,
-                data: requestData,
-                resolve: (response: any) => {
-                    resolve(parseInt(response))
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.UNSUBSCRIBE,
+                    customRequestURL: `${getApiEndpoint()}/notifications/listeners`,
+                    data: '',
+                    requestMethod: 'DELETE',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.UNSUBSCRIBE, error)
+                        reject(error)
+                    }
                 },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.UNSUBSCRIBE, error, '')
-                    reject(error)
-                }
-            })
+                JSON.stringify(requestData)
+            )
         })
     }
 
-    let getSubscriptions = (): Promise<Subscription[]> => {
+    let getNotificationListener = (): Promise<NotificationListener[]> => {
         return new Promise((resolve, reject) => {
-            websocketHelper.sendRequest({
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to get notification listeners')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
                 type: RequestType.GET_SUBSCRIPTIONS,
+                customRequestURL: `${getApiEndpoint()}/notifications/listeners`,
                 data: '',
-                resolve: (response: any[]) => {
-                    resolve(
-                        response.map(s => {
-                            return parseSubscription(s)
-                        })
-                    )
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: data => {
+                    resolve(data ? data.map(parseSubscription) : [])
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error, '')
+                    apiErrorHandler(RequestType.GET_SUBSCRIPTIONS, error)
                     reject(error)
                 }
             })
@@ -1886,7 +1988,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 customRequestURL: `${getApiEndpoint()}/auctions/uid/${uid}/sold`,
                 data: '',
                 resolve: data => {
-                    resolve(data)
+                    resolve(data.map(parseOwnerHistory))
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.OWNER_HISOTRY, error, uid)
@@ -2087,9 +2189,257 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_BAZAAR_SPREAD_FLIPS, error)
+                }
+            })
+        })
+    }
+
+    let getNotificationTargets = (): Promise<NotificationTarget[]> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to load notification targets')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_NOTIFICATION_TARGETS,
+                customRequestURL: `${getApiEndpoint()}/notifications/targets`,
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: data => {
+                    resolve(data ? data : [])
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_NOTIFICATION_TARGETS, error)
                     reject(error)
                 }
             })
+        })
+    }
+
+    let addNotificationTarget = (target: NotificationTarget): Promise<NotificationTarget> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to add a notification targets')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.ADD_NOTIFICATION_TARGETS,
+                    customRequestURL: `${getApiEndpoint()}/notifications/targets`,
+                    requestMethod: 'POST',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: data => {
+                        resolve(data ? data : [])
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.ADD_NOTIFICATION_TARGETS, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(target)
+            )
+        })
+    }
+
+    let deleteNotificationTarget = (target: NotificationTarget): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to delete a notification targets')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.ADD_NOTIFICATION_TARGETS,
+                    customRequestURL: `${getApiEndpoint()}/notifications/targets`,
+                    requestMethod: 'DELETE',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: data => {
+                        resolve(data ? data : [])
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.ADD_NOTIFICATION_TARGETS, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(target)
+            )
+        })
+    }
+
+    let updateNotificationTarget = (target: NotificationTarget): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to update a notification targets')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.UPDATE_NOTIFICATION_TARGET,
+                    customRequestURL: `${getApiEndpoint()}/notifications/targets`,
+                    requestMethod: 'PUT',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: data => {
+                        resolve(data ? data : [])
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.ADD_NOTIFICATION_TARGETS, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(target)
+            )
+        })
+    }
+
+    let sendTestNotification = (target: NotificationTarget): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to send a test notification')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.SEND_TEST_NOTIFICATION,
+                    customRequestURL: `${getApiEndpoint()}/notifications/targets/test`,
+                    data: '',
+                    requestMethod: 'POST',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.SEND_TEST_NOTIFICATION, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(target)
+            )
+        })
+    }
+
+    let getNotificationSubscriptions = (): Promise<NotificationSubscription[]> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to load notification subscriptions')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_NOTIFICATION_SUBSCRIPTION,
+                customRequestURL: `${getApiEndpoint()}/notifications/subscriptions`,
+                requestMethod: 'GET',
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: data => {
+                    resolve(data ? data : [])
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_NOTIFICATION_SUBSCRIPTION, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let createNotificationSubscription = (subscription: NotificationSubscription): Promise<NotificationSubscription> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to create a notification subscription')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.ADD_NOTIFICATION_SUBSCRIPTION,
+                    customRequestURL: `${getApiEndpoint()}/notifications/subscriptions`,
+                    requestMethod: 'POST',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: data => {
+                        resolve(data)
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.ADD_NOTIFICATION_SUBSCRIPTION, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(subscription)
+            )
+        })
+    }
+
+    let deleteNotificationSubscription = (subscription: NotificationSubscription): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to delete a notification subscription')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.DELETE_NOTIFICATION_SUBSCRIPTION,
+                    customRequestURL: `${getApiEndpoint()}/notifications/subscriptions`,
+                    requestMethod: 'DELETE',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.DELETE_NOTIFICATION_SUBSCRIPTION, error)
+                        reject(error)
+                    }
+                },
+                JSON.stringify(subscription)
+            )
         })
     }
 
@@ -2104,11 +2454,12 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getAuctionDetails,
         getItemImageUrl,
         getPlayerName,
+        getPlayerNames,
         setConnectionId,
         getVersion,
         subscribe,
         unsubscribe,
-        getSubscriptions,
+        getNotificationListener,
         loginWithToken,
         stripePurchase,
         setToken,
@@ -2172,7 +2523,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getTradeOffers,
         deleteTradeOffer,
         getTransactions,
-        getBazaarSpreadFlips
+        getBazaarSpreadFlips,
+        getNotificationTargets,
+        addNotificationTarget,
+        deleteNotificationTarget,
+        updateNotificationTarget,
+        sendTestNotification,
+        createNotificationSubscription,
+        deleteNotificationSubscription,
+        getNotificationSubscriptions
     }
 }
 
