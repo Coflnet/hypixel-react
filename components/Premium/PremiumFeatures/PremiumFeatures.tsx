@@ -101,7 +101,7 @@ function PremiumFeatures() {
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>
-                            More mod commands
+                            Look at `buyspeed` and `most profit` leaderboard
                             <Tooltip
                                 content={
                                     <span style={{ marginLeft: '5px' }}>
@@ -109,12 +109,12 @@ function PremiumFeatures() {
                                     </span>
                                 }
                                 type="hover"
-                                tooltipContent={<p>Todo: Add tooltip help text</p>}
+                                tooltipContent={<p>This is currently available in our mod via the command /cl leaderbaord and /cl buyspeedboard</p>}
                             />
                         </td>
                         {xIconElement}
-                        {checkIconElement}
-                        {checkIconElement}
+                        {xIconElement}
+                        {xIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
