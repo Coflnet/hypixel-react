@@ -127,12 +127,12 @@ function PremiumFeatures() {
                                     </span>
                                 }
                                 type="hover"
-                                tooltipContent={<p>Todo: Add tooltip help text</p>}
+                                tooltipContent={<p>Replay all active auctions against your flip filter to find flips that were created while you were offline</p>}
                             />
                         </td>
                         {xIconElement}
-                        {checkIconElement}
-                        {checkIconElement}
+                        {xIconElement}
+                        {xIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
