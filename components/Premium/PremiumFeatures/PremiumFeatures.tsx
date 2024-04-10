@@ -5,6 +5,7 @@ import { Table } from 'react-bootstrap'
 import { Number } from '../../Number/Number'
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumFeatures.module.css'
+import Image from 'next/image'
 
 function PremiumFeatures() {
     let checkIconElement = (
@@ -66,6 +67,29 @@ function PremiumFeatures() {
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Display Active Auctions</td>
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>
+                            Price estimations in game
+                            <Tooltip
+                                id={styles.tooltipHoverId}
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={
+                                    <div className={styles.ingamePriceHoverImage}>
+                                        <Image fill src="/price-estimation-ingame.png" alt="Price Estimation Tooltip" />
+                                    </div>
+                                }
+                            />
+                        </td>
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}
