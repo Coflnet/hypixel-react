@@ -26,19 +26,3 @@
 .premiumProductColumn {
     text-align: center;
 }
-
-#tooltipHoverId :global(.tooltip-inner){
-    max-width: 100%;
-}
-
-.ingamePriceHoverImage {
-    width: 610px;
-    height: 324px;
-}
-
-@media all and (max-width: 992px) {
-    .ingamePriceHoverImage {
-        width: 305px;
-        height: 162px;
-    }
-}
