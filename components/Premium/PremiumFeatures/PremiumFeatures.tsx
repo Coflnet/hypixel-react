@@ -166,7 +166,7 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Longer flip history</td>
+                        <td className={styles.featureColumn}>Longer flip-tracking history</td>
                         {xIconElement}
                         {xIconElement}
                         {checkIconElement}
