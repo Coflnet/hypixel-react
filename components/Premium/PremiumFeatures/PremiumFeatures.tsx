@@ -93,7 +93,7 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Filter auction histories</td>
+                        <td className={styles.featureColumn}>Filter player auctions</td>
                         {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
