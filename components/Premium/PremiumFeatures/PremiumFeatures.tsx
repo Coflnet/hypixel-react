@@ -5,6 +5,7 @@ import { Table } from 'react-bootstrap'
 import { Number } from '../../Number/Number'
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumFeatures.module.css'
+import Image from 'next/image'
 
 function PremiumFeatures() {
     let checkIconElement = (
@@ -72,6 +73,29 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
+                        <td className={styles.featureColumn}>
+                            Price estimations in game
+                            <Tooltip
+                                id={styles.tooltipHoverId}
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={
+                                    <div className={styles.ingamePriceHoverImage}>
+                                        <Image fill src="/price-estimation-ingame.png" alt="Price Estimation Tooltip" />
+                                    </div>
+                                }
+                            />
+                        </td>
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
                         <td className={styles.featureColumn}>Top 3 Kat Flips</td>
                         {xIconElement}
                         {checkIconElement}
@@ -90,6 +114,49 @@ function PremiumFeatures() {
                         {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Filter player auctions</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>
+                            Look at `buyspeed` and `most profit` leaderboard
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>This is currently available in our mod via the command /cl leaderbaord and /cl buyspeedboard</p>}
+                            />
+                        </td>
+                        {xIconElement}
+                        {xIconElement}
+                        {xIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>
+                            Replay flips{' '}
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Replay all active auctions against your flip filter to find flips that were created while you were offline</p>}
+                            />
+                        </td>
+                        {xIconElement}
+                        {xIconElement}
+                        {xIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
@@ -117,6 +184,13 @@ function PremiumFeatures() {
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Discord Role</td>
+                        {xIconElement}
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Longer flip-tracking history</td>
                         {xIconElement}
                         {xIconElement}
                         {checkIconElement}
