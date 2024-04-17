@@ -4,6 +4,7 @@ import { Badge } from 'react-bootstrap'
 import { Number } from '../../Number/Number'
 import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import styles from './CraftDetails.module.css'
+import { IngredientList } from '../IngredientList/IngredientList'
 
 interface Props {
     craft: ProfitableCraft
@@ -28,31 +29,12 @@ export function CraftDetails(props: Props) {
             </div>
             <hr />
             <h3 style={{ marginBottom: '20px' }}>Ingredient Costs</h3>
-            {props.craft.ingredients.map(ingredient => {
-                return (
-                    <div
-                        key={ingredient.item.tag}
-                        className={styles.ingredientsWrapper}
-                        onClick={() => {
-                            onItemClick(ingredient.item.tag)
-                        }}
-                    >
-                        <Image
-                            crossOrigin="anonymous"
-                            src={ingredient.item.iconUrl || ''}
-                            height="24"
-                            width="24"
-                            alt=""
-                            style={{ marginRight: '5px' }}
-                            loading="lazy"
-                        />
-                        {ingredient.item.name + ' (' + ingredient.count + 'x)'}
-                        <Badge style={{ marginLeft: '5px' }} bg="secondary">
-                            <Number number={Math.round(ingredient.cost)} /> Coins
-                        </Badge>
-                    </div>
-                )
-            })}
+            <IngredientList
+                ingredients={props.craft.ingredients}
+                onItemClick={ingredient => {
+                    onItemClick(ingredient.item.tag)
+                }}
+            />
         </div>
     )
 }

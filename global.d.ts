@@ -387,6 +387,8 @@ interface CraftingIngredient {
     item: Item
     count: number
     cost: number
+    type?: 'craft'
+    ingredients?: CraftingIngredient[]
 }
 
 interface CraftRequirement {

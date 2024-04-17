@@ -11,7 +11,7 @@ import { Number } from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
-import { parseProfitableCraft } from '../../utils/Parser/APIResponseParser'
+import { parseProfitableCrafts } from '../../utils/Parser/APIResponseParser'
 
 interface Props {
     crafts?: any[]
@@ -66,7 +66,7 @@ const SORT_OPTIONS: SortOption[] = [
 let observer: MutationObserver
 
 export function CraftsList(props: Props) {
-    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts ? props.crafts.map(parseProfitableCraft) : [])
+    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts ? parseProfitableCrafts(props.crafts) : [])
     let [nameFilter, setNameFilter] = useState<string | null>()
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
@@ -361,9 +361,7 @@ export function CraftsList(props: Props) {
                             </option>
                         ))}
                     </Form.Select>
-                ) : (
-                    ''
-                )}
+                ) : null}
             </div>
             <hr />
             <p>Click on a craft for further details</p>

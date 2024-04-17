@@ -355,47 +355,59 @@ export function parseDate(dateString: string) {
     return new Date(dateString + 'Z')
 }
 
-export function parseCraftIngredient(ingredient): CraftingIngredient {
-    return {
-        cost: ingredient.cost,
-        count: ingredient.count,
-        item: {
-            tag: ingredient.itemId
-        }
-    }
-}
+export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
+    let parseCraftIngredient = (ingredient: any): CraftingIngredient => {
+        let result = {
+            cost: ingredient.cost,
+            count: ingredient.count,
+            type: ingredient.type,
+            item: {
+                tag: ingredient.itemId
+            }
+        } as CraftingIngredient
 
-export function parseProfitableCraft(craft): ProfitableCraft {
-    let c = {
-        item: {
-            tag: craft.itemId,
-            name: craft.itemName
-        },
-        craftCost: craft.craftCost,
-        sellPrice: craft.sellPrice,
-        ingredients: craft.ingredients.map(parseCraftIngredient),
-        median: craft.median,
-        volume: craft.volume,
-        requiredCollection: craft.reqCollection
-            ? {
-                  name: craft.reqCollection.name,
-                  level: craft.reqCollection.level
-              }
-            : null,
-        requiredSlayer: craft.reqSlayer
-            ? {
-                  name: craft.reqSlayer.name,
-                  level: craft.reqSlayer.level
-              }
-            : null
-    } as ProfitableCraft
-    c.ingredients.forEach(i => {
-        i.item.name = convertTagToName(i.item.tag)
-        i.item.iconUrl = api.getItemImageUrl(i.item)
+        result.item.name = convertTagToName(result.item.tag)
+        result.item.iconUrl = api.getItemImageUrl(result.item)
+        if (result.type === 'craft') {
+            let toCraft = crafts.find(craft => craft.itemId === result.item.tag)
+            if (!toCraft) {
+                console.log(`craft not found for ${JSON.stringify(result)}`)
+                return result
+            }
+            result.ingredients = toCraft.ingredients.map(parseCraftIngredient)
+        }
+        return result
+    }
+
+    return crafts.map(craft => {
+        let c = {
+            item: {
+                tag: craft.itemId,
+                name: craft.itemName
+            },
+            craftCost: craft.craftCost,
+            sellPrice: craft.sellPrice,
+            ingredients: craft.ingredients.map(parseCraftIngredient),
+            median: craft.median,
+            volume: craft.volume,
+            requiredCollection: craft.reqCollection
+                ? {
+                      name: craft.reqCollection.name,
+                      level: craft.reqCollection.level
+                  }
+                : null,
+            requiredSlayer: craft.reqSlayer
+                ? {
+                      name: craft.reqSlayer.name,
+                      level: craft.reqSlayer.level
+                  }
+                : null
+        } as ProfitableCraft
+        c.item.name = convertTagToName(c.item.name)
+        c.item.iconUrl = api.getItemImageUrl(c.item)
+
+        return c
     })
-    c.item.name = convertTagToName(c.item.name)
-    c.item.iconUrl = api.getItemImageUrl(c.item)
-    return c
 }
 
 export function parseLowSupplyItem(item): LowSupplyItem {

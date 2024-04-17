@@ -30,7 +30,7 @@ import {
     parsePopularSearch,
     parsePremiumProducts,
     parsePrivacySettings,
-    parseProfitableCraft,
+    parseProfitableCrafts,
     parseRecentAuction,
     parseRefInfo,
     parseSearchResultItem,
@@ -1503,7 +1503,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     playerId && profileId ? getApiEndpoint() + '/' + RequestType.GET_PROFITABLE_CRAFTS + `?profile=${profileId}&player=${playerId}` : undefined,
                 data: '',
                 resolve: function (crafts) {
-                    returnSSRResponse ? resolve(crafts) : resolve(crafts.map(parseProfitableCraft))
+                    returnSSRResponse ? resolve(crafts) : resolve(parseProfitableCrafts(crafts))
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_PROFITABLE_CRAFTS, error, '')
