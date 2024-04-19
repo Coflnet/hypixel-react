@@ -133,7 +133,8 @@ function BazaarPriceGraph(props: Props) {
             setChartData(prices, mayorData)
             setIsLoading(false)
             setNoDataFound(prices.length === 0)
-        } catch {
+        } catch (e) {
+            console.error(e)
             setIsLoading(false)
             setNoDataFound(true)
             setAvgBuyPrice(0)

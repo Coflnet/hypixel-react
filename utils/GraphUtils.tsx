@@ -36,7 +36,7 @@ export function applyMayorDataToChart(chartOptions, mayorData: MayorData[], seri
         data: mayorDataCopy.map((data, i) => {
             return [
                 {
-                    name: data.winner.name,
+                    name: data.winner?.name || '',
                     valueDim: 'x',
                     x: `${10 + data.startPercentage * 0.8}%`,
                     y: 'min',
