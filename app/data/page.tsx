@@ -60,7 +60,7 @@ export default function Page() {
                                 </a>
                             </li>
 
-                            <li>You use the API as well? Tell use and get listed here :)</li>
+                            <li>You use the API as well? Tell us and get listed here :)</li>
                         </ul>
                     </CardBody>
                 </Card>
