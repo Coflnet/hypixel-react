@@ -13,6 +13,7 @@ export function NumericalFilterElement(props: Props) {
     function _onChange(values: NumberFormatValues) {
         props.onChange(values.value || '')
     }
+    
 
     return (
         <NumericFormat
@@ -28,7 +29,7 @@ export function NumericalFilterElement(props: Props) {
                 }
                 let options = props.options?.options
                 if (options.length === 2 && !isNaN(+options[0]) && !isNaN(+options[1])) {
-                    return value.floatValue > +options[0] && value.floatValue < +options[1]
+                    return value.floatValue >= +options[0] && value.floatValue <= +options[1]
                 }
                 return true
             }}
