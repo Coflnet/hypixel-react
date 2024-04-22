@@ -7,7 +7,7 @@ import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/For
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'

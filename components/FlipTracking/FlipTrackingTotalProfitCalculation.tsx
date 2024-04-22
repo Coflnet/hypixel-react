@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Form } from 'react-bootstrap'
 import Tooltip from '../Tooltip/Tooltip'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 import SettingsIcon from '@mui/icons-material/Settings'
 
 interface Props {
@@ -16,7 +16,7 @@ enum TotalProfitType {
 }
 
 export function FlipTrackingTotalProfitCalculation(props: Props) {
-    let [totalProfitCalculationType, setTotalProfitCalculationType] = useState(TotalProfitType.ALL)
+    let [totalProfitCalculationType, setTotalProfitCalculationType] = useState(TotalProfitType.ALL)                
     let totalProfit = 0
     props.flips.forEach(flip => {
         if (props.ignoreProfitMap[flip.uId.toString(16)]) {

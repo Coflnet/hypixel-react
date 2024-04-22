@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import { Badge } from 'react-bootstrap'
-import { Number } from '../../Number/Number'
+import Number from '../../Number/Number'
 import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import styles from './CraftDetails.module.css'
 import { IngredientList } from '../IngredientList/IngredientList'

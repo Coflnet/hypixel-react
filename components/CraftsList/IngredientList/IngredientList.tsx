@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { Number } from '../../Number/Number'
+import Number from '../../Number/Number'
 import { Badge, Container } from 'react-bootstrap'
 import styles from './IngredientList.module.css'
 

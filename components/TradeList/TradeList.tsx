@@ -9,7 +9,7 @@ import ItemFilter from '../ItemFilter/ItemFilter'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 
 interface Props {
     currentUserUUID?: string

@@ -13,7 +13,7 @@ import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '
 import { CopyButton } from '../CopyButton/CopyButton'
 import styles from './ActiveAuctions.module.css'
 import Image from 'next/image'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 
 interface Props {
     item: Item

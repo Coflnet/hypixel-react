@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import { v4 as generateUUID } from 'uuid'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 import styles from './TransferCoflCoinsSummary.module.css'
 
 interface Props {

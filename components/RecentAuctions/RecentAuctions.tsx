@@ -11,7 +11,7 @@ import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 import styles from './RecentAuctions.module.css'
 
 interface Props {

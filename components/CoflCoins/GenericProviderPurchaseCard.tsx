@@ -2,7 +2,7 @@ import { Button } from 'react-bootstrap'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './CoflCoinsPurchase.module.css'
 import HelpIcon from '@mui/icons-material/Help'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 
 interface Props {
     type: 'PayPal' | 'Stripe' | 'LemonSqueezy'

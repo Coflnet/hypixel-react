@@ -7,7 +7,7 @@ import styles from './OwnerHistory.module.css'
 import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'
 import moment from 'moment'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 
 interface Props {
     uid: string

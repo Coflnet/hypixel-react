@@ -1,7 +1,7 @@
 'use client'
 import { Button, Modal } from 'react-bootstrap'
 import styles from './BuyPremium.module.css'
-import { Number } from '../../Number/Number'
+import Number from '../../Number/Number'
 import { getPremiumType } from '../../../utils/PremiumTypeUtils'
 import { useState } from 'react'
 import { GoogleLogin } from '@react-oauth/google'

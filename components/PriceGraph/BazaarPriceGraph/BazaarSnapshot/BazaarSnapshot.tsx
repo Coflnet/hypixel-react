@@ -6,7 +6,7 @@ import { Table } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../../api/ApiTypes.d'
 import { useDebounce } from '../../../../utils/Hooks'
-import { Number } from '../../../Number/Number'
+import Number from '../../../Number/Number'
 import styles from './BazaarSnapshot.module.css'
 
 interface Props {
