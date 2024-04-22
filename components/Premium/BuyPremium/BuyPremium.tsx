@@ -7,7 +7,7 @@ import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { useCoflCoins } from '../../../utils/Hooks'
 import { getPremiumType, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
-import { Number } from '../../Number/Number'
+import Number from '../../Number/Number'
 import styles from './BuyPremium.module.css'
 import BuyPremiumConfirmationDialog from './BuyPremiumConfirmationDialog'
 

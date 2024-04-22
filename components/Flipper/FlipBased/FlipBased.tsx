@@ -7,7 +7,7 @@ import { Badge, Card, Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { useForceUpdate } from '../../../utils/Hooks'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
-import { Number } from '../../Number/Number'
+import Number from '../../Number/Number'
 import styles from './FlipBased.module.css'
 
 interface Props {

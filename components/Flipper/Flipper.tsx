@@ -22,7 +22,7 @@ import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, handleSettingsImport
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import Flip from './Flip/Flip'
 import FlipBased from './FlipBased/FlipBased'

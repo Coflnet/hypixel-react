@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { useCoflCoins } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 import styles from './CoflCoinsDisplay.module.css'
 
 export function CoflCoinsDisplay() {

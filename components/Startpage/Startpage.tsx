@@ -14,7 +14,7 @@ import Badge from 'react-bootstrap/Badge'
 import { FixedSizeList as List } from 'react-window'
 import api from '../../api/ApiHelper'
 import { getMinecraftColorCodedElement } from '../../utils/Formatter'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 import styles from './Startpage.module.css'
 import { StartpageLargeElementSkeleton } from './StartpageLargeElementSkeleton'
 

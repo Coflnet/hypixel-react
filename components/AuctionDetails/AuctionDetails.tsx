@@ -24,7 +24,7 @@ import styles from './AuctionDetails.module.css'
 import { Help as HelpIcon, ArrowDropDown as ArrowDownIcon, ArrowRight as ArrowRightIcon } from '@mui/icons-material'
 import { FilterChecker } from '../FilterChecker/FilterChecker'
 import Image from 'next/image'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import ItemHistory from '../OwnerHistory/OwnerHistory'
 
@@ -44,6 +44,8 @@ function AuctionDetails(props: Props) {
     let [showFilterChecker, setShowFilterChecker] = useState(false)
     let [showItemHistoryDialog, setShowItemHistoryDialog] = useState(false)
     let forceUpdate = useForceUpdate()
+
+    console.log(props)
 
     useEffect(() => {
         // Dont load auction details if

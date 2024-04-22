@@ -1,7 +1,7 @@
 'use client'
 import { Card } from 'react-bootstrap'
 import styles from './CoflCoinsPurchase.module.css'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 import GenericProviderPurchaseCard from './GenericProviderPurchaseCard'
 
 interface Props {

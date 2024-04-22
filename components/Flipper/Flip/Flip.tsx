@@ -10,7 +10,7 @@ import { getFlipCustomizeSettings, getFlipFinders } from '../../../utils/FlipUti
 import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
 import { CopyButton } from '../../CopyButton/CopyButton'
-import { Number } from '../../Number/Number'
+import Number from '../../Number/Number'
 import styles from './Flip.module.css'
 import { writeToClipboard } from '../../../utils/ClipboardUtils'
 

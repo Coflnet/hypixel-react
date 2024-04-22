@@ -3,15 +3,17 @@ import React, { useEffect, useState } from 'react'
 import { numberWithThousandsSeparators } from '../../utils/Formatter'
 
 interface Props {
-    number: number
+    number: number | string
 }
 
-export function Number(props: Props) {
+export default function NumberElement(props: Props) {
     let [isSSR, setIsSSR] = useState(true)
+
+    let value = Number(props.number)
 
     useEffect(() => {
         setIsSSR(false)
     }, [])
 
-    return <>{isSSR ? numberWithThousandsSeparators(props.number, ',', '.') : numberWithThousandsSeparators(props.number)}</>
+    return <>{isSSR ? numberWithThousandsSeparators(value, ',', '.') : numberWithThousandsSeparators(value)}</>
 }

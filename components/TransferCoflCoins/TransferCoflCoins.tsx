@@ -4,7 +4,7 @@ import { Button, Form } from 'react-bootstrap'
 import { NumericFormat } from 'react-number-format'
 import { useCoflCoins } from '../../utils/Hooks'
 import { PlayerFilterElement } from '../FilterElement/FilterElements/PlayerFilterElement'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 import TransferCoflCoinsSummary from './TransferCoflCoinsSummary'
 
 interface Props {

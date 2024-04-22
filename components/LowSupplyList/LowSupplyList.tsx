@@ -8,7 +8,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { NumericFormat } from 'react-number-format'
 import styles from './LowSupplyList.module.css'
 import Image from 'next/image'
-import { Number } from '../Number/Number'
+import Number from '../Number/Number'
 
 let mounted = true
 
