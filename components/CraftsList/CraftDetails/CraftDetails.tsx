@@ -12,7 +12,7 @@ interface Props {
 
 export function CraftDetails(props: Props) {
     function onItemClick(tag: string) {
-        window.open(window.location.origin + '/item/' + tag + '?itemFilter=eyJCaW4iOiJ0cnVlIn0%3D&range=active', '_blank')
+        window.open(window.location.origin + '/item/' + tag + '?itemFilter=eyJCaW4iOiJ0cnVlIn0%3D', '_blank')
     }
     return (
         <div>
