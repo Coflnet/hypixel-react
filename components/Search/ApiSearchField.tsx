@@ -16,10 +16,12 @@ interface Props {
     defaultValue?: string
     searchFunction?(searchText: string): Promise<SearchResultItem[]>
     selected?: SearchResultItem[]
+    defaultSelected?: SearchResultItem[]
     className?: string
+    multiple: boolean
 }
 
-export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
+export default forwardRef((props: Props, ref: Ref<Typeahead>) => {
     let [uuid] = useState(generateUUID())
     let [results, setResults] = useState<SearchResultItem[]>([])
     let [isLoading, setIsLoading] = useState(false)
@@ -72,6 +74,7 @@ export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
                     </>
                 )
             }}
+            defaultSelected={props.defaultSelected}
             minLength={1}
             onSearch={handleSearch}
             defaultInputValue={props.defaultValue}
@@ -80,7 +83,7 @@ export let MultiSearch = forwardRef((props: Props, ref: Ref<Typeahead>) => {
             placeholder={props.placeholder || 'Search item...'}
             onChange={_onChange}
             ref={ref}
-            multiple={true}
+            multiple={props.multiple}
         />
     )
 })

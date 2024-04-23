@@ -5,7 +5,7 @@ import api from '../../../../api/ApiHelper'
 import ItemFilter from '../../../ItemFilter/ItemFilter'
 import TagSelect from '../TagSelect/TagSelect'
 import styles from './NewRestriction.module.css'
-import { MultiSearch } from '../../../Search/MultiSearch'
+import ApiSearchField from '../../../Search/ApiSearchField'
 import { CopyButton } from '../../../CopyButton/CopyButton'
 
 interface Props {
@@ -107,7 +107,8 @@ function NewRestriction(props: Props) {
                 </ToggleButton>
             </ToggleButtonGroup>
             <div className={styles.newRestrictionSearchbarContainer}>
-                <MultiSearch
+                <ApiSearchField
+                    multiple
                     className={styles.multiSearch}
                     onChange={items => {
                         setCreateState({

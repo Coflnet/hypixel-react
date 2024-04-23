@@ -21,6 +21,7 @@ import Image from 'next/image'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeGrid as Grid } from 'react-window'
 import { v4 as generateUUID } from 'uuid'
+import ApiSearchField from '../../Search/ApiSearchField'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist'): void
@@ -538,36 +539,59 @@ function FlipRestrictionList(props: Props) {
                                                                 {restriction.type.toUpperCase()}
                                                             </Badge>
                                                         )}
-                                                        {restriction.item ? (
-                                                            <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}>
-                                                                <Image
-                                                                    crossOrigin="anonymous"
-                                                                    src={restriction.item?.iconUrl || ''}
-                                                                    height="24"
-                                                                    width="24"
-                                                                    alt=""
-                                                                    style={{ marginRight: '5px' }}
-                                                                    loading="lazy"
+                                                        <div style={{ width: '-webkit-fill-available', float: 'left' }}>
+                                                            {restriction.isEdited ? (
+                                                                <ApiSearchField
+                                                                    multiple={false}
+                                                                    className={styles.multiSearch}
+                                                                    onChange={items => {
+                                                                        console.log(items)
+                                                                        let newItem: Item | undefined =
+                                                                            items && items.length > 0
+                                                                                ? {
+                                                                                      tag: items[0].id,
+                                                                                      name: items[0].dataItem.name,
+                                                                                      iconUrl: items[0].dataItem.iconUrl
+                                                                                  }
+                                                                                : undefined
+                                                                        let newRestrictions = [...restrictions]
+                                                                        newRestrictions[restriction.originalIndex!].item = newItem
+                                                                        setRestrictions(newRestrictions)
+                                                                        recalculateListHeight()
+                                                                    }}
+                                                                    searchFunction={api.itemSearch}
+                                                                    defaultSelected={
+                                                                        restriction.item
+                                                                            ? [
+                                                                                  {
+                                                                                      dataItem: {
+                                                                                          iconUrl: restriction.item.iconUrl || '',
+                                                                                          name: restriction.item.name || '-'
+                                                                                      },
+                                                                                      id: restriction.item.tag || '',
+                                                                                      label: restriction.item.name || '-'
+                                                                                  } as unknown as SearchResultItem
+                                                                              ]
+                                                                            : undefined
+                                                                    }
                                                                 />
-                                                                <span style={getStyleForTier(restriction.item?.tier)}>{restriction.item?.name}</span>
-                                                                {restriction.isEdited ? (
-                                                                    <Tooltip
-                                                                        type="hover"
-                                                                        content={
-                                                                            <RemoveIcon
-                                                                                style={{ cursor: 'pointer' }}
-                                                                                onClick={() => {
-                                                                                    removeItemOfRestriction(restrictions, restriction.originalIndex!)
-                                                                                }}
-                                                                            />
-                                                                        }
-                                                                        tooltipContent={<p>Remove item</p>}
-                                                                    />
-                                                                ) : null}
-                                                            </div>
-                                                        ) : (
-                                                            <div className="ellipse" style={{ width: '-webkit-fill-available', float: 'left' }}></div>
-                                                        )}
+                                                            ) : (
+                                                                restriction.item && (
+                                                                    <>
+                                                                        <Image
+                                                                            crossOrigin="anonymous"
+                                                                            src={restriction.item?.iconUrl || ''}
+                                                                            height="24"
+                                                                            width="24"
+                                                                            alt=""
+                                                                            style={{ marginRight: '5px' }}
+                                                                            loading="lazy"
+                                                                        />
+                                                                        <span style={getStyleForTier(restriction.item?.tier)}>{restriction.item?.name}</span>
+                                                                    </>
+                                                                )
+                                                            )}
+                                                        </div>
                                                         <div style={{ display: 'flex' }}>
                                                             {restriction.isEdited ? (
                                                                 <div

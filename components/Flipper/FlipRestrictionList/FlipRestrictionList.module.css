@@ -69,6 +69,10 @@
     gap: 5px;
 }
 
+.restriction {
+    max-height: 100%;
+}
+
 @media all and (max-width: 1024px) {
     .restriction {
         width: 100%;
