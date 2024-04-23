@@ -266,7 +266,11 @@ export function FlipTracking(props: Props) {
                             selected={rangeEndDate}
                         />
                     </div>
-                ) : null}
+                ) : (
+                    <span style={{ float: 'right', fontSize: 'small' }}>
+                        Only auctions sold in the last 7 days are displayed here. <br /> You can see more with <Link href={'/premium'}>Premium</Link>
+                    </span>
+                )}
             </div>
             {isLoading ? (
                 getLoadingElement()
