@@ -545,7 +545,6 @@ function FlipRestrictionList(props: Props) {
                                                                     multiple={false}
                                                                     className={styles.multiSearch}
                                                                     onChange={items => {
-                                                                        console.log(items)
                                                                         let newItem: Item | undefined =
                                                                             items && items.length > 0
                                                                                 ? {
