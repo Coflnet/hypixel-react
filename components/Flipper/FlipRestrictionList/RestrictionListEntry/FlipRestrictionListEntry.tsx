@@ -80,6 +80,7 @@ function FlipRestrictionListEntry(props: Props) {
                                 multiple={false}
                                 className={styles.multiSearch}
                                 onChange={(items, text) => {
+                                    // If the user only deletes part of the text, we don't want to remove the item (and therefore rerender the entry)
                                     if (items.length === 0 && text != '') return
 
                                     let newItem: Item | undefined =
