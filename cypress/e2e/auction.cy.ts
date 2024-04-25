@@ -14,7 +14,7 @@ describe('Auction page', () => {
         cy.contains('span', 'Captured Player:').should('be.visible')
         cy.contains('4819c569b116').should('be.visible')
         cy.contains('p', 'Soul Durability:11').parent('div').should('be.visible')
-        cy.contains('§7Whitelisted§7').should('be.visible')
+        cy.contains('Whitelisted').should('be.visible')
         cy.contains('h6', 'Starting bid: 10 Coins').should('be.visible')
         cy.get('.list-group>a').first().click()
         cy.location('pathname').should('eq', '/player/0ae0f0282ee846fea7b1606a9fdf5128')
