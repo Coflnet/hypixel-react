@@ -216,6 +216,8 @@ function AuctionDetails(props: Props) {
                                     height: '16px',
                                     backgroundColor: `#${hexSplits.join('')}`,
                                     borderRadius: '50%',
+                                    borderColor: 'black',
+                                    border: 'solid black 1px',
                                     marginLeft: '4px'
                                 }}
                             ></span>
@@ -237,6 +239,11 @@ function AuctionDetails(props: Props) {
             }
             return <Link href={'/item/' + value}>{convertTagToName(value)}</Link>
         }
+
+        if (value?.toString().includes('§')) {
+            return getMinecraftColorCodedElement(value)
+        }
+
         return value.toString()
     }
 
