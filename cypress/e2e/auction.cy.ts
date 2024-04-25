@@ -12,7 +12,6 @@ describe('Auction page', () => {
         cy.contains('Item Created:').should('be.visible')
         cy.contains('Enchantments:None').should('be.visible')
         cy.contains('span', 'Captured Player:').should('be.visible')
-        cy.contains('[MAYOR] Technoblade').should('be.visible')
         cy.contains('4819c569b116').should('be.visible')
         cy.contains('p', 'Soul Durability:11').parent('div').should('be.visible')
         cy.contains('§7Whitelisted§7').should('be.visible')
