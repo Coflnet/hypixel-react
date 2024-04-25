@@ -5,12 +5,10 @@ import { getStyleForTier } from '../../../../utils/Formatter'
 import Tooltip from '../../../Tooltip/Tooltip'
 import SaveIcon from '@mui/icons-material/Save'
 import ItemFilterPropertiesDisplay from '../../../ItemFilter/ItemFilterPropertiesDisplay'
-import { memo, useEffect, useState } from 'react'
 import api from '../../../../api/ApiHelper'
 import EditIcon from '@mui/icons-material/Edit'
 import DuplicateIcon from '@mui/icons-material/ControlPointDuplicate'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { areEqual } from 'react-window'
 
 interface Props {
     restriction: FlipRestriction
@@ -24,7 +22,7 @@ interface Props {
     style: React.CSSProperties
 }
 
-function FlipRestrictionListEntry(props: Props) {
+export default function FlipRestrictionListEntry(props: Props) {
     return (
         <div className={styles.restrictionContainer} style={props.style}>
             <Card className={`${styles.restriction} ${props.restriction.isEdited ? styles.restrictionMarkedAsEdit : ''}`}>
@@ -192,5 +190,3 @@ function FlipRestrictionListEntry(props: Props) {
         </div>
     )
 }
-
-export default memo(FlipRestrictionListEntry, areEqual)
