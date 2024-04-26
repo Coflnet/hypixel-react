@@ -1,0 +1,40 @@
+.restrictionContainer {
+    padding-right: 24px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.restrictionMarkedAsEdit {
+    border-width: 3px;
+    border-color: cornflowerblue;
+}
+
+.label {
+    width: 300px;
+    float: left;
+    font-weight: bold;
+}
+
+.removeFilter {
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.cancelEditButton {
+    cursor: pointer;
+}
+
+.editButton {
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.restriction {
+    max-height: 100%;
+}
+
+@media all and (max-width: 1024px) {
+    .restriction {
+        width: 100%;
+    }
+}

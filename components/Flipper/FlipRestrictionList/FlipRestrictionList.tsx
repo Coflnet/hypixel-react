@@ -1,27 +1,20 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { Badge, Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
+import { Button, Form, Modal } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
-import { camelCaseToSentenceCase, getStyleForTier } from '../../../utils/Formatter'
+import { camelCaseToSentenceCase } from '../../../utils/Formatter'
 import { getCleanRestrictionsForApi, getSettingsObject, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../../utils/SettingsUtils'
 import Refresh from '@mui/icons-material/Refresh'
 import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
-import DuplicateIcon from '@mui/icons-material/ControlPointDuplicate'
-import SaveIcon from '@mui/icons-material/Save'
-import RemoveIcon from '@mui/icons-material/Remove'
-import ItemFilterPropertiesDisplay from '../../ItemFilter/ItemFilterPropertiesDisplay'
 import styles from './FlipRestrictionList.module.css'
 import EditRestriction, { UpdateState } from './EditRestriction/EditRestriction'
 import NewRestriction, { RestrictionCreateState } from './NewRestriction/NewRestriction'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import Tooltip from '../../Tooltip/Tooltip'
 import { toast } from 'react-toastify'
-import Image from 'next/image'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeGrid as Grid } from 'react-window'
 import { v4 as generateUUID } from 'uuid'
-import ApiSearchField from '../../Search/ApiSearchField'
+import FlipRestrictionListEntry from './RestrictionListEntry/FlipRestrictionListEntry'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist'): void
@@ -31,7 +24,7 @@ interface Props {
 function FlipRestrictionList(props: Props) {
     let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(props.prefillRestriction !== undefined)
     let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getInitialFlipRestrictions())
-    let [restrictionInEditModeIndex, setRestrictionsInEditModeIndex] = useState<number[]>([])
+    let [restrictionInEditMode, setRestrictionsInEditMode] = useState<FlipRestriction[]>([])
     let [showDeleteRestrictionsDialog, setShowDeleteRestrictionsDialog] = useState(false)
     let [isRefreshingItemNames, setIsRefreshingItemNames] = useState(false)
     let [searchText, setSearchText] = useState('')
@@ -110,17 +103,17 @@ function FlipRestrictionList(props: Props) {
 
     function onEditRestrictionCancel() {
         let newRestrictions = [...restrictions]
-        restrictionInEditModeIndex.forEach(index => {
-            newRestrictions[index].isEdited = false
+        restrictionInEditMode.forEach(restriction => {
+            newRestrictions[restriction.originalIndex!].isEdited = false
         })
         setRestrictions(newRestrictions)
-        setRestrictionsInEditModeIndex([])
+        setRestrictionsInEditMode([])
     }
 
     function addEditedFilter(updateState: UpdateState) {
         let newRestrictions = [...restrictions]
-        restrictionInEditModeIndex.forEach(index => {
-            let toUpdate = newRestrictions[index]
+        restrictionInEditMode.forEach(restriction => {
+            let toUpdate = newRestrictions[restriction.originalIndex!]
             Object.keys(updateState.itemFilter || {}).forEach(key => {
                 if (toUpdate.itemFilter && updateState.itemFilter && toUpdate.itemFilter[key] === undefined) {
                     toUpdate.itemFilter[key] = updateState.itemFilter[key]
@@ -138,7 +131,7 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
         }
 
-        setRestrictionsInEditModeIndex([])
+        setRestrictionsInEditMode([])
         setRestrictions(newRestrictions)
         toast.success('Restriction updated')
         recalculateListHeight()
@@ -146,7 +139,8 @@ function FlipRestrictionList(props: Props) {
 
     function overrideEditedFilter(updateState: UpdateState) {
         let newRestrictions = [...restrictions]
-        restrictionInEditModeIndex.forEach(index => {
+        restrictionInEditMode.forEach(restriction => {
+            let index = restriction.originalIndex!
             newRestrictions[index].itemFilter = { ...updateState.itemFilter }
             newRestrictions[index].tags = updateState.tags
             newRestrictions[index].isEdited = false
@@ -157,7 +151,7 @@ function FlipRestrictionList(props: Props) {
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
             props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
         }
-        setRestrictionsInEditModeIndex([])
+        setRestrictionsInEditMode([])
         setRestrictions(newRestrictions)
         toast.success('Restriction(s) updated')
         recalculateListHeight()
@@ -193,27 +187,21 @@ function FlipRestrictionList(props: Props) {
         recalculateListHeight()
     }
 
-    function removeItemOfRestriction(restrictions: FlipRestriction[], index: number) {
+    function saveRestrictionEdit(newRestriction: FlipRestriction) {
         let newRestrictions = [...restrictions]
-        newRestrictions[index].item = undefined
+        let newIndexArray = [...restrictionInEditMode]
+
+        newRestrictions[newRestriction.originalIndex!] = { ...newRestriction }
+        newRestrictions[newRestriction.originalIndex!].isEdited = false
+
+        newIndexArray.filter(r => r.itemKey !== newRestriction.itemKey)
+
+        setRestrictionsInEditMode(newIndexArray)
         setRestrictions(newRestrictions)
-        recalculateListHeight()
-    }
-
-    function saveRestrictionEdit(restrictions: FlipRestriction[], index: number) {
-        let newRestrictions = [...restrictions]
-        let newIndexArray = [...restrictionInEditModeIndex]
-
-        newRestrictions[index].isEdited = false
-        let i = newIndexArray.indexOf(index)
-        newIndexArray.splice(i, 1)
-
-        setRestrictionsInEditModeIndex(newIndexArray)
-        setRestrictions(newRestrictions)
-        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(restrictions)))
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
         if (props.onRestrictionsChange) {
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'blacklist')
-            props.onRestrictionsChange(getCleanRestrictionsForApi(restrictions), 'whitelist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
         }
         recalculateListHeight()
     }
@@ -221,18 +209,18 @@ function FlipRestrictionList(props: Props) {
     function editRestriction(restrictions: FlipRestriction[], index: number) {
         let newRestrictions = [...restrictions]
         let restrictionToEdit = newRestrictions[index]
-        let newRestrictionsInEditMode = [...restrictionInEditModeIndex]
+        let newRestrictionsInEditMode = [...restrictionInEditMode]
 
-        newRestrictionsInEditMode.push(index)
+        newRestrictionsInEditMode.push(restrictionToEdit)
 
         let restrictionsInEditMode: FlipRestriction[] = []
-        newRestrictionsInEditMode.forEach(index => {
-            restrictionsInEditMode.push(restrictions[index])
+        newRestrictionsInEditMode.forEach(r => {
+            restrictionsInEditMode.push(r)
         })
 
         restrictionToEdit.isEdited = true
         setRestrictions(newRestrictions)
-        setRestrictionsInEditModeIndex(newRestrictionsInEditMode)
+        setRestrictionsInEditMode(newRestrictionsInEditMode)
     }
 
     function clearRestrictions() {
@@ -403,9 +391,9 @@ function FlipRestrictionList(props: Props) {
                         top: 0
                     }}
                 >
-                    {restrictionInEditModeIndex.length > 0 ? (
+                    {restrictionInEditMode.length > 0 ? (
                         <EditRestriction
-                            defaultRestriction={restrictions[restrictionInEditModeIndex[0]]}
+                            defaultRestriction={restrictions[restrictionInEditMode[0].originalIndex!]}
                             onAdd={addEditedFilter}
                             onOverride={overrideEditedFilter}
                             onCancel={onEditRestrictionCancel}
@@ -501,165 +489,38 @@ function FlipRestrictionList(props: Props) {
                                         if (!restriction) {
                                             return null
                                         }
+                                        if (restriction.isEdited) {
+                                            restriction = restrictionInEditMode.find(r => r.itemKey === restriction.itemKey) || restriction
+                                        }
                                         return (
-                                            <div className={styles.restrictionContainer} style={style}>
-                                                <Card className={`${styles.restriction} ${restriction.isEdited ? styles.restrictionMarkedAsEdit : ''}`}>
-                                                    <Card.Header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                                                        {restriction.isEdited ? (
-                                                            <ToggleButtonGroup
-                                                                style={{ maxWidth: '200px', marginBottom: '5px' }}
-                                                                type="radio"
-                                                                name="options"
-                                                                value={restriction.type}
-                                                                onChange={newValue => {
-                                                                    let newRestrictions = [...restrictions]
-                                                                    newRestrictions[restriction.originalIndex!].type = newValue
-                                                                    setRestrictions(newRestrictions)
-                                                                }}
-                                                            >
-                                                                <ToggleButton
-                                                                    id={'blacklistToggleButton-' + restriction.originalIndex!}
-                                                                    value={'blacklist'}
-                                                                    variant={restriction.type === 'blacklist' ? 'primary' : 'secondary'}
-                                                                    size="sm"
-                                                                >
-                                                                    Blacklist
-                                                                </ToggleButton>
-                                                                <ToggleButton
-                                                                    id={'whitelistToggleButton-' + restriction.originalIndex!}
-                                                                    value={'whitelist'}
-                                                                    variant={restriction.type === 'whitelist' ? 'primary' : 'secondary'}
-                                                                    size="sm"
-                                                                >
-                                                                    Whitelist
-                                                                </ToggleButton>
-                                                            </ToggleButtonGroup>
-                                                        ) : (
-                                                            <Badge style={{ marginRight: '10px' }} bg={restriction.type === 'blacklist' ? 'danger' : 'success'}>
-                                                                {restriction.type.toUpperCase()}
-                                                            </Badge>
-                                                        )}
-                                                        <div style={{ width: '-webkit-fill-available', float: 'left' }}>
-                                                            {restriction.isEdited ? (
-                                                                <ApiSearchField
-                                                                    multiple={false}
-                                                                    className={styles.multiSearch}
-                                                                    onChange={items => {
-                                                                        let newItem: Item | undefined =
-                                                                            items && items.length > 0
-                                                                                ? {
-                                                                                      tag: items[0].id,
-                                                                                      name: items[0].dataItem.name,
-                                                                                      iconUrl: items[0].dataItem.iconUrl
-                                                                                  }
-                                                                                : undefined
-                                                                        let newRestrictions = [...restrictions]
-                                                                        newRestrictions[restriction.originalIndex!].item = newItem
-                                                                        setRestrictions(newRestrictions)
-                                                                        recalculateListHeight()
-                                                                    }}
-                                                                    searchFunction={api.itemSearch}
-                                                                    defaultSelected={
-                                                                        restriction.item
-                                                                            ? [
-                                                                                  {
-                                                                                      dataItem: {
-                                                                                          iconUrl: restriction.item.iconUrl || '',
-                                                                                          name: restriction.item.name || '-'
-                                                                                      },
-                                                                                      id: restriction.item.tag || '',
-                                                                                      label: restriction.item.name || '-'
-                                                                                  } as unknown as SearchResultItem
-                                                                              ]
-                                                                            : undefined
-                                                                    }
-                                                                />
-                                                            ) : (
-                                                                restriction.item && (
-                                                                    <>
-                                                                        <Image
-                                                                            crossOrigin="anonymous"
-                                                                            src={restriction.item?.iconUrl || ''}
-                                                                            height="24"
-                                                                            width="24"
-                                                                            alt=""
-                                                                            style={{ marginRight: '5px' }}
-                                                                            loading="lazy"
-                                                                        />
-                                                                        <span style={getStyleForTier(restriction.item?.tier)}>{restriction.item?.name}</span>
-                                                                    </>
-                                                                )
-                                                            )}
-                                                        </div>
-                                                        <div style={{ display: 'flex' }}>
-                                                            {restriction.isEdited ? (
-                                                                <div
-                                                                    className={styles.cancelEditButton}
-                                                                    onClick={() => {
-                                                                        saveRestrictionEdit(restrictions, restriction.originalIndex!)
-                                                                    }}
-                                                                >
-                                                                    <Tooltip type="hover" content={<SaveIcon />} tooltipContent={<p>Save</p>} />
-                                                                </div>
-                                                            ) : (
-                                                                <div
-                                                                    className={styles.editButton}
-                                                                    onClick={() => {
-                                                                        editRestriction(restrictions, restriction.originalIndex!)
-                                                                    }}
-                                                                >
-                                                                    <Tooltip type="hover" content={<EditIcon />} tooltipContent={<p>Edit restriction</p>} />
-                                                                </div>
-                                                            )}
-                                                            {restrictionInEditModeIndex.length === 0 ? (
-                                                                <>
-                                                                    <div
-                                                                        className={styles.removeFilter}
-                                                                        onClick={() => createDuplicate(restrictions, restriction.originalIndex!)}
-                                                                    >
-                                                                        <Tooltip
-                                                                            type="hover"
-                                                                            content={<DuplicateIcon />}
-                                                                            tooltipContent={<p>Create duplicate</p>}
-                                                                        />
-                                                                    </div>
-                                                                    <div
-                                                                        className={styles.removeFilter}
-                                                                        onClick={() => removeRestrictionByIndex(restrictions, restriction.originalIndex!)}
-                                                                    >
-                                                                        <Tooltip
-                                                                            type="hover"
-                                                                            content={<DeleteIcon color="error" />}
-                                                                            tooltipContent={<p>Remove restriction</p>}
-                                                                        />
-                                                                    </div>
-                                                                </>
-                                                            ) : null}
-                                                        </div>
-                                                    </Card.Header>
-                                                    <Card.Body>
-                                                        {restriction.itemFilter ? (
-                                                            <ItemFilterPropertiesDisplay
-                                                                filter={restriction.itemFilter}
-                                                                onAfterEdit={
-                                                                    restriction.isEdited
-                                                                        ? () => {
-                                                                              recalculateListHeight()
-                                                                          }
-                                                                        : undefined
-                                                                }
-                                                            />
-                                                        ) : null}
-                                                        <div className="ellipse">
-                                                            {restriction.tags?.map(tag => (
-                                                                <Badge key={tag} bg="dark" style={{ marginRight: '5px' }}>
-                                                                    {tag}
-                                                                </Badge>
-                                                            ))}
-                                                        </div>
-                                                    </Card.Body>
-                                                </Card>
-                                            </div>
+                                            <FlipRestrictionListEntry
+                                                key={restriction.itemKey}
+                                                restriction={restriction}
+                                                style={style}
+                                                onSaveClick={() => {
+                                                    saveRestrictionEdit(restriction)
+                                                }}
+                                                onEditClick={() => {
+                                                    editRestriction(restrictions, restriction.originalIndex!)
+                                                }}
+                                                isAnyRestrictionInEditMode={restrictionInEditMode.length > 0}
+                                                onDeleteClick={() => {
+                                                    removeRestrictionByIndex(restrictions, restriction.originalIndex!)
+                                                }}
+                                                onCreateDuplicateClick={() => {
+                                                    createDuplicate(restrictions, restriction.originalIndex!)
+                                                }}
+                                                onRemoveFilterClick={() => {
+                                                    recalculateListHeight()
+                                                }}
+                                                onRestrictionChange={newRestriction => {
+                                                    let newRestrictionsInEditMode = [...restrictionInEditMode]
+                                                    let index = newRestrictionsInEditMode.findIndex(r => r.itemKey === newRestriction.itemKey)
+                                                    newRestrictionsInEditMode[index] = { ...newRestriction }
+                                                    setRestrictionsInEditMode(newRestrictionsInEditMode)
+                                                    recalculateListHeight()
+                                                }}
+                                            />
                                         )
                                     }}
                                 </Grid>

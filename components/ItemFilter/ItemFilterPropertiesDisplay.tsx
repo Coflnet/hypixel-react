@@ -10,6 +10,7 @@ import { useForceUpdate } from '../../utils/Hooks'
 interface Props {
     filter?: ItemFilter
     onAfterEdit?(filter: ItemFilter)
+    isEditable?: boolean
 }
 
 const DATE_FORMAT_FILTER = ['EndBefore', 'EndAfter']
@@ -113,7 +114,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     return (
                         <p key={key}>
                             {camelCaseToSentenceCase(key)}: {display}
-                            {props.onAfterEdit ? (
+                            {props.isEditable ? (
                                 <span
                                     style={{ color: 'red', cursor: 'pointer' }}
                                     onClick={() => {

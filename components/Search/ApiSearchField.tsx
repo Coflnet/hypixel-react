@@ -1,5 +1,5 @@
 'use client'
-import { forwardRef, Ref, useState } from 'react'
+import { forwardRef, Ref, useRef, useState } from 'react'
 import { AsyncTypeahead } from 'react-bootstrap-typeahead'
 import { v4 as generateUUID } from 'uuid'
 import Typeahead from 'react-bootstrap-typeahead/types/core/Typeahead'
@@ -8,9 +8,10 @@ import { Option } from 'react-bootstrap-typeahead/types/types'
 import styles from './Search.module.css'
 import Image from 'next/image'
 import { getStyleForTier } from '../../utils/Formatter'
+import { Form } from 'react-bootstrap'
 
 interface Props {
-    onChange(selected: SearchResultItem[])
+    onChange(selected: SearchResultItem[], searchText?: string)
     disabled?: boolean
     placeholder?: string
     defaultValue?: string
@@ -21,13 +22,14 @@ interface Props {
     multiple: boolean
 }
 
-export default forwardRef((props: Props, ref: Ref<Typeahead>) => {
+export default (props: Props) => {
     let [uuid] = useState(generateUUID())
     let [results, setResults] = useState<SearchResultItem[]>([])
     let [isLoading, setIsLoading] = useState(false)
+    let ref = useRef<Typeahead>(null)
 
     function _onChange(selected: Option[]) {
-        props.onChange(selected as SearchResultItem[])
+        props.onChange(selected as SearchResultItem[], ref?.current?.getInput()?.value)
     }
 
     function handleSearch(query) {
@@ -56,6 +58,7 @@ export default forwardRef((props: Props, ref: Ref<Typeahead>) => {
             inputProps={{ className: styles.multiInputfield }}
             filterBy={() => true}
             isLoading={isLoading}
+            key={uuid}
             labelKey="label"
             renderMenuItemChildren={(option, { text }) => {
                 let o: any = option
@@ -86,4 +89,4 @@ export default forwardRef((props: Props, ref: Ref<Typeahead>) => {
             multiple={props.multiple}
         />
     )
-})
+}
