@@ -10,7 +10,7 @@ import { GoogleLogin } from '@react-oauth/google'
 import styles from './GoogleSignIn.module.css'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, setSetting } from '../../utils/SettingsUtils'
 import { atobUnicode } from '../../utils/Base64Utils'
-import { Card, Modal, ModalBody } from 'react-bootstrap'
+import { Modal } from 'react-bootstrap'
 
 interface Props {
     onAfterLogin?(): void
@@ -34,7 +34,10 @@ function GoogleSignIn(props: Props) {
     useEffect(() => {
         setIsSSR(false)
         if (wasAlreadyLoggedInThisSession) {
-            onLoginSucces(localStorage.getItem('googleId')!)
+            let token = localStorage.getItem('googleId')!
+            let userObject = JSON.parse(atobUnicode(token.split('.')[1]))
+            setSetting(GOOGLE_EMAIL, userObject.email)
+            onLoginSucces(token)
         } else {
             setTimeout(() => {
                 let isShown = false
