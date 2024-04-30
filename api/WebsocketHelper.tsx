@@ -22,6 +22,7 @@ function initWebsocket(): void {
     }
 
     let onWebsocketError = (e: Event): void => {
+        toast.error('An error occurred while trying to connect to the websocket. Please try again later.')
         console.error(e)
     }
 

@@ -91,10 +91,13 @@ function GoogleSignIn(props: Props) {
                     toast.error(`An error occoured while trying to sign in with Google. ${error ? error.slug || JSON.stringify(error) : null}`)
                 } else {
                     console.warn('setGoogle: Invalid token error', error)
+                    sessionStorage.removeItem('googleId')
+                    localStorage.removeItem('googleId')
                 }
                 setIsLoggedIn(false)
                 setWasAlreadyLoggedInThisSession(false)
                 sessionStorage.removeItem('googleId')
+                localStorage.removeItem('googleId')
             })
     }
 
