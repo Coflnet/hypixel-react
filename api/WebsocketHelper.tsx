@@ -28,7 +28,10 @@ function initWebsocket(): void {
 
     let onOpen = (e: Event, isReconnecting: boolean): void => {
         let _reconnect = function () {
-            apiSubscriptions.forEach(subscription => {
+            let toReconnect = [...apiSubscriptions]
+            apiSubscriptions = []
+
+            toReconnect.forEach(subscription => {
                 subscription.resubscribe(subscription)
             })
         }
@@ -97,6 +100,7 @@ function initWebsocket(): void {
     }
 
     let getNewWebsocket = (isReconnecting: boolean): WebSocket => {
+        console.log('getNewWebsocket is called')
         websocket = new WebSocket(getProperty('websocketEndpoint'))
         websocket.onclose = onWebsocketClose
         websocket.onerror = onWebsocketError
@@ -104,6 +108,7 @@ function initWebsocket(): void {
         websocket.onopen = e => {
             onOpen(e, isReconnecting)
         }
+        ;(window as any).websocket = websocket
         return websocket
     }
 
