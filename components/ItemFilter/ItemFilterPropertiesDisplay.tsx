@@ -91,10 +91,13 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     // finds number ranges (e.g. "10000-999999")
                     let numberRangeRegex = new RegExp(/^\d+-\d+$/)
                     if (display.match(numberRangeRegex)) {
-                        display = display
-                            .split('-')
-                            .map(numberString => numberWithThousandsSeparators(Number(numberString)))
-                            .join('-')
+                        let numbers = display.split('-').map(numberString => numberWithThousandsSeparators(Number(numberString)))
+
+                        if (numbers[0] === numbers[1]) {
+                            display = numbers[0].toString()
+                        } else {
+                            display = numbers.join('-')
+                        }
                     }
 
                     // Special case -> display as date
