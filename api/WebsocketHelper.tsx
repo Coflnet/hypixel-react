@@ -21,8 +21,8 @@ function initWebsocket(): void {
         }, timeout)
     }
 
+    // dont show a toast message on websocket errors as this gets spammed when the user for example locks their computer
     let onWebsocketError = (e: Event): void => {
-        toast.error('An error occurred while trying to connect to the websocket. Please try again later.')
         console.error(e)
     }
 
