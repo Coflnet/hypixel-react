@@ -123,6 +123,7 @@ function FlipRestrictionList(props: Props) {
                 toUpdate.tags = toUpdate.tags ? [...toUpdate.tags, ...updateState.tags] : updateState.tags
             }
             toUpdate.isEdited = false
+            toUpdate.type = restriction.type
         })
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
@@ -144,6 +145,7 @@ function FlipRestrictionList(props: Props) {
             newRestrictions[index].itemFilter = { ...updateState.itemFilter }
             newRestrictions[index].tags = updateState.tags
             newRestrictions[index].isEdited = false
+            newRestrictions[index].type = restriction.type
         })
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
