@@ -241,7 +241,7 @@ function AuctionDetails(props: Props) {
         }
 
         if (value?.toString().includes('§')) {
-            return getMinecraftColorCodedElement(value)
+            return getMinecraftColorCodedElement(value, false)
         }
 
         return value.toString()
