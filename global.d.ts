@@ -342,6 +342,7 @@ interface FlipCustomizeSettings {
     hideLore?: boolean
     modFormat?: string
     modCountdown?: boolean
+    blockExport?: boolean
 }
 
 interface FlipRestriction {

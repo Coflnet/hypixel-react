@@ -30,10 +30,13 @@ const customSelectStyle = {
 
 function FlipCustomize() {
     let [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
+    let [isExportDisabled, setIsExportDisabled] = useState(false)
     let { trackEvent } = useMatomo()
 
     useEffect(() => {
-        setFlipCustomizeSettings(getFlipCustomizeSettings())
+        let settings = getFlipCustomizeSettings()
+        setIsExportDisabled(settings.blockExport === true)
+        setFlipCustomizeSettings({ ...settings })
     }, [])
 
     function setFlipCustomizeSetting(key: string, value: any) {
@@ -552,9 +555,19 @@ function FlipCustomize() {
                         >
                             Import
                         </Button>
-                        <Button onClick={exportFilter} style={{ width: '40%' }}>
-                            Export
-                        </Button>
+                        <Tooltip
+                            type="hover"
+                            content={
+                                <div style={{ width: '40%', marginRight: 0 }}>
+                                    <Button onClick={exportFilter} disabled={isExportDisabled} style={{ width: '100%' }}>
+                                        Export
+                                    </Button>
+                                </div>
+                            }
+                            tooltipContent={
+                                isExportDisabled ? <p>Your settings can't be exported, likely because they are based on a config you bought</p> : undefined
+                            }
+                        />
                         {/* This is the "true" upload field. It is called by the "Import"-Button */}
                         <input onChange={readImportFile} style={{ display: 'none' }} type="file" id="fileUpload" />
                     </div>
