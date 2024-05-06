@@ -9,6 +9,7 @@ import api from '../../../../api/ApiHelper'
 import EditIcon from '@mui/icons-material/Edit'
 import DuplicateIcon from '@mui/icons-material/ControlPointDuplicate'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { MouseEventHandler } from 'react'
 
 interface Props {
     restriction: FlipRestriction
@@ -19,12 +20,13 @@ interface Props {
     onDeleteClick(): void
     onRemoveFilterClick(restriction: FlipRestriction): void
     onRestrictionChange(restriction: FlipRestriction): void
+    onContextMenu: MouseEventHandler<HTMLElement> | undefined
     style: React.CSSProperties
 }
 
 export default function FlipRestrictionListEntry(props: Props) {
     return (
-        <div className={styles.restrictionContainer} style={props.style}>
+        <div id={props.restriction.itemKey} className={styles.restrictionContainer} style={props.style} onContextMenu={props.onContextMenu}>
             <Card className={`${styles.restriction} ${props.restriction.isEdited ? styles.restrictionMarkedAsEdit : ''}`}>
                 <Card.Header
                     style={{
@@ -133,6 +135,7 @@ export default function FlipRestrictionListEntry(props: Props) {
                             display: 'flex'
                         }}
                     >
+                        {props.restriction.disabled && <Badge bg="danger">Disabled</Badge>}
                         {props.restriction.isEdited ? (
                             <div
                                 className={styles.cancelEditButton}

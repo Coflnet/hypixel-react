@@ -15,11 +15,16 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeGrid as Grid } from 'react-window'
 import { v4 as generateUUID } from 'uuid'
 import FlipRestrictionListEntry from './RestrictionListEntry/FlipRestrictionListEntry'
+import { Item, Menu, useContextMenu } from 'react-contexify'
+import BlockIcon from '@mui/icons-material/Block'
+import CheckIcon from '@mui/icons-material/CheckCircle'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist'): void
     prefillRestriction?: RestrictionCreateState
 }
+
+const RESTRICTION_CONTEXT_MENU_ID = 'restriction-entry-context-menu'
 
 function FlipRestrictionList(props: Props) {
     let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(props.prefillRestriction !== undefined)
@@ -32,6 +37,10 @@ function FlipRestrictionList(props: Props) {
     let [isSSR, setIsSSR] = useState(true)
     let searchFieldRef = useRef<HTMLInputElement>(null)
     let listRef = useRef(null)
+
+    const { show } = useContextMenu({
+        id: RESTRICTION_CONTEXT_MENU_ID
+    })
 
     useEffect(() => {
         function onControlF(event: KeyboardEvent) {
@@ -286,6 +295,11 @@ function FlipRestrictionList(props: Props) {
         ;(listRef.current as any).resetAfterRowIndex(0, false)
     }
 
+    function handleContextMenuForRestriction(event) {
+        event.preventDefault()
+        show({ event: event, props: { itemKey: event.currentTarget.id } })
+    }
+
     function getRestrictionsFilteredBySearch(restrictions: FlipRestriction[], invert = false) {
         return restrictions.filter(restriction => {
             let isValid = false
@@ -314,6 +328,20 @@ function FlipRestrictionList(props: Props) {
             }
             return isValid
         })
+    }
+
+    function changeRestrictionDisableState(itemKey: string, newValue: boolean) {
+        let index = restrictions.findIndex(r => r.itemKey === itemKey)
+        if (index === -1) return
+        let newRestrictions = [...restrictions]
+        newRestrictions[index] = { ...newRestrictions[index], disabled: newValue }
+        setRestrictions(newRestrictions)
+
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
+        if (props.onRestrictionsChange) {
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
+        }
     }
 
     let clearListDialog = (
@@ -346,6 +374,38 @@ function FlipRestrictionList(props: Props) {
                 </div>
             </Modal.Body>
         </Modal>
+    )
+
+    let currentItemContextMenuElement = (
+        <div>
+            <Menu id={RESTRICTION_CONTEXT_MENU_ID} theme={'dark'}>
+                <Item
+                    onClick={params => {
+                        changeRestrictionDisableState(params.props.itemKey, true)
+                    }}
+                    hidden={params => {
+                        let index = restrictions.findIndex(r => r.itemKey === params.props.itemKey)
+                        if (index === -1) return true
+                        return restrictions[index].disabled === true
+                    }}
+                >
+                    <BlockIcon color="error" style={{ marginRight: 5 }} /> Disable restriction
+                </Item>
+                <Item
+                    onClick={params => {
+                        changeRestrictionDisableState(params.props.itemKey, false)
+                    }}
+                    hidden={params => {
+                        let index = restrictions.findIndex(r => r.itemKey === params.props.itemKey)
+                        if (index === -1) return true
+                        return restrictions[index].disabled === false || restrictions[index].disabled === undefined
+                    }}
+                >
+                    <CheckIcon color="success" style={{ marginRight: 5 }} />
+                    Enable restriction
+                </Item>
+            </Menu>
+        </div>
     )
 
     let windowWidth = isSSR ? 1920 : window.innerWidth
@@ -522,6 +582,7 @@ function FlipRestrictionList(props: Props) {
                                                     setRestrictionsInEditMode(newRestrictionsInEditMode)
                                                     recalculateListHeight()
                                                 }}
+                                                onContextMenu={handleContextMenuForRestriction}
                                             />
                                         )
                                     }}
@@ -532,6 +593,7 @@ function FlipRestrictionList(props: Props) {
                 </div>
             </div>
             {clearListDialog}
+            {currentItemContextMenuElement}
         </>
     )
 }

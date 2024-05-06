@@ -353,6 +353,7 @@ interface FlipRestriction {
     tags?: string[]
     order?: number
     itemKey?: string
+    disabled?: boolean
 }
 
 interface MinecraftConnectionInfo {

@@ -2,7 +2,7 @@ import { toast } from 'react-toastify'
 import api from '../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
 import { hasFlag } from '../components/FilterElement/FilterType'
-import { DEFAULT_FLIP_SETTINGS, FLIP_FINDERS, getFlipCustomizeSettings, getFlipFinders } from './FlipUtils'
+import { DEFAULT_FLIP_SETTINGS, FLIP_FINDERS } from './FlipUtils'
 import { isClientSideRendering } from './SSRUtils'
 import { getNumberFromShortenString } from './Formatter'
 import { parseBMConfig } from './Parser/ParseBMConfig'
@@ -448,7 +448,13 @@ export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: Flip
 
 export function mapRestrictionsToApiFormat(restrictions: FlipRestriction[]) {
     return restrictions.map(restriction => {
-        return { tag: restriction.item?.tag, filter: restriction.itemFilter, displayName: restriction.item?.name, tags: restriction.tags }
+        return {
+            tag: restriction.item?.tag,
+            filter: restriction.itemFilter,
+            displayName: restriction.item?.name,
+            tags: restriction.tags,
+            disabled: restriction.disabled
+        }
     })
 }
 
@@ -472,7 +478,8 @@ export function getCleanRestrictionsForApi(restrictions: FlipRestriction[]) {
     return restrictions.map(restriction => {
         let newRestriction = {
             type: restriction.type,
-            tags: restriction.tags
+            tags: restriction.tags,
+            disabled: restriction.disabled
         } as FlipRestriction
 
         if (restriction.item) {
