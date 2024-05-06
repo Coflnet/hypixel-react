@@ -87,6 +87,7 @@ function BazaarSnapshot(props: Props) {
                         <th>Price per unit</th>
                         <th>Amount</th>
                         <th>Orders</th>
+                        <th>Coin Equivalent</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -97,6 +98,9 @@ function BazaarSnapshot(props: Props) {
                             </td>
                             <td>{order.amount}</td>
                             <td>{order.orders}</td>
+                            <td>
+                                <Number number={order.pricePerUnit * order.amount} /> Coins
+                            </td>
                         </tr>
                     ))}
                 </tbody>

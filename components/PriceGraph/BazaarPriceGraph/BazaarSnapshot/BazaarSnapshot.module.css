@@ -24,16 +24,16 @@
         width: 100px;
         margin-right: 15px;
     }
+    .informationField {
+        width: 100%;
+        margin-bottom: 30px;
+    }
 }
 
 @media all and (max-width: 768px) {
     .label {
         width: auto;
         margin-right: 15px;
-    }
-    .informationField {
-        width: 100%;
-        margin-bottom: 30px;
     }
 }
 
