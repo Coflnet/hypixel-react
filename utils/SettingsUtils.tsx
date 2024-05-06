@@ -89,7 +89,8 @@ export function setSettingsFromServerSide(
             hideCopySuccessMessage: !settings.visibility.copySuccessMessage,
             finders: FLIP_FINDERS.filter(finder => {
                 return hasFlag(parseInt(settings.finders), parseInt(finder.value))
-            }).map(finder => parseInt(finder.value))
+            }).map(finder => parseInt(finder.value)),
+            blockExport: settings.blockExport
         } as FlipCustomizeSettings
 
         let filter = {
@@ -441,6 +442,7 @@ export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: Flip
             copySuccessMessage: !flipSettings.hideCopySuccessMessage,
             links: !flipSettings.disableLinks
         },
+        blockExport: flipSettings.blockExport,
         finders: flipSettings.finders?.reduce((a, b) => +a + +b, 0),
         changer: window.sessionStorage.getItem('sessionId')
     }

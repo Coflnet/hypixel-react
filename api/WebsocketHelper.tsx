@@ -100,7 +100,6 @@ function initWebsocket(): void {
     }
 
     let getNewWebsocket = (isReconnecting: boolean): WebSocket => {
-        console.log('getNewWebsocket is called')
         websocket = new WebSocket(getProperty('websocketEndpoint'))
         websocket.onclose = onWebsocketClose
         websocket.onerror = onWebsocketError
