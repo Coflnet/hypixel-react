@@ -303,7 +303,7 @@ function FlipRestrictionList(props: Props) {
     function getRestrictionsFilteredBySearch(restrictions: FlipRestriction[], invert = false) {
         return restrictions.filter(restriction => {
             let isValid = false
-            let lowerCaseSearchText = searchText.toLowerCase()
+            let lowerCaseSearchText = searchText.toLowerCase().replace(/_/g, ' ')
             if (restriction.item?.name && restriction.item?.name.toLowerCase().includes(lowerCaseSearchText)) {
                 isValid = true
             }
@@ -312,9 +312,11 @@ function FlipRestrictionList(props: Props) {
                     if (isValid) {
                         return
                     }
+                    let keyWithoutUnderscore = key.replace(/_/g, ' ')
                     if (
-                        restriction.itemFilter![key].toString().toLocaleLowerCase().includes(lowerCaseSearchText) ||
-                        camelCaseToSentenceCase(key).toLowerCase().includes(lowerCaseSearchText)
+                        restriction.itemFilter![key].toString().toLowerCase().includes(lowerCaseSearchText) ||
+                        camelCaseToSentenceCase(key).toLowerCase().includes(lowerCaseSearchText) ||
+                        camelCaseToSentenceCase(keyWithoutUnderscore).toLowerCase().includes(lowerCaseSearchText)
                     ) {
                         isValid = true
                     }
