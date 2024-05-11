@@ -87,6 +87,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 onClick: () => {
                     if (error.Trace && canUseClipBoard()) {
                         writeToClipboard(error.Trace)
+                        toast.success(
+                            <span>
+                                Copied the error trace to the clipboard. Please use this to ask for help on our{' '}
+                                <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
+                                    Discord
+                                </a>
+                                .
+                            </span>
+                        )
                     }
                 }
             })
