@@ -89,7 +89,8 @@ export enum RequestType {
     GET_NOTIFICATION_SUBSCRIPTION = 'getNotificationSubscription',
     ADD_NOTIFICATION_SUBSCRIPTION = 'addNotificationSubscription',
     DELETE_NOTIFICATION_SUBSCRIPTION = 'deleteNotificationSubscription',
-    GET_PUBLISHED_CONFIGS = 'publishedConfigs'
+    GET_PUBLISHED_CONFIGS = 'publishedConfigs',
+    UPDATE_CONFIG = 'updateConfig'
 }
 
 export enum SubscriptionType {

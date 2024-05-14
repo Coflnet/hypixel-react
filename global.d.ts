@@ -262,7 +262,8 @@ interface API {
     getNotificationSubscriptions(): Promise<NotificationSubscription[]>
     createNotificationSubscription(subscription: NotificationSubscription): Promise<NotificationSubscription>
     deleteNotificationSubscription(subscription: NotificationSubscription): Promise<void>
-    getPublishedConfigs(): Promise<PublicConfig[]>
+    getPublishedConfigs(): Promise<string[]>
+    updateConfig(configName: string, updateNotes: string = ''): Promise<void>
 }
 
 interface CacheUtils {
@@ -664,9 +665,4 @@ interface NotificationSubscription {
         priority: number
         isDisabled: boolean
     }[]
-}
-
-interface PublicConfig {
-    configName: string
-    changeNotes: string
 }

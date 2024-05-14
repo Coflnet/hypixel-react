@@ -20,6 +20,7 @@ import FormatElement from './FormatElement/FormatElement'
 import styles from './FlipCustomize.module.css'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
+import PublishedConfigs from './PublishedConfigs/PublishedConfigs'
 
 const customSelectStyle = {
     option: provided => ({
@@ -37,7 +38,13 @@ function FlipCustomize() {
         let settings = getFlipCustomizeSettings()
         setIsExportDisabled(settings.blockExport === true)
         setFlipCustomizeSettings({ ...settings })
+        loadPublishedConfigs()
     }, [])
+
+    async function loadPublishedConfigs() {
+        let configs = await api.getPublishedConfigs()
+        console.log(configs)
+    }
 
     function setFlipCustomizeSetting(key: string, value: any) {
         flipCustomizeSettings[key] = value
@@ -595,6 +602,7 @@ function FlipCustomize() {
                     </Form.Group>
                 </div>
                 <hr />
+                <PublishedConfigs />
             </div>
             <div className={styles.verticalLine}></div>
             <div className={`${styles.sectionRight} ${styles.section}`}>

@@ -2436,7 +2436,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getPublishedConfigs = (): Promise<PublicConfig[]> => {
+    let getPublishedConfigs = (): Promise<string[]> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.GET_PUBLISHED_CONFIGS,
@@ -2446,6 +2446,22 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_PUBLISHED_CONFIGS, error, '')
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let updateConfig = (configName: string, updateNotes: string = ''): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.UPDATE_CONFIG,
+                data: { configName, updateNotes },
+                resolve: (configs: any) => {
+                    resolve(configs)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.UPDATE_CONFIG, error, '')
                     reject(error)
                 }
             })
@@ -2540,7 +2556,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         createNotificationSubscription,
         deleteNotificationSubscription,
         getNotificationSubscriptions,
-        getPublishedConfigs
+        getPublishedConfigs,
+        updateConfig
     }
 }
 
