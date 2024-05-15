@@ -85,8 +85,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         if (isClientSideRendering()) {
             toast.error(error.message, {
                 onClick: () => {
-                    if (error.Trace && canUseClipBoard()) {
-                        writeToClipboard(error.Trace)
+                    if (error.traceId && canUseClipBoard()) {
+                        writeToClipboard(error.traceId)
                         toast.success(
                             <span>
                                 Copied the error trace to the clipboard. Please use this to ask for help on our{' '}
