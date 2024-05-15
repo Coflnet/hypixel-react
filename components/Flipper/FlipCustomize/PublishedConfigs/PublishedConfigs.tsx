@@ -9,7 +9,7 @@ const PublishedConfigs = () => {
     const [changeNotes, setChangeNotes] = useState<{ config: string; changeNotes: string }[]>([])
 
     useEffect(() => {
-        //loadConfigs()
+        loadConfigs()
     }, [])
 
     async function loadConfigs() {
@@ -17,9 +17,13 @@ const PublishedConfigs = () => {
         setConfigs(configs)
     }
 
-    function updateConfig(configName: string, updateNotes: string = '') {
-        api.updateConfig(configName, updateNotes)
-        toast.success(`Updated config`)
+    async function updateConfig(configName: string, updateNotes: string = '') {
+        try {
+            await api.updateConfig(configName, updateNotes)
+            toast.success(`Updated config`)
+        } catch (e) {
+            toast.error(`Failed to update config`)
+        }
     }
 
     if (!configs || configs.length === 0) {
