@@ -262,6 +262,8 @@ interface API {
     getNotificationSubscriptions(): Promise<NotificationSubscription[]>
     createNotificationSubscription(subscription: NotificationSubscription): Promise<NotificationSubscription>
     deleteNotificationSubscription(subscription: NotificationSubscription): Promise<void>
+    getPublishedConfigs(): Promise<string[]>
+    updateConfig(configName: string, updateNotes: string = ''): Promise<void>
 }
 
 interface CacheUtils {
