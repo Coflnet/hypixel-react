@@ -2436,6 +2436,38 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getPublishedConfigs = (): Promise<string[]> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.GET_PUBLISHED_CONFIGS,
+                data: '',
+                resolve: (configs: any) => {
+                    resolve(configs)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_PUBLISHED_CONFIGS, error, '')
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let updateConfig = (configName: string, updateNotes: string = ''): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.UPDATE_CONFIG,
+                data: { configName, updateNotes },
+                resolve: (configs: any) => {
+                    resolve(configs)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.UPDATE_CONFIG, error, '')
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -2523,7 +2555,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         sendTestNotification,
         createNotificationSubscription,
         deleteNotificationSubscription,
-        getNotificationSubscriptions
+        getNotificationSubscriptions,
+        getPublishedConfigs,
+        updateConfig
     }
 }
 
