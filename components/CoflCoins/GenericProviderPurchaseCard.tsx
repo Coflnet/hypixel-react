@@ -22,18 +22,22 @@ export default function GenericProviderPurchaseCard(props: Props) {
     return (
         <div className={styles.paymentOption}>
             <div className={styles.paymentLabel}>
-                Buy with {props.type}{' '}
                 {props.type === 'PayPal' ? (
                     <Tooltip
                         content={
-                            <span style={{ marginLeft: '5px' }}>
-                                <HelpIcon />
-                            </span>
+                            <>
+                                Buy with {props.type}{' '}
+                                <span style={{ marginLeft: '5px' }}>
+                                    <HelpIcon />
+                                </span>
+                            </>
                         }
                         type="hover"
                         tooltipContent={<p>Higher price than with credit card due to higher fees</p>}
                     />
                 ) : null}
+                {props.type === 'Stripe' && <span>Buy with other payment methods</span>}
+                {props.type === 'LemonSqueezy' && <span>Continue to payment</span>}
             </div>
             <Tooltip
                 type="hover"
