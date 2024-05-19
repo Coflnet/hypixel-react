@@ -10,13 +10,14 @@ import HelpIcon from '@mui/icons-material/Help'
 import AddIcon from '@mui/icons-material/AddCircleOutline'
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { FilterType, hasFlag } from '../FilterElement/FilterType'
-import { Typeahead } from 'react-bootstrap-typeahead'
+import { Typeahead, TypeaheadRef } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
 import { btoaUnicode } from '../../utils/Base64Utils'
 import { ITEM_FILTER_USE_COUNT, LAST_USED_FILTER, getSetting, getSettingsObject, setSetting } from '../../utils/SettingsUtils'
 import ModAdvert from './ModAdvert'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { usePathname, useRouter } from 'next/navigation'
+import option from '../PriceGraph/AuctionHousePriceGraph/PriceGraphConfig'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -46,7 +47,7 @@ function ItemFilter(props: Props) {
     let [showInfoDialog, setShowInfoDialog] = useState(false)
     let [invalidFilters, _setInvalidFilters] = useState(new Set<string>())
 
-    let typeaheadRef = useRef(null)
+    let typeaheadRef = useRef<TypeaheadRef>(null)
 
     useEffect(() => {
         if (props.filters && props.filters.length > 0) {
@@ -153,10 +154,8 @@ function ItemFilter(props: Props) {
         }
         setSetting(ITEM_FILTER_USE_COUNT, JSON.stringify(sortingByUsedMost))
 
-        if (typeaheadRef.current && (typeaheadRef.current as any).clear && (typeaheadRef.current as any).blur) {
-            ;(typeaheadRef!.current as any).clear()
-            ;(typeaheadRef!.current as any).blur()
-        }
+        typeaheadRef?.current?.clear()
+        typeaheadRef?.current?.blur()
 
         enableFilter(selectedFilter.name)
         getGroupedFilter(selectedFilter.name).forEach(filter => enableFilter(filter))
@@ -418,23 +417,50 @@ function ItemFilter(props: Props) {
                                         className={styles.addFilterSelect}
                                         onChange={addFilter}
                                         options={sortedFilterOptions || []}
-                                        labelKey={filter => {
-                                            let name = (filter as Record<string, any>).name
-                                            if (name[0].toLowerCase() === name[0]) {
-                                                return convertTagToName(name)
+                                        labelKey={(options: FilterOptions) => {
+                                            let text = typeaheadRef.current?.state.text
+                                            let optionsString = ''
+                                            let name = options.name
+                                            let searchString = name?.replace(/\s/g, '').toLowerCase()
+                                            let description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
+
+                                            // If the restult was found because of the options, show the options at the end of the string
+                                            if (text && !searchString?.includes(text) && !description.includes(text)) {
+                                                let searchString = text.replace(/\s/g, '').toLowerCase()
+                                                let matchingOptions = options.options.filter(option => option.toLowerCase().includes(searchString))
+
+                                                if (matchingOptions.length > 0) {
+                                                    optionsString =
+                                                        matchingOptions
+                                                            .map(option => {
+                                                                if (option.toLowerCase() === option) {
+                                                                    return convertTagToName(option).trim()
+                                                                }
+                                                                return camelCaseToSentenceCase(option).trim()
+                                                            })
+                                                            .join(', ')
+                                                }
                                             }
-                                            return camelCaseToSentenceCase(name)
+
+                                            if (name[0].toLowerCase() === name[0]) {
+                                                return `${convertTagToName(name)} ${optionsString ? `(${optionsString})` : ''}`
+                                            }
+
+                                            return `${camelCaseToSentenceCase(name)} ${optionsString ? `(${optionsString})` : ''}`
                                         }}
-                                        filterBy={(option, props) => {
+                                        filterBy={(options: FilterOptions, props) => {
                                             let searchString = props.text.replace(/\s/g, '').toLowerCase()
-                                            let name = (props.labelKey as Function)(option).toLowerCase()
+                                            let name = (props.labelKey as Function)(options).toLowerCase()
                                             let initials = name.match(/\b\w/g).join('')
-                                            let description = (option as any).description ? (option as any).description.replace(/\s/g, '').toLowerCase() : ''
+                                            let description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
+
+                                            let matchingOptions = options.options.filter(option => option.toLowerCase().includes(searchString))
 
                                             return (
                                                 name.replace(/\s/g, '').includes(searchString) ||
                                                 initials.includes(searchString) ||
-                                                description.includes(searchString)
+                                                description.includes(searchString) ||
+                                                matchingOptions.length > 0
                                             )
                                         }}
                                         emptyLabel={props.emptyLabel || 'No matches found. Filters which would not show any results are hidden'}
