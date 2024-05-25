@@ -13,7 +13,7 @@ import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead, TypeaheadRef } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
 import { btoaUnicode } from '../../utils/Base64Utils'
-import { ITEM_FILTER_USE_COUNT, LAST_USED_FILTER, getSetting, getSettingsObject, setSetting } from '../../utils/SettingsUtils'
+import { ITEM_FILTER_USE_COUNT, LAST_USED_FILTER, getSettingsObject, setSetting } from '../../utils/SettingsUtils'
 import ModAdvert from './ModAdvert'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { usePathname, useRouter } from 'next/navigation'
@@ -430,15 +430,17 @@ function ItemFilter(props: Props) {
                                                 let matchingOptions = options.options.filter(option => option.toLowerCase().includes(searchString))
 
                                                 if (matchingOptions.length > 0) {
-                                                    optionsString =
-                                                        matchingOptions
-                                                            .map(option => {
-                                                                if (option.toLowerCase() === option) {
-                                                                    return convertTagToName(option).trim()
-                                                                }
-                                                                return camelCaseToSentenceCase(option).trim()
-                                                            })
-                                                            .join(', ')
+                                                    optionsString = matchingOptions
+                                                        .map(option => {
+                                                            if (option.toLowerCase() === option) {
+                                                                return convertTagToName(option).trim()
+                                                            }
+                                                            if (option.toUpperCase() === option) {
+                                                                return convertTagToName(option).trim()
+                                                            }
+                                                            return camelCaseToSentenceCase(option).trim()
+                                                        })
+                                                        .join(', ')
                                                 }
                                             }
 
