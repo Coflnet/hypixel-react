@@ -10,6 +10,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import DuplicateIcon from '@mui/icons-material/ControlPointDuplicate'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { MouseEventHandler } from 'react'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 interface Props {
     restriction: FlipRestriction
@@ -136,6 +137,19 @@ export default function FlipRestrictionListEntry(props: Props) {
                         }}
                     >
                         {props.restriction.disabled && <Badge bg="danger">Disabled</Badge>}
+                        {props.restriction.item ? (
+                            <div className={styles.openInNewTab}>
+                                <Tooltip
+                                    type="hover"
+                                    content={
+                                        <a href={`/item/${props.restriction.item.tag}`} target="_blank" rel="noreferrer">
+                                            <OpenInNewIcon />
+                                        </a>
+                                    }
+                                    tooltipContent={<p>Open in new tab</p>}
+                                />
+                            </div>
+                        ) : null}
                         {props.restriction.isEdited ? (
                             <div
                                 className={styles.cancelEditButton}

@@ -22,6 +22,11 @@
 
 .cancelEditButton {
     cursor: pointer;
+    margin-left: 10px;
+}
+
+.openInNewTab{
+    cursor: pointer;
 }
 
 .editButton {
