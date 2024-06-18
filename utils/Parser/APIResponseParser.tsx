@@ -99,6 +99,18 @@ export function parseItem(item: any): Item {
         black: 'https://mc-heads.net/head/cb85828267e59e83edc3bef235102e43fb70922622ccc3809a326a8c5632199a'
     }
 
+    const BALLOON_HAT_IMAGES = {
+        red: 'https://mc-heads.net/head/567f93963ad7ac3abdc49d02c9861fa2d45d00da1a7b31193ceb246313d39bc5',
+        orange: 'https://mc-heads.net/head/841c5e8e0637acee09b68fab743db66c6714938c73792bc95acb1f393478144b',
+        yellow: 'https://mc-heads.net/head/a90d9adef4732e5832448973e3557fce8a2e9ec8129ed32143eb666b4fa88ab2',
+        lime: 'https://mc-heads.net/head/fb0209c346e04c3253f492ab904ef6e472faa617c681706f9153a116aa6481c2',
+        green: 'https://mc-heads.net/head/8ba968d27dd90f67434e818646b2b0042946b67a14c594b31698dae309cb52a4',
+        aqua: 'https://mc-heads.net/head/6432dda190146d4ad7a8569b389aea777684c44fa2624dcf74016467765e9693',
+        purple: 'https://mc-heads.net/head/98b97944067281fa1361aa43ac522fdf190e50d65479f89a35e8cf87154e005c',
+        pink: 'https://mc-heads.net/head/2ad4c874756ab9672aec51d53b9b94e6c9b5c6e7e0a2d44928df2186f4791e96',
+        black: 'https://mc-heads.net/head/63bdb1e21a9fdf98aff67f0ff4e7dfada05f340210dd70b688c09c3cf50f6410'
+    }
+
     let parsed = {
         tag: item.tag,
         name: item.altNames && item.altNames[0] && item.altNames[0].Name ? item.altNames[0].Name : item.itemName || item.name,
@@ -108,8 +120,11 @@ export function parseItem(item: any): Item {
         bazaar: hasFlag(item.flags, 1)
     }
 
-    if (item.flatNbt && item.flatNbt['party_hat_color']) {
+    if (item.flatNbt && item.flatNbt['party_hat_color'] && item.tag === 'PARTY_HAT_CRAB') {
         parsed.iconUrl = CRAB_HAT_IMAGES[item.flatNbt['party_hat_color']] || parsed.iconUrl
+    }
+    if (item.flatNbt && item.flatNbt['party_hat_color'] && item.tag === 'BALLOON_HAT_2024') {
+        parsed.iconUrl = BALLOON_HAT_IMAGES[item.flatNbt['party_hat_color']] || parsed.iconUrl
     }
 
     return parsed
