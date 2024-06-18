@@ -10,7 +10,15 @@ import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { getFlipCustomizeSettings, getCurrentProfitCalculationState } from '../../../utils/FlipUtils'
 import { getDecimalSeparator, getThousandSeparator } from '../../../utils/Formatter'
-import { FLIPPER_FILTER_KEY, FLIP_CUSTOMIZING_KEY, getSettingsObject, mapRestrictionsToApiFormat, setSetting } from '../../../utils/SettingsUtils'
+import {
+    FLIPPER_FILTER_KEY,
+    FLIP_CUSTOMIZING_KEY,
+    ITEM_FILER_SHOW_ADVANCED,
+    getSetting,
+    getSettingsObject,
+    mapRestrictionsToApiFormat,
+    setSetting
+} from '../../../utils/SettingsUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import FlipCustomize from '../FlipCustomize/FlipCustomize'
 import FlipRestrictionList from '../FlipRestrictionList/FlipRestrictionList'
@@ -30,7 +38,7 @@ function FlipperFilter(props: Props) {
         getURLSearchParam('prefillRestriction') ? JSON.parse(getURLSearchParam('prefillRestriction')!) : undefined
     )
     let [showRestrictionList, setShowRestrictionList] = useState(!!prefillRestriction)
-    let [isAdvanced, setIsAdvanced] = useState(false)
+    let [isAdvanced, setIsAdvanced] = useState(getSetting(ITEM_FILER_SHOW_ADVANCED, 'false') === 'true')
     let [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
     let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
@@ -314,7 +322,9 @@ function FlipperFilter(props: Props) {
                         id="advancedCheckbox"
                         onChange={e => {
                             setIsAdvanced(e.target.checked)
+                            setSetting(ITEM_FILER_SHOW_ADVANCED, e.target.checked.toString())
                         }}
+                        checked={isAdvanced}
                         disabled={disabled}
                         className={styles.flipperFilterFormfield}
                         type="checkbox"
