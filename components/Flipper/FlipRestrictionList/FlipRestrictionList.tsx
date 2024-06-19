@@ -313,8 +313,10 @@ function FlipRestrictionList(props: Props) {
                         return
                     }
                     let keyWithoutUnderscore = key.replace(/_/g, ' ')
+                    let valueWithoutUnderScore = restriction.itemFilter![key].toString().replace(/_/g, ' ')
                     if (
                         restriction.itemFilter![key].toString().toLowerCase().includes(lowerCaseSearchText) ||
+                        valueWithoutUnderScore.toLowerCase().includes(lowerCaseSearchText) ||
                         camelCaseToSentenceCase(key).toLowerCase().includes(lowerCaseSearchText) ||
                         camelCaseToSentenceCase(keyWithoutUnderscore).toLowerCase().includes(lowerCaseSearchText)
                     ) {
