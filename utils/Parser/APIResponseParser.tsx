@@ -694,3 +694,20 @@ export function parseOwnerHistory(ownerHistory): OwnerHistory {
         timestamp: parseDate(ownerHistory.timestamp)
     }
 }
+
+export function parseArchivedAuctions(archivedAuctionsResponse: any): ArchivedAuctionResponse {
+    return {
+        queryStatus: archivedAuctionsResponse.queryStatus,
+        auctions: archivedAuctionsResponse.auctions.map(a => {
+            return {
+                end: parseDate(a.end),
+                price: a.price,
+                seller: parsePlayer({
+                    name: a.playerName,
+                    uuid: a.seller
+                }),
+                uuid: a.uuid
+            } as ArchivedAuction
+        })
+    }
+}

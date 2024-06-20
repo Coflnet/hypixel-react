@@ -264,6 +264,7 @@ interface API {
     deleteNotificationSubscription(subscription: NotificationSubscription): Promise<void>
     getPublishedConfigs(): Promise<string[]>
     updateConfig(configName: string, updateNotes: string = ''): Promise<void>
+    requestArchivedAuctions(itemTag: string, itemFilter?: ItemFilter): Promise<ArchivedAuctionResponse>
 }
 
 interface CacheUtils {
@@ -665,4 +666,16 @@ interface NotificationSubscription {
         priority: number
         isDisabled: boolean
     }[]
+}
+
+interface ArchivedAuction {
+    seller: Player
+    price: number
+    end: Date
+    uuid: string
+}
+
+interface ArchivedAuctionResponse {
+    auctions: ArchivedAuction[]
+    queryStatus: string
 }
