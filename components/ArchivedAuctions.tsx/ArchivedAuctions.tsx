@@ -10,7 +10,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 
 interface Props {
     item: Item
-    itemFilter: ItemFilter
+    itemFilter?: ItemFilter
 }
 
 const ArchivedAuctionsList = (props: Props) => {
