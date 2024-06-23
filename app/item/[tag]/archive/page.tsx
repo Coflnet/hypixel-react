@@ -3,10 +3,8 @@ import { parseItem } from '../../../../utils/Parser/APIResponseParser'
 import Search from '../../../../components/Search/Search'
 import { convertTagToName } from '../../../../utils/Formatter'
 import api, { initAPI } from '../../../../api/ApiHelper'
-import { Archive } from '@mui/icons-material'
 import ArchivedAuctionsList from '../../../../components/ArchivedAuctions.tsx/ArchivedAuctions'
 import { getHeadMetadata } from '../../../../utils/SSRUtils'
-import api from '../../../../api/ApiHelper'
 import { atobUnicode } from '../../../../utils/Base64Utils'
 
 export default async function Page({ searchParams, params }) {
@@ -20,7 +18,6 @@ export default async function Page({ searchParams, params }) {
 
     return (
         <>
-            {}
             <Container>
                 <Search selected={item} type="item" />
                 <ArchivedAuctionsList item={item} />
