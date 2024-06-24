@@ -2477,7 +2477,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 reject()
                 return
             }
-
+            
             let params = new URLSearchParams()
             if (itemFilter && Object.keys(itemFilter).length > 0) {
                 params = new URLSearchParams(itemFilter)

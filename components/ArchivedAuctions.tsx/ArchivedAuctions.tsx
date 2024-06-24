@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from 'react'
 import { Card, ListGroup } from 'react-bootstrap'
 import styles from './ArchivedAuctions.module.css'
@@ -7,23 +8,70 @@ import NumberElement from '../Number/Number'
 import moment from 'moment'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { PREMIUM_RANK, getHighestPriorityPremiumProduct, hasHighEnoughPremium } from '../../utils/PremiumTypeUtils'
+import DatePicker from 'react-datepicker'
 
 interface Props {
     item: Item
-    itemFilter: ItemFilter
 }
 
 const ArchivedAuctionsList = (props: Props) => {
     let [archivedAuctionsData, setArchivedAuctionsData] = useState<ArchivedAuctionResponse>()
+    let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [premiumProducts, setPremiumProducts] = useState<PremiumProduct[]>([])
+    let [from, setFrom] = useState(new Date(Date.now() - 1000 * 60 * 60 * 24 * 1000))
+    let [to, setTo] = useState(new Date())
 
-    useEffect(() => {
-        api.requestArchivedAuctions(props.item.tag, props.itemFilter).then(data => {
-            setArchivedAuctionsData(data)
-        })
-    }, [])
+    function handleDateChange(date: Date, type: 'from' | 'to') {
+        if (type === 'from') {
+            setFrom(date)
+        } else if (type === 'to') {
+            setTo(date)
+        }
+        setArchivedAuctionsData(undefined)
+    }
 
-    if (!archivedAuctionsData) {
+    async function onAfterLogin() {
+        setIsLoggedIn(true)
+        try {
+            let products = await api.getPremiumProducts()
+            setIsLoggedIn(true)
+            setPremiumProducts(products)
+
+            if (!hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM_PLUS)) {
+                return
+            }
+
+            api.requestArchivedAuctions(props.item.tag, {
+                EndBefore: Math.floor(from.getTime() / 1000).toString(),
+                EndAfter: Math.floor(to.getTime() / 1000).toString()
+            }).then(data => {
+                setArchivedAuctionsData(data)
+            })
+        } catch (e) {
+            setIsLoggedIn(false)
+        }
+    }
+
+    if (!isLoggedIn || !hasHighEnoughPremium(premiumProducts, PREMIUM_RANK.PREMIUM_PLUS)) {
+        return (
+            <div>
+                <div>
+                    <p>To see archived auctions, you need to sign in with Google and be a Premium+ user.</p>
+                </div>
+                {!hasHighEnoughPremium(premiumProducts, PREMIUM_RANK.PREMIUM_PLUS) ? <p>You do not have Premium+.</p> : null}
+                <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
+            </div>
+        )
+    }
+
+    if (archivedAuctionsData === undefined) {
         return getLoadingElement(<p>Loading archived auctions...</p>)
+    }
+
+    if (archivedAuctionsData.auctions.length === 0) {
+        return getLoadingElement(<p>No archived auctions found for this item.</p>)
     }
 
     let archivedAuctionsList = archivedAuctionsData.auctions.map(auction => {
@@ -71,7 +119,16 @@ const ArchivedAuctionsList = (props: Props) => {
         )
     })
 
-    return <ListGroup className={styles.list}>{archivedAuctionsList}</ListGroup>
+    return (
+        <>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <DatePicker selected={from} onChange={date => handleDateChange(date, 'from')} />
+                <DatePicker selected={to} onChange={date => handleDateChange(date, 'to')} />
+            </div>
+            <ListGroup className={styles.list}>{archivedAuctionsList}</ListGroup>
+            <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
+        </>
+    )
 }
 
 export default ArchivedAuctionsList
