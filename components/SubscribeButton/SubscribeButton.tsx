@@ -159,7 +159,7 @@ function SubscribeButton(props: Props) {
             className={styles.subscribeDialog}
         >
             <Modal.Header closeButton>
-                <Modal.Title>{props.popupTitle || 'Create a Notifier'}</Modal.Title>
+                <Modal.Title>{props.popupTitle || 'Create a Notification Target'}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <NotificationTargetForm
