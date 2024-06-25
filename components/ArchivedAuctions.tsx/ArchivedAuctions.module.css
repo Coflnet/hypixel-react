@@ -29,3 +29,8 @@
         width: 16.66666666666666666666666666666%;
     }
 }
+
+.datepickerContainer{
+    display: flex;
+    align-items: center;
+}

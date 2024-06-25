@@ -20,7 +20,9 @@ export default async function Page({ searchParams, params }) {
         <>
             <Container>
                 <Search selected={item} type="item" />
-                <ArchivedAuctionsList item={item} />
+                <div style={{ paddingTop: '20px' }}>
+                    <ArchivedAuctionsList item={item} />
+                </div>
             </Container>
         </>
     )

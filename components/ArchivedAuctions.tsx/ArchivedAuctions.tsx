@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { Card, ListGroup } from 'react-bootstrap'
+import { Button, Card, ListGroup } from 'react-bootstrap'
 import styles from './ArchivedAuctions.module.css'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -11,6 +11,9 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { PREMIUM_RANK, getHighestPriorityPremiumProduct, hasHighEnoughPremium } from '../../utils/PremiumTypeUtils'
 import DatePicker from 'react-datepicker'
+import ItemFilter from '../ItemFilter/ItemFilter'
+import Tooltip from '../Tooltip/Tooltip'
+import { Help as HelpIcon } from '@mui/icons-material'
 
 interface Props {
     item: Item
@@ -22,6 +25,9 @@ const ArchivedAuctionsList = (props: Props) => {
     let [premiumProducts, setPremiumProducts] = useState<PremiumProduct[]>([])
     let [from, setFrom] = useState(new Date(Date.now() - 1000 * 60 * 60 * 24 * 1000))
     let [to, setTo] = useState(new Date())
+    let [filters, setFilters] = useState<FilterOptions[]>([])
+    let [selectedFilter, setSelectedFilter] = useState<ItemFilter>()
+    let [isLoading, setIsLoading] = useState(false)
 
     function handleDateChange(date: Date, type: 'from' | 'to') {
         if (type === 'from') {
@@ -32,25 +38,39 @@ const ArchivedAuctionsList = (props: Props) => {
         setArchivedAuctionsData(undefined)
     }
 
+    function loadFilters(): Promise<FilterOptions[]> {
+        return Promise.all([api.getFilters(props.item?.tag || '*'), api.flipFilters(props.item?.tag || '*')]).then(filters => {
+            let result = [...(filters[0] || []), ...(filters[1] || [])]
+            return result
+        })
+    }
+
     async function onAfterLogin() {
         setIsLoggedIn(true)
         try {
-            let products = await api.getPremiumProducts()
+            let [products, filters] = await Promise.all([api.getPremiumProducts(), loadFilters()])
             setIsLoggedIn(true)
             setPremiumProducts(products)
-
-            if (!hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM_PLUS)) {
-                return
-            }
-
-            api.requestArchivedAuctions(props.item.tag, {
-                EndBefore: Math.floor(from.getTime() / 1000).toString(),
-                EndAfter: Math.floor(to.getTime() / 1000).toString()
-            }).then(data => {
-                setArchivedAuctionsData(data)
-            })
+            setFilters(filters)
         } catch (e) {
             setIsLoggedIn(false)
+        }
+    }
+
+    function search() {
+        setIsLoading(true)
+        try {
+            let filter = (selectedFilter as any) || {}
+            api.requestArchivedAuctions(props.item.tag, {
+                ...filter,
+                EndAfter: Math.floor(from.getTime() / 1000).toString(),
+                EndBefore: Math.floor(to.getTime() / 1000).toString()
+            }).then(data => {
+                setArchivedAuctionsData(data)
+                setIsLoading(false)
+            })
+        } catch {
+            setIsLoading(false)
         }
     }
 
@@ -66,15 +86,7 @@ const ArchivedAuctionsList = (props: Props) => {
         )
     }
 
-    if (archivedAuctionsData === undefined) {
-        return getLoadingElement(<p>Loading archived auctions...</p>)
-    }
-
-    if (archivedAuctionsData.auctions.length === 0) {
-        return getLoadingElement(<p>No archived auctions found for this item.</p>)
-    }
-
-    let archivedAuctionsList = archivedAuctionsData.auctions.map(auction => {
+    let archivedAuctionsList = archivedAuctionsData?.auctions.map(auction => {
         return (
             <div key={auction.uuid} className={styles.cardWrapper}>
                 <span className="disableLinkStyle">
@@ -121,11 +133,26 @@ const ArchivedAuctionsList = (props: Props) => {
 
     return (
         <>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <DatePicker selected={from} onChange={date => handleDateChange(date, 'from')} />
-                <DatePicker selected={to} onChange={date => handleDateChange(date, 'to')} />
+            <h3 style={{ marginBottom: '15px' }}>
+                Archived Auctions{' '}
+                <Tooltip
+                    type="hover"
+                    content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />}
+                    tooltipContent={<span>Showing the player name takes additional processing time and therefore may add a bit of a delay for the flips.</span>}
+                />
+            </h3>
+            <div className={styles.datepickerContainer}>
+                <label style={{ marginRight: 15 }}>From: </label>
+                <div style={{ paddingRight: 15 }}>
+                    <DatePicker selected={from} onChange={date => handleDateChange(date, 'from')} className={'form-control'} />
+                </div>
+                <label style={{ marginRight: 15 }}>To: </label>
+                <DatePicker selected={to} onChange={date => handleDateChange(date, 'to')} className={'form-control'} />
             </div>
-            <ListGroup className={styles.list}>{archivedAuctionsList}</ListGroup>
+            <ItemFilter filters={filters} onFilterChange={filter => setSelectedFilter(filter)} />
+            <Button onClick={search}>Search</Button>
+            <hr />
+            {isLoading ? getLoadingElement(<p>Loading archived auctions...</p>) : <div>{archivedAuctionsList}</div>}
             <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
         </>
     )
