@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Button, Card, ListGroup } from 'react-bootstrap'
 import styles from './ArchivedAuctions.module.css'
 import Link from 'next/link'
@@ -14,13 +14,14 @@ import DatePicker from 'react-datepicker'
 import ItemFilter from '../ItemFilter/ItemFilter'
 import Tooltip from '../Tooltip/Tooltip'
 import { Help as HelpIcon } from '@mui/icons-material'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 interface Props {
     item: Item
 }
 
 const ArchivedAuctionsList = (props: Props) => {
-    let [archivedAuctionsData, setArchivedAuctionsData] = useState<ArchivedAuctionResponse>()
+    let [archivedAuctions, setArchivedAuctions] = useState<ArchivedAuction[]>([])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [premiumProducts, setPremiumProducts] = useState<PremiumProduct[]>([])
     let [from, setFrom] = useState(new Date(Date.now() - 1000 * 60 * 60 * 24 * 1000))
@@ -28,6 +29,15 @@ const ArchivedAuctionsList = (props: Props) => {
     let [filters, setFilters] = useState<FilterOptions[]>([])
     let [selectedFilter, setSelectedFilter] = useState<ItemFilter>()
     let [isLoading, setIsLoading] = useState(false)
+    let [currentPage, setCurrentPage] = useState(0)
+    let [allElementsLoaded, setAllElementsLoaded] = useState(false)
+
+    let currentPageRef = useRef(currentPage)
+    currentPageRef.current = currentPage
+    let allElementsLoadedRef = useRef(allElementsLoaded)
+    allElementsLoadedRef.current = allElementsLoaded
+    let archivedAuctionsRef = useRef(archivedAuctions)
+    archivedAuctionsRef.current = archivedAuctions
 
     function handleDateChange(date: Date, type: 'from' | 'to') {
         if (type === 'from') {
@@ -35,7 +45,9 @@ const ArchivedAuctionsList = (props: Props) => {
         } else if (type === 'to') {
             setTo(date)
         }
-        setArchivedAuctionsData(undefined)
+        setArchivedAuctions([])
+        setCurrentPage(0)
+        setAllElementsLoaded(false)
     }
 
     function loadFilters(): Promise<FilterOptions[]> {
@@ -57,18 +69,42 @@ const ArchivedAuctionsList = (props: Props) => {
         }
     }
 
-    function search() {
+    async function search(reset: boolean = false) {
+        if (isLoading) return
+        if (reset) {
+            setArchivedAuctions([])
+            setCurrentPage(0)
+            setAllElementsLoaded(false)
+        }
+
         setIsLoading(true)
         try {
             let filter = (selectedFilter as any) || {}
-            api.requestArchivedAuctions(props.item.tag, {
+            const data = await api.requestArchivedAuctions(props.item.tag, {
                 ...filter,
                 EndAfter: Math.floor(from.getTime() / 1000).toString(),
-                EndBefore: Math.floor(to.getTime() / 1000).toString()
-            }).then(data => {
-                setArchivedAuctionsData(data)
-                setIsLoading(false)
+                EndBefore: Math.floor(to.getTime() / 1000).toString(),
+                page: reset ? 0 : currentPageRef.current.toString()
             })
+
+            let newAuctions = [...archivedAuctionsRef.current, ...data.auctions]
+            archivedAuctionsRef.current = newAuctions
+            setArchivedAuctions(newAuctions)
+            let newPage = currentPageRef.current + 1
+            currentPageRef.current = newPage
+            setCurrentPage(newPage)
+
+            if (newAuctions.length < 12) {
+                setAllElementsLoaded(true)
+                setIsLoading(false)
+                return
+            }
+
+            if (reset) {
+                search()
+            } else {
+                setIsLoading(false)
+            }
         } catch {
             setIsLoading(false)
         }
@@ -80,13 +116,13 @@ const ArchivedAuctionsList = (props: Props) => {
                 <div>
                     <p>To see archived auctions, you need to sign in with Google and be a Premium+ user.</p>
                 </div>
-                {!hasHighEnoughPremium(premiumProducts, PREMIUM_RANK.PREMIUM_PLUS) ? <p>You do not have Premium+.</p> : null}
+                {premiumProducts.length > 0 && !hasHighEnoughPremium(premiumProducts, PREMIUM_RANK.PREMIUM_PLUS) ? <p>You do not have Premium+.</p> : null}
                 <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
             </div>
         )
     }
 
-    let archivedAuctionsList = archivedAuctionsData?.auctions.map(auction => {
+    let archivedAuctionsList = archivedAuctions.map(auction => {
         return (
             <div key={auction.uuid} className={styles.cardWrapper}>
                 <span className="disableLinkStyle">
@@ -150,9 +186,39 @@ const ArchivedAuctionsList = (props: Props) => {
                 <DatePicker selected={to} onChange={date => handleDateChange(date, 'to')} className={'form-control'} />
             </div>
             <ItemFilter filters={filters} onFilterChange={filter => setSelectedFilter(filter)} />
-            <Button onClick={search}>Search</Button>
+            <Button
+                onClick={() => {
+                    search(true)
+                }}
+            >
+                Search
+            </Button>
             <hr />
-            {isLoading ? getLoadingElement(<p>Loading archived auctions...</p>) : <div>{archivedAuctionsList}</div>}
+            {isLoading && !archivedAuctions ? getLoadingElement(<p>Loading archived auctions...</p>) : null}
+            {archivedAuctions.length > 0 ? (
+                <InfiniteScroll
+                    dataLength={archivedAuctions.length}
+                    next={search}
+                    hasMore={allElementsLoaded}
+                    scrollableTarget="scroll-target"
+                    loader={
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <div>
+                                <div>{getLoadingElement(<p>Loading archived auctions...</p>)}</div>
+                                <Button
+                                    onClick={() => {
+                                        search()
+                                    }}
+                                >
+                                    Click here to manually load new data...
+                                </Button>
+                            </div>
+                        </div>
+                    }
+                >
+                    {archivedAuctionsList}
+                </InfiniteScroll>
+            ) : null}
             <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
         </>
     )
