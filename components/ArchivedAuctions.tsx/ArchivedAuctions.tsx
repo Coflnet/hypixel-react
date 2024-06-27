@@ -196,28 +196,27 @@ const ArchivedAuctionsList = (props: Props) => {
             <hr />
             {isLoading && !archivedAuctions ? getLoadingElement(<p>Loading archived auctions...</p>) : null}
             {archivedAuctions.length > 0 ? (
-                <InfiniteScroll
-                    dataLength={archivedAuctions.length}
-                    next={search}
-                    hasMore={allElementsLoaded}
-                    scrollableTarget="scroll-target"
-                    loader={
-                        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <div>
-                                <div>{getLoadingElement(<p>Loading archived auctions...</p>)}</div>
-                                <Button
-                                    onClick={() => {
-                                        search()
-                                    }}
-                                >
-                                    Click here to manually load new data...
-                                </Button>
-                            </div>
+                <>
+                    <InfiniteScroll
+                        loader={<div>{getLoadingElement(<p>Loading archived auctions...</p>)}</div>}
+                        dataLength={archivedAuctions.length}
+                        next={search}
+                        hasMore={!allElementsLoaded}
+                    >
+                        {archivedAuctionsList}
+                    </InfiniteScroll>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <div>
+                            <Button
+                                onClick={() => {
+                                    search()
+                                }}
+                            >
+                                Click here to manually load new data...
+                            </Button>
                         </div>
-                    }
-                >
-                    {archivedAuctionsList}
-                </InfiniteScroll>
+                    </div>
+                </>
             ) : null}
             <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
         </>
