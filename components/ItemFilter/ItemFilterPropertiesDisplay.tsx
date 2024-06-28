@@ -116,7 +116,9 @@ function ItemFilterPropertiesDisplay(props: Props) {
 
                     return (
                         <p key={key}>
-                            {camelCaseToSentenceCase(key)}: {display}
+                            <div className="ellipse" title={display}>
+                                {camelCaseToSentenceCase(key)}: {display}
+                            </div>
                             {props.isEditable ? (
                                 <span
                                     style={{ color: 'red', cursor: 'pointer' }}
