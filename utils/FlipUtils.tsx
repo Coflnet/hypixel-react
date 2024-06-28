@@ -148,7 +148,21 @@ export const FLIP_FINDERS = [
         ),
         selectable: true
     },
-    { value: '128', label: 'External', shortLabel: 'External', default: false, description: '', selectable: false }
+    { value: '128', label: 'External', shortLabel: 'External', default: false, description: '', selectable: false },
+    {
+        value: '1024',
+        label: 'CraftCost',
+        shortLabel: 'CraftCost',
+        default: false,
+        description: (
+            <span>
+                Displays any auction that would be at least 20% more expensive to craft. <br />
+                Sums up clean+modifier cost. <br />
+                Note that this does not indicate that the item will sell for that price.
+            </span>
+        ),
+        selectable: true
+    }
 ]
 
 export function getFlipFinders(finderValues: number[]) {
