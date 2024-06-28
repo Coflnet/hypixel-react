@@ -1,6 +1,6 @@
 'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import { ChangeEvent, useRef } from 'react'
+import { ChangeEvent, useRef, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEFAULT_MOD_FORMAT } from '../../../../utils/FlipUtils'
 import Tooltip from '../../../Tooltip/Tooltip'
@@ -9,7 +9,6 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import { useForceUpdate } from '../../../../utils/Hooks'
 import styles from './FormatElement.module.css'
 import { getMinecraftColorCodedElement } from '../../../../utils/Formatter'
-import { values } from 'idb-keyval'
 
 interface Props {
     onChange(value: string)
@@ -19,19 +18,20 @@ interface Props {
 
 function FormatElement(props: Props) {
     let formatInputRef = useRef(null)
-    let forceUpdate = useForceUpdate()
+    let [isChecked, setIsChecked] = useState<boolean>(!!props.settings.modFormat)
 
     let { trackEvent } = useMatomo()
 
     function onChange(value: string) {
         props.onChange(value)
-        forceUpdate()
     }
 
     function onModDefaultFormatCheckboxChange(event) {
         if (event.target.checked) {
             setDefaultModFormat()
+            setIsChecked(true)
         } else {
+            setIsChecked(false)
             onChange('')
         }
     }
@@ -107,14 +107,8 @@ function FormatElement(props: Props) {
                 Custom format
                 <Tooltip type="hover" content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer' }} />} tooltipContent={formatHelpTooltip} />
             </label>
-            <Form.Check
-                onChange={onModDefaultFormatCheckboxChange}
-                defaultChecked={!!props.settings.modFormat}
-                id="modFormat"
-                style={{ display: 'inline' }}
-                type="checkbox"
-            />
-            {props.settings.modFormat ? (
+            <Form.Check onChange={onModDefaultFormatCheckboxChange} defaultChecked={isChecked} id="modFormat" style={{ display: 'inline' }} type="checkbox" />
+            {isChecked ? (
                 <div>
                     <div style={{ display: 'flex' }}>
                         <Form.Control
