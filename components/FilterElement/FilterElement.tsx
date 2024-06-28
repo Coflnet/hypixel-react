@@ -44,12 +44,12 @@ function FilterElement(props: Props) {
     function parseValue(newValue?: any) {
         if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
             if (!newValue) {
-                return new Date().getTime() / 1000
+                return Math.round(new Date().getTime() / 1000)
             }
             if (!isNaN(newValue)) {
                 return newValue
             }
-            let date = Date.parse(newValue) / 1000
+            let date = Math.round(Date.parse(newValue) / 1000)
             if (!isNaN(date)) {
                 return date
             }
