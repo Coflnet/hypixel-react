@@ -156,7 +156,7 @@ export const FLIP_FINDERS = [
         default: false,
         description: (
             <span>
-                Displays any auction that would be at least 20% more expensive to craft. <br />
+                Displays any auction that would be at least 20% or 10m more expensive to craft. <br />
                 Sums up clean+modifier cost. <br />
                 Note that this does not indicate that the item will sell for that price.
             </span>
