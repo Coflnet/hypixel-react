@@ -152,15 +152,22 @@ function SubscriptionList() {
             toast.error('Could not delete notifier, no id available...')
             return
         }
+
         let subscriptionToDelete = subscriptions.find(s => s.sourceSubIdRegex === notificationListener.id!.toString())
 
         Promise.all([
             subscriptionToDelete ? api.deleteNotificationSubscription(subscriptionToDelete) : Promise.resolve(),
             api.unsubscribe(notificationListener)
         ]).then(() => {
-            let subs = listener.filter(s => s !== notificationListener)
-            listener = subs
-            setListener(subs)
+            let newListeners = listener.filter(s => s !== notificationListener)
+            listener = newListeners
+            setListener(newListeners)
+
+            if (subscriptionToDelete) {
+                let newSubscriptions = subscriptions.filter(s => s.id !== subscriptionToDelete?.id)
+                subscriptions = newSubscriptions
+                setSubscriptions(newSubscriptions)
+            }
 
             toast.success(
                 <span>
