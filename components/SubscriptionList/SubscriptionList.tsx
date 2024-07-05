@@ -60,20 +60,19 @@ function SubscriptionList() {
     }
 
     function loadListener() {
-        return api.getNotificationListener().then(subscriptions => {
+        return api.getNotificationListener().then(listeners => {
             if (!mounted) {
                 return
             }
 
-            subscriptions.forEach((subscription, i) => {
-                getSubscriptionTitle(subscription).then(title => {
-                    let newSubscriptions = subscriptions
-                    newSubscriptions[i].title = title
-                    setListener(newSubscriptions)
-                    forceUpdate()
+            let newListeners = [...listener]
+
+            listeners.forEach((listener, i) => {
+                getSubscriptionTitle(listener).then(title => {
+                    newListeners[i].title = title
                 })
             })
-            setListener(subscriptions)
+            setListener(listeners)
         })
     }
 
@@ -196,18 +195,12 @@ function SubscriptionList() {
         setShowDeleteAllSubscriptionDialog(false)
     }
 
-    function resubscribe(listener: NotificationListener, subscription: NotificationSubscription) {
-        let promises = [
-            api.subscribe(listener.topicId, listener.types, subscription.targets as any, listener.price, listener.filter),
-            api.createNotificationSubscription(subscription)
-        ]
+    async function resubscribe(listener: NotificationListener, subscription: NotificationSubscription) {
+        setIsLoading(true)
+        await api.subscribe(listener.topicId, listener.types, subscription.targets as any, listener.price, listener.filter)
 
-        Promise.all(promises).then(() => {
-            setIsLoading(true)
-            Promise.all([loadListener(), loadSubscriptions()]).then(() => {
-                setIsLoading(false)
-            })
-        })
+        await Promise.all([loadListener(), loadSubscriptions()])
+        setIsLoading(false)
     }
 
     function onAfterSubscribeEdit(oldSubscription: NotificationListener) {
@@ -449,12 +442,12 @@ function SubscriptionList() {
                                 onClick={() => {
                                     setShowDeleteAllSubscriptionDialog(true)
                                 }}
-                                disabled={listener.length === 0}
+                                disabled={subscriptions.length === 0}
                             >
                                 Delete all notifiers
                             </Button>
                         </div>
-                        {listener.length > 0 ? (
+                        {subscriptions.length > 0 ? (
                             <>
                                 <ListGroup style={{ marginTop: '20px' }}>{subscriptionsTableBody}</ListGroup>
                             </>
