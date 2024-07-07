@@ -71,6 +71,17 @@ function BuyPremium(props: Props) {
         return durationString
     }
 
+    function getPremiumToggleButtonStyle(premiumType: PremiumType) {
+        switch (premiumType.productId) {
+            case 'premium':
+                return { color: '#32de84' }
+            case 'premium_plus':
+                return { color: '#ffaa00' }
+            default:
+                return {}
+        }
+    }
+
     return (
         <>
             <Card className={styles.purchaseCard}>
@@ -97,6 +108,7 @@ function BuyPremium(props: Props) {
                                             className={styles.priceRangeButton}
                                             size="lg"
                                             variant="primary"
+                                            style={getPremiumToggleButtonStyle(premiumType)}
                                         >
                                             {premiumType.label}
                                         </ToggleButton>

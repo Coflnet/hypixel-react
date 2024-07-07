@@ -59,10 +59,13 @@
 .purchaseCard :global(:not(.btn-check:checked)) + .priceRangeButton{
     background-color: #2a3644;
     border-color: #2a3644;
+    filter: grayscale(70%);
+    font-weight: bold;
     color: lightgray;
 }
 
 /** Show the selected price option more clearly as selected **/
 .purchaseCard :global(.btn-check:checked) + .priceRangeButton{
     border-color: white;
+    font-weight: bold;
 }
