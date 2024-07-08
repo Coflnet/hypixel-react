@@ -677,5 +677,5 @@ interface ArchivedAuction {
 
 interface ArchivedAuctionResponse {
     auctions: ArchivedAuction[]
-    queryStatus: string
+    queryStatus: 'Success' | 'NoResults' | 'Pending' | 'Partial'
 }

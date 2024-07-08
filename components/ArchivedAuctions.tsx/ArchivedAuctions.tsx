@@ -1,6 +1,6 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
-import { Button, Card, ListGroup } from 'react-bootstrap'
+import React, { useRef, useState } from 'react'
+import { Button, Card } from 'react-bootstrap'
 import styles from './ArchivedAuctions.module.css'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -9,7 +9,7 @@ import moment from 'moment'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import { PREMIUM_RANK, getHighestPriorityPremiumProduct, hasHighEnoughPremium } from '../../utils/PremiumTypeUtils'
+import { PREMIUM_RANK, hasHighEnoughPremium } from '../../utils/PremiumTypeUtils'
 import DatePicker from 'react-datepicker'
 import ItemFilter from '../ItemFilter/ItemFilter'
 import Tooltip from '../Tooltip/Tooltip'
@@ -86,6 +86,13 @@ const ArchivedAuctionsList = (props: Props) => {
                 EndBefore: Math.floor(to.getTime() / 1000).toString(),
                 page: reset ? 0 : currentPageRef.current.toString()
             })
+
+            if (data.queryStatus === 'Pending') {
+                setTimeout(() => {
+                    search()
+                }, 1000)
+                return
+            }
 
             let newAuctions = [...archivedAuctionsRef.current, ...data.auctions]
             archivedAuctionsRef.current = newAuctions
