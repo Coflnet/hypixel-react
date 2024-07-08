@@ -6,6 +6,7 @@ import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { enchantmentAndReforgeCompare } from '../utils/Formatter'
 import {
     parseAccountInfo,
+    parseArchivedAuctions,
     parseAuction,
     parseAuctionDetails,
     parseBazaarPrice,
@@ -2468,6 +2469,40 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let requestArchivedAuctions = (itemTag: string, itemFilter?: ItemFilter): Promise<ArchivedAuctionResponse> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to request archived auctions.')
+                reject()
+                return
+            }
+            
+            let params = new URLSearchParams()
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                params = new URLSearchParams(itemFilter)
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.ARCHIVED_AUCTIONS,
+                customRequestURL: `${getApiEndpoint()}/auctions/tag/${itemTag}/archive/overview?${params.toString()}`,
+                requestMethod: 'GET',
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: result => {
+                    resolve(parseArchivedAuctions(result))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.ARCHIVED_AUCTIONS, error, { itemTag, itemFilter })
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -2557,7 +2592,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         deleteNotificationSubscription,
         getNotificationSubscriptions,
         getPublishedConfigs,
-        updateConfig
+        updateConfig,
+        requestArchivedAuctions
     }
 }
 

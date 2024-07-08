@@ -474,7 +474,7 @@ function ItemFilter(props: Props) {
                             <div className={styles.filterContainer}>{filterList}</div>
                         </Form>
                         {props.forceOpen ? null : (
-                            <div>
+                            <div style={{ display: 'flex', justifyContent: 'end', marginTop: '10px' }}>
                                 <Button variant="danger" onClick={() => onFilterClose()}>
                                     Close
                                 </Button>
