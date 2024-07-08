@@ -66,7 +66,7 @@ export default function PlayerDetails(props: Props) {
 
     let claimAccountElement =
         props.player.uuid !== accountInfo?.mcId ? (
-            <span style={{ marginLeft: '25px' }}>
+            <span style={{ marginLeft: '25px', userSelect: 'none' }}>
                 <Tooltip
                     type="click"
                     content={<span style={{ color: '#007bff', cursor: 'pointer' }}>You? Claim account.</span>}
