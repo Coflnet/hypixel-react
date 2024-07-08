@@ -456,10 +456,11 @@ function AuctionDetails(props: Props) {
                     {auctionDetails && auctionDetails!.enchantments.length > 0 ? (
                         <ul className={styles.list}>
                             {auctionDetails?.enchantments.map(enchantment => {
-                                let enchantmentString = <span>{enchantment.name}</span>
                                 if(enchantment.name === "Ultimate Reiterate"){
                                     enchantment.name = "Duplex";
                                 }
+                                let enchantmentString = <span>{enchantment.name}</span>
+                                
                                 if (enchantment.color) {
                                     enchantmentString = getMinecraftColorCodedElement(enchantment.color + enchantment.name + ' ' + enchantment.level)
                                 }
