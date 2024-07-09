@@ -31,6 +31,7 @@ const ArchivedAuctionsList = (props: Props) => {
     let [isLoading, setIsLoading] = useState(false)
     let [currentPage, setCurrentPage] = useState(0)
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
+    let [noResults, setNoResults] = useState(false)
 
     let currentPageRef = useRef(currentPage)
     currentPageRef.current = currentPage
@@ -75,6 +76,11 @@ const ArchivedAuctionsList = (props: Props) => {
             setArchivedAuctions([])
             setCurrentPage(0)
             setAllElementsLoaded(false)
+            setNoResults(false)
+
+            archivedAuctionsRef.current = []
+            currentPageRef.current = 0
+            allElementsLoadedRef.current = false
         }
 
         setIsLoading(true)
@@ -100,6 +106,10 @@ const ArchivedAuctionsList = (props: Props) => {
             let newPage = currentPageRef.current + 1
             currentPageRef.current = newPage
             setCurrentPage(newPage)
+
+            if (newAuctions.length === 0) {
+                setNoResults(true)
+            }
 
             if (newAuctions.length < 12) {
                 setAllElementsLoaded(true)
@@ -201,7 +211,7 @@ const ArchivedAuctionsList = (props: Props) => {
                 Search
             </Button>
             <hr />
-            {isLoading && !archivedAuctions ? getLoadingElement(<p>Loading archived auctions...</p>) : null}
+            {isLoading && archivedAuctions.length === 0 ? getLoadingElement(<p>Loading archived auctions...</p>) : null}
             {archivedAuctions.length > 0 ? (
                 <>
                     <InfiniteScroll
@@ -225,6 +235,7 @@ const ArchivedAuctionsList = (props: Props) => {
                     </div>
                 </>
             ) : null}
+            {noResults ? <p style={{ textAlign: 'center' }}>No auctions found</p> : null}
             <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
         </>
     )

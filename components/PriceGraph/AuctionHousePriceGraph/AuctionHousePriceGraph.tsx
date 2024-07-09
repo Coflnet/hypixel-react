@@ -17,11 +17,6 @@ import styles from './AuctionHousePriceGraph.module.css'
 import graphConfig from './PriceGraphConfig'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
 import EChartsReact from 'echarts-for-react'
-import { toast } from 'react-toastify'
-import { Button } from 'react-bootstrap'
-import { PREMIUM_RANK, getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium } from '../../../utils/PremiumTypeUtils'
-import GoogleSignIn from '../../GoogleSignIn/GoogleSignIn'
-import Link from 'next/link'
 
 interface Props {
     item: Item
@@ -43,7 +38,6 @@ function AuctionHousePriceGraph(props: Props) {
     let [chartOptions, setChartOptions] = useState(graphConfig)
     let [mayorData, setMayorData] = useState<MayorData[]>([])
     let graphRef = useRef<EChartsReact>(null)
-    let [premiumProducts, setPremiumProducts] = useState<PremiumProduct[]>([])
 
     let fetchspanRef = useRef(fetchspan)
     fetchspanRef.current = fetchspan
@@ -138,12 +132,6 @@ function AuctionHousePriceGraph(props: Props) {
             })
     }
 
-    function onAfterLogin() {
-        api.getPremiumProducts().then(products => {
-            setPremiumProducts(products)
-        })
-    }
-
     let onRangeChange = (timespan: DateRange) => {
         setFetchspan(timespan)
         if (timespan !== DateRange.ACTIVE) {
@@ -228,13 +216,6 @@ function AuctionHousePriceGraph(props: Props) {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <SubscribeButton type="item" topic={props.item.tag} />
-                    {hasHighEnoughPremium(premiumProducts, PREMIUM_RANK.PREMIUM_PLUS) ? (
-                        <div>
-                            <Link href={`/item/${props.item.tag}/archive`}>
-                                <Button>Archived Auctions</Button>
-                            </Link>
-                        </div>
-                    ) : null}
                     <ShareButton
                         title={'Prices for ' + props.item.name}
                         text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock"
@@ -250,9 +231,6 @@ function AuctionHousePriceGraph(props: Props) {
                     <RecentAuctions item={props.item} itemFilter={itemFilter || {}} />
                 </div>
             )}
-            <div style={{ visibility: 'collapse', height: 0 }}>
-                <GoogleSignIn onAfterLogin={onAfterLogin} />
-            </div>
         </div>
     )
 }

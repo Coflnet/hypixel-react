@@ -13,6 +13,7 @@ import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
 import Number from '../Number/Number'
 import styles from './RecentAuctions.module.css'
+import { useSearchParams } from 'next/navigation'
 
 interface Props {
     item: Item
@@ -36,7 +37,9 @@ function RecentAuctions(props: Props) {
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [premiumType, setPremiumType] = useState<PremiumType>()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [noResults, setNoResults] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    let searchParams = useSearchParams()
 
     let itemFilterRef = useRef<ItemFilter>(props.itemFilter)
     itemFilterRef.current = props.itemFilter
@@ -58,6 +61,7 @@ function RecentAuctions(props: Props) {
         let recentAuctions = reset ? [] : recentAuctionsRef.current
         if (reset) {
             setRecentAuctions([])
+            setNoResults(false)
         }
 
         let itemFilter = { ...itemFilterRef.current }
@@ -103,6 +107,9 @@ function RecentAuctions(props: Props) {
         api.getRecentAuctions(props.item.tag, itemFilter).then(newRecentAuctions => {
             if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
                 return
+            }
+            if (newRecentAuctions.length === 0) {
+                setNoResults(true)
             }
             if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
                 setAllElementsLoaded(true)
@@ -224,19 +231,36 @@ function RecentAuctions(props: Props) {
                     >
                         {recentAuctionList}
                     </InfiniteScroll>
-                ) : (
-                    <p style={{ textAlign: 'center' }}>No recent auctions found</p>
-                )}
+                ) : null}
+                {noResults ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <p style={{ textAlign: 'center' }}>No recent auctions found.</p>
+                        {premiumType?.priority >= PREMIUM_RANK.PREMIUM_PLUS ? (
+                            <Link
+                                style={{ textAlign: 'center', marginBottom: '15px' }}
+                                href={`/item/${props.item.tag}/archive?${searchParams.has('itemFilter') ? `?${searchParams.get('itemFilter')}` : ''}`}
+                            >
+                                <Button>Archived Auctions</Button>
+                            </Link>
+                        ) : (
+                            <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+                                You can search through all our archived auctions with <Link href={'/premium'}>Premium+</Link>
+                            </div>
+                        )}
+                    </div>
+                ) : null}
             </div>
-            {getMoreAuctionsElement(
-                isLoggedIn,
-                wasAlreadyLoggedIn,
-                premiumType,
-                onAfterLogin,
-                <span>
-                    You currently use Starter Premium. You can see up to 120 recent auctions with <Link href={'/premium'}>Premium</Link>
-                </span>
-            )}
+            {!noResults &&
+                getMoreAuctionsElement(
+                    'recent-auctions-load-more',
+                    isLoggedIn,
+                    wasAlreadyLoggedIn,
+                    premiumType,
+                    onAfterLogin,
+                    <span style={{ textAlign: 'center', marginBottom: '15px' }}>
+                        You currently use Starter Premium. You can see up to 120 recent auctions with <Link href={'/premium'}>Premium</Link>
+                    </span>
+                )}
         </div>
     )
 }

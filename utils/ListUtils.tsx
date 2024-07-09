@@ -7,19 +7,21 @@ import { PREMIUM_RANK } from './PremiumTypeUtils'
  * Displayed if more auctions could be loaded with premium
  */
 export function getMoreAuctionsElement(
+    key: string,
     isLoggedIn: boolean,
     wasAlreadyLoggedIn: boolean,
     premiumType: PremiumType | undefined,
     onAfterLogin: () => void,
     textForStarterPremium: JSX.Element
 ) {
+    if (wasAlreadyLoggedIn && !isLoggedIn) {
+        return <GoogleSignIn onAfterLogin={onAfterLogin} />
+    }
+
     if (!isLoggedIn || !premiumType) {
         return (
-            <div style={wasAlreadyLoggedIn ? { visibility: 'collapse', height: 0 } : {}}>
-                You can see more auctions with{' '}
-                <Link href={'/premium'} style={{ marginBottom: '15px' }}>
-                    Premium
-                </Link>
+            <div style={{ marginBottom: '15px', textAlign: 'center' }}>
+                You can see more auctions with <Link href={'/premium'}>Premium</Link>
                 <GoogleSignIn onAfterLogin={onAfterLogin} />
             </div>
         )
