@@ -457,7 +457,7 @@ function AuctionDetails(props: Props) {
                         <ul className={styles.list}>
                             {auctionDetails?.enchantments.map(enchantment => {
                                 if(enchantment.name === "Ultimate Reiterate"){
-                                    enchantment.name = "Duplex";
+                                    enchantment.name = "Ultimate Duplex";
                                 }
                                 let enchantmentString = <span>{enchantment.name}</span>
                                 
