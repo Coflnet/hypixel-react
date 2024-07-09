@@ -235,6 +235,7 @@ function ActiveAuctions(props: Props) {
                 )}
             </div>
             {getMoreAuctionsElement(
+                'active-auctions-load-more',
                 isLoggedIn,
                 wasAlreadyLoggedIn,
                 premiumType,
