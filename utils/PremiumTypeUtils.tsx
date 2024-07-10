@@ -4,6 +4,8 @@ export enum PREMIUM_RANK {
     PREMIUM_PLUS = 3
 }
 
+export const TEST_PREMIUM_DAYS = 3
+
 export const PREMIUM_TYPES: PremiumType[] = [
     {
         productId: 'premium',

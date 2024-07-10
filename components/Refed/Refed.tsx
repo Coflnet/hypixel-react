@@ -6,6 +6,7 @@ import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { useState } from 'react'
 import Link from 'next/link'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { TEST_PREMIUM_DAYS } from '../../utils/PremiumTypeUtils'
 
 export default function Refed() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -34,7 +35,7 @@ export default function Refed() {
                                 </p>
                             }
                         />{' '}
-                        to get 24 hours of our <Link href="/premium">premium plan</Link> for free. That includes our{' '}
+                        to get {TEST_PREMIUM_DAYS} days of our <Link href="/premium">premium plan</Link> for free. That includes our{' '}
                         <Link href="/flipper">advanced auction flipper</Link>.
                     </p>
                     <p>

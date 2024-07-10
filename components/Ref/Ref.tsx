@@ -12,6 +12,7 @@ import Number from '../Number/Number'
 import styles from './Ref.module.css'
 import Tooltip from '../Tooltip/Tooltip'
 import ClaimAccountTutorial from '../ClaimAccount/ClaimAccountTutorial'
+import { TEST_PREMIUM_DAYS } from '../../utils/PremiumTypeUtils'
 
 function Ref() {
     let [refInfo, setRefInfo] = useState<RefInfo>()
@@ -82,7 +83,7 @@ function Ref() {
                                 You receive <b>200 CoflCoins</b>
                             </li>
                             <li>
-                                The invited person gets <b>2 days of premium</b> to test our services
+                                The invited person gets <b>{TEST_PREMIUM_DAYS} days of premium</b> to test our services
                             </li>
                             <li>
                                 The first time an invited person buys CoflCoins, you get <b>25%</b> of the purchased amount
