@@ -5,6 +5,7 @@ import { useCoflCoins } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import Number from '../Number/Number'
 import styles from './CoflCoinsDisplay.module.css'
+import { toast } from 'react-toastify'
 
 export function CoflCoinsDisplay() {
     let coflCoins = useCoflCoins()
@@ -32,6 +33,7 @@ export function CoflCoinsDisplay() {
     if (isNaN(coflCoins) || coflCoins === undefined || coflCoins === null) {
         console.error('coflCoins is not a number')
         console.error(coflCoins)
+        toast.error('Something went wrong while loading your CoflCoins. Please try again.')
     }
 
     return (
