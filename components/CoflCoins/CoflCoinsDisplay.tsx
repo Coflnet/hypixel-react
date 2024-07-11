@@ -29,6 +29,11 @@ export function CoflCoinsDisplay() {
 
     function loadCoflCoins() {}
 
+    if (isNaN(coflCoins) || coflCoins === undefined || coflCoins === null) {
+        console.error('coflCoins is not a number')
+        console.error(coflCoins)
+    }
+
     return (
         <div className="cofl-coins-display">
             <fieldset className={styles.border} style={{ width: 'max-content', borderRadius: '15px', textAlign: 'center' }}>
