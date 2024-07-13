@@ -16,6 +16,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import Link from 'next/link'
 import { FlipTrackingTotalProfitCalculation } from './FlipTrackingTotalProfitCalculation'
 import { FlipTrackingListItem } from './FlipTrackingListItem'
+import { NumberRangeFilterElement } from '../FilterElement/FilterElements/NumberRangeFilterElement'
 
 interface Props {
     totalProfit?: number
@@ -205,8 +206,8 @@ export function FlipTracking(props: Props) {
     return (
         <div>
             <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
-                <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'start' }}>
                     <div className={styles.filterContainer}>
                         <label htmlFor="flag-filter" style={{ marginRight: 15 }}>
                             Sort:
@@ -238,6 +239,11 @@ export function FlipTracking(props: Props) {
                             ))}
                         </Form.Select>
                     </div>
+                </div>
+
+                <div className={styles.filterContainer}>
+                    <label style={{ marginRight: 15 }}>Profit Range:</label>
+                    <NumberRangeFilterElement defaultValue={0} onChange={() => {}} hideSlider />
                 </div>
                 {hasPremium ? (
                     <div className={styles.filterContainer}>

@@ -10,6 +10,7 @@ interface Props {
     min?: number
     max?: number
     defaultValue: any
+    hideSlider?: boolean
 }
 
 export function NumberRangeFilterElement(props: Props) {
@@ -90,16 +91,18 @@ export function NumberRangeFilterElement(props: Props) {
     return (
         <div className={styles.container}>
             <Form.Control value={textValue} onChange={_onTextChange} className={styles.textField} />
-            <Slider
-                className={styles.slider}
-                range
-                marks={getMarks()}
-                allowCross={false}
-                onChange={_onRangeChange}
-                min={props.min || 0}
-                max={props.max}
-                value={value}
-            />
+            {!props.hideSlider && (
+                <Slider
+                    className={styles.slider}
+                    range
+                    marks={getMarks()}
+                    allowCross={false}
+                    onChange={_onRangeChange}
+                    min={props.min || 0}
+                    max={props.max}
+                    value={value}
+                />
+            )}
         </div>
     )
 }
