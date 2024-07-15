@@ -206,10 +206,10 @@ export function FlipTracking(props: Props) {
     return (
         <div>
             <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', gap: 10, justifyContent: 'start' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', gap: 10, flexDirection: 'column' }}>
                     <div className={styles.filterContainer}>
-                        <label htmlFor="flag-filter" style={{ marginRight: 15 }}>
+                        <label htmlFor="flag-filter" style={{ width: '100px' }}>
                             Sort:
                         </label>
                         <Form.Select style={{ width: 'auto' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
@@ -221,7 +221,7 @@ export function FlipTracking(props: Props) {
                         </Form.Select>
                     </div>
                     <div className={styles.filterContainer}>
-                        <label htmlFor="flag-filter" style={{ marginRight: 15 }}>
+                        <label htmlFor="flag-filter" style={{ width: '100px' }}>
                             Filter:
                         </label>
                         <Form.Select
@@ -239,11 +239,10 @@ export function FlipTracking(props: Props) {
                             ))}
                         </Form.Select>
                     </div>
-                </div>
-
-                <div className={styles.filterContainer}>
-                    <label style={{ marginRight: 15 }}>Profit Range:</label>
-                    <NumberRangeFilterElement defaultValue={0} onChange={() => {}} hideSlider />
+                    <div className={styles.filterContainer}>
+                        <label style={{ width: '100px' }}>Profit Range:</label>
+                        <NumberRangeFilterElement defaultValue={0} onChange={() => {}} hideSlider />
+                    </div>
                 </div>
                 {hasPremium ? (
                     <div className={styles.filterContainer}>
