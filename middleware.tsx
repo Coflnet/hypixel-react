@@ -6,8 +6,13 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
         const url = req.nextUrl.clone()
         let split = url.pathname.split('/')
 
-        // special case for people searching hyauctions
-        if (split[2] === 'be7002531956406d81c535a81fe2833a') {
+        // special case for people searching a hyauction account
+        if (
+            req.referrer?.includes('google.com') &&
+            (split[2] === 'be7002531956406d81c535a81fe2833a' ||
+                split[2] === '903fe3366f8548b493f2524433b180f4?' ||
+                split[2] === 'c7aee75e6ee4437ab0e143a8836176a8')
+        ) {
             url.pathname = '/'
             return NextResponse.redirect(url)
         }
