@@ -185,6 +185,11 @@ function Search(props: Props) {
 
         let previousSearchesString = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
         let previousSearches: SearchResultItem[] = previousSearchesString ? JSON.parse(previousSearchesString) : []
+        previousSearches.sort((a, b) => {
+            if (a.pinned) return -1
+            if (b.pinned) return 1
+            return 0
+        })
 
         let alreadyFoundIndex = previousSearches.findIndex(r => r.dataItem.name === item.dataItem.name)
         if (alreadyFoundIndex !== -1) {
