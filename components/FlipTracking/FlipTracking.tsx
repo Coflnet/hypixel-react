@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
 import { Item, Menu, useContextMenu } from 'react-contexify'
-import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { useForceUpdate, useQueryParamState, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './FlipTracking.module.css'
@@ -85,8 +85,6 @@ const TRACKED_FLIP_CONTEXT_MENU_ID = 'tracked-flip-context-menu'
 
 export function FlipTracking(props: Props) {
     let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
-    let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
-    let [filterBy, setFilterBy] = useState(FILTER_OPTIONS[0])
     let [ignoreProfitMap, setIgnoreProfitMap] = useState(getSettingsObject(IGNORE_FLIP_TRACKING_PROFIT, {}))
     let [rangeStartDate, setRangeStartDate] = useState(new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7))
     let [rangeEndDate, setRangeEndDate] = useState(new Date())
@@ -96,6 +94,18 @@ export function FlipTracking(props: Props) {
     let [wasManualLoginClick, setWasManualLoginClick] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let forceUpdate = useForceUpdate()
+
+    let [_orderBy, _setOrderBy] = useQueryParamState<string>('order', SORT_OPTIONS[0].value)
+    let [_filterBy, _setFilterBy] = useQueryParamState<string>('filter', FILTER_OPTIONS[0].value)
+
+    let orderBy = SORT_OPTIONS.find(o => o.value === _orderBy)!
+    let filterBy = FILTER_OPTIONS.find(f => f.value === _filterBy)!
+    let setOrderBy = (newValue: SortOption) => {
+        _setOrderBy(newValue.value)
+    }
+    let setFilterBy = (newValue: FilterOption) => {
+        _setFilterBy(newValue.value)
+    }
 
     const { show } = useContextMenu({
         id: TRACKED_FLIP_CONTEXT_MENU_ID
