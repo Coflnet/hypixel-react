@@ -228,6 +228,11 @@ function AuctionDetails(props: Props) {
             )
         }
 
+        if (key === 'date') {
+            let date = new Date(parseInt(value))
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+        }
+
         // Don't use the number formating if it includes a 'e' as it is then treated as an exponential number resulting in displaying "∞"
         if (!isNaN(value) && !value.toString().includes('e')) {
             return <Number number={value} />
