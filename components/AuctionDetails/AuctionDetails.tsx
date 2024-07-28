@@ -45,8 +45,6 @@ function AuctionDetails(props: Props) {
     let [showItemHistoryDialog, setShowItemHistoryDialog] = useState(false)
     let forceUpdate = useForceUpdate()
 
-    console.log(props)
-
     useEffect(() => {
         // Dont load auction details if
         // - either the auctionUUID is not present (then it cant be loaded here and needs props.auctionDetails)

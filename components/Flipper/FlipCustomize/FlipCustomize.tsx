@@ -43,7 +43,6 @@ function FlipCustomize() {
 
     async function loadPublishedConfigs() {
         let configs = await api.getPublishedConfigs()
-        console.log(configs)
     }
 
     function setFlipCustomizeSetting(key: string, value: any) {
