@@ -45,8 +45,6 @@ function AuctionDetails(props: Props) {
     let [showItemHistoryDialog, setShowItemHistoryDialog] = useState(false)
     let forceUpdate = useForceUpdate()
 
-    console.log(props)
-
     useEffect(() => {
         // Dont load auction details if
         // - either the auctionUUID is not present (then it cant be loaded here and needs props.auctionDetails)
@@ -228,7 +226,13 @@ function AuctionDetails(props: Props) {
             )
         }
 
-        if (!isNaN(value)) {
+        if (key === 'date') {
+            let date = new Date(parseInt(value))
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+        }
+
+        // Don't use the number formating if it includes a 'e' as it is then treated as an exponential number resulting in displaying "∞"
+        if (!isNaN(value) && !value.toString().includes('e')) {
             return <Number number={value} />
         }
 
@@ -456,11 +460,11 @@ function AuctionDetails(props: Props) {
                     {auctionDetails && auctionDetails!.enchantments.length > 0 ? (
                         <ul className={styles.list}>
                             {auctionDetails?.enchantments.map(enchantment => {
-                                if(enchantment.name === "Ultimate Reiterate"){
-                                    enchantment.name = "Ultimate Duplex";
+                                if (enchantment.name === 'Ultimate Reiterate') {
+                                    enchantment.name = 'Ultimate Duplex'
                                 }
                                 let enchantmentString = <span>{enchantment.name}</span>
-                                
+
                                 if (enchantment.color) {
                                     enchantmentString = getMinecraftColorCodedElement(enchantment.color + enchantment.name + ' ' + enchantment.level)
                                 }

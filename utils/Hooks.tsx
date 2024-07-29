@@ -3,6 +3,8 @@ import api from '../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
 import { getCurrentCoflCoins, subscribeToCoflcoinChange } from './CoflCoinsUtils'
 import { isClientSideRendering } from './SSRUtils'
+import { getURLSearchParam } from './Parser/URLParser'
+import { useRouter } from 'next/navigation'
 
 export function useForceUpdate() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -128,4 +130,26 @@ export function useStateWithRef<T>(defaultValue: T): [T, Dispatch<SetStateAction
     }, [])
 
     return [state, setState, stateRef]
+}
+
+export function useQueryParamState<T>(key: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] {
+    const [state, setState] = useState<T>(getDefaultValue() || defaultValue)
+    const router = useRouter()
+
+    function getDefaultValue(): T | undefined {
+        let param = getURLSearchParam(key)
+        if (!param) {
+            return undefined
+        }
+        return JSON.parse(decodeURIComponent(param)) as T
+    }
+
+    function _setState(newState: T) {
+        setState(newState)
+        let urlparams = new URLSearchParams(window.location.search)
+        urlparams.set(key, encodeURIComponent(JSON.stringify(newState)))
+        router.replace(`${window.location.pathname}?${urlparams.toString()}`)
+    }
+
+    return [state, _setState]
 }

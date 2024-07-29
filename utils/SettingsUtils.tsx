@@ -339,23 +339,17 @@ export async function handleSettingsImport(importString: string) {
     }
 
     if (flipCustomizeSettings.finders && localStorage.getItem('disableRiskyFinderImportProtection') !== 'true') {
-        // remove user, ai and  TFM finder when importing a config, to protect users from these configs which they might not really understand
+        // These finders are considered "safe". All others are removed when importing a config
+        // "1" = "Flipper", "2" = "Sniper", "4" = "Sniper (Median)"
+        const safe_finders = ['1', '2', '4']
 
         let removed: string[] = []
         let newFinders = flipCustomizeSettings.finders.filter(finder => {
-            if (finder === 8) {
-                removed.push('AI')
-                return false
+            let isSafe = safe_finders.includes(finder.toString())
+            if (!isSafe) {
+                removed.push(FLIP_FINDERS.find(f => f.value === finder.toString())!.label)
             }
-            if (finder === 16) {
-                removed.push('User')
-                return false
-            }
-            if (finder === 32) {
-                removed.push('TFM')
-                return false
-            }
-            return true
+            return isSafe
         })
         if (removed.length > 0) {
             toast.warn(
