@@ -11,6 +11,7 @@ interface Props {
     max?: number
     defaultValue: any
     hideSlider?: boolean
+    className?: string
 }
 
 export function NumberRangeFilterElement(props: Props) {
@@ -90,7 +91,7 @@ export function NumberRangeFilterElement(props: Props) {
 
     return (
         <div className={styles.container}>
-            <Form.Control value={textValue} onChange={_onTextChange} className={styles.textField} />
+            <Form.Control value={textValue} onChange={_onTextChange} className={props.className || styles.textField} />
             {!props.hideSlider && (
                 <Slider
                     className={styles.slider}

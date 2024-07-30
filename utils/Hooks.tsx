@@ -145,6 +145,8 @@ export function useQueryParamState<T>(key: string, defaultValue: T): [T, Dispatc
     }
 
     function _setState(newState: T) {
+        if(!newState) return;
+        
         setState(newState)
         let urlparams = new URLSearchParams(window.location.search)
         urlparams.set(key, encodeURIComponent(JSON.stringify(newState)))

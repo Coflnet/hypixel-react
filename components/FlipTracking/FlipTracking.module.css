@@ -49,3 +49,7 @@
     display: flex;
     align-items: center;
 }
+
+.rangeFilter {
+    width: 200px;
+}

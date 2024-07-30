@@ -98,6 +98,7 @@ export function FlipTracking(props: Props) {
 
     let [_orderBy, _setOrderBy] = useQueryParamState<string>('order', SORT_OPTIONS[0].value)
     let [_filterBy, _setFilterBy] = useQueryParamState<string>('filter', FILTER_OPTIONS[0].value)
+    let [profitRange, setProfitRange] = useQueryParamState<string | undefined>('profitRange', undefined)
 
     let orderBy = SORT_OPTIONS.find(o => o.value === _orderBy)!
     let filterBy = FILTER_OPTIONS.find(f => f.value === _filterBy)!
@@ -175,8 +176,6 @@ export function FlipTracking(props: Props) {
         flipsToDisplay = sortOption?.sortFunction(trackedFlips)
     }
 
-    flipsToDisplay = filterBy.filterFunction(flipsToDisplay)
-
     let currentItemContextMenuElement = (
         <div>
             <Menu id={TRACKED_FLIP_CONTEXT_MENU_ID} theme={'dark'}>
@@ -194,6 +193,8 @@ export function FlipTracking(props: Props) {
             </Menu>
         </div>
     )
+
+    flipsToDisplay = filterBy.filterFunction(flipsToDisplay)
 
     let list = flipsToDisplay.map((trackedFlip, i) => {
         return (
@@ -216,7 +217,7 @@ export function FlipTracking(props: Props) {
     return (
         <div>
             <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
                 <div style={{ display: 'flex', gap: 10, flexDirection: 'column' }}>
                     <div className={styles.filterContainer}>
                         <label htmlFor="flag-filter" style={{ width: '100px' }}>
@@ -236,7 +237,7 @@ export function FlipTracking(props: Props) {
                         </label>
                         <Form.Select
                             id="flag-filter"
-                            style={{ width: 'auto' }}
+                            style={{ width: '200px' }}
                             defaultValue={filterBy.value}
                             onChange={e => {
                                 setFilterBy(FILTER_OPTIONS.find(option => option.value === e.target.value) || FILTER_OPTIONS[0])
@@ -249,9 +250,16 @@ export function FlipTracking(props: Props) {
                             ))}
                         </Form.Select>
                     </div>
-                    <div className={styles.filterContainer}>
+                    <div className={styles.filterContainer} style={{ display: 'flex' }}>
                         <label style={{ width: '100px' }}>Profit Range:</label>
-                        <NumberRangeFilterElement defaultValue={0} onChange={() => {}} hideSlider />
+                        <NumberRangeFilterElement
+                            defaultValue={0}
+                            onChange={r => {
+                                setProfitRange(r)
+                            }}
+                            hideSlider
+                            className={styles.rangeFilter}
+                        />
                     </div>
                 </div>
                 {hasPremium ? (
