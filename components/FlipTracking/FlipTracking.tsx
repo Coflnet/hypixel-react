@@ -17,6 +17,11 @@ import Link from 'next/link'
 import { FlipTrackingTotalProfitCalculation } from './FlipTrackingTotalProfitCalculation'
 import { FlipTrackingListItem } from './FlipTrackingListItem'
 import { NumberRangeFilterElement } from '../FilterElement/FilterElements/NumberRangeFilterElement'
+import ShowMoreText from '../ShowMoreText/ShowMoreText'
+import NumberElement from '../Number/Number'
+import { NumericalFilterElement } from '../FilterElement/FilterElements/NumericalFilterElement'
+import { NumericFormat } from 'react-number-format'
+import { getDecimalSeparator, getThousandSeparator } from '../../utils/Formatter'
 
 interface Props {
     totalProfit?: number
@@ -98,7 +103,8 @@ export function FlipTracking(props: Props) {
 
     let [_orderBy, _setOrderBy] = useQueryParamState<string>('order', SORT_OPTIONS[0].value)
     let [_filterBy, _setFilterBy] = useQueryParamState<string>('filter', FILTER_OPTIONS[0].value)
-    let [profitRange, setProfitRange] = useQueryParamState<string | undefined>('profitRange', undefined)
+    let [minProfit, setMinProfit] = useQueryParamState<string | undefined>('minProfit', undefined)
+    let [maxProfit, setMaxProfit] = useQueryParamState<string | undefined>('maxProfit', undefined)
 
     let orderBy = SORT_OPTIONS.find(o => o.value === _orderBy)!
     let filterBy = FILTER_OPTIONS.find(f => f.value === _filterBy)!
@@ -195,6 +201,12 @@ export function FlipTracking(props: Props) {
     )
 
     flipsToDisplay = filterBy.filterFunction(flipsToDisplay)
+    if (minProfit && !isNaN(parseInt(minProfit))) {
+        flipsToDisplay = flipsToDisplay.filter(flip => flip.profit >= parseInt(minProfit!))
+    }
+    if (maxProfit && !isNaN(parseInt(maxProfit))) {
+        flipsToDisplay = flipsToDisplay.filter(flip => flip.profit <= parseInt(maxProfit!))
+    }
 
     let list = flipsToDisplay.map((trackedFlip, i) => {
         return (
@@ -218,50 +230,69 @@ export function FlipTracking(props: Props) {
         <div>
             <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-                <div style={{ display: 'flex', gap: 10, flexDirection: 'column' }}>
-                    <div className={styles.filterContainer}>
-                        <label htmlFor="flag-filter" style={{ width: '100px' }}>
-                            Sort:
-                        </label>
-                        <Form.Select style={{ width: 'auto' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
-                            {SORT_OPTIONS.map(option => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </Form.Select>
-                    </div>
-                    <div className={styles.filterContainer}>
-                        <label htmlFor="flag-filter" style={{ width: '100px' }}>
-                            Filter:
-                        </label>
-                        <Form.Select
-                            id="flag-filter"
-                            style={{ width: '200px' }}
-                            defaultValue={filterBy.value}
-                            onChange={e => {
-                                setFilterBy(FILTER_OPTIONS.find(option => option.value === e.target.value) || FILTER_OPTIONS[0])
-                            }}
-                        >
-                            {FILTER_OPTIONS.map(option => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </Form.Select>
-                    </div>
-                    <div className={styles.filterContainer} style={{ display: 'flex' }}>
-                        <label style={{ width: '100px' }}>Profit Range:</label>
-                        <NumberRangeFilterElement
-                            defaultValue={0}
-                            onChange={r => {
-                                setProfitRange(r)
-                            }}
-                            hideSlider
-                            className={styles.rangeFilter}
-                        />
-                    </div>
-                </div>
+                <ShowMoreText
+                    allowShowLess
+                    initialHeight={60}
+                    content={
+                        <div style={{ display: 'flex', gap: 10, flexDirection: 'column', paddingBottom: 20 }}>
+                            <div className={styles.filterContainer}>
+                                <label htmlFor="flag-filter" style={{ minWidth: '100px' }}>
+                                    Sort:
+                                </label>
+                                <Form.Select style={{ width: 'auto' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
+                                    {SORT_OPTIONS.map(option => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </div>
+                            <div className={styles.filterContainer}>
+                                <label htmlFor="flag-filter" style={{ minWidth: '100px' }}>
+                                    Filter:
+                                </label>
+                                <Form.Select
+                                    id="flag-filter"
+                                    style={{ width: '200px' }}
+                                    defaultValue={filterBy.value}
+                                    onChange={e => {
+                                        setFilterBy(FILTER_OPTIONS.find(option => option.value === e.target.value) || FILTER_OPTIONS[0])
+                                    }}
+                                >
+                                    {FILTER_OPTIONS.map(option => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </div>
+                            <div className={styles.filterContainer}>
+                                <label style={{ minWidth: '100px' }}>Min. Profit:</label>
+                                <NumericFormat
+                                    defaultValue={minProfit}
+                                    onValueChange={v => setMinProfit(v.floatValue?.toString())}
+                                    thousandSeparator={getThousandSeparator()}
+                                    decimalSeparator={getDecimalSeparator()}
+                                    allowNegative={false}
+                                    decimalScale={0}
+                                    customInput={Form.Control}
+                                />
+                            </div>
+                            <div className={styles.filterContainer}>
+                                <label style={{ minWidth: '100px' }}>Max. Profit:</label>
+                                <NumericFormat
+                                    defaultValue={maxProfit}
+                                    onValueChange={v => setMaxProfit(v.floatValue?.toString())}
+                                    thousandSeparator={getThousandSeparator()}
+                                    decimalSeparator={getDecimalSeparator()}
+                                    allowNegative={false}
+                                    decimalScale={0}
+                                    customInput={Form.Control}
+                                />
+                            </div>
+                        </div>
+                    }
+                />
                 {hasPremium ? (
                     <div className={styles.filterContainer}>
                         <label style={{ marginRight: 15 }}>From: </label>
