@@ -16,12 +16,10 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import Link from 'next/link'
 import { FlipTrackingTotalProfitCalculation } from './FlipTrackingTotalProfitCalculation'
 import { FlipTrackingListItem } from './FlipTrackingListItem'
-import { NumberRangeFilterElement } from '../FilterElement/FilterElements/NumberRangeFilterElement'
 import ShowMoreText from '../ShowMoreText/ShowMoreText'
-import NumberElement from '../Number/Number'
-import { NumericalFilterElement } from '../FilterElement/FilterElements/NumericalFilterElement'
 import { NumericFormat } from 'react-number-format'
 import { getDecimalSeparator, getThousandSeparator } from '../../utils/Formatter'
+import ApiSearchField from '../Search/ApiSearchField'
 
 interface Props {
     totalProfit?: number
@@ -98,21 +96,33 @@ export function FlipTracking(props: Props) {
     let [isLoading, setIsLoading] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [wasManualLoginClick, setWasManualLoginClick] = useState(false)
+    let [isFilterExpanded, setIsFilterExpanded] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let forceUpdate = useForceUpdate()
 
+    // Filters
     let [_orderBy, _setOrderBy] = useQueryParamState<string>('order', SORT_OPTIONS[0].value)
     let [_filterBy, _setFilterBy] = useQueryParamState<string>('filter', FILTER_OPTIONS[0].value)
     let [minProfit, setMinProfit] = useQueryParamState<string | undefined>('minProfit', undefined)
     let [maxProfit, setMaxProfit] = useQueryParamState<string | undefined>('maxProfit', undefined)
+    let [_item, _setItem] = useQueryParamState<string | undefined>('item', undefined)
 
     let orderBy = SORT_OPTIONS.find(o => o.value === _orderBy)!
     let filterBy = FILTER_OPTIONS.find(f => f.value === _filterBy)!
+    let item = _item ? (JSON.parse(_item) as SearchResultItem) : undefined
+
     let setOrderBy = (newValue: SortOption) => {
         _setOrderBy(newValue.value)
     }
     let setFilterBy = (newValue: FilterOption) => {
         _setFilterBy(newValue.value)
+    }
+    let setItem = (newValue: SearchResultItem | undefined) => {
+        if (!newValue) {
+            _setItem(undefined)
+        } else {
+            _setItem(JSON.stringify(newValue))
+        }
     }
 
     const { show } = useContextMenu({
@@ -207,6 +217,9 @@ export function FlipTracking(props: Props) {
     if (maxProfit && !isNaN(parseInt(maxProfit))) {
         flipsToDisplay = flipsToDisplay.filter(flip => flip.profit <= parseInt(maxProfit!))
     }
+    if (item) {
+        flipsToDisplay = flipsToDisplay.filter(flip => flip.item.tag === item!.id)
+    }
 
     let list = flipsToDisplay.map((trackedFlip, i) => {
         return (
@@ -233,6 +246,7 @@ export function FlipTracking(props: Props) {
                 <ShowMoreText
                     allowShowLess
                     initialHeight={60}
+                    onShowChange={show => setIsFilterExpanded(show)}
                     content={
                         <div style={{ display: 'flex', gap: 10, flexDirection: 'column', paddingBottom: 20 }}>
                             <div className={styles.filterContainer}>
@@ -289,6 +303,28 @@ export function FlipTracking(props: Props) {
                                     decimalScale={0}
                                     customInput={Form.Control}
                                 />
+                            </div>
+                            <div className={styles.filterContainer}>
+                                <label style={{ minWidth: '100px' }}>Item:</label>
+                                <div className={styles.itemFilterContainer} style={{ position: 'relative', height: '38px' }}>
+                                    <div style={{ position: 'absolute' }}>
+                                        <div style={isFilterExpanded ? { position: 'fixed' } : undefined}>
+                                            <ApiSearchField
+                                                multiple={false}
+                                                defaultSelected={item ? [item] : undefined}
+                                                className={styles.multiSearch}
+                                                onChange={items => {
+                                                    if (!items || items.length === 0) {
+                                                        setItem(undefined)
+                                                    } else {
+                                                        setItem(items[0])
+                                                    }
+                                                }}
+                                                searchFunction={api.itemSearch}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }

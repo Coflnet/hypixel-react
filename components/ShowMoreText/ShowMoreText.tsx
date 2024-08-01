@@ -6,6 +6,7 @@ interface Props {
     initialHeight: number
     alwaysShowAll?: boolean
     allowShowLess?: boolean
+    onShowChange?: (isExpanded: boolean) => void
 }
 
 const ShowMoreText = (props: Props) => {
@@ -13,6 +14,7 @@ const ShowMoreText = (props: Props) => {
 
     const toggleExpand = () => {
         setIsExpanded(!isExpanded)
+        props.onShowChange && props.onShowChange(!isExpanded)
     }
 
     if (props.alwaysShowAll) {
