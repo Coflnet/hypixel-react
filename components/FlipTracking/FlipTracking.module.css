@@ -49,3 +49,16 @@
     display: flex;
     align-items: center;
 }
+
+.rangeFilter {
+    width: 200px;
+}
+
+.itemFilterContainer:has(:global(.show.dropdown-menu)) {
+    z-index: 12;
+    position: fixed
+}
+
+.multiSearch {
+    flex: 1;
+}

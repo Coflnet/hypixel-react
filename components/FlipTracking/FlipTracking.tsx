@@ -16,6 +16,10 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import Link from 'next/link'
 import { FlipTrackingTotalProfitCalculation } from './FlipTrackingTotalProfitCalculation'
 import { FlipTrackingListItem } from './FlipTrackingListItem'
+import ShowMoreText from '../ShowMoreText/ShowMoreText'
+import { NumericFormat } from 'react-number-format'
+import { getDecimalSeparator, getThousandSeparator } from '../../utils/Formatter'
+import ApiSearchField from '../Search/ApiSearchField'
 
 interface Props {
     totalProfit?: number
@@ -92,19 +96,33 @@ export function FlipTracking(props: Props) {
     let [isLoading, setIsLoading] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [wasManualLoginClick, setWasManualLoginClick] = useState(false)
+    let [isFilterExpanded, setIsFilterExpanded] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let forceUpdate = useForceUpdate()
 
+    // Filters
     let [_orderBy, _setOrderBy] = useQueryParamState<string>('order', SORT_OPTIONS[0].value)
     let [_filterBy, _setFilterBy] = useQueryParamState<string>('filter', FILTER_OPTIONS[0].value)
+    let [minProfit, setMinProfit] = useQueryParamState<string | undefined>('minProfit', undefined)
+    let [maxProfit, setMaxProfit] = useQueryParamState<string | undefined>('maxProfit', undefined)
+    let [_item, _setItem] = useQueryParamState<string | undefined>('item', undefined)
 
     let orderBy = SORT_OPTIONS.find(o => o.value === _orderBy)!
     let filterBy = FILTER_OPTIONS.find(f => f.value === _filterBy)!
+    let item = _item ? (JSON.parse(_item) as SearchResultItem) : undefined
+
     let setOrderBy = (newValue: SortOption) => {
         _setOrderBy(newValue.value)
     }
     let setFilterBy = (newValue: FilterOption) => {
         _setFilterBy(newValue.value)
+    }
+    let setItem = (newValue: SearchResultItem | undefined) => {
+        if (!newValue) {
+            _setItem(undefined)
+        } else {
+            _setItem(JSON.stringify(newValue))
+        }
     }
 
     const { show } = useContextMenu({
@@ -174,8 +192,6 @@ export function FlipTracking(props: Props) {
         flipsToDisplay = sortOption?.sortFunction(trackedFlips)
     }
 
-    flipsToDisplay = filterBy.filterFunction(flipsToDisplay)
-
     let currentItemContextMenuElement = (
         <div>
             <Menu id={TRACKED_FLIP_CONTEXT_MENU_ID} theme={'dark'}>
@@ -193,6 +209,17 @@ export function FlipTracking(props: Props) {
             </Menu>
         </div>
     )
+
+    flipsToDisplay = filterBy.filterFunction(flipsToDisplay)
+    if (minProfit && !isNaN(parseInt(minProfit))) {
+        flipsToDisplay = flipsToDisplay.filter(flip => flip.profit >= parseInt(minProfit!))
+    }
+    if (maxProfit && !isNaN(parseInt(maxProfit))) {
+        flipsToDisplay = flipsToDisplay.filter(flip => flip.profit <= parseInt(maxProfit!))
+    }
+    if (item) {
+        flipsToDisplay = flipsToDisplay.filter(flip => flip.item.tag === item!.id)
+    }
 
     let list = flipsToDisplay.map((trackedFlip, i) => {
         return (
@@ -215,40 +242,93 @@ export function FlipTracking(props: Props) {
     return (
         <div>
             <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
-                <div style={{ display: 'flex', gap: 10 }}>
-                    <div className={styles.filterContainer}>
-                        <label htmlFor="flag-filter" style={{ marginRight: 15 }}>
-                            Sort:
-                        </label>
-                        <Form.Select style={{ width: 'auto' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
-                            {SORT_OPTIONS.map(option => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </Form.Select>
-                    </div>
-                    <div className={styles.filterContainer}>
-                        <label htmlFor="flag-filter" style={{ marginRight: 15 }}>
-                            Filter:
-                        </label>
-                        <Form.Select
-                            id="flag-filter"
-                            style={{ width: 'auto' }}
-                            defaultValue={filterBy.value}
-                            onChange={e => {
-                                setFilterBy(FILTER_OPTIONS.find(option => option.value === e.target.value) || FILTER_OPTIONS[0])
-                            }}
-                        >
-                            {FILTER_OPTIONS.map(option => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </Form.Select>
-                    </div>
-                </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                <ShowMoreText
+                    allowShowLess
+                    initialHeight={60}
+                    onShowChange={show => setIsFilterExpanded(show)}
+                    content={
+                        <div style={{ display: 'flex', gap: 10, flexDirection: 'column', paddingBottom: 20 }}>
+                            <div className={styles.filterContainer}>
+                                <label htmlFor="flag-filter" style={{ minWidth: '100px' }}>
+                                    Sort:
+                                </label>
+                                <Form.Select style={{ width: 'auto' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
+                                    {SORT_OPTIONS.map(option => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </div>
+                            <div className={styles.filterContainer}>
+                                <label htmlFor="flag-filter" style={{ minWidth: '100px' }}>
+                                    Filter:
+                                </label>
+                                <Form.Select
+                                    id="flag-filter"
+                                    style={{ width: '200px' }}
+                                    defaultValue={filterBy.value}
+                                    onChange={e => {
+                                        setFilterBy(FILTER_OPTIONS.find(option => option.value === e.target.value) || FILTER_OPTIONS[0])
+                                    }}
+                                >
+                                    {FILTER_OPTIONS.map(option => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </div>
+                            <div className={styles.filterContainer}>
+                                <label style={{ minWidth: '100px' }}>Min. Profit:</label>
+                                <NumericFormat
+                                    defaultValue={minProfit}
+                                    onValueChange={v => setMinProfit(v.floatValue?.toString())}
+                                    thousandSeparator={getThousandSeparator()}
+                                    decimalSeparator={getDecimalSeparator()}
+                                    allowNegative={false}
+                                    decimalScale={0}
+                                    customInput={Form.Control}
+                                />
+                            </div>
+                            <div className={styles.filterContainer}>
+                                <label style={{ minWidth: '100px' }}>Max. Profit:</label>
+                                <NumericFormat
+                                    defaultValue={maxProfit}
+                                    onValueChange={v => setMaxProfit(v.floatValue?.toString())}
+                                    thousandSeparator={getThousandSeparator()}
+                                    decimalSeparator={getDecimalSeparator()}
+                                    allowNegative={false}
+                                    decimalScale={0}
+                                    customInput={Form.Control}
+                                />
+                            </div>
+                            <div className={styles.filterContainer}>
+                                <label style={{ minWidth: '100px' }}>Item:</label>
+                                <div className={styles.itemFilterContainer} style={{ position: 'relative', height: '38px' }}>
+                                    <div style={{ position: 'absolute' }}>
+                                        <div style={isFilterExpanded ? { position: 'fixed' } : undefined}>
+                                            <ApiSearchField
+                                                multiple={false}
+                                                defaultSelected={item ? [item] : undefined}
+                                                className={styles.multiSearch}
+                                                onChange={items => {
+                                                    if (!items || items.length === 0) {
+                                                        setItem(undefined)
+                                                    } else {
+                                                        setItem(items[0])
+                                                    }
+                                                }}
+                                                searchFunction={api.itemSearch}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                />
                 {hasPremium ? (
                     <div className={styles.filterContainer}>
                         <label style={{ marginRight: 15 }}>From: </label>

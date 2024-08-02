@@ -147,7 +147,11 @@ export function useQueryParamState<T>(key: string, defaultValue: T): [T, Dispatc
     function _setState(newState: T) {
         setState(newState)
         let urlparams = new URLSearchParams(window.location.search)
-        urlparams.set(key, encodeURIComponent(JSON.stringify(newState)))
+        if (!newState) {
+            urlparams.delete(key)
+        } else {
+            urlparams.set(key, encodeURIComponent(JSON.stringify(newState)))
+        }
         router.replace(`${window.location.pathname}?${urlparams.toString()}`)
     }
 
