@@ -27,7 +27,7 @@ function AccountDetails() {
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
     let [products, setProducts] = useState<PremiumProduct[]>([])
     let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
-    let coflCoins = useCoflCoins()
+    let coflCoins = 1000000
     let { pushInstruction } = useMatomo()
 
     useEffect(() => {
