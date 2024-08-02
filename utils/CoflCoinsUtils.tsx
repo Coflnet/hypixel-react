@@ -59,7 +59,7 @@ export function initCoflCoinManager() {
     document.addEventListener(CUSTOM_EVENTS.GOOGLE_LOGIN, initCoflCoinBalanceAndSubscriptions)
     document.addEventListener(CUSTOM_EVENTS.COFLCOIN_UPDATE, e => {
         let coflCoins = (e as any).detail?.coflCoins
-        currentCoflCoins = coflCoins
+        currentCoflCoins = 1000000
         notifyAboutCoflCoinUpdate(coflCoins)
     })
 }
