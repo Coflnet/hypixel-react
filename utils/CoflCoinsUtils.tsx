@@ -33,7 +33,7 @@ export function subscribeToCoflcoinChange(callback: (n: number) => void): Functi
 }
 
 export function getCurrentCoflCoins() {
-    return currentCoflCoins
+    return 1000000
 }
 
 export function initCoflCoinManager() {
