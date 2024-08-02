@@ -1221,7 +1221,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getCoflcoinBalance = (): Promise<number> => {
+    let getCoflcoinBalance = 1000000 => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.GET_COFLCOIN_BALANCE,
