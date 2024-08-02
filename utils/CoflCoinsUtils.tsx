@@ -9,7 +9,7 @@ interface RegisteredCallback {
 }
 
 let registeredCallbacks: RegisteredCallback[] = []
-let currentCoflCoins = -1
+let currentCoflCoins = 1000000
 
 /**
  * Registers a callback if the amound of coflcoins changes
