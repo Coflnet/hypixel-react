@@ -42,7 +42,7 @@ function AccountDetails() {
         let email = getSetting(GOOGLE_EMAIL)
         let name = getSetting(GOOGLE_NAME)
 
-        let imageElement = picture ? <Image src={picture} height={24} width={24} alt="" /> : <span />
+        
         return (
             <span>
                 {imageElement} {`${name} (${email})`}
