@@ -124,7 +124,7 @@ interface SearchResultItem {
     urlSearchParams?: URLSearchParams
     id: string
     isPreviousSearch?: boolean
-    pinned?: boolean
+    pinningKey?: string
     tier: string
 }
 

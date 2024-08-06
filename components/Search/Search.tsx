@@ -16,6 +16,7 @@ import styles from './Search.module.css'
 import { useForceUpdate } from '../../utils/Hooks'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import PushPinIcon from '@mui/icons-material/PushPin'
 
 interface Props {
     selected?: Player | Item
@@ -31,6 +32,7 @@ interface Props {
     enableReset?: boolean
     onResetClick?()
     hideOptions?: boolean
+    keyForPinnedItems?: string
 }
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
@@ -185,11 +187,6 @@ function Search(props: Props) {
 
         let previousSearchesString = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
         let previousSearches: SearchResultItem[] = previousSearchesString ? JSON.parse(previousSearchesString) : []
-        previousSearches.sort((a, b) => {
-            if (a.pinned) return -1
-            if (b.pinned) return 1
-            return 0
-        })
 
         let alreadyFoundIndex = previousSearches.findIndex(r => r.dataItem.name === item.dataItem.name)
         if (alreadyFoundIndex !== -1) {
@@ -217,7 +214,13 @@ function Search(props: Props) {
     }
 
     let noResultsFoundElement = (
-        <ListGroup.Item key={-1} style={getListItemStyle(-1)} onContextMenu={handleSearchContextMenuForSearchResult}>
+        <ListGroup.Item
+            key={-1}
+            style={getListItemStyle(-1)}
+            onContextMenu={e => {
+                handleSearchContextMenuForCurrentElement(e)
+            }}
+        >
             <Image className={styles.searchResultIcon} height={32} width={32} src="/Barrier.png" alt="" />
             No search results
         </ListGroup.Item>
@@ -325,9 +328,9 @@ function Search(props: Props) {
         }
     }
 
-    function handleSearchContextMenuForSearchResult(event) {
+    function handleSearchContextMenuForSearchResult(event: React.MouseEvent<HTMLElement, MouseEvent>, searchResultItem: SearchResultItem) {
         event.preventDefault()
-        showSearchItemContextMenu(event)
+        showSearchItemContextMenu({ event: event, props: { item: searchResultItem } })
     }
 
     let currentItemContextMenuElement = (
@@ -348,6 +351,24 @@ function Search(props: Props) {
     let searchItemContextMenuElement = (
         <div>
             <Menu id={SEARCH_RESULT_CONTEXT_MENU_ID} theme={'dark'}>
+                <Item
+                    onClick={params => {
+                        let previousSearches: SearchResultItem[] = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
+                            ? JSON.parse(localStorage.getItem(PREVIOUS_SEARCHES_KEY)!)
+                            : []
+                        let item: SearchResultItem = params.props.item
+                        let alreadyFoundIndex = previousSearches.findIndex(r => r.dataItem.name === item.dataItem.name)
+                        if (alreadyFoundIndex !== -1) {
+                            previousSearches[alreadyFoundIndex].pinningKey = props.keyForPinnedItems
+                        } else {
+                            previousSearches.push(item)
+                        }
+                        localStorage.setItem(PREVIOUS_SEARCHES_KEY, JSON.stringify(previousSearches))
+                    }}
+                >
+                    <PushPinIcon />
+                    Pin search result
+                </Item>
                 <Item
                     onClick={() => {
                         api.sendFeedback('badSearchResults', {
@@ -422,7 +443,9 @@ function Search(props: Props) {
                               }}
                               style={getListItemStyle(i)}
                               className={result.isPreviousSearch ? styles.previousSearch : undefined}
-                              onContextMenu={handleSearchContextMenuForSearchResult}
+                              onContextMenu={event => {
+                                  handleSearchContextMenuForSearchResult(event, result)
+                              }}
                           >
                               {result.dataItem.iconUrl ? (
                                   <Image
