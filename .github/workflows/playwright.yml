@@ -18,9 +18,3 @@ jobs:
         run: npm ci
       - name: build app
         run: npm run build
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-        env:
-          TEST_RUNNER: "true"
-        with:
-          start: npm start

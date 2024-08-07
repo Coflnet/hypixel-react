@@ -144,7 +144,22 @@ export function MainApp(props: any) {
 
     return (
         <>
-            <OfflineBanner />
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    backgroundColor: 'red',
+                    height: '100px'
+                }}
+            >
+                <h1 style={{ fontSize: 'large' }}>Problems with our Database</h1>
+                <p>
+                    We are currently experiencing major problems with our databases. Therefore we are not able to store new data at the moment.We are trying to
+                    fix the issue as soon as possible. Sorry for the inconveniecne.{' '}
+                </p>
+            </div>
             <TopLoadingAnimation />
             {props.children}
             <CookieConsent
