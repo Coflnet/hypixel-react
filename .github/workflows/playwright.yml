@@ -18,5 +18,3 @@ jobs:
         run: npm ci
       - name: build app
         run: npm run build
-      - name: npm run start
-        run: npm run start
