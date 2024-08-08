@@ -10,7 +10,7 @@ export default async function Page() {
     try {
         flips = await api.getPreloadFlips()
     } catch (e) {
-        console.log('ERROR: Error receiving preFlips')
+        console.log('ERROR: Error receiving preFlips ')
         console.log('------------------------\n')
     }
 
