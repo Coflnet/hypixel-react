@@ -9,13 +9,21 @@ import SearchIcon from '@mui/icons-material/SearchOutlined'
 import WrongIcon from '@mui/icons-material/Dangerous'
 import Refresh from '@mui/icons-material/Refresh'
 import ClearIcon from '@mui/icons-material/Clear'
-import { Item, Menu, useContextMenu } from 'react-contexify'
+import { Item, Menu, useContextMenu, Separator } from 'react-contexify'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
 import { useForceUpdate } from '../../utils/Hooks'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import PushPinIcon from '@mui/icons-material/PushPin'
+import {
+    addClickedSearchResultToPreviousSearches,
+    addPreviousSearchResultsToDisplay,
+    getFirstPreviousSearches,
+    pinSearchResult,
+    unpinSearchResult
+} from '../../utils/PreviousSearchUtils'
 
 interface Props {
     selected?: Player | Item
@@ -31,13 +39,11 @@ interface Props {
     enableReset?: boolean
     onResetClick?()
     hideOptions?: boolean
+    keyForPinnedItems?: string
 }
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
 const SEARCH_RESULT_CONTEXT_MENU_ID = 'search-result-context-menu'
-const PREVIOUS_SEARCHES_KEY = 'lastSearches'
-const MAX_PREVIOUS_SEARCHES_TO_DISPLAY = 3
-const MAX_PREVIOUS_SEARCHES_TO_STORE = 100
 
 function Search(props: Props) {
     let router = useRouter()
@@ -47,12 +53,12 @@ function Search(props: Props) {
     let [noResultsFound, setNoResultsFound] = useState(false)
     let [isSmall, setIsSmall] = useState(true)
     let [selectedIndex, setSelectedIndex] = useState(0)
-    const { show } = useContextMenu({
+    const { show: showPlayerContextMenu } = useContextMenu({
         id: PLAYER_SEARCH_CONEXT_MENU_ID
     })
-    const showSearchItemContextMenu = useContextMenu({
+    const { show: showSearchItemContextMenu, hideAll: hideSearchItemContextMenu } = useContextMenu({
         id: SEARCH_RESULT_CONTEXT_MENU_ID
-    }).show
+    })
 
     let rememberEnterPressRef = useRef(false)
 
@@ -83,33 +89,18 @@ function Search(props: Props) {
                 searchElement.current !== null &&
                 searchFor === ((searchElement.current as HTMLDivElement).querySelector('#search-bar') as HTMLInputElement).value
             ) {
-                let previousSearchesString = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
-                let previousSearches: SearchResultItem[] = previousSearchesString ? JSON.parse(previousSearchesString) : []
-                let matches = 0
+                let searchResultsToShow = [...searchResults]
                 if (!props.preventDisplayOfPreviousSearches) {
-                    previousSearches.forEach(prevSearch => {
-                        if (prevSearch.dataItem.name.indexOf(searchFor) !== -1 && matches < MAX_PREVIOUS_SEARCHES_TO_DISPLAY) {
-                            prevSearch.isPreviousSearch = true
-                            matches++
-
-                            let alreadyFoundIndex = searchResults.findIndex(r => r.dataItem.name === prevSearch.dataItem.name)
-
-                            if (alreadyFoundIndex !== -1) {
-                                searchResults[alreadyFoundIndex].isPreviousSearch = true
-                            } else {
-                                searchResults.unshift(prevSearch)
-                            }
-                        }
-                    })
+                    searchResultsToShow = addPreviousSearchResultsToDisplay(searchFor, searchResults, props.keyForPinnedItems)
                 }
 
                 setSelectedIndex(0)
-                setNoResultsFound(searchResults.length === 0)
-                setResults(searchResults)
+                setNoResultsFound(searchResultsToShow.length === 0)
+                setResults(searchResultsToShow)
                 setIsSearching(false)
 
                 if (rememberEnterPressRef.current) {
-                    onItemClick(searchResults[0])
+                    onItemClick(searchResultsToShow[0])
                     rememberEnterPressRef.current = false
                 }
             }
@@ -183,18 +174,7 @@ function Search(props: Props) {
             setResults([])
         }
 
-        let previousSearchesString = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
-        let previousSearches: SearchResultItem[] = previousSearchesString ? JSON.parse(previousSearchesString) : []
-
-        let alreadyFoundIndex = previousSearches.findIndex(r => r.dataItem.name === item.dataItem.name)
-        if (alreadyFoundIndex !== -1) {
-            previousSearches.splice(alreadyFoundIndex, 1)
-        }
-        previousSearches.push(item)
-        if (previousSearches.length > MAX_PREVIOUS_SEARCHES_TO_STORE) {
-            previousSearches.shift()
-        }
-        localStorage.setItem(PREVIOUS_SEARCHES_KEY, JSON.stringify(previousSearches))
+        addClickedSearchResultToPreviousSearches(item, props.keyForPinnedItems)
 
         api.trackSearch(item.id, item.type)
 
@@ -212,7 +192,13 @@ function Search(props: Props) {
     }
 
     let noResultsFoundElement = (
-        <ListGroup.Item key={-1} style={getListItemStyle(-1)} onContextMenu={handleSearchContextMenuForSearchResult}>
+        <ListGroup.Item
+            key={-1}
+            style={getListItemStyle(-1)}
+            onContextMenu={e => {
+                handleSearchContextMenuForCurrentElement(e)
+            }}
+        >
             <Image className={styles.searchResultIcon} height={32} width={32} src="/Barrier.png" alt="" />
             No search results
         </ListGroup.Item>
@@ -316,13 +302,13 @@ function Search(props: Props) {
     function handleSearchContextMenuForCurrentElement(event) {
         if (props.selected && props.type === 'player') {
             event.preventDefault()
-            show({ event: event })
+            showPlayerContextMenu({ event: event })
         }
     }
 
-    function handleSearchContextMenuForSearchResult(event) {
+    function handleSearchContextMenuForSearchResult(event: React.MouseEvent<HTMLElement, MouseEvent>, searchResultItem: SearchResultItem) {
         event.preventDefault()
-        showSearchItemContextMenu(event)
+        showSearchItemContextMenu({ event: event, props: { item: searchResultItem } })
     }
 
     let currentItemContextMenuElement = (
@@ -343,6 +329,44 @@ function Search(props: Props) {
     let searchItemContextMenuElement = (
         <div>
             <Menu id={SEARCH_RESULT_CONTEXT_MENU_ID} theme={'dark'}>
+                <Item
+                    onClick={params => {
+                        let item: SearchResultItem = params.props.item
+                        pinSearchResult(item, props.keyForPinnedItems)
+                        let index = results.findIndex(r => r.dataItem.name === item.dataItem.name)
+                        if (index !== -1) {
+                            let newResults = [...results]
+                            newResults[index].pinned = true
+                            newResults[index].isPreviousSearch = true
+                            setResults(newResults)
+                        }
+                        hideSearchItemContextMenu()
+                    }}
+                    hidden={params => !!params.props.item.pinned}
+                    closeOnClick
+                >
+                    <PushPinIcon />
+                    Pin search result
+                </Item>
+                <Item
+                    onClick={params => {
+                        let item: SearchResultItem = params.props.item
+                        unpinSearchResult(item, props.keyForPinnedItems)
+                        let index = results.findIndex(r => r.dataItem.name === item.dataItem.name)
+                        if (index !== -1) {
+                            let newResults = [...results]
+                            newResults[index].pinned = false
+                            setResults(newResults)
+                        }
+                        hideSearchItemContextMenu()
+                    }}
+                    hidden={params => !params.props.item.pinned}
+                    closeOnClick
+                >
+                    <PushPinIcon />
+                    Unpin search result
+                </Item>
+                <Separator />
                 <Item
                     onClick={() => {
                         api.sendFeedback('badSearchResults', {
@@ -387,18 +411,8 @@ function Search(props: Props) {
                             }}
                             onClick={() => {
                                 if (!props.preventDisplayOfPreviousSearches && !noResultsFound && results.length === 0 && !searchText) {
-                                    let previousSearches: SearchResultItem[] = localStorage.getItem(PREVIOUS_SEARCHES_KEY)
-                                        ? JSON.parse(localStorage.getItem(PREVIOUS_SEARCHES_KEY)!)
-                                        : []
-                                    setResults(
-                                        previousSearches
-                                            .slice(-5)
-                                            .reverse()
-                                            .map(prevSearch => {
-                                                prevSearch.isPreviousSearch = true
-                                                return prevSearch
-                                            })
-                                    )
+                                    let previousResuls = getFirstPreviousSearches(5, props.keyForPinnedItems)
+                                    setResults(previousResuls)
                                 }
                             }}
                         />
@@ -417,7 +431,9 @@ function Search(props: Props) {
                               }}
                               style={getListItemStyle(i)}
                               className={result.isPreviousSearch ? styles.previousSearch : undefined}
-                              onContextMenu={handleSearchContextMenuForSearchResult}
+                              onContextMenu={event => {
+                                  handleSearchContextMenuForSearchResult(event, result)
+                              }}
                           >
                               {result.dataItem.iconUrl ? (
                                   <Image
@@ -440,6 +456,7 @@ function Search(props: Props) {
                               ) : (
                                   <Spinner animation="border" role="status" variant="primary" />
                               )}
+                              {result.pinned ? <PushPinIcon style={{ marginRight: '5px' }} /> : null}
                               {result.dataItem.name}
                           </ListGroup.Item>
                       ))}
