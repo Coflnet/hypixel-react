@@ -15,6 +15,7 @@ import ItemFilter from '../ItemFilter/ItemFilter'
 import Tooltip from '../Tooltip/Tooltip'
 import { Help as HelpIcon } from '@mui/icons-material'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import ExportArchivedData from './ExportArchivedData/ExportArchivedData'
 
 interface Props {
     item: Item
@@ -32,6 +33,7 @@ const ArchivedAuctionsList = (props: Props) => {
     let [currentPage, setCurrentPage] = useState(0)
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [noResults, setNoResults] = useState(false)
+    let [showExportDataDialog, setShowExportDataDialog] = useState(false)
 
     let currentPageRef = useRef(currentPage)
     currentPageRef.current = currentPage
@@ -184,6 +186,8 @@ const ArchivedAuctionsList = (props: Props) => {
         )
     })
 
+    let exportArchivedDataDialog = <ExportArchivedData show={showExportDataDialog} onShowChange={setShowExportDataDialog} />
+
     return (
         <>
             <h3 style={{ marginBottom: '15px' }}>
@@ -203,13 +207,22 @@ const ArchivedAuctionsList = (props: Props) => {
                 <DatePicker selected={to} onChange={date => handleDateChange(date, 'to')} className={'form-control'} />
             </div>
             <ItemFilter filters={filters} onFilterChange={filter => setSelectedFilter(filter)} />
-            <Button
-                onClick={() => {
-                    search(true)
-                }}
-            >
-                Search
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Button
+                    onClick={() => {
+                        search(true)
+                    }}
+                >
+                    Search
+                </Button>
+                <Button
+                    onClick={() => {
+                        setShowExportDataDialog(true)
+                    }}
+                >
+                    Download Data
+                </Button>
+            </div>
             <hr />
             {isLoading && archivedAuctions.length === 0 ? getLoadingElement(<p>Loading archived auctions...</p>) : null}
             {archivedAuctions.length > 0 ? (
@@ -237,6 +250,7 @@ const ArchivedAuctionsList = (props: Props) => {
             ) : null}
             {noResults ? <p style={{ textAlign: 'center' }}>No auctions found</p> : null}
             <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
+            {exportArchivedDataDialog}
         </>
     )
 }
