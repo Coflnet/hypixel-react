@@ -101,8 +101,8 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     }
 
                     // Special case -> display as date
-                    if (display && DATE_FORMAT_FILTER.findIndex(f => f === key) !== -1) {
-                        display = new Date(Number(display) * 1000).toLocaleDateString()
+                    if (localFilter[key] && DATE_FORMAT_FILTER.findIndex(f => f === key) !== -1) {
+                        display = new Date(Number(localFilter[key]) * 1000).toLocaleDateString()
                     }
 
                     // Special case if the restriction has a special label
