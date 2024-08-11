@@ -2477,7 +2477,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 reject()
                 return
             }
-            
+
             let params = new URLSearchParams()
             if (itemFilter && Object.keys(itemFilter).length > 0) {
                 params = new URLSearchParams(itemFilter)
@@ -2500,6 +2500,42 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     reject(error)
                 }
             })
+        })
+    }
+
+    let exportArchivedAuctionsData = (itemTag: string, itemFilter?: ItemFilter, discordWebhookUrl?: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to export archived auctions.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest(
+                {
+                    type: RequestType.EXPORT_ARCHIVED_AUCTIONS,
+                    customRequestURL: `${getApiEndpoint()}/auctions/tag/${itemTag}/archive/export`,
+                    requestMethod: 'POST',
+                    data: '',
+                    requestHeader: {
+                        GoogleToken: googleId,
+                        'Content-Type': 'application/json'
+                    },
+                    resolve: () => {
+                        resolve()
+                    },
+                    reject: (error: any) => {
+                        apiErrorHandler(RequestType.EXPORT_ARCHIVED_AUCTIONS, error, { itemTag, itemFilter })
+                        reject(error)
+                    }
+                },
+                JSON.stringify({
+                    filters: itemFilter,
+                    discordWebhookUrl: discordWebhookUrl,
+                    flags: ['IncludeSocial', 'InventoryCheck', 'UniqueItems']
+                })
+            )
         })
     }
 
@@ -2593,7 +2629,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getNotificationSubscriptions,
         getPublishedConfigs,
         updateConfig,
-        requestArchivedAuctions
+        requestArchivedAuctions,
+        exportArchivedAuctionsData
     }
 }
 
