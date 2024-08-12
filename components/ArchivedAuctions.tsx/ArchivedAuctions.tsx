@@ -190,7 +190,9 @@ const ArchivedAuctionsList = (props: Props) => {
     exportFilterProp['EndBefore'] = Math.floor(from.getTime() / 1000).toString()
     exportFilterProp['EndAfter'] = Math.floor(to.getTime() / 1000).toString()
 
-    let exportArchivedDataDialog = <ExportArchivedData filter={exportFilterProp} show={showExportDataDialog} onShowChange={setShowExportDataDialog} />
+    let exportArchivedDataDialog = (
+        <ExportArchivedData itemTag={props.item.tag} filter={exportFilterProp} show={showExportDataDialog} onShowChange={setShowExportDataDialog} />
+    )
 
     return (
         <>
