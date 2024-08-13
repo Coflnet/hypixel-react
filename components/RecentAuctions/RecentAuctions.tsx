@@ -232,9 +232,9 @@ function RecentAuctions(props: Props) {
                         {recentAuctionList}
                     </InfiniteScroll>
                 ) : null}
-                {noResults ? (
+                {noResults || (allElementsLoaded && (premiumType?.priority === PREMIUM_RANK.PREMIUM || premiumType?.priority === PREMIUM_RANK.PREMIUM_PLUS)) ? (
                     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                        <p style={{ textAlign: 'center' }}>No recent auctions found.</p>
+                        <p style={{ textAlign: 'center' }}>No {!noResults ? 'more ' : ''} recent auctions found.</p>
                         {premiumType?.priority >= PREMIUM_RANK.PREMIUM_PLUS ? (
                             <Link
                                 style={{ textAlign: 'center', marginBottom: '15px' }}
