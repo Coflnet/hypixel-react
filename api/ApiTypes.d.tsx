@@ -91,7 +91,8 @@ export enum RequestType {
     DELETE_NOTIFICATION_SUBSCRIPTION = 'deleteNotificationSubscription',
     GET_PUBLISHED_CONFIGS = 'publishedConfigs',
     UPDATE_CONFIG = 'updateConfig',
-    ARCHIVED_AUCTIONS = 'archivedAuctions'
+    ARCHIVED_AUCTIONS = 'archivedAuctions',
+    EXPORT_ARCHIVED_AUCTIONS = 'exportArchivedAuctions'
 }
 
 export enum SubscriptionType {
