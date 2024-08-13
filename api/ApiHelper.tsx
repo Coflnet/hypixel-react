@@ -2503,7 +2503,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let exportArchivedAuctionsData = (itemTag: string, itemFilter?: ItemFilter, discordWebhookUrl?: string): Promise<void> => {
+    let exportArchivedAuctionsData = (itemTag: string, itemFilter: ItemFilter, discordWebhookUrl: string, flags: string[]): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -2533,7 +2533,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 JSON.stringify({
                     filters: itemFilter,
                     discordWebhookUrl: discordWebhookUrl,
-                    flags: ['IncludeSocial', 'InventoryCheck', 'UniqueItems']
+                    flags: flags.length > 0 ? flags.toString() : undefined
                 })
             )
         })
