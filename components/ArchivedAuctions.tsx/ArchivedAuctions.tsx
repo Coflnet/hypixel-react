@@ -226,7 +226,7 @@ const ArchivedAuctionsList = (props: Props) => {
                         setShowExportDataDialog(true)
                     }}
                 >
-                    Download Data
+                    Export Data
                 </Button>
             </div>
             <hr />
