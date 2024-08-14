@@ -16,6 +16,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import { Help as HelpIcon } from '@mui/icons-material'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import ExportArchivedData from './ExportArchivedData/ExportArchivedData'
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 
 interface Props {
     item: Item
@@ -34,6 +35,7 @@ const ArchivedAuctionsList = (props: Props) => {
     let [allElementsLoaded, setAllElementsLoaded] = useState(false)
     let [noResults, setNoResults] = useState(false)
     let [showExportDataDialog, setShowExportDataDialog] = useState(false)
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     let currentPageRef = useRef(currentPage)
     currentPageRef.current = currentPage
@@ -61,7 +63,6 @@ const ArchivedAuctionsList = (props: Props) => {
     }
 
     async function onAfterLogin() {
-        setIsLoggedIn(true)
         try {
             let [products, filters] = await Promise.all([api.getPremiumProducts(), loadFilters()])
             setIsLoggedIn(true)
@@ -129,13 +130,24 @@ const ArchivedAuctionsList = (props: Props) => {
         }
     }
 
+    if (wasAlreadyLoggedIn && !isLoggedIn) {
+        return (
+            <>
+                {getLoadingElement()}
+                <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
+            </>
+        )
+    }
+
     if (!isLoggedIn || !hasHighEnoughPremium(premiumProducts, PREMIUM_RANK.PREMIUM_PLUS)) {
         return (
             <div>
                 <div>
                     <p>To see archived auctions, you need to sign in with Google and be a Premium+ user.</p>
                 </div>
-                {premiumProducts.length > 0 && !hasHighEnoughPremium(premiumProducts, PREMIUM_RANK.PREMIUM_PLUS) ? <p>You do not have Premium+.</p> : null}
+                <Link href={'/premium'}>
+                    <Button>Get Premium+</Button>
+                </Link>
                 <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
             </div>
         )
