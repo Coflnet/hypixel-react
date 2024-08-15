@@ -49,6 +49,13 @@ function ItemFilter(props: Props) {
 
     let typeaheadRef = useRef<TypeaheadRef>(null)
 
+    // This ref is a map of the currently shown filter option labels which may include something like a specific option (e.g. a specific Reforge for the reforge option)
+    // It is used to prefill the specific value that was searched for
+    // Example:
+    // When searching for "Sharp", you find the Reforge option as it has a value "Sharp"
+    // Then this ref contains the object {"Reforge": "Sharp"}, so after selecting "Sharp" can directly be prefilled
+    let currentlyShownFiltersToSpecificValueMap = useRef<{ [key: string]: string }>({})
+
     useEffect(() => {
         if (props.filters && props.filters.length > 0) {
             initFilter()
@@ -423,6 +430,7 @@ function ItemFilter(props: Props) {
                                             let name = options.name
                                             let searchString = name?.replace(/\s/g, '').toLowerCase()
                                             let description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
+                                            delete currentlyShownFiltersToSpecificValueMap.current[options.name]
 
                                             // If the restult was found because of the options, show the options at the end of the string
                                             if (text && !searchString?.includes(text) && !description.includes(text)) {
@@ -441,6 +449,9 @@ function ItemFilter(props: Props) {
                                                             return camelCaseToSentenceCase(option).trim()
                                                         })
                                                         .join(', ')
+                                                    matchingOptions.forEach(option => {
+                                                        currentlyShownFiltersToSpecificValueMap.current[options.name] = option
+                                                    })
                                                 }
                                             }
 
