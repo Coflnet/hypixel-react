@@ -125,7 +125,7 @@ function ItemFilter(props: Props) {
         }
     }
 
-    let enableFilter = (filterName: string) => {
+    let enableFilter = (filterName: string, filterValue?: string) => {
         if (selectedFilters.some(n => n === filterName)) {
             return
         }
@@ -133,8 +133,11 @@ function ItemFilter(props: Props) {
         selectedFilters = [...selectedFilters, filterName]
         setSelectedFilters(selectedFilters)
 
-        if (itemFilter[filterName] === undefined) {
+        if (itemFilter[filterName] === undefined && !filterValue) {
             itemFilter[filterName] = getDefaultValue(filterName)
+        }
+        if (itemFilter[filterName] === undefined && filterValue) {
+            itemFilter[filterName] = filterValue
         }
 
         updateURLQuery(itemFilter)
@@ -154,10 +157,17 @@ function ItemFilter(props: Props) {
         }
         setSetting(ITEM_FILTER_USE_COUNT, JSON.stringify(sortingByUsedMost))
 
+        let currentText = typeaheadRef?.current?.state.text
+        let match = currentText?.match(/\((\w+)\)$/)
+        let prefillValue: string | undefined = undefined
+        if (match) {
+            prefillValue = selectedFilter.options.find(option => option.toLowerCase() === match![1].toLowerCase())
+        }
+
         typeaheadRef?.current?.clear()
         typeaheadRef?.current?.blur()
 
-        enableFilter(selectedFilter.name)
+        enableFilter(selectedFilter.name, prefillValue)
         getGroupedFilter(selectedFilter.name).forEach(filter => enableFilter(filter))
     }
 
