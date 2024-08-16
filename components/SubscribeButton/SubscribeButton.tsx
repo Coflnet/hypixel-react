@@ -48,6 +48,9 @@ function SubscribeButton(props: Props) {
     let [isPlayerAuctionCreation, setIsPlayerAuctionCreation] = useState(
         props.prefill?.listener?.types?.includes(SubscriptionType.PLAYER_CREATES_AUCTION) ?? false
     )
+    let [hasPlayerBoughtAnyAuction, setHasPlayerBoughtAnyAuction] = useState(
+        props.prefill?.listener?.types?.includes(SubscriptionType.BOUGHT_ANY_AUCTION) ?? false
+    )
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.listener?.filter || undefined)
     let [isItemFilterValid, setIsItemFilterValid] = useState(true)
@@ -108,6 +111,9 @@ function SubscribeButton(props: Props) {
             }
             if (isPlayerAuctionCreation) {
                 types.push(SubscriptionType.PLAYER_CREATES_AUCTION)
+            }
+            if (hasPlayerBoughtAnyAuction) {
+                types.push(SubscriptionType.BOUGHT_ANY_AUCTION)
             }
         }
         if (props.type === 'auction') {
@@ -198,6 +204,7 @@ function SubscribeButton(props: Props) {
                                 onGotOutbidChange={setGotOutbid}
                                 onIsSoldChange={setIsSold}
                                 onIsPlayerAuctionCreation={setIsPlayerAuctionCreation}
+                                onBoughtAnyAuctionChange={setHasPlayerBoughtAnyAuction}
                                 prefill={props.prefill?.listener}
                             />
                         ) : null}

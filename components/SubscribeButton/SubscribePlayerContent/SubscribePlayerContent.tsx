@@ -6,6 +6,7 @@ interface Props {
     onGotOutbidChange(value: boolean)
     onIsSoldChange(value: boolean)
     onIsPlayerAuctionCreation(value: boolean)
+    onBoughtAnyAuctionChange(value: boolean)
     prefill?: NotificationListener
 }
 
@@ -45,6 +46,18 @@ function SubscribePlayerContent(props: Props) {
                         onChange={e => props.onIsSoldChange((e.target as HTMLInputElement).checked)}
                     />
                     <label htmlFor="isSoldCheckbox">if an auction of the player has ended</label>
+                </div>
+                <div className="input-data">
+                    <input
+                        defaultChecked={
+                            props.prefill && (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.BOUGHT_ANY_AUCTION])
+                        }
+                        type="checkbox"
+                        className={styles.checkBox}
+                        id="hasBoughtAnyAuction"
+                        onChange={e => props.onBoughtAnyAuctionChange((e.target as HTMLInputElement).checked)}
+                    />
+                    <label htmlFor="hasBoughtAnyAuction">if the player bought any auction</label>
                 </div>
             </div>
         </>

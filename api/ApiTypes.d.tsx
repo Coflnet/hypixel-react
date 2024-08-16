@@ -104,7 +104,8 @@ export enum SubscriptionType {
     BIN = 16,
     USE_SELL_NOT_BUY = 32,
     AUCTION = 64,
-    PLAYER_CREATES_AUCTION = 128
+    PLAYER_CREATES_AUCTION = 128,
+    BOUGHT_ANY_AUCTION = 1024
 }
 
 export interface ApiRequest {
