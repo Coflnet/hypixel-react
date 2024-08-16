@@ -29,8 +29,6 @@ function SubscriptionList() {
     let [isLoading, setIsLoading] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
-    let forceUpdate = useForceUpdate()
-
     useEffect(() => {
         mounted = true
     })
@@ -103,16 +101,16 @@ function SubscriptionList() {
     function getSubTypesAsList(subTypes: SubscriptionType[], price: number): JSX.Element {
         return (
             <ul>
-                {subTypes.map(subType => {
+                {subTypes.map((subType, i) => {
                     let result
                     switch (SubscriptionType[subType].toString()) {
                         case SubscriptionType.BIN.toString():
-                            result = <li key="1">Notify only for instant buy</li>
+                            result = <li key={i}>Notify only for instant buy</li>
                             break
                         case SubscriptionType.PRICE_HIGHER_THAN.toString():
                             result =
                                 price > 0 ? (
-                                    <li key="2">
+                                    <li key={i}>
                                         Notify if price is higher than{' '}
                                         <b>
                                             <Number number={price} /> Coins
@@ -124,7 +122,7 @@ function SubscriptionList() {
                             break
                         case SubscriptionType.PRICE_LOWER_THAN.toString():
                             result = (
-                                <li key="3">
+                                <li key={i}>
                                     Notify if price is lower than{' '}
                                     <b>
                                         <Number number={price} /> Coins
@@ -133,13 +131,16 @@ function SubscriptionList() {
                             )
                             break
                         case SubscriptionType.OUTBID.toString():
-                            result = <li key="4">Notify if player outbid something</li>
+                            result = <li key={i}>Notify if player outbid something</li>
                             break
                         case SubscriptionType.SOLD.toString():
-                            result = <li key="5">Notify if player sold something</li>
+                            result = <li key={i}>Notify if player sold something</li>
                             break
                         case SubscriptionType.PLAYER_CREATES_AUCTION.toString():
-                            result = <li key="5">Notify if player creates an auction</li>
+                            result = <li key={i}>Notify if player creates an auction</li>
+                            break
+                        case SubscriptionType.BOUGHT_ANY_AUCTION.toString():
+                            result = <li key={i}>Notify if player bought any auction</li>
                             break
                     }
                     return result

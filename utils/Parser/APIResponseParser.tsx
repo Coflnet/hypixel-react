@@ -240,6 +240,7 @@ function _getTypeFromSubTypes(subTypes: SubscriptionType[]): 'item' | 'player' |
         case SubscriptionType.OUTBID:
         case SubscriptionType.SOLD:
         case SubscriptionType.PLAYER_CREATES_AUCTION:
+        case SubscriptionType.BOUGHT_ANY_AUCTION:
             type = 'player'
             break
         case SubscriptionType.AUCTION:
