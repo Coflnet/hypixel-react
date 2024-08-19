@@ -92,7 +92,8 @@ export enum RequestType {
     GET_PUBLISHED_CONFIGS = 'publishedConfigs',
     UPDATE_CONFIG = 'updateConfig',
     ARCHIVED_AUCTIONS = 'archivedAuctions',
-    EXPORT_ARCHIVED_AUCTIONS = 'exportArchivedAuctions'
+    EXPORT_ARCHIVED_AUCTIONS = 'exportArchivedAuctions',
+    GET_LINKVERTISE_LINK = 'getLinkvertiseLink'
 }
 
 export enum SubscriptionType {
