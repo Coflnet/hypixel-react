@@ -364,7 +364,7 @@ export function CraftsList(props: Props) {
             </div>
             <hr />
             <p>
-                Click <Link href="/linkvertise">here</Link> to get Starter Premium for free to see the top crafts
+                <Link href="/linkvertise">Look at some advertising</Link> to get Starter Premium for free and see the top crafts
             </p>
             <p>Click on a craft for further details</p>
             <div className={styles.craftsList}>
