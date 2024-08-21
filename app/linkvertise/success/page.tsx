@@ -11,7 +11,8 @@ export default async function Page() {
                     Linkvertise task successful
                 </h2>
                 <hr />
-                <p>You successfully completed the Linkvertise task. You can close this page now.</p>
+                <p>You successfully completed the Linkvertise task. You received the reward and can close this page now :).</p>
+                <p>If you want access for longer consider supporting us directly by <Link href="/premium">buying a premium tier</Link></p>
             </Container>
         </>
     )
