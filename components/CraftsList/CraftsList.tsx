@@ -12,6 +12,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import styles from './CraftsList.module.css'
 import { parseProfitableCrafts } from '../../utils/Parser/APIResponseParser'
+import Link from 'next/link'
 
 interface Props {
     crafts?: any[]
@@ -181,9 +182,7 @@ export function CraftsList(props: Props) {
                     <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
                         The top 3 crafts can only be seen with starter premium or better
                     </p>
-                ) : (
-                    ''
-                )}
+                ) : null}
                 {showTechSavvyMessage && blur ? (
                     <p
                         style={{
@@ -364,6 +363,9 @@ export function CraftsList(props: Props) {
                 ) : null}
             </div>
             <hr />
+            <p>
+                <Link href="/linkvertise">Look at some advertising</Link> to get Starter Premium for free and see the top crafts
+            </p>
             <p>Click on a craft for further details</p>
             <div className={styles.craftsList}>
                 <ListGroup className={styles.list}>{list}</ListGroup>

@@ -2539,6 +2539,35 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getLinkvertiseLink = (): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to do linkvertise tasks.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.GET_LINKVERTISE_LINK,
+                customRequestURL: `${getApiEndpoint()}/linkvertise`,
+                requestMethod: 'GET',
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: link => {
+                    resolve(link)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_LINKVERTISE_LINK, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -2630,7 +2659,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getPublishedConfigs,
         updateConfig,
         requestArchivedAuctions,
-        exportArchivedAuctionsData
+        exportArchivedAuctionsData,
+        getLinkvertiseLink
     }
 }
 

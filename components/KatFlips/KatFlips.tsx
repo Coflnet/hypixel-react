@@ -146,9 +146,7 @@ export function KatFlips(props: Props) {
                     <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
                         The top 3 flips can only be seen with starter premium or better
                     </p>
-                ) : (
-                    ''
-                )}
+                ) : null}
                 {showTechSavvyMessage && blur ? (
                     <p
                         style={{
@@ -295,6 +293,9 @@ export function KatFlips(props: Props) {
                 <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />
             </div>
             <hr />
+            <p>
+                Click <Link href="/linkvertise">here</Link> to get Starter Premium for free to see the top kat flips
+            </p>
             <p>Click on a craft for further details</p>
             <div className={styles.craftsList}>
                 <ListGroup className={styles.list}>{list}</ListGroup>
