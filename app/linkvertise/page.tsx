@@ -14,7 +14,6 @@ export default async function Page() {
                     Linkvertise
                 </h2>
                 <Linkvertise />
-                <hr />
             </Container>
         </>
     )
