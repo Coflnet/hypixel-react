@@ -71,7 +71,7 @@ export default function LowSupply() {
                                     <strong>Click on the orange "Get Website"</strong>
                                 </li>
                                 <li>
-                                    <strong>Choose one of the presented tasks and complete it (by visiting hat website)</strong>
+                                    <strong>Choose one of the presented tasks and complete it (by visiting that website)</strong>
                                 </li>
                                 <li>
                                     <strong>
