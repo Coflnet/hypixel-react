@@ -101,13 +101,13 @@ export default async function Page() {
                     <h2>Legal</h2>
                     <p>We are not affiliated with Mojang or HyPixel</p>
                     <p>
-                        <a href="https://coflnet.com/legal">Terms of use</a>
+                        <a href="https://coflnet.com/terms-of-service">Terms of use</a>
                     </p>
                     <p>
                         <a href="https://coflnet.com/privacy">Privacy</a>
                     </p>
                     <p>
-                        <a href="https://coflnet.com/impressum">Imprint</a>
+                        <a href="https://coflnet.com/imprint">Imprint</a>
                     </p>
                 </Card>
             </Container>
