@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { getURLSearchParam } from '../../utils/Parser/URLParser'
-import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import api from '../../api/ApiHelper'
 import Link from 'next/link'
 import { Button } from 'react-bootstrap'

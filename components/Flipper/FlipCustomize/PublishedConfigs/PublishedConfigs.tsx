@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../../../../api/ApiHelper'
-import { Button, Form, ListGroup, ListGroupItem, Modal } from 'react-bootstrap'
-import Tooltip from '../../../Tooltip/Tooltip'
+import { Button, Form, ListGroup, ListGroupItem } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 
 const PublishedConfigs = () => {
