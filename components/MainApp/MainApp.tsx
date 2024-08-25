@@ -144,6 +144,21 @@ export function MainApp(props: any) {
 
     return (
         <>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    backgroundColor: 'yellow',
+                    color: 'black',
+                    height: '100px',
+                    marginBottom: '5px'
+                }}
+            >
+                <h1 style={{ fontSize: 'large' }}>Maintenance</h1>
+                <p>We are performing some database maintenance and may not be available until Derpy ends.</p>
+            </div>
             <OfflineBanner />
             <TopLoadingAnimation />
             {props.children}
