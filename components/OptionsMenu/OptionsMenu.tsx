@@ -32,13 +32,14 @@ function OptionsMenu(props: Props) {
     if (isItemPage) {
         let name = props.selected?.name
         let tag = (props.selected as Item).tag
-        available.push({ title: 'Wiki', url: 'https://hypixel-skyblock.fandom.com/wiki/' + name })
+        available.push({ title: 'Fandom', url: 'https://hypixel-skyblock.fandom.com/wiki/' + name })
+        available.push({ title: 'Wiki', url: 'https://wiki.hypixel.net/' + name })
         if ((props.selected as Item).bazaar) {
             available.push({ title: 'Skyblock.bz', url: 'https://Skyblock.bz/product/' + tag })
         }
     } else if (isPlayerPage) {
         let player = props.selected as Player
-        available.push({ title: 'SkyCrypt', url: 'https://skycrypt.coflnet.com/stats/' + player?.uuid })
+        available.push({ title: 'SkyCrypt', url: 'https://sky.shiiyu.moe//stats/' + player?.uuid })
         available.push({ title: 'Plancke', url: 'https://plancke.io/hypixel/player/stats/' + player?.uuid })
     }
 
