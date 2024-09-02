@@ -63,14 +63,18 @@ function SubscriptionList() {
                 return
             }
 
-            let newListeners = [...listener]
+            let newListeners = [...listeners]
 
-            listeners.forEach((listener, i) => {
-                getSubscriptionTitle(listener).then(title => {
+            let promises: Promise<void>[] = []
+            newListeners.forEach((listener, i) => {
+                let p = getSubscriptionTitle(listener).then(title => {
                     newListeners[i].title = title
                 })
+                promises.push(p)
             })
-            setListener(listeners)
+            Promise.all(promises).then(() => {
+                setListener(newListeners)
+            })
         })
     }
 
