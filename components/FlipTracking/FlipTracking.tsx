@@ -54,12 +54,12 @@ const SORT_OPTIONS: SortOption[] = [
         sortFunction: flips => flips.sort((a, b) => b.sellTime.getTime() - a.sellTime.getTime())
     },
     {
-        label: 'Profit ⇩',
+        label: 'Profit (highest => lowest)',
         value: 'profitDec',
         sortFunction: flips => flips.sort((a, b) => b.profit - a.profit)
     },
     {
-        label: 'Profit ⇧',
+        label: 'Profit (lowest => highest)',
         value: 'profitAsc',
         sortFunction: flips => flips.sort((a, b) => a.profit - b.profit)
     },
