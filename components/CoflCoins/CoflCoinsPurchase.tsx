@@ -137,9 +137,9 @@ function Payment(props: Props) {
                         coflCoinsToBuy={5400}
                         loadingProductId={loadingId}
                         redirectLink={currentRedirectLink}
-                        paypalPrice={19.99}
-                        stripePrice={19.69}
-                        lemonsqueezyPrice={19.69}
+                        paypalPrice={22.99}
+                        stripePrice={22.69}
+                        lemonsqueezyPrice={22.69}
                         disabledTooltip={disabledTooltip}
                         isDisabled={isDisabled}
                         onPayPalPay={onPayPaypal}
