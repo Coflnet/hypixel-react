@@ -1,13 +1,18 @@
 'use client'
 import React from 'react'
 import { convertTagToName } from '../../../utils/Formatter'
-import { Typeahead } from 'react-bootstrap-typeahead'
+import { Menu, MenuItem, Typeahead, withItem } from 'react-bootstrap-typeahead'
+import { Option } from 'react-bootstrap-typeahead/types/types'
+import api from '../../../api/ApiHelper'
+
+const Item = withItem(MenuItem)
 
 interface Props {
     onChange(n: string)
     options: FilterOptions
     defaultValue?: any
     isValid?: boolean
+    showIcon: boolean
 }
 
 export function EqualFilterElement(props: Props) {
@@ -29,6 +34,29 @@ export function EqualFilterElement(props: Props) {
             selectHint={(shouldSelect, event) => {
                 return event.key === 'Enter' || shouldSelect
             }}
+            renderMenu={(results, menuProps) => (
+                <Menu {...menuProps}>
+                    {results.map((result, index) => {
+                        if (result['paginationOption']) {
+                            return (
+                                <MenuItem option={result} position={index}>
+                                    More results...
+                                </MenuItem>
+                            )
+                        }
+                        return (
+                            <Item option={result} position={index}>
+                                {typeof result === 'string' ? convertTagToName(result as string) : (result as Option)['label']}
+                                {props.showIcon && (
+                                    <div style={{ float: 'right' }}>
+                                        <img src={api.getItemImageUrl({ tag: result as string })} style={{ width: '24px', height: '24px' }}></img>
+                                    </div>
+                                )}
+                            </Item>
+                        )
+                    })}
+                </Menu>
+            )}
         ></Typeahead>
     )
 }
