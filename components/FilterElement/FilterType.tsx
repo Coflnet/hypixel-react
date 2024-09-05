@@ -8,7 +8,8 @@ export enum FilterType {
     PLAYER = 64,
     SIMPLE = 128,
     BOOLEAN = 256,
-    PLAYER_WITH_RANK = 512
+    PLAYER_WITH_RANK = 512,
+    SHOW_ICON = 1024,
 }
 
 /**

@@ -12,7 +12,7 @@ interface Props {
     options: FilterOptions
     defaultValue?: any
     isValid?: boolean
-    showIcon: boolean
+    showIcon?: boolean
 }
 
 export function EqualFilterElement(props: Props) {
@@ -47,7 +47,7 @@ export function EqualFilterElement(props: Props) {
                         return (
                             <Item option={result} position={index}>
                                 {typeof result === 'string' ? convertTagToName(result as string) : (result as Option)['label']}
-                                {props.showIcon && (
+                                {props.showIcon && result !== 'None' && result !== 'Any' && (
                                     <div style={{ float: 'right' }}>
                                         <img src={api.getItemImageUrl({ tag: result as string })} style={{ width: '24px', height: '24px' }}></img>
                                     </div>
