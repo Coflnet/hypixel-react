@@ -212,6 +212,7 @@ function FilterElement(props: Props) {
                         options={options}
                         defaultValue={props.defaultValue}
                         onChange={onFilterElementChange}
+                        showIcon={hasFlag(options.type, FilterType.SHOW_ICON)}
                     />
                 )
             }
