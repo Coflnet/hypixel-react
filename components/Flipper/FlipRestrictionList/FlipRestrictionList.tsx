@@ -413,6 +413,7 @@ function FlipRestrictionList(props: Props) {
     )
 
     let windowWidth = isSSR ? 1920 : window.innerWidth
+    let singleColumn = windowWidth < 1024
 
     let addIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle" viewBox="0 0 16 16">
@@ -520,16 +521,16 @@ function FlipRestrictionList(props: Props) {
                                 <Grid
                                     ref={listRef}
                                     itemKey={({ columnIndex, rowIndex, data }) => {
-                                        let r = restrictionsToDisplay[rowIndex * 2 + columnIndex]
+                                        let r = restrictionsToDisplay[singleColumn ? rowIndex : rowIndex * 2 + columnIndex]
                                         if (!r) {
                                             return null
                                         }
                                         return r.itemKey
                                     }}
-                                    columnCount={windowWidth < 1024 ? 1 : 2}
-                                    columnWidth={() => (windowWidth < 1024 ? width : width / 2)}
+                                    columnCount={singleColumn ? 1 : 2}
+                                    columnWidth={() => (singleColumn ? width : width / 2)}
                                     height={height}
-                                    rowCount={windowWidth < 1024 ? restrictionsToDisplay.length : Math.ceil(restrictionsToDisplay.length / 2)}
+                                    rowCount={singleColumn ? restrictionsToDisplay.length : Math.ceil(restrictionsToDisplay.length / 2)}
                                     rowHeight={index => {
                                         function getCellHeight(index) {
                                             let defaultHeight = 81.5
@@ -551,7 +552,7 @@ function FlipRestrictionList(props: Props) {
                                     style={{ overflowX: 'hidden' }}
                                 >
                                     {({ columnIndex, rowIndex, style }) => {
-                                        let restriction = restrictionsToDisplay[rowIndex * 2 + columnIndex]
+                                        let restriction = restrictionsToDisplay[singleColumn ? rowIndex : rowIndex * 2 + columnIndex]
                                         if (!restriction) {
                                             return null
                                         }
