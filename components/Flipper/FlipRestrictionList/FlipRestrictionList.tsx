@@ -547,7 +547,7 @@ function FlipRestrictionList(props: Props) {
                                             }
                                             return defaultHeight + margin + tags + filterCount * 40
                                         }
-                                        return Math.max(getCellHeight(index * 2), getCellHeight(index * 2 + 1))
+                                        return singleColumn ? getCellHeight(index) : Math.max(getCellHeight(index * 2), getCellHeight(index * 2 + 1))
                                     }}
                                     width={width}
                                     style={{ overflowX: 'hidden' }}
