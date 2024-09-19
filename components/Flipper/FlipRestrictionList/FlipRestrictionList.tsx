@@ -303,8 +303,8 @@ function FlipRestrictionList(props: Props) {
     function getRestrictionsFilteredBySearch(restrictions: FlipRestriction[], invert = false) {
         return restrictions.filter(restriction => {
             let isValid = false
-            let lowerCaseSearchText = searchText.toLowerCase().replace(/_/g, ' ')
-            if (restriction.item?.name && restriction.item?.name.toLowerCase().includes(lowerCaseSearchText)) {
+            let lowerCaseSearchText = searchText.toLowerCase().replace(/_/g, ' ').replace(/'/g, '')
+            if (restriction.item?.name && restriction.item?.name?.replace(/'/g, '').toLowerCase().includes(lowerCaseSearchText)) {
                 isValid = true
             }
             if (restriction.itemFilter && !isValid) {
@@ -313,8 +313,8 @@ function FlipRestrictionList(props: Props) {
                         return
                     }
                     let keyWithColon = `${key}:`
-                    let keyWithoutUnderscore = keyWithColon.replace(/_/g, ' ')
-                    let valueWithoutUnderScore = restriction.itemFilter![key].toString().replace(/_/g, ' ')
+                    let keyWithoutUnderscore = keyWithColon.replace(/_/g, ' ').replace(/'/g, '')
+                    let valueWithoutUnderScore = restriction.itemFilter![key].toString().replace(/_/g, ' ').replace(/'/g, '')
                     if (
                         restriction.itemFilter![key].toString().toLowerCase().includes(lowerCaseSearchText) ||
                         valueWithoutUnderScore.toLowerCase().includes(lowerCaseSearchText) ||
@@ -325,7 +325,7 @@ function FlipRestrictionList(props: Props) {
                     }
                 })
             }
-            if (restriction.tags && restriction.tags.findIndex(tag => tag.toLowerCase().includes(lowerCaseSearchText)) !== -1 && !isValid) {
+            if (restriction.tags && restriction.tags.findIndex(tag => tag.toLowerCase()?.replace(/'/g, '').includes(lowerCaseSearchText)) !== -1 && !isValid) {
                 isValid = true
             }
             if (invert) {
