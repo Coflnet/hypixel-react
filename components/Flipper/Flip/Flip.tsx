@@ -7,7 +7,7 @@ import { Badge, Card } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { getFlipCustomizeSettings, getFlipFinders } from '../../../utils/FlipUtils'
-import { formatDungeonStarsInString, formatToPriceToShorten, getStyleForTier } from '../../../utils/Formatter'
+import { formatDungeonStarsInString, formatToPriceToShorten, getMinecraftColorCodedElement, getStyleForTier } from '../../../utils/Formatter'
 import { useForceUpdate } from '../../../utils/Hooks'
 import { CopyButton } from '../../CopyButton/CopyButton'
 import Number from '../../Number/Number'
@@ -224,7 +224,7 @@ function Flip(props: Props) {
                                     if (i >= settings.maxExtraInfoFields!) {
                                         return ''
                                     } else {
-                                        return <li key={i}>{prop}</li>
+                                        return <li key={i}>{getMinecraftColorCodedElement(prop)}</li>
                                     }
                                 })}
                             </ul>
