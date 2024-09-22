@@ -224,7 +224,7 @@ export function FlipTracking(props: Props) {
     let list = flipsToDisplay.map((trackedFlip, i) => {
         return (
             <FlipTrackingListItem
-                key={trackedFlip.uId + ' - ' + ignoreProfitMap[trackedFlip.uId.toString(16)]}
+                key={trackedFlip.uId + ' - ' + trackedFlip.sellTime.getTime() + '-' + (ignoreProfitMap[trackedFlip.uId.toString(16)] || '')}
                 trackedFlip={trackedFlip}
                 isHighlighted={props.highlightedFlipUid === trackedFlip.uId.toString(16)}
                 onContextMenu={handleContextMenuForTrackedFlip}
