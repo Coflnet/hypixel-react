@@ -58,22 +58,30 @@ function SubscriptionList() {
     }
 
     function loadListener() {
-        return api.getNotificationListener().then(listeners => {
-            if (!mounted) {
-                return
-            }
+        return new Promise((resolve, reject) => {
+            api.getNotificationListener().then(listeners => {
+                if (!mounted) {
+                    resolve(null)
+                    return
+                }
 
-            let newListeners = [...listeners]
+                let newListeners = [...listeners]
 
-            let promises: Promise<void>[] = []
-            newListeners.forEach((listener, i) => {
-                let p = getSubscriptionTitle(listener).then(title => {
-                    newListeners[i].title = title
+                let promises: Promise<void>[] = []
+                newListeners.forEach((listener, i) => {
+                    let p = getSubscriptionTitle(listener).then(title => {
+                        newListeners[i].title = title
+                    })
+                    promises.push(p)
                 })
-                promises.push(p)
-            })
-            Promise.all(promises).then(() => {
-                setListener(newListeners)
+                Promise.all(promises)
+                    .then(() => {
+                        setListener(newListeners)
+                        resolve(null)
+                    })
+                    .catch(() => {
+                        reject()
+                    })
             })
         })
     }
@@ -182,6 +190,7 @@ function SubscriptionList() {
                         variant="info"
                         onClick={() => {
                             resubscribe(notificationListener, subscriptionToDelete!)
+                            toast.dismiss()
                         }}
                     >
                         <UndoIcon /> Undo
@@ -195,6 +204,7 @@ function SubscriptionList() {
         api.unsubscribeAll()
             .then(() => {
                 setListener([])
+                setSubscriptions([])
                 toast.success('All notifiers were sucessfully removed')
             })
             .catch(() => {
@@ -202,7 +212,7 @@ function SubscriptionList() {
             })
 
         subscriptions.forEach(subscription => {
-            api.deleteNotificationSubscription({ ...subscription, sourceSubIdRegex: 't' })
+            api.deleteNotificationSubscription({ ...subscription })
         })
         setShowDeleteAllSubscriptionDialog(false)
     }
@@ -321,8 +331,12 @@ function SubscriptionList() {
                     <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
                         <DeleteIcon
                             color="error"
-                            onClick={() => {
-                                onDelete(listener)
+                            onClick={async () => {
+                                await api.deleteNotificationSubscription(subscription)
+                                toast.success('Subscription deleted')
+                                setIsLoading(true)
+                                await Promise.all([loadListener(), loadSubscriptions()])
+                                setIsLoading(false)
                             }}
                         />
                     </div>
