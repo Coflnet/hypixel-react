@@ -39,7 +39,7 @@ function OptionsMenu(props: Props) {
         }
     } else if (isPlayerPage) {
         let player = props.selected as Player
-        available.push({ title: 'SkyCrypt', url: 'https://sky.shiiyu.moe//stats/' + player?.uuid })
+        available.push({ title: 'SkyCrypt', url: 'https://sky.shiiyu.moe/stats/' + player?.uuid })
         available.push({ title: 'Plancke', url: 'https://plancke.io/hypixel/player/stats/' + player?.uuid })
     }
 
