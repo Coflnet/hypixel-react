@@ -55,6 +55,12 @@ function TransactionHistory() {
             return 'Bought Pre-API'
         }
 
+        const parts = transaction.reference.split('.')
+        let suffix = ''
+        if (parts.length === 2 && /^[0-9a-fA-F]{32}$/.test(parts[0]) && /^[0-9a-fA-F\-]{1,}$/.test(parts[1])) {
+            suffix = `(License for ${parts[0]})`
+        }
+
         let purchasedPremiumOption
         PREMIUM_TYPES.forEach(premiumType => {
             if (transaction.productId.startsWith(premiumType.productId)) {
@@ -63,7 +69,7 @@ function TransactionHistory() {
         })
 
         if (purchasedPremiumOption) {
-            return `Bought ${purchasedPremiumOption}`
+            return `Bought ${purchasedPremiumOption} ${suffix}`
         }
 
         return transaction.productId
