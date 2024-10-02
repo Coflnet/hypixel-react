@@ -142,7 +142,7 @@ function BuyPremium(props: Props) {
                                     <Number number={getPurchasePrice()} /> Coins
                                 </span>
                             </div>
-                            {coflCoins > getPurchasePrice() ? (
+                            {coflCoins >= getPurchasePrice() ? (
                                 <div>
                                     <label className={styles.label}>Remaining after Purchase:</label>
                                     <span>
