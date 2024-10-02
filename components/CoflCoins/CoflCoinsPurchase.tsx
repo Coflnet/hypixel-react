@@ -62,7 +62,7 @@ function Payment(props: Props) {
         api.paypalPurchase(productId, coflCoins)
             .then(data => {
                 setCurrentRedirectLink(data.directLink)
-                window.open(data.directLink)
+                window.open(data.directLink, '_self')
             })
             .catch(onPaymentRedirectFail)
     }
@@ -73,7 +73,7 @@ function Payment(props: Props) {
         api.stripePurchase(productId, coflCoins)
             .then(data => {
                 setCurrentRedirectLink(data.directLink)
-                window.open(data.directLink)
+                window.open(data.directLink, '_self')
             })
             .catch(onPaymentRedirectFail)
     }
@@ -84,7 +84,7 @@ function Payment(props: Props) {
         api.lemonsqueezyPurchase(productId, coflCoins)
             .then(data => {
                 setCurrentRedirectLink(data.directLink)
-                window.open(data.directLink)
+                window.open(data.directLink, '_self')
             })
             .catch(onPaymentRedirectFail)
     }
