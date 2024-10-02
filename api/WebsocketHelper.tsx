@@ -52,6 +52,15 @@ function initWebsocket(): void {
     let _handleRequestOnMessage = function (response: ApiResponse, request: ApiRequest) {
         let equals = findForEqualSentRequest(request)
 
+        if (response.type === 'display') {
+            if (typeof toast[response.data.type] === 'function') {
+                toast[response.data.type](response.data.message)
+            } else {
+                toast.info(response.data.message)
+            }
+            return
+        }
+
         if (response.type.includes('error')) {
             request.reject(JSON.parse(response.data))
             equals.forEach(equal => equal.reject(JSON.parse(response.data)))
