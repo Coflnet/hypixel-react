@@ -69,7 +69,7 @@ function TransactionHistory() {
         })
 
         if (purchasedPremiumOption) {
-            return `Bought ${purchasedPremiumOption} ${suffix}`
+            return `Bought ${purchasedPremiumOption}${suffix}`
         }
 
         return transaction.productId
