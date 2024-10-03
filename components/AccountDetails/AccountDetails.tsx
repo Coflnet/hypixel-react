@@ -66,6 +66,9 @@ function AccountDetails() {
         localStorage.removeItem('googleId')
         setRerenderGoogleSignIn(rerenderGoogleSignIn + 1)
         toast.warn('Successfully logged out')
+        setTimeout(() => {
+            location.reload()
+        }, 1000)
     }
 
     function onLogin() {
