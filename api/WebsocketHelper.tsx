@@ -53,10 +53,11 @@ function initWebsocket(): void {
         let equals = findForEqualSentRequest(request)
 
         if (response.type === 'display') {
-            if (typeof toast[response.data.type] === 'function') {
-                toast[response.data.type](response.data.message)
+            let parsedData = JSON.parse(response.data)
+            if (typeof toast[parsedData.type] === 'function') {
+                toast[parsedData.type](parsedData.message)
             } else {
-                toast.info(response.data.message)
+                toast.info(parsedData.message)
             }
             return
         }
