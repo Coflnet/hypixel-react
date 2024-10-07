@@ -5,6 +5,8 @@ import ItemFilter from '../../../ItemFilter/ItemFilter'
 import Tooltip from '../../../Tooltip/Tooltip'
 import TagSelect from '../TagSelect/TagSelect'
 import api from '../../../../api/ApiHelper'
+import styles from './EditRestriction.module.css'
+import ApiSearchField from '../../../Search/ApiSearchField'
 
 interface Props {
     defaultRestriction: FlipRestriction
@@ -15,6 +17,7 @@ interface Props {
 
 export interface UpdateState {
     type: 'blacklist' | 'whitelist'
+    selectedItem?: Item
     tags?: string[]
     itemFilter?: ItemFilter
 }
@@ -42,6 +45,37 @@ function EditRestriction(props: Props) {
 
     return (
         <div>
+            <ApiSearchField
+                multiple
+                className={styles.multiSearch}
+                onChange={items => {
+                    setUpdateState({
+                        ...updateState,
+                        selectedItem: items[0]
+                            ? {
+                                  tag: items[0].id,
+                                  name: items[0].dataItem.name,
+                                  iconUrl: items[0].dataItem.iconUrl
+                              }
+                            : undefined
+                    })
+                }}
+                searchFunction={api.itemSearch}
+                selected={
+                    updateState.selectedItem
+                        ? [
+                              {
+                                  dataItem: {
+                                      name: updateState.selectedItem.name,
+                                      iconUrl: updateState.selectedItem.iconUrl
+                                  },
+                                  label: updateState.selectedItem.name,
+                                  id: updateState.selectedItem.tag
+                              } as unknown as SearchResultItem
+                          ]
+                        : undefined
+                }
+            />
             <ItemFilter
                 defaultFilter={props.defaultRestriction.itemFilter}
                 filters={filters}
@@ -69,7 +103,7 @@ function EditRestriction(props: Props) {
                             onClick={() => {
                                 props.onAdd(updateState)
                             }}
-                            disabled={!isFilterValid}
+                            disabled={!isFilterValid || !!updateState.selectedItem}
                         >
                             Add filter(s)
                         </Button>

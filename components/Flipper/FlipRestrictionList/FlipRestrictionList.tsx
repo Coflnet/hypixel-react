@@ -155,6 +155,7 @@ function FlipRestrictionList(props: Props) {
             newRestrictions[index].tags = updateState.tags
             newRestrictions[index].isEdited = false
             newRestrictions[index].type = restriction.type
+            newRestrictions[index].item = updateState.selectedItem
         })
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
