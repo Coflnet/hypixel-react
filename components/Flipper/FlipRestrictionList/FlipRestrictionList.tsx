@@ -155,7 +155,8 @@ function FlipRestrictionList(props: Props) {
             newRestrictions[index].tags = updateState.tags
             newRestrictions[index].isEdited = false
             newRestrictions[index].type = restriction.type
-            newRestrictions[index].item = updateState.selectedItem
+            if (updateState.selectedItem)
+                newRestrictions[index].item = updateState.selectedItem
         })
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
@@ -293,7 +294,7 @@ function FlipRestrictionList(props: Props) {
     }
 
     function recalculateListHeight() {
-        ;(listRef.current as any).resetAfterRowIndex(0, false)
+        ; (listRef.current as any).resetAfterRowIndex(0, false)
     }
 
     function handleContextMenuForRestriction(event) {
