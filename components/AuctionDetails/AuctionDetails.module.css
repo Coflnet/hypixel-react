@@ -94,9 +94,16 @@
 @media all and (max-width: 480px) {
     .cardHeadSubtext {
         display: flex;
-        align-items: center;
-        justify-content: space-evenly;
+        flex-wrap: wrap;
     }
+    
+    .cardHeadSubtext > :first-child {
+        width: 100%;
+    }
+    .cardHeadSubtext > :not(:first-child) {
+        margin-right: 5px;
+    }
+    
     .compareButtonLabel {
         display: none;
     }
