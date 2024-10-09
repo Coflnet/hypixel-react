@@ -2188,6 +2188,22 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getBazaarSpreadFlips = (): Promise<BazaarSpreadFlip[]> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_BAZAAR_SPREAD_FLIPS,
+                customRequestURL: `${getApiEndpoint()}/flip/bazaar/spread`,
+                data: '',
+                resolve: data => {
+                    resolve(data as BazaarSpreadFlip[])
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_BAZAAR_SPREAD_FLIPS, error)
+                }
+            })
+        })
+    }
+
     let getNotificationTargets = (): Promise<NotificationTarget[]> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
@@ -2648,6 +2664,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getTradeOffers,
         deleteTradeOffer,
         getTransactions,
+        getBazaarSpreadFlips,
         getNotificationTargets,
         addNotificationTarget,
         deleteNotificationTarget,

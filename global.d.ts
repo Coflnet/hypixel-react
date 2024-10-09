@@ -255,6 +255,7 @@ interface API {
     getTradeOffers(onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]>
     deleteTradeOffer(tradeId: string): Promise<void>
     getTransactions(): Promise<Transaction[]>
+    getBazaarSpreadFlips(): Promise<BazaarSpreadFlip[]>
     getPlayerNames(uuids: string[]): Promise<{ [key: string]: string }>
     getNotificationTargets(): Promise<NotificationTarget[]>
     addNotificationTarget(target: NotificationTarget): Promise<NotificationTarget>
@@ -645,6 +646,26 @@ interface Transaction {
     reference: string
     amount: number
     timeStamp: Date
+}
+
+interface BazaarSpreadFlip {
+    flip: {
+        itemTag: string
+        buyPrice: number
+        sellPrice: number
+        profitPerHour: number
+        volume: number
+        timestamp: string
+    }
+    itemName: string
+    isManipulated: boolean
+    key?: string
+}
+
+interface SortOption<T> {
+    label: string
+    value: string
+    sortFunction(crafts: T[], additionalData?: any)
 }
 
 type NotificationType = 'WEBHOOK' | 'DISCORD' | 'DiscordWebhook' | 'FIREBASE' | 'EMAIL' | 'InGame' | 'DiscordWebhook'

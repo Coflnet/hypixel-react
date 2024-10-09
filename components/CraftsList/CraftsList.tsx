@@ -19,13 +19,7 @@ interface Props {
     bazaarTags?: string[]
 }
 
-interface SortOption {
-    label: string
-    value: string
-    sortFunction(crafts: ProfitableCraft[], bazaarTags: string[])
-}
-
-const SORT_OPTIONS: SortOption[] = [
+const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
     {
         label: 'Profit',
         value: 'profit',
@@ -69,7 +63,7 @@ let observer: MutationObserver
 export function CraftsList(props: Props) {
     let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts ? parseProfitableCrafts(props.crafts) : [])
     let [nameFilter, setNameFilter] = useState<string | null>()
-    let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
+    let [orderBy, setOrderBy] = useState<SortOption<ProfitableCraft>>(SORT_OPTIONS[0])
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
     let [profiles, setProfiles] = useState<SkyblockProfile[]>()
     let [selectedProfile, setSelectedProfile] = useState<SkyblockProfile>()

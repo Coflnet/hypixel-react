@@ -81,6 +81,7 @@ export enum RequestType {
     DELETE_TRADE_OFFER = 'deleteTradeOffer',
     GET_TRADES = 'getTrades',
     GET_TRANSACTIONS = 'getTransactions',
+    GET_BAZAAR_SPREAD_FLIPS = 'getBazaarSpreadFlips',
     GET_NOTIFICATION_TARGETS = 'getNotificationTargets',
     ADD_NOTIFICATION_TARGETS = 'addNotificationTargets',
     DELETE_NOTIFICATION_TARGETS = 'deleteNotificationTargets',
