@@ -11,7 +11,7 @@ export default async function Page() {
 
     return (
         <>
-            <Container>
+            <Container style={{ height: 'calc(100vh - 40px)' }}>
                 <h2>
                     <NavBar />
                     Bazaar

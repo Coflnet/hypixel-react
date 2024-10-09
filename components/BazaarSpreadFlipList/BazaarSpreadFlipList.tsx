@@ -134,7 +134,7 @@ function Bazaar(props: Props) {
 
     return (
         <>
-            <div>
+            <div style={{ height: '100%' }}>
                 <div className={styles.filterInputContainer}>
                     <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
                     <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
