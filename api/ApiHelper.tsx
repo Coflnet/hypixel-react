@@ -2568,6 +2568,64 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let createPremiumSubscription = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to create a premium subscription.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.CREATE_PREMIUM_SUBSCRIPTION,
+                customRequestURL: `${getApiEndpoint()}/premium/subscription`,
+                requestMethod: 'GET',
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: () => {
+                    resolve()
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.CREATE_PREMIUM_SUBSCRIPTION, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let deletePremiumSubscription = (id: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to delete a premium subscription.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.DELETE_PREMIUM_SUBSCRIPTION,
+                customRequestURL: `${getApiEndpoint()}/premium/subscription/${id}`,
+                requestMethod: 'DELETE',
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: () => {
+                    resolve()
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.DELETE_PREMIUM_SUBSCRIPTION, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -2660,7 +2718,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         updateConfig,
         requestArchivedAuctions,
         exportArchivedAuctionsData,
-        getLinkvertiseLink
+        getLinkvertiseLink,
+        createPremiumSubscription,
+        deletePremiumSubscription
     }
 }
 

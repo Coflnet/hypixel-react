@@ -269,6 +269,8 @@ interface API {
     requestArchivedAuctions(itemTag: string, itemFilter?: ItemFilter): Promise<ArchivedAuctionResponse>
     exportArchivedAuctionsData(itemTag: string, itemFilter: ItemFilter, discordWebhookUrl: string, flags: string[]): Promise<void>
     getLinkvertiseLink(): Promise<string>
+    createPremiumSubscription(): Promise<void>
+    deletePremiumSubscription(id: string): Promise<void>
 }
 
 interface CacheUtils {
