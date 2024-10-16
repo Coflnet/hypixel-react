@@ -2568,7 +2568,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let createPremiumSubscription = (): Promise<void> => {
+    let getPremiumSubscription = (): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -2719,7 +2719,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         requestArchivedAuctions,
         exportArchivedAuctionsData,
         getLinkvertiseLink,
-        createPremiumSubscription,
+        getPremiumSubscription,
         deletePremiumSubscription
     }
 }

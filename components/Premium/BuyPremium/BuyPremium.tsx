@@ -10,6 +10,8 @@ import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import Number from '../../Number/Number'
 import styles from './BuyPremium.module.css'
 import BuyPremiumConfirmationDialog from './BuyPremiumConfirmationDialog'
+import Tooltip from '../../Tooltip/Tooltip'
+import BuyPremiumSubscription from '../BuyPremiumSubscription/BuyPremiumSubscription'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -151,6 +153,15 @@ function BuyPremium(props: Props) {
                                 </div>
                             ) : null}
                             <p style={{ marginTop: '20px' }}>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
+                            <p style={{ marginTop: '20px' }}>
+                                If you want to it to automatically renew itself,{' '}
+                                <Tooltip
+                                    type="click"
+                                    content={<span style={{ color: '#007bff', cursor: 'pointer' }}>click here</span>}
+                                    tooltipContent={<BuyPremiumSubscription />}
+                                    tooltipTitle={<span>Purchase Subscription</span>}
+                                />
+                            </p>
                             <hr />
                             <Button
                                 style={{ marginTop: '10px' }}
