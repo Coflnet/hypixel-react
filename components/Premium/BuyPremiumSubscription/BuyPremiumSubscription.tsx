@@ -1,24 +1,27 @@
 import React from 'react'
-import { Modal, Button } from 'react-bootstrap'
 import GenericProviderPurchaseCard from '../../CoflCoins/GenericProviderPurchaseCard'
 import api from '../../../api/ApiHelper'
 
-const BuyPremiumSubscription = () => {
+interface Props {
+    productId: string
+    price: number
+}
+
+const BuyPremiumSubscription = (props: Props) => {
     function onPayLemonSqueezy() {
-        api.lemonsqueezyPurchase('l_premium', 1800).then(data => {
+        api.lemonsqueezyPurchase(props.productId).then(data => {
             window.open(data.directLink, '_self')
         })
     }
 
     return (
         <>
-            <h4>Purchase Premium Subscription</h4>
             <p>Click the button below to purchase a premium subscription. This subscription will be automatically renewed every month.</p>
             <GenericProviderPurchaseCard
                 type="LemonSqueezy"
-                price={1}
+                price={props.price}
                 onPay={onPayLemonSqueezy}
-                disabledTooltip={<></>}
+                disabledTooltip={undefined}
                 isDisabled={false}
                 isRedirecting={false}
             />
