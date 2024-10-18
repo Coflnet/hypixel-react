@@ -76,6 +76,16 @@ export function getPremiumType(product: PremiumProduct) {
     return [...PREMIUM_TYPES].sort((a, b) => b.productId.localeCompare(a.productId)).find(type => product.productSlug.startsWith(type.productId))
 }
 
+export function getPremiumLabelForSubscription(subscription: PremiumSubscription) {
+    if (subscription.productName.includes('prem_plus')) {
+        return 'Premium+'
+    }
+    if (subscription.productName.includes('prem')) {
+        return 'Premium'
+    }
+    return subscription.productName
+}
+
 export function hasHighEnoughPremium(products: PremiumProduct[], minPremiumType: PREMIUM_RANK) {
     let hasHighEnoughPremium = false
     products.forEach(product => {

@@ -712,3 +712,14 @@ export function parseArchivedAuctions(archivedAuctionsResponse: any): ArchivedAu
         })
     }
 }
+
+export function parsePremiumSubscription(subscription: any): PremiumSubscription {
+    return {
+        externalId: subscription.externalId,
+        endsAt: parseDate(subscription.endsAt),
+        productName: subscription.productName,
+        paymentAmount: subscription.paymentAmount,
+        renewsAt: parseDate(subscription.renewsAt),
+        createdAt: parseDate(subscription.createdAt)
+    }
+}
