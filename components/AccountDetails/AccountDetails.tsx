@@ -26,6 +26,7 @@ function AccountDetails() {
     let [isLoading, setIsLoading] = useState(true)
     let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
     let [products, setProducts] = useState<PremiumProduct[]>([])
+    let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
     let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
     let coflCoins = useCoflCoins()
     let { pushInstruction } = useMatomo()
@@ -54,7 +55,13 @@ function AccountDetails() {
         return api.refreshLoadPremiumProducts(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
             setProducts(products)
-            setIsLoading(false)
+        })
+    }
+
+    function loadPremiumSubscriptions(): Promise<void> {
+        return api.getPremiumSubscriptions().then(subscriptions => {
+            subscriptions = subscriptions.filter(subscription => subscription.endsAt.getTime() > new Date().getTime())
+            setPremiumSubscriptions(subscriptions)
         })
     }
 
@@ -75,7 +82,9 @@ function AccountDetails() {
         let googleId = sessionStorage.getItem('googleId')
         setIsLoading(true)
         if (googleId) {
-            loadPremiumProducts()
+            Promise.all([loadPremiumProducts(), loadPremiumSubscriptions()]).then(() => {
+                setIsLoading(false)
+            })
             setIsLoggedIn(true)
         }
     }
@@ -116,6 +125,13 @@ function AccountDetails() {
         setRerenderGoogleSignIn(rerenderGoogleSignIn + 1)
     }
 
+    function onSubscriptionCancel(subscription: PremiumSubscription) {
+        api.cancelPremiumSubscription(subscription.externalId).then(() => {
+            toast.success('Subscription cancelled')
+            loadPremiumSubscriptions()
+        })
+    }
+
     return (
         <>
             <h2 style={{ marginBottom: '30px' }}>
@@ -127,7 +143,12 @@ function AccountDetails() {
                     <p>
                         <span className={styles.label}>Account:</span> {getAccountElement()}
                     </p>
-                    <PremiumStatus products={products} labelStyle={{ width: '300px', fontWeight: 'bold' }} />
+                    <PremiumStatus
+                        products={products}
+                        subscriptions={premiumSubscriptions}
+                        onSubscriptionCancel={onSubscriptionCancel}
+                        labelStyle={{ width: '300px', fontWeight: 'bold' }}
+                    />
                     <p>
                         <span className={styles.label}>CoflCoins:</span> <Number number={coflCoins} />
                         <Button
