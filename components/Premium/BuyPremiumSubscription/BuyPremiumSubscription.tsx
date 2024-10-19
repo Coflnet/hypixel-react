@@ -9,7 +9,7 @@ interface Props {
 
 const BuyPremiumSubscription = (props: Props) => {
     function onPayLemonSqueezy() {
-        api.lemonsqueezyPurchase(props.productId).then(data => {
+        api.purchasePremiumSubscription(props.productId).then(data => {
             window.open(data.directLink, '_self')
         })
     }

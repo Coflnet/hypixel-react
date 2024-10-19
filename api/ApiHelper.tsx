@@ -30,6 +30,7 @@ import {
     parsePlayer,
     parsePopularSearch,
     parsePremiumProducts,
+    parsePremiumSubscription,
     parsePrivacySettings,
     parseProfitableCrafts,
     parseRecentAuction,
@@ -2568,7 +2569,36 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getPremiumSubscription = (): Promise<void> => {
+    let purchasePremiumSubscription = (productSlug: string): Promise<PaymentResponse> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to do linkvertise tasks.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.PURCHASE_PREMIUM_SUBSCRIPTION,
+                customRequestURL: `${getApiEndpoint()}/premium/subscription/${productSlug}`,
+                requestMethod: 'POST',
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: data => {
+                    resolve(data)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.PURCHASE_PREMIUM_SUBSCRIPTION, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let getPremiumSubscriptions = (): Promise<PremiumSubscription[]> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -2586,8 +2616,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     GoogleToken: googleId,
                     'Content-Type': 'application/json'
                 },
-                resolve: () => {
-                    resolve()
+                resolve: (subscriptions: any = []) => {
+                    resolve(subscriptions.map(parsePremiumSubscription))
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.CREATE_PREMIUM_SUBSCRIPTION, error)
@@ -2597,11 +2627,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let deletePremiumSubscription = (id: string): Promise<void> => {
+    let cancelPremiumSubscription = (id: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
-                toast.error('You need to be logged in to delete a premium subscription.')
+                toast.error('You need to be logged in to cancel a premium subscription.')
                 reject()
                 return
             }
@@ -2719,8 +2749,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         requestArchivedAuctions,
         exportArchivedAuctionsData,
         getLinkvertiseLink,
-        getPremiumSubscription,
-        deletePremiumSubscription
+        getPremiumSubscriptions,
+        cancelPremiumSubscription, 
+        purchasePremiumSubscription
     }
 }
 

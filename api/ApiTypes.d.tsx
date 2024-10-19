@@ -95,7 +95,8 @@ export enum RequestType {
     EXPORT_ARCHIVED_AUCTIONS = 'exportArchivedAuctions',
     GET_LINKVERTISE_LINK = 'getLinkvertiseLink',
     CREATE_PREMIUM_SUBSCRIPTION = 'createPremiumSubscription',
-    DELETE_PREMIUM_SUBSCRIPTION = 'deletePremiumSubscription'
+    DELETE_PREMIUM_SUBSCRIPTION = 'deletePremiumSubscription',
+    PURCHASE_PREMIUM_SUBSCRIPTION = 'purchasePremiumSubscription'
 }
 
 export enum SubscriptionType {

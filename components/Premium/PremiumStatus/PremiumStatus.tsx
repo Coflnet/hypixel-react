@@ -2,13 +2,17 @@
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { getLocalDateAndTime } from '../../../utils/Formatter'
-import { getHighestPriorityPremiumProduct, getPremiumType } from '../../../utils/PremiumTypeUtils'
+import { getHighestPriorityPremiumProduct, getPremiumLabelForSubscription, getPremiumType } from '../../../utils/PremiumTypeUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumStatus.module.css'
+import { Button } from 'react-bootstrap'
+import api from '../../../api/ApiHelper'
 
 interface Props {
     products: PremiumProduct[]
+    subscriptions: PremiumSubscription[]
     labelStyle?: React.CSSProperties
+    onSubscriptionCancel(subscription: PremiumSubscription): void
 }
 
 function PremiumStatus(props: Props) {
@@ -53,13 +57,32 @@ function PremiumStatus(props: Props) {
     return (
         <>
             <div>
-                {productsToShow && productsToShow.length > 1 ? (
+                {(productsToShow && productsToShow.length > 1) || (props.subscriptions && props.subscriptions.length > 1) ? (
                     <div style={{ overflow: 'hidden' }}>
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
                             Premium Status:
                         </span>
                         <ul style={{ float: 'left' }}>
-                            {productsToShow.map(product => (
+                            {props.subscriptions.map(subscription => (
+                                <li key={subscription.externalId}>
+                                    {' '}
+                                    <Tooltip
+                                        type="hover"
+                                        content={<span>{getPremiumLabelForSubscription(subscription)} (Subscription)</span>}
+                                        tooltipContent={
+                                            subscription.endsAt ? (
+                                                <span>ends at {getLocalDateAndTime(subscription.endsAt)}</span>
+                                            ) : (
+                                                <span>renews at {getLocalDateAndTime(subscription.renewsAt)}</span>
+                                            )
+                                        }
+                                    />
+                                    <Button style={{ marginLeft: '5px' }} size="sm" variant="outline-danger">
+                                        Cancel
+                                    </Button>
+                                </li>
+                            ))}
+                            {productsToShow?.map(product => (
                                 <li key={product.productSlug}>{getProductListEntry(product)}</li>
                             ))}
                         </ul>
@@ -70,7 +93,7 @@ function PremiumStatus(props: Props) {
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
                             Premium Status:
                         </span>
-                        {highestPriorityProduct ? getProductListEntry(highestPriorityProduct) : 'No Premium'}
+                        {highestPriorityProduct ? getProductListEntry(highestPriorityProduct!) : 'No Premium'}
                     </p>
                 )}
             </div>

@@ -269,8 +269,9 @@ interface API {
     requestArchivedAuctions(itemTag: string, itemFilter?: ItemFilter): Promise<ArchivedAuctionResponse>
     exportArchivedAuctionsData(itemTag: string, itemFilter: ItemFilter, discordWebhookUrl: string, flags: string[]): Promise<void>
     getLinkvertiseLink(): Promise<string>
-    getPremiumSubscription(): Promise<void>
-    deletePremiumSubscription(id: string): Promise<void>
+    getPremiumSubscriptions(): Promise<PremiumSubscription[]>
+    cancelPremiumSubscription(id: string): Promise<void>
+    purchasePremiumSubscription(productSlug: string): Promise<PaymentResponse>
 }
 
 interface CacheUtils {
@@ -684,4 +685,13 @@ interface ArchivedAuction {
 interface ArchivedAuctionResponse {
     auctions: ArchivedAuction[]
     queryStatus: 'Success' | 'NoResults' | 'Pending' | 'Partial'
+}
+
+interface PremiumSubscription {
+    externalId: string
+    endsAt: Date
+    productName: string
+    paymentAmount: string
+    renewsAt: Date
+    createdAt: Date
 }
