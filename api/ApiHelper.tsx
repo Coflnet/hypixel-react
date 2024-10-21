@@ -30,6 +30,7 @@ import {
     parsePlayer,
     parsePopularSearch,
     parsePremiumProducts,
+    parsePremiumSubscription,
     parsePrivacySettings,
     parseProfitableCrafts,
     parseRecentAuction,
@@ -2568,6 +2569,93 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let purchasePremiumSubscription = (productSlug: string): Promise<PaymentResponse> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to do linkvertise tasks.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.PURCHASE_PREMIUM_SUBSCRIPTION,
+                customRequestURL: `${getApiEndpoint()}/premium/subscription/${productSlug}`,
+                requestMethod: 'POST',
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: data => {
+                    resolve(data)
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.PURCHASE_PREMIUM_SUBSCRIPTION, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let getPremiumSubscriptions = (): Promise<PremiumSubscription[]> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to create a premium subscription.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.CREATE_PREMIUM_SUBSCRIPTION,
+                customRequestURL: `${getApiEndpoint()}/premium/subscription`,
+                requestMethod: 'GET',
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: (subscriptions: any = []) => {
+                    resolve(subscriptions.map(parsePremiumSubscription))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.CREATE_PREMIUM_SUBSCRIPTION, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
+    let cancelPremiumSubscription = (id: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            let googleId = sessionStorage.getItem('googleId')
+            if (!googleId) {
+                toast.error('You need to be logged in to cancel a premium subscription.')
+                reject()
+                return
+            }
+
+            httpApi.sendApiRequest({
+                type: RequestType.DELETE_PREMIUM_SUBSCRIPTION,
+                customRequestURL: `${getApiEndpoint()}/premium/subscription/${id}`,
+                requestMethod: 'DELETE',
+                data: '',
+                requestHeader: {
+                    GoogleToken: googleId,
+                    'Content-Type': 'application/json'
+                },
+                resolve: () => {
+                    resolve()
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.DELETE_PREMIUM_SUBSCRIPTION, error)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -2660,7 +2748,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         updateConfig,
         requestArchivedAuctions,
         exportArchivedAuctionsData,
-        getLinkvertiseLink
+        getLinkvertiseLink,
+        getPremiumSubscriptions,
+        cancelPremiumSubscription,
+        purchasePremiumSubscription
     }
 }
 

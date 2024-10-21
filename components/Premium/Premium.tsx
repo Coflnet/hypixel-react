@@ -13,12 +13,14 @@ import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
 import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import PremiumStatus from './PremiumStatus/PremiumStatus'
+import { toast } from 'react-toastify'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasPremium, setHasPremium] = useState<boolean>()
     let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
     let [products, setProducts] = useState<PremiumProduct[]>([])
+    let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
     let [isLoading, setIsLoading] = useState(false)
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
     let [cancellationRightLossConfirmed, setCancellationRightLossConfirmed] = useState(false)
@@ -42,7 +44,20 @@ function Premium() {
                 setHasPremium(true)
                 setActivePremiumProduct(activePremiumProduct)
             }
-            setIsLoading(false)
+        })
+    }
+
+    function loadPremiumSubscriptions(): Promise<void> {
+        return api.getPremiumSubscriptions().then(subscriptions => {
+            subscriptions = subscriptions.filter(subscription => subscription.endsAt.getTime() > new Date().getTime())
+            setPremiumSubscriptions(subscriptions)
+        })
+    }
+
+    function onSubscriptionCancel(subscription: PremiumSubscription) {
+        api.cancelPremiumSubscription(subscription.externalId).then(() => {
+            loadPremiumSubscriptions()
+            toast.success('Subscription cancelled')
         })
     }
 
@@ -51,7 +66,9 @@ function Premium() {
         if (googleId) {
             setIsLoading(true)
             setIsLoggedIn(true)
-            loadPremiumProducts()
+            Promise.all([loadPremiumProducts(), loadPremiumSubscriptions()]).then(() => {
+                setIsLoading(false)
+            })
         }
     }
 
@@ -87,7 +104,7 @@ function Premium() {
             ) : null}
             <hr />
             <div style={{ marginBottom: '20px' }}>
-                {isLoggedIn ? <PremiumStatus products={products} /> : null}
+                {isLoggedIn ? <PremiumStatus products={products} subscriptions={premiumSubscriptions} onSubscriptionCancel={onSubscriptionCancel} /> : null}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 <div>{isLoading ? getLoadingElement() : ''}</div>
             </div>
