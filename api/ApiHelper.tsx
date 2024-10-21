@@ -2750,7 +2750,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         exportArchivedAuctionsData,
         getLinkvertiseLink,
         getPremiumSubscriptions,
-        cancelPremiumSubscription, 
+        cancelPremiumSubscription,
         purchasePremiumSubscription
     }
 }
