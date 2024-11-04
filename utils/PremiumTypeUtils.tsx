@@ -8,6 +8,13 @@ export const TEST_PREMIUM_DAYS = 3
 
 export const PREMIUM_TYPES: PremiumType[] = [
     {
+        productId: 'premium',
+        label: 'Premium',
+        durationString: 'month',
+        priority: PREMIUM_RANK.PREMIUM,
+        options: generateNumberOptionArray(1, 12, 'premium', 1800)
+    },
+    {
         productId: 'premium_plus',
         label: 'Premium+',
         durationString: '',
@@ -21,13 +28,6 @@ export const PREMIUM_TYPES: PremiumType[] = [
             { value: 1, label: '1 hour', productId: 'premium_plus-hour', price: 200 },
             { value: 1, label: '1 day', productId: 'premium_plus-day', price: 600 }
         ]
-    },
-    {
-        productId: 'premium',
-        label: 'Premium',
-        durationString: 'month',
-        priority: PREMIUM_RANK.PREMIUM,
-        options: generateNumberOptionArray(1, 12, 'premium', 1800)
     },
     {
         productId: 'starter_premium',
