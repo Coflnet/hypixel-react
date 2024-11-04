@@ -13,7 +13,7 @@ interface Props {
     isEditable?: boolean
 }
 
-const DATE_FORMAT_FILTER = ['EndBefore', 'EndAfter']
+const DATE_FORMAT_FILTER = ['EndBefore', 'EndAfter', 'ItemCreatedBefore', 'ItemCreatedAfter']
 const SELLER_FORMAT_FILTER = 'Seller'
 
 function ItemFilterPropertiesDisplay(props: Props) {
