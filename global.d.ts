@@ -271,7 +271,7 @@ interface API {
     getLinkvertiseLink(): Promise<string>
     getPremiumSubscriptions(): Promise<PremiumSubscription[]>
     cancelPremiumSubscription(id: string): Promise<void>
-    purchasePremiumSubscription(productSlug: string): Promise<PaymentResponse>
+    purchasePremiumSubscription(productSlug: string, googleToken: string): Promise<PaymentResponse>
 }
 
 interface CacheUtils {

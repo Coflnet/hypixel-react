@@ -2569,26 +2569,19 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let purchasePremiumSubscription = (productSlug: string): Promise<PaymentResponse> => {
+    let purchasePremiumSubscription = (productSlug: string, googleToken: string): Promise<PaymentResponse> => {
         return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId')
-            if (!googleId) {
-                toast.error('You need to be logged in to do linkvertise tasks.')
-                reject()
-                return
-            }
-
             httpApi.sendApiRequest({
                 type: RequestType.PURCHASE_PREMIUM_SUBSCRIPTION,
                 customRequestURL: `${getApiEndpoint()}/premium/subscription/${productSlug}`,
                 requestMethod: 'POST',
                 data: '',
                 requestHeader: {
-                    GoogleToken: googleId,
+                    GoogleToken: googleToken,
                     'Content-Type': 'application/json'
                 },
                 resolve: data => {
-                    resolve(data)
+                    resolve(parsePaymentResponse(data))
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PURCHASE_PREMIUM_SUBSCRIPTION, error)

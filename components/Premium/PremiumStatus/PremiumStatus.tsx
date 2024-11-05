@@ -6,7 +6,6 @@ import { getHighestPriorityPremiumProduct, getPremiumLabelForSubscription, getPr
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumStatus.module.css'
 import { Button } from 'react-bootstrap'
-import api from '../../../api/ApiHelper'
 
 interface Props {
     products: PremiumProduct[]
@@ -77,7 +76,14 @@ function PremiumStatus(props: Props) {
                                             )
                                         }
                                     />
-                                    <Button style={{ marginLeft: '5px' }} size="sm" variant="outline-danger">
+                                    <Button
+                                        style={{ marginLeft: '5px' }}
+                                        size="sm"
+                                        variant="outline-danger"
+                                        onClick={() => {
+                                            props.onSubscriptionCancel(subscription)
+                                        }}
+                                    >
                                         Cancel
                                     </Button>
                                 </li>
