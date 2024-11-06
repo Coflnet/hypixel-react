@@ -563,6 +563,10 @@ interface PremiumProduct {
     productSlug: string
 }
 
+interface PremiumProductWithtimeDifference extends PremiumProduct {
+    timeDifference: number
+}
+
 interface PremiumTypeOption {
     value: number
     label: string
