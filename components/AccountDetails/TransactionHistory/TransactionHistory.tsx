@@ -54,6 +54,12 @@ function TransactionHistory() {
         if (transaction.productId.startsWith('pre_api')) {
             return 'Bought Pre-API'
         }
+        if (transaction.productId.startsWith('l_premium')) {
+            return 'Bought Premium (Subscription)'
+        }
+        if (transaction.productId.startsWith('l_prem_plus')) {
+            return 'Bought Premium+ (Subscription)'
+        }
 
         const parts = transaction.reference.split('.')
         let suffix = ''

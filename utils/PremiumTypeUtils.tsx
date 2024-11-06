@@ -77,6 +77,9 @@ export function getPremiumType(product: PremiumProduct) {
 }
 
 export function getPremiumLabelForSubscription(subscription: PremiumSubscription) {
+    if (!subscription.productName) {
+        return 'Unknown'
+    }
     if (subscription.productName.includes('prem_plus')) {
         return 'Premium+'
     }

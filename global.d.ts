@@ -689,7 +689,7 @@ interface ArchivedAuctionResponse {
 
 interface PremiumSubscription {
     externalId: string
-    endsAt: Date
+    endsAt?: Date
     productName: string
     paymentAmount: string
     renewsAt: Date

@@ -60,8 +60,8 @@ function AccountDetails() {
 
     function loadPremiumSubscriptions(): Promise<void> {
         return api.getPremiumSubscriptions().then(subscriptions => {
-            subscriptions = subscriptions.filter(subscription => subscription.endsAt.getTime() > new Date().getTime())
-            setPremiumSubscriptions(subscriptions)
+            subscriptions = subscriptions.filter(subscription => !subscription.endsAt || subscription.endsAt.getTime() > new Date().getTime())
+            setPremiumSubscriptions([...subscriptions])
         })
     }
 

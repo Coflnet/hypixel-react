@@ -716,7 +716,7 @@ export function parseArchivedAuctions(archivedAuctionsResponse: any): ArchivedAu
 export function parsePremiumSubscription(subscription: any): PremiumSubscription {
     return {
         externalId: subscription.externalId,
-        endsAt: parseDate(subscription.endsAt),
+        endsAt: subscription.endsAt ? parseDate(subscription.endsAt) : undefined,
         productName: subscription.productName,
         paymentAmount: subscription.paymentAmount,
         renewsAt: parseDate(subscription.renewsAt),
