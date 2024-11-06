@@ -13,6 +13,7 @@ import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPre
 
 interface Props {
     activePremiumProduct: PremiumProduct
+    premiumSubscriptions: PremiumSubscription[]
     onNewActivePremiumProduct()
 }
 
@@ -180,7 +181,8 @@ function BuyPremium(props: Props) {
                                 </div>
                             ) : null}
                             <p style={{ marginTop: '20px' }}>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
-                            {purchasePremiumType.productId === 'premium' || purchasePremiumType.productId === 'premium_plus' ? (
+                            {(purchasePremiumType.productId === 'premium' || purchasePremiumType.productId === 'premium_plus') &&
+                            (!props.premiumSubscriptions || props.premiumSubscriptions.length === 0) ? (
                                 <p style={{ marginTop: '20px' }}>
                                     If you want to it to automatically renew itself,{' '}
                                     <span
