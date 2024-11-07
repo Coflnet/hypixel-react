@@ -1,18 +1,19 @@
 'use client'
 import { ChangeEvent, useState } from 'react'
-import { Button, Card, Form, Modal, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
+import { Button, Card, Form, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { useCoflCoins } from '../../../utils/Hooks'
-import { getPremiumType, PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
+import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import Number from '../../Number/Number'
 import styles from './BuyPremium.module.css'
-import BuyPremiumConfirmationDialog from './BuyPremiumConfirmationDialog'
+import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
 
 interface Props {
     activePremiumProduct: PremiumProduct
+    premiumSubscriptions: PremiumSubscription[]
     onNewActivePremiumProduct()
 }
 
@@ -21,7 +22,8 @@ function BuyPremium(props: Props) {
     let [purchaseSuccessfulOption, setPurchaseSuccessfulDuration] = useState<PremiumTypeOption>()
     let [isPurchasing, setIsPurchasing] = useState(false)
     let [purchasePremiumOption, setPurchasePremiumOption] = useState<PremiumTypeOption>(PREMIUM_TYPES[0].options[0])
-    let [showConfirmationDialog, setShowConfirmationDialog] = useState(false)
+    let [showPrepaidConfirmationDialog, setShowPrepaidConfirmationDialog] = useState(false)
+    let [showSubscriptionConfirmationDialog, setShowSubscriptionConfirmationDialog] = useState(false)
     let coflCoins = useCoflCoins()
 
     function onDurationChange(event: ChangeEvent<HTMLSelectElement>) {
@@ -38,7 +40,7 @@ function BuyPremium(props: Props) {
     }
 
     function onPremiumBuy(googleToken: string) {
-        setShowConfirmationDialog(false)
+        setShowPrepaidConfirmationDialog(false)
         setIsPurchasing(true)
 
         api.purchaseWithCoflcoins(purchasePremiumOption.productId, googleToken, purchasePremiumOption.value).then(() => {
@@ -54,12 +56,40 @@ function BuyPremium(props: Props) {
         })
     }
 
+    function onSubscriptionBuy(googleToken: string) {
+        let productId = ''
+        if (purchasePremiumType.productId === 'premium') {
+            productId = 'l_premium'
+        }
+        if (purchasePremiumType.productId === 'premium_plus') {
+            productId = 'l_prem_plus'
+        }
+
+        api.purchasePremiumSubscription(productId, googleToken).then(data => {
+            window.open(data.directLink, '_self')
+        })
+    }
+
     function onPremiumBuyCancel() {
-        setShowConfirmationDialog(false)
+        setShowPrepaidConfirmationDialog(false)
+    }
+
+    function onSubscriptionBuyCancel() {
+        setShowSubscriptionConfirmationDialog(false)
     }
 
     function getPurchasePrice() {
         return purchasePremiumOption.value * purchasePremiumOption.price
+    }
+
+    function getSubscriptionPrice() {
+        if (purchasePremiumType.productId === 'premium') {
+            return 8.69
+        }
+        if (purchasePremiumType.productId === 'premium_plus') {
+            return 29.69
+        }
+        return -1
     }
 
     function getDurationString(): string {
@@ -151,12 +181,26 @@ function BuyPremium(props: Props) {
                                 </div>
                             ) : null}
                             <p style={{ marginTop: '20px' }}>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
+                            {(purchasePremiumType.productId === 'premium' || purchasePremiumType.productId === 'premium_plus') &&
+                            (!props.premiumSubscriptions || props.premiumSubscriptions.length === 0) ? (
+                                <p style={{ marginTop: '20px' }}>
+                                    If you want to it to automatically renew itself,{' '}
+                                    <span
+                                        onClick={() => {
+                                            setShowSubscriptionConfirmationDialog(true)
+                                        }}
+                                        style={{ color: '#007bff', cursor: 'pointer' }}
+                                    >
+                                        click here
+                                    </span>
+                                </p>
+                            ) : null}
                             <hr />
                             <Button
                                 style={{ marginTop: '10px' }}
                                 variant="success"
                                 onClick={() => {
-                                    setShowConfirmationDialog(true)
+                                    setShowPrepaidConfirmationDialog(true)
                                 }}
                                 disabled={getPurchasePrice() > coflCoins || isPurchasing}
                             >
@@ -181,13 +225,28 @@ function BuyPremium(props: Props) {
                 </div>
             </Card>
             <BuyPremiumConfirmationDialog
-                show={showConfirmationDialog}
+                type="prepaid"
+                show={showPrepaidConfirmationDialog}
                 durationString={getDurationString()}
                 purchasePremiumOption={purchasePremiumOption}
-                purchasePrice={getPurchasePrice()}
+                purchasePrice={
+                    <>
+                        <Number number={getPurchasePrice()} /> CoflCoins
+                    </>
+                }
                 purchasePremiumType={purchasePremiumType}
                 onHide={onPremiumBuyCancel}
                 onConfirm={onPremiumBuy}
+                activePremiumProduct={props.activePremiumProduct}
+            />
+            <BuyPremiumConfirmationDialog
+                type="subscription"
+                show={showSubscriptionConfirmationDialog}
+                purchasePremiumOption={purchasePremiumOption}
+                purchasePrice={<>{getSubscriptionPrice()} per month</>}
+                purchasePremiumType={purchasePremiumType}
+                onHide={onSubscriptionBuyCancel}
+                onConfirm={onSubscriptionBuy}
                 activePremiumProduct={props.activePremiumProduct}
             />
         </>

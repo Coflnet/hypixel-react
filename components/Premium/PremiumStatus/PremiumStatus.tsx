@@ -2,18 +2,23 @@
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { getLocalDateAndTime } from '../../../utils/Formatter'
-import { getHighestPriorityPremiumProduct, getPremiumType } from '../../../utils/PremiumTypeUtils'
+import { getHighestPriorityPremiumProduct, getPremiumLabelForSubscription, getPremiumType } from '../../../utils/PremiumTypeUtils'
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumStatus.module.css'
+import { CancelOutlined } from '@mui/icons-material'
+import CancelSubscriptionConfirmDialog from '../CancelSubscriptionConfirmDialog/CancelSubscriptionConfirmDialog'
 
 interface Props {
     products: PremiumProduct[]
+    subscriptions: PremiumSubscription[]
     labelStyle?: React.CSSProperties
+    onSubscriptionCancel(subscription: PremiumSubscription): void
 }
 
 function PremiumStatus(props: Props) {
     let [highestPriorityProduct, setHighestPriorityProduct] = useState<PremiumProduct>()
     let [productsToShow, setProductsToShow] = useState<PremiumProductWithtimeDifference[]>()
+    let [showCancelSubscriptionDialogSubscription, setShowCancelSubscriptionDialogSubscription] = useState<PremiumSubscription>()
 
     useEffect(() => {
         let products = props.products.map(product => {
@@ -59,16 +64,57 @@ function PremiumStatus(props: Props) {
         )
     }
 
+    let numberOfEntriesToShow = (productsToShow?.length || 0) + (props.subscriptions?.length || 0)
+
     return (
         <>
             <div>
-                {productsToShow && productsToShow.length > 1 ? (
+                {numberOfEntriesToShow > 1 ? (
                     <div style={{ overflow: 'hidden' }}>
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
                             Premium Status:
                         </span>
                         <ul style={{ float: 'left' }}>
-                            {productsToShow.map(product => (
+                            {props.subscriptions.map(subscription => (
+                                <li key={subscription.externalId}>
+                                    {' '}
+                                    <Tooltip
+                                        type="hover"
+                                        content={
+                                            <span>
+                                                {getPremiumLabelForSubscription(subscription)} (Subscription){' '}
+                                                {subscription.endsAt && <span style={{ color: 'red', marginLeft: 5 }}>Canceled</span>}
+                                            </span>
+                                        }
+                                        tooltipContent={
+                                            <span>
+                                                {subscription.endsAt ? (
+                                                    <span>Ends at {getLocalDateAndTime(subscription.endsAt)} </span>
+                                                ) : (
+                                                    <span>Renews at {getLocalDateAndTime(subscription.renewsAt)}</span>
+                                                )}
+                                            </span>
+                                        }
+                                    />
+                                    {!subscription.endsAt && (
+                                        <Tooltip
+                                            type="hover"
+                                            content={
+                                                <span style={{ color: 'red' }}>
+                                                    <CancelOutlined
+                                                        style={{ cursor: 'pointer', color: 'red', marginLeft: 5 }}
+                                                        onClick={() => {
+                                                            setShowCancelSubscriptionDialogSubscription(subscription)
+                                                        }}
+                                                    />
+                                                </span>
+                                            }
+                                            tooltipContent={<span>Cancel subscription</span>}
+                                        />
+                                    )}
+                                </li>
+                            ))}
+                            {productsToShow?.map(product => (
                                 <li key={product.productSlug}>{getProductListEntry(product)}</li>
                             ))}
                         </ul>
@@ -83,6 +129,18 @@ function PremiumStatus(props: Props) {
                     </p>
                 )}
             </div>
+            <CancelSubscriptionConfirmDialog
+                show={!!showCancelSubscriptionDialogSubscription}
+                onConfirm={() => {
+                    if (showCancelSubscriptionDialogSubscription) {
+                        props.onSubscriptionCancel(showCancelSubscriptionDialogSubscription)
+                        setShowCancelSubscriptionDialogSubscription(undefined)
+                    }
+                }}
+                onHide={() => {
+                    setShowCancelSubscriptionDialogSubscription(undefined)
+                }}
+            />
         </>
     )
 }
