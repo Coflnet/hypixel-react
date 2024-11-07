@@ -87,10 +87,10 @@ export default function FlipRestrictionListEntry(props: Props) {
                                     let newItem: Item | undefined =
                                         items && items.length > 0
                                             ? {
-                                                  tag: items[0].id,
-                                                  name: items[0].dataItem.name,
-                                                  iconUrl: items[0].dataItem.iconUrl
-                                              }
+                                                tag: items[0].id,
+                                                name: items[0].dataItem.name,
+                                                iconUrl: items[0].dataItem.iconUrl
+                                            }
                                             : undefined
                                     let newRestriction = { ...props.restriction }
                                     newRestriction.item = newItem
@@ -100,15 +100,15 @@ export default function FlipRestrictionListEntry(props: Props) {
                                 defaultSelected={
                                     props.restriction.item
                                         ? [
-                                              {
-                                                  dataItem: {
-                                                      iconUrl: props.restriction.item.iconUrl || '',
-                                                      name: props.restriction.item.name || '-'
-                                                  },
-                                                  id: props.restriction.item.tag || '',
-                                                  label: props.restriction.item.name || '-'
-                                              } as unknown as SearchResultItem
-                                          ]
+                                            {
+                                                dataItem: {
+                                                    iconUrl: props.restriction.item.iconUrl || '',
+                                                    name: props.restriction.item.name || '-'
+                                                },
+                                                id: props.restriction.item.tag || '',
+                                                label: props.restriction.item.name || '-'
+                                            } as unknown as SearchResultItem
+                                        ]
                                         : undefined
                                 }
                             />
@@ -177,7 +177,7 @@ export default function FlipRestrictionListEntry(props: Props) {
                     </div>
                 </Card.Header>
                 <Card.Body>
-                    {props.restriction.itemFilter ? (
+                    {props.restriction.itemFilter && Object.keys(props.restriction.itemFilter).length > 0 ? (
                         <ItemFilterPropertiesDisplay
                             key={props.restriction.itemKey}
                             filter={props.restriction.itemFilter}
@@ -188,7 +188,9 @@ export default function FlipRestrictionListEntry(props: Props) {
                                 props.onRestrictionChange(newRestriction)
                             }}
                         />
-                    ) : null}
+                    ) : (props.restriction.item?.tag.startsWith('STARRED_') ? (
+                        <p>Note that you will need to add the <code>Fragged</code> filter to select only fragged items. This currently selects both fragged and not fragged.</p>
+                    ) : null)}
                     <div className="ellipse">
                         {props.restriction.tags?.map(tag => (
                             <Badge

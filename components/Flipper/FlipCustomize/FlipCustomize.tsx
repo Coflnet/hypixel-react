@@ -142,15 +142,9 @@ function FlipCustomize() {
             )
         }
 
-        let tfmFinder = FLIP_FINDERS.find(finder => finder.label === 'TFM')
-        if (flipCustomizeSettings?.finders?.find(finder => finder.toString() === tfmFinder?.value)) {
-            warnings.push('The "TFM"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
-        }
-
-        let stonksFinder = FLIP_FINDERS.find(finder => finder.label === 'Stonks')
-        if (flipCustomizeSettings?.finders?.find(finder => finder.toString() === stonksFinder?.value)) {
-            warnings.push('The "Stonks"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
-        }
+        addWarningForFinder('TFM', warnings, 'The "TFM"-Finder is outdated and therefore considered risky. Only use if you know what you are doing.')
+        addWarningForFinder('Stonks', warnings, 'The "Stonks"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
+        addWarningForFinder('CraftCost', warnings, 'The "CraftCost"-Finder sums up craft cost. It does not mean its estimations are correct, please report any cases where you know they are not.')
 
         if (warnings.length === 0) {
             return null
@@ -609,6 +603,13 @@ function FlipCustomize() {
             </div>
         </div>
     )
+
+    function addWarningForFinder(name: string, warnings: string[], warning: string) {
+        let craftCostFinder = FLIP_FINDERS.find(finder => finder.label === name)
+        if (flipCustomizeSettings?.finders?.find(finder => finder.toString() === craftCostFinder?.value)) {
+            warnings.push(warning)
+        }
+    }
 }
 
 export default React.memo(FlipCustomize)
