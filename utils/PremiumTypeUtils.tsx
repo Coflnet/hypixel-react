@@ -80,10 +80,10 @@ export function getPremiumLabelForSubscription(subscription: PremiumSubscription
     if (!subscription.productName) {
         return 'Unknown'
     }
-    if (subscription.productName.includes('prem_plus')) {
+    if (subscription.productName.includes('premium_plus')) {
         return 'Premium+'
     }
-    if (subscription.productName.includes('prem')) {
+    if (subscription.productName.includes('premium')) {
         return 'Premium'
     }
     return subscription.productName
