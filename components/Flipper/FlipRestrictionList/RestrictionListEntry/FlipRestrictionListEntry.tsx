@@ -145,7 +145,7 @@ export default function FlipRestrictionListEntry(props: Props) {
                                     content={
                                         <a
                                             href={`/item/${props.restriction.item.tag}${
-                                                props.restriction.itemFilter ? `${btoaUnicode(JSON.stringify(props.restriction.itemFilter))}` : ''
+                                                props.restriction.itemFilter ? `?itemFilter=${btoaUnicode(JSON.stringify(props.restriction.itemFilter))}` : ''
                                             }`}
                                             target="_blank"
                                             rel="noreferrer"
