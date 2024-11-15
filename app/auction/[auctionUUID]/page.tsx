@@ -89,7 +89,8 @@ async function getAuctionDetails(auctionUUID: string) {
     }
 }
 
-export default async function Page({ params }) {
+export default async function Page(props) {
+    const params = await props.params;
     let auctionUUID = params.auctionUUID
     let auctionDetailsResult = await getAuctionDetails(auctionUUID)
     let auctionDetails = auctionDetailsResult?.auctionDetails
@@ -115,7 +116,8 @@ export default async function Page({ params }) {
     )
 }
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata(props) {
+    const params = await props.params;
     function getAuctionDescription(auctionDetails): string {
         if (!auctionDetails) {
             return 'Browse over 600 million auctions, and the bazaar of Hypixel SkyBlock.'
@@ -155,7 +157,7 @@ export async function generateMetadata({ params }) {
         auctionDetails.auction.item.iconUrl,
         [auctionDetails.auction.item.name || auctionDetails.auction.item.tag, auctionDetails.auctioneer.name],
         `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`
-    )
+    );
 }
 
 export const revalidate = 0

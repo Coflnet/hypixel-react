@@ -2,6 +2,8 @@ import Link from 'next/link'
 import GoogleSignIn from '../components/GoogleSignIn/GoogleSignIn'
 import { PREMIUM_RANK } from './PremiumTypeUtils'
 
+import type { JSX } from "react";
+
 /**
  * Utility functon for the recent and active auctions lists
  * Displayed if more auctions could be loaded with premium

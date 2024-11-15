@@ -10,7 +10,9 @@ import AuctionHousePriceGraph from '../../../components/PriceGraph/AuctionHouseP
 import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { Container } from 'react-bootstrap'
 
-export default async function Page({ searchParams, params }) {
+export default async function Page(props) {
+    const params = await props.params;
+    const searchParams = await props.searchParams;
     let tag = params.tag as string
 
     let data = await getItemData(searchParams, params)
@@ -38,7 +40,9 @@ export default async function Page({ searchParams, params }) {
     )
 }
 
-export async function generateMetadata({ params, searchParams }) {
+export async function generateMetadata(props) {
+    const searchParams = await props.searchParams;
+    const params = await props.params;
     function getAvgPrice(prices) {
         let priceSum = 0
 

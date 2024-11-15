@@ -1,7 +1,7 @@
 'use client'
 import moment from 'moment'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type JSX } from 'react';
 import { Badge, Button, Card, ListGroup, Modal, OverlayTrigger, Tooltip as TooltipBootstrap } from 'react-bootstrap'
 import Countdown from 'react-countdown'
 import { toast } from 'react-toastify'

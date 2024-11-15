@@ -222,7 +222,7 @@ function BazaarPriceGraph(props: Props) {
         setChartOptionsSecondary(chartOptionsSecondary)
     }
 
-    function onChartsEvents(chartOptions, localStorageKey: string, chartRef: RefObject<ReactECharts>): Record<string, Function> {
+    function onChartsEvents(chartOptions, localStorageKey: string, chartRef: RefObject<ReactECharts | null>): Record<string, Function> {
         return {
             datazoom: e => {
                 let newChartOptions = { ...chartRef.current?.getEchartsInstance().getOption() }
