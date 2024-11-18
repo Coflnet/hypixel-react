@@ -155,8 +155,7 @@ function FlipRestrictionList(props: Props) {
             newRestrictions[index].tags = updateState.tags
             newRestrictions[index].isEdited = false
             newRestrictions[index].type = restriction.type
-            if (updateState.selectedItem)
-                newRestrictions[index].item = updateState.selectedItem
+            if (updateState.selectedItem) newRestrictions[index].item = updateState.selectedItem
         })
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
@@ -294,7 +293,7 @@ function FlipRestrictionList(props: Props) {
     }
 
     function recalculateListHeight() {
-        ; (listRef.current as any).resetAfterRowIndex(0, false)
+        ;(listRef.current as any).resetAfterRowIndex(0, false)
     }
 
     function handleContextMenuForRestriction(event) {
@@ -598,6 +597,18 @@ function FlipRestrictionList(props: Props) {
                             )}
                         </AutoSizer>
                     ) : null}
+                    <div style={{ position: 'absolute', bottom: 0, right: 0 }}>
+                        <Button
+                            variant="info"
+                            style={{ width: '100%', marginTop: '10px' }}
+                            onClick={() => {
+                                setIsNewFlipperExtended(true)
+                            }}
+                        >
+                            {addIcon}
+                            <span>Delete all curren showing</span>
+                        </Button>
+                    </div>
                 </div>
             </div>
             {clearListDialog}
