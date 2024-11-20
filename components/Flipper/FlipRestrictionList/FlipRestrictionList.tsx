@@ -18,6 +18,7 @@ import FlipRestrictionListEntry from './RestrictionListEntry/FlipRestrictionList
 import { Item, Menu, useContextMenu } from 'react-contexify'
 import BlockIcon from '@mui/icons-material/Block'
 import CheckIcon from '@mui/icons-material/CheckCircle'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist'): void
@@ -514,6 +515,16 @@ function FlipRestrictionList(props: Props) {
                                 }}
                             />
                         </div>
+                        <div>
+                            <MoreVertIcon
+                                onClick={() => {
+                                    setIsNewFlipperExtended(true)
+                                }}
+                            >
+                                {addIcon}
+                                <span>Delete all curren showing</span>
+                            </MoreVertIcon>
+                        </div>
                     </div>
                 </div>
                 <div className={styles.restrictionList}>
@@ -597,18 +608,6 @@ function FlipRestrictionList(props: Props) {
                             )}
                         </AutoSizer>
                     ) : null}
-                    <div style={{ position: 'absolute', bottom: 0, right: 0 }}>
-                        <Button
-                            variant="info"
-                            style={{ width: '100%', marginTop: '10px' }}
-                            onClick={() => {
-                                setIsNewFlipperExtended(true)
-                            }}
-                        >
-                            {addIcon}
-                            <span>Delete all curren showing</span>
-                        </Button>
-                    </div>
                 </div>
             </div>
             {clearListDialog}
