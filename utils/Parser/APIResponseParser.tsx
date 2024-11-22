@@ -131,6 +131,7 @@ export function parseItem(item: any): Item {
 }
 
 export function parseEnchantment(enchantment: any): Enchantment {
+    console.log(enchantment)
     return {
         id: enchantment.id,
         level: enchantment.level,
@@ -334,6 +335,9 @@ export function parseRefInfo(refInfo): RefInfo {
 }
 
 export function parseFilterOption(filterOption): FilterOptions {
+    if (filterOption.name === 'pristine') {
+        filterOption.name = 'Prismatic aka Pristine'
+    }
     return {
         name: filterOption.name,
         options: filterOption.options,
