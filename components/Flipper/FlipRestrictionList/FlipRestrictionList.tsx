@@ -18,7 +18,8 @@ import FlipRestrictionListEntry from './RestrictionListEntry/FlipRestrictionList
 import { Item, Menu, useContextMenu } from 'react-contexify'
 import BlockIcon from '@mui/icons-material/Block'
 import CheckIcon from '@mui/icons-material/CheckCircle'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
+import ListIcon from '@mui/icons-material/ListAlt'
+import { Check } from '@mui/icons-material'
 
 interface Props {
     onRestrictionsChange(restrictions: FlipRestriction[], type: 'whitelist' | 'blacklist'): void
@@ -26,13 +27,13 @@ interface Props {
 }
 
 const RESTRICTION_CONTEXT_MENU_ID = 'restriction-entry-context-menu'
+const RESTRICTION_CONTEXT_CURRENT_SHOING_MENU_ID = 'restriction-entry-context-menu-current-showing'
 
 function FlipRestrictionList(props: Props) {
     let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(props.prefillRestriction !== undefined)
-    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(getInitialFlipRestrictions())
+    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(() => getInitialFlipRestrictions())
     let [restrictionInEditMode, setRestrictionsInEditMode] = useState<FlipRestriction[]>([])
     let [showDeleteRestrictionsDialog, setShowDeleteRestrictionsDialog] = useState(false)
-    let [isRefreshingItemNames, setIsRefreshingItemNames] = useState(false)
     let [searchText, setSearchText] = useState('')
     let [sortByName, setSortByName] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
@@ -41,6 +42,9 @@ function FlipRestrictionList(props: Props) {
 
     const { show } = useContextMenu({
         id: RESTRICTION_CONTEXT_MENU_ID
+    })
+    const { show: showEditShowingRestrictionsMenu } = useContextMenu({
+        id: RESTRICTION_CONTEXT_CURRENT_SHOING_MENU_ID
     })
 
     useEffect(() => {
@@ -68,6 +72,7 @@ function FlipRestrictionList(props: Props) {
             }
             restriction.itemKey = generateUUID()
         })
+        console.log(restrictions)
         return restrictions
     }
 
@@ -265,7 +270,6 @@ function FlipRestrictionList(props: Props) {
 
     function refreshItemNames() {
         let newRestrictions = [...restrictions]
-        setIsRefreshingItemNames(true)
         let items: Item[] = []
         newRestrictions.forEach(restriction => {
             if (restriction.item && restriction.item.tag) {
@@ -280,7 +284,6 @@ function FlipRestrictionList(props: Props) {
                     }
                 })
                 toast.success('Reloaded all item names')
-                setIsRefreshingItemNames(false)
                 setRestrictions(newRestrictions)
                 setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
                 if (props.onRestrictionsChange) {
@@ -342,6 +345,23 @@ function FlipRestrictionList(props: Props) {
         if (index === -1) return
         let newRestrictions = [...restrictions]
         newRestrictions[index] = { ...newRestrictions[index], disabled: newValue }
+        setRestrictions(newRestrictions)
+
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
+        if (props.onRestrictionsChange) {
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'blacklist')
+            props.onRestrictionsChange(getCleanRestrictionsForApi(newRestrictions), 'whitelist')
+        }
+    }
+
+    function changeRestrictionDisableStateForAllCurrentShowing(newValue: boolean) {
+        let newRestrictions = [...restrictions]
+        let shownRestrictions = getRestrictionsFilteredBySearch(restrictions)
+        newRestrictions.forEach(r => {
+            if (r.itemKey && shownRestrictions.find(sr => sr.itemKey === r.itemKey)) {
+                r.disabled = newValue
+            }
+        })
         setRestrictions(newRestrictions)
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
@@ -415,6 +435,41 @@ function FlipRestrictionList(props: Props) {
         </div>
     )
 
+    let currentShowingItemOptionsContextMenuElement = (
+        <div>
+            <Menu id={RESTRICTION_CONTEXT_CURRENT_SHOING_MENU_ID} theme={'dark'}>
+                <Item
+                    onClick={() => {
+                        setShowDeleteRestrictionsDialog(true)
+                    }}
+                >
+                    <DeleteIcon color="error" style={{ marginRight: 5 }} />
+                    Delete all current showing
+                </Item>
+                <Item
+                    onClick={() => {
+                        changeRestrictionDisableStateForAllCurrentShowing(true)
+                    }}
+                >
+                    <BlockIcon color="error" style={{ marginRight: 5 }} />
+                    Disable all current showing
+                </Item>
+                <Item
+                    onClick={() => {
+                        changeRestrictionDisableStateForAllCurrentShowing(false)
+                    }}
+                >
+                    <Check color="success" style={{ marginRight: 5 }} />
+                    Enable all current showing
+                </Item>
+                <Item onClick={refreshItemNames}>
+                    <Refresh style={{ marginRight: 5 }} />
+                    Refresh item names
+                </Item>
+            </Menu>
+        </div>
+    )
+
     let windowWidth = isSSR ? 1920 : window.innerWidth
     let singleColumn = windowWidth < 1024
 
@@ -480,17 +535,16 @@ function FlipRestrictionList(props: Props) {
                                 {addIcon}
                                 <span> Add new restriction</span>
                             </div>
-                            <Button variant="info" style={{ marginRight: '10px' }} onClick={refreshItemNames} disabled={isRefreshingItemNames}>
-                                <Refresh /> Refresh item names
-                            </Button>
-                            <Button
-                                variant="danger"
-                                onClick={() => {
-                                    setShowDeleteRestrictionsDialog(true)
+                            <div
+                                onClick={e => {
+                                    showEditShowingRestrictionsMenu({
+                                        event: e
+                                    })
                                 }}
                             >
-                                <DeleteIcon /> Delete restrictions
-                            </Button>
+                                <label style={{ cursor: 'pointer' }}>Act on all {getRestrictionsFilteredBySearch(restrictions)?.length || 0} elements</label>
+                                <ListIcon id="currentShowingOptions" style={{ cursor: 'pointer', marginLeft: 5 }}></ListIcon>
+                            </div>
                         </div>
                     )}
                     <hr />
@@ -514,16 +568,6 @@ function FlipRestrictionList(props: Props) {
                                     recalculateListHeight()
                                 }}
                             />
-                        </div>
-                        <div>
-                            <MoreVertIcon
-                                onClick={() => {
-                                    setIsNewFlipperExtended(true)
-                                }}
-                            >
-                                {addIcon}
-                                <span>Delete all curren showing</span>
-                            </MoreVertIcon>
                         </div>
                     </div>
                 </div>
@@ -612,6 +656,7 @@ function FlipRestrictionList(props: Props) {
             </div>
             {clearListDialog}
             {currentItemContextMenuElement}
+            {currentShowingItemOptionsContextMenuElement}
         </>
     )
 }
