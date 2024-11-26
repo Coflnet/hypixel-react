@@ -123,7 +123,8 @@ export function setSettingsFromServerSide(
                             newRestrictions.push({
                                 type: type,
                                 itemFilter: item.filter,
-                                tags: item.tags
+                                tags: item.tags,
+                                disabled: item.disabled
                             })
                         } else if (itemName && item.tag) {
                             newRestrictions.push({
@@ -134,7 +135,8 @@ export function setSettingsFromServerSide(
                                     iconUrl: api.getItemImageUrl(item)
                                 },
                                 itemFilter: item.filter,
-                                tags: item.tags
+                                tags: item.tags,
+                                disabled: item.disabled
                             })
                         } else {
                             tagsToFindNamesFor.add(item.tag)
@@ -146,7 +148,8 @@ export function setSettingsFromServerSide(
                                     iconUrl: api.getItemImageUrl(item)
                                 },
                                 itemFilter: item.filter,
-                                tags: item.tags
+                                tags: item.tags,
+                                disabled: item.disabled
                             })
                         }
                     })
