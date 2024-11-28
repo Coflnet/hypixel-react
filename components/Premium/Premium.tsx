@@ -14,6 +14,7 @@ import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
 import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import PremiumStatus from './PremiumStatus/PremiumStatus'
 import { toast } from 'react-toastify'
+import BuySubscription from './BuySubscription/BuySubscription'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -110,6 +111,15 @@ function Premium() {
             </div>
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>
+                    <hr />
+                    <h2>Subscriptions</h2>
+                    <BuySubscription activePremiumProduct={activePremiumProduct!} />
+                </div>
+            ) : null}
+            {isLoggedIn ? (
+                <div style={{ marginBottom: '20px' }}>
+                    <hr />
+                    <h2>Prepaid</h2>
                     <BuyPremium
                         activePremiumProduct={activePremiumProduct!}
                         premiumSubscriptions={premiumSubscriptions}
