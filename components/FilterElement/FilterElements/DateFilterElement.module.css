@@ -1,3 +1,11 @@
 .datePickerPopper {
-    z-index: 2;
+    z-index: 50;
+}
+
+.calendarIcon{
+    padding-top: 11px !important;
+}
+
+.dateFilter{
+    padding-left: 35px !important;
 }
