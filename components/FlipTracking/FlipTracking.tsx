@@ -335,8 +335,8 @@ export function FlipTracking(props: Props) {
                         <div style={{ paddingRight: 15 }}>
                             <DatePicker
                                 onChange={e => {
-                                    setRangeStartDate(e)
-                                    loadFlipsForTimespan(e, rangeEndDate)
+                                    setRangeStartDate(e ?? new Date())
+                                    loadFlipsForTimespan(e ?? new Date(), rangeEndDate)
                                 }}
                                 className={'form-control'}
                                 minDate={new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 2)}
@@ -348,8 +348,8 @@ export function FlipTracking(props: Props) {
                         <DatePicker
                             className={'form-control'}
                             onChange={e => {
-                                setRangeEndDate(e)
-                                loadFlipsForTimespan(rangeStartDate, e)
+                                setRangeEndDate(e?? new Date())
+                                loadFlipsForTimespan(rangeStartDate, e?? new Date())
                             }}
                             minDate={new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 2)}
                             maxDate={new Date()}

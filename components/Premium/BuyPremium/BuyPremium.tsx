@@ -56,40 +56,12 @@ function BuyPremium(props: Props) {
         })
     }
 
-    function onSubscriptionBuy(googleToken: string) {
-        let productId = ''
-        if (purchasePremiumType.productId === 'premium') {
-            productId = 'l_premium'
-        }
-        if (purchasePremiumType.productId === 'premium_plus') {
-            productId = 'l_prem_plus'
-        }
-
-        api.purchasePremiumSubscription(productId, googleToken).then(data => {
-            window.open(data.directLink, '_self')
-        })
-    }
-
     function onPremiumBuyCancel() {
         setShowPrepaidConfirmationDialog(false)
     }
 
-    function onSubscriptionBuyCancel() {
-        setShowSubscriptionConfirmationDialog(false)
-    }
-
     function getPurchasePrice() {
         return purchasePremiumOption.value * purchasePremiumOption.price
-    }
-
-    function getSubscriptionPrice() {
-        if (purchasePremiumType.productId === 'premium') {
-            return 8.69
-        }
-        if (purchasePremiumType.productId === 'premium_plus') {
-            return 29.69
-        }
-        return -1
     }
 
     function getDurationString(): string {
@@ -181,20 +153,6 @@ function BuyPremium(props: Props) {
                                 </div>
                             ) : null}
                             <p style={{ marginTop: '20px' }}>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
-                            {(purchasePremiumType.productId === 'premium' || purchasePremiumType.productId === 'premium_plus') &&
-                            (!props.premiumSubscriptions || props.premiumSubscriptions.length === 0) ? (
-                                <p style={{ marginTop: '20px' }}>
-                                    If you want to it to automatically renew itself,{' '}
-                                    <span
-                                        onClick={() => {
-                                            setShowSubscriptionConfirmationDialog(true)
-                                        }}
-                                        style={{ color: '#007bff', cursor: 'pointer' }}
-                                    >
-                                        click here
-                                    </span>
-                                </p>
-                            ) : null}
                             <hr />
                             <Button
                                 style={{ marginTop: '10px' }}
@@ -237,16 +195,6 @@ function BuyPremium(props: Props) {
                 purchasePremiumType={purchasePremiumType}
                 onHide={onPremiumBuyCancel}
                 onConfirm={onPremiumBuy}
-                activePremiumProduct={props.activePremiumProduct}
-            />
-            <BuyPremiumConfirmationDialog
-                type="subscription"
-                show={showSubscriptionConfirmationDialog}
-                purchasePremiumOption={purchasePremiumOption}
-                purchasePrice={<>{getSubscriptionPrice()} per month</>}
-                purchasePremiumType={purchasePremiumType}
-                onHide={onSubscriptionBuyCancel}
-                onConfirm={onSubscriptionBuy}
                 activePremiumProduct={props.activePremiumProduct}
             />
         </>

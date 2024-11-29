@@ -1,0 +1,8 @@
+.purchaseButtonContainer{
+    display: flex;
+    justify-content: center;
+}
+
+.purchaseButton{
+    width: 80%;
+}
