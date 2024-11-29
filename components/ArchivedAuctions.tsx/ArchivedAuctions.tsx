@@ -219,10 +219,10 @@ const ArchivedAuctionsList = (props: Props) => {
             <div className={styles.datepickerContainer}>
                 <label style={{ marginRight: 15 }}>From: </label>
                 <div style={{ paddingRight: 15 }}>
-                    <DatePicker selected={from} onChange={date => handleDateChange(date, 'from')} className={'form-control'} />
+                    <DatePicker selected={from} onChange={date => handleDateChange(date ?? new Date(), 'from')} className={'form-control'} />
                 </div>
                 <label style={{ marginRight: 15 }}>To: </label>
-                <DatePicker selected={to} onChange={date => handleDateChange(date, 'to')} className={'form-control'} />
+                <DatePicker selected={to} onChange={date => handleDateChange(date ?? new Date(), 'to')} className={'form-control'} />
             </div>
             <ItemFilter filters={filters} onFilterChange={filter => setSelectedFilter(filter)} />
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
