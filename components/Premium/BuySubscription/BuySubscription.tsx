@@ -53,14 +53,17 @@ function BuySubscription(props: Props) {
                 <Col>
                     <Card>
                         <Card.Header>
-                            <Card.Title>Premium+</Card.Title>
+                            <Card.Title><b>Premium+</b></Card.Title>
                         </Card.Header>
                         <Card.Body>
                             <ul>
-                                <li>up to 1s slower than prem+</li>
-                                <li>a lot of tools</li>
-                                <li>extended history & filter access</li>
+                                <li>top flip receive time</li>
+                                <li>all tools for analysis</li>
+                                <li>full auction archive</li>
                             </ul>
+                            <p>Use <code>NICEDISCOUNT</code> for 31% discount for 1 month<br />
+                                Use <code>BLACKFRIDAY</code> for 10% discount for 12 months<br />
+                            </p>
                             <div className={styles.purchaseButtonContainer}>
                                 <Button
                                     variant="success"
@@ -69,7 +72,7 @@ function BuySubscription(props: Props) {
                                         setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium_plus'))
                                     }}
                                 >
-                                    <NumberElement number={8.69} /> Euro
+                                    <NumberElement number={29.69} /> Euro (+VAT) / 4 weeks
                                 </Button>
                             </div>
                         </Card.Body>
@@ -82,10 +85,13 @@ function BuySubscription(props: Props) {
                         </Card.Header>
                         <Card.Body>
                             <ul>
-                                <li>top flip receive time</li>
-                                <li>all tools for analysis</li>
-                                <li>full auction archive</li>
+                                <li>up to 1s slower than prem+</li>
+                                <li>a lot of tools</li>
+                                <li>extended history & filter access</li>
                             </ul>
+                            <p>Use <code>NICEDISCOUNT</code> for 31% discount for 1 month<br />
+                                Use <code>BLACKFRIDAY</code> for 10% discount for 12 months<br />
+                            </p>
                             <div className={styles.purchaseButtonContainer}>
                                 <Button
                                     variant="success"
@@ -94,7 +100,7 @@ function BuySubscription(props: Props) {
                                         setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium'))
                                     }}
                                 >
-                                    <NumberElement number={29.69} /> Euro
+                                    <NumberElement number={8.69} /> Euro (+VAT) / 4 weeks
                                 </Button>
                             </div>
                         </Card.Body>
