@@ -61,9 +61,6 @@ function BuySubscription(props: Props) {
                                 <li>all tools for analysis</li>
                                 <li>full auction archive</li>
                             </ul>
-                            <p>Use <code>NICEDISCOUNT</code> for 31% discount for 1 month<br />
-                                Use <code>BLACKFRIDAY</code> for 10% discount for 12 months<br />
-                            </p>
                             <div className={styles.purchaseButtonContainer}>
                                 <Button
                                     variant="success"
@@ -89,9 +86,6 @@ function BuySubscription(props: Props) {
                                 <li>a lot of tools</li>
                                 <li>extended history & filter access</li>
                             </ul>
-                            <p>Use <code>NICEDISCOUNT</code> for 31% discount for 1 month<br />
-                                Use <code>BLACKFRIDAY</code> for 10% discount for 12 months<br />
-                            </p>
                             <div className={styles.purchaseButtonContainer}>
                                 <Button
                                     variant="success"
