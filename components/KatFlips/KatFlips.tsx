@@ -160,7 +160,7 @@ export function KatFlips(props: Props) {
                             backgroundColor: 'gray'
                         }}
                     >
-                        You seem like a tech savvy person, join our development team to get premium for free. :)
+                        You seem like a tech savvy person, contribute to the project to get premium for free. :)
                     </p>
                 ) : (
                     ''
