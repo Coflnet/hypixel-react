@@ -38,7 +38,8 @@ let missedInfo: FreeFlipperMissInformation = {
     estimatedProfitCopiedAuctions: 0,
     missedEstimatedProfit: 0,
     missedFlipsCount: 0,
-    totalFlips: 0
+    totalFlips: 0,
+    totalProfit: 0
 }
 
 let mounted = true
@@ -314,7 +315,8 @@ function Flipper(props: Props) {
             estimatedProfitCopiedAuctions: missedInfo.estimatedProfitCopiedAuctions,
             missedEstimatedProfit: newFlipAuction.sold ? missedInfo.missedEstimatedProfit + newFlipAuction.profit : missedInfo.missedEstimatedProfit,
             missedFlipsCount: newFlipAuction.sold ? missedInfo.missedFlipsCount + 1 : missedInfo.missedFlipsCount,
-            totalFlips: missedInfo.totalFlips + 1
+            totalFlips: missedInfo.totalFlips + 1,
+            totalProfit: missedInfo.totalProfit + newFlipAuction.profit
         }
 
         setFlips(flips => {
@@ -725,6 +727,9 @@ function Flipper(props: Props) {
                                     <ul>
                                         <li>
                                             Total flips received: <Number number={missedInfo.totalFlips} />
+                                        </li>
+                                        <li>
+                                            Total found profit: <Number number={missedInfo.totalProfit} /> Coins
                                         </li>
                                         <li>
                                             Profit of copied flips: <Number number={missedInfo.estimatedProfitCopiedAuctions} /> Coins

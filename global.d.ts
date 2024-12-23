@@ -321,6 +321,7 @@ interface FreeFlipperMissInformation {
     missedFlipsCount: number
     missedEstimatedProfit: number
     estimatedProfitCopiedAuctions: number
+    totalProfit: number
 }
 
 interface AccountInfo {
