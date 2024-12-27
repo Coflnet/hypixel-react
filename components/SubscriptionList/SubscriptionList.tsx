@@ -246,6 +246,7 @@ function SubscriptionList() {
         return new Promise((resolve, reject) => {
             switch (subscription.type) {
                 case 'item':
+                case 'bazaar':
                     resolve(convertTagToName(subscription.topicId))
                     break
                 case 'player':
@@ -277,6 +278,7 @@ function SubscriptionList() {
     function getSubscriptionTitleElement(subscription: NotificationListener) {
         switch (subscription.type) {
             case 'item':
+            case 'bazaar':
                 return (
                     <Link href={'/item/' + subscription.topicId} className="disableLinkStyle">
                         {subscription.title}

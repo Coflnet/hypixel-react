@@ -137,7 +137,7 @@ export interface NotificationListener {
     topicId: string
     price: number
     types: SubscriptionType[]
-    type: 'player' | 'item' | 'auction'
+    type: 'player' | 'item' | 'auction' | 'bazaar'
     title?: string
     filter?: ItemFilter
 }

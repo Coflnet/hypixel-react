@@ -18,10 +18,11 @@ import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import EditIcon from '@mui/icons-material/Edit'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import NotificationTargetForm from '../NotificationTargets/NotificationTargetForm'
+import SubscribeBazaarItemContent from './SubscribeBazaarItemContent/SubscribeBazaarItemContent'
 
 interface Props {
     topic: string
-    type: 'player' | 'item' | 'auction'
+    type: 'player' | 'item' | 'auction' | 'bazaar'
     buttonContent?: JSX.Element
     isEditButton?: boolean
     onAfterSubscribe?()
@@ -67,6 +68,12 @@ function SubscribeButton(props: Props) {
         // This happens if a user only selects a filter and leaves the price field empty
         if (props.type === 'item' && !price) {
             price = '0'
+        }
+        if (props.type === 'bazaar' && !price) {
+            price = '0'
+        }
+        if (props.type === 'item' && !itemFilter) {
+            itemFilter = {}
         }
 
         api.subscribe(props.topic, getSubscriptionTypes(), selectedNotificationTargets, price ? parseInt(price) : undefined, itemFilter)
@@ -118,6 +125,14 @@ function SubscribeButton(props: Props) {
         }
         if (props.type === 'auction') {
             types.push(SubscriptionType.AUCTION)
+        }
+        if (props.type === 'bazaar') {
+            if (isPriceAbove) {
+                types.push(SubscriptionType.PRICE_HIGHER_THAN)
+            }
+            if (!isPriceAbove) {
+                types.push(SubscriptionType.PRICE_LOWER_THAN)
+            }
         }
         return types
     }
@@ -197,6 +212,14 @@ function SubscribeButton(props: Props) {
                                 onPriceChange={setPrice}
                                 prefill={props.prefill?.listener}
                                 onIsFilterValidChange={setIsItemFilterValid}
+                            />
+                        ) : null}
+                        {props.type === 'bazaar' ? (
+                            <SubscribeBazaarItemContent
+                                itemTag={props.topic}
+                                onPriceChange={setPrice}
+                                onIsPriceAboveChange={setIsPriceAbove}
+                                prefill={props.prefill?.listener}
                             />
                         ) : null}
                         {props.type === 'player' ? (
