@@ -36,6 +36,11 @@ export default function Page() {
                         <p>These folks use our API:</p>
                         <ul>
                             <li>
+                                <a href="https://sekki-minions.com/" target="_blank" rel="noreferrer">
+                                    BlueSekki Skyblock Utilities
+                                </a>
+                            </li>
+                            <li>
                                 <a
                                     href="https://discord.com/api/oauth2/authorize?client_id=854722092037701643&permissions=2147601408&scope=bot"
                                     target="_blank"
