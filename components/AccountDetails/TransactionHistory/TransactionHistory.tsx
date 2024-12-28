@@ -66,6 +66,10 @@ function TransactionHistory() {
         if (parts.length === 2 && /^[0-9a-fA-F]{32}$/.test(parts[0]) && /^[0-9a-fA-F\-]{1,}$/.test(parts[1])) {
             suffix = ` (License for ${parts[0]})`
         }
+        if (transaction.reference.startsWith('license-')) {
+            const licenseparts = transaction.reference.split('-')
+            suffix = ` (License ${licenseparts[1]} for ${licenseparts[2]})`
+        }
 
         let purchasedPremiumOption
         PREMIUM_TYPES.forEach(premiumType => {
