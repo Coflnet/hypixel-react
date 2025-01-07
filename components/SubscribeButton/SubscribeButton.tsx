@@ -52,6 +52,7 @@ function SubscribeButton(props: Props) {
     let [hasPlayerBoughtAnyAuction, setHasPlayerBoughtAnyAuction] = useState(
         props.prefill?.listener?.types?.includes(SubscriptionType.BOUGHT_ANY_AUCTION) ?? false
     )
+    let [isUseBazaarSellNotBuy, setIsUseBazaarSellNotBuy] = useState(props.prefill?.listener?.types?.includes(SubscriptionType.USE_SELL_NOT_BUY) ?? false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.listener?.filter || undefined)
     let [isItemFilterValid, setIsItemFilterValid] = useState(true)
@@ -132,6 +133,9 @@ function SubscribeButton(props: Props) {
             }
             if (!isPriceAbove) {
                 types.push(SubscriptionType.PRICE_LOWER_THAN)
+            }
+            if (isUseBazaarSellNotBuy) {
+                types.push(SubscriptionType.USE_SELL_NOT_BUY)
             }
         }
         return types
@@ -219,6 +223,7 @@ function SubscribeButton(props: Props) {
                                 itemTag={props.topic}
                                 onPriceChange={setPrice}
                                 onIsPriceAboveChange={setIsPriceAbove}
+                                onUseSellPriceChange={setIsUseBazaarSellNotBuy}
                                 prefill={props.prefill?.listener}
                             />
                         ) : null}

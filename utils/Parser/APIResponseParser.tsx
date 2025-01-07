@@ -236,6 +236,7 @@ function _getTypeFromSubTypes(subTypes: SubscriptionType[], itemFilter: string):
         case SubscriptionType.BIN:
         case SubscriptionType.PRICE_HIGHER_THAN:
         case SubscriptionType.PRICE_LOWER_THAN:
+        case SubscriptionType.USE_SELL_NOT_BUY:
             if (!itemFilter) {
                 type = 'bazaar'
             } else {

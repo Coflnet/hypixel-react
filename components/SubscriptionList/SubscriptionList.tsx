@@ -154,6 +154,9 @@ function SubscriptionList() {
                         case SubscriptionType.BOUGHT_ANY_AUCTION.toString():
                             result = <li key={i}>Notify if player bought any auction</li>
                             break
+                        case SubscriptionType.USE_SELL_NOT_BUY.toString():
+                            result = <li key={i}>Use sell price instead of buy price</li>
+                            break
                     }
                     return result
                 })}

@@ -7,6 +7,7 @@ import styles from './SubscribeBazaarItemContent.module.css'
 interface Props {
     onPriceChange(value: string)
     onIsPriceAboveChange(value: boolean)
+    onUseSellPriceChange(value: boolean)
     itemTag: string
     prefill?: NotificationListener
 }
@@ -50,6 +51,18 @@ function SubscribeBazaarItemContent(props: Props) {
                             props.prefill && (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.PRICE_LOWER_THAN])
                         }
                         onChange={e => props.onIsPriceAboveChange(false)}
+                        className={styles.checkBox}
+                    />
+                </Form.Group>
+                <Form.Group>
+                    <Form.Label htmlFor="useSellPriceCheckbox">if the sell price should be used</Form.Label>
+                    <Form.Check
+                        type="checkbox"
+                        id="useSellPriceCheckbox"
+                        defaultChecked={
+                            props.prefill && (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.USE_SELL_NOT_BUY])
+                        }
+                        onChange={e => props.onUseSellPriceChange(e.target.checked)}
                         className={styles.checkBox}
                     />
                 </Form.Group>
