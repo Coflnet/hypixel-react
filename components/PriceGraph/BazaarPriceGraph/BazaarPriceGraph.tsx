@@ -20,6 +20,7 @@ import getPriceGraphConfigSingle from './PriceGraphConfigSingle'
 import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
 import { toast } from 'react-toastify'
+import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 
 interface Props {
     item: Item
@@ -426,20 +427,26 @@ function BazaarPriceGraph(props: Props) {
                             </span>
                         )}
                     </span>
-                    <div style={{ float: 'left' }} className={styles.additionalInfosButton}>
-                        {!isSSR ? (
-                            <Form.Select
-                                defaultValue={localStorage.getItem(BAZAAR_GRAPH_TYPE) || DEFAULT_GRAPH_TYPE}
-                                className={styles.recentAuctionsFetchType}
-                                onChange={onGraphTypeChange}
-                            >
-                                <option value={GRAPH_TYPE.SINGLE}>Single</option>
-                                <option value={GRAPH_TYPE.SPLIT}>Split</option>
-                            </Form.Select>
-                        ) : null}
-                    </div>
-                    <div style={{ float: 'right' }}>
-                        <ShareButton title={'Prices for ' + props.item.name} text="Browse the Bazaar history in Hypixel Skyblock" />
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className={styles.additionalInfosButton}>
+                            {!isSSR ? (
+                                <Form.Select
+                                    defaultValue={localStorage.getItem(BAZAAR_GRAPH_TYPE) || DEFAULT_GRAPH_TYPE}
+                                    className={styles.recentAuctionsFetchType}
+                                    onChange={onGraphTypeChange}
+                                >
+                                    <option value={GRAPH_TYPE.SINGLE}>Single</option>
+                                    <option value={GRAPH_TYPE.SPLIT}>Split</option>
+                                </Form.Select>
+                            ) : null}
+                        </div>
+                        <div>
+                            <SubscribeButton type="bazaar" topic={props.item.tag} />
+                        </div>
+                        <div>
+                            <ShareButton title={'Prices for ' + props.item.name} text="Browse the Bazaar history in Hypixel Skyblock" />
+                        </div>
                     </div>
                 </div>
                 <hr />

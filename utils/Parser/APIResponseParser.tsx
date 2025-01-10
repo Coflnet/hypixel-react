@@ -230,13 +230,18 @@ export function parseSubscriptionTypes(typeInNumeric: number): SubscriptionType[
     return subTypes
 }
 
-function _getTypeFromSubTypes(subTypes: SubscriptionType[]): 'item' | 'player' | 'auction' {
+function _getTypeFromSubTypes(subTypes: SubscriptionType[], itemFilter: string): 'item' | 'player' | 'auction' {
     let type
     switch (SubscriptionType[subTypes[0].toString()]) {
         case SubscriptionType.BIN:
         case SubscriptionType.PRICE_HIGHER_THAN:
         case SubscriptionType.PRICE_LOWER_THAN:
-            type = 'item'
+        case SubscriptionType.USE_SELL_NOT_BUY:
+            if (!itemFilter) {
+                type = 'bazaar'
+            } else {
+                type = 'item'
+            }
             break
         case SubscriptionType.OUTBID:
         case SubscriptionType.SOLD:
@@ -257,7 +262,7 @@ export function parseSubscription(subscription: any): NotificationListener {
         price: subscription.price,
         topicId: subscription.topicId,
         types: parseSubscriptionTypes(subscription.type),
-        type: _getTypeFromSubTypes(parseSubscriptionTypes(subscription.type)),
+        type: _getTypeFromSubTypes(parseSubscriptionTypes(subscription.type), subscription.filter),
         filter: subscription.filter ? JSON.parse(subscription.filter) : undefined
     }
 }

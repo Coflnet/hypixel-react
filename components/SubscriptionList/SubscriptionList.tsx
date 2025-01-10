@@ -154,6 +154,9 @@ function SubscriptionList() {
                         case SubscriptionType.BOUGHT_ANY_AUCTION.toString():
                             result = <li key={i}>Notify if player bought any auction</li>
                             break
+                        case SubscriptionType.USE_SELL_NOT_BUY.toString():
+                            result = <li key={i}>Use sell price instead of buy price</li>
+                            break
                     }
                     return result
                 })}
@@ -246,6 +249,7 @@ function SubscriptionList() {
         return new Promise((resolve, reject) => {
             switch (subscription.type) {
                 case 'item':
+                case 'bazaar':
                     resolve(convertTagToName(subscription.topicId))
                     break
                 case 'player':
@@ -277,6 +281,7 @@ function SubscriptionList() {
     function getSubscriptionTitleElement(subscription: NotificationListener) {
         switch (subscription.type) {
             case 'item':
+            case 'bazaar':
                 return (
                     <Link href={'/item/' + subscription.topicId} className="disableLinkStyle">
                         {subscription.title}
