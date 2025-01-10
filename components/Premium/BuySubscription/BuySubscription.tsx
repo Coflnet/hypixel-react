@@ -12,16 +12,17 @@ interface Props {
 
 function BuySubscription(props: Props) {
     const [selectedPremiumType, setSelectedPremiumType] = useState<PremiumType>()
+    const [isYearOption, setIsYearOption] = useState<boolean>()
 
     function getSubscriptionPrice() {
         if (!selectedPremiumType) {
             return -1
         }
         if (selectedPremiumType.productId === 'premium') {
-            return 8.69
+            return isYearOption ? 96.69 : 8.69
         }
         if (selectedPremiumType.productId === 'premium_plus') {
-            return 29.69
+            return isYearOption ? 354.20 : 29.69
         }
         return -1
     }
@@ -40,6 +41,9 @@ function BuySubscription(props: Props) {
         }
         if (selectedPremiumType.productId === 'premium_plus') {
             productId = 'l_prem_plus'
+        }
+        if (isYearOption) {
+            productId += '-year'
         }
 
         api.purchasePremiumSubscription(productId, googleToken).then(data => {
@@ -66,10 +70,21 @@ function BuySubscription(props: Props) {
                                     variant="success"
                                     className={styles.purchaseButton}
                                     onClick={() => {
+                                        setIsYearOption(false)
                                         setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium_plus'))
                                     }}
                                 >
                                     <NumberElement number={29.69} /> Euro (+VAT) / 4 weeks
+                                </Button>
+                                <Button
+                                    variant="success"
+                                    className={styles.purchaseButton}
+                                    onClick={() => {
+                                        setIsYearOption(true)
+                                        setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium_plus'))
+                                    }}
+                                >
+                                    <NumberElement number={354.20} /> Euro (+VAT) / 52 weeks (8% off)
                                 </Button>
                             </div>
                         </Card.Body>
@@ -96,6 +111,16 @@ function BuySubscription(props: Props) {
                                 >
                                     <NumberElement number={8.69} /> Euro (+VAT) / 4 weeks
                                 </Button>
+                                <Button
+                                    variant="success"
+                                    className={styles.purchaseButton}
+                                    onClick={() => {
+                                        setIsYearOption(true)
+                                        setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium'))
+                                    }}
+                                >
+                                    <NumberElement number={96.69} /> Euro (+VAT) / 52 weeks (14% off)
+                                </Button>
                             </div>
                         </Card.Body>
                     </Card>
@@ -106,7 +131,7 @@ function BuySubscription(props: Props) {
                     type="subscription"
                     show={selectedPremiumType !== undefined}
                     purchasePremiumOption={PREMIUM_TYPES.find(type => type.productId === 'premium')?.options[0]!}
-                    purchasePrice={<>{getSubscriptionPrice()} per month</>}
+                    purchasePrice={<>{getSubscriptionPrice()} {isYearOption ? 'per year' : 'per month'}</>}
                     purchasePremiumType={selectedPremiumType!}
                     onHide={onSubscriptionBuyCancel}
                     onConfirm={onSubscriptionBuy}
