@@ -65,6 +65,8 @@ function BuySubscription(props: Props) {
                                 <li>all tools for analysis</li>
                                 <li>full auction archive</li>
                             </ul>
+                            {(!props.activePremiumProduct || props.activePremiumProduct.expires.getTime() < new Date().getTime() + 3600 * 24 * 3) ?
+                                (<p>Use code <code>M2OTC1OQ</code> at checkout, to get an extra <b>20% discount</b> on the yearly options</p>) : null}
                             <div className={styles.purchaseButtonContainer}>
                                 <Button
                                     variant="success"
