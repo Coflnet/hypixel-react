@@ -145,8 +145,8 @@ export function FlipTrackingListItem(props: Props) {
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Table>
                                     <tbody>
-                                        {props.trackedFlip.propertyChanges.map(change => (
-                                            <tr>
+                                        {props.trackedFlip.propertyChanges.map((change, i) => (
+                                            <tr key={props.trackedFlip.uId + '-' + i}>
                                                 <td>{change.description}</td>
                                                 <td>
                                                     {change.effect > 0 ? (

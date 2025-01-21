@@ -247,6 +247,7 @@ export function FlipTracking(props: Props) {
                     allowShowLess
                     initialHeight={60}
                     onShowChange={show => setIsFilterExpanded(show)}
+                    containerStyle={{ overflow: 'visible' }}
                     content={
                         <div style={{ display: 'flex', gap: 10, flexDirection: 'column', paddingBottom: 20 }}>
                             <div className={styles.filterContainer}>
@@ -307,23 +308,19 @@ export function FlipTracking(props: Props) {
                             <div className={styles.filterContainer}>
                                 <label style={{ minWidth: '100px' }}>Item:</label>
                                 <div className={styles.itemFilterContainer} style={{ position: 'relative', height: '38px' }}>
-                                    <div style={{ position: 'absolute' }}>
-                                        <div style={isFilterExpanded ? { position: 'fixed' } : undefined}>
-                                            <ApiSearchField
-                                                multiple={false}
-                                                defaultSelected={item ? [item] : undefined}
-                                                className={styles.multiSearch}
-                                                onChange={items => {
-                                                    if (!items || items.length === 0) {
-                                                        setItem(undefined)
-                                                    } else {
-                                                        setItem(items[0])
-                                                    }
-                                                }}
-                                                searchFunction={api.itemSearch}
-                                            />
-                                        </div>
-                                    </div>
+                                    <ApiSearchField
+                                        multiple={false}
+                                        defaultSelected={item ? [item] : undefined}
+                                        className={styles.multiSearch}
+                                        onChange={items => {
+                                            if (!items || items.length === 0) {
+                                                setItem(undefined)
+                                            } else {
+                                                setItem(items[0])
+                                            }
+                                        }}
+                                        searchFunction={api.itemSearch}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -348,8 +345,8 @@ export function FlipTracking(props: Props) {
                         <DatePicker
                             className={'form-control'}
                             onChange={e => {
-                                setRangeEndDate(e?? new Date())
-                                loadFlipsForTimespan(rangeStartDate, e?? new Date())
+                                setRangeEndDate(e ?? new Date())
+                                loadFlipsForTimespan(rangeStartDate, e ?? new Date())
                             }}
                             minDate={new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 2)}
                             maxDate={new Date()}

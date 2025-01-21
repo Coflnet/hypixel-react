@@ -7,6 +7,7 @@ interface Props {
     alwaysShowAll?: boolean
     allowShowLess?: boolean
     onShowChange?: (isExpanded: boolean) => void
+    containerStyle?: React.CSSProperties
 }
 
 const ShowMoreText = (props: Props) => {
@@ -22,7 +23,10 @@ const ShowMoreText = (props: Props) => {
     }
 
     return (
-        <div className={`${styles.textContainer} ${isExpanded ? styles.expanded : ''}`} style={{ height: isExpanded ? 'auto' : props.initialHeight }}>
+        <div
+            className={`${styles.textContainer} ${isExpanded ? styles.expanded : ''}`}
+            style={{ height: isExpanded ? 'auto' : props.initialHeight, ...props.containerStyle }}
+        >
             {props.content}
             <div className={styles.showMoreContainer} onClick={toggleExpand}>
                 <span className={styles.showMoreText}>
