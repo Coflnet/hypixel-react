@@ -220,14 +220,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 resolve: (data: any) => {
                     data = data.filter(d => d.sell !== undefined && d.buy !== undefined)
 
-                    let sumBuy = 0
-                    let sumSell = 0
-                    data.forEach(d => {
-                        sumBuy += d.buy
-                        sumSell += d.sell
-                    })
-                    let avgBuy = sumBuy / data.length
-                    let avgSell = sumSell / data.length
+                    let buySort = [...data].sort((a, b) => a.buy - b.buy)
+                    let sellSort = [...data].sort((a, b) => a.sell - b.sell)
+
+                    let medianBuy = buySort.length > 0 ? buySort[Math.floor(buySort.length / 2)].buy : 0
+                    let medianSell = sellSort.length > 0 ? sellSort[Math.floor(sellSort.length / 2)].sell : 0
 
                     let bazaarData: BazaarPrice[] = data
                         .map(parseBazaarPrice)
@@ -236,10 +233,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     resolve(
                         bazaarData.filter(
                             b =>
-                                b.buyData.max < avgBuy * normalizer &&
-                                b.sellData.max < avgSell * normalizer &&
-                                b.buyData.min > avgBuy / normalizer &&
-                                b.sellData.min > avgSell / normalizer
+                                b.buyData.max < medianBuy * normalizer &&
+                                b.sellData.max < medianSell * normalizer &&
+                                b.buyData.min > medianBuy / normalizer &&
+                                b.sellData.min > medianSell / normalizer
                         )
                     )
                 },

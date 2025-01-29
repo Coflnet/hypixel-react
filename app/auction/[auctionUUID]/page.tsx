@@ -109,7 +109,12 @@ export default async function Page({ params }) {
         <>
             <Container>
                 <Search />
-                <AuctionDetails auctionUUID={auctionUUID} auctionDetails={auctionDetails} unparsedAuctionDetails={getOriginalAuctionDetails()} />
+                <AuctionDetails
+                    auctionUUID={auctionUUID}
+                    auctionDetails={auctionDetails}
+                    unparsedAuctionDetails={getOriginalAuctionDetails()}
+                    copyButtonValue="ingame"
+                />
             </Container>
         </>
     )

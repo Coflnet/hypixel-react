@@ -33,6 +33,7 @@ interface Props {
     auctionDetails?: any
     retryCounter?: number
     unparsedAuctionDetails?: any
+    copyButtonValue: 'ingame' | 'web'
 }
 
 function AuctionDetails(props: Props) {
@@ -145,6 +146,16 @@ function AuctionDetails(props: Props) {
                 })}
             </div>
         )
+    }
+
+    function getCopyButtonValue(auctionDetails: AuctionDetails) {
+        if (!isClientSideRendering()) {
+            return ''
+        }
+        if (props.copyButtonValue === 'web') {
+            return `${location.origin}/auction/${auctionDetails.auction.uuid}`
+        }
+        return isRunning(auctionDetails) ? '/viewauction ' + auctionDetails.auction.uuid : `${location.origin}/auction/${auctionDetails.auction.uuid}`
     }
 
     function formatNBTValue(key: string, value: any, auctionDetails?: AuctionDetails) {
@@ -360,15 +371,9 @@ function AuctionDetails(props: Props) {
                     )}
                     <CopyButton
                         buttonVariant="primary"
-                        copyValue={
-                            isRunning(auctionDetails)
-                                ? '/viewauction ' + auctionDetails.auction.uuid
-                                : isClientSideRendering()
-                                ? `${location.origin}/auction/${auctionDetails.auction.uuid}`
-                                : ''
-                        }
+                        copyValue={getCopyButtonValue(auctionDetails)}
                         successMessage={
-                            isRunning(auctionDetails) ? (
+                            getCopyButtonValue(auctionDetails)?.startsWith('/viewauction') ? (
                                 <p>
                                     Copied ingame link <br />
                                     <i>/viewauction {auctionDetails.auction.uuid}</i>

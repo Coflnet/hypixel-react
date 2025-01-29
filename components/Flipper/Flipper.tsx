@@ -706,7 +706,7 @@ function Flipper(props: Props) {
                             <Card.Title>Auction Details</Card.Title>
                         </Card.Header>
                         <Card.Body>
-                            <AuctionDetails auctionUUID={selectedAuctionUUID} retryCounter={5} />
+                            <AuctionDetails auctionUUID={selectedAuctionUUID} retryCounter={5} copyButtonValue="web" />
                         </Card.Body>
                     </Card>
                 </div>

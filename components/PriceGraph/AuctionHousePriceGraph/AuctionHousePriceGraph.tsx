@@ -87,6 +87,7 @@ function AuctionHousePriceGraph(props: Props) {
 
         api.getItemPrices(props.item.tag, fetchspan as globalThis.DateRange, itemFilter)
             .then(async prices => {
+                console.log('asdf', prices)
                 if (
                     !mounted ||
                     currentLoadingString !==
@@ -121,11 +122,14 @@ function AuctionHousePriceGraph(props: Props) {
                 } catch (e) {}
 
                 setAvgPrice(Math.round(priceSum / prices.length))
+                console.log('b', prices)
                 setNoDataFound(prices.length === 0)
                 setIsLoading(false)
                 setChartOptions(chartOptions)
             })
-            .catch(() => {
+            .catch(e => {
+                console.log('a')
+                console.error(e)
                 setIsLoading(false)
                 setNoDataFound(true)
                 setAvgPrice(0)
