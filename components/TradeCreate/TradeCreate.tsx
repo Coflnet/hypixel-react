@@ -44,7 +44,7 @@ export default function TradeCreate(props: Props) {
     }
 
     function createTradeOffer() {
-        if (props.currentUserUUID && offer) {
+        if (props.currentUserUUID && (offer || offeredCoins)) {
             let wantedItemsToSend = [...wantedItems]
             if (wantedCoins > 0) {
                 let wantedCoinsItem = {
