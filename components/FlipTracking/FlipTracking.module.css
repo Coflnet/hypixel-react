@@ -56,9 +56,42 @@
 
 .itemFilterContainer:has(:global(.show.dropdown-menu)) {
     z-index: 12;
-    position: fixed
+    position: relative;
+    height: 38px;
 }
 
 .multiSearch {
     flex: 1;
+}
+
+.noPremiumInfoText{
+    float: right;
+    font-size: small;
+}
+
+.topContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.filterLabel {
+    min-width: 100px;
+}
+
+.filterValueField {
+    max-width: 200px;
+}
+
+@media all and (max-width: 768px) {
+    .noPremiumInfoText {
+        float: none;
+        text-align: center;
+    }
+    .topContainer {
+        display: flex;
+        flex-direction: column-reverse;
+        margin-bottom: 20px;
+        gap: 10px;
+    }
 }

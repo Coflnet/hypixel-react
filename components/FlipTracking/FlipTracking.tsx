@@ -242,19 +242,18 @@ export function FlipTracking(props: Props) {
     return (
         <div>
             <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div className={styles.topContainer}>
                 <ShowMoreText
                     allowShowLess
                     initialHeight={60}
                     onShowChange={show => setIsFilterExpanded(show)}
-                    containerStyle={{ overflow: 'visible' }}
                     content={
                         <div style={{ display: 'flex', gap: 10, flexDirection: 'column', paddingBottom: 20 }}>
                             <div className={styles.filterContainer}>
-                                <label htmlFor="flag-filter" style={{ minWidth: '100px' }}>
+                                <label htmlFor="flag-filter" className={styles.filterLabel}>
                                     Sort:
                                 </label>
-                                <Form.Select style={{ width: 'auto' }} defaultValue={orderBy.value} onChange={updateOrderBy}>
+                                <Form.Select className={styles.filterValueField} defaultValue={orderBy.value} onChange={updateOrderBy}>
                                     {SORT_OPTIONS.map(option => (
                                         <option key={option.value} value={option.value}>
                                             {option.label}
@@ -263,12 +262,12 @@ export function FlipTracking(props: Props) {
                                 </Form.Select>
                             </div>
                             <div className={styles.filterContainer}>
-                                <label htmlFor="flag-filter" style={{ minWidth: '100px' }}>
+                                <label htmlFor="flag-filter" className={styles.filterLabel}>
                                     Filter:
                                 </label>
                                 <Form.Select
                                     id="flag-filter"
-                                    style={{ width: '200px' }}
+                                    className={styles.filterValueField}
                                     defaultValue={filterBy.value}
                                     onChange={e => {
                                         setFilterBy(FILTER_OPTIONS.find(option => option.value === e.target.value) || FILTER_OPTIONS[0])
@@ -282,32 +281,36 @@ export function FlipTracking(props: Props) {
                                 </Form.Select>
                             </div>
                             <div className={styles.filterContainer}>
-                                <label style={{ minWidth: '100px' }}>Min. Profit:</label>
-                                <NumericFormat
-                                    defaultValue={minProfit}
-                                    onValueChange={v => setMinProfit(v.floatValue?.toString())}
-                                    thousandSeparator={getThousandSeparator()}
-                                    decimalSeparator={getDecimalSeparator()}
-                                    allowNegative={false}
-                                    decimalScale={0}
-                                    customInput={Form.Control}
-                                />
+                                <label className={styles.filterLabel}>Min. Profit:</label>
+                                <div className={styles.filterValueField}>
+                                    <NumericFormat
+                                        defaultValue={minProfit}
+                                        onValueChange={v => setMinProfit(v.floatValue?.toString())}
+                                        thousandSeparator={getThousandSeparator()}
+                                        decimalSeparator={getDecimalSeparator()}
+                                        allowNegative={false}
+                                        decimalScale={0}
+                                        customInput={Form.Control}
+                                    />
+                                </div>
                             </div>
                             <div className={styles.filterContainer}>
-                                <label style={{ minWidth: '100px' }}>Max. Profit:</label>
-                                <NumericFormat
-                                    defaultValue={maxProfit}
-                                    onValueChange={v => setMaxProfit(v.floatValue?.toString())}
-                                    thousandSeparator={getThousandSeparator()}
-                                    decimalSeparator={getDecimalSeparator()}
-                                    allowNegative={false}
-                                    decimalScale={0}
-                                    customInput={Form.Control}
-                                />
+                                <label className={styles.filterLabel}>Max. Profit:</label>
+                                <div className={styles.filterValueField}>
+                                    <NumericFormat
+                                        defaultValue={maxProfit}
+                                        onValueChange={v => setMaxProfit(v.floatValue?.toString())}
+                                        thousandSeparator={getThousandSeparator()}
+                                        decimalSeparator={getDecimalSeparator()}
+                                        allowNegative={false}
+                                        decimalScale={0}
+                                        customInput={Form.Control}
+                                    />
+                                </div>
                             </div>
                             <div className={styles.filterContainer}>
-                                <label style={{ minWidth: '100px' }}>Item:</label>
-                                <div className={styles.itemFilterContainer} style={{ position: 'relative', height: '38px' }}>
+                                <label className={styles.filterLabel}>Item:</label>
+                                <div className={`${styles.itemFilterContainer} ${styles.filterValueField}`}>
                                     <ApiSearchField
                                         multiple={false}
                                         defaultSelected={item ? [item] : undefined}
@@ -354,7 +357,7 @@ export function FlipTracking(props: Props) {
                         />
                     </div>
                 ) : (
-                    <span style={{ float: 'right', fontSize: 'small' }}>
+                    <span className={styles.noPremiumInfoText}>
                         Only auctions sold in the last 7 days are displayed here. <br /> You can see more with <Link href={'/premium'}>Premium</Link>
                     </span>
                 )}
