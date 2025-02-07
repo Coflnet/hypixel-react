@@ -22,7 +22,7 @@ function BuySubscription(props: Props) {
             return isYearOption ? 96.69 : 8.69
         }
         if (selectedPremiumType.productId === 'premium_plus') {
-            return isYearOption ? 354.20 : 29.69
+            return isYearOption ? 354.20 : 35.69
         }
         return -1
     }
@@ -76,7 +76,7 @@ function BuySubscription(props: Props) {
                                         setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium_plus'))
                                     }}
                                 >
-                                    <NumberElement number={29.69} /> Euro (+VAT) / 4 weeks
+                                    <NumberElement number={35.69} /> Euro (+VAT) / 4 weeks
                                 </Button>
                                 {(!props.activePremiumProduct || props.activePremiumProduct.expires.getTime() < new Date().getTime() + 3600 * 24 * 3) ?
                                     (<><p>Use code <code>M2OTC1OQ</code> at checkout, to get an extra <b>20% discount</b> on the yearly options</p>
@@ -88,7 +88,7 @@ function BuySubscription(props: Props) {
                                                 setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium_plus'))
                                             }}
                                         >
-                                            <NumberElement number={354.20} /> Euro (+VAT) / 52 weeks (8% off)
+                                            <NumberElement number={354.20} /> Euro (+VAT) / 52 weeks (23% off)
                                         </Button>
                                     </>) : null}
                             </div>
