@@ -109,8 +109,8 @@ export const FLIP_FINDERS = [
     { value: '8', label: 'AI', shortLabel: 'AI', default: false, description: '', selectable: false },
     {
         value: '16',
-        label: 'User',
-        shortLabel: 'User',
+        label: 'User (whitelists)',
+        shortLabel: 'User (whitelisted by you)',
         default: false,
         description: (
             <span>
