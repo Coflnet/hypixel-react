@@ -15,7 +15,7 @@
 
 .copyButtonContainer{
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
 }
 
 @media all and (max-width: 1024px) {
