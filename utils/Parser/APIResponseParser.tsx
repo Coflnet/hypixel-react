@@ -340,9 +340,6 @@ export function parseRefInfo(refInfo): RefInfo {
 }
 
 export function parseFilterOption(filterOption): FilterOptions {
-    if (filterOption.name === 'pristine') {
-        filterOption.name = 'Prismatic aka Pristine'
-    }
     return {
         name: filterOption.name,
         options: filterOption.options,
