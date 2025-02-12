@@ -1,7 +1,7 @@
 import { getNumberFromShortenString, numberWithThousandsSeparators } from './Formatter'
 
 const getRangeErrorMessage = (lower: string, higher: string) =>
-    'Please choose a value between ' + numberWithThousandsSeparators(parseInt(lower)) + ' and ' + numberWithThousandsSeparators(parseInt(higher))
+    'Please choose a value between ' + numberWithThousandsSeparators(parseInt(lower)) + ' and ' + numberWithThousandsSeparators(parseInt(higher)) + '. Options not available have not been listed on ah before (won\'t find anything).'
 const INVALID_NUMBER_ERROR = 'This is not a valid number'
 const INVALID_NUMBER_RANGE_ERROR = 'This is not a valid number range'
 const RANGE_ORDER_ERROR = 'The range order is invalid'
