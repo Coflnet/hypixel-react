@@ -117,7 +117,7 @@ function PlayerDetailsList(props: Props) {
     }
 
     function loadFilters() {
-        return api.getFilters(filteredItem ? filteredItem.tag : '*').then(filters => {
+        return api.getFilters(filteredItemRef.current ? filteredItemRef.current.tag : '*').then(filters => {
             setFilters(filters)
         })
     }
