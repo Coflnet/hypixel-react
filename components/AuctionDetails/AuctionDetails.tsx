@@ -137,7 +137,7 @@ function AuctionDetails(props: Props) {
                         <div key={key}>
                             <p>
                                 <span className={styles.label}>
-                                    <Badge bg={labelBadgeVariant}>{convertTagToName(key)}:</Badge>
+                                    <Badge bg={labelBadgeVariant}>{formatNBTKey(key)}:</Badge>
                                 </span>
                                 <span className="ellipse">{formatNBTValue(key, currentNBT, auctionDetails)}</span>
                             </p>
@@ -156,6 +156,13 @@ function AuctionDetails(props: Props) {
             return `${location.origin}/auction/${auctionDetails.auction.uuid}`
         }
         return isRunning(auctionDetails) ? '/viewauction ' + auctionDetails.auction.uuid : `${location.origin}/auction/${auctionDetails.auction.uuid}`
+    }
+
+    function formatNBTKey(key: string) {
+        if (key === 'mending') {
+            return 'Vitality'
+        }
+        return convertTagToName(key)
     }
 
     function formatNBTValue(key: string, value: any, auctionDetails?: AuctionDetails) {
