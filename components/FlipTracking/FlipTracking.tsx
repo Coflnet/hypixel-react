@@ -87,16 +87,18 @@ const FILTER_OPTIONS: FilterOption[] = [
 
 const TRACKED_FLIP_CONTEXT_MENU_ID = 'tracked-flip-context-menu'
 
+const DEFAULT_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 7
+const PREMIUM_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 30 * 2
+
 export function FlipTracking(props: Props) {
     let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
     let [ignoreProfitMap, setIgnoreProfitMap] = useState(getSettingsObject(IGNORE_FLIP_TRACKING_PROFIT, {}))
-    let [rangeStartDate, setRangeStartDate] = useState(new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7))
+    let [rangeStartDate, setRangeStartDate] = useState(new Date(new Date().getTime() - DEFAULT_TIME_FILTER_RANGE))
     let [rangeEndDate, setRangeEndDate] = useState(new Date())
     let [hasPremium, setHasPremium] = useState(false)
     let [isLoading, setIsLoading] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [wasManualLoginClick, setWasManualLoginClick] = useState(false)
-    let [isFilterExpanded, setIsFilterExpanded] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let forceUpdate = useForceUpdate()
 
@@ -246,7 +248,6 @@ export function FlipTracking(props: Props) {
                 <ShowMoreText
                     allowShowLess
                     initialHeight={60}
-                    onShowChange={show => setIsFilterExpanded(show)}
                     content={
                         <div style={{ display: 'flex', gap: 10, flexDirection: 'column', paddingBottom: 20 }}>
                             <div className={styles.filterContainer}>
@@ -329,7 +330,7 @@ export function FlipTracking(props: Props) {
                         </div>
                     }
                 />
-                {hasPremium ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
                     <div className={styles.filterContainer}>
                         <label style={{ marginRight: 15 }}>From: </label>
                         <div style={{ paddingRight: 15 }}>
@@ -339,7 +340,7 @@ export function FlipTracking(props: Props) {
                                     loadFlipsForTimespan(e ?? new Date(), rangeEndDate)
                                 }}
                                 className={'form-control'}
-                                minDate={new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 2)}
+                                minDate={new Date(new Date().getTime() - (hasPremium ? PREMIUM_TIME_FILTER_RANGE : DEFAULT_TIME_FILTER_RANGE))}
                                 maxDate={new Date()}
                                 selected={rangeStartDate}
                             />
@@ -351,16 +352,15 @@ export function FlipTracking(props: Props) {
                                 setRangeEndDate(e ?? new Date())
                                 loadFlipsForTimespan(rangeStartDate, e ?? new Date())
                             }}
-                            minDate={new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 2)}
+                            minDate={new Date(new Date().getTime() - (hasPremium ? PREMIUM_TIME_FILTER_RANGE : DEFAULT_TIME_FILTER_RANGE))}
                             maxDate={new Date()}
                             selected={rangeEndDate}
                         />
                     </div>
-                ) : (
-                    <span className={styles.noPremiumInfoText}>
+                    <div className={styles.noPremiumInfoText}>
                         Only auctions sold in the last 7 days are displayed here. <br /> You can see more with <Link href={'/premium'}>Premium</Link>
-                    </span>
-                )}
+                    </div>
+                </div>
             </div>
             {isLoading ? (
                 getLoadingElement()
