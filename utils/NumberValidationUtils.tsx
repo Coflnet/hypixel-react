@@ -17,8 +17,10 @@ function removeRangeSymbols(input: string) {
 }
 
 function getFilterNumber(number: string) {
-    let numberRegexp = new RegExp(/^\d*\.?\d+[kKmMbB]?$/)
+    let numberRegexp = new RegExp( /^({{MIN_PROFIT}}\*|{{MAX_COST}}\*|{{MIN_VOLUME}}\*|{{MIN_PROFIT_PERCENT}}\*|)(\d*\.?\d+[kKmMbB]?)$/)
     if (numberRegexp.test(number)) {
+        if (number.includes('{'))
+            return 1; // static 1 for variables
         return getNumberFromShortenString(number) as number
     }
     return null
