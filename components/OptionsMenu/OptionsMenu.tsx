@@ -30,10 +30,19 @@ function OptionsMenu(props: Props) {
     const isItemPage = (props.selected as Item)?.tag !== undefined
     const isPlayerPage = !isItemPage
     if (isItemPage) {
-        let name = props.selected?.name
+        let fandomName = props.selected?.name
+        let wikiName = props.selected?.name
         let tag = (props.selected as Item).tag
-        available.push({ title: 'Fandom', url: 'https://hypixel-skyblock.fandom.com/wiki/' + name })
-        available.push({ title: 'Wiki', url: 'https://wiki.hypixel.net/' + name })
+        if (tag.startsWith('ENCHANTMENT_')) {
+            fandomName = tag.replace('ENCHANTMENT_', '').replace('ULTIMATE_', '').replace(/_\d/, '').toLowerCase()
+            fandomName = fandomName
+                .split('_')
+                .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+                .join('_')
+            wikiName = fandomName + '_Enchantment'
+        }
+        available.push({ title: 'Fandom', url: 'https://hypixel-skyblock.fandom.com/wiki/' + fandomName })
+        available.push({ title: 'Wiki', url: 'https://wiki.hypixel.net/' + wikiName })
         if ((props.selected as Item).bazaar) {
             available.push({ title: 'Skyblock.bz', url: 'https://Skyblock.bz/product/' + tag })
         }
