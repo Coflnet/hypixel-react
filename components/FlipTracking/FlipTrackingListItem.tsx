@@ -100,7 +100,7 @@ export function FlipTrackingListItem(props: Props) {
                 </Card>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div>
+                <div style={{ maxWidth: '90%' }}>
                     <p style={{ marginTop: '10px' }}>
                         <Tooltip
                             content={
