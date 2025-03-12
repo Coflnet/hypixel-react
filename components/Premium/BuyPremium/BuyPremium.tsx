@@ -23,7 +23,6 @@ function BuyPremium(props: Props) {
     let [isPurchasing, setIsPurchasing] = useState(false)
     let [purchasePremiumOption, setPurchasePremiumOption] = useState<PremiumTypeOption>(PREMIUM_TYPES[0].options[0])
     let [showPrepaidConfirmationDialog, setShowPrepaidConfirmationDialog] = useState(false)
-    let [showSubscriptionConfirmationDialog, setShowSubscriptionConfirmationDialog] = useState(false)
     let coflCoins = useCoflCoins()
 
     function onDurationChange(event: ChangeEvent<HTMLSelectElement>) {
