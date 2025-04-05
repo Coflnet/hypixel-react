@@ -62,7 +62,14 @@ function Startpage(props: Props) {
                     <Card>
                         <Card.Header style={{ padding: '10px' }}>
                             <p className={styles.ellipsis}>
-                                <Image crossOrigin="anonymous" src={auction.item.iconUrl || ''} height="32" width="32" alt="" style={{ marginRight: '5px' }} />
+                                <Image
+                                    crossOrigin="anonymous"
+                                    src={api.getItemImageUrl(auction.item) || ''}
+                                    height="32"
+                                    width="32"
+                                    alt=""
+                                    style={{ marginRight: '5px' }}
+                                />
                                 {getMinecraftColorCodedElement(auction.item.name)}
                             </p>
                         </Card.Header>

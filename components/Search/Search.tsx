@@ -24,6 +24,8 @@ import {
     pinSearchResult,
     unpinSearchResult
 } from '../../utils/PreviousSearchUtils'
+import { ITEM_ICON_TYPE, getSetting, setSetting } from '../../utils/SettingsUtils'
+import ClientOnly from '../ClientOnly/ClientOnly'
 
 interface Props {
     selected?: Player | Item
@@ -220,15 +222,26 @@ function Search(props: Props) {
         }
         return (
             <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
-                <img
-                    crossOrigin="anonymous"
-                    className="playerHeadIcon"
-                    src={props.selected.iconUrl}
-                    height="32"
-                    width="32"
-                    alt=""
-                    style={{ marginRight: '10px' }}
-                />
+                <ClientOnly>
+                    <img
+                        crossOrigin="anonymous"
+                        className="playerHeadIcon"
+                        src={props.type === 'player' ? props.selected.iconUrl : api.getItemImageUrl({ tag: (props.selected as Item).tag })}
+                        height="32"
+                        width="32"
+                        alt=""
+                        style={{ marginRight: '10px', cursor: 'pointer' }}
+                        onClick={() => {
+                            let type = getSetting(ITEM_ICON_TYPE, 'default')
+                            if (type === 'default') {
+                                setSetting(ITEM_ICON_TYPE, 'vanilla')
+                            } else {
+                                setSetting(ITEM_ICON_TYPE, 'default')
+                            }
+                            window.location.reload()
+                        }}
+                    />
+                </ClientOnly>
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
                 {props.enableReset ? (
                     <ClearIcon onClick={props.onResetClick} style={{ cursor: 'pointer', color: 'red', marginLeft: '10px', fontWeight: 'bold' }} />

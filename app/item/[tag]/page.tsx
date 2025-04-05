@@ -29,7 +29,6 @@ export default async function Page({ searchParams, params }) {
 
     return (
         <>
-            {}
             <Container>
                 <Search selected={getItem()} type="item" />
                 {item.bazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}

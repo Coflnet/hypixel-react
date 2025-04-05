@@ -155,7 +155,7 @@ function RecentAuctions(props: Props) {
                                     <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
-                                        src={props.item.iconUrl || ''}
+                                        src={api.getItemImageUrl(props.item) || ''}
                                         height="32"
                                         width="32"
                                         alt=""

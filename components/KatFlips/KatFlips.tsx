@@ -216,7 +216,7 @@ export function KatFlips(props: Props) {
             <span style={getStyleForTier(flip.coreData.item.tier)}>
                 <Image
                     crossOrigin="anonymous"
-                    src={flip.coreData.item.iconUrl || ''}
+                    src={api.getItemImageUrl(flip.coreData.item) || ''}
                     height="32"
                     width="32"
                     alt=""

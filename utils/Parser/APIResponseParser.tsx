@@ -115,7 +115,7 @@ export function parseItem(item: any): Item {
         tag: item.tag,
         name: item.altNames && item.altNames[0] && item.altNames[0].Name ? item.altNames[0].Name : item.itemName || item.name,
         category: item.category,
-        iconUrl: item.iconUrl || item.icon || api.getItemImageUrl(item),
+        iconUrl: api.getItemImageUrl(item),
         tier: item.tier,
         bazaar: hasFlag(item.flags, 1)
     }
@@ -158,7 +158,7 @@ export function parseSearchResultItem(item: any): SearchResultItem {
     return {
         dataItem: {
             name: item.name,
-            iconUrl: item.img ? 'data:image/png;base64,' + item.img : item.type === 'item' ? item.iconUrl : item.iconUrl + '?size=8'
+            iconUrl: item.img ? 'data:image/png;base64,' + item.img : item.type === 'item' ? api.getItemImageUrl(item) : api.getItemImageUrl(item) + '?size=8'
         },
         type: item.type,
         route: _getRoute(),

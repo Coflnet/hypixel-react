@@ -45,7 +45,9 @@ import { PREMIUM_TYPES } from '../utils/PremiumTypeUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import {
     FLIPPER_FILTER_KEY,
+    getSetting,
     getSettingsObject,
+    ITEM_ICON_TYPE,
     LAST_PREMIUM_PRODUCTS,
     mapSettingsToApiFormat,
     RESTRICTIONS_SETTINGS_KEY,
@@ -132,7 +134,22 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let getItemImageUrl = (item: Item): string => {
-        return 'https://sky.coflnet.com/static/icon/' + item.tag
+        let type = getSetting(ITEM_ICON_TYPE, 'default')
+
+        console.log("item", item)
+        console.log("type", type)
+
+        let iconURL = item.iconUrl || (item as any).icon
+        if (iconURL) {
+            if (type === 'vanilla' && !iconURL.endsWith('/vanilla')) {
+                return iconURL + '/vanilla'
+            }
+            return iconURL
+        }
+
+        let r =  `https://sky.coflnet.com/static/icon/${item.tag}${type === 'vanilla' ? '/vanilla' : ''}`
+        console.log("url result", r)
+        return r;
     }
 
     let getItemDetails = (itemTag: string): Promise<Item> => {

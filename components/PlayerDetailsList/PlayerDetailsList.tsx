@@ -180,11 +180,11 @@ function PlayerDetailsList(props: Props) {
     }
 
     let getItemImageElement = (listElement: Auction | BidForList) => {
-        return listElement.item.iconUrl ? (
+        return listElement.item.tag ? (
             <Image
                 crossOrigin="anonymous"
                 className="auctionItemImage"
-                src={listElement.item.iconUrl}
+                src={api.getItemImageUrl(listElement.item) || ''}
                 style={{ marginRight: '10px' }}
                 alt="item icon"
                 height="48"

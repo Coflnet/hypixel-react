@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Number from '../../Number/Number'
 import { Badge } from 'react-bootstrap'
 import styles from './IngredientList.module.css'
+import api from '../../../api/ApiHelper'
 
 interface Props {
     ingredients: CraftingIngredient[]
@@ -23,7 +24,7 @@ export function IngredientList(props: Props) {
                         >
                             <Image
                                 crossOrigin="anonymous"
-                                src={ingredient.item.iconUrl || ''}
+                                src={api.getItemImageUrl(ingredient.item) || ''}
                                 height="24"
                                 width="24"
                                 alt=""

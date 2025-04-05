@@ -103,7 +103,7 @@ export default function FlipRestrictionListEntry(props: Props) {
                                         ? [
                                               {
                                                   dataItem: {
-                                                      iconUrl: props.restriction.item.iconUrl || '',
+                                                      iconUrl: api.getItemImageUrl(props.restriction.item) || '',
                                                       name: props.restriction.item.name || '-'
                                                   },
                                                   id: props.restriction.item.tag || '',

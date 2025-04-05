@@ -13,6 +13,7 @@ import { CopyButton } from '../../CopyButton/CopyButton'
 import Number from '../../Number/Number'
 import styles from './Flip.module.css'
 import { writeToClipboard } from '../../../utils/ClipboardUtils'
+import api from '../../../api/ApiHelper'
 
 interface Props {
     flip: FlipAuction
@@ -122,7 +123,7 @@ function Flip(props: Props) {
                     <div className="ellipse">
                         <Image
                             crossOrigin="anonymous"
-                            src={props.flip.item.iconUrl || ''}
+                            src={api.getItemImageUrl(props.flip.item) || ''}
                             height="24"
                             width="24"
                             alt=""

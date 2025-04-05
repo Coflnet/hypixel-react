@@ -52,7 +52,7 @@ function FlipBased(props: Props) {
                                     <p className="ellipsis" style={{ width: '180px' }}>
                                         <Image
                                             crossOrigin="anonymous"
-                                            src={props.item.iconUrl || ''}
+                                            src={api.getItemImageUrl(props.item) || ''}
                                             height="32"
                                             width="32"
                                             alt=""

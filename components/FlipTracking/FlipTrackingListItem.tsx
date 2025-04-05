@@ -12,6 +12,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import moment from 'moment'
 import HelpIcon from '@mui/icons-material/Help'
 import ShowMoreText from '../ShowMoreText/ShowMoreText'
+import api from '../../api/ApiHelper'
 
 interface Props {
     trackedFlip: FlipTrackingFlip
@@ -56,7 +57,7 @@ export function FlipTrackingListItem(props: Props) {
                 >
                     <Image
                         crossOrigin="anonymous"
-                        src={props.trackedFlip.item.iconUrl || ''}
+                        src={api.getItemImageUrl(props.trackedFlip.item) || ''}
                         height="36"
                         width="36"
                         alt=""
