@@ -128,7 +128,7 @@ export default function TradeList(props: Props) {
                                               <>
                                                   <hr />
                                                   <p>
-                                                      Offered Coinst:{' '}
+                                                      Offered Coins:{' '}
                                                       <b>
                                                           <Number number={trade.coins} />
                                                       </b>
