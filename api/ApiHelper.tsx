@@ -2469,11 +2469,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             websocketHelper.sendRequest({
                 type: RequestType.LOAD_CONFIG,
                 data: { configName },
-                resolve: (configs: any) => {
-                    resolve(configs)
+                resolve: () => {
+                    resolve()
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.GET_PUBLISHED_CONFIGS, error, '')
+                    apiErrorHandler(RequestType.LOAD_CONFIG, error, configName)
                     reject(error)
                 }
             })

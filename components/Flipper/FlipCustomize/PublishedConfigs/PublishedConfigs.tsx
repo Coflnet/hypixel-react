@@ -19,7 +19,7 @@ const PublishedConfigs = () => {
     async function updateConfig(configName: string, updateNotes: string = '') {
         try {
             await api.updateConfig(configName, updateNotes)
-            window.location.reload()
+            toast.success(`Updated config`)
         } catch (e) {
             toast.error(`Failed to update config`)
         }
@@ -28,7 +28,7 @@ const PublishedConfigs = () => {
     async function loadConfig(configName: string) {
         try {
             await api.loadConfig(configName)
-            toast.success(`Config loaded`)
+            window.location.reload()
         } catch (e) {
             toast.error(`Failed to load config`)
         }
