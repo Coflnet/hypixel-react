@@ -265,6 +265,7 @@ interface API {
     createNotificationSubscription(subscription: NotificationSubscription): Promise<NotificationSubscription>
     deleteNotificationSubscription(subscription: NotificationSubscription): Promise<void>
     getPublishedConfigs(): Promise<string[]>
+    loadConfig(configName: string): Promise<void>
     updateConfig(configName: string, updateNotes: string = ''): Promise<void>
     requestArchivedAuctions(itemTag: string, itemFilter?: ItemFilter): Promise<ArchivedAuctionResponse>
     exportArchivedAuctionsData(itemTag: string, itemFilter: ItemFilter, discordWebhookUrl: string, flags: string[]): Promise<void>

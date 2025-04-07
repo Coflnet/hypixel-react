@@ -90,6 +90,7 @@ export enum RequestType {
     ADD_NOTIFICATION_SUBSCRIPTION = 'addNotificationSubscription',
     DELETE_NOTIFICATION_SUBSCRIPTION = 'deleteNotificationSubscription',
     GET_PUBLISHED_CONFIGS = 'publishedConfigs',
+    LOAD_CONFIG = 'loadConfig',
     UPDATE_CONFIG = 'updateConfig',
     ARCHIVED_AUCTIONS = 'archivedAuctions',
     EXPORT_ARCHIVED_AUCTIONS = 'exportArchivedAuctions',

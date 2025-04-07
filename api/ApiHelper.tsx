@@ -2464,6 +2464,22 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let loadConfig = (configName: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            websocketHelper.sendRequest({
+                type: RequestType.LOAD_CONFIG,
+                data: { configName },
+                resolve: () => {
+                    resolve()
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.LOAD_CONFIG, error, configName)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     let updateConfig = (configName: string, updateNotes: string = ''): Promise<void> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
@@ -2748,6 +2764,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         deleteNotificationSubscription,
         getNotificationSubscriptions,
         getPublishedConfigs,
+        loadConfig,
         updateConfig,
         requestArchivedAuctions,
         exportArchivedAuctionsData,
