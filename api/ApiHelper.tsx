@@ -136,9 +136,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     let getItemImageUrl = (item: Item): string => {
         let type = getSetting(ITEM_ICON_TYPE, 'default')
 
-        console.log("item", item)
-        console.log("type", type)
-
         let iconURL = item.iconUrl || (item as any).icon
         if (iconURL) {
             if (type === 'vanilla' && !iconURL.endsWith('/vanilla')) {
@@ -148,7 +145,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         }
 
         let r =  `https://sky.coflnet.com/static/icon/${item.tag}${type === 'vanilla' ? '/vanilla' : ''}`
-        console.log("url result", r)
         return r;
     }
 

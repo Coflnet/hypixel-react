@@ -72,7 +72,6 @@ function FlipRestrictionList(props: Props) {
             }
             restriction.itemKey = generateUUID()
         })
-        console.log(restrictions)
         return restrictions
     }
 

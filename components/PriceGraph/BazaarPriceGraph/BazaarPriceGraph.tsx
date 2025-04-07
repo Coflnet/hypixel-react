@@ -130,9 +130,7 @@ function BazaarPriceGraph(props: Props) {
         currentLoadingString = JSON.stringify({ tag: props.item.tag, fetchspan })
 
         try {
-            console.log('fetching prices')
             let prices = await loadBazaarPrices(props.item.tag, fetchspan)
-            console.log('prices', prices)
             let mayorData
             try {
                 mayorData = await api.getMayorData(prices[0].timestamp, prices[prices.length - 1].timestamp)
@@ -201,10 +199,8 @@ function BazaarPriceGraph(props: Props) {
 
     function loadBazaarPrices(tag: string, fetchspan: DateRange): Promise<BazaarPrice[]> {
         if (fetchspan === DateRange.ALL) {
-            console.log('fetching all prices')
             return api.getBazaarPricesByRange(tag, new Date(0), new Date())
         } else {
-            console.log('fetching prices')
             return api.getBazaarPrices(tag, fetchspan as any)
         }
     }

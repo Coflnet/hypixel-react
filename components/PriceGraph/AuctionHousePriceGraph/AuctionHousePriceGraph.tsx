@@ -121,13 +121,11 @@ function AuctionHousePriceGraph(props: Props) {
                 } catch (e) {}
 
                 setAvgPrice(Math.round(priceSum / prices.length))
-                console.log('b', prices)
                 setNoDataFound(prices.length === 0)
                 setIsLoading(false)
                 setChartOptions(chartOptions)
             })
             .catch(e => {
-                console.log('a')
                 console.error(e)
                 setIsLoading(false)
                 setNoDataFound(true)

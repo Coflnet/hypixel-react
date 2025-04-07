@@ -43,7 +43,6 @@ function PremiumStatus(props: Props) {
                     products[i].timeDifference = diff
             }
         }
-        console.log(products)
 
         products = products.filter(product => product.expires > new Date())
         setProductsToShow(products)

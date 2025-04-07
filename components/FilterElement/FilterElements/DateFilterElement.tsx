@@ -11,7 +11,6 @@ interface Props {
 export function DateFilterElement(props: Props) {
     function _onChange(date: Date) {
         date = date || new Date()
-        console.log(date)
         props.onChange(Math.round(date.getTime() / 1000))
     }
 
