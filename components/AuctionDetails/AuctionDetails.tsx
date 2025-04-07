@@ -130,17 +130,15 @@ function AuctionDetails(props: Props) {
             return null
         }
         return (
-            <div>
+            <div className={styles.detailContainer}>
                 {Object.keys(auctionDetails?.nbtData).map(key => {
                     let currentNBT = auctionDetails?.nbtData[key]
                     return (
-                        <div key={key}>
-                            <p>
-                                <span className={styles.label}>
-                                    <Badge bg={labelBadgeVariant}>{formatNBTKey(key)}:</Badge>
-                                </span>
-                                <span className="ellipse">{formatNBTValue(key, currentNBT, auctionDetails)}</span>
-                            </p>
+                        <div className={styles.detailRow} key={key}>
+                            <span className={styles.label}>
+                                <Badge bg={labelBadgeVariant}>{formatNBTKey(key)}:</Badge>
+                            </span>
+                            <span className="ellipse">{formatNBTValue(key, currentNBT, auctionDetails)}</span>
                         </div>
                     )
                 })}
@@ -412,60 +410,63 @@ function AuctionDetails(props: Props) {
                 </div>
             </Card.Header>
             <Card.Body>
-                <p>
-                    <span className={styles.label}>
-                        <Badge bg={labelBadgeVariant}>Tier:</Badge>
-                    </span>
-                    <span style={getStyleForTier(auctionDetails.auction.item.tier)}>{auctionDetails?.auction.item.tier}</span>
-                </p>
-                <p>
-                    <span className={styles.label}>
-                        <Badge bg={labelBadgeVariant}>Category:</Badge>
-                    </span>{' '}
-                    {convertTagToName(auctionDetails?.auction.item.category)}
-                </p>
-                <p>
-                    <span className={styles.label}>
-                        <Badge bg={labelBadgeVariant}>Reforge:</Badge>
-                    </span>
-                    {auctionDetails?.reforge}
-                </p>
-
-                <Link href={`/player/${auctionDetails.auctioneer.uuid}`}>
-                    <p>
+                <div className={styles.detailContainer}>
+                    <div className={styles.detailRow}>
+                        <span className={styles.label}>
+                            <Badge bg={labelBadgeVariant}>Tier:</Badge>
+                        </span>
+                        <span className="ellipse" style={getStyleForTier(auctionDetails.auction.item.tier)}>
+                            {auctionDetails?.auction.item.tier}
+                        </span>
+                    </div>
+                    <div className={styles.detailRow}>
+                        <span className={styles.label}>
+                            <Badge bg={labelBadgeVariant}>Category:</Badge>
+                        </span>
+                        <span className="ellipse">{convertTagToName(auctionDetails?.auction.item.category)}</span>
+                    </div>
+                    <div className={styles.detailRow}>
+                        <span className={styles.label}>
+                            <Badge bg={labelBadgeVariant}>Reforge:</Badge>
+                        </span>
+                        <span className="ellipse">{auctionDetails?.reforge}</span>
+                    </div>
+                    <div className={styles.detailRow}>
                         <span className={styles.label}>
                             <Badge bg={labelBadgeVariant}>Auctioneer:</Badge>
                         </span>
-                        {auctionDetails?.auctioneer.name}
-                        <Image
-                            crossOrigin="anonymous"
-                            className="playerHeadIcon"
-                            src={auctionDetails?.auctioneer.iconUrl || ''}
-                            alt="auctioneer icon"
-                            height="16"
-                            width="16"
-                            style={{ marginLeft: '5px' }}
-                            loading="lazy"
-                        />
-                    </p>
-                </Link>
-
-                <p>
-                    <span className={styles.label}>
-                        <Badge bg={labelBadgeVariant}>Auction Created:</Badge>
-                    </span>
-                    {auctionDetails?.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}
-                </p>
-                {auctionDetails?.itemCreatedAt?.getTime() > 0 ? (
-                    <p>
+                        <Link href={`/player/${auctionDetails.auctioneer.uuid}`} className="ellipse">
+                            {auctionDetails?.auctioneer.name}
+                            <Image
+                                crossOrigin="anonymous"
+                                className="playerHeadIcon"
+                                src={auctionDetails?.auctioneer.iconUrl || ''}
+                                alt="auctioneer icon"
+                                height="16"
+                                width="16"
+                                style={{ marginLeft: '5px' }}
+                                loading="lazy"
+                            />
+                        </Link>
+                    </div>
+                    <div className={styles.detailRow}>
                         <span className={styles.label}>
-                            <Badge bg={labelBadgeVariant}>Item Created:</Badge>
+                            <Badge bg={labelBadgeVariant}>Auction Created:</Badge>
                         </span>
-                        {auctionDetails?.itemCreatedAt.toLocaleDateString() + ' ' + auctionDetails.itemCreatedAt.toLocaleTimeString()}
-                    </p>
-                ) : null}
-
-                <div style={{ overflow: 'auto' }}>
+                        <span className="ellipse">{auctionDetails?.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}</span>
+                    </div>
+                    {auctionDetails?.itemCreatedAt?.getTime() > 0 ? (
+                        <div className={styles.detailRow}>
+                            <span className={styles.label}>
+                                <Badge bg={labelBadgeVariant}>Item Created:</Badge>
+                            </span>
+                            <span className="ellipse">
+                                {auctionDetails?.itemCreatedAt.toLocaleDateString() + ' ' + auctionDetails.itemCreatedAt.toLocaleTimeString()}
+                            </span>
+                        </div>
+                    ) : null}
+                </div>
+                <div style={{ overflow: 'auto', marginTop: '15px' }}>
                     <span className={auctionDetails && auctionDetails!.enchantments.length > 0 ? styles.labelForList : styles.label}>
                         <Badge bg={labelBadgeVariant}>Enchantments:</Badge>
                     </span>
@@ -484,10 +485,10 @@ function AuctionDetails(props: Props) {
                             })}
                         </ul>
                     ) : (
-                        <p>None</p>
+                        <span>None</span>
                     )}
                 </div>
-                <div>{getNBTElement()}</div>
+                <div style={{ marginTop: '15px' }}>{getNBTElement()}</div>
             </Card.Body>
         </div>
     )

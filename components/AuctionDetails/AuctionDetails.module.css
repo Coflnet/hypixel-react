@@ -115,3 +115,20 @@
 .topRowButtonContent {
     margin-left: 10px;
 }
+
+.detailContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.detailRow {
+    display: flex;
+    align-items: center;
+}
+
+.label {
+    flex: 0 0 30vw;
+    word-wrap: break-word;
+    margin-right: 10px;
+}
