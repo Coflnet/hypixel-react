@@ -19,9 +19,18 @@ const PublishedConfigs = () => {
     async function updateConfig(configName: string, updateNotes: string = '') {
         try {
             await api.updateConfig(configName, updateNotes)
-            toast.success(`Updated config`)
+            window.location.reload()
         } catch (e) {
             toast.error(`Failed to update config`)
+        }
+    }
+
+    async function loadConfig(configName: string) {
+        try {
+            await api.loadConfig(configName)
+            toast.success(`Config loaded`)
+        } catch (e) {
+            toast.error(`Failed to load config`)
         }
     }
 
@@ -60,6 +69,13 @@ const PublishedConfigs = () => {
                             }}
                         >
                             Update
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                loadConfig(configName)
+                            }}
+                        >
+                            Load config
                         </Button>
                     </ListGroupItem>
                 ))}
