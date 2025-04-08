@@ -2,7 +2,7 @@
   "name": "hypixel-next",
   "private": true,
   "scripts": {
-    "dev": "npx next dev",
+    "dev": "npx next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
