@@ -1,6 +1,6 @@
 'use client'
 import moment from 'moment'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type JSX } from 'react';
 import Card from 'react-bootstrap/Card'
 import { Table } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'

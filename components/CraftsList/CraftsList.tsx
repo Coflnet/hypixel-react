@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState, type JSX } from 'react';
 import { Form, ListGroup } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'

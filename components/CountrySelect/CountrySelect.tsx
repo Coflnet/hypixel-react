@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useRef, useState, type JSX } from 'react';
 import { Menu, MenuItem, Typeahead } from 'react-bootstrap-typeahead'
 import { Form, InputGroup } from 'react-bootstrap'
 import { Country, getCountries } from '../../utils/CountryUtils'

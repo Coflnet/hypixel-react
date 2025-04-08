@@ -1,5 +1,5 @@
 'use client'
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState, type JSX } from 'react';
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
 import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
