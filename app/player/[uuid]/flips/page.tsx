@@ -9,7 +9,8 @@ import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser
 import { getHeadMetadata } from '../../../../utils/SSRUtils'
 import { Container } from 'react-bootstrap'
 
-export default async function Page({ params }) {
+export default async function Page(props) {
+    const params = await props.params;
     let flipData = await getFlipData(params.uuid)
 
     let flipTrackingResponse = parseFlipTrackingResponse(flipData.flipTrackingResponse)
@@ -61,7 +62,8 @@ async function getFlipData(uuid) {
     }
 }
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata(props) {
+    const params = await props.params;
     let { flipTrackingResponse, player } = await getFlipData(params.uuid)
     let parsedPlayer = parsePlayer(player)
 

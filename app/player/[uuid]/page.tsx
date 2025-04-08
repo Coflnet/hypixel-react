@@ -5,7 +5,8 @@ import PlayerDetails from '../../../components/PlayerDetails/PlayerDetails'
 import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponseParser'
 import { Container } from 'react-bootstrap'
 
-export default async function Page({ params }) {
+export default async function Page(props) {
+    const params = await props.params;
     let playerInfo = await getPlayerInfo(params.uuid)
     return (
         <Container>
@@ -38,7 +39,8 @@ async function getPlayerInfo(uuid) {
     }
 }
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata(props) {
+    const params = await props.params;
     let api = initAPI(true)
     let player = {
         name: '',
