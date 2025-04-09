@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
-import ReactConfetti, { Props } from 'react-confetti'
+import ReactConfetti, { IConfettiOptions } from 'react-confetti'
 
-export default function Confetti(props: Props) {
+export default function Confetti(props: Partial<IConfettiOptions>) {
     let [isSSR, setIsSSR] = useState(true)
 
     useEffect(() => {
