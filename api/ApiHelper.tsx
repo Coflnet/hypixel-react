@@ -1516,12 +1516,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getProfitableCrafts = (playerId?: string, profileId?: string): Promise<ProfitableCraft[]> => {
+    let getProfitableCrafts = (): Promise<ProfitableCraft[]> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.GET_PROFITABLE_CRAFTS,
-                customRequestURL:
-                    playerId && profileId ? getApiEndpoint() + '/' + RequestType.GET_PROFITABLE_CRAFTS + `?profile=${profileId}&player=${playerId}` : undefined,
+                customRequestURL: getApiEndpoint() + '/' + RequestType.GET_PROFITABLE_CRAFTS,
                 data: '',
                 resolve: function (crafts) {
                     returnSSRResponse ? resolve(crafts) : resolve(parseProfitableCrafts(crafts))

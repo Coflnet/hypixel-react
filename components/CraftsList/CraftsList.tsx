@@ -71,8 +71,6 @@ export function CraftsList(props: Props) {
     let [nameFilter, setNameFilter] = useState<string | null>()
     let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
     let [accountInfo, setAccountInfo] = useState<AccountInfo>()
-    let [profiles, setProfiles] = useState<SkyblockProfile[]>()
-    let [selectedProfile, setSelectedProfile] = useState<SkyblockProfile>()
     let [isLoadingProfileData, setIsLoadingProfileData] = useState(true)
     let [hasPremium, setHasPremium] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -82,7 +80,7 @@ export function CraftsList(props: Props) {
 
     useEffect(() => {
         setIsLoadingProfileData(true)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        loadCrafts()
     }, [])
 
     useEffect(() => {
@@ -92,8 +90,8 @@ export function CraftsList(props: Props) {
         }, 100)
     })
 
-    function loadCrafts(playerId?: string, profileId?: string) {
-        api.getProfitableCrafts(playerId, profileId).then(crafts => {
+    function loadCrafts() {
+        api.getProfitableCrafts().then(crafts => {
             setCrafts(crafts)
         })
     }
@@ -124,16 +122,6 @@ export function CraftsList(props: Props) {
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
             api.getAccountInfo().then(info => {
                 setAccountInfo(info)
-                if (info.mcId) {
-                    api.getPlayerProfiles(info.mcId).then(profiles => {
-                        profiles.forEach(profile => {
-                            if (profile.current) {
-                                setSelectedProfile(profile)
-                            }
-                        })
-                        setProfiles(profiles)
-                    })
-                }
                 setIsLoadingProfileData(false)
             })
         })
@@ -153,14 +141,6 @@ export function CraftsList(props: Props) {
     }
     function onMinimumProfitChange(e: any) {
         setMinimumProfit(e.target.value)
-    }
-
-    function onProfileChange(event: ChangeEvent<HTMLSelectElement>) {
-        let selectedIndex = event.target.options.selectedIndex
-        let value = event.target.options[selectedIndex].getAttribute('value')!
-        let newSelectedProfile = profiles?.find(p => p.cuteName === value)
-        setSelectedProfile(newSelectedProfile)
-        loadCrafts(accountInfo?.mcId, newSelectedProfile?.id)
     }
 
     let blurStyle: React.CSSProperties = {
@@ -359,16 +339,6 @@ export function CraftsList(props: Props) {
                     ))}
                 </Form.Select>
                 <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />
-
-                {profiles ? (
-                    <Form.Select className={styles.filterInput} defaultValue={selectedProfile?.cuteName} onChange={onProfileChange}>
-                        {profiles.map(profile => (
-                            <option key={profile.cuteName} value={profile.cuteName}>
-                                {profile.cuteName}
-                            </option>
-                        ))}
-                    </Form.Select>
-                ) : null}
             </div>
             <hr />
             <p>

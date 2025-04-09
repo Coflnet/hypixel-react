@@ -217,7 +217,7 @@ interface API {
     getFlipUpdateTime(): Promise<Date>
     playerSearch(playerName: string): Promise<Player[]>
     sendFeedback(feedbackKey: string, feedback: any): Promise<void>
-    getProfitableCrafts(playerId?: string, profileId?: string): Promise<ProfitableCraft[]>
+    getProfitableCrafts(): Promise<ProfitableCraft[]>
     getLowSupplyItems(): Promise<LowSupplyItem[]>
     sendFeedback(feedbackKey: string, feedback: any): Promise<void>
     triggerPlayerNameCheck(playerUUID: string): Promise<void>
