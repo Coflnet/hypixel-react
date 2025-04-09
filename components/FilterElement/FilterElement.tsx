@@ -1,7 +1,7 @@
 'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type JSX } from 'react';
 import { Form, Spinner } from 'react-bootstrap'
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { FilterType, hasFlag } from './FilterType'

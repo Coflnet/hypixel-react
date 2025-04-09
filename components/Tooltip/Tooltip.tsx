@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, type JSX } from 'react';
 import { Modal, OverlayTrigger, Tooltip as BootstrapTooltip } from 'react-bootstrap'
 import { v4 as generateUUID } from 'uuid'
 

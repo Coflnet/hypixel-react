@@ -2,7 +2,7 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
-import { useEffect } from 'react'
+import { useEffect, type JSX } from 'react';
 import { Badge, Card } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'

@@ -1,6 +1,6 @@
 'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState, type JSX } from 'react';
 import { Button, Form } from 'react-bootstrap'
 import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
 import {

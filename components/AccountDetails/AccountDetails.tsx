@@ -3,7 +3,7 @@ import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import { googleLogout } from '@react-oauth/google'
 import Cookies from 'js-cookie'
 import Image from 'next/image'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState, type JSX } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'

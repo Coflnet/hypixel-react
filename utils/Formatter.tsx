@@ -1,4 +1,4 @@
-import { CSSProperties, ReactElement, cloneElement } from 'react'
+import { CSSProperties, cloneElement, type JSX } from 'react';
 import { isClientSideRendering } from './SSRUtils'
 import { update } from 'idb-keyval'
 
@@ -38,7 +38,7 @@ export function convertTagToName(itemTag?: string): string {
                 return txt
             }
             return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()
-        })
+        });
     }
 
     let formatted: string = itemTag.toString().replace(new RegExp('_', 'g'), ' ').toLowerCase()
@@ -303,7 +303,7 @@ export function getMinecraftColorCodedElement(text: string = '', autoFormat = tr
         )
     })
 
-    function textContent(elem: React.ReactElement | string): string {
+    function textContent(elem: React.ReactElement<any> | string): string {
         if (!elem) {
             return ''
         }
@@ -345,5 +345,5 @@ export function getMinecraftColorCodedElement(text: string = '', autoFormat = tr
 }
 
 export function removeMinecraftColorCoding(text: string = ''): string {
-    return text.replace(/§[0-9a-fk-or]/gi, '')
+    return text.replace(/§[0-9a-fk-or]/gi, '');
 }

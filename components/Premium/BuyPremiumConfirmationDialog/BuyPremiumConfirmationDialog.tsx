@@ -2,7 +2,7 @@
 import { Button, Modal } from 'react-bootstrap'
 import styles from './BuyPremiumConfirmationDialog.module.css'
 import { getPremiumType } from '../../../utils/PremiumTypeUtils'
-import { useState } from 'react'
+import { useState, type JSX } from 'react';
 import { GoogleLogin } from '@react-oauth/google'
 import { toast } from 'react-toastify'
 import { duration } from 'moment'

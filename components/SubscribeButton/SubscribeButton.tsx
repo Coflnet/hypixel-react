@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type JSX } from 'react';
 import { Button, Modal } from 'react-bootstrap'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import api from '../../api/ApiHelper'

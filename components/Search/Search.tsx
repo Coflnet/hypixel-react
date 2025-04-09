@@ -1,5 +1,5 @@
 'use client'
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState, type JSX } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
 import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
@@ -210,11 +210,9 @@ function Search(props: Props) {
     let getSelectedElement = (): JSX.Element => {
         if (props.currentElement) {
             return (
-                (
-                    <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
-                        {props.currentElement}
-                    </h1>
-                ) || <div />
+                <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
+                    {props.currentElement}
+                </h1>
             )
         }
         if (!props.selected) {
