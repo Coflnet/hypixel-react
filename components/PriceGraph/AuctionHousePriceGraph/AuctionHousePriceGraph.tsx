@@ -71,6 +71,10 @@ function AuctionHousePriceGraph(props: Props) {
             return
         }
 
+        if (fetchspan === DateRange.HOUR) {
+            return
+        }
+
         setIsLoading(true)
 
         chartOptions.xAxis[0].data = []
@@ -85,7 +89,7 @@ function AuctionHousePriceGraph(props: Props) {
             itemFilter
         })
 
-        api.getItemPrices(props.item.tag, fetchspan as globalThis.DateRange, itemFilter)
+        api.getItemPrices(props.item.tag, fetchspan as unknown as globalThis.DateRange, itemFilter)
             .then(async prices => {
                 if (
                     !mounted ||
