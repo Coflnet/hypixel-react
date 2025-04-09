@@ -171,7 +171,7 @@ export function MainApp(props: any) {
                 </span>
             </CookieConsent>
             {refreshFeedbackDialog}
-            <ToastContainer theme={'colored'} />
+            <ToastContainer theme={'colored'} stacked />
         </>
     )
 }

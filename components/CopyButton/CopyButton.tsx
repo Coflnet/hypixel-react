@@ -1,6 +1,6 @@
 'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import React, { useState, type JSX } from 'react';
+import React, { useEffect, useState, type JSX } from 'react'
 import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -21,6 +21,11 @@ interface Props {
 export function CopyButton(props: Props) {
     let [isCopied, setIsCopied] = useState(false)
     let { trackEvent } = useMatomo()
+    let [isSSR, setIsSSR] = useState(true)
+
+    useEffect(() => {
+        setIsSSR(false)
+    })
 
     let copyIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clipboard" viewBox="0 0 16 16">
@@ -59,7 +64,7 @@ export function CopyButton(props: Props) {
 
     return (
         <span>
-            {isClientSideRendering() && canUseClipBoard() ? (
+            {!isSSR && canUseClipBoard() ? (
                 <span className={props.buttonWrapperClass}>
                     <Button
                         style={props.buttonStyle}

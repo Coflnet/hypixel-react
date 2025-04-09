@@ -115,7 +115,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     }
 
                     return (
-                        <p key={key}>
+                        <span key={key}>
                             <div className="ellipse" title={display}>
                                 {camelCaseToSentenceCase(key)}: {display}
                             </div>
@@ -129,7 +129,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
                                     <RemoveIcon />
                                 </span>
                             ) : null}
-                        </p>
+                        </span>
                     )
                 })
             )}

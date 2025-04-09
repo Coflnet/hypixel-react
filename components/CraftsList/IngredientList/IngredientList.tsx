@@ -43,7 +43,7 @@ export function IngredientList(props: Props) {
                         </div>
 
                         {ingredient.ingredients && (
-                            <div style={{ marginLeft: '20px' }}>
+                            <div key={ingredient.item.tag} style={{ marginLeft: '20px' }}>
                                 <IngredientList ingredients={ingredient.ingredients} onItemClick={props.onItemClick} />
                             </div>
                         )}

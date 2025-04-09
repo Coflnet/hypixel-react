@@ -107,10 +107,14 @@ function Flip(props: Props) {
     }
 
     function formatPrices(price: number): JSX.Element {
-        if (settings.shortNumbers) {
-            return <span>{formatToPriceToShorten(price)}</span>
+        if (typeof window === 'undefined') {
+            return <Number number={price} />
         }
-        return <Number number={price} />
+
+        if (settings.shortNumbers) {
+            return <span>{formatToPriceToShorten(price)}</span>;
+        }
+        return <Number number={price} />;
     }
 
     let stars = props.flip.item.name?.match(/✪+/gm)
@@ -153,14 +157,14 @@ function Flip(props: Props) {
                         <p>
                             <span>Cost: </span>
                             <br />
-                            <b style={{ color: 'red' }}>{formatPrices(props.flip.cost)} Coins</b>
+                            <b suppressHydrationWarning style={{ color: 'red' }}>{formatPrices(props.flip.cost)} Coins</b>
                         </p>
                     )}
                     {settings.hideMedianPrice ? null : (
                         <p>
                             <span>Target price: </span>
                             <br />
-                            <b>{formatPrices(props.flip.finder === 2 ? props.flip.lowestBin : props.flip.median)} Coins</b>
+                            <b suppressHydrationWarning>{formatPrices(props.flip.finder === 2 ? props.flip.lowestBin : props.flip.median)} Coins</b>
                         </p>
                     )}
                     {settings.hideEstimatedProfit ? null : (

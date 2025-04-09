@@ -1,11 +1,11 @@
 'use client'
 import React from 'react'
 import { convertTagToName } from '../../../utils/Formatter'
-import { Menu, MenuItem, Typeahead, withItem } from 'react-bootstrap-typeahead'
+import { Menu, MenuItem, Typeahead, useItem } from 'react-bootstrap-typeahead'
 import { Option } from 'react-bootstrap-typeahead/types/types'
 import api from '../../../api/ApiHelper'
 
-const Item = withItem(MenuItem)
+const Item = props => <MenuItem {...props} {...useItem(props)} />
 
 interface Props {
     onChange(n: string)
@@ -34,18 +34,18 @@ export function EqualFilterElement(props: Props) {
             selectHint={(shouldSelect, event) => {
                 return event.key === 'Enter' || shouldSelect
             }}
-            renderMenu={(results, menuProps) => (
-                <Menu {...menuProps}>
+            renderMenu={(results, menuProps) => {
+                return <Menu id={menuProps.id} style={menuProps.style} innerRef={menuProps.innerRef} >
                     {results.map((result, index) => {
                         if (result['paginationOption']) {
                             return (
-                                <MenuItem option={result} position={index}>
+                                <MenuItem option={result} position={index} key={index}>
                                     More results...
                                 </MenuItem>
                             )
                         }
                         return (
-                            <Item option={result} position={index}>
+                            <Item option={result} position={index} key={index}>
                                 {typeof result === 'string' ? convertTagToName(result as string) : (result as Option)['label']}
                                 {props.showIcon && result !== 'None' && result !== 'Any' && (
                                     <div style={{ float: 'right' }}>
@@ -56,7 +56,7 @@ export function EqualFilterElement(props: Props) {
                         )
                     })}
                 </Menu>
-            )}
+            }}
         ></Typeahead>
     )
 }

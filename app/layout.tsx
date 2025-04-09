@@ -1,4 +1,3 @@
-import 'react-toastify/dist/ReactToastify.css'
 import 'react-contexify/ReactContexify.css'
 import 'react-datepicker/dist/react-datepicker.css'
 import 'react-bootstrap-typeahead/css/Typeahead.css'
