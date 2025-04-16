@@ -72,11 +72,11 @@ function BuySubscription(props: Props) {
                         <span style={{ fontSize: '32px', fontFamily: 'Arial, sans-serif' }}>EASTER SALE:</span>
                         <br />
                         <p>
-                            Use code <code style={{ color: 'black', fontWeight: 'bolder', fontSize: 'large', backgroundColor: 'lightgreen' }}>EASTER</code> at
+                            Use code <code style={{ color: 'black', fontWeight: 'bolder', fontSize: 'large', backgroundColor: 'lightgreen' }}>EASTERSHORT</code> at
                             checkout, to get a <span style={{ backgroundColor: 'lightgreen' }}>30% discount</span> for your next month
                         </p>
                         <p>
-                            Use code <code style={{ color: 'black', fontWeight: 'bolder', fontSize: 'large', backgroundColor: 'lightgreen' }}>EASTERSHORT</code>{' '}
+                            Use code <code style={{ color: 'black', fontWeight: 'bolder', fontSize: 'large', backgroundColor: 'lightgreen' }}>EASTER</code>{' '}
                             at checkout, to get a <span style={{ backgroundColor: 'lightgreen' }}>20% discount</span> for the next 6 months
                         </p>
                         Time left:{' '}
