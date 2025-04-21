@@ -2098,7 +2098,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let createTradeOffer = (playerUUID: string, offer: InventoryData, wantedItems: WantedItem[], offeredCoins: number): Promise<void> => {
+    let createTradeOffer = (playerUUID: string, offer?: InventoryData, wantedItems: WantedItem[] = [], offeredCoins?: number): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
