@@ -87,7 +87,7 @@ function getPriceGraphConfigSplit() {
         series: [
             {
                 name: 'Price',
-                type: 'k',
+                type: 'candlestick',
                 color: '#32CD32',
                 yAxisIndex: 0,
                 smooth: true,
@@ -104,6 +104,12 @@ function getPriceGraphConfigSplit() {
                         }
                         return formatAsCoins(value)
                     }
+                },
+                itemStyle: {
+                    color: '#00da3c',
+                    color0: '#ec0000',
+                    borderColor: undefined,
+                    borderColor0: undefined
                 },
                 data: [] as any[]
             },

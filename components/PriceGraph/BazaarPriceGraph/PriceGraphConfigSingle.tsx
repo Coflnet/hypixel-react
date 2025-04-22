@@ -104,7 +104,7 @@ function getPriceGraphConfigSingle() {
         series: [
             {
                 name: 'Price (buy)',
-                type: 'k',
+                type: 'candlestick',
                 color: '#22A7F0',
                 smooth: true,
                 symbol: 'none',
@@ -121,6 +121,12 @@ function getPriceGraphConfigSingle() {
                         }
                         return `${numberWithThousandsSeparators(value)} Coins`
                     }
+                },
+                itemStyle: {
+                    color: '#00da3c',
+                    color0: '#ec0000',
+                    borderColor: undefined,
+                    borderColor0: undefined
                 },
                 data: [] as any
             },
