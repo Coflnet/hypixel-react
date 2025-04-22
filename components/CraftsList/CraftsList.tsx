@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import React, { ChangeEvent, useEffect, useState, type JSX } from 'react';
+import React, { ChangeEvent, useEffect, useState, type JSX } from 'react'
 import { Form, ListGroup } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
@@ -77,6 +77,7 @@ export function CraftsList(props: Props) {
     let [bazaarTags, setBazaarTags] = useState<string[]>(props.bazaarTags || [])
     let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
     let [minimumProfit, setMinimumProfit] = useState<number>(0)
+    let [columns, setColumns] = useState<number>(getDefaultColumns)
 
     useEffect(() => {
         setIsLoadingProfileData(true)
@@ -116,6 +117,18 @@ export function CraftsList(props: Props) {
         }
     }
 
+    function getDefaultColumns() {
+        const screenWidth = window.innerWidth
+
+        if (screenWidth >= 1424) {
+            return 3
+        } else if (screenWidth >= 768) {
+            return 2
+        } else {
+            return 1
+        }
+    }
+
     function onAfterLogin() {
         setIsLoggedIn(true)
         api.refreshLoadPremiumProducts(products => {
@@ -141,6 +154,11 @@ export function CraftsList(props: Props) {
     }
     function onMinimumProfitChange(e: any) {
         setMinimumProfit(e.target.value)
+    }
+
+    function handleColumnChange(event: ChangeEvent<HTMLSelectElement>) {
+        const value = parseInt(event.target.value, 10)
+        setColumns(value)
     }
 
     let blurStyle: React.CSSProperties = {
@@ -278,7 +296,7 @@ export function CraftsList(props: Props) {
                 censoredCraft.requiredSlayer = undefined
 
                 return (
-                    <div key={craft.item.tag} className={styles.preventSelect}>
+                    <div key={craft.item.tag} className={`${styles.preventSelect} ${styles.craftCard}`}>
                         {getListElement(censoredCraft, true)}
                     </div>
                 )
@@ -286,6 +304,7 @@ export function CraftsList(props: Props) {
                 return (
                     <Tooltip
                         key={craft.item.tag}
+                        className={`${styles.craftCard}`}
                         type="click"
                         content={getListElement(craft, false)}
                         tooltipTitle={getCraftHeader(craft)}
@@ -309,6 +328,8 @@ export function CraftsList(props: Props) {
             }
         />
     )
+
+    const craftsListClass = `${styles.craftsList} ${styles[`columns-${columns}`]}`
 
     return (
         <div>
@@ -339,13 +360,20 @@ export function CraftsList(props: Props) {
                     ))}
                 </Form.Select>
                 <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />
+                <Form.Select className={styles.filterInput} defaultValue={columns} onChange={handleColumnChange}>
+                    <option value={1}>1 Column</option>
+                    <option value={2}>2 Columns</option>
+                    <option value={3}>3 Columns</option>
+                    <option value={4}>4 Columns</option>
+                    <option value={5}>5 Columns</option>
+                </Form.Select>
             </div>
             <hr />
             <p>
                 <Link href="/linkvertise">Look at some advertising</Link> to get Starter Premium for free and see the top crafts
             </p>
             <p>Click on a craft for further details</p>
-            <div className={styles.craftsList}>
+            <div className={craftsListClass}>
                 <ListGroup className={styles.list}>{list}</ListGroup>
             </div>
         </div>
