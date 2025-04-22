@@ -14,11 +14,12 @@
 }
 
 .textContainer.expanded {
-        max-height: none;
+    max-height: none;
+    overflow: visible;
 }
 
 .textContainer.expanded::after {
-display: none;
+    display: none;
 }
 
 .showMoreContainer {
