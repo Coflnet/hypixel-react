@@ -360,7 +360,7 @@ export function CraftsList(props: Props) {
                     ))}
                 </Form.Select>
                 <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />
-                <Form.Select className={styles.filterInput} defaultValue={columns} onChange={handleColumnChange}>
+                <Form.Select className={styles.filterInput} value={columns} onChange={handleColumnChange}>
                     <option value={1}>1 Column</option>
                     <option value={2}>2 Columns</option>
                     <option value={3}>3 Columns</option>
