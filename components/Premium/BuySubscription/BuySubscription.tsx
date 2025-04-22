@@ -5,7 +5,6 @@ import api from '../../../api/ApiHelper'
 import { Button, Card, Col, Row } from 'react-bootstrap'
 import styles from './BuySubscription.module.css'
 import NumberElement from '../../Number/Number'
-import Countdown from 'react-countdown'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -23,7 +22,7 @@ function BuySubscription(props: Props) {
             return isYearOption ? 96.69 : 8.69
         }
         if (selectedPremiumType.productId === 'premium_plus') {
-            return isYearOption ? 354.2 : 35.69
+            return isYearOption ? 354.20 : 35.69
         }
         return -1
     }
@@ -55,42 +54,10 @@ function BuySubscription(props: Props) {
     return (
         <>
             <Row>
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
-                    <div
-                        className={styles.coflCoinsText}
-                        style={{
-                            backgroundColor: '#4CAF50',
-                            color: 'black',
-                            textAlign: 'center',
-                            padding: '10px',
-                            position: 'relative',
-                            width: '100%',
-                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                            fontWeight: 'bold'
-                        }}
-                    >
-                        <span style={{ fontSize: '32px', fontFamily: 'Arial, sans-serif' }}>EASTER SALE:</span>
-                        <br />
-                        <p>
-                            Use code <code style={{ color: 'black', fontWeight: 'bolder', fontSize: 'large', backgroundColor: 'lightgreen' }}>EASTERSHORT</code> at
-                            checkout, to get a <span style={{ backgroundColor: 'lightgreen' }}>30% discount</span> for your next month
-                        </p>
-                        <p>
-                            Use code <code style={{ color: 'black', fontWeight: 'bolder', fontSize: 'large', backgroundColor: 'lightgreen' }}>EASTER</code>{' '}
-                            at checkout, to get a <span style={{ backgroundColor: 'lightgreen' }}>20% discount</span> for the next 6 months
-                        </p>
-                        Time left:{' '}
-                        <span style={{ color: 'black', fontWeight: 'bolder', fontSize: 'large' }}>
-                            <Countdown date={new Date('2025-04-22T00:00:00.000Z')} />
-                        </span>
-                    </div>
-                </div>
                 <Col>
                     <Card>
                         <Card.Header>
-                            <Card.Title>
-                                <b>Premium+</b>
-                            </Card.Title>
+                            <Card.Title><b>Premium+</b></Card.Title>
                         </Card.Header>
                         <Card.Body>
                             <ul>
@@ -98,6 +65,8 @@ function BuySubscription(props: Props) {
                                 <li>all tools for analysis</li>
                                 <li>full auction archive</li>
                             </ul>
+                            {(!props.activePremiumProduct || props.activePremiumProduct.expires.getTime() < new Date().getTime() + 3600 * 24 * 3) ?
+                                (<p>Use code <code>M2OTC1OQ</code> at checkout, to get an extra <b>20% discount</b> on the yearly options</p>) : null}
                             <div className={styles.purchaseButtonContainer}>
                                 <Button
                                     variant="success"
@@ -109,11 +78,8 @@ function BuySubscription(props: Props) {
                                 >
                                     <NumberElement number={35.69} /> Euro (+VAT) / 4 weeks
                                 </Button>
-                                {!props.activePremiumProduct || props.activePremiumProduct.expires.getTime() < new Date().getTime() + 3600 * 24 * 3 ? (
-                                    <>
-                                        <p>
-                                            Use code <code>M2OTC1OQ</code> at checkout, to get an extra <b>20% discount</b> on the yearly options
-                                        </p>
+                                {(!props.activePremiumProduct || props.activePremiumProduct.expires.getTime() < new Date().getTime() + 3600 * 24 * 3) ?
+                                    (<><p>Use code <code>M2OTC1OQ</code> at checkout, to get an extra <b>20% discount</b> on the yearly options</p>
                                         <Button
                                             variant="success"
                                             className={styles.purchaseButton}
@@ -122,10 +88,9 @@ function BuySubscription(props: Props) {
                                                 setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium_plus'))
                                             }}
                                         >
-                                            <NumberElement number={354.2} /> Euro (+VAT) / 52 weeks (23% off)
+                                            <NumberElement number={354.20} /> Euro (+VAT) / 52 weeks (23% off)
                                         </Button>
-                                    </>
-                                ) : null}
+                                    </>) : null}
                             </div>
                         </Card.Body>
                     </Card>
@@ -171,11 +136,7 @@ function BuySubscription(props: Props) {
                     type="subscription"
                     show={selectedPremiumType !== undefined}
                     purchasePremiumOption={PREMIUM_TYPES.find(type => type.productId === 'premium')?.options[0]!}
-                    purchasePrice={
-                        <>
-                            {getSubscriptionPrice()} {isYearOption ? 'per year' : 'per month'}
-                        </>
-                    }
+                    purchasePrice={<>{getSubscriptionPrice()} {isYearOption ? 'per year' : 'per month'}</>}
                     purchasePremiumType={selectedPremiumType!}
                     onHide={onSubscriptionBuyCancel}
                     onConfirm={onSubscriptionBuy}
