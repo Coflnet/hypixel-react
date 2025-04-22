@@ -77,7 +77,7 @@ export function CraftsList(props: Props) {
     let [bazaarTags, setBazaarTags] = useState<string[]>(props.bazaarTags || [])
     let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
     let [minimumProfit, setMinimumProfit] = useState<number>(0)
-    let [columns, setColumns] = useState<number>(getDefaultColumns)
+    let [columns, setColumns] = useState<number>()
 
     useEffect(() => {
         setIsLoadingProfileData(true)
@@ -89,6 +89,7 @@ export function CraftsList(props: Props) {
         setTimeout(() => {
             setBlurObserver()
         }, 100)
+        setColumns(getDefaultColumns()) // Set columns based on screen width after mounting
     })
 
     function loadCrafts() {
