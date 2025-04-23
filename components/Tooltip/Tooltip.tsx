@@ -1,5 +1,5 @@
 'use client'
-import { useState, type JSX } from 'react';
+import { useState, type JSX } from 'react'
 import { Modal, OverlayTrigger, Tooltip as BootstrapTooltip } from 'react-bootstrap'
 import { v4 as generateUUID } from 'uuid'
 
@@ -50,7 +50,7 @@ function Tooltip(props: Props) {
 
     function getClickElement() {
         return props.tooltipContent || props.tooltipTitle ? (
-            <span className="tooltipWrapper">
+            <span className={`tooltipWrapper ${props.className}`}>
                 <span style={{ cursor: 'pointer' }} onClick={onClick}>
                     {props.content}
                 </span>

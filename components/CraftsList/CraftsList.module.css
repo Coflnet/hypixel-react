@@ -29,23 +29,26 @@
     -ms-user-select: none;
 }
 
-@media all and (min-width: 768px) {
-    .craftsList :global(.tooltipWrapper) {
-        width: calc(50% - 10px);
-    }
-    .craftsList .preventSelect {
-        width: calc(50% - 10px);
-    }
+.craftsList.columns-1 .craftCard {
+    width: calc(100% - 10px);
 }
 
-@media all and (min-width: 1424px) {
-    .craftsList :global(.tooltipWrapper) {
-        width: calc(33% - 10px);
-    }
-    .craftsList .preventSelect {
-        width: calc(33% - 10px);
-    }
+.craftsList.columns-2 .craftCard {
+    width: calc(50% - 10px);
 }
+
+.craftsList.columns-3 .craftCard {
+    width: calc(33% - 10px);
+}
+
+.craftsList.columns-4 .craftCard {
+    width: calc(25% - 10px);
+}
+
+.craftsList.columns-5 .craftCard {
+    width: calc(20% - 10px);
+}
+
 
 .craftsList .label {
     width: 150px;
