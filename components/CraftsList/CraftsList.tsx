@@ -90,7 +90,7 @@ export function CraftsList(props: Props) {
             setBlurObserver()
         }, 100)
         setColumns(getDefaultColumns()) // Set columns based on screen width after mounting
-    })
+    }, [])
 
     function loadCrafts() {
         api.getProfitableCrafts().then(crafts => {
