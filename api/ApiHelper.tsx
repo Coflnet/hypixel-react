@@ -138,14 +138,14 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
         let iconURL = item.iconUrl || (item as any).icon
         if (iconURL) {
-            if (type === 'vanilla' && !iconURL.endsWith('/vanilla')) {
+            if (type === 'vanilla' && !iconURL.endsWith('/vanilla') && iconURL.includes('sky.coflnet.com/static/icon')) {
                 return iconURL + '/vanilla'
             }
             return iconURL
         }
 
-        let r =  `https://sky.coflnet.com/static/icon/${item.tag}${type === 'vanilla' ? '/vanilla' : ''}`
-        return r;
+        let r = `https://sky.coflnet.com/static/icon/${item.tag}${type === 'vanilla' ? '/vanilla' : ''}`
+        return r
     }
 
     let getItemDetails = (itemTag: string): Promise<Item> => {
