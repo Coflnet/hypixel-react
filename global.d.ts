@@ -273,6 +273,7 @@ interface API {
     getPremiumSubscriptions(): Promise<PremiumSubscription[]>
     cancelPremiumSubscription(id: string): Promise<void>
     purchasePremiumSubscription(productSlug: string, googleToken: string): Promise<PaymentResponse>
+    getCraftInstructions(itemTag: string): Promise<CraftingInstructions>
 }
 
 interface CacheUtils {
@@ -700,4 +701,11 @@ interface PremiumSubscription {
     paymentAmount: string
     renewsAt: Date
     createdAt: Date
+}
+
+interface CraftingInstructions {
+    itemTag: string
+    recipe: CraftingRecipe
+    copyCommands: { [key: string]: string }
+    detailsPath: { [key: string]: string }
 }

@@ -3,14 +3,29 @@ import { Badge } from 'react-bootstrap'
 import Number from '../../Number/Number'
 import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import { IngredientList } from '../IngredientList/IngredientList'
+import { useEffect, useState } from 'react'
+import api from '../../../api/ApiHelper'
 
 interface Props {
     craft: ProfitableCraft
 }
 
 export function CraftDetails(props: Props) {
+    let [instructions, setInstructions] = useState<CraftingInstructions>()
+
+    useEffect(() => {
+        api.getCraftInstructions(props.craft.item.tag).then(instructions => {
+            setInstructions(instructions)
+        })
+    }, [])
+
     function onItemClick(tag: string) {
-        window.open(window.location.origin + '/item/' + tag + '?itemFilter=eyJCaW4iOiJ0cnVlIn0%3D', '_blank')
+        let detailsPath = instructions?.detailsPath?.[tag]
+        if (detailsPath) {
+            window.open(window.location.origin + detailsPath, '_blank')
+        } else {
+            window.open(window.location.origin + '/item/' + tag + '?itemFilter=eyJCaW4iOiJ0cnVlIn0%3D', '_blank')
+        }
     }
     return (
         <div>

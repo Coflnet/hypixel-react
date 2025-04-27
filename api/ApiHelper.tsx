@@ -11,6 +11,7 @@ import {
     parseAuctionDetails,
     parseBazaarPrice,
     parseBazaarSnapshot,
+    parseCraftingInstructions,
     parseCraftingRecipe,
     parseEnchantment,
     parseFilterOption,
@@ -2674,6 +2675,23 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getCraftInstructions = (itemTag: string): Promise<CraftingInstructions> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_CRAFTING_INSTRUCTIONS,
+                customRequestURL: `${getApiEndpoint()}/craft/${itemTag}/instructions`,
+                data: '',
+                resolve: data => {
+                    resolve(parseCraftingInstructions(data))
+                },
+                reject: (error: any) => {
+                    apiErrorHandler(RequestType.GET_CRAFTING_INSTRUCTIONS, error, itemTag)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     return {
         search,
         trackSearch,
@@ -2770,7 +2788,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getLinkvertiseLink,
         getPremiumSubscriptions,
         cancelPremiumSubscription,
-        purchasePremiumSubscription
+        purchasePremiumSubscription,
+        getCraftInstructions
     }
 }
 

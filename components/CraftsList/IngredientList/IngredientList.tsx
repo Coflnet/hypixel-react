@@ -12,7 +12,7 @@ interface Props {
 export function IngredientList(props: Props) {
     return (
         <div>
-            {props.ingredients.map(ingredient => {
+            {props.ingredients.map((ingredient, i) => {
                 return (
                     <>
                         <div
@@ -43,7 +43,7 @@ export function IngredientList(props: Props) {
                         </div>
 
                         {ingredient.ingredients && (
-                            <div key={ingredient.item.tag} style={{ marginLeft: '20px' }}>
+                            <div key={ingredient.item.tag + i} style={{ marginLeft: '20px' }}>
                                 <IngredientList ingredients={ingredient.ingredients} onItemClick={props.onItemClick} />
                             </div>
                         )}

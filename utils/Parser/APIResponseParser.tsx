@@ -729,3 +729,12 @@ export function parsePremiumSubscription(subscription: any): PremiumSubscription
         createdAt: parseDate(subscription.createdAt)
     }
 }
+
+export function parseCraftingInstructions(craftingInstructions: any): CraftingInstructions {
+    return {
+        itemTag: craftingInstructions.itemTag,
+        recipe: parseCraftingRecipe(craftingInstructions.recipe),
+        copyCommands: craftingInstructions.copyCommands,
+        detailsPath: craftingInstructions.detailsPath
+    }
+}
