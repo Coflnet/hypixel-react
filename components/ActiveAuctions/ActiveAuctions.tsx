@@ -54,7 +54,7 @@ function ActiveAuctions(props: Props) {
             item: props.item,
             filter: props.filter
         })
-        if (isLoadingElements.current) {
+        if (isLoadingElements.current && !reset) {
             return
         }
         isLoadingElements.current = true
@@ -89,6 +89,9 @@ function ActiveAuctions(props: Props) {
                     return
                 }
                 isLoadingElements.current = false
+
+                console.log('loaded active auctions', auctions.length, 'page', page, 'order', order, 'filter', JSON.parse(filterString))
+
                 if (auctions.length < FETCH_RESULT_SIZE) {
                     setAllElementsLoaded(true)
                 } else if (reset) {

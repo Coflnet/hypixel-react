@@ -135,7 +135,7 @@ function PlayerDetailsList(props: Props) {
     }
 
     let loadNewElements = (reset?: boolean): void => {
-        if (isLoadingElements.current) {
+        if (isLoadingElements.current && !reset) {
             return
         }
 
