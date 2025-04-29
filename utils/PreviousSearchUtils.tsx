@@ -5,7 +5,7 @@ const MAX_PREVIOUS_SEARCHES_TO_STORE = 100
 export function addClickedSearchResultToPreviousSearches(item: SearchResultItem, previousSearchKey?: string) {
     let previousSearches: SearchResultItem[] = getPreviousSearchesFromLocalStorage(previousSearchKey)
 
-    let alreadyFoundIndex = previousSearches.findIndex(r => r.dataItem.name === item.dataItem.name)
+    let alreadyFoundIndex = previousSearches.findIndex(r => r.id === item.id)
     if (alreadyFoundIndex !== -1) {
         previousSearches.splice(alreadyFoundIndex, 1)
     }
@@ -18,7 +18,7 @@ export function addClickedSearchResultToPreviousSearches(item: SearchResultItem,
 
 export function pinSearchResult(item: SearchResultItem, previousSearchKey?: string) {
     let previousSearches: SearchResultItem[] = getPreviousSearchesFromLocalStorage(previousSearchKey)
-    let alreadyFoundIndex = previousSearches.findIndex(r => r.dataItem.name === item.dataItem.name)
+    let alreadyFoundIndex = previousSearches.findIndex(r => r.id === item.id)
     if (alreadyFoundIndex !== -1) {
         previousSearches[alreadyFoundIndex].pinned = true
     } else {
@@ -32,7 +32,7 @@ export function pinSearchResult(item: SearchResultItem, previousSearchKey?: stri
 
 export function unpinSearchResult(item: SearchResultItem, previousSearchKey?: string) {
     let previousSearches: SearchResultItem[] = getPreviousSearchesFromLocalStorage(previousSearchKey)
-    let index = previousSearches.findIndex(r => r.dataItem.name === item.dataItem.name)
+    let index = previousSearches.findIndex(r => r.id === item.id)
     if (index !== -1) {
         previousSearches[index].pinned = false
     } else {
@@ -49,7 +49,7 @@ export function addPreviousSearchResultsToDisplay(searchText: string, searchResu
     let matchingPreviousSearchesInResuls = 0
 
     previousSearches.forEach(prevSearch => {
-        let alreadyFoundIndex = newSearchResults.findIndex(r => r.dataItem.name === prevSearch.dataItem.name)
+        let alreadyFoundIndex = newSearchResults.findIndex(r => r.id === prevSearch.id)
         if (alreadyFoundIndex !== -1) {
             newSearchResults[alreadyFoundIndex] = prevSearch
             matchingPreviousSearchesInResuls++
