@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
-import { getItemFilterFromUrl } from '../../utils/Parser/URLParser'
+import { getItemFilterFromUrl, setUrlFilterString } from '../../utils/Parser/URLParser'
 import FilterElement from '../FilterElement/FilterElement'
 import DeleteIcon from '@mui/icons-material/Delete'
 import HelpIcon from '@mui/icons-material/Help'
@@ -114,17 +114,6 @@ function ItemFilter(props: Props) {
         return result
     }
 
-    function setUrlFilterString(itemFilterString: string) {
-        if (isClientSideRendering()) {
-            let searchParams = new URLSearchParams(window.location.search)
-            searchParams.set('itemFilter', itemFilterString)
-            router.replace(`${pathname}?${searchParams.toString()}`)
-            window.history.replaceState(null, '', `${pathname}?${searchParams.toString()}`)
-        } else {
-            console.error('Tried to update url query "itemFilter" during serverside rendering')
-        }
-    }
-
     let enableFilter = (filterName: string, filterValue?: string) => {
         if (selectedFilters.some(n => n === filterName)) {
             return
@@ -219,8 +208,7 @@ function ItemFilter(props: Props) {
             return
         }
 
-        let filterString = filter && JSON.stringify(filter) === '{}' ? undefined : btoaUnicode(JSON.stringify(filter))
-        setUrlFilterString(filterString || '')
+        setUrlFilterString(router, pathname, filter || {})
     }
 
     function onFilterChange(filter: ItemFilter) {
