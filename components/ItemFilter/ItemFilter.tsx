@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
-import { getItemFilterFromUrl, setUrlFilterString } from '../../utils/Parser/URLParser'
+import { getItemFilterFromUrl, setFilterIntoUrlParams } from '../../utils/Parser/URLParser'
 import FilterElement from '../FilterElement/FilterElement'
 import DeleteIcon from '@mui/icons-material/Delete'
 import HelpIcon from '@mui/icons-material/Help'
@@ -208,7 +208,7 @@ function ItemFilter(props: Props) {
             return
         }
 
-        setUrlFilterString(router, pathname, filter || {})
+        setFilterIntoUrlParams(router, pathname, filter || {})
     }
 
     function onFilterChange(filter: ItemFilter) {

@@ -40,7 +40,7 @@ export function getURLSearchParam(key: string): string | null {
     return searchParams.get(key)
 }
 
-export function setUrlFilterString(router: AppRouterInstance, pathname: string, itemFilter: ItemFilter) {
+export function setFilterIntoUrlParams(router: AppRouterInstance, pathname: string, itemFilter: ItemFilter) {
     if (isClientSideRendering()) {
         let searchParams = new URLSearchParams()
         Object.keys(itemFilter).forEach(key => {
