@@ -1,4 +1,3 @@
-import { Router } from 'next/router'
 import { atobUnicode } from '../Base64Utils'
 import { isClientSideRendering } from '../SSRUtils'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
