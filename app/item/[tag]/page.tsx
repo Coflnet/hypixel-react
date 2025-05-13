@@ -161,7 +161,6 @@ async function getItemData(searchParams, params) {
 }
 
 function getItemFilterFromUrl(searchParams) {
-    console.log('searchParams', searchParams)
     let itemFilterBase64 = searchParams.itemFilter
     if (itemFilterBase64) {
         return JSON.parse(atobUnicode(itemFilterBase64))
