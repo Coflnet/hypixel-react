@@ -11,8 +11,8 @@ import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { Container } from 'react-bootstrap'
 
 export default async function Page(props) {
-    const params = await props.params;
-    const searchParams = await props.searchParams;
+    const params = await props.params
+    const searchParams = await props.searchParams
     let tag = params.tag as string
 
     let data = await getItemData(searchParams, params)
@@ -40,8 +40,8 @@ export default async function Page(props) {
 }
 
 export async function generateMetadata(props) {
-    const searchParams = await props.searchParams;
-    const params = await props.params;
+    const searchParams = await props.searchParams
+    const params = await props.params
     function getAvgPrice(prices) {
         let priceSum = 0
 
@@ -97,7 +97,7 @@ export async function generateMetadata(props) {
 async function getItemData(searchParams, params) {
     let range = searchParams.range || 'day'
     let tag = params.tag as string
-    let itemFilter = searchParams.itemFilter
+    let itemFilter = getItemFilterFromUrl(searchParams)
 
     let api = initAPI(true)
     try {
@@ -124,7 +124,7 @@ async function getItemData(searchParams, params) {
                 item: itemDetails,
                 prices: [],
                 range: range || null,
-                filter: itemFilter ? JSON.parse(atobUnicode(itemFilter)) : null
+                filter: itemFilter || null
             }
         }
 
@@ -138,14 +138,14 @@ async function getItemData(searchParams, params) {
                 prices = await api.getBazaarPrices(tag, range as any)
             }
         } else {
-            prices = (await api.getItemPrices(tag, range as DateRange, itemFilter ? JSON.parse(atobUnicode(itemFilter)) : {})) as any
+            prices = (await api.getItemPrices(tag, range as DateRange, itemFilter ? itemFilter : {})) as any
         }
 
         return {
             item: itemDetails,
             prices: prices || [],
             range: range || null,
-            filter: itemFilter ? JSON.parse(atobUnicode(itemFilter)) : null
+            filter: itemFilter ? itemFilter : null
         }
     } catch (e) {
         console.log('Error fetching item data: ' + JSON.stringify(e))
@@ -158,4 +158,25 @@ async function getItemData(searchParams, params) {
             filter: null
         }
     }
+}
+
+function getItemFilterFromUrl(searchParams) {
+    let itemFilterBase64 = searchParams.itemFilter
+    if (itemFilterBase64) {
+        try {
+            return JSON.parse(atobUnicode(itemFilterBase64))
+        } catch (e) {
+            console.error('Error parsing item filter from URL: ' + e)
+            return null
+        }
+    }
+
+    let nonFilterParams = ['range', 'refId', 'conId']
+    let itemFilter = {}
+    for (const [key, value] of Object.entries(searchParams)) {
+        if (nonFilterParams.indexOf(key) === -1) {
+            itemFilter[key] = value
+        }
+    }
+    return Object.keys(itemFilter).length > 0 ? itemFilter : null
 }
