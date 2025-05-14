@@ -163,7 +163,12 @@ async function getItemData(searchParams, params) {
 function getItemFilterFromUrl(searchParams) {
     let itemFilterBase64 = searchParams.itemFilter
     if (itemFilterBase64) {
-        return JSON.parse(atobUnicode(itemFilterBase64))
+        try {
+            return JSON.parse(atobUnicode(itemFilterBase64))
+        } catch (e) {
+            console.error('Error parsing item filter from URL: ' + e)
+            return null
+        }
     }
 
     let nonFilterParams = ['range', 'refId', 'conId']
@@ -173,5 +178,5 @@ function getItemFilterFromUrl(searchParams) {
             itemFilter[key] = value
         }
     }
-    return itemFilter
+    return Object.keys(itemFilter).length > 0 ? itemFilter : null
 }
