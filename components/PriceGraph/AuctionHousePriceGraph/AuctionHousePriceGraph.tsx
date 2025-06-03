@@ -17,6 +17,7 @@ import styles from './AuctionHousePriceGraph.module.css'
 import graphConfig from './PriceGraphConfig'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
 import EChartsReact from 'echarts-for-react'
+import { useSearchParams } from 'next/navigation'
 
 interface Props {
     item: Item
@@ -28,7 +29,8 @@ let currentLoadingString
 let mounted = true
 
 function AuctionHousePriceGraph(props: Props) {
-    let [fetchspan, setFetchspan] = useState(DEFAULT_DATE_RANGE)
+    let searchParams = useSearchParams()
+    let [fetchspan, setFetchspan] = useState(searchParams.get('range') as DateRange || DEFAULT_DATE_RANGE)
     let [isLoading, setIsLoading] = useState(false)
     let [noDataFound, setNoDataFound] = useState(false)
     let [avgPrice, setAvgPrice] = useState(0)

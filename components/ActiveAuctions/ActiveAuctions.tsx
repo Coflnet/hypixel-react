@@ -90,7 +90,7 @@ function ActiveAuctions(props: Props) {
                 }
                 isLoadingElements.current = false
 
-                console.log('loaded active auctions', auctions.length, 'page', page, 'order', order, 'filter', JSON.parse(filterString))
+                console.log('loaded active auctions', auctions.length, 'page', page, 'order', order, 'reset', reset, 'filter', JSON.parse(filterString))
 
                 if (auctions.length < FETCH_RESULT_SIZE) {
                     setAllElementsLoaded(true)
@@ -128,7 +128,8 @@ function ActiveAuctions(props: Props) {
             setPremiumType(() => {
                 setAllElementsLoaded(() => {
                     if (highestPremium !== null) {
-                        loadActiveAuctions()
+                        console.log("reset")
+                        loadActiveAuctions(true)
                     }
                     return false
                 })
