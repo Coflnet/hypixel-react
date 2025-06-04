@@ -1,44 +1,40 @@
-.premiumFeatures .featureCard {
-    margin-bottom: 20px;
-}
-
-.featureColumn {
-    font-size: larger;
-    text-align: left;
-}
-
-.featureColumnHeading {
-    text-align: left;
-}
-
+/* Updated styles for PremiumFeatures component */
 .premiumFeatures {
-    overflow-x: auto;
+    padding: 20px;
+    color: #fff;
+    border-radius: 10px;
 }
 
-.premiumProductHeading {
-    text-align: center;
+.featureCardRow{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
 }
 
-.premiumProductHeading {
-    text-align: center;
+.featureTitle {
+    font-weight: bold;
 }
 
-.premiumProductColumn {
-    text-align: center;
+.featureCard {
+    width: 48%;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-#tooltipHoverId :global(.tooltip-inner){
+.featureCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+#tooltipHoverId :global(.tooltip-inner) {
     max-width: 100%;
-}
-
-.ingamePriceHoverImage {
-    width: 610px;
-    height: 324px;
-}
-
-@media all and (max-width: 992px) {
-    .ingamePriceHoverImage {
-        width: 305px;
-        height: 162px;
-    }
+    background-color: #333;
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px;
 }
