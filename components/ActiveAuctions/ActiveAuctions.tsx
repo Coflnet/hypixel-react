@@ -39,6 +39,15 @@ function ActiveAuctions(props: Props) {
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let isLoadingElements = useRef(false)
 
+    let filterRef = useRef(props.filter)
+    filterRef.current = props.filter
+
+    let orderRef = useRef(order)
+    orderRef.current = order
+
+    let itemRef = useRef(props.item)
+    itemRef.current = props.item
+
     useEffect(() => {
         loadActiveAuctions(true)
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -51,8 +60,8 @@ function ActiveAuctions(props: Props) {
         }
 
         var filterString = JSON.stringify({
-            item: props.item,
-            filter: props.filter
+            item: itemRef.current,
+            filter: filterRef.current,
         })
         if (isLoadingElements.current && !reset) {
             return
@@ -75,7 +84,7 @@ function ActiveAuctions(props: Props) {
                 break
         }
 
-        let filter = { ...props.filter }
+        let filter = { ...filterRef.current }
 
         if (page >= maxPages) {
             setAllElementsLoaded(true)
@@ -83,15 +92,13 @@ function ActiveAuctions(props: Props) {
             return
         }
         filter['page'] = page.toString()
-        api.getActiveAuctions(props.item, order, filter)
+
+        api.getActiveAuctions(itemRef.current, orderRef.current, filterRef.current)
             .then(auctions => {
                 if (currentLoad !== filterString) {
                     return
                 }
                 isLoadingElements.current = false
-
-                console.log('loaded active auctions', auctions.length, 'page', page, 'order', order, 'reset', reset, 'filter', JSON.parse(filterString))
-
                 if (auctions.length < FETCH_RESULT_SIZE) {
                     setAllElementsLoaded(true)
                 } else if (reset) {
@@ -128,7 +135,6 @@ function ActiveAuctions(props: Props) {
             setPremiumType(() => {
                 setAllElementsLoaded(() => {
                     if (highestPremium !== null) {
-                        console.log("reset")
                         loadActiveAuctions(true)
                     }
                     return false
