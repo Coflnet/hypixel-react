@@ -50,6 +50,7 @@
 .labelForList {
     float: left;
     width: calc(30vw - 20px);
+    max-width: 500px;
 }
 
 .auctionDetails .list {
@@ -131,4 +132,5 @@
     flex: 0 0 30vw;
     word-wrap: break-word;
     margin-right: 10px;
+    max-width: 500px;;
 }
