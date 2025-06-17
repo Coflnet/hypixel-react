@@ -1908,7 +1908,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
      * Uses the last loaded premium products (if available) to instantly call the callback function
      * The newest premium products are loaded after that and the callback is executed again
      */
-    let refreshLoadPremiumProducts = (callback: (products: PremiumProduct[]) => void) => {
+    let refreshLoadPremiumProducts = (callback: (products: PremiumProduct[]) => void, onError: () => void) => {
         let lastPremiumProducts = localStorage.getItem(LAST_PREMIUM_PRODUCTS)
         if (lastPremiumProducts) {
             try {
@@ -1919,6 +1919,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         }
         getPremiumProducts().then(prodcuts => {
             callback(prodcuts)
+        }).catch(() => {
+            onError()
         })
     }
 

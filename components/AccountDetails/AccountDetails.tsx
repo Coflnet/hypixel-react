@@ -28,6 +28,7 @@ function AccountDetails() {
     let [products, setProducts] = useState<PremiumProduct[]>([])
     let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
     let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
+    let [hasLoadingPremiumError, setHasLoadingPremiumError] = useState(false)
     let coflCoins = useCoflCoins()
     let { pushInstruction } = useMatomo()
 
@@ -52,16 +53,27 @@ function AccountDetails() {
     }
 
     function loadPremiumProducts(): Promise<void> {
-        return api.refreshLoadPremiumProducts(products => {
-            products = products.filter(product => product.expires.getTime() > new Date().getTime())
-            setProducts(products)
-        })
+        return new Promise((resolve, reject) => {
+            api.refreshLoadPremiumProducts(products => {
+                products = products.filter(product => product.expires.getTime() > new Date().getTime())
+                setProducts(products)
+                resolve()
+            }, () => {
+                reject();
+            })
+        });
+
     }
 
     function loadPremiumSubscriptions(): Promise<void> {
-        return api.getPremiumSubscriptions().then(subscriptions => {
-            subscriptions = subscriptions.filter(subscription => !subscription.endsAt || subscription.endsAt.getTime() > new Date().getTime())
-            setPremiumSubscriptions([...subscriptions])
+        return new Promise((resolve, reject) => {
+            api.getPremiumSubscriptions().then(subscriptions => {
+                subscriptions = subscriptions.filter(subscription => !subscription.endsAt || subscription.endsAt.getTime() > new Date().getTime())
+                setPremiumSubscriptions([...subscriptions])
+                resolve()
+            }).catch(() => {
+                reject();
+            })
         })
     }
 
@@ -84,6 +96,10 @@ function AccountDetails() {
         if (googleId) {
             Promise.all([loadPremiumProducts(), loadPremiumSubscriptions()]).then(() => {
                 setIsLoading(false)
+            }).catch(() => {
+                setIsLoading(false)
+                setHasLoadingPremiumError(true)
+                toast.error('Error loading premium products or subscriptionss')
             })
             setIsLoggedIn(true)
         }
@@ -148,6 +164,7 @@ function AccountDetails() {
                         subscriptions={premiumSubscriptions}
                         onSubscriptionCancel={onSubscriptionCancel}
                         labelStyle={{ width: '300px', fontWeight: 'bold' }}
+                        hasLoadingError={hasLoadingPremiumError}
                     />
                     <p>
                         <span className={styles.label}>CoflCoins:</span> <Number number={coflCoins} />
