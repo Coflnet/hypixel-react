@@ -9,7 +9,7 @@ import api from '../../api/ApiHelper'
 import { useStateWithRef, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK, PREMIUM_TYPES } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import styles from './ActiveAuctions.module.css'
 import Image from 'next/image'
@@ -124,6 +124,7 @@ function ActiveAuctions(props: Props) {
     }
 
     function onAfterLogin() {
+        console.log('onAfterLogin called')
         api.getPremiumProducts().then(products => {
             setIsLoggedIn(true)
             let activePremium = getHighestPriorityPremiumProduct(products)
@@ -141,6 +142,11 @@ function ActiveAuctions(props: Props) {
                 })
                 return highestPremium
             })
+        }).catch(() => {
+            setIsLoggedIn(false)
+            setPremiumType(PREMIUM_TYPES.find(p => p.productId === 'premium'))
+            setAllElementsLoaded(false)
+            loadActiveAuctions(true)
         })
     }
 

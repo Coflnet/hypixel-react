@@ -55,8 +55,8 @@ function Flipper(props: Props) {
     let [flips, setFlips] = useState<FlipAuction[]>(
         props.flips
             ? props.flips.map(parseFlipAuction).filter(flip => {
-                  return flipperFilter.onlyUnsold ? !flip.sold : true
-              })
+                return flipperFilter.onlyUnsold ? !flip.sold : true
+            })
             : []
     )
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -164,7 +164,8 @@ function Flipper(props: Props) {
     }
 
     let loadHasPremium = () => {
-        api.getPremiumProducts().then(products => {
+
+        let onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
             setActivePremiumProduct(getHighestPriorityPremiumProduct(products))
             // subscribe to the premium flips
@@ -177,6 +178,15 @@ function Flipper(props: Props) {
                 onNextFlipNotification
             )
             setIsLoading(false)
+        }
+
+        api.getPremiumProducts().then(products => {
+            onAfterPremiumProductsLoaded(products)
+        }).catch(() => {
+            onAfterPremiumProductsLoaded([{
+                expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+                productSlug: 'premium',
+            }])
         })
     }
 
@@ -196,7 +206,7 @@ function Flipper(props: Props) {
 
     function onArrowRightClick() {
         if (listRef.current) {
-            ;(listRef.current as any).scrollToItem(flips.length - 1)
+            ; (listRef.current as any).scrollToItem(flips.length - 1)
         }
     }
 
@@ -341,7 +351,7 @@ function Flipper(props: Props) {
         setFlipperFilter(newFilter)
         setFlips([])
         if (listRef.current) {
-            ;(listRef.current as any)?.scrollToItem(flips.length - 1)
+            ; (listRef.current as any)?.scrollToItem(flips.length - 1)
         }
     }
 
@@ -400,7 +410,7 @@ function Flipper(props: Props) {
             () => {
                 window.location.reload()
             },
-            () => {},
+            () => { },
             true
         )
         localStorage.removeItem('userSettings')

@@ -124,7 +124,8 @@ function RecentAuctions(props: Props) {
     }
 
     function onAfterLogin() {
-        api.getPremiumProducts().then(products => {
+
+        let onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
             setIsLoggedIn(true)
             let activePremium = getHighestPriorityPremiumProduct(products)
             if (!activePremium) {
@@ -141,6 +142,15 @@ function RecentAuctions(props: Props) {
                 })
                 return highestPremium
             })
+        }
+
+        api.getPremiumProducts().then(products => {
+            onAfterPremiumProductsLoaded(products)
+        }).catch(() => {
+            onAfterPremiumProductsLoaded([{
+                expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365), // 1 year
+                productSlug: 'premium',
+            }])
         })
     }
 
