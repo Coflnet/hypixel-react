@@ -322,13 +322,12 @@ function FlipRestrictionList(props: Props) {
 
         return restrictions.filter(restriction => {
 
-            console.log("test")
-
             if (filterKind && restriction.type !== filterKind) {
-                return false
+                return invert ? true : false
             }
             if (filterKind && !searchText) {
-                return restriction.type === filterKind
+                let valid = restriction.type === filterKind
+                return invert ? !valid : valid
             }
 
             let isValid = false
