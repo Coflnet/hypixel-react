@@ -17,7 +17,7 @@ function removeRangeSymbols(input: string) {
 }
 
 function getFilterNumber(number: string) {
-    let numberRegexp = new RegExp( /^({{MIN_PROFIT}}\*|{{MAX_COST}}\*|{{MIN_VOLUME}}\*|{{MIN_PROFIT_PERCENT}}\*|)(\d*\.?\d+[kKmMbB]?)$/)
+    let numberRegexp = new RegExp( /^({{MIN_PROFIT}}\*|{{MAX_COST}}\*|{{MIN_VOLUME}}\*|{{MIN_PROFIT_PERCENT}}\*|)(\d*\.?\d+[kKmMbB]?)\|?$/)
     if (numberRegexp.test(number)) {
         if (number.includes('{'))
             return 1; // static 1 for variables
@@ -49,6 +49,18 @@ export function validateFilterNumber(input: string, options: FilterOptions): [bo
 }
 
 export function validateFilterRange(input: string, options: FilterOptions): [boolean, string?] {
+    if (input.includes('|')) {
+        let parts = input.split('|')
+        for (let part of parts) {
+            console.log('Validating part:', part)
+            let [isValid, errorMessage] = validateFilterRange(part, options)
+            if (!isValid) {
+                console.error('Validation failed for part:', part, 'Error:', errorMessage)
+                return [false, errorMessage]
+            }
+        }
+        return [true]
+    }
     if (!input.includes('-')) {
         input = removeRangeSymbols(input)
         let number = getFilterNumber(input)
