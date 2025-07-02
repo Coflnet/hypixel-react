@@ -1225,8 +1225,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             },
             callback: function (response) {
                 if (response.data.sourceType === 'purchase' || response.data.sourceType === 'topup') {
+
+                    // CoflCoins shouldnt change below 0 with a purchase or topup change
+                    let newCoflCoinAmount = getCurrentCoflCoins() + Math.round(response.data.data.amount);
+                    if (newCoflCoinAmount < 0) {
+                        newCoflCoinAmount = 0
+                    }
+
                     document.dispatchEvent(
-                        new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: getCurrentCoflCoins() + Math.round(response.data.data.amount) } })
+                        new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: newCoflCoinAmount } })
                     )
                 }
             }
