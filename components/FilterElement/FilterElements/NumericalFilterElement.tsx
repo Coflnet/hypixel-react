@@ -17,7 +17,6 @@ export function NumericalFilterElement(props: Props) {
 
     return (
         <NumericFormat
-            className="test"
             onValueChange={_onChange}
             customInput={Form.Control}
             defaultValue={props.defaultValue}

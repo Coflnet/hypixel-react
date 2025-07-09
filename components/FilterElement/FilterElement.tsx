@@ -41,8 +41,6 @@ function FilterElement(props: Props) {
         setValue(parsedDefaultValue)
     }, [])
 
-    console.log(props.options)
-
     function parseValue(newValue?: any) {
         if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
             if (!newValue) {
