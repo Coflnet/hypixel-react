@@ -13,15 +13,14 @@ export function NumericalFilterElement(props: Props) {
     function _onChange(values: NumberFormatValues) {
         props.onChange(values.value || '')
     }
-    
+
 
     return (
         <NumericFormat
+            className="test"
             onValueChange={_onChange}
             customInput={Form.Control}
             defaultValue={props.defaultValue}
-            thousandSeparator={getThousandSeparator()}
-            decimalSeparator={getDecimalSeparator()}
             allowNegative={false}
             isAllowed={value => {
                 if (!value.floatValue) {
@@ -33,7 +32,7 @@ export function NumericalFilterElement(props: Props) {
                 }
                 return true
             }}
-            decimalScale={0}
+            decimalScale={2}
         />
     )
 }
