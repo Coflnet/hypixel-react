@@ -93,7 +93,7 @@ function ActiveAuctions(props: Props) {
         }
         filter['page'] = page.toString()
 
-        api.getActiveAuctions(itemRef.current, orderRef.current, filterRef.current)
+        api.getActiveAuctions(itemRef.current, orderRef.current, filter)
             .then(auctions => {
                 if (currentLoad !== filterString) {
                     return
