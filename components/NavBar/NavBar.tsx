@@ -185,6 +185,9 @@ function NavBar(props: Props) {
                             <MenuItem className={styles.menuItem} component={<Link href={'/feedback'} />} icon={<ChatIcon />}>
                                 Feedback
                             </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/wiki'} />} icon={<PolicyIcon />}>
+                                Wiki
+                            </MenuItem>
                             <MenuItem
                                 className={styles.menuItem}
                                 component={<Link href={'https://discord.gg/wvKXfTgCfb'} target="_blank" />}
