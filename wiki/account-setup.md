@@ -6,7 +6,7 @@ order: 3
 
 # Account Setup
 
-Setting up your Coflnet account unlocks additional features and personalizes your experience.
+Setting up your SkyCofl account unlocks additional features and personalizes your experience.
 
 ## Google Account Login
 
@@ -14,6 +14,8 @@ Setting up your Coflnet account unlocks additional features and personalizes you
 2. Select your Google account
 3. Accept the privacy policy
 4. You're now logged in!
+
+We use the Google login to avoid having security issues with custom solutions.
 
 ### Benefits of Logging In
 - Access to premium features
@@ -30,14 +32,15 @@ Linking your Minecraft account provides additional benefits:
 - **Faster flips**: Unverified accounts receive delayed flips
 - **Trading features**: Required for the trading system
 - **Profit tracking**: Track flips across all your accounts
+- **Automatic filtering**: Filter profitable craft flips by unlocked requirements like collections
 
 ### How to Verify
 
 1. Install our [Minecraft mod](/mod)
 2. Join Hypixel SkyBlock
 3. The mod will give you a 3-digit verification number
-4. Create or bid on an auction with that number in the price
-5. Your account will be automatically verified within 3 minutes
+4. Create or bid on an auction with that number in the price (the mod also suggests one to bid on)
+5. Your account will be automatically verified within 3 about minutes
 
 ### Verification Examples
 
@@ -53,13 +56,11 @@ Access your account settings at [/account](/account):
 
 ### Privacy Settings
 - Control what data the mod collects
-- Manage proxy settings
 - Configure auto-start options
 
 ### Notification Preferences
-- Set up notification targets
+- Set up notification targets (where notifications go to)
 - Configure when to receive alerts
-- Manage notification methods
 
 ### Premium Status
 - View current premium tier
@@ -84,4 +85,4 @@ Access your account settings at [/account](/account):
 - Your Google account is used only for authentication
 - We don't store your Google password
 - Minecraft verification is done through auction patterns
-- All data is encrypted and secure
+- All data is encrypted in transit and secure

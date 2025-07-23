@@ -76,7 +76,7 @@ function Ref() {
                                 <hr />
                             </div>
                         ) : null}
-                        <p>Share your referral link with people which might find Coflnet useful.</p>
+                        <p>Share your referral link with people which might find SkyCofl useful.</p>
                         <p>Rewards per invited person:</p>
                         <ul>
                             <li>

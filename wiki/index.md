@@ -1,16 +1,16 @@
 ---
 title: "Wiki Home"
-description: "Welcome to the Coflnet Wiki"
+description: "Welcome to the SkyCofl Wiki"
 order: 1
 ---
 
-# Coflnet Wiki
+# SkyCofl Wiki
 
-Welcome to the comprehensive guide for Coflnet's Hypixel SkyBlock tools and features.
+Welcome to the comprehensive guide for SkyCofl's Hypixel SkyBlock tools and features.
 
 ## Getting Started
 
-- [What is Coflnet?](#what-is-coflnet)
+- [What is SkyCofl?](#what-is-skycofl)
 - [Quick Start Guide](./quick-start)
 - [Account Setup](./account-setup)
 
@@ -18,42 +18,39 @@ Welcome to the comprehensive guide for Coflnet's Hypixel SkyBlock tools and feat
 
 - [Auction House Browser](./auction-house)
 - [Item Flipper](./flipper)
-- [Price Tracking](./price-tracking)
-- [Notifications](./notifications)
 
 ## Tools & Utilities
 
 - [Minecraft Mod](./mod)
-- [Profitable Crafts](./crafts)
-- [Kat Flips](./kat-flips)
-- [Trading System](./trading)
+- [Profitable Crafts](/crafts)
+- [Kat Flips](/kat)
 
-## Premium Features
 
-- [Premium Benefits](./premium)
-- [CoflCoins](./coflcoins)
+## What is SkyCofl?
 
-## What is Coflnet?
+SkyCofl is a comprehensive platform for Hypixel SkyBlock players that provides:
 
-Coflnet is a comprehensive platform for Hypixel SkyBlock players that provides:
-
-- **Auction House History**: Browse through over 600 million historical auctions
+- **Auction House History**: Browse through over 700 million historical auctions
+- **Bazaar History**: The largest bazaar price database in existence starting just 2 days after the bazaar api released
 - **Price Tracking**: Track item prices and market trends
-- **Flip Finding**: Discover profitable auction house flips
+- **Flip Finding**: Discover profitable auction house, bazaar buy-sel, craft, forge and many other flips
 - **Market Analysis**: Analyze bazaar and auction house data
 - **Notifications**: Get alerts for price changes and auction events
 
 ## Key Statistics
 
-- 📊 Over 600 million auctions tracked
-- 💰 350+ million bazaar price points
-- 👥 3+ million player profiles
+- 📊 Over 700 million auctions tracked
+- 💰 550+ million bazaar price points
+- 👥 3+ million player profiles that made/bid on an auction
 - 🔄 Real-time market updates
 - 📈 Historical price analysis
 
+## What is Coflnet?
+
+Coflnet is the company behind SkyCofl, dedicated to providing the best tools and data for Hypixel SkyBlock players. Coflnet offers premium features to enhance your experience and support ongoing development and upkeep.
+SkyCofl is just one of the many platforms [Coflnet](https://coflnet.com) (A development consulting company) built and operates.
+
 ## Community
 
-Join our community for support and updates:
+Join the Coflnet discord for support and updates:
 - [Discord Server](https://discord.gg/wvKXfTgCfb)
-- [GitHub Repository](https://github.com/matthias-luger/hypixel-react)
-- [Feedback](./feedback)

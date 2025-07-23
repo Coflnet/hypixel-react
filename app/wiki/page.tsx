@@ -20,8 +20,8 @@ export default async function WikiHomePage() {
 }
 
 export const metadata = getHeadMetadata(
-    'Wiki | Coflnet Documentation',
-    'Comprehensive guide to Coflnet features and Hypixel SkyBlock tools',
+    'Wiki | SkyCofl Documentation',
+    'Comprehensive guide to SkyCofl features and Hypixel SkyBlock tools',
     undefined,
     ['wiki', 'documentation', 'guide', 'tutorial']
 )

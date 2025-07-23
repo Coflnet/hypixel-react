@@ -6,7 +6,7 @@ order: 6
 
 # Premium Features
 
-Coflnet offers several premium tiers to enhance your SkyBlock experience and support the platform's development.
+SkyCofl offers several premium tiers to enhance your SkyBlock experience and support the platform's development.
 
 ## Premium Tiers
 
@@ -70,7 +70,7 @@ Monthly recurring payments:
 ### Flipper Enhancements
 - **Faster Updates**: Get flips as soon as they're found
 - **Advanced Filters**: More sophisticated filtering options
-- **Multiple Finders**: Access to all flip-finding algorithms
+- **Top 3 passive flips**: Access to all flip-finding algorithms
 - **Profit Tracking**: Detailed flip performance analytics
 
 ### Data Access
@@ -83,28 +83,21 @@ Monthly recurring payments:
 - **More Alerts**: Higher notification limits
 - **Advanced Targeting**: Complex notification criteria
 - **Multiple Methods**: Discord, email, push notifications
-- **Priority Delivery**: Faster notification processing
 
 ### Analysis Tools
 - **Low Supply Items**: Find manipulation opportunities
 - **Market Trends**: Advanced market analysis
 - **Profit Calculators**: Detailed ROI calculations
-- **Comparison Tools**: Side-by-side item analysis
 
 ## CoflCoins System
 
 ### What are CoflCoins?
-- Virtual currency for Coflnet services
+- Virtual currency for SkyCofl services
 - Used to purchase premium time
-- Transferable between users
+- Transferable between users (some conditions apply)
 - Earned through referrals
-
-### Purchasing CoflCoins
-Available packages:
-- 1,800 CoflCoins: €8.42-€8.69
-- 5,400 CoflCoins: €22.69-€22.99
-- 10,800 CoflCoins: €38.99-€39.69
-- 21,600 CoflCoins: €74.99-€78.69
+- Used to compensate premium users for issues
+- Used to reward contributers
 
 ### Using CoflCoins
 - **Premium Time**: Buy specific durations
@@ -123,8 +116,6 @@ Available packages:
 ### Managing Subscriptions
 - View status in account settings
 - Cancel anytime (runs until period end)
-- Upgrade/downgrade options available
-- Automatic renewal notifications
 
 ### Cancellation
 - No cancellation fees
@@ -139,6 +130,7 @@ Available packages:
 - **Premium+**: €35.69/month
 
 ### Yearly Subscriptions (Discounts Available)
+- **Basic**: €16.69/year
 - **Premium**: €96.69/year (14% off)
 - **Premium+**: €354.20/year (23% off)
 
@@ -150,8 +142,8 @@ Available packages:
 ## Value Proposition
 
 ### Cost Comparison
-- Server costs: €503/month
-- Development time: 4000+ hours invested
+- Server costs: €1000+/month
+- Development time: 8000+ hours invested
 - Data storage: Millions of auctions
 - Real-time processing: Complex algorithms
 
@@ -160,6 +152,7 @@ Available packages:
 - Server infrastructure
 - New feature development
 - Community support
+- Donations of profits to other projects
 - Open-source contributions
 
 ## Frequently Asked Questions
@@ -178,10 +171,3 @@ Contact support for special circumstances. We offer referral bonuses as an alter
 
 ### Can I get refunds?
 Due to the digital nature and immediate access, refunds are generally not available. Contact support for exceptional cases.
-
-## Getting Help
-
-- **Discord**: Join our community server
-- **Email**: support@coflnet.com
-- **Feedback**: Use the in-app feedback system
-- **Documentation**: Check this wiki for guides

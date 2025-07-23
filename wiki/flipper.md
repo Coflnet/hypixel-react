@@ -6,7 +6,7 @@ order: 4
 
 # Item Flipper
 
-The Item Flipper is Coflnet's flagship feature that helps you find profitable auction house flips in Hypixel SkyBlock.
+The Item Flipper is SkyCofl's flagship feature that helps you find profitable auction house flips in Hypixel SkyBlock.
 
 ## How It Works
 
@@ -56,12 +56,13 @@ Different algorithms find different types of flips:
 ### Sniper Median (MSNIPE)
 - Similar to Sniper
 - Doesn't require below lowest BIN
-- Shows items 5% below median
+- Shows items 5% below median, [video explanation](https://www.youtube.com/watch?v=nfMo5CeJDgc)
 
 ### User (Whitelist)
 - Shows all new auctions at starting bid
 - Use with custom whitelist rules
 - Create your own flip criteria
+- **CUATION**: You might whitelist something that is not profitable, so be careful with this one
 
 ## Customization
 
@@ -81,31 +82,10 @@ Different algorithms find different types of flips:
 ### Restrictions
 Create blacklists and whitelists:
 - **Blacklist**: Hide specific items/sellers
-- **Whitelist**: Only show certain items
+- **Whitelist**: Skip blacklist and show items matching filter rules
 - **Filters**: Use complex criteria
-- **Tags**: Organize your restrictions
+- **Tags**: Organize your restrictions and add one filter group to another with the `ForTag` meta filter
 
-## Premium Features
-
-### Free Version
-- Delayed flips (~1 minute)
-- Basic filtering
-- Limited flip history
-
-### Starter Premium
-- 10-20 second delay
-- Full filter access
-- Extended flip history
-
-### Premium
-- ~1 second delay
-- Advanced analytics
-- Priority support
-
-### Premium+
-- <1 second delay
-- Maximum features
-- Flip replay system
 
 ## Best Practices
 
@@ -113,37 +93,35 @@ Create blacklists and whitelists:
 1. Start with higher profit margins (1M+)
 2. Focus on items you know
 3. Check volume before buying
-4. Verify prices manually at first
+4. Verify prices manually at first until you trust the estimates (or report wrong estimates if you see any, there is a reward for correct reports)
 
 ### Advanced Tips
 1. Use multiple finders for coverage
 2. Set up item-specific whitelists
-3. Monitor market trends
-4. Adjust filters based on your budget
+3. Monitor market trends to adjust what you flip
+4. Adjust filters based on your budget (if you use the mod only items costing less than you purse are shown)
 
 ### Risk Management
 - Never invest more than you can afford to lose
-- Diversify across different item types
+- Diversify across different item types, about 10 items are recommended, update announcements can tank item values
 - Be cautious with low-volume items
 - Keep some liquid coins for opportunities
 
 ## Common Issues
 
 ### No Flips Showing
-- Check your filters aren't too restrictive
+- Check your filters aren't too restrictive, you can use `/cofl blocked` in game to get a list of most common reasons why flips are not showing
 - Ensure you're logged in for premium features
-- Try different finder combinations
 - Lower your minimum profit threshold
 
 ### Flips Already Sold
-- This is normal with free version delay
+- This is common on the free version and lower tiers depending on the item, if you want to flip obvious high profit flips like <500m hyperions you will need prem+ to compete
 - Consider upgrading to premium
-- Focus on higher-value flips with less competition
+- Focus on lower-value flips with less competition
 
 ### Profit Calculations Wrong
 - Estimates are based on historical data
-- Market conditions change rapidly
-- Always verify prices before buying
+- Market conditions change rapidly due to game updates
 - Report consistently wrong estimates
 
 ## Mod Integration

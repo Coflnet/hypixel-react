@@ -4,9 +4,10 @@ description: "Navigate and analyze auction house data"
 order: 5
 ---
 
-# Auction House Browser
+# Auction House/Bazaar Browser
 
-The Auction House Browser lets you explore over 600 million historical auctions with powerful search and filtering capabilities.
+The Auction House Browser lets you explore over 700 million historical auctions with powerful search and filtering capabilities.  
+Via the same search bar you can also search the biggest and oldest bazaar database.
 
 ## Basic Navigation
 
@@ -56,27 +57,26 @@ Filter auctions by specific attributes:
 ### Date Filters
 - **End Date**: When auctions ended
 - **Creation Date**: When items were created
-- **Custom Ranges**: Specific time periods
 
 ### Player Filters
 - **Seller**: Specific player names
-- **Buyer**: Who purchased items
-- **Rank**: Player ranks and titles
 
 ## Player Profiles
 
 ### Auction History
 View a player's:
-- **Created Auctions**: Items they've sold
+- **Created Auctions**: Items they've sold or expired
 - **Bid History**: Auctions they've bid on
 - **Active Auctions**: Current listings
-- **Flip Tracking**: Profitable flips made
+- **Flip Tracking**: Profitable flips made by the player and how high the profit was
 
 ### Filtering Player Data
 - Filter by item type
 - Date range selection
 - Price thresholds
 - Auction status (sold/unsold)
+
+* player history filtering is a [premium](/premium) feature
 
 ## Auction Details
 
@@ -88,38 +88,19 @@ Each auction page shows:
 - **Item Properties**: Enchantments, reforges, NBT data
 
 ### Special Features
-- **Compare to Similar**: See reference auctions
-- **Copy Commands**: Get in-game auction links
-- **Subscribe**: Get notifications for similar items
-- **Previous Owners**: Track item history (Premium+)
+- **Compare to Similar**: See reference auctions used to determine the item value
+- **Copy Commands**: Get in-game auction links for active auctions
+- **Subscribe**: Get notifications for similar items (Click the bell icon)
+- **Previous Owners**: Track item trading history
 
-## Market Analysis
-
-### Price Trends
-- Identify market cycles
-- Spot price manipulation
-- Find seasonal patterns
-- Track update impacts
-
-### Volume Analysis
-- High-volume items for quick flips
-- Low-volume items for patient trading
-- Market liquidity indicators
-- Supply and demand balance
-
-### Comparative Analysis
-- Compare similar items
-- Cross-reference different rarities
-- Analyze enchantment value
-- Track reforge premiums
 
 ## Data Export
 
 ### Premium+ Features
-- Export auction data to CSV
+- Export historic auction data to CSV
 - Custom date ranges
 - Advanced filtering options
-- Discord webhook delivery
+- Discord webhook delivery when export is done
 
 ### Use Cases
 - Market research
@@ -130,20 +111,19 @@ Each auction page shows:
 ## Tips and Tricks
 
 ### Efficient Browsing
-1. Use bookmarks for frequently checked items
+1. Use bookmarks for frequently checked items (right click the search result to pin it)
 2. Set up notifications instead of manual checking
 3. Use the related items feature for discovery
-4. Bookmark specific filter combinations
 
 ### Market Research
 1. Check multiple time ranges for context
-2. Compare weekday vs weekend prices
+2. Compare weekday vs weekend prices to discover priceswings you can profit from
 3. Look for update-related price changes
-4. Monitor high-volume items for stability
+4. Monitor high-volume items for stability (we have tools to notify you as well)
 
 ### Finding Opportunities
 1. Look for items with high price variance
-2. Check low-supply items for manipulation
+2. Check low-supply items for manipulation, or just check the [low supply items](/low-supply-items) page
 3. Monitor new items for early opportunities
 4. Track seasonal items for timing
 
@@ -152,14 +132,6 @@ Each auction page shows:
 ### Flipper Integration
 - Auction browser helps verify flip estimates
 - Use historical data to validate opportunities
-- Check seller reputation and history
-
-### Notification System
-- Set up price alerts based on browser analysis
-- Monitor specific players or items
-- Get notified of market changes
 
 ### Mod Integration
-- Browser data syncs with in-game mod
 - Price estimates appear in item tooltips
-- Quick access to auction details

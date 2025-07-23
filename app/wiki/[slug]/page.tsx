@@ -43,9 +43,9 @@ export async function generateMetadata(props: Props) {
 
     return getHeadMetadata(
         `${page.title} | Wiki`,
-        page.description || `Learn about ${page.title} on Coflnet`,
+        page.description || `Learn about ${page.title} on SkyCofl`,
         undefined,
         ['wiki', 'documentation', page.title.toLowerCase()],
-        `${page.title} | Coflnet Wiki`
+        `${page.title} | SkyCofl Wiki`
     )
 }

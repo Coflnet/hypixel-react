@@ -1,19 +1,19 @@
 ---
 title: "Quick Start Guide"
-description: "Get started with Coflnet quickly"
+description: "Get started with SkyCofl quickly"
 order: 2
 ---
 
 # Quick Start Guide
 
-Welcome to Coflnet! This guide will help you get started with our platform quickly.
+Welcome to SkyCofl! This guide will help you get started with our platform quickly.
 
 ## 1. Search for Items or Players
 
 Use the search bar at the top of any page to find:
 - **Items**: Type item names like "Aspect of the Dragon" or "AOTD"
 - **Players**: Search by Minecraft username
-- **Auctions**: Find specific auction UUIDs
+- **Auctions**: Find specific auction or item UUIDs
 
 ### Search Tips
 - Use partial names for faster results
@@ -53,7 +53,7 @@ Find profitable auction flips:
 
 For the best experience, install our Minecraft mod:
 1. Download from the [Mod page](/mod)
-2. Install Forge 1.8.9
+2. Install Forge 1.8.9 or Fabric 1.21+
 3. Place the mod in your mods folder
 4. Use `/cofl help` in-game for commands
 
