@@ -459,7 +459,7 @@ interface PaymentResponse {
 }
 interface KatFlipCoreData {
     hours: number
-    material?: string
+    materials?: Record<string, number>
     amount: number
     item: Item
 }

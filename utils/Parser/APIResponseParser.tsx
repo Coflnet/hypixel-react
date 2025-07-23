@@ -504,7 +504,7 @@ export function parseKatFlip(katFlip): KatFlip {
                 name: katFlip.coreData.name,
                 tier: katFlip.coreData.baseRarity
             },
-            material: katFlip.coreData.material
+            materials: katFlip.coreData.materials
         },
         cost: katFlip.purchaseCost + katFlip.materialCost + katFlip.upgradeCost,
         purchaseCost: katFlip.purchaseCost,

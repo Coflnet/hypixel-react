@@ -177,16 +177,6 @@ export function KatFlips(props: Props) {
                         <span className={styles.label}>Upgrade Cost:</span>
                         <Number number={flip.upgradeCost} /> Coins
                     </p>
-                    {flip.coreData.material ? (
-                        <span>
-                            <p>
-                                <span className={styles.label}>Material:</span> {`${flip.coreData.amount}x ${convertTagToName(flip.coreData.material)}`}
-                            </p>
-                            <p>
-                                <span className={styles.label}>Material Cost:</span> <Number number={Math.round(flip.materialCost)} /> Coins
-                            </p>
-                        </span>
-                    ) : null}
                     <p>
                         <span className={styles.label}>Median:</span> <Number number={Math.round(flip.median)} /> Coins
                     </p>
@@ -206,6 +196,23 @@ export function KatFlips(props: Props) {
                     <p>
                         <span className={styles.label}>Time:</span> {flip.coreData.hours} Hours
                     </p>
+                    <hr />
+                    <p>
+                        <span className={styles.label}>Material Cost:</span> <Number number={Math.round(flip.materialCost)} /> Coins
+                    </p>
+                    {flip.coreData?.materials && Object.keys(flip.coreData?.materials).length > 0 ? (
+                        <div style={{ display: "grid", gridTemplateColumns: "150px 1fr" }}>
+                            <span className={styles.label}>Material{Object.keys(flip.coreData.materials).length > 1 ? 's' : ''}:</span>
+                            <div>
+                                {Object.entries(flip.coreData.materials).map(([material, amount]) => {
+                                    return (
+                                        <p>
+                                            {`${amount}x ${convertTagToName(material)}`}
+                                        </p>
+                                    )
+                                })}
+                            </div>
+                        </div>) : null}
                 </div>
             </ListGroup.Item>
         )
@@ -249,7 +256,7 @@ export function KatFlips(props: Props) {
                         tier: 'LEGENDARY',
                         iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
                     },
-                    material: '1 CoflCoin'
+                    materials: { 'CoflCoin': 1 }
                 }
                 censoredFlip.cost = 12345
                 censoredFlip.materialCost = 696969
