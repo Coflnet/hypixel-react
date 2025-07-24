@@ -131,7 +131,6 @@ export function parseItem(item: any): Item {
 }
 
 export function parseEnchantment(enchantment: any): Enchantment {
-    console.log(enchantment)
     return {
         id: enchantment.id,
         level: enchantment.level,
