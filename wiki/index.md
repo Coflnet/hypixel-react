@@ -36,6 +36,7 @@ SkyCofl is a comprehensive platform for Hypixel SkyBlock players that provides:
 - **Flip Finding**: Discover profitable auction house, bazaar buy-sel, craft, forge and many other flips
 - **Market Analysis**: Analyze bazaar and auction house data
 - **Notifications**: Get alerts for price changes and auction events
+- **Many more in game**: Check the [mod features](./mod) page for more details
 
 ## Key Statistics
 
@@ -54,3 +55,6 @@ SkyCofl is just one of the many platforms [Coflnet](https://coflnet.com) (A deve
 
 Join the Coflnet discord for support and updates:
 - [Discord Server](https://discord.gg/wvKXfTgCfb)
+
+### Feedback
+We are always looking for feedback, bug reports and suggestions to improve. Either via discord or email at support@coflnet.com

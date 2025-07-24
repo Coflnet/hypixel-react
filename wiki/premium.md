@@ -166,8 +166,8 @@ You keep access until expiration, then revert to free tier. No data is lost.
 ### Can I change tiers?
 Yes, you can upgrade anytime. Higher tiers pause lower ones while active.
 
-### Are there student discounts?
-Contact support for special circumstances. We offer referral bonuses as an alternative.
+### Are there discounts?
+There are discounts from time to time on our subscriptions.
 
 ### Can I get refunds?
-Due to the digital nature and immediate access, refunds are generally not available. Contact support for exceptional cases.
+Due to the digital nature, the fact that there is free test time and immediate access, refunds are generally not available. Contact support for exceptional cases.

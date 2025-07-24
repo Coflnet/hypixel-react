@@ -7,7 +7,7 @@ order: 5
 # Auction House/Bazaar Browser
 
 The Auction House Browser lets you explore over 700 million historical auctions with powerful search and filtering capabilities.  
-Via the same search bar you can also search the biggest and oldest bazaar database.
+Via the same search bar you can also search the biggest bazaar database.
 
 ## Basic Navigation
 
@@ -18,10 +18,11 @@ Via the same search bar you can also search the biggest and oldest bazaar databa
 
 ### Item Pages
 Every item has a dedicated page showing:
-- **Price graphs** with historical trends
+- **Price graphs** with historical trends both price and items moved
 - **Recent auctions** that have ended
 - **Active auctions** currently available
 - **Related items** for comparison
+- **Active orders** the current orderbook for bazaar items
 
 ## Price Graphs
 
@@ -40,7 +41,7 @@ Every item has a dedicated page showing:
 ### Time Ranges
 - **1 Hour**: Real-time bazaar data
 - **1 Day**: Recent price movements
-- **1 Week**: Short-term trends
+- **1 Week**: Short-term trends with candle charts
 - **1 Month**: Medium-term analysis
 - **All Time**: Complete price history
 
@@ -53,6 +54,7 @@ Filter auctions by specific attributes:
 - **Stars**: Dungeon star levels
 - **Rarity**: Item tier (Common to Mythic)
 - **Price Range**: Minimum and maximum prices
+- **Pet Level**: Exact pet level or ranges `1-99` same as `<100`
 
 ### Date Filters
 - **End Date**: When auctions ended
