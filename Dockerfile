@@ -1,11 +1,11 @@
 # Install dependencies only when needed
-FROM node:20.10.0-bullseye AS deps
+FROM node:lts AS deps
 
 WORKDIR /opt/app
 COPY package*.json ./
 RUN npm ci
 
-FROM node:20.10.0-bullseye AS builder
+FROM node:lts AS builder
 
 ENV NODE_ENV=production
 WORKDIR /opt/app
@@ -14,7 +14,7 @@ COPY --from=deps /opt/app/node_modules ./node_modules
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:20.10.0-bullseye AS runner
+FROM node:lts AS runner
 
 ARG X_TAG
 WORKDIR /opt/app
