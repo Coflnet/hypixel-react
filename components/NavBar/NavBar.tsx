@@ -182,7 +182,7 @@ function NavBar(props: Props) {
                             <MenuItem className={styles.menuItem} component={<Link href={'/about'} />} icon={<PolicyIcon />}>
                                 Links / Legal
                             </MenuItem>
-                            <MenuItem className={styles.menuItem} component={<Link href={'/wiki/index'} />} icon={<ChatIcon />}>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/wiki/mod'} />} icon={<ChatIcon />}>
                                 Wiki
                             </MenuItem>
                             <MenuItem
