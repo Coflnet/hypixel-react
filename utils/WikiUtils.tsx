@@ -68,11 +68,3 @@ export async function getWikiPageBySlug(slug: string): Promise<WikiPage | null> 
         return null
     }
 }
-
-export function getWikiNavigation(pages: WikiPage[]) {
-    return pages.map(page => ({
-        slug: page.slug,
-        title: page.title,
-        order: page.order
-    }))
-}
