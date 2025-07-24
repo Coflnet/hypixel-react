@@ -52,7 +52,7 @@ export default function WikiContent({ page, allPages }: Props) {
         <>
             <div className={styles.breadcrumb}>
                 <Search hideNavbar={false} />
-                <Link href="/wiki">📚 Wiki</Link>
+                <Link href="/wiki/index">📚 Wiki</Link>
                 {page.slug !== 'index' && (
                     <>
                         {' > '}
