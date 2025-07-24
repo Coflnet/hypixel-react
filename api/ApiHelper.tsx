@@ -1747,13 +1747,13 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             }
 
             websocketHelper.sendRequest({
-                type: RequestType.TRASFER_COFLCOINS,
+                type: RequestType.TRANSFER_COFLCOINS,
                 data: data,
                 resolve: function () {
                     resolve()
                 },
                 reject: function (error) {
-                    apiErrorHandler(RequestType.TRASFER_COFLCOINS, error, data)
+                    apiErrorHandler(RequestType.TRANSFER_COFLCOINS, error, data)
                     reject(error)
                 }
             })
