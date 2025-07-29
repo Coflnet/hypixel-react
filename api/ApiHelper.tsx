@@ -1762,7 +1762,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getBazaarSnapshot = (itemTag: string, timestamp: string | number | Date): Promise<BazaarSnapshot> => {
         return new Promise((resolve, reject) => {
-            let isoTimestamp = new Date(timestamp).toISOString()
+            let isoTimestamp = new Date(Math.round(new Date(timestamp).getTime() / 1000) * 1000).toISOString()
 
             httpApi.sendApiRequest({
                 type: RequestType.GET_BAZAAR_SNAPSHOT,
