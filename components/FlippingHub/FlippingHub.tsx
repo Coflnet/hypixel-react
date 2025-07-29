@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Container, Card, Row, Col } from 'react-bootstrap'
-import { Pets, Build, Storefront, Agriculture, ShowChart, AutoFixHigh, Help, JoinFull, Volcano } from '@mui/icons-material'
+import { Pets, Build, Storefront, Agriculture, ShowChart, AutoFixHigh, Help, JoinFull, Volcano, QuestionMark } from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
@@ -47,6 +47,12 @@ const flipKinds = [
         path: undefined,
         description: 'Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard. This flip is currently only available via `/cofl fusionflip` using our mod',
         icon: <JoinFull fontSize="large" />
+    },
+    {
+        name: 'suggest new',
+        path: 'https://discord.gg/wvKXfTgCfb',
+        description: 'We are always looking to expand our flipping hub. If you have a new flip type that you think should be included, please suggest it on our Discord server.',
+        icon: <QuestionMark fontSize="large" />
     }
 ]
 
@@ -60,7 +66,7 @@ export default function FlippingHub() {
                             {flip.icon}
                             <Card.Title className="mb-0">
                                 {flip.path ? (
-                                    <Link href={flip.path}>{flip.name}</Link>
+                                    <span>{flip.name}</span>
                                 ) : (
                                     <div className="d-flex align-items-center">
                                         <span>{flip.name}</span>
@@ -86,6 +92,11 @@ export default function FlippingHub() {
                         </Card.Header>
                         <Card.Body>
                             <Card.Text>{flip.description}</Card.Text>
+                            <Card.Link as={Link} href={flip.path ?? '/mod'}>
+                                <button className="btn btn-primary">
+                                    Go to {flip.name}
+                                </button>
+                            </Card.Link>
                         </Card.Body>
                     </Card>
                 </Col>
