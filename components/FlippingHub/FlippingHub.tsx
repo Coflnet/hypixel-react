@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Container, Card, Row, Col } from 'react-bootstrap'
-import { Pets, Build, Storefront, Agriculture, ShowChart, AutoFixHigh, Help, JoinFull } from '@mui/icons-material'
+import { Pets, Build, Storefront, Agriculture, ShowChart, AutoFixHigh, Help, JoinFull, Volcano } from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
@@ -40,7 +40,7 @@ const flipKinds = [
         name: 'Forge Flips',
         path: undefined,
         description: 'Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes.',
-        icon: <AutoFixHigh fontSize="large" />
+        icon: <Volcano fontSize="large" />
     },
     {
         name: 'Attribute Fusion Machine Flips',
