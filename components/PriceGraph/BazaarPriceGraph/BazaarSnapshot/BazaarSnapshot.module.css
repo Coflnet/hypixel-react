@@ -42,3 +42,19 @@
         width: 100%;
     }
 }
+
+.orderRow {
+    transition: background 0.3s ease-in-out;
+    background: linear-gradient(to right, var(--gradient-color) var(--gradient-width), transparent 0);
+    border-radius: 8px;
+}
+
+.orderRow td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.orderRow td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}

@@ -21,6 +21,18 @@ function BazaarSnapshot(props: Props) {
     let bazaarSnapshotDateRef = useRef(null)
 
     useEffect(() => {
+        const interval = setInterval(() => {
+            setTimestamp(currentTimestamp => {
+                if (new Date().getTime() - currentTimestamp.getTime() < 60000) {
+                    return new Date()
+                }
+                return currentTimestamp
+            })
+        }, 10000)
+        return () => clearInterval(interval)
+    }, [])
+
+    useEffect(() => {
         document.addEventListener(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, onTimestampChangeEvent)
 
         return () => {
@@ -79,9 +91,10 @@ function BazaarSnapshot(props: Props) {
         )
     }
 
-    function getOrderListElement(orders: BazaarOrder[]): JSX.Element {
+    function getOrderListElement(orders: BazaarOrder[], maxAmount: number, type: 'buy' | 'sell'): JSX.Element {
+        const color = type === 'buy' ? 'rgba(40, 167, 69, 0.2)' : 'rgba(220, 53, 69, 0.2)'
         return (
-            <Table>
+            <Table style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}>
                 <thead>
                     <tr>
                         <th>Price per unit</th>
@@ -92,11 +105,22 @@ function BazaarSnapshot(props: Props) {
                 </thead>
                 <tbody>
                     {orders.map(order => (
-                        <tr>
+                        <tr
+                            key={order.pricePerUnit}
+                            className={styles.orderRow}
+                            style={
+                                {
+                                    '--gradient-color': color,
+                                    '--gradient-width': `${(order.amount / maxAmount) * 100}%`,
+                                } as React.CSSProperties
+                            }
+                        >
                             <td>
                                 <Number number={order.pricePerUnit} /> Coins
                             </td>
-                            <td>{order.amount}</td>
+                            <td>
+                                <Number number={order.amount} />
+                            </td>
                             <td>{order.orders}</td>
                             <td>
                                 <Number number={order.pricePerUnit * order.amount} /> Coins
@@ -111,6 +135,9 @@ function BazaarSnapshot(props: Props) {
     if (!bazaarSnapshot) {
         return null
     }
+
+    const allOrders = [...bazaarSnapshot.buyOrders, ...bazaarSnapshot.sellOrders]
+    const maxAmount = Math.max(...allOrders.map(o => o.amount), 0)
 
     return (
         <>
@@ -136,13 +163,13 @@ function BazaarSnapshot(props: Props) {
                     <Card.Header>
                         <Card.Title>Sell orders</Card.Title>
                     </Card.Header>
-                    <Card.Body>{getOrderListElement(bazaarSnapshot.buyOrders)}</Card.Body>
+                    <Card.Body>{getOrderListElement(bazaarSnapshot.buyOrders, maxAmount, 'sell')}</Card.Body>
                 </Card>
                 <Card className={styles.informationField}>
                     <Card.Header>
                         <Card.Title>Buy orders</Card.Title>
                     </Card.Header>
-                    <Card.Body>{getOrderListElement(bazaarSnapshot.sellOrders)}</Card.Body>
+                    <Card.Body>{getOrderListElement(bazaarSnapshot.sellOrders, maxAmount, 'buy')}</Card.Body>
                 </Card>
             </div>
         </>
