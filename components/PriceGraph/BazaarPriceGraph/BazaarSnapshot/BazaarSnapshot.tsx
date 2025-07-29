@@ -21,16 +21,25 @@ function BazaarSnapshot(props: Props) {
     let bazaarSnapshotDateRef = useRef(null)
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setTimestamp(currentTimestamp => {
-                if (new Date().getTime() - currentTimestamp.getTime() < 60000) {
-                    return new Date()
-                }
-                return currentTimestamp
-            })
-        }, 10000)
-        return () => clearInterval(interval)
-    }, [])
+        if (!bazaarSnapshot) {
+            return
+        }
+
+        // Only auto-refresh if the user is looking at recent data (less than a minute old)
+        if (new Date().getTime() - timestamp.getTime() > 60000) {
+            return
+        }
+
+        const lastUpdate = new Date(bazaarSnapshot.timeStamp).getTime()
+        const nextUpdate = lastUpdate + 25000
+        const timeoutDuration = Math.max(0, nextUpdate - Date.now())
+
+        const timer = setTimeout(() => {
+            setTimestamp(new Date())
+        }, timeoutDuration)
+
+        return () => clearTimeout(timer)
+    }, [bazaarSnapshot])
 
     useEffect(() => {
         document.addEventListener(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, onTimestampChangeEvent)
