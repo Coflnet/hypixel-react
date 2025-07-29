@@ -34,8 +34,8 @@ function BazaarSnapshot(props: Props) {
             return
         }
 
-        // Only auto-refresh if the user is looking at recent data (less than a minute old)
-        if (new Date().getTime() - timestamp.getTime() > 60000) {
+        // Only auto-refresh if the user is looking at recent data (less than an hour old)
+        if (new Date().getTime() - timestamp.getTime() > 60000 * 60) {
             return
         }
 
