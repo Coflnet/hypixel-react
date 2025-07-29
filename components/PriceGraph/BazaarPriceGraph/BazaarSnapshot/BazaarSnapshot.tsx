@@ -16,12 +16,21 @@ interface Props {
 function BazaarSnapshot(props: Props) {
     let [timestamp, setTimestamp] = useState<Date>(new Date())
     let [bazaarSnapshot, setBazaarSnapshot] = useState<BazaarSnapshot>()
+    const [isPageVisible, setIsPageVisible] = useState(true)
 
     let debouncedTimestamp = useDebounce(timestamp, 100)
     let bazaarSnapshotDateRef = useRef(null)
 
     useEffect(() => {
-        if (!bazaarSnapshot) {
+        const handleVisibilityChange = () => setIsPageVisible(!document.hidden)
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!bazaarSnapshot || !isPageVisible) {
             return
         }
 
@@ -39,7 +48,7 @@ function BazaarSnapshot(props: Props) {
         }, timeoutDuration)
 
         return () => clearTimeout(timer)
-    }, [bazaarSnapshot])
+    }, [bazaarSnapshot, isPageVisible])
 
     useEffect(() => {
         document.addEventListener(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, onTimestampChangeEvent)
