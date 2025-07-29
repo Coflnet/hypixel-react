@@ -15,10 +15,20 @@ function ModDetails() {
                 </Card.Header>
                 <Card.Body>
                     <p>
-                        Say goodbye to window switching! The CoflMod provides you with data directly in Hypixel Skyblock. You can access price paid, the Auction
+                        Say goodbye to window switching! The SkyCofl mod provides you with data directly in Hypixel Skyblock. You can access price paid, the Auction
                         Flipper, median price, lowest BIN, bazaar prices and more!
                     </p>
-                    <h3>Installation</h3>
+                    <h3>Recommended Installation</h3>
+                    <p>
+                        We recommend installing the mod from{' '}
+                        <a href="https://modrinth.com/mod/skycofl/versions" target="_blank" rel="noopener noreferrer">
+                            Modrinth
+                        </a>
+                        . It is available for Forge 1.8.9 and <b>Fabric 1.21.5+</b>. For more information see our{' '}
+                        <a href="/wiki/mod">SkyCofl wiki</a>.
+                    </p>
+
+                    <h3>Legacy-Installation</h3>
                     <ol>
                         <li>Get and install Forge 1.8.9 (if you don't have already watch the video below)</li>
                         <li>
