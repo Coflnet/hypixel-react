@@ -78,7 +78,7 @@ Lowballing is one of the most profitable money making methods in hypixel skybloc
 
 ### Advanced Commands
 - `/cofl cheapmuseum` - Calculates and shows the cheapest way to get skyblock exp via museum donations
-- `/cofl leaderbaord` - Profit leaderboards (Premium+)
+- `/cofl leaderboard` - Profit leaderboards (Premium+)
 - `/cofl configs` - Get configs from other users
 - `/cofl bzmove` - Shows biggest price movement on the bazaar in the last 24 hours
 

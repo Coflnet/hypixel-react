@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { WikiPage } from '../../utils/WikiUtils'
 import Search from '../Search/Search'
 import styles from './WikiContent.module.css'
+import { useIsMobile } from '../../utils/Hooks'
 
 interface Props {
     page: WikiPage
@@ -14,18 +15,7 @@ interface Props {
 export default function WikiContent({ page, allPages }: Props) {
     const pathname = usePathname()
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    const [isMobile, setIsMobile] = useState(false)
-
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768)
-        }
-        
-        checkMobile()
-        window.addEventListener('resize', checkMobile)
-        
-        return () => window.removeEventListener('resize', checkMobile)
-    }, [])
+    const isMobile = useIsMobile()
 
     useEffect(() => {
         // Close sidebar when route changes on mobile
@@ -33,7 +23,7 @@ export default function WikiContent({ page, allPages }: Props) {
             setIsSidebarOpen(false)
         }
     }, [pathname, isMobile])
-    
+
     const isActive = (slug: string) => {
         if (slug === 'index') {
             return pathname === '/wiki'
@@ -60,27 +50,27 @@ export default function WikiContent({ page, allPages }: Props) {
                     </>
                 )}
             </div>
-            
-            <button 
+
+            <button
                 className={styles.sidebarToggle}
                 onClick={toggleSidebar}
                 aria-label="Toggle navigation"
             >
                 📖 Navigation
             </button>
-            
+
             {isMobile && isSidebarOpen && (
-                <div 
+                <div
                     className={`${styles.sidebarOverlay} ${isSidebarOpen ? 'show' : ''}`}
                     onClick={closeSidebar}
                 />
             )}
-            
+
             <div className={styles.wikiContainer}>
                 <aside className={`${styles.sidebar} ${isMobile && isSidebarOpen ? styles.sidebarCollapsed : ''}`}>
                     <h3 className={styles.sidebarTitle}>
                         📖 Documentation
-                        <button 
+                        <button
                             className={styles.sidebarCloseButton}
                             onClick={closeSidebar}
                             aria-label="Close navigation"
@@ -92,7 +82,7 @@ export default function WikiContent({ page, allPages }: Props) {
                         <ul className={styles.sidebarNav}>
                             {allPages.map(navPage => (
                                 <li key={navPage.slug} className={styles.sidebarNavItem}>
-                                    <Link 
+                                    <Link
                                         href={navPage.slug === 'index' ? '/wiki' : `/wiki/${navPage.slug}`}
                                         className={`${styles.sidebarNavLink} ${isActive(navPage.slug) ? styles.active : ''}`}
                                         onClick={() => isMobile && closeSidebar()}
@@ -104,9 +94,9 @@ export default function WikiContent({ page, allPages }: Props) {
                         </ul>
                     </nav>
                 </aside>
-                
+
                 <main className={styles.content}>
-                    <div 
+                    <div
                         className={styles.wikiContent}
                         dangerouslySetInnerHTML={{ __html: page.htmlContent }}
                     />
