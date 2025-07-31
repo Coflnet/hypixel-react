@@ -86,7 +86,7 @@ function BazaarSnapshot(props: Props) {
         })
     }
 
-    function getInformationBody(data: BazaarSnapshotData): JSX.Element {
+    function getInformationBody(data: BazaarSnapshotData, type:string): JSX.Element {
         return (
             <div>
                 <p>
@@ -102,8 +102,8 @@ function BazaarSnapshot(props: Props) {
                     <Number number={data.volume} />
                 </p>
                 <p>
-                    <span className={styles.label}>Movement:</span>
-                    <Number number={data.moving} /> Coins
+                    <span className={styles.label}>Average insta-{type}:</span>
+                    <Number number={data.moving} /> items/week
                 </p>
             </div>
         )
@@ -165,15 +165,15 @@ function BazaarSnapshot(props: Props) {
             <div className={styles.flex}>
                 <Card className={styles.informationField}>
                     <Card.Header>
-                        <Card.Title>Buy information</Card.Title>
+                        <Card.Title>(Insta) Buy information</Card.Title>
                     </Card.Header>
-                    <Card.Body>{getInformationBody(bazaarSnapshot.buyData)}</Card.Body>
+                    <Card.Body>{getInformationBody(bazaarSnapshot.buyData, 'buys')}</Card.Body>
                 </Card>
                 <Card className={styles.informationField}>
                     <Card.Header>
-                        <Card.Title>Sell information</Card.Title>
+                        <Card.Title>(Insta) Sell information</Card.Title>
                     </Card.Header>
-                    <Card.Body>{getInformationBody(bazaarSnapshot.sellData)}</Card.Body>
+                    <Card.Body>{getInformationBody(bazaarSnapshot.sellData, 'sells')}</Card.Body>
                 </Card>
             </div>
             <div className={styles.flex}>
