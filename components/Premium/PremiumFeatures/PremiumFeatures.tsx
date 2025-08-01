@@ -193,10 +193,51 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
+                        <td className={styles.featureColumn}>In game lowball helper
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Autofills the lowball amount based on our pricing data with a configureable undercut</p>}
+                            />
+                        </td>
+                        {xIconElement}
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
                         <td className={styles.featureColumn}>Longer flip-tracking history</td>
                         {xIconElement}
                         {xIconElement}
                         {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Access to archive
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Filter through years of data to get exactly the auction or bazaar data you need</p>}
+                            />
+                        </td>
+                        {xIconElement}
+                        {xIconElement}
+                        {xIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>CSV file exports</td>
+                        {xIconElement}
+                        {xIconElement}
+                        {xIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
