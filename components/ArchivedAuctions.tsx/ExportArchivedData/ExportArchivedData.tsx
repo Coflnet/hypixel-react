@@ -70,9 +70,9 @@ function ExportArchivedData(props: Props) {
                     <p>Export an auction history as a CSV file that you can import into Excel or other programs.</p>
                     <div style={{ marginBottom: '15px' }}>
                         <p>
-                            Clicking start export will deduct a one time CoflCoin fee of <NumberElement number={1500} /> to unlock the export of the item for
-                            you. This helps to keep the the amount of different items low and exports quicker. Each export will contain up to{' '}
-                            <NumberElement number={1000} /> auctions matching your filter.
+                            Clicking start export schedules one export to go through our archive and extract the items matching
+                            the specified filter. Each export will contain up to{' '} <NumberElement number={1000} /> auctions
+                            matching your filter. You can shedule 4 exports at once.
                         </p>
                         <hr />
                         <p style={{ margin: 0 }}>The file will be sent to the following Discord Webhook:</p>
