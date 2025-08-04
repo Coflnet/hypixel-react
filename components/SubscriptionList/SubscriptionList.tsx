@@ -18,6 +18,8 @@ import styles from './SubscriptionList.module.css'
 import NotificationTargets from '../NotificationTargets/NotificationTargets'
 import { Typeahead } from 'react-bootstrap-typeahead'
 
+import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
+
 let mounted = true
 
 function SubscriptionList() {
@@ -403,6 +405,14 @@ function SubscriptionList() {
         }
     })
 
+    function openDialog() {
+        toast.warn('Not on this page, use the search bar to go to what you want to be notified about')
+        const searchBar = document.getElementById('search-bar') as HTMLInputElement | null
+        if (searchBar) {
+            searchBar.focus()
+        }
+    }
+
     let resetSettingsElement = (
         <Modal
             show={showDeleteAllSubscriptionDialog}
@@ -493,6 +503,15 @@ function SubscriptionList() {
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             {resetSettingsElement}
             {notificationTargetsElement}
+
+            <div>
+            <h3>What are Notifiers?</h3>
+            <p>Notifiers allow you to subscribe to events happening on skyblock. Most common used are price drops or jumps, auctions expring or being sold and new rare items being listed on ah</p>
+            <p>To subscribe to something click the <Button style={{ width: 'max-content' }} onClick={openDialog}>
+                <NotificationIcon />
+                 Notify
+            </Button> Button on a page you want to be notified about</p>
+            </div>
         </div>
     )
 }
