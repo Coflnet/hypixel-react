@@ -41,7 +41,7 @@ function BazaarSnapshot(props: Props) {
 
         const lastUpdate = new Date(bazaarSnapshot.timeStamp).getTime()
         const nextUpdate = lastUpdate + 25000
-        const timeoutDuration = Math.max(0, nextUpdate - Date.now())
+        const timeoutDuration = Math.max(5_000, nextUpdate - Date.now())
 
         const timer = setTimeout(() => {
             setTimestamp(new Date())
