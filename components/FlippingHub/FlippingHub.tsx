@@ -27,25 +27,25 @@ const flipKinds = [
     {
         name: 'Composter Flips',
         path: undefined,
-        description: 'Composter Flips let you profit from the Garden update by converting crops and resources in the composter. Track the most lucrative composting strategies and maximize your garden income.',
+        description: <span>Composter Flips let you profit from the Garden update by converting crops and resources in the composter. Its part of the profitable task system of our mod, run <code>/cofl task</code> to access it.</span>,
         icon: <Agriculture fontSize="large" />
     },
     {
         name: 'Bazaar Flips',
         path: undefined,
-        description: 'Bazaar Flips are all about trading items on the Hypixel Bazaar for profit. Monitor market trends, find arbitrage opportunities, and learn the best flipping tactics for every item.',
+        description: <span>Bazaar Flips are all about trading items on the Hypixel Bazaar for profit. Monitor market trends, find arbitrage opportunities, and learn the best flipping tactics for every item. Run <code>/cofl bazaar</code> with our mod to access</span>,
         icon: <ShowChart fontSize="large" />
     },
     {
         name: 'Forge Flips',
         path: undefined,
-        description: 'Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes.',
+        description: <span>Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes. Run <code>/cofl forge</code> with our mod to access</span>,
         icon: <Volcano fontSize="large" />
     },
     {
         name: 'Attribute Fusion Machine Flips',
         path: undefined,
-        description: 'Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard. This flip is currently only available via `/cofl fusionflip` using our mod',
+        description: <span>Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard. This flip is currently only available via <code>/cofl fusionflip</code> using our mod</span>,
         icon: <JoinFull fontSize="large" />
     },
     {
