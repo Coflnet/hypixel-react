@@ -145,7 +145,7 @@ function NavBar(props: Props) {
                     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <div>
                             <div className={styles.logo}>
-                                <Image src="/logo512.png" alt="Logo" width={40} height={40} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'Coflnet' : ''}
+                                <Image src="/logo512.png" alt="Logo" width={40} height={40} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'SkyCofl' : ''}
                             </div>
                         </div>
                         <hr />
