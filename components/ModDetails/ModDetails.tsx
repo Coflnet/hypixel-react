@@ -10,7 +10,7 @@ function ModDetails() {
             <Card className={styles.modCard}>
                 <Card.Header>
                     <Card.Title>
-                        <h1>Cofl Skyblock Mod</h1>
+                        <h1>SkyCofl Mod</h1>
                     </Card.Title>
                 </Card.Header>
                 <Card.Body>
@@ -27,6 +27,9 @@ function ModDetails() {
                         . It is available for Forge 1.8.9 and <b>Fabric 1.21.5+</b>. For more information see our{' '}
                         <a href="/wiki/mod">SkyCofl wiki</a>.
                     </p>
+
+                    <h3>Alternative for 1.8.9</h3>
+                    <p>Use <a href="https://skyclient.co/" rel="nofollow noopener noreferrer">SkyClient</a> and add our mod (easiest)</p>
 
                     <h3>Legacy-Installation</h3>
                     <ol>
