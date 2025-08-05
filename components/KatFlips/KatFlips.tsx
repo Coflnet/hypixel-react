@@ -300,9 +300,11 @@ export function KatFlips(props: Props) {
                 <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />
             </div>
             <hr />
-            <p>
-                Click <Link href="/linkvertise">here</Link> to get Starter Premium for free to see the top kat flips
-            </p>
+            {hasPremium ? null : (
+                <p>
+                    Click <Link href="/linkvertise">here</Link> to get Starter Premium for free to see the top kat flips
+                </p>
+            )}
             <p>Click on a craft for further details</p>
             <div className={styles.craftsList}>
                 <ListGroup className={styles.list}>{list}</ListGroup>
