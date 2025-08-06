@@ -18,6 +18,7 @@ import React, { useEffect, useState } from 'react'
 import { Menu, MenuItem, Sidebar } from 'react-pro-sidebar'
 import { useForceUpdate } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
+import { ShowChart } from '@mui/icons-material'
 
 let resizePromise: NodeJS.Timeout | null = null
 
@@ -144,7 +145,7 @@ function NavBar(props: Props) {
                     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <div>
                             <div className={styles.logo}>
-                                <Image src="/logo512.png" alt="Logo" width={40} height={40} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'Coflnet' : ''}
+                                <Image src="/logo512.png" alt="Logo" width={40} height={40} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'SkyCofl' : ''}
                             </div>
                         </div>
                         <hr />
@@ -152,8 +153,8 @@ function NavBar(props: Props) {
                             <MenuItem className={styles.menuItem} component={<Link href={'/'} />} icon={<HomeIcon />}>
                                 Home
                             </MenuItem>
-                            <MenuItem className={styles.menuItem} component={<Link href={'/flipper'} />} icon={<StorefrontIcon />}>
-                                Item Flipper
+                            <MenuItem className={styles.menuItem} component={<Link href={'/flips'} />} icon={<ShowChart />}>
+                                Flipping hub
                             </MenuItem>
                             <MenuItem className={styles.menuItem} component={<Link href={'/account'} />} icon={<AccountIcon />}>
                                 Account
@@ -161,17 +162,8 @@ function NavBar(props: Props) {
                             <MenuItem className={styles.menuItem} component={<Link href={'/subscriptions'} />} icon={<NotificationIcon />}>
                                 Notifier
                             </MenuItem>
-                            <MenuItem className={styles.menuItem} component={<Link href={'/crafts'} />} icon={<BuildIcon />}>
-                                Profitable Crafts
-                            </MenuItem>
                             <MenuItem className={styles.menuItem} component={<Link href={'/premium'} />} icon={<AccountBalanceIcon />}>
                                 Premium / Shop
-                            </MenuItem>
-                            <MenuItem className={styles.menuItem} component={<Link href={'/trade'} />} icon={<CurrencyExchangeIcon />}>
-                                Trading
-                            </MenuItem>
-                            <MenuItem className={styles.menuItem} component={<Link href={'/kat'} />} icon={<PetsIcon />}>
-                                Kat Flips
                             </MenuItem>
                             <MenuItem className={styles.menuItem} component={<Link href={'/mod'} />} icon={<DownloadIcon />}>
                                 Mod
