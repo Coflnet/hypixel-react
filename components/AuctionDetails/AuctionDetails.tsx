@@ -476,6 +476,8 @@ function AuctionDetails(props: Props) {
                                 if (enchantment.name === 'Ultimate Reiterate') {
                                     enchantment.name = 'Ultimate Duplex'
                                 }
+                                if (enchantment.name === 'Dragon Hunter')
+                                    enchantment.name = 'Gravity'
                                 let enchantmentString = <span>{enchantment.name}</span>
 
                                 if (enchantment.color) {
