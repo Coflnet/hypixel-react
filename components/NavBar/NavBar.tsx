@@ -156,6 +156,9 @@ function NavBar(props: Props) {
                             <MenuItem className={styles.menuItem} component={<Link href={'/flips'} />} icon={<ShowChart />}>
                                 Flipping hub
                             </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/flipper'} />} icon={<StorefrontIcon />}>
+                                Item Flipper
+                            </MenuItem>
                             <MenuItem className={styles.menuItem} component={<Link href={'/account'} />} icon={<AccountIcon />}>
                                 Account
                             </MenuItem>
