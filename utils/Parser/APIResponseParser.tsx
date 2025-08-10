@@ -377,8 +377,8 @@ export function parseDate(dateString: string) {
 }
 
 export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
-    let parseCraftIngredient = (ingredient: any): CraftingIngredient => {
-        let result = {
+    const parseCraftIngredient = (ingredient: any, seenTags: Set<string>): CraftingIngredient => {
+        const result = {
             cost: ingredient.cost,
             count: ingredient.count,
             type: ingredient.type,
@@ -387,15 +387,25 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
             }
         } as CraftingIngredient
 
+        if (seenTags.has(result.item.tag)) {
+            console.warn(`Recursive craft detected for ${result.item.tag}, stopping expansion.`)
+            result.item.name = convertTagToName(result.item.tag)
+            result.item.iconUrl = api.getItemImageUrl(result.item)
+            return result
+        }
+
+        const newSeenTags = new Set(seenTags)
+        newSeenTags.add(result.item.tag)
+
         result.item.name = convertTagToName(result.item.tag)
         result.item.iconUrl = api.getItemImageUrl(result.item)
         if (result.type === 'craft') {
-            let toCraft = crafts.find(craft => craft.itemId === result.item.tag)
+            const toCraft = crafts.find(craft => craft.itemId === result.item.tag)
             if (!toCraft) {
                 console.log(`craft not found for ${JSON.stringify(result)}`)
                 return result
             }
-            result.ingredients = toCraft.ingredients.map(parseCraftIngredient)
+            result.ingredients = toCraft.ingredients.map(ing => parseCraftIngredient(ing, newSeenTags))
         }
         return result
     }
@@ -408,7 +418,7 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
             },
             craftCost: craft.craftCost,
             sellPrice: craft.sellPrice,
-            ingredients: craft.ingredients.map(parseCraftIngredient),
+            ingredients: craft.ingredients.map(ing => parseCraftIngredient(ing, new Set([craft.itemId]))),
             median: craft.median,
             volume: craft.volume,
             requiredCollection: craft.reqCollection
