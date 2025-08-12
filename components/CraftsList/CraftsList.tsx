@@ -42,7 +42,7 @@ const SORT_OPTIONS: SortOption[] = [
         sortFunction: crafts => crafts.sort((a, b) => b.craftCost - a.craftCost)
     },
     {
-        label: 'Instant Sell (Bazaar)',
+        label: 'Sell Offer (Bazaar)',
         value: 'bazaarCrafts',
         sortFunction: (crafts, bazaarTags) =>
             crafts
