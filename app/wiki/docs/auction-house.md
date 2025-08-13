@@ -6,7 +6,7 @@ order: 5
 
 # Auction House/Bazaar Browser
 
-The Auction House Browser lets you explore over 700 million historical auctions with powerful search and filtering capabilities.  
+The Auction House Browser lets you explore over 800 million historical auctions with powerful search and filtering capabilities.  
 Via the same search bar you can also search the biggest bazaar database.
 
 ## Basic Navigation
