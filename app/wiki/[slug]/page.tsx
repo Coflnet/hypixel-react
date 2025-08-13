@@ -1,51 +1,64 @@
-import { Container } from 'react-bootstrap'
-import { getAllWikiPages, getWikiPageBySlug } from '../../../utils/WikiUtils'
-import { getHeadMetadata } from '../../../utils/SSRUtils'
-import WikiContent from '../../../components/Wiki/WikiContent'
-import { notFound } from 'next/navigation'
+import { promises as fs } from 'fs';
+import path from 'path';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import { notFound } from 'next/navigation';
+import matter from 'gray-matter';
 
 interface Props {
-    params: Promise<{ slug: string }>
+    params: { slug: string };
 }
 
-export default async function WikiPage(props: Props) {
-    const params = await props.params
-    const [page, allPages] = await Promise.all([
-        getWikiPageBySlug(params.slug),
-        getAllWikiPages()
-    ])
-    
-    if (!page) {
-        notFound()
+const docsDirectory = path.join(process.cwd(), 'app/wiki/docs');
+
+async function getDoc(slug: string) {
+    const filePath = path.join(docsDirectory, `${slug}.md`);
+    try {
+        const fileContent = await fs.readFile(filePath, 'utf8');
+        const { content, data } = matter(fileContent);
+        return { content, data, slug };
+    } catch (error) {
+        return null;
+    }
+}
+
+export default async function WikiPage({ params }: Props) {
+    const doc = await getDoc(params.slug);
+
+    if (!doc) {
+        notFound();
     }
 
     return (
-        <Container>
-            <WikiContent page={page} allPages={allPages} />
-        </Container>
-    )
+        <article>
+            <h1>{doc.data.title || doc.slug.replace(/-/g, ' ')}</h1>
+            <MDXRemote
+                source={doc.content}
+                options={{
+                    mdxOptions: {
+                        rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+                    },
+                }}
+            />
+        </article>
+    );
 }
 
 export async function generateStaticParams() {
-    const pages = await getAllWikiPages()
-    return pages.map(page => ({
-        slug: page.slug
-    }))
+    const fileNames = await fs.readdir(docsDirectory);
+    return fileNames.map(fileName => ({
+        slug: fileName.replace(/\.md?$/, ''),
+    }));
 }
 
-export async function generateMetadata(props: Props) {
-    const params = await props.params
-    const page = await getWikiPageBySlug(params.slug)
-    
-    if (!page) {
-        return {}
+export async function generateMetadata({ params }: Props) {
+    const doc = await getDoc(params.slug);
+    if (!doc) {
+        return {};
     }
-
-    return getHeadMetadata(
-        `${page.title} | Wiki`,
-        page.description || `Learn about ${page.title} on SkyCofl`,
-        undefined,
-        ['wiki', 'documentation', page.title.toLowerCase()],
-        `${page.title} | SkyCofl Wiki`
-    )
+    return {
+        title: doc.data.title || doc.slug.replace(/-/g, ' '),
+        description: doc.data.description || `Learn about ${doc.slug.replace(/-/g, ' ')} on SkyCofl`,
+    };
 }
