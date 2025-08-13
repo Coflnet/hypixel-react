@@ -292,34 +292,8 @@ function Startpage(props: Props) {
                 <hr />
                 <h1>Skyblock Auction House History</h1>
                 <p style={{ fontSize: 'larger' }}>Browse through over 700 million auctions, over two million players and the bazaar of hypixel skyblock</p>
-            <Card className={styles.startpageCard}>
-                <Card.Header>
-                    <Card.Title>
-                        <Image src="https://sky.coflnet.com/static/icon/STOCK_OF_STONKS" alt="Survey" width={24} height={24} style={{ marginLeft: '5px' }} /> Looking for Feedback <Image src="https://sky.coflnet.com/static/icon/STOCK_OF_STONKS" alt="Survey" width={24} height={24} style={{ marginLeft: '5px' }} />
-                    </Card.Title>
-                </Card.Header>
-                <Card.Body>
-                    <div>
-                        <p>
-                            We are currently running a survey to improve our service. <br/>Please take a moment to fill it out. It will help us understand
-                            what you like and what we can improve. <br/>Also with code <code>SUMMER25</code> you can get 15% off all of our subscriptions until Aug. the 15th.
-                        </p>
-                        <p>
-                            <Link
-                                href="https://docs.google.com/forms/d/e/1FAIpQLSdOQWQOlCWHnaeiemOMI8-BZJ5giJEbmpDMGAVsDPAiwssr2Q/viewform?usp=dialog"
-                                target="_blank"
-                                rel="noopener noreferrer nofollow"
-                                style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}
-                            >
-                                Take the survey ↗️
-                            </Link>
-                        </p>
-                    </div>
-                </Card.Body>
-            </Card>
                 <hr />
             </div>
-            
             <Card className={styles.startpageCard}>
                 <Card.Header>
                     <Card.Title>
