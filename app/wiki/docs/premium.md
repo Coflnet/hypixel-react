@@ -36,7 +36,7 @@ SkyCofl offers several premium tiers to enhance your SkyBlock experience and sup
 - Green chat color in mod
 
 ### Premium+
-- Flipper delay: <1 second
+- Flipper delay: \<1 second
 - All premium features
 - Auction archive access
 - Flip replay system

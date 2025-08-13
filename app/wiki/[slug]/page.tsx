@@ -6,9 +6,6 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { notFound } from 'next/navigation';
 import matter from 'gray-matter';
 
-interface Props {
-    params: { slug: string };
-}
 
 const docsDirectory = path.join(process.cwd(), 'app/wiki/docs');
 
@@ -23,8 +20,10 @@ async function getDoc(slug: string) {
     }
 }
 
-export default async function WikiPage({ params }: Props) {
-    const doc = await getDoc(params.slug);
+export default async function WikiPage(props) {
+    const params = await props.params;
+    let slug = params.slug
+    const doc = await getDoc(slug);
 
     if (!doc) {
         notFound();
@@ -52,7 +51,8 @@ export async function generateStaticParams() {
     }));
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata(props) {
+    const params = await props.params;
     const doc = await getDoc(params.slug);
     if (!doc) {
         return {};

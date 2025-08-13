@@ -124,7 +124,7 @@ Select any piece of perfect armor with a specific tier.
 ## Volatility
 Normalized volatility, this metric on sniper and sniper median flips quantifies how much an item price fluctuates.
 Price changes from 20k to 19k are result in a volatility of `2`, from 20 to 5 would be a volatility of `74`.  
-Filtering for <10 would be considered rather stable items and >30 rather volatile items.
+Filtering for \<10 would be considered rather stable items and >30 rather volatile items.
 
 ## ReferenceCount
 Count of references used for flip, together with high volume indicates that item is new and may be volatilie
