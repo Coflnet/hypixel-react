@@ -57,6 +57,7 @@ import type {
   FlipSettings,
   FlipSumary,
   FuseFlip,
+  GetApiAuctionRandomParams,
   GetApiAuctionsBatchParams,
   GetApiAuctionsTagItemTagActiveBinParams,
   GetApiAuctionsTagItemTagActiveOverviewParams,
@@ -329,6 +330,94 @@ export function useGetApiAuctionAuctionUuidUid<TData = Awaited<ReturnType<typeof
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetApiAuctionAuctionUuidUidQueryOptions(auctionUuid,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get a random auction from the database, built for Thomases guessing game
+ */
+export const getApiAuctionRandom = (
+    params?: GetApiAuctionRandomParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<SaveAuction>> => {
+    
+    
+    return axios.get(
+      `https://sky.coflnet.com/api/auction/random`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+export const getGetApiAuctionRandomQueryKey = (params?: GetApiAuctionRandomParams,) => {
+    return [`https://sky.coflnet.com/api/auction/random`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getGetApiAuctionRandomQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = AxiosError<unknown>>(params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionRandomQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionRandom>>> = ({ signal }) => getApiAuctionRandom(params, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiAuctionRandomQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionRandom>>>
+export type GetApiAuctionRandomQueryError = AxiosError<unknown>
+
+
+export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = AxiosError<unknown>>(
+ params: undefined |  GetApiAuctionRandomParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAuctionRandom>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAuctionRandom>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = AxiosError<unknown>>(
+ params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAuctionRandom>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAuctionRandom>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = AxiosError<unknown>>(
+ params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get a random auction from the database, built for Thomases guessing game
+ */
+
+export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = AxiosError<unknown>>(
+ params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiAuctionRandomQueryOptions(params,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

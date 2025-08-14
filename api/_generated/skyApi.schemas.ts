@@ -12,11 +12,11 @@ export type ApiSaveAuctionFlatNbt = {[key: string]: string | null} | null;
 
 export interface ApiSaveAuction {
   /** @nullable */
-  flatNbt?: ApiSaveAuctionFlatNbt;
+  flatNbt: ApiSaveAuctionFlatNbt;
   /** @nullable */
   uuid?: string | null;
-  count?: number;
-  startingBid?: number;
+  count: number;
+  startingBid: number;
   /**
    * @maxLength 40
    * @nullable
@@ -27,8 +27,8 @@ export interface ApiSaveAuction {
    * @nullable
    */
   itemName?: string | null;
-  start?: string;
-  end?: string;
+  start: string;
+  end: string;
   /** @nullable */
   auctioneerId?: string | null;
   /** @nullable */
@@ -37,18 +37,18 @@ export interface ApiSaveAuction {
   coop?: string[] | null;
   /** @nullable */
   coopMembers?: UuId[] | null;
-  highestBidAmount?: number;
+  highestBidAmount: number;
   /** @nullable */
   bids?: SaveBids[] | null;
-  anvilUses?: number;
+  anvilUses: number;
   /** @nullable */
   enchantments?: Enchantment[] | null;
   nbtData?: NbtData;
-  itemCreatedAt?: string;
-  reforge?: Reforge;
-  category?: Category;
-  tier?: Tier;
-  bin?: boolean;
+  itemCreatedAt: string;
+  reforge: Reforge;
+  category: Category;
+  tier: Tier;
+  bin: boolean;
 }
 
 export interface ArchiveResponse {
@@ -57,43 +57,43 @@ export interface ArchiveResponse {
    * @nullable
    */
   auctions?: AuctionPreview[] | null;
-  queryStatus?: QueryStatus;
+  queryStatus: QueryStatus;
 }
 
 export interface AuctionPreview {
   /** @nullable */
-  seller?: string | null;
-  price?: number;
-  end?: string;
+  seller: string | null;
+  price: number;
+  end: string;
   /** @nullable */
-  uuid?: string | null;
+  uuid: string | null;
   /** @nullable */
-  playerName?: string | null;
+  playerName: string | null;
 }
 
 export interface AuctionResult {
   /** @nullable */
-  auctionId?: string | null;
-  highestBid?: number;
+  auctionId: string | null;
+  highestBid: number;
   /** @nullable */
-  itemName?: string | null;
+  itemName: string | null;
   /** @nullable */
-  tag?: string | null;
-  end?: string;
-  startingBid?: number;
-  bin?: boolean;
+  tag: string | null;
+  end: string;
+  startingBid: number;
+  bin: boolean;
 }
 
 export interface Autopet {
-  rules_limit?: number;
+  rules_limit: number;
 }
 
 export interface AveragePrice {
-  min?: number;
-  max?: number;
-  avg?: number;
-  volume?: number;
-  time?: string;
+  min: number;
+  max: number;
+  avg: number;
+  volume: number;
+  time: string;
 }
 
 export interface BagContents {
@@ -104,19 +104,19 @@ export interface BagContents {
 }
 
 export interface Banking {
-  balance?: number;
+  balance: number;
 }
 
 export interface BazaarFlip {
   /** @nullable */
   itemTag?: string | null;
-  buyPrice?: number;
-  sellPrice?: number;
-  profitPerHour?: number;
-  volume?: number;
-  estimatedFees?: number;
-  timestamp?: string;
-  medianBuyPrice?: number;
+  buyPrice: number;
+  sellPrice: number;
+  profitPerHour: number;
+  volume: number;
+  estimatedFees: number;
+  timestamp: string;
+  medianBuyPrice: number;
 }
 
 /**
@@ -124,17 +124,17 @@ export interface BazaarFlip {
  */
 export interface BidResult {
   /** The highest bid the requesting player has made */
-  highestOwnBid?: number;
+  highestOwnBid: number;
   /** @nullable */
-  auctionId?: string | null;
-  highestBid?: number;
+  auctionId: string | null;
+  highestBid: number;
   /** @nullable */
-  itemName?: string | null;
+  itemName: string | null;
   /** @nullable */
-  tag?: string | null;
-  end?: string;
-  startingBid?: number;
-  bin?: boolean;
+  tag: string | null;
+  end: string;
+  startingBid: number;
+  bin: boolean;
 }
 
 /**
@@ -142,20 +142,20 @@ export interface BidResult {
  */
 export interface BinResponse {
   /** The lowest bin price */
-  lowest?: number;
+  lowest: number;
   /**
    * The lowest bin auction uuid
    * @nullable
    */
-  uuid?: string | null;
+  uuid: string | null;
   /** The price of the second lowest bin */
-  secondLowest?: number;
+  secondLowest: number;
 }
 
 export interface BlockPos {
-  x?: number;
-  y?: number;
-  z?: number;
+  x: number;
+  y: number;
+  z: number;
 }
 
 export interface BookFlip {
@@ -163,16 +163,16 @@ export interface BookFlip {
   startTag?: string | null;
   /** @nullable */
   endTag?: string | null;
-  profitPerHour?: number;
-  hourlyVolume?: number;
-  estimatedFees?: number;
-  timestamp?: string;
+  profitPerHour: number;
+  hourlyVolume: number;
+  estimatedFees: number;
+  timestamp: string;
 }
 
 export interface BuyOrder {
-  amount?: number;
-  pricePerUnit?: number;
-  orders?: number;
+  amount: number;
+  pricePerUnit: number;
+  orders: number;
 }
 
 export type Category = typeof Category[keyof typeof Category];
@@ -204,7 +204,7 @@ export interface CoflnetSkyMayorModelsModelCandidate {
   name?: string | null;
   /** @nullable */
   perks?: CoflnetSkyMayorModelsModelPerk[] | null;
-  votes?: number;
+  votes: number;
 }
 
 export interface CoflnetSkyMayorModelsModelElectionPeriod {
@@ -217,7 +217,7 @@ export interface CoflnetSkyMayorModelsModelElectionPeriod {
   /** @nullable */
   start?: string | null;
   winner?: CoflnetSkyMayorModelsModelWinner;
-  year?: number;
+  year: number;
 }
 
 export interface CoflnetSkyMayorModelsModelPerk {
@@ -225,7 +225,7 @@ export interface CoflnetSkyMayorModelsModelPerk {
   description?: string | null;
   /** @nullable */
   name?: string | null;
-  minister?: boolean;
+  minister: boolean;
 }
 
 export interface CoflnetSkyMayorModelsModelWinner {
@@ -236,7 +236,7 @@ export interface CoflnetSkyMayorModelsModelWinner {
   name?: string | null;
   /** @nullable */
   perks?: CoflnetSkyMayorModelsModelPerk[] | null;
-  votes?: number;
+  votes: number;
 }
 
 export interface CoflnetSkyMayorModelsPerk {
@@ -244,7 +244,7 @@ export interface CoflnetSkyMayorModelsPerk {
   name?: string | null;
   /** @nullable */
   description?: string | null;
-  minister?: boolean;
+  minister: boolean;
 }
 
 export interface CoinTransaction {
@@ -252,16 +252,16 @@ export interface CoinTransaction {
   productId?: string | null;
   /** @nullable */
   reference?: string | null;
-  amount?: number;
-  timeStamp?: string;
+  amount: number;
+  timeStamp: string;
 }
 
 export interface ColorEnchant {
   /** @nullable */
-  color?: string | null;
-  value?: number;
-  type?: EnchantmentType;
-  level?: number;
+  color: string | null;
+  value: number;
+  type: EnchantmentType;
+  level: number;
 }
 
 /**
@@ -274,8 +274,8 @@ export interface ColorSaveAuction {
   enchantments?: ColorEnchant[] | null;
   /** @nullable */
   uuid?: string | null;
-  count?: number;
-  startingBid?: number;
+  count: number;
+  startingBid: number;
   /**
    * @maxLength 40
    * @nullable
@@ -286,8 +286,8 @@ export interface ColorSaveAuction {
    * @nullable
    */
   itemName?: string | null;
-  start?: string;
-  end?: string;
+  start: string;
+  end: string;
   /** @nullable */
   auctioneerId?: string | null;
   /** @nullable */
@@ -296,18 +296,18 @@ export interface ColorSaveAuction {
   coop?: string[] | null;
   /** @nullable */
   coopMembers?: UuId[] | null;
-  highestBidAmount?: number;
+  highestBidAmount: number;
   /** @nullable */
   bids?: SaveBids[] | null;
-  anvilUses?: number;
+  anvilUses: number;
   nbtData?: NbtData;
-  itemCreatedAt?: string;
-  reforge?: Reforge;
-  category?: Category;
-  tier?: Tier;
-  bin?: boolean;
+  itemCreatedAt: string;
+  reforge: Reforge;
+  category: Category;
+  tier: Tier;
+  bin: boolean;
   /** @nullable */
-  flatNbt?: ColorSaveAuctionFlatNbt;
+  flatNbt: ColorSaveAuctionFlatNbt;
 }
 
 /**
@@ -318,12 +318,12 @@ export interface CommandListEntry {
    * The commands label. ie /cofl {this}
    * @nullable
    */
-  subCommand?: string | null;
+  subCommand: string | null;
   /**
    * The descriptive help text to display
    * @nullable
    */
-  description?: string | null;
+  description: string | null;
 }
 
 /**
@@ -353,14 +353,14 @@ export interface CraftInstruction {
 }
 
 export interface CraftPrice {
-  price?: number;
+  price: number;
   /** @nullable */
-  itemTag?: string | null;
+  itemTag: string | null;
   /** @nullable */
-  attribute?: string | null;
+  attribute: string | null;
   /** @nullable */
-  formattedReson?: string | null;
-  count?: number;
+  formattedReson: string | null;
+  count: number;
 }
 
 /**
@@ -369,25 +369,25 @@ export interface CraftPrice {
 export type CurrenciesEssence = {[key: string]: EssenceAmount} | null;
 
 export interface Currencies {
-  coin_purse?: number;
-  motes_purse?: number;
+  coin_purse: number;
+  motes_purse: number;
   /** @nullable */
   essence?: CurrenciesEssence;
 }
 
 export interface CurrentPrice {
-  sell?: number;
-  buy?: number;
-  available?: number;
-  updatedAt?: string;
+  sell: number;
+  buy: number;
+  available: number;
+  updatedAt: string;
 }
 
 export interface DemandFlip {
   /** @nullable */
   itemTag?: string | null;
-  currentProfitPerHour?: number;
-  timestamp?: string;
-  volume?: number;
+  currentProfitPerHour: number;
+  timestamp: string;
+  volume: number;
 }
 
 export interface DemandSpreadFlip {
@@ -400,9 +400,9 @@ export interface DemandSpreadFlip {
  * Response object instructing minecraft mods how to modify the description
  */
 export interface DescModification {
-  type?: ModType;
+  type: ModType;
   /** Extra field containing index to insert (int), or value to replace (string) */
-  line?: number;
+  line: number;
   /**
    * New value to add,insert, or replace something with
    * @nullable
@@ -446,16 +446,16 @@ export const DescriptionField = {
 } as const;
 
 export interface DescriptionSetting {
-  highlightFilterMatch?: boolean;
-  minProfitForHighlight?: number;
-  disableHighlighting?: boolean;
-  disableSuggestions?: boolean;
+  highlightFilterMatch: boolean;
+  minProfitForHighlight: number;
+  disableHighlighting: boolean;
+  disableSuggestions: boolean;
   /** @nullable */
-  disableInfoIn?: string[] | null;
-  disabled?: boolean;
-  lowballMedUndercut?: number;
-  lowballLbinUndercut?: number;
-  preferLbinInSuggestions?: boolean;
+  disableInfoIn: string[] | null;
+  disabled: boolean;
+  lowballMedUndercut: number;
+  lowballLbinUndercut: number;
+  preferLbinInSuggestions: boolean;
   /** @nullable */
   fields?: DescriptionField[][] | null;
   highlightInfo?: HighlightInfo;
@@ -467,23 +467,23 @@ export interface DescriptionSetting {
 export type DiscordMessageAttachments = {[key: string]: string} | null;
 
 export interface DiscordMessage {
-  channelId?: number;
-  messageId?: number;
+  channelId: number;
+  messageId: number;
   /** @nullable */
   content?: string | null;
-  createdAt?: string;
-  month?: number;
+  createdAt: string;
+  month: number;
   /** @nullable */
   attachments?: DiscordMessageAttachments;
   /** @nullable */
   authorName?: string | null;
-  authorId?: number;
-  updateAt?: string;
+  authorId: number;
+  updateAt: string;
 }
 
 export interface Enchantment {
-  type?: EnchantmentType;
-  level?: number;
+  type: EnchantmentType;
+  level: number;
 }
 
 export type EnchantmentType = typeof EnchantmentType[keyof typeof EnchantmentType];
@@ -654,7 +654,7 @@ export interface ErrorResponse {
 }
 
 export interface EssenceAmount {
-  current?: number;
+  current: number;
 }
 
 export type ExportFlags = typeof ExportFlags[keyof typeof ExportFlags];
@@ -680,7 +680,7 @@ export interface ExportRequest {
   byEmail?: string | null;
   /** @nullable */
   discordWebhookUrl?: string | null;
-  requestedAt?: string;
+  requestedAt: string;
   /** @nullable */
   itemTag?: string | null;
   /** @nullable */
@@ -697,7 +697,7 @@ export interface ExportRequest {
 export type ExportRequestCreateFilters = {[key: string]: string | null} | null;
 
 export interface ExportRequestCreate {
-  flags?: ExportFlags;
+  flags: ExportFlags;
   /** @nullable */
   filters?: ExportRequestCreateFilters;
   /** @nullable */
@@ -719,20 +719,20 @@ export const ExportStatus = {
 export interface Fill {
   /** @nullable */
   playerName?: string | null;
-  amount?: number;
-  timeStamp?: string;
+  amount: number;
+  timeStamp: string;
 }
 
 export interface FilterOptions {
   /** @nullable */
-  name?: string | null;
+  name: string | null;
   /** @nullable */
-  options?: string[] | null;
-  type?: FilterType;
+  options: string[] | null;
+  type: FilterType;
   /** @nullable */
-  longType?: string | null;
+  longType: string | null;
   /** @nullable */
-  description?: string | null;
+  description: string | null;
 }
 
 /**
@@ -789,25 +789,25 @@ export const FinderType = {
 
 export interface FlipDetails {
   /** @nullable */
-  itemName?: string | null;
+  itemName: string | null;
   /** @nullable */
-  itemTag?: string | null;
+  itemTag: string | null;
   /** @nullable */
-  tier?: string | null;
-  pricePaid?: number;
-  soldFor?: number;
-  finder?: FinderType;
-  uId?: number;
+  tier: string | null;
+  pricePaid: number;
+  soldFor: number;
+  finder: FinderType;
+  uId: number;
   /** @nullable */
-  originAuction?: string | null;
+  originAuction: string | null;
   /** @nullable */
-  soldAuction?: string | null;
-  buyTime?: string;
-  sellTime?: string;
-  profit?: number;
+  soldAuction: string | null;
+  buyTime: string;
+  sellTime: string;
+  profit: number;
   /** @nullable */
-  propertyChanges?: PropertyChange[] | null;
-  flags?: FlipFlags;
+  propertyChanges: PropertyChange[] | null;
+  flags: FlipFlags;
 }
 
 export type FlipFlags = typeof FlipFlags[keyof typeof FlipFlags];
@@ -828,39 +828,39 @@ export type FlipSettingsFilters = {[key: string]: string | null} | null;
 
 export interface FlipSettings {
   /** @nullable */
-  filters?: FlipSettingsFilters;
+  filters: FlipSettingsFilters;
   /** @nullable */
-  blacklist?: ListEntry[] | null;
+  blacklist: ListEntry[] | null;
   /** @nullable */
-  whitelist?: ListEntry[] | null;
-  lbin?: boolean;
-  visibility?: VisibilitySettings;
-  mod?: ModSettings;
-  finders?: FinderType;
-  fastMode?: boolean;
+  whitelist: ListEntry[] | null;
+  lbin: boolean;
+  visibility: VisibilitySettings;
+  mod: ModSettings;
+  finders: FinderType;
+  fastMode: boolean;
   /** @nullable */
-  publishedAs?: string | null;
-  loadedVersion?: number;
+  publishedAs: string | null;
+  loadedVersion: number;
   /** @nullable */
-  changer?: string | null;
-  onlyBin?: boolean;
-  whitelistAftermain?: boolean;
+  changer: string | null;
+  onlyBin: boolean;
+  whitelistAftermain: boolean;
   /** @nullable */
-  basedConfig?: string | null;
-  blockExport?: boolean;
-  blockHighCompetition?: boolean;
-  minProfit?: number;
-  minProfitPercent?: number;
-  minVolume?: number;
-  maxCost?: number;
+  basedConfig: string | null;
+  blockExport: boolean;
+  blockHighCompetition: boolean;
+  minProfit: number;
+  minProfitPercent: number;
+  minVolume: number;
+  maxCost: number;
   /** @nullable */
-  lastChange?: string | null;
+  lastChange: string | null;
 }
 
 export interface FlipSumary {
   /** @nullable */
-  flips?: FlipDetails[] | null;
-  totalProfit?: number;
+  flips: FlipDetails[] | null;
+  totalProfit: number;
 }
 
 /**
@@ -871,33 +871,33 @@ export type FuseFlipInputs = {[key: string]: number} | null;
 export interface FuseFlip {
   /** @nullable */
   inputs?: FuseFlipInputs;
-  inputCost?: number;
-  volume?: number;
-  outputValue?: number;
+  inputCost: number;
+  volume: number;
+  outputValue: number;
   /** @nullable */
   output?: string | null;
-  outputCount?: number;
+  outputCount: number;
 }
 
 export interface GraphResult {
-  maxBuy?: number;
-  maxSell?: number;
-  minBuy?: number;
-  minSell?: number;
-  buy?: number;
-  sell?: number;
-  sellVolume?: number;
-  buyVolume?: number;
-  timestamp?: string;
-  buyMovingWeek?: number;
-  sellMovingWeek?: number;
+  maxBuy: number;
+  maxSell: number;
+  minBuy: number;
+  minSell: number;
+  buy: number;
+  sell: number;
+  sellVolume: number;
+  buyVolume: number;
+  timestamp: string;
+  buyMovingWeek: number;
+  sellMovingWeek: number;
 }
 
 export interface HighlightInfo {
   position?: BlockPos;
   /** @nullable */
   hexColor?: string | null;
-  slotId?: number;
+  slotId: number;
   /** @nullable */
   chestname?: string | null;
 }
@@ -905,15 +905,15 @@ export interface HighlightInfo {
 export interface Ingredient {
   /** @nullable */
   itemId?: string | null;
-  count?: number;
-  cost?: number;
+  count: number;
+  cost: number;
   /** @nullable */
   type?: string | null;
 }
 
 export interface Int32Int64ValueTuple {
-  item1?: number;
-  item2?: number;
+  item1: number;
+  item2: number;
 }
 
 /**
@@ -941,7 +941,7 @@ export interface Inventory {
   equipment_contents?: InventoryElem;
   bag_contents?: BagContents;
   personal_vault_contents?: InventoryElem;
-  wardrobe_equipped_slot?: number;
+  wardrobe_equipped_slot: number;
   /** @nullable */
   sacks_counts?: InventorySacksCounts;
   wardrobe_contents?: InventoryElem;
@@ -956,11 +956,11 @@ export interface Inventory {
 
 export interface InventoryBatchLookup {
   /** @nullable */
-  profileId?: string | null;
+  profileId: string | null;
   /** @nullable */
-  playerId?: string | null;
+  playerId: string | null;
   /** @nullable */
-  uuids?: string[] | null;
+  uuids: string[] | null;
 }
 
 /**
@@ -977,23 +977,23 @@ export interface InventoryData {
    * The name of the chest
    * @nullable
    */
-  chestName?: string | null;
+  chestName: string | null;
   /**
    * Base64, gziped nbtdata of the inventory
    * @nullable
    */
-  fullInventoryNbt?: string | null;
-  position?: BlockPos;
+  fullInventoryNbt: string | null;
+  position: BlockPos;
   /**
    * Nbt formatted as json like mineflayer does it
    * @nullable
    */
-  jsonNbt?: InventoryDataJsonNbt;
+  jsonNbt: InventoryDataJsonNbt;
   /**
    * Id of the sender to identify and or contact
    * @nullable
    */
-  senderContactId?: string | null;
+  senderContactId: string | null;
 }
 
 /**
@@ -1010,30 +1010,30 @@ export interface InventoryDataWithSettings {
    * The name of the chest
    * @nullable
    */
-  chestName?: string | null;
+  chestName: string | null;
   /**
    * Base64, gziped nbtdata of the inventory
    * @nullable
    */
-  fullInventoryNbt?: string | null;
-  position?: BlockPos;
+  fullInventoryNbt: string | null;
+  position: BlockPos;
   /**
    * Nbt formatted as json like mineflayer does it
    * @nullable
    */
-  jsonNbt?: InventoryDataWithSettingsJsonNbt;
+  jsonNbt: InventoryDataWithSettingsJsonNbt;
   /**
    * Id of the sender to identify and or contact
    * @nullable
    */
-  senderContactId?: string | null;
+  senderContactId: string | null;
   settings?: DescriptionSetting;
   /** Incremental version of the client library to know supported features */
-  version?: number;
+  version: number;
 }
 
 export interface InventoryElem {
-  type?: number;
+  type: number;
   /** @nullable */
   data?: string | null;
 }
@@ -1168,7 +1168,7 @@ export interface ItemMetadataElement {
    * @nullable
    */
   tag?: string | null;
-  flags?: ItemFlags;
+  flags: ItemFlags;
 }
 
 export interface ItemPreview {
@@ -1203,7 +1203,7 @@ export interface ItemRepresent {
   color?: number | null;
   /** @nullable */
   description?: string | null;
-  count?: number;
+  count: number;
 }
 
 /**
@@ -1214,26 +1214,26 @@ export interface ItemSell {
    * The minecraft account uuid that sold the item
    * @nullable
    */
-  seller?: string | null;
+  seller: string | null;
   /**
    * The hypixel auction uuid for the item
    * @nullable
    */
-  uuid?: string | null;
+  uuid: string | null;
   /**
    * The minecraft account uuid that bought the item
    * @nullable
    */
-  buyer?: string | null;
+  buyer: string | null;
   /**
    * Hypixel internal item id, can be used for retrieving image
    * @nullable
    */
-  itemTag?: string | null;
+  itemTag: string | null;
   /** The coin amount of the item that was sold for */
-  highestBid?: number;
+  highestBid: number;
   /** When was the item sold */
-  timestamp?: string;
+  timestamp: string;
 }
 
 /**
@@ -1241,13 +1241,13 @@ export interface ItemSell {
  */
 export interface KatFlip {
   /** 24 hour sell volume */
-  volume?: number;
+  volume: number;
   /** Median prie of the item */
-  median?: number;
+  median: number;
   /** The amount of coins the upgrade costs (excluding materials) */
-  readonly upgradeCost?: number;
+  readonly upgradeCost: number;
   /** The cost for materials at current bazaar/ah rate */
-  readonly materialCost?: number;
+  readonly materialCost: number;
   /**
    * The auction to flip
    * @nullable
@@ -1256,14 +1256,14 @@ export interface KatFlip {
   coreData?: KatUpgradeCost;
   targetRarity?: Tier;
   /** The estimated profit the flip will genreate */
-  readonly profit?: number;
+  readonly profit: number;
   /**
    * The reference auction used to estimate the profit (lowest bin of higher rarity)
    * @nullable
    */
   referenceAuction?: string | null;
   /** How much the starting bid of the auction is */
-  readonly purchaseCost?: number;
+  readonly purchaseCost: number;
   /**
    * The full name of the origin auction (cotnaining pet level)
    * @nullable
@@ -1285,18 +1285,18 @@ export interface KatUpgradeCost {
    * @nullable
    */
   name?: string | null;
-  baseRarity?: Tier;
+  baseRarity: Tier;
   /** Time it takes to upgrade */
-  hours?: number;
+  hours: number;
   /** Base cost of coins it takes to do the upgrade */
-  cost?: number;
+  cost: number;
   /**
    * Material (if any) required to upgrade
    * @nullable
    */
   material?: string | null;
   /** Amount of Coflnet.Sky.Api.Models.KatUpgradeCost.Material required to do the upgrade */
-  amount?: number;
+  amount: number;
   /** @nullable */
   materials?: KatUpgradeCostMaterials;
   /**
@@ -1313,21 +1313,21 @@ export type ListEntryFilter = {[key: string]: string | null} | null;
 
 export interface ListEntry {
   /** @nullable */
-  tag?: string | null;
+  tag: string | null;
   /** @nullable */
-  displayName?: string | null;
+  displayName: string | null;
   /** @nullable */
-  filter?: ListEntryFilter;
+  filter: ListEntryFilter;
   /** @nullable */
-  tags?: string[] | null;
-  order?: number;
+  tags: string[] | null;
+  order: number;
   /** @nullable */
-  group?: string | null;
-  disabled?: boolean;
+  group: string | null;
+  disabled: boolean;
 }
 
 export interface Listener {
-  id?: number;
+  id: number;
   /**
    * Either User,auction or ItemId UserIds are +100.000
    * @maxLength 45
@@ -1335,9 +1335,9 @@ export interface Listener {
    */
   topicId?: string | null;
   /** Price point in case of item */
-  price?: number;
-  type?: SubType;
-  userId?: number;
+  price: number;
+  type: SubType;
+  userId: number;
   /**
    * Additional filter to apply before sending the notification
    * @maxLength 5000
@@ -1359,44 +1359,44 @@ export interface Member {
 export type MemberValueValuePerCategory = {[key: string]: number} | null;
 
 export interface MemberValue {
-  fullValue?: number;
+  fullValue: number;
   /** @nullable */
   valuePerCategory?: MemberValueValuePerCategory;
 }
 
 export interface ModSettings {
-  justProfit?: boolean;
-  soundOnFlip?: boolean;
-  shortNumbers?: boolean;
-  shortNames?: boolean;
-  blockTenSecMsg?: boolean;
+  justProfit: boolean;
+  soundOnFlip: boolean;
+  shortNumbers: boolean;
+  shortNames: boolean;
+  blockTenSecMsg: boolean;
   /** @nullable */
-  format?: string | null;
+  format: string | null;
   /** @nullable */
-  blockedFormat?: string | null;
-  chat?: boolean;
-  countdown?: boolean;
-  hideNoBestFlip?: boolean;
-  timerX?: number;
-  timerY?: number;
-  timerSeconds?: number;
-  timerScale?: number;
+  blockedFormat: string | null;
+  chat: boolean;
+  countdown: boolean;
+  hideNoBestFlip: boolean;
+  timerX: number;
+  timerY: number;
+  timerSeconds: number;
+  timerScale: number;
   /** @nullable */
-  timerPrefix?: string | null;
-  timerPrecision?: number;
-  blockedMsg?: number;
-  maxPercentOfPurse?: number;
-  noBedDelay?: boolean;
-  streamerMode?: boolean;
-  autoStartFlipper?: boolean;
-  normalSoldFlips?: boolean;
-  tempBlacklistSpam?: boolean;
-  dataOnlyMode?: boolean;
-  ahListHours?: number;
-  quickSell?: boolean;
-  maxItemsInInventory?: number;
-  disableSpamProtection?: boolean;
-  tempBlacklistThreshold?: number;
+  timerPrefix: string | null;
+  timerPrecision: number;
+  blockedMsg: number;
+  maxPercentOfPurse: number;
+  noBedDelay: boolean;
+  streamerMode: boolean;
+  autoStartFlipper: boolean;
+  normalSoldFlips: boolean;
+  tempBlacklistSpam: boolean;
+  dataOnlyMode: boolean;
+  ahListHours: number;
+  quickSell: boolean;
+  maxItemsInInventory: number;
+  disableSpamProtection: boolean;
+  tempBlacklistThreshold: number;
 }
 
 /**
@@ -1432,14 +1432,14 @@ export interface NbtData {
 export type NetworthBreakDownMember = {[key: string]: MemberValue} | null;
 
 export interface NetworthBreakDown {
-  fullValue?: number;
+  fullValue: number;
   /** @nullable */
   member?: NetworthBreakDownMember;
 }
 
 export interface NotificationTarget {
   /** Primary Key for database */
-  id?: number;
+  id: number;
   /**
    * The target to send the notification to
 Depends on the Coflnet.Sky.Api.Models.Notifications.NotificationTarget.Type
@@ -1451,8 +1451,8 @@ When Type is EMAIL this is the email address
    * @nullable
    */
   target?: string | null;
-  type?: TargetType;
-  when?: NotifyWhen;
+  type: TargetType;
+  when: NotifyWhen;
   /**
    * @maxLength 36
    * @nullable
@@ -1464,7 +1464,7 @@ When Type is EMAIL this is the email address
    * @nullable
    */
   name?: string | null;
-  useCount?: number;
+  useCount: number;
 }
 
 export type NotifyWhen = typeof NotifyWhen[keyof typeof NotifyWhen];
@@ -1478,29 +1478,29 @@ export const NotifyWhen = {
 } as const;
 
 export interface Offer {
-  isSell?: boolean;
+  isSell: boolean;
   /** @nullable */
   itemTag?: string | null;
   /** @nullable */
   itemName?: string | null;
-  amount?: number;
-  pricePerUnit?: number;
-  created?: string;
+  amount: number;
+  pricePerUnit: number;
+  created: string;
   /** @nullable */
   customers?: Fill[] | null;
 }
 
 export interface OldRefInfo {
   /** @nullable */
-  refId?: string | null;
-  count?: number;
-  receivedTime?: string;
-  receivedHours?: number;
-  bougthPremium?: number;
+  refId: string | null;
+  count: number;
+  receivedTime: string;
+  receivedHours: number;
+  bougthPremium: number;
 }
 
 export interface OwnerShip {
-  expiresAt?: string;
+  expiresAt: string;
 }
 
 /**
@@ -1520,20 +1520,20 @@ export interface Pet {
   uniqueId?: string | null;
   /** @nullable */
   type?: string | null;
-  exp?: number;
-  active?: boolean;
+  exp: number;
+  active: boolean;
   /** @nullable */
   tier?: string | null;
   /** @nullable */
   heldItem?: string | null;
-  candyUsed?: number;
+  candyUsed: number;
   /** @nullable */
   skin?: string | null;
   /** @nullable */
   extra?: PetExtra;
   /** @nullable */
   milestone?: PetMilestone;
-  total_exp_gained?: number;
+  total_exp_gained: number;
 }
 
 export interface PetsData {
@@ -1544,10 +1544,10 @@ export interface PetsData {
 
 export interface PlayerResult {
   /** @nullable */
-  name?: string | null;
+  name: string | null;
   /** @nullable */
-  uuid?: string | null;
-  hitCount?: number;
+  uuid: string | null;
+  hitCount: number;
 }
 
 export interface PremiumSubscription {
@@ -1559,24 +1559,24 @@ export interface PremiumSubscription {
   productName?: string | null;
   /** @nullable */
   paymentAmount?: string | null;
-  renewsAt?: string;
-  createdAt?: string;
+  renewsAt: string;
+  createdAt: string;
 }
 
 export interface PriceEstimate {
   /** The best matching lowest bin found on ah */
-  lbin?: number;
+  lbin: number;
   /** The best matching median sell price */
-  median?: number;
+  median: number;
   /** average 24 hour sell volume */
-  volume?: number;
+  volume: number;
   /**
    * The link to best matching lbin
    * @nullable
    */
   lbinLink?: string | null;
   /** Suggested price for selling withing 5 minutes */
-  fastSell?: number;
+  fastSell: number;
   /**
    * They key for the lbin
    * @nullable
@@ -1595,16 +1595,16 @@ export interface PriceEstimate {
 }
 
 export interface PriceStatistics {
-  averageSellTimeSeconds?: number;
-  totalAuctionsSold?: number;
-  totalListed?: number;
-  totalSellers?: number;
-  totalBuyers?: number;
-  totalBids?: number;
-  totalCoinsTransferred?: number;
-  totalAuctions?: number;
-  totalItemsSold?: number;
-  binCount?: number;
+  averageSellTimeSeconds: number;
+  totalAuctionsSold: number;
+  totalListed: number;
+  totalSellers: number;
+  totalBuyers: number;
+  totalBids: number;
+  totalCoinsTransferred: number;
+  totalAuctions: number;
+  totalItemsSold: number;
+  binCount: number;
   /** @nullable */
   prices?: AveragePrice[] | null;
   /** @nullable */
@@ -1612,34 +1612,34 @@ export interface PriceStatistics {
 }
 
 export interface PriceSumary {
-  min?: number;
-  median?: number;
-  mean?: number;
-  mode?: number;
-  volume?: number;
-  max?: number;
+  min: number;
+  median: number;
+  mean: number;
+  mode: number;
+  volume: number;
+  max: number;
 }
 
 export interface PricingBreakdwon {
   /** @nullable */
-  craftPrice?: CraftPrice[] | null;
+  craftPrice: CraftPrice[] | null;
 }
 
 export interface PrivacySettings {
   /** @nullable */
-  chatRegex?: string | null;
-  collectChat?: boolean;
-  collectInventory?: boolean;
-  disableTradeStoring?: boolean;
-  disableKuudraTracking?: boolean;
-  collectTab?: boolean;
-  collectScoreboard?: boolean;
-  allowProxy?: boolean;
-  collectChatClicks?: boolean;
-  extendDescriptions?: boolean;
+  chatRegex: string | null;
+  collectChat: boolean;
+  collectInventory: boolean;
+  disableTradeStoring: boolean;
+  disableKuudraTracking: boolean;
+  collectTab: boolean;
+  collectScoreboard: boolean;
+  allowProxy: boolean;
+  collectChatClicks: boolean;
+  extendDescriptions: boolean;
   /** @nullable */
-  commandPrefixes?: string[] | null;
-  autoStart?: boolean;
+  commandPrefixes: string[] | null;
+  autoStart: boolean;
 }
 
 export type ProductType = typeof ProductType[keyof typeof ProductType];
@@ -1668,7 +1668,7 @@ export interface Profile {
   members?: ProfileMembers;
   /** @nullable */
   cute_name?: string | null;
-  selected?: boolean;
+  selected: boolean;
   /** @nullable */
   game_mode?: string | null;
   banking?: Banking;
@@ -1681,27 +1681,27 @@ export interface ProfitableCraft {
   itemId?: string | null;
   /** @nullable */
   itemName?: string | null;
-  sellPrice?: number;
-  craftCost?: number;
+  sellPrice: number;
+  craftCost: number;
   /** @nullable */
   ingredients?: Ingredient[] | null;
   reqCollection?: RequiredCollection;
   reqSlayer?: RequiredCollection;
   reqSkill?: RequiredSkill;
-  volume?: number;
-  median?: number;
-  lastUpdated?: string;
+  volume: number;
+  median: number;
+  lastUpdated: string;
 }
 
 export interface PropertyChange {
   /** @nullable */
-  description?: string | null;
-  effect?: number;
+  description: string | null;
+  effect: number;
 }
 
 export interface PublicSubscription {
   sourceType?: SourceType;
-  id?: number;
+  id: number;
   /** @nullable */
   sourceSubIdRegex?: string | null;
   /** @nullable */
@@ -1716,14 +1716,14 @@ export interface PurchaseArgs {
    * The service to pruchase
    * @nullable
    */
-  slug?: string | null;
+  slug: string | null;
   /** How many instances to purchase (longer time) */
-  count?: number;
+  count: number;
   /**
    * Reference to prevent dupplicates
    * @nullable
    */
-  reference?: string | null;
+  reference: string | null;
 }
 
 /**
@@ -1741,10 +1741,10 @@ export const QueryStatus = {
 } as const;
 
 export interface ReferralInfo {
-  referedCount?: number;
-  validatedMinecraft?: number;
-  purchasedCoins?: number;
-  purchasedCoinAmount?: number;
+  referedCount: number;
+  validatedMinecraft: number;
+  purchasedCoins: number;
+  purchasedCoinAmount: number;
   /** @nullable */
   referredBy?: string | null;
   /** @nullable */
@@ -1937,13 +1937,13 @@ export const Reforge = {
 export interface RequiredCollection {
   /** @nullable */
   name?: string | null;
-  level?: number;
+  level: number;
 }
 
 export interface RequiredSkill {
   /** @nullable */
   name?: string | null;
-  level?: number;
+  level: number;
 }
 
 export interface Rift {
@@ -1958,8 +1958,8 @@ export type SaveAuctionFlatNbt = {[key: string]: string | null} | null;
 export interface SaveAuction {
   /** @nullable */
   uuid?: string | null;
-  count?: number;
-  startingBid?: number;
+  count: number;
+  startingBid: number;
   /**
    * @maxLength 40
    * @nullable
@@ -1970,8 +1970,8 @@ export interface SaveAuction {
    * @nullable
    */
   itemName?: string | null;
-  start?: string;
-  end?: string;
+  start: string;
+  end: string;
   /** @nullable */
   auctioneerId?: string | null;
   /** @nullable */
@@ -1980,20 +1980,20 @@ export interface SaveAuction {
   coop?: string[] | null;
   /** @nullable */
   coopMembers?: UuId[] | null;
-  highestBidAmount?: number;
+  highestBidAmount: number;
   /** @nullable */
   bids?: SaveBids[] | null;
-  anvilUses?: number;
+  anvilUses: number;
   /** @nullable */
   enchantments?: Enchantment[] | null;
   nbtData?: NbtData;
-  itemCreatedAt?: string;
-  reforge?: Reforge;
-  category?: Category;
-  tier?: Tier;
-  bin?: boolean;
+  itemCreatedAt: string;
+  reforge: Reforge;
+  category: Category;
+  tier: Tier;
+  bin: boolean;
   /** @nullable */
-  flatNbt?: SaveAuctionFlatNbt;
+  flatNbt: SaveAuctionFlatNbt;
 }
 
 export interface SaveBids {
@@ -2001,32 +2001,32 @@ export interface SaveBids {
   bidder?: string | null;
   /** @nullable */
   profileId?: string | null;
-  amount?: number;
-  timestamp?: string;
+  amount: number;
+  timestamp: string;
 }
 
 export interface SearchResultItem {
   /** @nullable */
-  name?: string | null;
+  name: string | null;
   /** @nullable */
-  id?: string | null;
+  id: string | null;
   /** @nullable */
-  type?: string | null;
+  type: string | null;
   /** @nullable */
-  iconUrl?: string | null;
+  iconUrl: string | null;
   /** @nullable */
-  img?: string | null;
-  tier?: Tier;
+  img: string | null;
+  tier: Tier;
 }
 
 export interface SellOrder {
-  amount?: number;
-  pricePerUnit?: number;
-  orders?: number;
+  amount: number;
+  pricePerUnit: number;
+  orders: number;
 }
 
 export interface SkyblockItem {
-  npcSellPrice?: number;
+  npcSellPrice: number;
   /** @nullable */
   minecraftType?: string | null;
   /** @nullable */
@@ -2061,21 +2061,21 @@ export interface SpreadFlip {
   flip?: BazaarFlip;
   /** @nullable */
   itemName?: string | null;
-  isManipulated?: boolean;
+  isManipulated: boolean;
 }
 
 export interface StorageQuickStatus {
   /** @nullable */
   productId?: string | null;
-  buyPrice?: number;
-  buyVolume?: number;
-  buyMovingWeek?: number;
-  buyOrdersCount?: number;
-  sellPrice?: number;
-  sellVolume?: number;
-  sellMovingWeek?: number;
-  sellOrdersCount?: number;
-  timeStamp?: string;
+  buyPrice: number;
+  buyVolume: number;
+  buyMovingWeek: number;
+  buyOrdersCount: number;
+  sellPrice: number;
+  sellVolume: number;
+  sellMovingWeek: number;
+  sellOrdersCount: number;
+  timeStamp: string;
   /** @nullable */
   buyOrders?: BuyOrder[] | null;
   /** @nullable */
@@ -2108,22 +2108,22 @@ export interface SupplyElement {
    * Item Tag of the time
    * @nullable
    */
-  tag?: string | null;
+  tag: string | null;
   /** How much supply there is on the ah */
-  supply?: number;
+  supply: number;
   /** Median sell price */
-  median?: number;
-  lbinData?: BinResponse;
+  median: number;
+  lbinData: BinResponse;
   /** The average amount of sells in 24 hours */
-  volume?: number;
+  volume: number;
 }
 
 export interface TargetLink {
   /** @nullable */
   name?: string | null;
-  id?: number;
-  priority?: number;
-  isDisabled?: boolean;
+  id: number;
+  priority: number;
+  isDisabled: boolean;
 }
 
 export type TargetType = typeof TargetType[keyof typeof TargetType];
@@ -2163,7 +2163,7 @@ export const Tier = {
  */
 export interface TopUpArguments {
   /** A specific amount of coins to topup */
-  coinAmount?: number;
+  coinAmount: number;
   /**
    * The url to redirect to after successful payment
    * @nullable
@@ -2185,20 +2185,20 @@ export interface TopUpIdResponse {
 
 export interface TopUpProduct {
   type?: ProductType;
-  price?: number;
+  price: number;
   /** @nullable */
   currencyCode?: string | null;
   /** @nullable */
   providerSlug?: string | null;
-  id?: number;
+  id: number;
   /** @nullable */
   title?: string | null;
   /** @nullable */
   slug?: string | null;
   /** @nullable */
   description?: string | null;
-  cost?: number;
-  ownershipSeconds?: number;
+  cost: number;
+  ownershipSeconds: number;
 }
 
 export interface TradeRequest {
@@ -2218,33 +2218,33 @@ export interface TradeRequest {
   coins?: number | null;
   /** @nullable */
   wantedItems?: WantedItem[] | null;
-  timestamp?: string;
+  timestamp: string;
 }
 
 export interface UuId {
-  id?: number;
+  id: number;
   /** @nullable */
   value?: string | null;
 }
 
 export interface VisibilitySettings {
-  cost?: boolean;
-  estProfit?: boolean;
-  lbin?: boolean;
-  slbin?: boolean;
-  medPrice?: boolean;
-  seller?: boolean;
-  volume?: boolean;
-  extraFields?: number;
-  avgSellTime?: boolean;
-  profitPercent?: boolean;
-  profit?: boolean;
-  sellerOpenBtn?: boolean;
-  lore?: boolean;
-  links?: boolean;
-  copySuccessMessage?: boolean;
-  hideSold?: boolean;
-  hideManipulated?: boolean;
+  cost: boolean;
+  estProfit: boolean;
+  lbin: boolean;
+  slbin: boolean;
+  medPrice: boolean;
+  seller: boolean;
+  volume: boolean;
+  extraFields: number;
+  avgSellTime: boolean;
+  profitPercent: boolean;
+  profit: boolean;
+  sellerOpenBtn: boolean;
+  lore: boolean;
+  links: boolean;
+  copySuccessMessage: boolean;
+  hideSold: boolean;
+  hideManipulated: boolean;
 }
 
 /**
@@ -2260,6 +2260,10 @@ export interface WantedItem {
   /** @nullable */
   filters?: WantedItemFilters;
 }
+
+export type GetApiAuctionRandomParams = {
+token?: string;
+};
 
 export type GetApiAuctionsTagItemTagActiveBinParams = {
 /**
