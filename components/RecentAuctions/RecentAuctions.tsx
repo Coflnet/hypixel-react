@@ -18,12 +18,14 @@ import { useSearchParams } from 'next/navigation'
 interface Props {
     item: Item
     itemFilter: ItemFilter
+    onChangeToActiveAuctions?(): void
 }
 
 enum RECENT_AUCTIONS_FETCH_TYPE {
     ALL = 'all',
     SOLD = 'sold',
-    UNSOLD = 'unsold'
+    UNSOLD = 'unsold',
+    ACTIVE = 'active'
 }
 
 const FETCH_RESULT_SIZE = 12
@@ -119,6 +121,11 @@ function RecentAuctions(props: Props) {
     }
 
     function onFetchTypeChange(e: ChangeEvent<HTMLSelectElement>) {
+        if (e.target.value === RECENT_AUCTIONS_FETCH_TYPE.ACTIVE) {
+            props.onChangeToActiveAuctions?.()
+            return
+        }
+
         localStorage.setItem(RECENT_AUCTIONS_FETCH_TYPE_KEY, e.target.value)
         loadRecentAuctions(true)
     }
@@ -211,7 +218,8 @@ function RecentAuctions(props: Props) {
                     >
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.ALL}>ALL</option>
                         <option value={RECENT_AUCTIONS_FETCH_TYPE.SOLD}>Sold</option>
-                        <option value={RECENT_AUCTIONS_FETCH_TYPE.UNSOLD}>Unsold</option>
+                        <option value={RECENT_AUCTIONS_FETCH_TYPE.UNSOLD}>Expired</option>
+                        <option value={RECENT_AUCTIONS_FETCH_TYPE.ACTIVE}>Active</option>
                     </Form.Select>
                 ) : null}
             </h3>

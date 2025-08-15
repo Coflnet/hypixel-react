@@ -1,7 +1,7 @@
 'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 import ReactECharts from 'echarts-for-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import api from '../../../api/ApiHelper'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
@@ -17,7 +17,8 @@ import styles from './AuctionHousePriceGraph.module.css'
 import graphConfig from './PriceGraphConfig'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
 import EChartsReact from 'echarts-for-react'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { v4 as generateUUID } from 'uuid'
 
 interface Props {
     item: Item
@@ -39,7 +40,10 @@ function AuctionHousePriceGraph(props: Props) {
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true)
     let [chartOptions, setChartOptions] = useState(graphConfig)
     let [mayorData, setMayorData] = useState<MayorData[]>([])
+    let [rangeSelectKey, setRangeSelectKey] = useState(generateUUID)
     let graphRef = useRef<EChartsReact>(null)
+    let router = useRouter()
+    let pathname = usePathname()
 
     let fetchspanRef = useRef(fetchspan)
     fetchspanRef.current = fetchspan
@@ -96,11 +100,11 @@ function AuctionHousePriceGraph(props: Props) {
                 if (
                     !mounted ||
                     currentLoadingString !==
-                        JSON.stringify({
-                            tag: props.item.tag,
-                            fetchspan,
-                            itemFilter
-                        })
+                    JSON.stringify({
+                        tag: props.item.tag,
+                        fetchspan,
+                        itemFilter
+                    })
                 ) {
                     return
                 }
@@ -124,7 +128,7 @@ function AuctionHousePriceGraph(props: Props) {
                     let mayorData = await api.getMayorData(minDate, maxDate)
                     setMayorData(mayorData)
                     applyMayorDataToChart(chartOptions, mayorData, 4)
-                } catch (e) {}
+                } catch (e) { }
 
                 setAvgPrice(Math.round(priceSum / prices.length))
                 setNoDataFound(prices.length === 0)
@@ -194,6 +198,7 @@ function AuctionHousePriceGraph(props: Props) {
         <div>
             <ItemFilter filters={filters} onFilterChange={onFilterChange} showModAdvert={true} showFilterInfoElement={true} />
             <ItemPriceRange
+                key={rangeSelectKey}
                 setToDefaultRangeSwitch={defaultRangeSwitch}
                 onRangeChange={onRangeChange}
                 disableAllTime={itemFilter && JSON.stringify(itemFilter) !== '{}'}
@@ -235,7 +240,15 @@ function AuctionHousePriceGraph(props: Props) {
             ) : (
                 <div>
                     <RelatedItems tag={props.item.tag} />
-                    <RecentAuctions item={props.item} itemFilter={itemFilter || {}} />
+                    <RecentAuctions item={props.item} itemFilter={itemFilter || {}} onChangeToActiveAuctions={() => {
+                        onRangeChange(DateRange.ACTIVE)
+                        let searchParams = new URLSearchParams(window.location.search)
+                        searchParams.set('range', "active")
+                        router.replace(`${pathname}?${searchParams.toString()}`)
+                        setTimeout(() => {
+                            setRangeSelectKey(generateUUID())
+                        }, 500)
+                    }} />
                 </div>
             )}
         </div>
