@@ -115,7 +115,7 @@ Create blacklists and whitelists:
 - Lower your minimum profit threshold
 
 ### Flips Already Sold
-- This is common on the free version and lower tiers depending on the item, if you want to flip obvious high profit flips like <500m hyperions you will need prem+ to compete
+- This is common on the free version and lower tiers depending on the item, if you want to flip obvious high profit flips like \<500m hyperions you will need prem+ to compete
 - Consider upgrading to premium
 - Focus on lower-value flips with less competition
 

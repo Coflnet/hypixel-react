@@ -1,5 +1,7 @@
+const withMDX = require('@next/mdx')()
+
 /** @type {import('next').NextConfig} */
-module.exports = {
+const nextConfig = {
     reactStrictMode: true,
     basePath: process.env.BASE_PATH,
     images: {
@@ -51,3 +53,5 @@ module.exports = {
         }
     }
 }
+
+module.exports = withMDX(nextConfig)

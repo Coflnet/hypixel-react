@@ -125,7 +125,7 @@ export async function generateMetadata(props) {
     const params = await props.params;
     function getAuctionDescription(auctionDetails): string {
         if (!auctionDetails) {
-            return 'Browse over 700 million auctions, and the bazaar of Hypixel SkyBlock.'
+            return 'Browse over 800 million auctions, and the bazaar of Hypixel SkyBlock.'
         }
 
         let description = ''

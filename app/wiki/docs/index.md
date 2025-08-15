@@ -30,7 +30,7 @@ Welcome to the comprehensive guide for SkyCofl's Hypixel SkyBlock tools and feat
 
 SkyCofl is a comprehensive platform for Hypixel SkyBlock players that provides:
 
-- **Auction House History**: Browse through over 700 million historical auctions
+- **Auction House History**: Browse through over 800 million historical auctions
 - **Bazaar History**: The largest bazaar price database in existence starting just 2 days after the bazaar api released
 - **Price Tracking**: Track item prices and market trends
 - **Flip Finding**: Discover profitable auction house, bazaar buy-sel, craft, forge and many other flips
@@ -40,7 +40,7 @@ SkyCofl is a comprehensive platform for Hypixel SkyBlock players that provides:
 
 ## Key Statistics
 
-- 📊 Over 700 million auctions tracked
+- 📊 Over 800 million auctions tracked
 - 💰 550+ million bazaar price points
 - 👥 3+ million player profiles that made/bid on an auction
 - 🔄 Real-time market updates

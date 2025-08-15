@@ -1,27 +1,42 @@
-import { Container } from 'react-bootstrap'
-import { getAllWikiPages } from '../../utils/WikiUtils'
-import { getHeadMetadata } from '../../utils/SSRUtils'
-import WikiContent from '../../components/Wiki/WikiContent'
-import { notFound } from 'next/navigation'
+import { promises as fs } from 'fs';
+import path from 'path';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import matter from 'gray-matter';
 
-export default async function WikiHomePage() {
-    const pages = await getAllWikiPages()
-    const homePage = pages.find(page => page.slug === 'index')
-    
-    if (!homePage) {
-        notFound()
+const docsDirectory = path.join(process.cwd(), 'app/wiki/docs');
+
+async function getIndexDoc() {
+    const filePath = path.join(docsDirectory, `index.md`);
+    try {
+        const fileContent = await fs.readFile(filePath, 'utf8');
+        const { content, data } = matter(fileContent);
+        return { content, data };
+    } catch (error) {
+        // It's okay if the index page doesn't exist
+        return null;
+    }
+}
+
+export default async function Wiki() {
+    const doc = await getIndexDoc();
+
+    if (!doc) {
+        return <div>Select a page to get started</div>;
     }
 
     return (
-        <Container>
-            <WikiContent page={homePage} allPages={pages} />
-        </Container>
-    )
+        <article>
+            <h1>{doc.data.title || 'Welcome to the Wiki'}</h1>
+            <MDXRemote
+                source={doc.content}
+                options={{
+                    mdxOptions: {
+                        rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+                    },
+                }}
+            />
+        </article>
+    );
 }
-
-export const metadata = getHeadMetadata(
-    'Wiki | SkyCofl Documentation',
-    'Comprehensive guide to SkyCofl features and Hypixel SkyBlock tools',
-    undefined,
-    ['wiki', 'documentation', 'guide', 'tutorial']
-)

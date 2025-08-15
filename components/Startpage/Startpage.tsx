@@ -291,35 +291,9 @@ function Startpage(props: Props) {
             <div style={{ textAlign: 'center' }}>
                 <hr />
                 <h1>Skyblock Auction House History</h1>
-                <p style={{ fontSize: 'larger' }}>Browse through over 700 million auctions, over two million players and the bazaar of hypixel skyblock</p>
-            <Card className={styles.startpageCard}>
-                <Card.Header>
-                    <Card.Title>
-                        <Image src="https://sky.coflnet.com/static/icon/STOCK_OF_STONKS" alt="Survey" width={24} height={24} style={{ marginLeft: '5px' }} /> Looking for Feedback <Image src="https://sky.coflnet.com/static/icon/STOCK_OF_STONKS" alt="Survey" width={24} height={24} style={{ marginLeft: '5px' }} />
-                    </Card.Title>
-                </Card.Header>
-                <Card.Body>
-                    <div>
-                        <p>
-                            We are currently running a survey to improve our service. <br/>Please take a moment to fill it out. It will help us understand
-                            what you like and what we can improve. <br/>Also with code <code>SUMMER25</code> you can get 15% off all of our subscriptions until Aug. the 15th.
-                        </p>
-                        <p>
-                            <Link
-                                href="https://docs.google.com/forms/d/e/1FAIpQLSdOQWQOlCWHnaeiemOMI8-BZJ5giJEbmpDMGAVsDPAiwssr2Q/viewform?usp=dialog"
-                                target="_blank"
-                                rel="noopener noreferrer nofollow"
-                                style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}
-                            >
-                                Take the survey ↗️
-                            </Link>
-                        </p>
-                    </div>
-                </Card.Body>
-            </Card>
+                <p style={{ fontSize: 'larger' }}>Browse through over 800 million auctions, over two million players and the bazaar of hypixel skyblock</p>
                 <hr />
             </div>
-            
             <Card className={styles.startpageCard}>
                 <Card.Header>
                     <Card.Title>
@@ -383,7 +357,7 @@ function Startpage(props: Props) {
                     <p>View, search, browse, and filter by reforge or enchantment.</p>
                     <p>You can find all current and historic prices for the auction house and bazaar on this web tracker.</p>
                     <p>
-                        We're tracking over 700 million auctions. We've saved more than 350 million bazaar prices in intervals of 10 seconds. Furthermore, there
+                        We're tracking over 800 million auctions. We've saved more than 350 million bazaar prices in intervals of 10 seconds. Furthermore, there
                         are over three million skyblock players that you can search by their Minecraft usernames. You can browse through the auctions they made
                         over the past two years. New items are added automatically and are available within two minutes after the first auction is started.
                     </p>
