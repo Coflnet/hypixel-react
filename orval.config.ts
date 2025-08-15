@@ -10,6 +10,7 @@ export default defineConfig({
       target: './api/_generated',
       mode: 'split',
       baseUrl: 'https://sky.coflnet.com',
+      httpClient: 'fetch'
     },
   },
 });

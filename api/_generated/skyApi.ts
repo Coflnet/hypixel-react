@@ -24,13 +24,6 @@ import type {
   UseQueryResult
 } from '@tanstack/react-query';
 
-import axios from 'axios';
-import type {
-  AxiosError,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
-
 import type {
   ArchiveResponse,
   AuctionPreview,
@@ -170,15 +163,42 @@ import type {
 /**
  * @summary Retrieve details of a specific auction
  */
-export const getApiAuctionAuctionUuid = (
-    auctionUuid: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<ColorSaveAuction>> => {
+export type getApiAuctionAuctionUuidResponse200 = {
+  data: ColorSaveAuction
+  status: 200
+}
+    
+export type getApiAuctionAuctionUuidResponseComposite = getApiAuctionAuctionUuidResponse200;
+    
+export type getApiAuctionAuctionUuidResponse = getApiAuctionAuctionUuidResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionAuctionUuidUrl = (auctionUuid: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/auction/${auctionUuid}`
+}
+
+export const getApiAuctionAuctionUuid = async (auctionUuid: string, options?: RequestInit): Promise<getApiAuctionAuctionUuidResponse> => {
+  
+  const res = await fetch(getGetApiAuctionAuctionUuidUrl(auctionUuid),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auction/${auctionUuid}`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionAuctionUuidResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionAuctionUuidResponse
+}
+
 
 
 export const getGetApiAuctionAuctionUuidQueryKey = (auctionUuid?: string,) => {
@@ -186,16 +206,16 @@ export const getGetApiAuctionAuctionUuidQueryKey = (auctionUuid?: string,) => {
     }
 
     
-export const getGetApiAuctionAuctionUuidQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError = AxiosError<unknown>>(auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionAuctionUuidQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError = unknown>(auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionAuctionUuidQueryKey(auctionUuid);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>> = ({ signal }) => getApiAuctionAuctionUuid(auctionUuid, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>> = ({ signal }) => getApiAuctionAuctionUuid(auctionUuid, { signal, ...fetchOptions });
 
       
 
@@ -205,39 +225,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionAuctionUuidQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>>
-export type GetApiAuctionAuctionUuidQueryError = AxiosError<unknown>
+export type GetApiAuctionAuctionUuidQueryError = unknown
 
 
-export function useGetApiAuctionAuctionUuid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionAuctionUuid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError = unknown>(
  auctionUuid: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionAuctionUuid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionAuctionUuid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError = unknown>(
  auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionAuctionUuid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError = AxiosError<unknown>>(
- auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionAuctionUuid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError = unknown>(
+ auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Retrieve details of a specific auction
  */
 
-export function useGetApiAuctionAuctionUuid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError = AxiosError<unknown>>(
- auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionAuctionUuid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError = unknown>(
+ auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuid>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -256,17 +276,42 @@ export function useGetApiAuctionAuctionUuid<TData = Awaited<ReturnType<typeof ge
 /**
  * @summary Retrieve the uid of an auction (mainly a helper to get the lookup id for another service)
  */
-export const getApiAuctionAuctionUuidUid = (
-    auctionUuid: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<string>> => {
+export type getApiAuctionAuctionUuidUidResponse200 = {
+  data: string
+  status: 200
+}
+    
+export type getApiAuctionAuctionUuidUidResponseComposite = getApiAuctionAuctionUuidUidResponse200;
+    
+export type getApiAuctionAuctionUuidUidResponse = getApiAuctionAuctionUuidUidResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionAuctionUuidUidUrl = (auctionUuid: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/auction/${auctionUuid}/uid`
+}
+
+export const getApiAuctionAuctionUuidUid = async (auctionUuid: string, options?: RequestInit): Promise<getApiAuctionAuctionUuidUidResponse> => {
+  
+  const res = await fetch(getGetApiAuctionAuctionUuidUidUrl(auctionUuid),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auction/${auctionUuid}/uid`,{
-        responseType: 'text',
-    ...options,}
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionAuctionUuidUidResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionAuctionUuidUidResponse
+}
+
 
 
 export const getGetApiAuctionAuctionUuidUidQueryKey = (auctionUuid?: string,) => {
@@ -274,16 +319,16 @@ export const getGetApiAuctionAuctionUuidUidQueryKey = (auctionUuid?: string,) =>
     }
 
     
-export const getGetApiAuctionAuctionUuidUidQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError = AxiosError<unknown>>(auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionAuctionUuidUidQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError = unknown>(auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionAuctionUuidUidQueryKey(auctionUuid);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>> = ({ signal }) => getApiAuctionAuctionUuidUid(auctionUuid, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>> = ({ signal }) => getApiAuctionAuctionUuidUid(auctionUuid, { signal, ...fetchOptions });
 
       
 
@@ -293,39 +338,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionAuctionUuidUidQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>>
-export type GetApiAuctionAuctionUuidUidQueryError = AxiosError<unknown>
+export type GetApiAuctionAuctionUuidUidQueryError = unknown
 
 
-export function useGetApiAuctionAuctionUuidUid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionAuctionUuidUid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError = unknown>(
  auctionUuid: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionAuctionUuidUid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionAuctionUuidUid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError = unknown>(
  auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionAuctionUuidUid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError = AxiosError<unknown>>(
- auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionAuctionUuidUid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError = unknown>(
+ auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Retrieve the uid of an auction (mainly a helper to get the lookup id for another service)
  */
 
-export function useGetApiAuctionAuctionUuidUid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError = AxiosError<unknown>>(
- auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionAuctionUuidUid<TData = Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError = unknown>(
+ auctionUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionAuctionUuidUid>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -344,17 +389,49 @@ export function useGetApiAuctionAuctionUuidUid<TData = Awaited<ReturnType<typeof
 /**
  * @summary Get a random auction from the database, built for Thomases guessing game
  */
-export const getApiAuctionRandom = (
-    params?: GetApiAuctionRandomParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<SaveAuction>> => {
+export type getApiAuctionRandomResponse200 = {
+  data: SaveAuction
+  status: 200
+}
     
+export type getApiAuctionRandomResponseComposite = getApiAuctionRandomResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auction/random`,{
+export type getApiAuctionRandomResponse = getApiAuctionRandomResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionRandomUrl = (params?: GetApiAuctionRandomParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/auction/random?${stringifiedParams}` : `https://sky.coflnet.com/api/auction/random`
+}
+
+export const getApiAuctionRandom = async (params?: GetApiAuctionRandomParams, options?: RequestInit): Promise<getApiAuctionRandomResponse> => {
+  
+  const res = await fetch(getGetApiAuctionRandomUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionRandomResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionRandomResponse
+}
+
 
 
 export const getGetApiAuctionRandomQueryKey = (params?: GetApiAuctionRandomParams,) => {
@@ -362,16 +439,16 @@ export const getGetApiAuctionRandomQueryKey = (params?: GetApiAuctionRandomParam
     }
 
     
-export const getGetApiAuctionRandomQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = AxiosError<unknown>>(params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionRandomQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = unknown>(params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionRandomQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionRandom>>> = ({ signal }) => getApiAuctionRandom(params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionRandom>>> = ({ signal }) => getApiAuctionRandom(params, { signal, ...fetchOptions });
 
       
 
@@ -381,39 +458,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionRandomQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionRandom>>>
-export type GetApiAuctionRandomQueryError = AxiosError<unknown>
+export type GetApiAuctionRandomQueryError = unknown
 
 
-export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = unknown>(
  params: undefined |  GetApiAuctionRandomParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionRandom>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionRandom>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = unknown>(
  params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionRandom>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionRandom>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = AxiosError<unknown>>(
- params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = unknown>(
+ params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get a random auction from the database, built for Thomases guessing game
  */
 
-export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = AxiosError<unknown>>(
- params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiAuctionRandom>>, TError = unknown>(
+ params?: GetApiAuctionRandomParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionRandom>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -432,18 +509,51 @@ export function useGetApiAuctionRandom<TData = Awaited<ReturnType<typeof getApiA
 /**
  * @summary Get the 10 (or how many are available) lowest bins
  */
-export const getApiAuctionsTagItemTagActiveBin = (
-    itemTag: string,
-    params?: GetApiAuctionsTagItemTagActiveBinParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<SaveAuction[]>> => {
+export type getApiAuctionsTagItemTagActiveBinResponse200 = {
+  data: SaveAuction[]
+  status: 200
+}
     
+export type getApiAuctionsTagItemTagActiveBinResponseComposite = getApiAuctionsTagItemTagActiveBinResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auctions/tag/${itemTag}/active/bin`,{
+export type getApiAuctionsTagItemTagActiveBinResponse = getApiAuctionsTagItemTagActiveBinResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionsTagItemTagActiveBinUrl = (itemTag: string,
+    params?: GetApiAuctionsTagItemTagActiveBinParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/auctions/tag/${itemTag}/active/bin?${stringifiedParams}` : `https://sky.coflnet.com/api/auctions/tag/${itemTag}/active/bin`
+}
+
+export const getApiAuctionsTagItemTagActiveBin = async (itemTag: string,
+    params?: GetApiAuctionsTagItemTagActiveBinParams, options?: RequestInit): Promise<getApiAuctionsTagItemTagActiveBinResponse> => {
+  
+  const res = await fetch(getGetApiAuctionsTagItemTagActiveBinUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionsTagItemTagActiveBinResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionsTagItemTagActiveBinResponse
+}
+
 
 
 export const getGetApiAuctionsTagItemTagActiveBinQueryKey = (itemTag?: string,
@@ -452,17 +562,17 @@ export const getGetApiAuctionsTagItemTagActiveBinQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiAuctionsTagItemTagActiveBinQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiAuctionsTagItemTagActiveBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionsTagItemTagActiveBinQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError = unknown>(itemTag: string,
+    params?: GetApiAuctionsTagItemTagActiveBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionsTagItemTagActiveBinQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>> = ({ signal }) => getApiAuctionsTagItemTagActiveBin(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>> = ({ signal }) => getApiAuctionsTagItemTagActiveBin(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -472,10 +582,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionsTagItemTagActiveBinQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>>
-export type GetApiAuctionsTagItemTagActiveBinQueryError = AxiosError<unknown>
+export type GetApiAuctionsTagItemTagActiveBinQueryError = unknown
 
 
-export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiAuctionsTagItemTagActiveBinParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -483,10 +593,10 @@ export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<
           TError,
           Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError = unknown>(
  itemTag: string,
     params?: GetApiAuctionsTagItemTagActiveBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -494,21 +604,21 @@ export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<
           TError,
           Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiAuctionsTagItemTagActiveBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiAuctionsTagItemTagActiveBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get the 10 (or how many are available) lowest bins
  */
 
-export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiAuctionsTagItemTagActiveBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiAuctionsTagItemTagActiveBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveBin>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -529,18 +639,51 @@ export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<
 Please credit us with providing data for whatever you are doing.
 You can also manually request a review to get older data on the discord.
  */
-export const getApiAuctionsTagItemTagSold = (
-    itemTag: string,
-    params?: GetApiAuctionsTagItemTagSoldParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<SaveAuction[]>> => {
+export type getApiAuctionsTagItemTagSoldResponse200 = {
+  data: SaveAuction[]
+  status: 200
+}
     
+export type getApiAuctionsTagItemTagSoldResponseComposite = getApiAuctionsTagItemTagSoldResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auctions/tag/${itemTag}/sold`,{
+export type getApiAuctionsTagItemTagSoldResponse = getApiAuctionsTagItemTagSoldResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionsTagItemTagSoldUrl = (itemTag: string,
+    params?: GetApiAuctionsTagItemTagSoldParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/auctions/tag/${itemTag}/sold?${stringifiedParams}` : `https://sky.coflnet.com/api/auctions/tag/${itemTag}/sold`
+}
+
+export const getApiAuctionsTagItemTagSold = async (itemTag: string,
+    params?: GetApiAuctionsTagItemTagSoldParams, options?: RequestInit): Promise<getApiAuctionsTagItemTagSoldResponse> => {
+  
+  const res = await fetch(getGetApiAuctionsTagItemTagSoldUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionsTagItemTagSoldResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionsTagItemTagSoldResponse
+}
+
 
 
 export const getGetApiAuctionsTagItemTagSoldQueryKey = (itemTag?: string,
@@ -549,17 +692,17 @@ export const getGetApiAuctionsTagItemTagSoldQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiAuctionsTagItemTagSoldQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiAuctionsTagItemTagSoldParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionsTagItemTagSoldQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError = unknown>(itemTag: string,
+    params?: GetApiAuctionsTagItemTagSoldParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionsTagItemTagSoldQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>> = ({ signal }) => getApiAuctionsTagItemTagSold(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>> = ({ signal }) => getApiAuctionsTagItemTagSold(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -569,10 +712,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionsTagItemTagSoldQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>>
-export type GetApiAuctionsTagItemTagSoldQueryError = AxiosError<unknown>
+export type GetApiAuctionsTagItemTagSoldQueryError = unknown
 
 
-export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiAuctionsTagItemTagSoldParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -580,10 +723,10 @@ export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError = unknown>(
  itemTag: string,
     params?: GetApiAuctionsTagItemTagSoldParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -591,12 +734,12 @@ export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiAuctionsTagItemTagSoldParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiAuctionsTagItemTagSoldParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -605,9 +748,9 @@ Please credit us with providing data for whatever you are doing.
 You can also manually request a review to get older data on the discord.
  */
 
-export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiAuctionsTagItemTagSoldParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiAuctionsTagItemTagSoldParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagSold>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -626,17 +769,49 @@ export function useGetApiAuctionsTagItemTagSold<TData = Awaited<ReturnType<typeo
 /**
  * @summary Batch raw item value export, requires token
  */
-export const getApiAuctionsBatch = (
-    params?: GetApiAuctionsBatchParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type getApiAuctionsBatchResponse200 = {
+  data: null
+  status: 200
+}
     
+export type getApiAuctionsBatchResponseComposite = getApiAuctionsBatchResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auctions/batch`,{
+export type getApiAuctionsBatchResponse = getApiAuctionsBatchResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionsBatchUrl = (params?: GetApiAuctionsBatchParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/auctions/batch?${stringifiedParams}` : `https://sky.coflnet.com/api/auctions/batch`
+}
+
+export const getApiAuctionsBatch = async (params?: GetApiAuctionsBatchParams, options?: RequestInit): Promise<getApiAuctionsBatchResponse> => {
+  
+  const res = await fetch(getGetApiAuctionsBatchUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionsBatchResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionsBatchResponse
+}
+
 
 
 export const getGetApiAuctionsBatchQueryKey = (params?: GetApiAuctionsBatchParams,) => {
@@ -644,16 +819,16 @@ export const getGetApiAuctionsBatchQueryKey = (params?: GetApiAuctionsBatchParam
     }
 
     
-export const getGetApiAuctionsBatchQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError = AxiosError<unknown>>(params?: GetApiAuctionsBatchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionsBatchQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError = unknown>(params?: GetApiAuctionsBatchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionsBatchQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsBatch>>> = ({ signal }) => getApiAuctionsBatch(params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsBatch>>> = ({ signal }) => getApiAuctionsBatch(params, { signal, ...fetchOptions });
 
       
 
@@ -663,39 +838,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionsBatchQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionsBatch>>>
-export type GetApiAuctionsBatchQueryError = AxiosError<unknown>
+export type GetApiAuctionsBatchQueryError = unknown
 
 
-export function useGetApiAuctionsBatch<TData = Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsBatch<TData = Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError = unknown>(
  params: undefined |  GetApiAuctionsBatchParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionsBatch>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionsBatch>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsBatch<TData = Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsBatch<TData = Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError = unknown>(
  params?: GetApiAuctionsBatchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionsBatch>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionsBatch>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsBatch<TData = Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError = AxiosError<unknown>>(
- params?: GetApiAuctionsBatchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionsBatch<TData = Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError = unknown>(
+ params?: GetApiAuctionsBatchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Batch raw item value export, requires token
  */
 
-export function useGetApiAuctionsBatch<TData = Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError = AxiosError<unknown>>(
- params?: GetApiAuctionsBatchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionsBatch<TData = Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError = unknown>(
+ params?: GetApiAuctionsBatchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsBatch>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -714,18 +889,51 @@ export function useGetApiAuctionsBatch<TData = Awaited<ReturnType<typeof getApiA
 /**
  * @summary Gets a preview of recent auctions useful in overviews
  */
-export const getApiAuctionsTagItemTagRecentOverview = (
-    itemTag: string,
-    params?: GetApiAuctionsTagItemTagRecentOverviewParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AuctionPreview[]>> => {
+export type getApiAuctionsTagItemTagRecentOverviewResponse200 = {
+  data: AuctionPreview[]
+  status: 200
+}
     
+export type getApiAuctionsTagItemTagRecentOverviewResponseComposite = getApiAuctionsTagItemTagRecentOverviewResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auctions/tag/${itemTag}/recent/overview`,{
+export type getApiAuctionsTagItemTagRecentOverviewResponse = getApiAuctionsTagItemTagRecentOverviewResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionsTagItemTagRecentOverviewUrl = (itemTag: string,
+    params?: GetApiAuctionsTagItemTagRecentOverviewParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/auctions/tag/${itemTag}/recent/overview?${stringifiedParams}` : `https://sky.coflnet.com/api/auctions/tag/${itemTag}/recent/overview`
+}
+
+export const getApiAuctionsTagItemTagRecentOverview = async (itemTag: string,
+    params?: GetApiAuctionsTagItemTagRecentOverviewParams, options?: RequestInit): Promise<getApiAuctionsTagItemTagRecentOverviewResponse> => {
+  
+  const res = await fetch(getGetApiAuctionsTagItemTagRecentOverviewUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionsTagItemTagRecentOverviewResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionsTagItemTagRecentOverviewResponse
+}
+
 
 
 export const getGetApiAuctionsTagItemTagRecentOverviewQueryKey = (itemTag?: string,
@@ -734,17 +942,17 @@ export const getGetApiAuctionsTagItemTagRecentOverviewQueryKey = (itemTag?: stri
     }
 
     
-export const getGetApiAuctionsTagItemTagRecentOverviewQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiAuctionsTagItemTagRecentOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionsTagItemTagRecentOverviewQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError = unknown>(itemTag: string,
+    params?: GetApiAuctionsTagItemTagRecentOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionsTagItemTagRecentOverviewQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>> = ({ signal }) => getApiAuctionsTagItemTagRecentOverview(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>> = ({ signal }) => getApiAuctionsTagItemTagRecentOverview(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -754,10 +962,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionsTagItemTagRecentOverviewQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>>
-export type GetApiAuctionsTagItemTagRecentOverviewQueryError = AxiosError<unknown>
+export type GetApiAuctionsTagItemTagRecentOverviewQueryError = unknown
 
 
-export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiAuctionsTagItemTagRecentOverviewParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -765,10 +973,10 @@ export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<Return
           TError,
           Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError = unknown>(
  itemTag: string,
     params?: GetApiAuctionsTagItemTagRecentOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -776,21 +984,21 @@ export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<Return
           TError,
           Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiAuctionsTagItemTagRecentOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiAuctionsTagItemTagRecentOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets a preview of recent auctions useful in overviews
  */
 
-export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiAuctionsTagItemTagRecentOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiAuctionsTagItemTagRecentOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagRecentOverview>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -809,18 +1017,51 @@ export function useGetApiAuctionsTagItemTagRecentOverview<TData = Awaited<Return
 /**
  * @summary Longer time overview of auctions
  */
-export const getApiAuctionsTagItemTagArchiveOverview = (
-    itemTag: string,
-    params?: GetApiAuctionsTagItemTagArchiveOverviewParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<ArchiveResponse>> => {
+export type getApiAuctionsTagItemTagArchiveOverviewResponse200 = {
+  data: ArchiveResponse
+  status: 200
+}
     
+export type getApiAuctionsTagItemTagArchiveOverviewResponseComposite = getApiAuctionsTagItemTagArchiveOverviewResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auctions/tag/${itemTag}/archive/overview`,{
+export type getApiAuctionsTagItemTagArchiveOverviewResponse = getApiAuctionsTagItemTagArchiveOverviewResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionsTagItemTagArchiveOverviewUrl = (itemTag: string,
+    params?: GetApiAuctionsTagItemTagArchiveOverviewParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/auctions/tag/${itemTag}/archive/overview?${stringifiedParams}` : `https://sky.coflnet.com/api/auctions/tag/${itemTag}/archive/overview`
+}
+
+export const getApiAuctionsTagItemTagArchiveOverview = async (itemTag: string,
+    params?: GetApiAuctionsTagItemTagArchiveOverviewParams, options?: RequestInit): Promise<getApiAuctionsTagItemTagArchiveOverviewResponse> => {
+  
+  const res = await fetch(getGetApiAuctionsTagItemTagArchiveOverviewUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionsTagItemTagArchiveOverviewResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionsTagItemTagArchiveOverviewResponse
+}
+
 
 
 export const getGetApiAuctionsTagItemTagArchiveOverviewQueryKey = (itemTag?: string,
@@ -829,17 +1070,17 @@ export const getGetApiAuctionsTagItemTagArchiveOverviewQueryKey = (itemTag?: str
     }
 
     
-export const getGetApiAuctionsTagItemTagArchiveOverviewQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiAuctionsTagItemTagArchiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionsTagItemTagArchiveOverviewQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError = unknown>(itemTag: string,
+    params?: GetApiAuctionsTagItemTagArchiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionsTagItemTagArchiveOverviewQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>> = ({ signal }) => getApiAuctionsTagItemTagArchiveOverview(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>> = ({ signal }) => getApiAuctionsTagItemTagArchiveOverview(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -849,10 +1090,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionsTagItemTagArchiveOverviewQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>>
-export type GetApiAuctionsTagItemTagArchiveOverviewQueryError = AxiosError<unknown>
+export type GetApiAuctionsTagItemTagArchiveOverviewQueryError = unknown
 
 
-export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiAuctionsTagItemTagArchiveOverviewParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -860,10 +1101,10 @@ export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<Retur
           TError,
           Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError = unknown>(
  itemTag: string,
     params?: GetApiAuctionsTagItemTagArchiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -871,21 +1112,21 @@ export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<Retur
           TError,
           Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiAuctionsTagItemTagArchiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiAuctionsTagItemTagArchiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Longer time overview of auctions
  */
 
-export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiAuctionsTagItemTagArchiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiAuctionsTagItemTagArchiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagArchiveOverview>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -905,30 +1146,57 @@ export function useGetApiAuctionsTagItemTagArchiveOverview<TData = Awaited<Retur
  * @summary Request an export of auction data to discord webhook
 Export can contain contact details and inventory checks, access will be revoked if missuse is reported.
  */
-export const postApiAuctionsTagItemTagArchiveExport = (
-    itemTag: string,
-    exportRequestCreate: ExportRequestCreate, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<ExportRequest>> => {
+export type postApiAuctionsTagItemTagArchiveExportResponse200 = {
+  data: ExportRequest
+  status: 200
+}
     
+export type postApiAuctionsTagItemTagArchiveExportResponseComposite = postApiAuctionsTagItemTagArchiveExportResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/auctions/tag/${itemTag}/archive/export`,
-      exportRequestCreate,options
-    );
+export type postApiAuctionsTagItemTagArchiveExportResponse = postApiAuctionsTagItemTagArchiveExportResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiAuctionsTagItemTagArchiveExportUrl = (itemTag: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/auctions/tag/${itemTag}/archive/export`
+}
+
+export const postApiAuctionsTagItemTagArchiveExport = async (itemTag: string,
+    exportRequestCreate: ExportRequestCreate, options?: RequestInit): Promise<postApiAuctionsTagItemTagArchiveExportResponse> => {
+  
+  const res = await fetch(getPostApiAuctionsTagItemTagArchiveExportUrl(itemTag),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      exportRequestCreate,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiAuctionsTagItemTagArchiveExportResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiAuctionsTagItemTagArchiveExportResponse
+}
 
 
 
-export const getPostApiAuctionsTagItemTagArchiveExportMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsTagItemTagArchiveExport>>, TError,{itemTag: string;data: ExportRequestCreate}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiAuctionsTagItemTagArchiveExportMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsTagItemTagArchiveExport>>, TError,{itemTag: string;data: ExportRequestCreate}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsTagItemTagArchiveExport>>, TError,{itemTag: string;data: ExportRequestCreate}, TContext> => {
 
 const mutationKey = ['postApiAuctionsTagItemTagArchiveExport'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -936,7 +1204,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiAuctionsTagItemTagArchiveExport>>, {itemTag: string;data: ExportRequestCreate}> = (props) => {
           const {itemTag,data} = props ?? {};
 
-          return  postApiAuctionsTagItemTagArchiveExport(itemTag,data,axiosOptions)
+          return  postApiAuctionsTagItemTagArchiveExport(itemTag,data,fetchOptions)
         }
 
         
@@ -946,14 +1214,14 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiAuctionsTagItemTagArchiveExportMutationResult = NonNullable<Awaited<ReturnType<typeof postApiAuctionsTagItemTagArchiveExport>>>
     export type PostApiAuctionsTagItemTagArchiveExportMutationBody = ExportRequestCreate
-    export type PostApiAuctionsTagItemTagArchiveExportMutationError = AxiosError<unknown>
+    export type PostApiAuctionsTagItemTagArchiveExportMutationError = unknown
 
     /**
  * @summary Request an export of auction data to discord webhook
 Export can contain contact details and inventory checks, access will be revoked if missuse is reported.
  */
-export const usePostApiAuctionsTagItemTagArchiveExport = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsTagItemTagArchiveExport>>, TError,{itemTag: string;data: ExportRequestCreate}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiAuctionsTagItemTagArchiveExport = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsTagItemTagArchiveExport>>, TError,{itemTag: string;data: ExportRequestCreate}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiAuctionsTagItemTagArchiveExport>>,
         TError,
@@ -970,18 +1238,51 @@ export const usePostApiAuctionsTagItemTagArchiveExport = <TError = AxiosError<un
  * @summary Gets a preview of active auctions useful in overviews, available orderBy options 
 HIGHEST_PRICE, LOWEST_PRICE (default), ENDING_SOON
  */
-export const getApiAuctionsTagItemTagActiveOverview = (
-    itemTag: string,
-    params?: GetApiAuctionsTagItemTagActiveOverviewParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AuctionPreview[]>> => {
+export type getApiAuctionsTagItemTagActiveOverviewResponse200 = {
+  data: AuctionPreview[]
+  status: 200
+}
     
+export type getApiAuctionsTagItemTagActiveOverviewResponseComposite = getApiAuctionsTagItemTagActiveOverviewResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auctions/tag/${itemTag}/active/overview`,{
+export type getApiAuctionsTagItemTagActiveOverviewResponse = getApiAuctionsTagItemTagActiveOverviewResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionsTagItemTagActiveOverviewUrl = (itemTag: string,
+    params?: GetApiAuctionsTagItemTagActiveOverviewParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/auctions/tag/${itemTag}/active/overview?${stringifiedParams}` : `https://sky.coflnet.com/api/auctions/tag/${itemTag}/active/overview`
+}
+
+export const getApiAuctionsTagItemTagActiveOverview = async (itemTag: string,
+    params?: GetApiAuctionsTagItemTagActiveOverviewParams, options?: RequestInit): Promise<getApiAuctionsTagItemTagActiveOverviewResponse> => {
+  
+  const res = await fetch(getGetApiAuctionsTagItemTagActiveOverviewUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionsTagItemTagActiveOverviewResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionsTagItemTagActiveOverviewResponse
+}
+
 
 
 export const getGetApiAuctionsTagItemTagActiveOverviewQueryKey = (itemTag?: string,
@@ -990,17 +1291,17 @@ export const getGetApiAuctionsTagItemTagActiveOverviewQueryKey = (itemTag?: stri
     }
 
     
-export const getGetApiAuctionsTagItemTagActiveOverviewQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiAuctionsTagItemTagActiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionsTagItemTagActiveOverviewQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError = unknown>(itemTag: string,
+    params?: GetApiAuctionsTagItemTagActiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionsTagItemTagActiveOverviewQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>> = ({ signal }) => getApiAuctionsTagItemTagActiveOverview(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>> = ({ signal }) => getApiAuctionsTagItemTagActiveOverview(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -1010,10 +1311,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionsTagItemTagActiveOverviewQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>>
-export type GetApiAuctionsTagItemTagActiveOverviewQueryError = AxiosError<unknown>
+export type GetApiAuctionsTagItemTagActiveOverviewQueryError = unknown
 
 
-export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiAuctionsTagItemTagActiveOverviewParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -1021,10 +1322,10 @@ export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<Return
           TError,
           Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError = unknown>(
  itemTag: string,
     params?: GetApiAuctionsTagItemTagActiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -1032,12 +1333,12 @@ export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<Return
           TError,
           Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiAuctionsTagItemTagActiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiAuctionsTagItemTagActiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1045,9 +1346,9 @@ export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<Return
 HIGHEST_PRICE, LOWEST_PRICE (default), ENDING_SOON
  */
 
-export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiAuctionsTagItemTagActiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiAuctionsTagItemTagActiveOverviewParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsTagItemTagActiveOverview>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1067,15 +1368,42 @@ export function useGetApiAuctionsTagItemTagActiveOverview<TData = Awaited<Return
  * @summary Gets all recorded past sells of an item with a specific uuid
 meant for dupe detection
  */
-export const getApiAuctionsUidUidSold = (
-    uid: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<ItemSell[]>> => {
+export type getApiAuctionsUidUidSoldResponse200 = {
+  data: ItemSell[]
+  status: 200
+}
+    
+export type getApiAuctionsUidUidSoldResponseComposite = getApiAuctionsUidUidSoldResponse200;
+    
+export type getApiAuctionsUidUidSoldResponse = getApiAuctionsUidUidSoldResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionsUidUidSoldUrl = (uid: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/auctions/uid/${uid}/sold`
+}
+
+export const getApiAuctionsUidUidSold = async (uid: string, options?: RequestInit): Promise<getApiAuctionsUidUidSoldResponse> => {
+  
+  const res = await fetch(getGetApiAuctionsUidUidSoldUrl(uid),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auctions/uid/${uid}/sold`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionsUidUidSoldResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionsUidUidSoldResponse
+}
+
 
 
 export const getGetApiAuctionsUidUidSoldQueryKey = (uid?: string,) => {
@@ -1083,16 +1411,16 @@ export const getGetApiAuctionsUidUidSoldQueryKey = (uid?: string,) => {
     }
 
     
-export const getGetApiAuctionsUidUidSoldQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError = AxiosError<unknown>>(uid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionsUidUidSoldQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError = unknown>(uid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionsUidUidSoldQueryKey(uid);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>> = ({ signal }) => getApiAuctionsUidUidSold(uid, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>> = ({ signal }) => getApiAuctionsUidUidSold(uid, { signal, ...fetchOptions });
 
       
 
@@ -1102,31 +1430,31 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionsUidUidSoldQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>>
-export type GetApiAuctionsUidUidSoldQueryError = AxiosError<unknown>
+export type GetApiAuctionsUidUidSoldQueryError = unknown
 
 
-export function useGetApiAuctionsUidUidSold<TData = Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsUidUidSold<TData = Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError = unknown>(
  uid: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsUidUidSold<TData = Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsUidUidSold<TData = Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError = unknown>(
  uid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsUidUidSold<TData = Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError = AxiosError<unknown>>(
- uid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionsUidUidSold<TData = Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError = unknown>(
+ uid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1134,8 +1462,8 @@ export function useGetApiAuctionsUidUidSold<TData = Awaited<ReturnType<typeof ge
 meant for dupe detection
  */
 
-export function useGetApiAuctionsUidUidSold<TData = Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError = AxiosError<unknown>>(
- uid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionsUidUidSold<TData = Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError = unknown>(
+ uid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsUidUidSold>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1155,29 +1483,66 @@ export function useGetApiAuctionsUidUidSold<TData = Awaited<ReturnType<typeof ge
  * @summary Gets all recorded past sells of a batch of items by uuid
 meant for dupe detection of whole inventories
  */
-export const postApiAuctionsUidsSold = (
-    inventoryBatchLookup: InventoryBatchLookup, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PostApiAuctionsUidsSold200One | PostApiAuctionsUidsSold200Two | PostApiAuctionsUidsSold200Three>> => {
+export type postApiAuctionsUidsSoldResponse200TextPlain = {
+  data: PostApiAuctionsUidsSold200One
+  status: 200
+}
+
+export type postApiAuctionsUidsSoldResponse200ApplicationJson = {
+  data: PostApiAuctionsUidsSold200Two
+  status: 200
+}
+
+export type postApiAuctionsUidsSoldResponse200TextJson = {
+  data: PostApiAuctionsUidsSold200Three
+  status: 200
+}
     
+export type postApiAuctionsUidsSoldResponseComposite = postApiAuctionsUidsSoldResponse200TextPlain | postApiAuctionsUidsSoldResponse200ApplicationJson | postApiAuctionsUidsSoldResponse200TextJson;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/auctions/uids/sold`,
-      inventoryBatchLookup,options
-    );
+export type postApiAuctionsUidsSoldResponse = postApiAuctionsUidsSoldResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiAuctionsUidsSoldUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/auctions/uids/sold`
+}
+
+export const postApiAuctionsUidsSold = async (inventoryBatchLookup: InventoryBatchLookup, options?: RequestInit): Promise<postApiAuctionsUidsSoldResponse> => {
+  
+  const res = await fetch(getPostApiAuctionsUidsSoldUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      inventoryBatchLookup,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiAuctionsUidsSoldResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiAuctionsUidsSoldResponse
+}
 
 
 
-export const getPostApiAuctionsUidsSoldMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsUidsSold>>, TError,{data: InventoryBatchLookup}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiAuctionsUidsSoldMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsUidsSold>>, TError,{data: InventoryBatchLookup}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsUidsSold>>, TError,{data: InventoryBatchLookup}, TContext> => {
 
 const mutationKey = ['postApiAuctionsUidsSold'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -1185,7 +1550,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiAuctionsUidsSold>>, {data: InventoryBatchLookup}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiAuctionsUidsSold(data,axiosOptions)
+          return  postApiAuctionsUidsSold(data,fetchOptions)
         }
 
         
@@ -1195,14 +1560,14 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiAuctionsUidsSoldMutationResult = NonNullable<Awaited<ReturnType<typeof postApiAuctionsUidsSold>>>
     export type PostApiAuctionsUidsSoldMutationBody = InventoryBatchLookup
-    export type PostApiAuctionsUidsSoldMutationError = AxiosError<unknown>
+    export type PostApiAuctionsUidsSoldMutationError = unknown
 
     /**
  * @summary Gets all recorded past sells of a batch of items by uuid
 meant for dupe detection of whole inventories
  */
-export const usePostApiAuctionsUidsSold = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsUidsSold>>, TError,{data: InventoryBatchLookup}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiAuctionsUidsSold = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsUidsSold>>, TError,{data: InventoryBatchLookup}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiAuctionsUidsSold>>,
         TError,
@@ -1218,29 +1583,56 @@ export const usePostApiAuctionsUidsSold = <TError = AxiosError<unknown>,
 /**
  * @summary Checks an array of item uuids if they are active on the ah
  */
-export const postApiAuctionsActiveUuid = (
-    postApiAuctionsActiveUuidBody: string[], options?: AxiosRequestConfig
- ): Promise<AxiosResponse<string[]>> => {
+export type postApiAuctionsActiveUuidResponse200 = {
+  data: string[]
+  status: 200
+}
     
+export type postApiAuctionsActiveUuidResponseComposite = postApiAuctionsActiveUuidResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/auctions/active/uuid`,
-      postApiAuctionsActiveUuidBody,options
-    );
+export type postApiAuctionsActiveUuidResponse = postApiAuctionsActiveUuidResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiAuctionsActiveUuidUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/auctions/active/uuid`
+}
+
+export const postApiAuctionsActiveUuid = async (postApiAuctionsActiveUuidBody: string[], options?: RequestInit): Promise<postApiAuctionsActiveUuidResponse> => {
+  
+  const res = await fetch(getPostApiAuctionsActiveUuidUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      postApiAuctionsActiveUuidBody,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiAuctionsActiveUuidResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiAuctionsActiveUuidResponse
+}
 
 
 
-export const getPostApiAuctionsActiveUuidMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsActiveUuid>>, TError,{data: string[]}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiAuctionsActiveUuidMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsActiveUuid>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsActiveUuid>>, TError,{data: string[]}, TContext> => {
 
 const mutationKey = ['postApiAuctionsActiveUuid'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -1248,7 +1640,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiAuctionsActiveUuid>>, {data: string[]}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiAuctionsActiveUuid(data,axiosOptions)
+          return  postApiAuctionsActiveUuid(data,fetchOptions)
         }
 
         
@@ -1258,13 +1650,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiAuctionsActiveUuidMutationResult = NonNullable<Awaited<ReturnType<typeof postApiAuctionsActiveUuid>>>
     export type PostApiAuctionsActiveUuidMutationBody = string[]
-    export type PostApiAuctionsActiveUuidMutationError = AxiosError<unknown>
+    export type PostApiAuctionsActiveUuidMutationError = unknown
 
     /**
  * @summary Checks an array of item uuids if they are active on the ah
  */
-export const usePostApiAuctionsActiveUuid = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsActiveUuid>>, TError,{data: string[]}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiAuctionsActiveUuid = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAuctionsActiveUuid>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiAuctionsActiveUuid>>,
         TError,
@@ -1280,15 +1672,42 @@ export const usePostApiAuctionsActiveUuid = <TError = AxiosError<unknown>,
 /**
  * @summary Get items that are in low supply
  */
-export const getApiAuctionsSupplyLow = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<SupplyElement[]>> => {
+export type getApiAuctionsSupplyLowResponse200 = {
+  data: SupplyElement[]
+  status: 200
+}
+    
+export type getApiAuctionsSupplyLowResponseComposite = getApiAuctionsSupplyLowResponse200;
+    
+export type getApiAuctionsSupplyLowResponse = getApiAuctionsSupplyLowResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiAuctionsSupplyLowUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/auctions/supply/low`
+}
+
+export const getApiAuctionsSupplyLow = async ( options?: RequestInit): Promise<getApiAuctionsSupplyLowResponse> => {
+  
+  const res = await fetch(getGetApiAuctionsSupplyLowUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/auctions/supply/low`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiAuctionsSupplyLowResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiAuctionsSupplyLowResponse
+}
+
 
 
 export const getGetApiAuctionsSupplyLowQueryKey = () => {
@@ -1296,16 +1715,16 @@ export const getGetApiAuctionsSupplyLowQueryKey = () => {
     }
 
     
-export const getGetApiAuctionsSupplyLowQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiAuctionsSupplyLowQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionsSupplyLowQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>> = ({ signal }) => getApiAuctionsSupplyLow({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>> = ({ signal }) => getApiAuctionsSupplyLow({ signal, ...fetchOptions });
 
       
 
@@ -1315,39 +1734,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiAuctionsSupplyLowQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>>
-export type GetApiAuctionsSupplyLowQueryError = AxiosError<unknown>
+export type GetApiAuctionsSupplyLowQueryError = unknown
 
 
-export function useGetApiAuctionsSupplyLow<TData = Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsSupplyLow<TData = Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsSupplyLow<TData = Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError = AxiosError<unknown>>(
+export function useGetApiAuctionsSupplyLow<TData = Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>,
           TError,
           Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiAuctionsSupplyLow<TData = Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionsSupplyLow<TData = Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get items that are in low supply
  */
 
-export function useGetApiAuctionsSupplyLow<TData = Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiAuctionsSupplyLow<TData = Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsSupplyLow>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1366,15 +1785,42 @@ export function useGetApiAuctionsSupplyLow<TData = Awaited<ReturnType<typeof get
 /**
  * @summary Gets the history data for display in a graph for one hour (in intervals of 20 seconds)
  */
-export const getApiBazaarItemTagHistoryHour = (
-    itemTag: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GraphResult[]>> => {
+export type getApiBazaarItemTagHistoryHourResponse200 = {
+  data: GraphResult[]
+  status: 200
+}
+    
+export type getApiBazaarItemTagHistoryHourResponseComposite = getApiBazaarItemTagHistoryHourResponse200;
+    
+export type getApiBazaarItemTagHistoryHourResponse = getApiBazaarItemTagHistoryHourResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiBazaarItemTagHistoryHourUrl = (itemTag: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/bazaar/${itemTag}/history/hour`
+}
+
+export const getApiBazaarItemTagHistoryHour = async (itemTag: string, options?: RequestInit): Promise<getApiBazaarItemTagHistoryHourResponse> => {
+  
+  const res = await fetch(getGetApiBazaarItemTagHistoryHourUrl(itemTag),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/bazaar/${itemTag}/history/hour`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiBazaarItemTagHistoryHourResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiBazaarItemTagHistoryHourResponse
+}
+
 
 
 export const getGetApiBazaarItemTagHistoryHourQueryKey = (itemTag?: string,) => {
@@ -1382,16 +1828,16 @@ export const getGetApiBazaarItemTagHistoryHourQueryKey = (itemTag?: string,) => 
     }
 
     
-export const getGetApiBazaarItemTagHistoryHourQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError = AxiosError<unknown>>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiBazaarItemTagHistoryHourQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError = unknown>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiBazaarItemTagHistoryHourQueryKey(itemTag);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>> = ({ signal }) => getApiBazaarItemTagHistoryHour(itemTag, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>> = ({ signal }) => getApiBazaarItemTagHistoryHour(itemTag, { signal, ...fetchOptions });
 
       
 
@@ -1401,39 +1847,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiBazaarItemTagHistoryHourQueryResult = NonNullable<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>>
-export type GetApiBazaarItemTagHistoryHourQueryError = AxiosError<unknown>
+export type GetApiBazaarItemTagHistoryHourQueryError = unknown
 
 
-export function useGetApiBazaarItemTagHistoryHour<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagHistoryHour<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError = unknown>(
  itemTag: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>,
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagHistoryHour<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagHistoryHour<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError = unknown>(
  itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>,
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagHistoryHour<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiBazaarItemTagHistoryHour<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets the history data for display in a graph for one hour (in intervals of 20 seconds)
  */
 
-export function useGetApiBazaarItemTagHistoryHour<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiBazaarItemTagHistoryHour<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryHour>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1452,15 +1898,42 @@ export function useGetApiBazaarItemTagHistoryHour<TData = Awaited<ReturnType<typ
 /**
  * @summary Gets the history data for display in a graph for one day ( in intervals of 5 minutes)
  */
-export const getApiBazaarItemTagHistoryDay = (
-    itemTag: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GraphResult[]>> => {
+export type getApiBazaarItemTagHistoryDayResponse200 = {
+  data: GraphResult[]
+  status: 200
+}
+    
+export type getApiBazaarItemTagHistoryDayResponseComposite = getApiBazaarItemTagHistoryDayResponse200;
+    
+export type getApiBazaarItemTagHistoryDayResponse = getApiBazaarItemTagHistoryDayResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiBazaarItemTagHistoryDayUrl = (itemTag: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/bazaar/${itemTag}/history/day`
+}
+
+export const getApiBazaarItemTagHistoryDay = async (itemTag: string, options?: RequestInit): Promise<getApiBazaarItemTagHistoryDayResponse> => {
+  
+  const res = await fetch(getGetApiBazaarItemTagHistoryDayUrl(itemTag),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/bazaar/${itemTag}/history/day`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiBazaarItemTagHistoryDayResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiBazaarItemTagHistoryDayResponse
+}
+
 
 
 export const getGetApiBazaarItemTagHistoryDayQueryKey = (itemTag?: string,) => {
@@ -1468,16 +1941,16 @@ export const getGetApiBazaarItemTagHistoryDayQueryKey = (itemTag?: string,) => {
     }
 
     
-export const getGetApiBazaarItemTagHistoryDayQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError = AxiosError<unknown>>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiBazaarItemTagHistoryDayQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError = unknown>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiBazaarItemTagHistoryDayQueryKey(itemTag);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>> = ({ signal }) => getApiBazaarItemTagHistoryDay(itemTag, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>> = ({ signal }) => getApiBazaarItemTagHistoryDay(itemTag, { signal, ...fetchOptions });
 
       
 
@@ -1487,39 +1960,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiBazaarItemTagHistoryDayQueryResult = NonNullable<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>>
-export type GetApiBazaarItemTagHistoryDayQueryError = AxiosError<unknown>
+export type GetApiBazaarItemTagHistoryDayQueryError = unknown
 
 
-export function useGetApiBazaarItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError = unknown>(
  itemTag: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>,
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError = unknown>(
  itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>,
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiBazaarItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets the history data for display in a graph for one day ( in intervals of 5 minutes)
  */
 
-export function useGetApiBazaarItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiBazaarItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryDay>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1538,15 +2011,42 @@ export function useGetApiBazaarItemTagHistoryDay<TData = Awaited<ReturnType<type
 /**
  * @summary Gets the history data for display in a graph for one week ( in intervals of 2 hours)
  */
-export const getApiBazaarItemTagHistoryWeek = (
-    itemTag: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GraphResult[]>> => {
+export type getApiBazaarItemTagHistoryWeekResponse200 = {
+  data: GraphResult[]
+  status: 200
+}
+    
+export type getApiBazaarItemTagHistoryWeekResponseComposite = getApiBazaarItemTagHistoryWeekResponse200;
+    
+export type getApiBazaarItemTagHistoryWeekResponse = getApiBazaarItemTagHistoryWeekResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiBazaarItemTagHistoryWeekUrl = (itemTag: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/bazaar/${itemTag}/history/week`
+}
+
+export const getApiBazaarItemTagHistoryWeek = async (itemTag: string, options?: RequestInit): Promise<getApiBazaarItemTagHistoryWeekResponse> => {
+  
+  const res = await fetch(getGetApiBazaarItemTagHistoryWeekUrl(itemTag),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/bazaar/${itemTag}/history/week`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiBazaarItemTagHistoryWeekResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiBazaarItemTagHistoryWeekResponse
+}
+
 
 
 export const getGetApiBazaarItemTagHistoryWeekQueryKey = (itemTag?: string,) => {
@@ -1554,16 +2054,16 @@ export const getGetApiBazaarItemTagHistoryWeekQueryKey = (itemTag?: string,) => 
     }
 
     
-export const getGetApiBazaarItemTagHistoryWeekQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError = AxiosError<unknown>>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiBazaarItemTagHistoryWeekQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError = unknown>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiBazaarItemTagHistoryWeekQueryKey(itemTag);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>> = ({ signal }) => getApiBazaarItemTagHistoryWeek(itemTag, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>> = ({ signal }) => getApiBazaarItemTagHistoryWeek(itemTag, { signal, ...fetchOptions });
 
       
 
@@ -1573,39 +2073,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiBazaarItemTagHistoryWeekQueryResult = NonNullable<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>>
-export type GetApiBazaarItemTagHistoryWeekQueryError = AxiosError<unknown>
+export type GetApiBazaarItemTagHistoryWeekQueryError = unknown
 
 
-export function useGetApiBazaarItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError = unknown>(
  itemTag: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>,
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError = unknown>(
  itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>,
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiBazaarItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets the history data for display in a graph for one week ( in intervals of 2 hours)
  */
 
-export function useGetApiBazaarItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiBazaarItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistoryWeek>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1624,18 +2124,51 @@ export function useGetApiBazaarItemTagHistoryWeek<TData = Awaited<ReturnType<typ
 /**
  * @summary Gets the history data for display in a graph
  */
-export const getApiBazaarItemTagHistory = (
-    itemTag: string,
-    params?: GetApiBazaarItemTagHistoryParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GraphResult[]>> => {
+export type getApiBazaarItemTagHistoryResponse200 = {
+  data: GraphResult[]
+  status: 200
+}
     
+export type getApiBazaarItemTagHistoryResponseComposite = getApiBazaarItemTagHistoryResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/bazaar/${itemTag}/history`,{
+export type getApiBazaarItemTagHistoryResponse = getApiBazaarItemTagHistoryResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiBazaarItemTagHistoryUrl = (itemTag: string,
+    params?: GetApiBazaarItemTagHistoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/bazaar/${itemTag}/history?${stringifiedParams}` : `https://sky.coflnet.com/api/bazaar/${itemTag}/history`
+}
+
+export const getApiBazaarItemTagHistory = async (itemTag: string,
+    params?: GetApiBazaarItemTagHistoryParams, options?: RequestInit): Promise<getApiBazaarItemTagHistoryResponse> => {
+  
+  const res = await fetch(getGetApiBazaarItemTagHistoryUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiBazaarItemTagHistoryResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiBazaarItemTagHistoryResponse
+}
+
 
 
 export const getGetApiBazaarItemTagHistoryQueryKey = (itemTag?: string,
@@ -1644,17 +2177,17 @@ export const getGetApiBazaarItemTagHistoryQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiBazaarItemTagHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiBazaarItemTagHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiBazaarItemTagHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError = unknown>(itemTag: string,
+    params?: GetApiBazaarItemTagHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiBazaarItemTagHistoryQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>> = ({ signal }) => getApiBazaarItemTagHistory(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>> = ({ signal }) => getApiBazaarItemTagHistory(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -1664,10 +2197,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiBazaarItemTagHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>>
-export type GetApiBazaarItemTagHistoryQueryError = AxiosError<unknown>
+export type GetApiBazaarItemTagHistoryQueryError = unknown
 
 
-export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiBazaarItemTagHistoryParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -1675,10 +2208,10 @@ export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError = unknown>(
  itemTag: string,
     params?: GetApiBazaarItemTagHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -1686,21 +2219,21 @@ export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiBazaarItemTagHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiBazaarItemTagHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets the history data for display in a graph
  */
 
-export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiBazaarItemTagHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiBazaarItemTagHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagHistory>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1719,18 +2252,51 @@ export function useGetApiBazaarItemTagHistory<TData = Awaited<ReturnType<typeof 
 /**
  * @summary Gets a snapshot of a specific item at a specific time
  */
-export const getApiBazaarItemTagSnapshot = (
-    itemTag: string,
-    params?: GetApiBazaarItemTagSnapshotParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<StorageQuickStatus>> => {
+export type getApiBazaarItemTagSnapshotResponse200 = {
+  data: StorageQuickStatus
+  status: 200
+}
     
+export type getApiBazaarItemTagSnapshotResponseComposite = getApiBazaarItemTagSnapshotResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/bazaar/${itemTag}/snapshot`,{
+export type getApiBazaarItemTagSnapshotResponse = getApiBazaarItemTagSnapshotResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiBazaarItemTagSnapshotUrl = (itemTag: string,
+    params?: GetApiBazaarItemTagSnapshotParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/bazaar/${itemTag}/snapshot?${stringifiedParams}` : `https://sky.coflnet.com/api/bazaar/${itemTag}/snapshot`
+}
+
+export const getApiBazaarItemTagSnapshot = async (itemTag: string,
+    params?: GetApiBazaarItemTagSnapshotParams, options?: RequestInit): Promise<getApiBazaarItemTagSnapshotResponse> => {
+  
+  const res = await fetch(getGetApiBazaarItemTagSnapshotUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiBazaarItemTagSnapshotResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiBazaarItemTagSnapshotResponse
+}
+
 
 
 export const getGetApiBazaarItemTagSnapshotQueryKey = (itemTag?: string,
@@ -1739,17 +2305,17 @@ export const getGetApiBazaarItemTagSnapshotQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiBazaarItemTagSnapshotQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiBazaarItemTagSnapshotParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiBazaarItemTagSnapshotQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError = unknown>(itemTag: string,
+    params?: GetApiBazaarItemTagSnapshotParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiBazaarItemTagSnapshotQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>> = ({ signal }) => getApiBazaarItemTagSnapshot(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>> = ({ signal }) => getApiBazaarItemTagSnapshot(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -1759,10 +2325,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiBazaarItemTagSnapshotQueryResult = NonNullable<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>>
-export type GetApiBazaarItemTagSnapshotQueryError = AxiosError<unknown>
+export type GetApiBazaarItemTagSnapshotQueryError = unknown
 
 
-export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiBazaarItemTagSnapshotParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -1770,10 +2336,10 @@ export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError = unknown>(
  itemTag: string,
     params?: GetApiBazaarItemTagSnapshotParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -1781,21 +2347,21 @@ export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiBazaarItemTagSnapshotParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiBazaarItemTagSnapshotParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets a snapshot of a specific item at a specific time
  */
 
-export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiBazaarItemTagSnapshotParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiBazaarItemTagSnapshotParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagSnapshot>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1814,15 +2380,42 @@ export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof
 /**
  * @summary Returns the last know bazaar orders of a player (identifier with current mod version is player name)
  */
-export const getApiBazaarPlayerPlayerIdOrders = (
-    playerId: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Offer[]>> => {
+export type getApiBazaarPlayerPlayerIdOrdersResponse200 = {
+  data: Offer[]
+  status: 200
+}
+    
+export type getApiBazaarPlayerPlayerIdOrdersResponseComposite = getApiBazaarPlayerPlayerIdOrdersResponse200;
+    
+export type getApiBazaarPlayerPlayerIdOrdersResponse = getApiBazaarPlayerPlayerIdOrdersResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiBazaarPlayerPlayerIdOrdersUrl = (playerId: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/bazaar/player/${playerId}/orders`
+}
+
+export const getApiBazaarPlayerPlayerIdOrders = async (playerId: string, options?: RequestInit): Promise<getApiBazaarPlayerPlayerIdOrdersResponse> => {
+  
+  const res = await fetch(getGetApiBazaarPlayerPlayerIdOrdersUrl(playerId),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/bazaar/player/${playerId}/orders`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiBazaarPlayerPlayerIdOrdersResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiBazaarPlayerPlayerIdOrdersResponse
+}
+
 
 
 export const getGetApiBazaarPlayerPlayerIdOrdersQueryKey = (playerId?: string,) => {
@@ -1830,16 +2423,16 @@ export const getGetApiBazaarPlayerPlayerIdOrdersQueryKey = (playerId?: string,) 
     }
 
     
-export const getGetApiBazaarPlayerPlayerIdOrdersQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = AxiosError<unknown>>(playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiBazaarPlayerPlayerIdOrdersQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = unknown>(playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiBazaarPlayerPlayerIdOrdersQueryKey(playerId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>> = ({ signal }) => getApiBazaarPlayerPlayerIdOrders(playerId, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>> = ({ signal }) => getApiBazaarPlayerPlayerIdOrders(playerId, { signal, ...fetchOptions });
 
       
 
@@ -1849,39 +2442,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiBazaarPlayerPlayerIdOrdersQueryResult = NonNullable<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>>
-export type GetApiBazaarPlayerPlayerIdOrdersQueryError = AxiosError<unknown>
+export type GetApiBazaarPlayerPlayerIdOrdersQueryError = unknown
 
 
-export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = unknown>(
  playerId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>,
           TError,
           Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = unknown>(
  playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>,
           TError,
           Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = AxiosError<unknown>>(
- playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = unknown>(
+ playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns the last know bazaar orders of a player (identifier with current mod version is player name)
  */
 
-export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = AxiosError<unknown>>(
- playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = unknown>(
+ playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1900,17 +2493,49 @@ export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<t
 /**
  * @summary Craft flips
  */
-export const getApiCraftProfit = (
-    params?: GetApiCraftProfitParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<ProfitableCraft[]>> => {
+export type getApiCraftProfitResponse200 = {
+  data: ProfitableCraft[]
+  status: 200
+}
     
+export type getApiCraftProfitResponseComposite = getApiCraftProfitResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/craft/profit`,{
+export type getApiCraftProfitResponse = getApiCraftProfitResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiCraftProfitUrl = (params?: GetApiCraftProfitParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/craft/profit?${stringifiedParams}` : `https://sky.coflnet.com/api/craft/profit`
+}
+
+export const getApiCraftProfit = async (params?: GetApiCraftProfitParams, options?: RequestInit): Promise<getApiCraftProfitResponse> => {
+  
+  const res = await fetch(getGetApiCraftProfitUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiCraftProfitResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiCraftProfitResponse
+}
+
 
 
 export const getGetApiCraftProfitQueryKey = (params?: GetApiCraftProfitParams,) => {
@@ -1918,16 +2543,16 @@ export const getGetApiCraftProfitQueryKey = (params?: GetApiCraftProfitParams,) 
     }
 
     
-export const getGetApiCraftProfitQueryOptions = <TData = Awaited<ReturnType<typeof getApiCraftProfit>>, TError = AxiosError<unknown>>(params?: GetApiCraftProfitParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftProfit>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiCraftProfitQueryOptions = <TData = Awaited<ReturnType<typeof getApiCraftProfit>>, TError = unknown>(params?: GetApiCraftProfitParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftProfit>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiCraftProfitQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiCraftProfit>>> = ({ signal }) => getApiCraftProfit(params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiCraftProfit>>> = ({ signal }) => getApiCraftProfit(params, { signal, ...fetchOptions });
 
       
 
@@ -1937,39 +2562,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiCraftProfitQueryResult = NonNullable<Awaited<ReturnType<typeof getApiCraftProfit>>>
-export type GetApiCraftProfitQueryError = AxiosError<unknown>
+export type GetApiCraftProfitQueryError = unknown
 
 
-export function useGetApiCraftProfit<TData = Awaited<ReturnType<typeof getApiCraftProfit>>, TError = AxiosError<unknown>>(
+export function useGetApiCraftProfit<TData = Awaited<ReturnType<typeof getApiCraftProfit>>, TError = unknown>(
  params: undefined |  GetApiCraftProfitParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftProfit>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiCraftProfit>>,
           TError,
           Awaited<ReturnType<typeof getApiCraftProfit>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiCraftProfit<TData = Awaited<ReturnType<typeof getApiCraftProfit>>, TError = AxiosError<unknown>>(
+export function useGetApiCraftProfit<TData = Awaited<ReturnType<typeof getApiCraftProfit>>, TError = unknown>(
  params?: GetApiCraftProfitParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftProfit>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiCraftProfit>>,
           TError,
           Awaited<ReturnType<typeof getApiCraftProfit>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiCraftProfit<TData = Awaited<ReturnType<typeof getApiCraftProfit>>, TError = AxiosError<unknown>>(
- params?: GetApiCraftProfitParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftProfit>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiCraftProfit<TData = Awaited<ReturnType<typeof getApiCraftProfit>>, TError = unknown>(
+ params?: GetApiCraftProfitParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftProfit>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Craft flips
  */
 
-export function useGetApiCraftProfit<TData = Awaited<ReturnType<typeof getApiCraftProfit>>, TError = AxiosError<unknown>>(
- params?: GetApiCraftProfitParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftProfit>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiCraftProfit<TData = Awaited<ReturnType<typeof getApiCraftProfit>>, TError = unknown>(
+ params?: GetApiCraftProfitParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftProfit>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1988,15 +2613,52 @@ export function useGetApiCraftProfit<TData = Awaited<ReturnType<typeof getApiCra
 /**
  * @summary Returns the crafting recipe for some item
  */
-export const getApiCraftRecipeItemTag = (
-    itemTag: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetApiCraftRecipeItemTag200One | GetApiCraftRecipeItemTag200Two | GetApiCraftRecipeItemTag200Three>> => {
+export type getApiCraftRecipeItemTagResponse200TextPlain = {
+  data: GetApiCraftRecipeItemTag200One
+  status: 200
+}
+
+export type getApiCraftRecipeItemTagResponse200ApplicationJson = {
+  data: GetApiCraftRecipeItemTag200Two
+  status: 200
+}
+
+export type getApiCraftRecipeItemTagResponse200TextJson = {
+  data: GetApiCraftRecipeItemTag200Three
+  status: 200
+}
+    
+export type getApiCraftRecipeItemTagResponseComposite = getApiCraftRecipeItemTagResponse200TextPlain | getApiCraftRecipeItemTagResponse200ApplicationJson | getApiCraftRecipeItemTagResponse200TextJson;
+    
+export type getApiCraftRecipeItemTagResponse = getApiCraftRecipeItemTagResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiCraftRecipeItemTagUrl = (itemTag: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/craft/recipe/${itemTag}`
+}
+
+export const getApiCraftRecipeItemTag = async (itemTag: string, options?: RequestInit): Promise<getApiCraftRecipeItemTagResponse> => {
+  
+  const res = await fetch(getGetApiCraftRecipeItemTagUrl(itemTag),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/craft/recipe/${itemTag}`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiCraftRecipeItemTagResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiCraftRecipeItemTagResponse
+}
+
 
 
 export const getGetApiCraftRecipeItemTagQueryKey = (itemTag?: string,) => {
@@ -2004,16 +2666,16 @@ export const getGetApiCraftRecipeItemTagQueryKey = (itemTag?: string,) => {
     }
 
     
-export const getGetApiCraftRecipeItemTagQueryOptions = <TData = Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError = AxiosError<unknown>>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiCraftRecipeItemTagQueryOptions = <TData = Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError = unknown>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiCraftRecipeItemTagQueryKey(itemTag);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>> = ({ signal }) => getApiCraftRecipeItemTag(itemTag, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>> = ({ signal }) => getApiCraftRecipeItemTag(itemTag, { signal, ...fetchOptions });
 
       
 
@@ -2023,39 +2685,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiCraftRecipeItemTagQueryResult = NonNullable<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>>
-export type GetApiCraftRecipeItemTagQueryError = AxiosError<unknown>
+export type GetApiCraftRecipeItemTagQueryError = unknown
 
 
-export function useGetApiCraftRecipeItemTag<TData = Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError = AxiosError<unknown>>(
+export function useGetApiCraftRecipeItemTag<TData = Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError = unknown>(
  itemTag: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>,
           TError,
           Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiCraftRecipeItemTag<TData = Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError = AxiosError<unknown>>(
+export function useGetApiCraftRecipeItemTag<TData = Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError = unknown>(
  itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>,
           TError,
           Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiCraftRecipeItemTag<TData = Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiCraftRecipeItemTag<TData = Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns the crafting recipe for some item
  */
 
-export function useGetApiCraftRecipeItemTag<TData = Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiCraftRecipeItemTag<TData = Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftRecipeItemTag>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2074,15 +2736,42 @@ export function useGetApiCraftRecipeItemTag<TData = Awaited<ReturnType<typeof ge
 /**
  * @summary Returns craft instructions and if lbin
  */
-export const getApiCraftItemTagInstructions = (
-    itemTag: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<CraftInstruction>> => {
+export type getApiCraftItemTagInstructionsResponse200 = {
+  data: CraftInstruction
+  status: 200
+}
+    
+export type getApiCraftItemTagInstructionsResponseComposite = getApiCraftItemTagInstructionsResponse200;
+    
+export type getApiCraftItemTagInstructionsResponse = getApiCraftItemTagInstructionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiCraftItemTagInstructionsUrl = (itemTag: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/craft/${itemTag}/instructions`
+}
+
+export const getApiCraftItemTagInstructions = async (itemTag: string, options?: RequestInit): Promise<getApiCraftItemTagInstructionsResponse> => {
+  
+  const res = await fetch(getGetApiCraftItemTagInstructionsUrl(itemTag),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/craft/${itemTag}/instructions`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiCraftItemTagInstructionsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiCraftItemTagInstructionsResponse
+}
+
 
 
 export const getGetApiCraftItemTagInstructionsQueryKey = (itemTag?: string,) => {
@@ -2090,16 +2779,16 @@ export const getGetApiCraftItemTagInstructionsQueryKey = (itemTag?: string,) => 
     }
 
     
-export const getGetApiCraftItemTagInstructionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError = AxiosError<unknown>>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiCraftItemTagInstructionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError = unknown>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiCraftItemTagInstructionsQueryKey(itemTag);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>> = ({ signal }) => getApiCraftItemTagInstructions(itemTag, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>> = ({ signal }) => getApiCraftItemTagInstructions(itemTag, { signal, ...fetchOptions });
 
       
 
@@ -2109,39 +2798,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiCraftItemTagInstructionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>>
-export type GetApiCraftItemTagInstructionsQueryError = AxiosError<unknown>
+export type GetApiCraftItemTagInstructionsQueryError = unknown
 
 
-export function useGetApiCraftItemTagInstructions<TData = Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError = AxiosError<unknown>>(
+export function useGetApiCraftItemTagInstructions<TData = Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError = unknown>(
  itemTag: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>,
           TError,
           Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiCraftItemTagInstructions<TData = Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError = AxiosError<unknown>>(
+export function useGetApiCraftItemTagInstructions<TData = Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError = unknown>(
  itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>,
           TError,
           Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiCraftItemTagInstructions<TData = Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiCraftItemTagInstructions<TData = Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns craft instructions and if lbin
  */
 
-export function useGetApiCraftItemTagInstructions<TData = Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiCraftItemTagInstructions<TData = Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCraftItemTagInstructions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2160,30 +2849,55 @@ export function useGetApiCraftItemTagInstructions<TData = Awaited<ReturnType<typ
 /**
  * @summary Endpoint to upload proxied data
  */
-export const postApiDataProxy = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<string>> => {
+export type postApiDataProxyResponse200 = {
+  data: string
+  status: 200
+}
+    
+export type postApiDataProxyResponseComposite = postApiDataProxyResponse200;
+    
+export type postApiDataProxyResponse = postApiDataProxyResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiDataProxyUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/data/proxy`
+}
+
+export const postApiDataProxy = async ( options?: RequestInit): Promise<postApiDataProxyResponse> => {
+  
+  const res = await fetch(getPostApiDataProxyUrl(),
+  {      
+    ...options,
+    method: 'POST'
     
     
-    return axios.post(
-      `https://sky.coflnet.com/api/data/proxy`,undefined,{
-        responseType: 'text',
-    ...options,}
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiDataProxyResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiDataProxyResponse
+}
 
 
 
-export const getPostApiDataProxyMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataProxy>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiDataProxyMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataProxy>>, TError,void, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiDataProxy>>, TError,void, TContext> => {
 
 const mutationKey = ['postApiDataProxy'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -2191,7 +2905,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiDataProxy>>, void> = () => {
           
 
-          return  postApiDataProxy(axiosOptions)
+          return  postApiDataProxy(fetchOptions)
         }
 
         
@@ -2201,13 +2915,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiDataProxyMutationResult = NonNullable<Awaited<ReturnType<typeof postApiDataProxy>>>
     
-    export type PostApiDataProxyMutationError = AxiosError<unknown>
+    export type PostApiDataProxyMutationError = unknown
 
     /**
  * @summary Endpoint to upload proxied data
  */
-export const usePostApiDataProxy = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataProxy>>, TError,void, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiDataProxy = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataProxy>>, TError,void, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiDataProxy>>,
         TError,
@@ -2223,30 +2937,62 @@ export const usePostApiDataProxy = <TError = AxiosError<unknown>,
 /**
  * @summary Accepts player name based auction hints
  */
-export const postApiDataPlayerName = (
-    params?: PostApiDataPlayerNameParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Int32Int64ValueTuple>> => {
+export type postApiDataPlayerNameResponse200 = {
+  data: Int32Int64ValueTuple
+  status: 200
+}
     
+export type postApiDataPlayerNameResponseComposite = postApiDataPlayerNameResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/data/playerName`,undefined,{
+export type postApiDataPlayerNameResponse = postApiDataPlayerNameResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiDataPlayerNameUrl = (params?: PostApiDataPlayerNameParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/data/playerName?${stringifiedParams}` : `https://sky.coflnet.com/api/data/playerName`
+}
+
+export const postApiDataPlayerName = async (params?: PostApiDataPlayerNameParams, options?: RequestInit): Promise<postApiDataPlayerNameResponse> => {
+  
+  const res = await fetch(getPostApiDataPlayerNameUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'POST'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiDataPlayerNameResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiDataPlayerNameResponse
+}
 
 
 
-export const getPostApiDataPlayerNameMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataPlayerName>>, TError,{params?: PostApiDataPlayerNameParams}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiDataPlayerNameMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataPlayerName>>, TError,{params?: PostApiDataPlayerNameParams}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiDataPlayerName>>, TError,{params?: PostApiDataPlayerNameParams}, TContext> => {
 
 const mutationKey = ['postApiDataPlayerName'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -2254,7 +3000,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiDataPlayerName>>, {params?: PostApiDataPlayerNameParams}> = (props) => {
           const {params} = props ?? {};
 
-          return  postApiDataPlayerName(params,axiosOptions)
+          return  postApiDataPlayerName(params,fetchOptions)
         }
 
         
@@ -2264,13 +3010,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiDataPlayerNameMutationResult = NonNullable<Awaited<ReturnType<typeof postApiDataPlayerName>>>
     
-    export type PostApiDataPlayerNameMutationError = AxiosError<unknown>
+    export type PostApiDataPlayerNameMutationError = unknown
 
     /**
  * @summary Accepts player name based auction hints
  */
-export const usePostApiDataPlayerName = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataPlayerName>>, TError,{params?: PostApiDataPlayerNameParams}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiDataPlayerName = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataPlayerName>>, TError,{params?: PostApiDataPlayerNameParams}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiDataPlayerName>>,
         TError,
@@ -2286,32 +3032,64 @@ export const usePostApiDataPlayerName = <TError = AxiosError<unknown>,
 /**
  * @summary Accepts player name based auction hints
  */
-export const postApiDataPlayerNames = (
-    postApiDataPlayerNamesBody: string[],
-    params?: PostApiDataPlayerNamesParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Int32Int64ValueTuple[]>> => {
+export type postApiDataPlayerNamesResponse200 = {
+  data: Int32Int64ValueTuple[]
+  status: 200
+}
     
+export type postApiDataPlayerNamesResponseComposite = postApiDataPlayerNamesResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/data/playerNames`,
-      postApiDataPlayerNamesBody,{
+export type postApiDataPlayerNamesResponse = postApiDataPlayerNamesResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiDataPlayerNamesUrl = (params?: PostApiDataPlayerNamesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/data/playerNames?${stringifiedParams}` : `https://sky.coflnet.com/api/data/playerNames`
+}
+
+export const postApiDataPlayerNames = async (postApiDataPlayerNamesBody: string[],
+    params?: PostApiDataPlayerNamesParams, options?: RequestInit): Promise<postApiDataPlayerNamesResponse> => {
+  
+  const res = await fetch(getPostApiDataPlayerNamesUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      postApiDataPlayerNamesBody,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiDataPlayerNamesResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiDataPlayerNamesResponse
+}
 
 
 
-export const getPostApiDataPlayerNamesMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataPlayerNames>>, TError,{data: string[];params?: PostApiDataPlayerNamesParams}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiDataPlayerNamesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataPlayerNames>>, TError,{data: string[];params?: PostApiDataPlayerNamesParams}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiDataPlayerNames>>, TError,{data: string[];params?: PostApiDataPlayerNamesParams}, TContext> => {
 
 const mutationKey = ['postApiDataPlayerNames'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -2319,7 +3097,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiDataPlayerNames>>, {data: string[];params?: PostApiDataPlayerNamesParams}> = (props) => {
           const {data,params} = props ?? {};
 
-          return  postApiDataPlayerNames(data,params,axiosOptions)
+          return  postApiDataPlayerNames(data,params,fetchOptions)
         }
 
         
@@ -2329,13 +3107,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiDataPlayerNamesMutationResult = NonNullable<Awaited<ReturnType<typeof postApiDataPlayerNames>>>
     export type PostApiDataPlayerNamesMutationBody = string[]
-    export type PostApiDataPlayerNamesMutationError = AxiosError<unknown>
+    export type PostApiDataPlayerNamesMutationError = unknown
 
     /**
  * @summary Accepts player name based auction hints
  */
-export const usePostApiDataPlayerNames = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataPlayerNames>>, TError,{data: string[];params?: PostApiDataPlayerNamesParams}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiDataPlayerNames = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiDataPlayerNames>>, TError,{data: string[];params?: PostApiDataPlayerNamesParams}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiDataPlayerNames>>,
         TError,
@@ -2348,29 +3126,56 @@ export const usePostApiDataPlayerNames = <TError = AxiosError<unknown>,
       return useMutation(mutationOptions , queryClient);
     }
     
-export const postApiFilter = (
-    filterQuery: FilterQuery, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<boolean>> => {
+export type postApiFilterResponse200 = {
+  data: boolean
+  status: 200
+}
     
+export type postApiFilterResponseComposite = postApiFilterResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/Filter`,
-      filterQuery,options
-    );
+export type postApiFilterResponse = postApiFilterResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiFilterUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/Filter`
+}
+
+export const postApiFilter = async (filterQuery: FilterQuery, options?: RequestInit): Promise<postApiFilterResponse> => {
+  
+  const res = await fetch(getPostApiFilterUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      filterQuery,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiFilterResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiFilterResponse
+}
 
 
 
-export const getPostApiFilterMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFilter>>, TError,{data: FilterQuery}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiFilterMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFilter>>, TError,{data: FilterQuery}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiFilter>>, TError,{data: FilterQuery}, TContext> => {
 
 const mutationKey = ['postApiFilter'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -2378,7 +3183,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFilter>>, {data: FilterQuery}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiFilter(data,axiosOptions)
+          return  postApiFilter(data,fetchOptions)
         }
 
         
@@ -2388,10 +3193,10 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiFilterMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFilter>>>
     export type PostApiFilterMutationBody = FilterQuery
-    export type PostApiFilterMutationError = AxiosError<unknown>
+    export type PostApiFilterMutationError = unknown
 
-    export const usePostApiFilter = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFilter>>, TError,{data: FilterQuery}, TContext>, axios?: AxiosRequestConfig}
+    export const usePostApiFilter = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFilter>>, TError,{data: FilterQuery}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiFilter>>,
         TError,
@@ -2408,17 +3213,42 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
  * @summary The last time an update was loaded (cached for 30min)
 You should only look at the second part
  */
-export const getApiFlipUpdateWhen = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<string>> => {
+export type getApiFlipUpdateWhenResponse200 = {
+  data: string
+  status: 200
+}
+    
+export type getApiFlipUpdateWhenResponseComposite = getApiFlipUpdateWhenResponse200;
+    
+export type getApiFlipUpdateWhenResponse = getApiFlipUpdateWhenResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipUpdateWhenUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/flip/update/when`
+}
+
+export const getApiFlipUpdateWhen = async ( options?: RequestInit): Promise<getApiFlipUpdateWhenResponse> => {
+  
+  const res = await fetch(getGetApiFlipUpdateWhenUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/update/when`,{
-        responseType: 'text',
-    ...options,}
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipUpdateWhenResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipUpdateWhenResponse
+}
+
 
 
 export const getGetApiFlipUpdateWhenQueryKey = () => {
@@ -2426,16 +3256,16 @@ export const getGetApiFlipUpdateWhenQueryKey = () => {
     }
 
     
-export const getGetApiFlipUpdateWhenQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipUpdateWhenQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipUpdateWhenQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>> = ({ signal }) => getApiFlipUpdateWhen({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>> = ({ signal }) => getApiFlipUpdateWhen({ signal, ...fetchOptions });
 
       
 
@@ -2445,31 +3275,31 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipUpdateWhenQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>>
-export type GetApiFlipUpdateWhenQueryError = AxiosError<unknown>
+export type GetApiFlipUpdateWhenQueryError = unknown
 
 
-export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipUpdateWhen>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipUpdateWhen>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipUpdateWhen>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipUpdateWhen>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -2477,8 +3307,8 @@ export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApi
 You should only look at the second part
  */
 
-export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUpdateWhen>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2497,15 +3327,42 @@ export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApi
 /**
  * @summary Spread based bazaar flips
  */
-export const getApiFlipBazaarSpread = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<SpreadFlip[]>> => {
+export type getApiFlipBazaarSpreadResponse200 = {
+  data: SpreadFlip[]
+  status: 200
+}
+    
+export type getApiFlipBazaarSpreadResponseComposite = getApiFlipBazaarSpreadResponse200;
+    
+export type getApiFlipBazaarSpreadResponse = getApiFlipBazaarSpreadResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipBazaarSpreadUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/flip/bazaar/spread`
+}
+
+export const getApiFlipBazaarSpread = async ( options?: RequestInit): Promise<getApiFlipBazaarSpreadResponse> => {
+  
+  const res = await fetch(getGetApiFlipBazaarSpreadUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/bazaar/spread`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipBazaarSpreadResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipBazaarSpreadResponse
+}
+
 
 
 export const getGetApiFlipBazaarSpreadQueryKey = () => {
@@ -2513,16 +3370,16 @@ export const getGetApiFlipBazaarSpreadQueryKey = () => {
     }
 
     
-export const getGetApiFlipBazaarSpreadQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipBazaarSpreadQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipBazaarSpreadQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>> = ({ signal }) => getApiFlipBazaarSpread({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>> = ({ signal }) => getApiFlipBazaarSpread({ signal, ...fetchOptions });
 
       
 
@@ -2532,39 +3389,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipBazaarSpreadQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>>
-export type GetApiFlipBazaarSpreadQueryError = AxiosError<unknown>
+export type GetApiFlipBazaarSpreadQueryError = unknown
 
 
-export function useGetApiFlipBazaarSpread<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipBazaarSpread<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipBazaarSpread>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipBazaarSpread>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipBazaarSpread<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipBazaarSpread<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipBazaarSpread>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipBazaarSpread>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipBazaarSpread<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipBazaarSpread<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Spread based bazaar flips
  */
 
-export function useGetApiFlipBazaarSpread<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipBazaarSpread<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpread>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2583,15 +3440,42 @@ export function useGetApiFlipBazaarSpread<TData = Awaited<ReturnType<typeof getA
 /**
  * @summary Spread based bazaar flips (top order to top order) with real time demand sorting
  */
-export const getApiFlipBazaarSpreadDeemand = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<DemandSpreadFlip[]>> => {
+export type getApiFlipBazaarSpreadDeemandResponse200 = {
+  data: DemandSpreadFlip[]
+  status: 200
+}
+    
+export type getApiFlipBazaarSpreadDeemandResponseComposite = getApiFlipBazaarSpreadDeemandResponse200;
+    
+export type getApiFlipBazaarSpreadDeemandResponse = getApiFlipBazaarSpreadDeemandResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipBazaarSpreadDeemandUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/flip/bazaar/spread/deemand`
+}
+
+export const getApiFlipBazaarSpreadDeemand = async ( options?: RequestInit): Promise<getApiFlipBazaarSpreadDeemandResponse> => {
+  
+  const res = await fetch(getGetApiFlipBazaarSpreadDeemandUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/bazaar/spread/deemand`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipBazaarSpreadDeemandResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipBazaarSpreadDeemandResponse
+}
+
 
 
 export const getGetApiFlipBazaarSpreadDeemandQueryKey = () => {
@@ -2599,16 +3483,16 @@ export const getGetApiFlipBazaarSpreadDeemandQueryKey = () => {
     }
 
     
-export const getGetApiFlipBazaarSpreadDeemandQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipBazaarSpreadDeemandQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipBazaarSpreadDeemandQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>> = ({ signal }) => getApiFlipBazaarSpreadDeemand({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>> = ({ signal }) => getApiFlipBazaarSpreadDeemand({ signal, ...fetchOptions });
 
       
 
@@ -2618,39 +3502,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipBazaarSpreadDeemandQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>>
-export type GetApiFlipBazaarSpreadDeemandQueryError = AxiosError<unknown>
+export type GetApiFlipBazaarSpreadDeemandQueryError = unknown
 
 
-export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Spread based bazaar flips (top order to top order) with real time demand sorting
  */
 
-export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2669,15 +3553,42 @@ export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<type
 /**
  * @summary Get the current book flips on bazaar
  */
-export const getApiFlipBazaarBooks = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<BookFlip[]>> => {
+export type getApiFlipBazaarBooksResponse200 = {
+  data: BookFlip[]
+  status: 200
+}
+    
+export type getApiFlipBazaarBooksResponseComposite = getApiFlipBazaarBooksResponse200;
+    
+export type getApiFlipBazaarBooksResponse = getApiFlipBazaarBooksResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipBazaarBooksUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/flip/bazaar/books`
+}
+
+export const getApiFlipBazaarBooks = async ( options?: RequestInit): Promise<getApiFlipBazaarBooksResponse> => {
+  
+  const res = await fetch(getGetApiFlipBazaarBooksUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/bazaar/books`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipBazaarBooksResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipBazaarBooksResponse
+}
+
 
 
 export const getGetApiFlipBazaarBooksQueryKey = () => {
@@ -2685,16 +3596,16 @@ export const getGetApiFlipBazaarBooksQueryKey = () => {
     }
 
     
-export const getGetApiFlipBazaarBooksQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipBazaarBooksQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipBazaarBooksQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>> = ({ signal }) => getApiFlipBazaarBooks({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>> = ({ signal }) => getApiFlipBazaarBooks({ signal, ...fetchOptions });
 
       
 
@@ -2704,39 +3615,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipBazaarBooksQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>>
-export type GetApiFlipBazaarBooksQueryError = AxiosError<unknown>
+export type GetApiFlipBazaarBooksQueryError = unknown
 
 
-export function useGetApiFlipBazaarBooks<TData = Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipBazaarBooks<TData = Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipBazaarBooks>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipBazaarBooks>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipBazaarBooks<TData = Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipBazaarBooks<TData = Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipBazaarBooks>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipBazaarBooks>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipBazaarBooks<TData = Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipBazaarBooks<TData = Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get the current book flips on bazaar
  */
 
-export function useGetApiFlipBazaarBooks<TData = Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipBazaarBooks<TData = Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarBooks>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2755,15 +3666,42 @@ export function useGetApiFlipBazaarBooks<TData = Awaited<ReturnType<typeof getAp
 /**
  * @summary Get profitable npc purchase ah/bazaar sell flips
  */
-export const getApiFlipNpc = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<ProfitableCraft[]>> => {
+export type getApiFlipNpcResponse200 = {
+  data: ProfitableCraft[]
+  status: 200
+}
+    
+export type getApiFlipNpcResponseComposite = getApiFlipNpcResponse200;
+    
+export type getApiFlipNpcResponse = getApiFlipNpcResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipNpcUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/flip/npc`
+}
+
+export const getApiFlipNpc = async ( options?: RequestInit): Promise<getApiFlipNpcResponse> => {
+  
+  const res = await fetch(getGetApiFlipNpcUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/npc`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipNpcResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipNpcResponse
+}
+
 
 
 export const getGetApiFlipNpcQueryKey = () => {
@@ -2771,16 +3709,16 @@ export const getGetApiFlipNpcQueryKey = () => {
     }
 
     
-export const getGetApiFlipNpcQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipNpc>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpc>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipNpcQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipNpc>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpc>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipNpcQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipNpc>>> = ({ signal }) => getApiFlipNpc({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipNpc>>> = ({ signal }) => getApiFlipNpc({ signal, ...fetchOptions });
 
       
 
@@ -2790,39 +3728,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipNpcQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipNpc>>>
-export type GetApiFlipNpcQueryError = AxiosError<unknown>
+export type GetApiFlipNpcQueryError = unknown
 
 
-export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpc>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipNpc>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipNpc>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpc>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipNpc>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipNpc>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpc>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpc>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get profitable npc purchase ah/bazaar sell flips
  */
 
-export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpc>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpc>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2841,15 +3779,42 @@ export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc
 /**
  * @summary Discover flips using the fusion machine
  */
-export const getApiFlipFusion = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<FuseFlip[]>> => {
+export type getApiFlipFusionResponse200 = {
+  data: FuseFlip[]
+  status: 200
+}
+    
+export type getApiFlipFusionResponseComposite = getApiFlipFusionResponse200;
+    
+export type getApiFlipFusionResponse = getApiFlipFusionResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipFusionUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/flip/fusion`
+}
+
+export const getApiFlipFusion = async ( options?: RequestInit): Promise<getApiFlipFusionResponse> => {
+  
+  const res = await fetch(getGetApiFlipFusionUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/fusion`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipFusionResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipFusionResponse
+}
+
 
 
 export const getGetApiFlipFusionQueryKey = () => {
@@ -2857,16 +3822,16 @@ export const getGetApiFlipFusionQueryKey = () => {
     }
 
     
-export const getGetApiFlipFusionQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipFusion>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipFusion>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipFusionQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipFusion>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipFusion>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipFusionQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipFusion>>> = ({ signal }) => getApiFlipFusion({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipFusion>>> = ({ signal }) => getApiFlipFusion({ signal, ...fetchOptions });
 
       
 
@@ -2876,39 +3841,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipFusionQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipFusion>>>
-export type GetApiFlipFusionQueryError = AxiosError<unknown>
+export type GetApiFlipFusionQueryError = unknown
 
 
-export function useGetApiFlipFusion<TData = Awaited<ReturnType<typeof getApiFlipFusion>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipFusion<TData = Awaited<ReturnType<typeof getApiFlipFusion>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipFusion>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipFusion>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipFusion>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipFusion<TData = Awaited<ReturnType<typeof getApiFlipFusion>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipFusion<TData = Awaited<ReturnType<typeof getApiFlipFusion>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipFusion>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipFusion>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipFusion>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipFusion<TData = Awaited<ReturnType<typeof getApiFlipFusion>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipFusion>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipFusion<TData = Awaited<ReturnType<typeof getApiFlipFusion>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipFusion>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Discover flips using the fusion machine
  */
 
-export function useGetApiFlipFusion<TData = Awaited<ReturnType<typeof getApiFlipFusion>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipFusion>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipFusion<TData = Awaited<ReturnType<typeof getApiFlipFusion>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipFusion>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2929,15 +3894,42 @@ export function useGetApiFlipFusion<TData = Awaited<ReturnType<typeof getApiFlip
  * @summary Shows you the available settings options for the socket comand subFlip,
 Doesn't currently actually do anything.
  */
-export const getApiFlipSettingsOptions = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<FlipSettings>> => {
+export type getApiFlipSettingsOptionsResponse200 = {
+  data: FlipSettings
+  status: 200
+}
+    
+export type getApiFlipSettingsOptionsResponseComposite = getApiFlipSettingsOptionsResponse200;
+    
+export type getApiFlipSettingsOptionsResponse = getApiFlipSettingsOptionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipSettingsOptionsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/flip/settings/options`
+}
+
+export const getApiFlipSettingsOptions = async ( options?: RequestInit): Promise<getApiFlipSettingsOptionsResponse> => {
+  
+  const res = await fetch(getGetApiFlipSettingsOptionsUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/settings/options`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipSettingsOptionsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipSettingsOptionsResponse
+}
+
 
 
 export const getGetApiFlipSettingsOptionsQueryKey = () => {
@@ -2945,16 +3937,16 @@ export const getGetApiFlipSettingsOptionsQueryKey = () => {
     }
 
     
-export const getGetApiFlipSettingsOptionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipSettingsOptionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipSettingsOptionsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>> = ({ signal }) => getApiFlipSettingsOptions({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>> = ({ signal }) => getApiFlipSettingsOptions({ signal, ...fetchOptions });
 
       
 
@@ -2964,31 +3956,31 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipSettingsOptionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>>
-export type GetApiFlipSettingsOptionsQueryError = AxiosError<unknown>
+export type GetApiFlipSettingsOptionsQueryError = unknown
 
 
-export function useGetApiFlipSettingsOptions<TData = Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipSettingsOptions<TData = Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipSettingsOptions>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipSettingsOptions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipSettingsOptions<TData = Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipSettingsOptions<TData = Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipSettingsOptions>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipSettingsOptions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipSettingsOptions<TData = Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipSettingsOptions<TData = Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -2997,8 +3989,8 @@ export function useGetApiFlipSettingsOptions<TData = Awaited<ReturnType<typeof g
 Doesn't currently actually do anything.
  */
 
-export function useGetApiFlipSettingsOptions<TData = Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipSettingsOptions<TData = Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipSettingsOptions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -3017,31 +4009,64 @@ export function useGetApiFlipSettingsOptions<TData = Awaited<ReturnType<typeof g
 /**
  * @summary Callback for external flip finders to be included in tracking
  */
-export const postApiFlipTrackPurchaseAuctionId = (
-    auctionId: string,
-    params?: PostApiFlipTrackPurchaseAuctionIdParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type postApiFlipTrackPurchaseAuctionIdResponse200 = {
+  data: null
+  status: 200
+}
     
+export type postApiFlipTrackPurchaseAuctionIdResponseComposite = postApiFlipTrackPurchaseAuctionIdResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/flip/track/purchase/${auctionId}`,undefined,{
+export type postApiFlipTrackPurchaseAuctionIdResponse = postApiFlipTrackPurchaseAuctionIdResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiFlipTrackPurchaseAuctionIdUrl = (auctionId: string,
+    params?: PostApiFlipTrackPurchaseAuctionIdParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/flip/track/purchase/${auctionId}?${stringifiedParams}` : `https://sky.coflnet.com/api/flip/track/purchase/${auctionId}`
+}
+
+export const postApiFlipTrackPurchaseAuctionId = async (auctionId: string,
+    params?: PostApiFlipTrackPurchaseAuctionIdParams, options?: RequestInit): Promise<postApiFlipTrackPurchaseAuctionIdResponse> => {
+  
+  const res = await fetch(getPostApiFlipTrackPurchaseAuctionIdUrl(auctionId,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'POST'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiFlipTrackPurchaseAuctionIdResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiFlipTrackPurchaseAuctionIdResponse
+}
 
 
 
-export const getPostApiFlipTrackPurchaseAuctionIdMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipTrackPurchaseAuctionId>>, TError,{auctionId: string;params?: PostApiFlipTrackPurchaseAuctionIdParams}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiFlipTrackPurchaseAuctionIdMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipTrackPurchaseAuctionId>>, TError,{auctionId: string;params?: PostApiFlipTrackPurchaseAuctionIdParams}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiFlipTrackPurchaseAuctionId>>, TError,{auctionId: string;params?: PostApiFlipTrackPurchaseAuctionIdParams}, TContext> => {
 
 const mutationKey = ['postApiFlipTrackPurchaseAuctionId'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -3049,7 +4074,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFlipTrackPurchaseAuctionId>>, {auctionId: string;params?: PostApiFlipTrackPurchaseAuctionIdParams}> = (props) => {
           const {auctionId,params} = props ?? {};
 
-          return  postApiFlipTrackPurchaseAuctionId(auctionId,params,axiosOptions)
+          return  postApiFlipTrackPurchaseAuctionId(auctionId,params,fetchOptions)
         }
 
         
@@ -3059,13 +4084,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiFlipTrackPurchaseAuctionIdMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFlipTrackPurchaseAuctionId>>>
     
-    export type PostApiFlipTrackPurchaseAuctionIdMutationError = AxiosError<unknown>
+    export type PostApiFlipTrackPurchaseAuctionIdMutationError = unknown
 
     /**
  * @summary Callback for external flip finders to be included in tracking
  */
-export const usePostApiFlipTrackPurchaseAuctionId = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipTrackPurchaseAuctionId>>, TError,{auctionId: string;params?: PostApiFlipTrackPurchaseAuctionIdParams}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiFlipTrackPurchaseAuctionId = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipTrackPurchaseAuctionId>>, TError,{auctionId: string;params?: PostApiFlipTrackPurchaseAuctionIdParams}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiFlipTrackPurchaseAuctionId>>,
         TError,
@@ -3081,31 +4106,64 @@ export const usePostApiFlipTrackPurchaseAuctionId = <TError = AxiosError<unknown
 /**
  * @summary Callback for external flip finders to be included in tracking.
  */
-export const postApiFlipTrackFoundAuctionId = (
-    auctionId: string,
-    params?: PostApiFlipTrackFoundAuctionIdParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type postApiFlipTrackFoundAuctionIdResponse200 = {
+  data: null
+  status: 200
+}
     
+export type postApiFlipTrackFoundAuctionIdResponseComposite = postApiFlipTrackFoundAuctionIdResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/flip/track/found/${auctionId}`,undefined,{
+export type postApiFlipTrackFoundAuctionIdResponse = postApiFlipTrackFoundAuctionIdResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiFlipTrackFoundAuctionIdUrl = (auctionId: string,
+    params?: PostApiFlipTrackFoundAuctionIdParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/flip/track/found/${auctionId}?${stringifiedParams}` : `https://sky.coflnet.com/api/flip/track/found/${auctionId}`
+}
+
+export const postApiFlipTrackFoundAuctionId = async (auctionId: string,
+    params?: PostApiFlipTrackFoundAuctionIdParams, options?: RequestInit): Promise<postApiFlipTrackFoundAuctionIdResponse> => {
+  
+  const res = await fetch(getPostApiFlipTrackFoundAuctionIdUrl(auctionId,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'POST'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiFlipTrackFoundAuctionIdResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiFlipTrackFoundAuctionIdResponse
+}
 
 
 
-export const getPostApiFlipTrackFoundAuctionIdMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipTrackFoundAuctionId>>, TError,{auctionId: string;params?: PostApiFlipTrackFoundAuctionIdParams}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiFlipTrackFoundAuctionIdMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipTrackFoundAuctionId>>, TError,{auctionId: string;params?: PostApiFlipTrackFoundAuctionIdParams}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiFlipTrackFoundAuctionId>>, TError,{auctionId: string;params?: PostApiFlipTrackFoundAuctionIdParams}, TContext> => {
 
 const mutationKey = ['postApiFlipTrackFoundAuctionId'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -3113,7 +4171,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFlipTrackFoundAuctionId>>, {auctionId: string;params?: PostApiFlipTrackFoundAuctionIdParams}> = (props) => {
           const {auctionId,params} = props ?? {};
 
-          return  postApiFlipTrackFoundAuctionId(auctionId,params,axiosOptions)
+          return  postApiFlipTrackFoundAuctionId(auctionId,params,fetchOptions)
         }
 
         
@@ -3123,13 +4181,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiFlipTrackFoundAuctionIdMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFlipTrackFoundAuctionId>>>
     
-    export type PostApiFlipTrackFoundAuctionIdMutationError = AxiosError<unknown>
+    export type PostApiFlipTrackFoundAuctionIdMutationError = unknown
 
     /**
  * @summary Callback for external flip finders to be included in tracking.
  */
-export const usePostApiFlipTrackFoundAuctionId = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipTrackFoundAuctionId>>, TError,{auctionId: string;params?: PostApiFlipTrackFoundAuctionIdParams}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiFlipTrackFoundAuctionId = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipTrackFoundAuctionId>>, TError,{auctionId: string;params?: PostApiFlipTrackFoundAuctionIdParams}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiFlipTrackFoundAuctionId>>,
         TError,
@@ -3145,18 +4203,51 @@ export const usePostApiFlipTrackFoundAuctionId = <TError = AxiosError<unknown>,
 /**
  * @summary Get flips stats for player
  */
-export const getApiFlipStatsPlayerPlayerUuid = (
-    playerUuid: string,
-    params?: GetApiFlipStatsPlayerPlayerUuidParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<FlipSumary>> => {
+export type getApiFlipStatsPlayerPlayerUuidResponse200 = {
+  data: FlipSumary
+  status: 200
+}
     
+export type getApiFlipStatsPlayerPlayerUuidResponseComposite = getApiFlipStatsPlayerPlayerUuidResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/stats/player/${playerUuid}`,{
+export type getApiFlipStatsPlayerPlayerUuidResponse = getApiFlipStatsPlayerPlayerUuidResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipStatsPlayerPlayerUuidUrl = (playerUuid: string,
+    params?: GetApiFlipStatsPlayerPlayerUuidParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/flip/stats/player/${playerUuid}?${stringifiedParams}` : `https://sky.coflnet.com/api/flip/stats/player/${playerUuid}`
+}
+
+export const getApiFlipStatsPlayerPlayerUuid = async (playerUuid: string,
+    params?: GetApiFlipStatsPlayerPlayerUuidParams, options?: RequestInit): Promise<getApiFlipStatsPlayerPlayerUuidResponse> => {
+  
+  const res = await fetch(getGetApiFlipStatsPlayerPlayerUuidUrl(playerUuid,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipStatsPlayerPlayerUuidResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipStatsPlayerPlayerUuidResponse
+}
+
 
 
 export const getGetApiFlipStatsPlayerPlayerUuidQueryKey = (playerUuid?: string,
@@ -3165,17 +4256,17 @@ export const getGetApiFlipStatsPlayerPlayerUuidQueryKey = (playerUuid?: string,
     }
 
     
-export const getGetApiFlipStatsPlayerPlayerUuidQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError = AxiosError<unknown>>(playerUuid: string,
-    params?: GetApiFlipStatsPlayerPlayerUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipStatsPlayerPlayerUuidQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError = unknown>(playerUuid: string,
+    params?: GetApiFlipStatsPlayerPlayerUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipStatsPlayerPlayerUuidQueryKey(playerUuid,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>> = ({ signal }) => getApiFlipStatsPlayerPlayerUuid(playerUuid,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>> = ({ signal }) => getApiFlipStatsPlayerPlayerUuid(playerUuid,params, { signal, ...fetchOptions });
 
       
 
@@ -3185,10 +4276,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipStatsPlayerPlayerUuidQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>>
-export type GetApiFlipStatsPlayerPlayerUuidQueryError = AxiosError<unknown>
+export type GetApiFlipStatsPlayerPlayerUuidQueryError = unknown
 
 
-export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError = unknown>(
  playerUuid: string,
     params: undefined |  GetApiFlipStatsPlayerPlayerUuidParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -3196,10 +4287,10 @@ export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<ty
           TError,
           Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError = unknown>(
  playerUuid: string,
     params?: GetApiFlipStatsPlayerPlayerUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -3207,21 +4298,21 @@ export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<ty
           TError,
           Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError = unknown>(
  playerUuid: string,
-    params?: GetApiFlipStatsPlayerPlayerUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiFlipStatsPlayerPlayerUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get flips stats for player
  */
 
-export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError = unknown>(
  playerUuid: string,
-    params?: GetApiFlipStatsPlayerPlayerUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiFlipStatsPlayerPlayerUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuid>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -3240,15 +4331,42 @@ export function useGetApiFlipStatsPlayerPlayerUuid<TData = Awaited<ReturnType<ty
 /**
  * @summary Get flips stats for player for the last hour (faster)
  */
-export const getApiFlipStatsPlayerPlayerUuidHour = (
-    playerUuid: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<FlipSumary>> => {
+export type getApiFlipStatsPlayerPlayerUuidHourResponse200 = {
+  data: FlipSumary
+  status: 200
+}
+    
+export type getApiFlipStatsPlayerPlayerUuidHourResponseComposite = getApiFlipStatsPlayerPlayerUuidHourResponse200;
+    
+export type getApiFlipStatsPlayerPlayerUuidHourResponse = getApiFlipStatsPlayerPlayerUuidHourResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipStatsPlayerPlayerUuidHourUrl = (playerUuid: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/flip/stats/player/${playerUuid}/hour`
+}
+
+export const getApiFlipStatsPlayerPlayerUuidHour = async (playerUuid: string, options?: RequestInit): Promise<getApiFlipStatsPlayerPlayerUuidHourResponse> => {
+  
+  const res = await fetch(getGetApiFlipStatsPlayerPlayerUuidHourUrl(playerUuid),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/stats/player/${playerUuid}/hour`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipStatsPlayerPlayerUuidHourResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipStatsPlayerPlayerUuidHourResponse
+}
+
 
 
 export const getGetApiFlipStatsPlayerPlayerUuidHourQueryKey = (playerUuid?: string,) => {
@@ -3256,16 +4374,16 @@ export const getGetApiFlipStatsPlayerPlayerUuidHourQueryKey = (playerUuid?: stri
     }
 
     
-export const getGetApiFlipStatsPlayerPlayerUuidHourQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError = AxiosError<unknown>>(playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipStatsPlayerPlayerUuidHourQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError = unknown>(playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipStatsPlayerPlayerUuidHourQueryKey(playerUuid);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>> = ({ signal }) => getApiFlipStatsPlayerPlayerUuidHour(playerUuid, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>> = ({ signal }) => getApiFlipStatsPlayerPlayerUuidHour(playerUuid, { signal, ...fetchOptions });
 
       
 
@@ -3275,39 +4393,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipStatsPlayerPlayerUuidHourQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>>
-export type GetApiFlipStatsPlayerPlayerUuidHourQueryError = AxiosError<unknown>
+export type GetApiFlipStatsPlayerPlayerUuidHourQueryError = unknown
 
 
-export function useGetApiFlipStatsPlayerPlayerUuidHour<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipStatsPlayerPlayerUuidHour<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError = unknown>(
  playerUuid: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipStatsPlayerPlayerUuidHour<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipStatsPlayerPlayerUuidHour<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError = unknown>(
  playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipStatsPlayerPlayerUuidHour<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError = AxiosError<unknown>>(
- playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipStatsPlayerPlayerUuidHour<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError = unknown>(
+ playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get flips stats for player for the last hour (faster)
  */
 
-export function useGetApiFlipStatsPlayerPlayerUuidHour<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError = AxiosError<unknown>>(
- playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipStatsPlayerPlayerUuidHour<TData = Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError = unknown>(
+ playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsPlayerPlayerUuidHour>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -3327,18 +4445,51 @@ export function useGetApiFlipStatsPlayerPlayerUuidHour<TData = Awaited<ReturnTyp
  * @deprecated
  * @summary Get flips stats for one type of flip finder
  */
-export const getApiFlipStatsFinderFinderName = (
-    finderName: string,
-    params?: GetApiFlipStatsFinderFinderNameParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<FlipDetails[]>> => {
+export type getApiFlipStatsFinderFinderNameResponse200 = {
+  data: FlipDetails[]
+  status: 200
+}
     
+export type getApiFlipStatsFinderFinderNameResponseComposite = getApiFlipStatsFinderFinderNameResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/stats/finder/${finderName}`,{
+export type getApiFlipStatsFinderFinderNameResponse = getApiFlipStatsFinderFinderNameResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipStatsFinderFinderNameUrl = (finderName: string,
+    params?: GetApiFlipStatsFinderFinderNameParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/flip/stats/finder/${finderName}?${stringifiedParams}` : `https://sky.coflnet.com/api/flip/stats/finder/${finderName}`
+}
+
+export const getApiFlipStatsFinderFinderName = async (finderName: string,
+    params?: GetApiFlipStatsFinderFinderNameParams, options?: RequestInit): Promise<getApiFlipStatsFinderFinderNameResponse> => {
+  
+  const res = await fetch(getGetApiFlipStatsFinderFinderNameUrl(finderName,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipStatsFinderFinderNameResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipStatsFinderFinderNameResponse
+}
+
 
 
 export const getGetApiFlipStatsFinderFinderNameQueryKey = (finderName?: string,
@@ -3347,17 +4498,17 @@ export const getGetApiFlipStatsFinderFinderNameQueryKey = (finderName?: string,
     }
 
     
-export const getGetApiFlipStatsFinderFinderNameQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError = AxiosError<unknown>>(finderName: string,
-    params?: GetApiFlipStatsFinderFinderNameParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipStatsFinderFinderNameQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError = unknown>(finderName: string,
+    params?: GetApiFlipStatsFinderFinderNameParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipStatsFinderFinderNameQueryKey(finderName,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>> = ({ signal }) => getApiFlipStatsFinderFinderName(finderName,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>> = ({ signal }) => getApiFlipStatsFinderFinderName(finderName,params, { signal, ...fetchOptions });
 
       
 
@@ -3367,10 +4518,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipStatsFinderFinderNameQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>>
-export type GetApiFlipStatsFinderFinderNameQueryError = AxiosError<unknown>
+export type GetApiFlipStatsFinderFinderNameQueryError = unknown
 
 
-export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError = unknown>(
  finderName: string,
     params: undefined |  GetApiFlipStatsFinderFinderNameParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -3378,10 +4529,10 @@ export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<ty
           TError,
           Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError = unknown>(
  finderName: string,
     params?: GetApiFlipStatsFinderFinderNameParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -3389,12 +4540,12 @@ export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<ty
           TError,
           Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError = unknown>(
  finderName: string,
-    params?: GetApiFlipStatsFinderFinderNameParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiFlipStatsFinderFinderNameParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -3402,9 +4553,9 @@ export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<ty
  * @summary Get flips stats for one type of flip finder
  */
 
-export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError = unknown>(
  finderName: string,
-    params?: GetApiFlipStatsFinderFinderNameParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiFlipStatsFinderFinderNameParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipStatsFinderFinderName>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -3420,17 +4571,49 @@ export function useGetApiFlipStatsFinderFinderName<TData = Awaited<ReturnType<ty
 
 
 
-export const getApiFlipUnknown = (
-    params?: GetApiFlipUnknownParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<FlipDetails[]>> => {
+export type getApiFlipUnknownResponse200 = {
+  data: FlipDetails[]
+  status: 200
+}
     
+export type getApiFlipUnknownResponseComposite = getApiFlipUnknownResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/flip/unknown`,{
+export type getApiFlipUnknownResponse = getApiFlipUnknownResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipUnknownUrl = (params?: GetApiFlipUnknownParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/flip/unknown?${stringifiedParams}` : `https://sky.coflnet.com/api/flip/unknown`
+}
+
+export const getApiFlipUnknown = async (params?: GetApiFlipUnknownParams, options?: RequestInit): Promise<getApiFlipUnknownResponse> => {
+  
+  const res = await fetch(getGetApiFlipUnknownUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipUnknownResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipUnknownResponse
+}
+
 
 
 export const getGetApiFlipUnknownQueryKey = (params?: GetApiFlipUnknownParams,) => {
@@ -3438,16 +4621,16 @@ export const getGetApiFlipUnknownQueryKey = (params?: GetApiFlipUnknownParams,) 
     }
 
     
-export const getGetApiFlipUnknownQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipUnknown>>, TError = AxiosError<unknown>>(params?: GetApiFlipUnknownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUnknown>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFlipUnknownQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipUnknown>>, TError = unknown>(params?: GetApiFlipUnknownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUnknown>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFlipUnknownQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipUnknown>>> = ({ signal }) => getApiFlipUnknown(params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipUnknown>>> = ({ signal }) => getApiFlipUnknown(params, { signal, ...fetchOptions });
 
       
 
@@ -3457,36 +4640,36 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFlipUnknownQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipUnknown>>>
-export type GetApiFlipUnknownQueryError = AxiosError<unknown>
+export type GetApiFlipUnknownQueryError = unknown
 
 
-export function useGetApiFlipUnknown<TData = Awaited<ReturnType<typeof getApiFlipUnknown>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipUnknown<TData = Awaited<ReturnType<typeof getApiFlipUnknown>>, TError = unknown>(
  params: undefined |  GetApiFlipUnknownParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUnknown>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipUnknown>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipUnknown>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipUnknown<TData = Awaited<ReturnType<typeof getApiFlipUnknown>>, TError = AxiosError<unknown>>(
+export function useGetApiFlipUnknown<TData = Awaited<ReturnType<typeof getApiFlipUnknown>>, TError = unknown>(
  params?: GetApiFlipUnknownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUnknown>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipUnknown>>,
           TError,
           Awaited<ReturnType<typeof getApiFlipUnknown>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipUnknown<TData = Awaited<ReturnType<typeof getApiFlipUnknown>>, TError = AxiosError<unknown>>(
- params?: GetApiFlipUnknownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUnknown>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipUnknown<TData = Awaited<ReturnType<typeof getApiFlipUnknown>>, TError = unknown>(
+ params?: GetApiFlipUnknownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUnknown>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiFlipUnknown<TData = Awaited<ReturnType<typeof getApiFlipUnknown>>, TError = AxiosError<unknown>>(
- params?: GetApiFlipUnknownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUnknown>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFlipUnknown<TData = Awaited<ReturnType<typeof getApiFlipUnknown>>, TError = unknown>(
+ params?: GetApiFlipUnknownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipUnknown>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -3502,16 +4685,44 @@ export function useGetApiFlipUnknown<TData = Awaited<ReturnType<typeof getApiFli
 
 
 
-export const getApiDataUpdatesYearMonth = (
-    year: number,
-    month: number, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<DiscordMessage[]>> => {
+export type getApiDataUpdatesYearMonthResponse200 = {
+  data: DiscordMessage[]
+  status: 200
+}
+    
+export type getApiDataUpdatesYearMonthResponseComposite = getApiDataUpdatesYearMonthResponse200;
+    
+export type getApiDataUpdatesYearMonthResponse = getApiDataUpdatesYearMonthResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiDataUpdatesYearMonthUrl = (year: number,
+    month: number,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/data/updates/${year}/${month}`
+}
+
+export const getApiDataUpdatesYearMonth = async (year: number,
+    month: number, options?: RequestInit): Promise<getApiDataUpdatesYearMonthResponse> => {
+  
+  const res = await fetch(getGetApiDataUpdatesYearMonthUrl(year,month),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/data/updates/${year}/${month}`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiDataUpdatesYearMonthResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiDataUpdatesYearMonthResponse
+}
+
 
 
 export const getGetApiDataUpdatesYearMonthQueryKey = (year?: number,
@@ -3520,17 +4731,17 @@ export const getGetApiDataUpdatesYearMonthQueryKey = (year?: number,
     }
 
     
-export const getGetApiDataUpdatesYearMonthQueryOptions = <TData = Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError = AxiosError<unknown>>(year: number,
-    month: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiDataUpdatesYearMonthQueryOptions = <TData = Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError = unknown>(year: number,
+    month: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiDataUpdatesYearMonthQueryKey(year,month);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>> = ({ signal }) => getApiDataUpdatesYearMonth(year,month, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>> = ({ signal }) => getApiDataUpdatesYearMonth(year,month, { signal, ...fetchOptions });
 
       
 
@@ -3540,10 +4751,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiDataUpdatesYearMonthQueryResult = NonNullable<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>>
-export type GetApiDataUpdatesYearMonthQueryError = AxiosError<unknown>
+export type GetApiDataUpdatesYearMonthQueryError = unknown
 
 
-export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError = AxiosError<unknown>>(
+export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError = unknown>(
  year: number,
     month: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -3551,10 +4762,10 @@ export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError = AxiosError<unknown>>(
+export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError = unknown>(
  year: number,
     month: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -3562,18 +4773,18 @@ export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError = AxiosError<unknown>>(
+export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError = unknown>(
  year: number,
-    month: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError, TData>>, axios?: AxiosRequestConfig}
+    month: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError = AxiosError<unknown>>(
+export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError = unknown>(
  year: number,
-    month: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError, TData>>, axios?: AxiosRequestConfig}
+    month: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDataUpdatesYearMonth>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -3593,15 +4804,42 @@ export function useGetApiDataUpdatesYearMonth<TData = Awaited<ReturnType<typeof 
  * @summary A list of item tags (hypixel ids) that are tradeable on bazaar
 This gets updated once every hour
  */
-export const getApiItemsBazaarTags = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<string[]>> => {
+export type getApiItemsBazaarTagsResponse200 = {
+  data: string[]
+  status: 200
+}
+    
+export type getApiItemsBazaarTagsResponseComposite = getApiItemsBazaarTagsResponse200;
+    
+export type getApiItemsBazaarTagsResponse = getApiItemsBazaarTagsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemsBazaarTagsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/items/bazaar/tags`
+}
+
+export const getApiItemsBazaarTags = async ( options?: RequestInit): Promise<getApiItemsBazaarTagsResponse> => {
+  
+  const res = await fetch(getGetApiItemsBazaarTagsUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/items/bazaar/tags`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemsBazaarTagsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemsBazaarTagsResponse
+}
+
 
 
 export const getGetApiItemsBazaarTagsQueryKey = () => {
@@ -3609,16 +4847,16 @@ export const getGetApiItemsBazaarTagsQueryKey = () => {
     }
 
     
-export const getGetApiItemsBazaarTagsQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemsBazaarTagsQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemsBazaarTagsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemsBazaarTags>>> = ({ signal }) => getApiItemsBazaarTags({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemsBazaarTags>>> = ({ signal }) => getApiItemsBazaarTags({ signal, ...fetchOptions });
 
       
 
@@ -3628,31 +4866,31 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemsBazaarTagsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemsBazaarTags>>>
-export type GetApiItemsBazaarTagsQueryError = AxiosError<unknown>
+export type GetApiItemsBazaarTagsQueryError = unknown
 
 
-export function useGetApiItemsBazaarTags<TData = Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError = AxiosError<unknown>>(
+export function useGetApiItemsBazaarTags<TData = Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemsBazaarTags>>,
           TError,
           Awaited<ReturnType<typeof getApiItemsBazaarTags>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemsBazaarTags<TData = Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError = AxiosError<unknown>>(
+export function useGetApiItemsBazaarTags<TData = Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemsBazaarTags>>,
           TError,
           Awaited<ReturnType<typeof getApiItemsBazaarTags>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemsBazaarTags<TData = Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItemsBazaarTags<TData = Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -3660,8 +4898,8 @@ export function useGetApiItemsBazaarTags<TData = Awaited<ReturnType<typeof getAp
 This gets updated once every hour
  */
 
-export function useGetApiItemsBazaarTags<TData = Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItemsBazaarTags<TData = Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemsBazaarTags>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -3680,15 +4918,42 @@ export function useGetApiItemsBazaarTags<TData = Awaited<ReturnType<typeof getAp
 /**
  * @summary Get all item tags, names and wherever they are on ah or bazaar
  */
-export const getApiItems = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<ItemMetadataElement[]>> => {
+export type getApiItemsResponse200 = {
+  data: ItemMetadataElement[]
+  status: 200
+}
+    
+export type getApiItemsResponseComposite = getApiItemsResponse200;
+    
+export type getApiItemsResponse = getApiItemsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/items`
+}
+
+export const getApiItems = async ( options?: RequestInit): Promise<getApiItemsResponse> => {
+  
+  const res = await fetch(getGetApiItemsUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/items`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemsResponse
+}
+
 
 
 export const getGetApiItemsQueryKey = () => {
@@ -3696,16 +4961,16 @@ export const getGetApiItemsQueryKey = () => {
     }
 
     
-export const getGetApiItemsQueryOptions = <TData = Awaited<ReturnType<typeof getApiItems>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItems>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemsQueryOptions = <TData = Awaited<ReturnType<typeof getApiItems>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItems>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItems>>> = ({ signal }) => getApiItems({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItems>>> = ({ signal }) => getApiItems({ signal, ...fetchOptions });
 
       
 
@@ -3715,39 +4980,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItems>>>
-export type GetApiItemsQueryError = AxiosError<unknown>
+export type GetApiItemsQueryError = unknown
 
 
-export function useGetApiItems<TData = Awaited<ReturnType<typeof getApiItems>>, TError = AxiosError<unknown>>(
+export function useGetApiItems<TData = Awaited<ReturnType<typeof getApiItems>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItems>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItems>>,
           TError,
           Awaited<ReturnType<typeof getApiItems>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItems<TData = Awaited<ReturnType<typeof getApiItems>>, TError = AxiosError<unknown>>(
+export function useGetApiItems<TData = Awaited<ReturnType<typeof getApiItems>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItems>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItems>>,
           TError,
           Awaited<ReturnType<typeof getApiItems>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItems<TData = Awaited<ReturnType<typeof getApiItems>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItems>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItems<TData = Awaited<ReturnType<typeof getApiItems>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItems>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get all item tags, names and wherever they are on ah or bazaar
  */
 
-export function useGetApiItems<TData = Awaited<ReturnType<typeof getApiItems>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItems>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItems<TData = Awaited<ReturnType<typeof getApiItems>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItems>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -3766,29 +5031,66 @@ export function useGetApiItems<TData = Awaited<ReturnType<typeof getApiItems>>, 
 /**
  * @summary Batch lookup names for item tags
  */
-export const postApiItemsNames = (
-    postApiItemsNamesBody: string[], options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PostApiItemsNames200One | PostApiItemsNames200Two | PostApiItemsNames200Three>> => {
+export type postApiItemsNamesResponse200TextPlain = {
+  data: PostApiItemsNames200One
+  status: 200
+}
+
+export type postApiItemsNamesResponse200ApplicationJson = {
+  data: PostApiItemsNames200Two
+  status: 200
+}
+
+export type postApiItemsNamesResponse200TextJson = {
+  data: PostApiItemsNames200Three
+  status: 200
+}
     
+export type postApiItemsNamesResponseComposite = postApiItemsNamesResponse200TextPlain | postApiItemsNamesResponse200ApplicationJson | postApiItemsNamesResponse200TextJson;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/items/names`,
-      postApiItemsNamesBody,options
-    );
+export type postApiItemsNamesResponse = postApiItemsNamesResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiItemsNamesUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/items/names`
+}
+
+export const postApiItemsNames = async (postApiItemsNamesBody: string[], options?: RequestInit): Promise<postApiItemsNamesResponse> => {
+  
+  const res = await fetch(getPostApiItemsNamesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      postApiItemsNamesBody,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiItemsNamesResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiItemsNamesResponse
+}
 
 
 
-export const getPostApiItemsNamesMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiItemsNames>>, TError,{data: string[]}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiItemsNamesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiItemsNames>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiItemsNames>>, TError,{data: string[]}, TContext> => {
 
 const mutationKey = ['postApiItemsNames'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -3796,7 +5098,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiItemsNames>>, {data: string[]}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiItemsNames(data,axiosOptions)
+          return  postApiItemsNames(data,fetchOptions)
         }
 
         
@@ -3806,13 +5108,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiItemsNamesMutationResult = NonNullable<Awaited<ReturnType<typeof postApiItemsNames>>>
     export type PostApiItemsNamesMutationBody = string[]
-    export type PostApiItemsNamesMutationError = AxiosError<unknown>
+    export type PostApiItemsNamesMutationError = unknown
 
     /**
  * @summary Batch lookup names for item tags
  */
-export const usePostApiItemsNames = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiItemsNames>>, TError,{data: string[]}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiItemsNames = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiItemsNames>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiItemsNames>>,
         TError,
@@ -3829,15 +5131,42 @@ export const usePostApiItemsNames = <TError = AxiosError<unknown>,
  * @summary Returns details about a specific item
 This gets updated once every hour
  */
-export const getApiItemItemTagDetails = (
-    itemTag: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<SkyblockItem>> => {
+export type getApiItemItemTagDetailsResponse200 = {
+  data: SkyblockItem
+  status: 200
+}
+    
+export type getApiItemItemTagDetailsResponseComposite = getApiItemItemTagDetailsResponse200;
+    
+export type getApiItemItemTagDetailsResponse = getApiItemItemTagDetailsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemItemTagDetailsUrl = (itemTag: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/item/${itemTag}/details`
+}
+
+export const getApiItemItemTagDetails = async (itemTag: string, options?: RequestInit): Promise<getApiItemItemTagDetailsResponse> => {
+  
+  const res = await fetch(getGetApiItemItemTagDetailsUrl(itemTag),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/${itemTag}/details`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemItemTagDetailsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemItemTagDetailsResponse
+}
+
 
 
 export const getGetApiItemItemTagDetailsQueryKey = (itemTag?: string,) => {
@@ -3845,16 +5174,16 @@ export const getGetApiItemItemTagDetailsQueryKey = (itemTag?: string,) => {
     }
 
     
-export const getGetApiItemItemTagDetailsQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError = AxiosError<unknown>>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemItemTagDetailsQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError = unknown>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemItemTagDetailsQueryKey(itemTag);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemItemTagDetails>>> = ({ signal }) => getApiItemItemTagDetails(itemTag, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemItemTagDetails>>> = ({ signal }) => getApiItemItemTagDetails(itemTag, { signal, ...fetchOptions });
 
       
 
@@ -3864,31 +5193,31 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemItemTagDetailsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemItemTagDetails>>>
-export type GetApiItemItemTagDetailsQueryError = AxiosError<unknown>
+export type GetApiItemItemTagDetailsQueryError = unknown
 
 
-export function useGetApiItemItemTagDetails<TData = Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError = AxiosError<unknown>>(
+export function useGetApiItemItemTagDetails<TData = Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError = unknown>(
  itemTag: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemItemTagDetails>>,
           TError,
           Awaited<ReturnType<typeof getApiItemItemTagDetails>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemItemTagDetails<TData = Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError = AxiosError<unknown>>(
+export function useGetApiItemItemTagDetails<TData = Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError = unknown>(
  itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemItemTagDetails>>,
           TError,
           Awaited<ReturnType<typeof getApiItemItemTagDetails>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemItemTagDetails<TData = Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItemItemTagDetails<TData = Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -3896,8 +5225,8 @@ export function useGetApiItemItemTagDetails<TData = Awaited<ReturnType<typeof ge
 This gets updated once every hour
  */
 
-export function useGetApiItemItemTagDetails<TData = Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItemItemTagDetails<TData = Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagDetails>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -3916,15 +5245,42 @@ export function useGetApiItemItemTagDetails<TData = Awaited<ReturnType<typeof ge
 /**
  * @summary Other items related to some tag
  */
-export const getApiItemItemTagSimilar = (
-    itemTag: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<ItemPreview[]>> => {
+export type getApiItemItemTagSimilarResponse200 = {
+  data: ItemPreview[]
+  status: 200
+}
+    
+export type getApiItemItemTagSimilarResponseComposite = getApiItemItemTagSimilarResponse200;
+    
+export type getApiItemItemTagSimilarResponse = getApiItemItemTagSimilarResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemItemTagSimilarUrl = (itemTag: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/item/${itemTag}/similar`
+}
+
+export const getApiItemItemTagSimilar = async (itemTag: string, options?: RequestInit): Promise<getApiItemItemTagSimilarResponse> => {
+  
+  const res = await fetch(getGetApiItemItemTagSimilarUrl(itemTag),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/${itemTag}/similar`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemItemTagSimilarResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemItemTagSimilarResponse
+}
+
 
 
 export const getGetApiItemItemTagSimilarQueryKey = (itemTag?: string,) => {
@@ -3932,16 +5288,16 @@ export const getGetApiItemItemTagSimilarQueryKey = (itemTag?: string,) => {
     }
 
     
-export const getGetApiItemItemTagSimilarQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError = AxiosError<unknown>>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemItemTagSimilarQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError = unknown>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemItemTagSimilarQueryKey(itemTag);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>> = ({ signal }) => getApiItemItemTagSimilar(itemTag, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>> = ({ signal }) => getApiItemItemTagSimilar(itemTag, { signal, ...fetchOptions });
 
       
 
@@ -3951,39 +5307,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemItemTagSimilarQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>>
-export type GetApiItemItemTagSimilarQueryError = AxiosError<unknown>
+export type GetApiItemItemTagSimilarQueryError = unknown
 
 
-export function useGetApiItemItemTagSimilar<TData = Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError = AxiosError<unknown>>(
+export function useGetApiItemItemTagSimilar<TData = Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError = unknown>(
  itemTag: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemItemTagSimilar>>,
           TError,
           Awaited<ReturnType<typeof getApiItemItemTagSimilar>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemItemTagSimilar<TData = Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError = AxiosError<unknown>>(
+export function useGetApiItemItemTagSimilar<TData = Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError = unknown>(
  itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemItemTagSimilar>>,
           TError,
           Awaited<ReturnType<typeof getApiItemItemTagSimilar>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemItemTagSimilar<TData = Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItemItemTagSimilar<TData = Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Other items related to some tag
  */
 
-export function useGetApiItemItemTagSimilar<TData = Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItemItemTagSimilar<TData = Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemItemTagSimilar>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -4002,15 +5358,42 @@ export function useGetApiItemItemTagSimilar<TData = Awaited<ReturnType<typeof ge
 /**
  * @summary Kat flips
  */
-export const getApiKatProfit = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<KatFlip[]>> => {
+export type getApiKatProfitResponse200 = {
+  data: KatFlip[]
+  status: 200
+}
+    
+export type getApiKatProfitResponseComposite = getApiKatProfitResponse200;
+    
+export type getApiKatProfitResponse = getApiKatProfitResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiKatProfitUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/kat/profit`
+}
+
+export const getApiKatProfit = async ( options?: RequestInit): Promise<getApiKatProfitResponse> => {
+  
+  const res = await fetch(getGetApiKatProfitUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/kat/profit`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiKatProfitResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiKatProfitResponse
+}
+
 
 
 export const getGetApiKatProfitQueryKey = () => {
@@ -4018,16 +5401,16 @@ export const getGetApiKatProfitQueryKey = () => {
     }
 
     
-export const getGetApiKatProfitQueryOptions = <TData = Awaited<ReturnType<typeof getApiKatProfit>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatProfit>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiKatProfitQueryOptions = <TData = Awaited<ReturnType<typeof getApiKatProfit>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatProfit>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiKatProfitQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiKatProfit>>> = ({ signal }) => getApiKatProfit({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiKatProfit>>> = ({ signal }) => getApiKatProfit({ signal, ...fetchOptions });
 
       
 
@@ -4037,39 +5420,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiKatProfitQueryResult = NonNullable<Awaited<ReturnType<typeof getApiKatProfit>>>
-export type GetApiKatProfitQueryError = AxiosError<unknown>
+export type GetApiKatProfitQueryError = unknown
 
 
-export function useGetApiKatProfit<TData = Awaited<ReturnType<typeof getApiKatProfit>>, TError = AxiosError<unknown>>(
+export function useGetApiKatProfit<TData = Awaited<ReturnType<typeof getApiKatProfit>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatProfit>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiKatProfit>>,
           TError,
           Awaited<ReturnType<typeof getApiKatProfit>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiKatProfit<TData = Awaited<ReturnType<typeof getApiKatProfit>>, TError = AxiosError<unknown>>(
+export function useGetApiKatProfit<TData = Awaited<ReturnType<typeof getApiKatProfit>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatProfit>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiKatProfit>>,
           TError,
           Awaited<ReturnType<typeof getApiKatProfit>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiKatProfit<TData = Awaited<ReturnType<typeof getApiKatProfit>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatProfit>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiKatProfit<TData = Awaited<ReturnType<typeof getApiKatProfit>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatProfit>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Kat flips
  */
 
-export function useGetApiKatProfit<TData = Awaited<ReturnType<typeof getApiKatProfit>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatProfit>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiKatProfit<TData = Awaited<ReturnType<typeof getApiKatProfit>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatProfit>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -4088,15 +5471,42 @@ export function useGetApiKatProfit<TData = Awaited<ReturnType<typeof getApiKatPr
 /**
  * @summary Raw data of upgrade cost
  */
-export const getApiKatData = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<KatUpgradeCost[]>> => {
+export type getApiKatDataResponse200 = {
+  data: KatUpgradeCost[]
+  status: 200
+}
+    
+export type getApiKatDataResponseComposite = getApiKatDataResponse200;
+    
+export type getApiKatDataResponse = getApiKatDataResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiKatDataUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/kat/data`
+}
+
+export const getApiKatData = async ( options?: RequestInit): Promise<getApiKatDataResponse> => {
+  
+  const res = await fetch(getGetApiKatDataUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/kat/data`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiKatDataResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiKatDataResponse
+}
+
 
 
 export const getGetApiKatDataQueryKey = () => {
@@ -4104,16 +5514,16 @@ export const getGetApiKatDataQueryKey = () => {
     }
 
     
-export const getGetApiKatDataQueryOptions = <TData = Awaited<ReturnType<typeof getApiKatData>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatData>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiKatDataQueryOptions = <TData = Awaited<ReturnType<typeof getApiKatData>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatData>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiKatDataQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiKatData>>> = ({ signal }) => getApiKatData({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiKatData>>> = ({ signal }) => getApiKatData({ signal, ...fetchOptions });
 
       
 
@@ -4123,39 +5533,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiKatDataQueryResult = NonNullable<Awaited<ReturnType<typeof getApiKatData>>>
-export type GetApiKatDataQueryError = AxiosError<unknown>
+export type GetApiKatDataQueryError = unknown
 
 
-export function useGetApiKatData<TData = Awaited<ReturnType<typeof getApiKatData>>, TError = AxiosError<unknown>>(
+export function useGetApiKatData<TData = Awaited<ReturnType<typeof getApiKatData>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatData>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiKatData>>,
           TError,
           Awaited<ReturnType<typeof getApiKatData>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiKatData<TData = Awaited<ReturnType<typeof getApiKatData>>, TError = AxiosError<unknown>>(
+export function useGetApiKatData<TData = Awaited<ReturnType<typeof getApiKatData>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatData>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiKatData>>,
           TError,
           Awaited<ReturnType<typeof getApiKatData>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiKatData<TData = Awaited<ReturnType<typeof getApiKatData>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatData>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiKatData<TData = Awaited<ReturnType<typeof getApiKatData>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatData>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Raw data of upgrade cost
  */
 
-export function useGetApiKatData<TData = Awaited<ReturnType<typeof getApiKatData>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatData>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiKatData<TData = Awaited<ReturnType<typeof getApiKatData>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKatData>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -4174,15 +5584,42 @@ export function useGetApiKatData<TData = Awaited<ReturnType<typeof getApiKatData
 /**
  * @summary Return Election results for a specific year
  */
-export const getApiMayorYear = (
-    year: number, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<CoflnetSkyMayorModelsModelElectionPeriod>> => {
+export type getApiMayorYearResponse200 = {
+  data: CoflnetSkyMayorModelsModelElectionPeriod
+  status: 200
+}
+    
+export type getApiMayorYearResponseComposite = getApiMayorYearResponse200;
+    
+export type getApiMayorYearResponse = getApiMayorYearResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiMayorYearUrl = (year: number,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/mayor/${year}`
+}
+
+export const getApiMayorYear = async (year: number, options?: RequestInit): Promise<getApiMayorYearResponse> => {
+  
+  const res = await fetch(getGetApiMayorYearUrl(year),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/mayor/${year}`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiMayorYearResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiMayorYearResponse
+}
+
 
 
 export const getGetApiMayorYearQueryKey = (year?: number,) => {
@@ -4190,16 +5627,16 @@ export const getGetApiMayorYearQueryKey = (year?: number,) => {
     }
 
     
-export const getGetApiMayorYearQueryOptions = <TData = Awaited<ReturnType<typeof getApiMayorYear>>, TError = AxiosError<unknown>>(year: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayorYear>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiMayorYearQueryOptions = <TData = Awaited<ReturnType<typeof getApiMayorYear>>, TError = unknown>(year: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayorYear>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiMayorYearQueryKey(year);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiMayorYear>>> = ({ signal }) => getApiMayorYear(year, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiMayorYear>>> = ({ signal }) => getApiMayorYear(year, { signal, ...fetchOptions });
 
       
 
@@ -4209,39 +5646,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiMayorYearQueryResult = NonNullable<Awaited<ReturnType<typeof getApiMayorYear>>>
-export type GetApiMayorYearQueryError = AxiosError<unknown>
+export type GetApiMayorYearQueryError = unknown
 
 
-export function useGetApiMayorYear<TData = Awaited<ReturnType<typeof getApiMayorYear>>, TError = AxiosError<unknown>>(
+export function useGetApiMayorYear<TData = Awaited<ReturnType<typeof getApiMayorYear>>, TError = unknown>(
  year: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayorYear>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiMayorYear>>,
           TError,
           Awaited<ReturnType<typeof getApiMayorYear>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiMayorYear<TData = Awaited<ReturnType<typeof getApiMayorYear>>, TError = AxiosError<unknown>>(
+export function useGetApiMayorYear<TData = Awaited<ReturnType<typeof getApiMayorYear>>, TError = unknown>(
  year: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayorYear>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiMayorYear>>,
           TError,
           Awaited<ReturnType<typeof getApiMayorYear>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiMayorYear<TData = Awaited<ReturnType<typeof getApiMayorYear>>, TError = AxiosError<unknown>>(
- year: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayorYear>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiMayorYear<TData = Awaited<ReturnType<typeof getApiMayorYear>>, TError = unknown>(
+ year: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayorYear>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Return Election results for a specific year
  */
 
-export function useGetApiMayorYear<TData = Awaited<ReturnType<typeof getApiMayorYear>>, TError = AxiosError<unknown>>(
- year: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayorYear>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiMayorYear<TData = Awaited<ReturnType<typeof getApiMayorYear>>, TError = unknown>(
+ year: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayorYear>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -4260,17 +5697,49 @@ export function useGetApiMayorYear<TData = Awaited<ReturnType<typeof getApiMayor
 /**
  * @summary Gets election data between two Timestamps
  */
-export const getApiMayor = (
-    params?: GetApiMayorParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<CoflnetSkyMayorModelsModelElectionPeriod[]>> => {
+export type getApiMayorResponse200 = {
+  data: CoflnetSkyMayorModelsModelElectionPeriod[]
+  status: 200
+}
     
+export type getApiMayorResponseComposite = getApiMayorResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/mayor`,{
+export type getApiMayorResponse = getApiMayorResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiMayorUrl = (params?: GetApiMayorParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/mayor?${stringifiedParams}` : `https://sky.coflnet.com/api/mayor`
+}
+
+export const getApiMayor = async (params?: GetApiMayorParams, options?: RequestInit): Promise<getApiMayorResponse> => {
+  
+  const res = await fetch(getGetApiMayorUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiMayorResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiMayorResponse
+}
+
 
 
 export const getGetApiMayorQueryKey = (params?: GetApiMayorParams,) => {
@@ -4278,16 +5747,16 @@ export const getGetApiMayorQueryKey = (params?: GetApiMayorParams,) => {
     }
 
     
-export const getGetApiMayorQueryOptions = <TData = Awaited<ReturnType<typeof getApiMayor>>, TError = AxiosError<unknown>>(params?: GetApiMayorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayor>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiMayorQueryOptions = <TData = Awaited<ReturnType<typeof getApiMayor>>, TError = unknown>(params?: GetApiMayorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayor>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiMayorQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiMayor>>> = ({ signal }) => getApiMayor(params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiMayor>>> = ({ signal }) => getApiMayor(params, { signal, ...fetchOptions });
 
       
 
@@ -4297,39 +5766,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiMayorQueryResult = NonNullable<Awaited<ReturnType<typeof getApiMayor>>>
-export type GetApiMayorQueryError = AxiosError<unknown>
+export type GetApiMayorQueryError = unknown
 
 
-export function useGetApiMayor<TData = Awaited<ReturnType<typeof getApiMayor>>, TError = AxiosError<unknown>>(
+export function useGetApiMayor<TData = Awaited<ReturnType<typeof getApiMayor>>, TError = unknown>(
  params: undefined |  GetApiMayorParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayor>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiMayor>>,
           TError,
           Awaited<ReturnType<typeof getApiMayor>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiMayor<TData = Awaited<ReturnType<typeof getApiMayor>>, TError = AxiosError<unknown>>(
+export function useGetApiMayor<TData = Awaited<ReturnType<typeof getApiMayor>>, TError = unknown>(
  params?: GetApiMayorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayor>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiMayor>>,
           TError,
           Awaited<ReturnType<typeof getApiMayor>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiMayor<TData = Awaited<ReturnType<typeof getApiMayor>>, TError = AxiosError<unknown>>(
- params?: GetApiMayorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayor>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiMayor<TData = Awaited<ReturnType<typeof getApiMayor>>, TError = unknown>(
+ params?: GetApiMayorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayor>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets election data between two Timestamps
  */
 
-export function useGetApiMayor<TData = Awaited<ReturnType<typeof getApiMayor>>, TError = AxiosError<unknown>>(
- params?: GetApiMayorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayor>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiMayor<TData = Awaited<ReturnType<typeof getApiMayor>>, TError = unknown>(
+ params?: GetApiMayorParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMayor>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -4348,30 +5817,62 @@ export function useGetApiMayor<TData = Awaited<ReturnType<typeof getApiMayor>>, 
 /**
  * @summary Authorize a mod instance
  */
-export const postApiModAuth = (
-    params?: PostApiModAuthParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type postApiModAuthResponse200 = {
+  data: null
+  status: 200
+}
     
+export type postApiModAuthResponseComposite = postApiModAuthResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/mod/auth`,undefined,{
+export type postApiModAuthResponse = postApiModAuthResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiModAuthUrl = (params?: PostApiModAuthParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/mod/auth?${stringifiedParams}` : `https://sky.coflnet.com/api/mod/auth`
+}
+
+export const postApiModAuth = async (params?: PostApiModAuthParams, options?: RequestInit): Promise<postApiModAuthResponse> => {
+  
+  const res = await fetch(getPostApiModAuthUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'POST'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiModAuthResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiModAuthResponse
+}
 
 
 
-export const getPostApiModAuthMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModAuth>>, TError,{params?: PostApiModAuthParams}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiModAuthMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModAuth>>, TError,{params?: PostApiModAuthParams}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiModAuth>>, TError,{params?: PostApiModAuthParams}, TContext> => {
 
 const mutationKey = ['postApiModAuth'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -4379,7 +5880,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiModAuth>>, {params?: PostApiModAuthParams}> = (props) => {
           const {params} = props ?? {};
 
-          return  postApiModAuth(params,axiosOptions)
+          return  postApiModAuth(params,fetchOptions)
         }
 
         
@@ -4389,13 +5890,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiModAuthMutationResult = NonNullable<Awaited<ReturnType<typeof postApiModAuth>>>
     
-    export type PostApiModAuthMutationError = AxiosError<unknown>
+    export type PostApiModAuthMutationError = unknown
 
     /**
  * @summary Authorize a mod instance
  */
-export const usePostApiModAuth = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModAuth>>, TError,{params?: PostApiModAuthParams}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiModAuth = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModAuth>>, TError,{params?: PostApiModAuthParams}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiModAuth>>,
         TError,
@@ -4411,15 +5912,42 @@ export const usePostApiModAuth = <TError = AxiosError<unknown>,
 /**
  * @summary Returns a list of available server-side commands
  */
-export const getApiModCommands = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<CommandListEntry[]>> => {
+export type getApiModCommandsResponse200 = {
+  data: CommandListEntry[]
+  status: 200
+}
+    
+export type getApiModCommandsResponseComposite = getApiModCommandsResponse200;
+    
+export type getApiModCommandsResponse = getApiModCommandsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiModCommandsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/mod/commands`
+}
+
+export const getApiModCommands = async ( options?: RequestInit): Promise<getApiModCommandsResponse> => {
+  
+  const res = await fetch(getGetApiModCommandsUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/mod/commands`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiModCommandsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiModCommandsResponse
+}
+
 
 
 export const getGetApiModCommandsQueryKey = () => {
@@ -4427,16 +5955,16 @@ export const getGetApiModCommandsQueryKey = () => {
     }
 
     
-export const getGetApiModCommandsQueryOptions = <TData = Awaited<ReturnType<typeof getApiModCommands>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModCommands>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiModCommandsQueryOptions = <TData = Awaited<ReturnType<typeof getApiModCommands>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModCommands>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiModCommandsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiModCommands>>> = ({ signal }) => getApiModCommands({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiModCommands>>> = ({ signal }) => getApiModCommands({ signal, ...fetchOptions });
 
       
 
@@ -4446,39 +5974,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiModCommandsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiModCommands>>>
-export type GetApiModCommandsQueryError = AxiosError<unknown>
+export type GetApiModCommandsQueryError = unknown
 
 
-export function useGetApiModCommands<TData = Awaited<ReturnType<typeof getApiModCommands>>, TError = AxiosError<unknown>>(
+export function useGetApiModCommands<TData = Awaited<ReturnType<typeof getApiModCommands>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModCommands>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiModCommands>>,
           TError,
           Awaited<ReturnType<typeof getApiModCommands>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiModCommands<TData = Awaited<ReturnType<typeof getApiModCommands>>, TError = AxiosError<unknown>>(
+export function useGetApiModCommands<TData = Awaited<ReturnType<typeof getApiModCommands>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModCommands>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiModCommands>>,
           TError,
           Awaited<ReturnType<typeof getApiModCommands>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiModCommands<TData = Awaited<ReturnType<typeof getApiModCommands>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModCommands>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiModCommands<TData = Awaited<ReturnType<typeof getApiModCommands>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModCommands>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns a list of available server-side commands
  */
 
-export function useGetApiModCommands<TData = Awaited<ReturnType<typeof getApiModCommands>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModCommands>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiModCommands<TData = Awaited<ReturnType<typeof getApiModCommands>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModCommands>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -4497,15 +6025,42 @@ export function useGetApiModCommands<TData = Awaited<ReturnType<typeof getApiMod
 /**
  * @summary Redirect for SkyHani ah button, can be called with item names and will try to redirect to correct item page
  */
-export const getApiModOpenSearch = (
-    search: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type getApiModOpenSearchResponse200 = {
+  data: null
+  status: 200
+}
+    
+export type getApiModOpenSearchResponseComposite = getApiModOpenSearchResponse200;
+    
+export type getApiModOpenSearchResponse = getApiModOpenSearchResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiModOpenSearchUrl = (search: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/mod/open/${search}`
+}
+
+export const getApiModOpenSearch = async (search: string, options?: RequestInit): Promise<getApiModOpenSearchResponse> => {
+  
+  const res = await fetch(getGetApiModOpenSearchUrl(search),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/mod/open/${search}`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiModOpenSearchResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiModOpenSearchResponse
+}
+
 
 
 export const getGetApiModOpenSearchQueryKey = (search?: string,) => {
@@ -4513,16 +6068,16 @@ export const getGetApiModOpenSearchQueryKey = (search?: string,) => {
     }
 
     
-export const getGetApiModOpenSearchQueryOptions = <TData = Awaited<ReturnType<typeof getApiModOpenSearch>>, TError = AxiosError<unknown>>(search: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModOpenSearch>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiModOpenSearchQueryOptions = <TData = Awaited<ReturnType<typeof getApiModOpenSearch>>, TError = unknown>(search: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModOpenSearch>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiModOpenSearchQueryKey(search);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiModOpenSearch>>> = ({ signal }) => getApiModOpenSearch(search, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiModOpenSearch>>> = ({ signal }) => getApiModOpenSearch(search, { signal, ...fetchOptions });
 
       
 
@@ -4532,39 +6087,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiModOpenSearchQueryResult = NonNullable<Awaited<ReturnType<typeof getApiModOpenSearch>>>
-export type GetApiModOpenSearchQueryError = AxiosError<unknown>
+export type GetApiModOpenSearchQueryError = unknown
 
 
-export function useGetApiModOpenSearch<TData = Awaited<ReturnType<typeof getApiModOpenSearch>>, TError = AxiosError<unknown>>(
+export function useGetApiModOpenSearch<TData = Awaited<ReturnType<typeof getApiModOpenSearch>>, TError = unknown>(
  search: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModOpenSearch>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiModOpenSearch>>,
           TError,
           Awaited<ReturnType<typeof getApiModOpenSearch>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiModOpenSearch<TData = Awaited<ReturnType<typeof getApiModOpenSearch>>, TError = AxiosError<unknown>>(
+export function useGetApiModOpenSearch<TData = Awaited<ReturnType<typeof getApiModOpenSearch>>, TError = unknown>(
  search: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModOpenSearch>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiModOpenSearch>>,
           TError,
           Awaited<ReturnType<typeof getApiModOpenSearch>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiModOpenSearch<TData = Awaited<ReturnType<typeof getApiModOpenSearch>>, TError = AxiosError<unknown>>(
- search: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModOpenSearch>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiModOpenSearch<TData = Awaited<ReturnType<typeof getApiModOpenSearch>>, TError = unknown>(
+ search: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModOpenSearch>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Redirect for SkyHani ah button, can be called with item names and will try to redirect to correct item page
  */
 
-export function useGetApiModOpenSearch<TData = Awaited<ReturnType<typeof getApiModOpenSearch>>, TError = AxiosError<unknown>>(
- search: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModOpenSearch>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiModOpenSearch<TData = Awaited<ReturnType<typeof getApiModOpenSearch>>, TError = unknown>(
+ search: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModOpenSearch>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -4584,19 +6139,51 @@ export function useGetApiModOpenSearch<TData = Awaited<ReturnType<typeof getApiM
  * @deprecated
  * @summary Returns extra information for an item
  */
-export const getApiModItemUuid = (
-    uuid: string,
-    params?: GetApiModItemUuidParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<string>> => {
+export type getApiModItemUuidResponse200 = {
+  data: string
+  status: 200
+}
     
+export type getApiModItemUuidResponseComposite = getApiModItemUuidResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/mod/item/${uuid}`,{
-        responseType: 'text',
+export type getApiModItemUuidResponse = getApiModItemUuidResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiModItemUuidUrl = (uuid: string,
+    params?: GetApiModItemUuidParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/mod/item/${uuid}?${stringifiedParams}` : `https://sky.coflnet.com/api/mod/item/${uuid}`
+}
+
+export const getApiModItemUuid = async (uuid: string,
+    params?: GetApiModItemUuidParams, options?: RequestInit): Promise<getApiModItemUuidResponse> => {
+  
+  const res = await fetch(getGetApiModItemUuidUrl(uuid,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiModItemUuidResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiModItemUuidResponse
+}
+
 
 
 export const getGetApiModItemUuidQueryKey = (uuid?: string,
@@ -4605,17 +6192,17 @@ export const getGetApiModItemUuidQueryKey = (uuid?: string,
     }
 
     
-export const getGetApiModItemUuidQueryOptions = <TData = Awaited<ReturnType<typeof getApiModItemUuid>>, TError = AxiosError<unknown>>(uuid: string,
-    params?: GetApiModItemUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModItemUuid>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiModItemUuidQueryOptions = <TData = Awaited<ReturnType<typeof getApiModItemUuid>>, TError = unknown>(uuid: string,
+    params?: GetApiModItemUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModItemUuid>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiModItemUuidQueryKey(uuid,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiModItemUuid>>> = ({ signal }) => getApiModItemUuid(uuid,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiModItemUuid>>> = ({ signal }) => getApiModItemUuid(uuid,params, { signal, ...fetchOptions });
 
       
 
@@ -4625,10 +6212,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiModItemUuidQueryResult = NonNullable<Awaited<ReturnType<typeof getApiModItemUuid>>>
-export type GetApiModItemUuidQueryError = AxiosError<unknown>
+export type GetApiModItemUuidQueryError = unknown
 
 
-export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiModItemUuid>>, TError = AxiosError<unknown>>(
+export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiModItemUuid>>, TError = unknown>(
  uuid: string,
     params: undefined |  GetApiModItemUuidParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModItemUuid>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -4636,10 +6223,10 @@ export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiMod
           TError,
           Awaited<ReturnType<typeof getApiModItemUuid>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiModItemUuid>>, TError = AxiosError<unknown>>(
+export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiModItemUuid>>, TError = unknown>(
  uuid: string,
     params?: GetApiModItemUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModItemUuid>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -4647,12 +6234,12 @@ export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiMod
           TError,
           Awaited<ReturnType<typeof getApiModItemUuid>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiModItemUuid>>, TError = AxiosError<unknown>>(
+export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiModItemUuid>>, TError = unknown>(
  uuid: string,
-    params?: GetApiModItemUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModItemUuid>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiModItemUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModItemUuid>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -4660,9 +6247,9 @@ export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiMod
  * @summary Returns extra information for an item
  */
 
-export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiModItemUuid>>, TError = AxiosError<unknown>>(
+export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiModItemUuid>>, TError = unknown>(
  uuid: string,
-    params?: GetApiModItemUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModItemUuid>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiModItemUuidParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModItemUuid>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -4681,29 +6268,66 @@ export function useGetApiModItemUuid<TData = Awaited<ReturnType<typeof getApiMod
 /**
  * @summary Returns new descriptions for an array of items
  */
-export const postApiModDescription = (
-    inventoryDataWithSettings: InventoryDataWithSettings, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<string[][]>> => {
+export type postApiModDescriptionResponse200 = {
+  data: string[][]
+  status: 200
+}
+
+export type postApiModDescriptionResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type postApiModDescriptionResponse500 = {
+  data: ErrorResponse
+  status: 500
+}
     
+export type postApiModDescriptionResponseComposite = postApiModDescriptionResponse200 | postApiModDescriptionResponse400 | postApiModDescriptionResponse500;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/mod/description`,
-      inventoryDataWithSettings,options
-    );
+export type postApiModDescriptionResponse = postApiModDescriptionResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiModDescriptionUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/mod/description`
+}
+
+export const postApiModDescription = async (inventoryDataWithSettings: InventoryDataWithSettings, options?: RequestInit): Promise<postApiModDescriptionResponse> => {
+  
+  const res = await fetch(getPostApiModDescriptionUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      inventoryDataWithSettings,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiModDescriptionResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiModDescriptionResponse
+}
 
 
 
-export const getPostApiModDescriptionMutationOptions = <TError = AxiosError<ErrorResponse | ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModDescription>>, TError,{data: InventoryDataWithSettings}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiModDescriptionMutationOptions = <TError = ErrorResponse | ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModDescription>>, TError,{data: InventoryDataWithSettings}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiModDescription>>, TError,{data: InventoryDataWithSettings}, TContext> => {
 
 const mutationKey = ['postApiModDescription'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -4711,7 +6335,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiModDescription>>, {data: InventoryDataWithSettings}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiModDescription(data,axiosOptions)
+          return  postApiModDescription(data,fetchOptions)
         }
 
         
@@ -4721,13 +6345,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiModDescriptionMutationResult = NonNullable<Awaited<ReturnType<typeof postApiModDescription>>>
     export type PostApiModDescriptionMutationBody = InventoryDataWithSettings
-    export type PostApiModDescriptionMutationError = AxiosError<ErrorResponse | ErrorResponse>
+    export type PostApiModDescriptionMutationError = ErrorResponse | ErrorResponse
 
     /**
  * @summary Returns new descriptions for an array of items
  */
-export const usePostApiModDescription = <TError = AxiosError<ErrorResponse | ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModDescription>>, TError,{data: InventoryDataWithSettings}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiModDescription = <TError = ErrorResponse | ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModDescription>>, TError,{data: InventoryDataWithSettings}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiModDescription>>,
         TError,
@@ -4743,29 +6367,66 @@ export const usePostApiModDescription = <TError = AxiosError<ErrorResponse | Err
 /**
  * @summary Returns a collection of modifications for each item passed
  */
-export const postApiModDescriptionModifications = (
-    inventoryDataWithSettings: InventoryDataWithSettings, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<DescModification[][]>> => {
+export type postApiModDescriptionModificationsResponse200 = {
+  data: DescModification[][]
+  status: 200
+}
+
+export type postApiModDescriptionModificationsResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type postApiModDescriptionModificationsResponse500 = {
+  data: ErrorResponse
+  status: 500
+}
     
+export type postApiModDescriptionModificationsResponseComposite = postApiModDescriptionModificationsResponse200 | postApiModDescriptionModificationsResponse400 | postApiModDescriptionModificationsResponse500;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/mod/description/modifications`,
-      inventoryDataWithSettings,options
-    );
+export type postApiModDescriptionModificationsResponse = postApiModDescriptionModificationsResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiModDescriptionModificationsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/mod/description/modifications`
+}
+
+export const postApiModDescriptionModifications = async (inventoryDataWithSettings: InventoryDataWithSettings, options?: RequestInit): Promise<postApiModDescriptionModificationsResponse> => {
+  
+  const res = await fetch(getPostApiModDescriptionModificationsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      inventoryDataWithSettings,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiModDescriptionModificationsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiModDescriptionModificationsResponse
+}
 
 
 
-export const getPostApiModDescriptionModificationsMutationOptions = <TError = AxiosError<ErrorResponse | ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModDescriptionModifications>>, TError,{data: InventoryDataWithSettings}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiModDescriptionModificationsMutationOptions = <TError = ErrorResponse | ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModDescriptionModifications>>, TError,{data: InventoryDataWithSettings}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiModDescriptionModifications>>, TError,{data: InventoryDataWithSettings}, TContext> => {
 
 const mutationKey = ['postApiModDescriptionModifications'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -4773,7 +6434,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiModDescriptionModifications>>, {data: InventoryDataWithSettings}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiModDescriptionModifications(data,axiosOptions)
+          return  postApiModDescriptionModifications(data,fetchOptions)
         }
 
         
@@ -4783,13 +6444,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiModDescriptionModificationsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiModDescriptionModifications>>>
     export type PostApiModDescriptionModificationsMutationBody = InventoryDataWithSettings
-    export type PostApiModDescriptionModificationsMutationError = AxiosError<ErrorResponse | ErrorResponse>
+    export type PostApiModDescriptionModificationsMutationError = ErrorResponse | ErrorResponse
 
     /**
  * @summary Returns a collection of modifications for each item passed
  */
-export const usePostApiModDescriptionModifications = <TError = AxiosError<ErrorResponse | ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModDescriptionModifications>>, TError,{data: InventoryDataWithSettings}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiModDescriptionModifications = <TError = ErrorResponse | ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModDescriptionModifications>>, TError,{data: InventoryDataWithSettings}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiModDescriptionModifications>>,
         TError,
@@ -4806,29 +6467,56 @@ export const usePostApiModDescriptionModifications = <TError = AxiosError<ErrorR
  * @summary Returns parsable breakdown of the price of an item/auction
 If you have nbt format you can use the /api/price/nbt endpoint with settings to get the same
  */
-export const postApiModPricingBreakdown = (
-    itemRepresent: ItemRepresent[], options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PricingBreakdwon[]>> => {
+export type postApiModPricingBreakdownResponse200 = {
+  data: PricingBreakdwon[]
+  status: 200
+}
     
+export type postApiModPricingBreakdownResponseComposite = postApiModPricingBreakdownResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/mod/pricing/breakdown`,
-      itemRepresent,options
-    );
+export type postApiModPricingBreakdownResponse = postApiModPricingBreakdownResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiModPricingBreakdownUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/mod/pricing/breakdown`
+}
+
+export const postApiModPricingBreakdown = async (itemRepresent: ItemRepresent[], options?: RequestInit): Promise<postApiModPricingBreakdownResponse> => {
+  
+  const res = await fetch(getPostApiModPricingBreakdownUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      itemRepresent,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiModPricingBreakdownResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiModPricingBreakdownResponse
+}
 
 
 
-export const getPostApiModPricingBreakdownMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModPricingBreakdown>>, TError,{data: ItemRepresent[]}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiModPricingBreakdownMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModPricingBreakdown>>, TError,{data: ItemRepresent[]}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiModPricingBreakdown>>, TError,{data: ItemRepresent[]}, TContext> => {
 
 const mutationKey = ['postApiModPricingBreakdown'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -4836,7 +6524,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiModPricingBreakdown>>, {data: ItemRepresent[]}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiModPricingBreakdown(data,axiosOptions)
+          return  postApiModPricingBreakdown(data,fetchOptions)
         }
 
         
@@ -4846,14 +6534,14 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiModPricingBreakdownMutationResult = NonNullable<Awaited<ReturnType<typeof postApiModPricingBreakdown>>>
     export type PostApiModPricingBreakdownMutationBody = ItemRepresent[]
-    export type PostApiModPricingBreakdownMutationError = AxiosError<unknown>
+    export type PostApiModPricingBreakdownMutationError = unknown
 
     /**
  * @summary Returns parsable breakdown of the price of an item/auction
 If you have nbt format you can use the /api/price/nbt endpoint with settings to get the same
  */
-export const usePostApiModPricingBreakdown = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModPricingBreakdown>>, TError,{data: ItemRepresent[]}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiModPricingBreakdown = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModPricingBreakdown>>, TError,{data: ItemRepresent[]}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiModPricingBreakdown>>,
         TError,
@@ -4869,15 +6557,42 @@ export const usePostApiModPricingBreakdown = <TError = AxiosError<unknown>,
 /**
  * @summary Returns notification targets of the user
  */
-export const getApiNotificationsTargets = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<NotificationTarget[]>> => {
+export type getApiNotificationsTargetsResponse200 = {
+  data: NotificationTarget[]
+  status: 200
+}
+    
+export type getApiNotificationsTargetsResponseComposite = getApiNotificationsTargetsResponse200;
+    
+export type getApiNotificationsTargetsResponse = getApiNotificationsTargetsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiNotificationsTargetsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/targets`
+}
+
+export const getApiNotificationsTargets = async ( options?: RequestInit): Promise<getApiNotificationsTargetsResponse> => {
+  
+  const res = await fetch(getGetApiNotificationsTargetsUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/notifications/targets`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiNotificationsTargetsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiNotificationsTargetsResponse
+}
+
 
 
 export const getGetApiNotificationsTargetsQueryKey = () => {
@@ -4885,16 +6600,16 @@ export const getGetApiNotificationsTargetsQueryKey = () => {
     }
 
     
-export const getGetApiNotificationsTargetsQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiNotificationsTargetsQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiNotificationsTargetsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiNotificationsTargets>>> = ({ signal }) => getApiNotificationsTargets({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiNotificationsTargets>>> = ({ signal }) => getApiNotificationsTargets({ signal, ...fetchOptions });
 
       
 
@@ -4904,39 +6619,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiNotificationsTargetsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiNotificationsTargets>>>
-export type GetApiNotificationsTargetsQueryError = AxiosError<unknown>
+export type GetApiNotificationsTargetsQueryError = unknown
 
 
-export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = AxiosError<unknown>>(
+export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsTargets>>,
           TError,
           Awaited<ReturnType<typeof getApiNotificationsTargets>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = AxiosError<unknown>>(
+export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsTargets>>,
           TError,
           Awaited<ReturnType<typeof getApiNotificationsTargets>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns notification targets of the user
  */
 
-export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -4955,29 +6670,56 @@ export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof 
 /**
  * @summary Adds a new target
  */
-export const postApiNotificationsTargets = (
-    notificationTarget: NotificationTarget, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<NotificationTarget>> => {
+export type postApiNotificationsTargetsResponse200 = {
+  data: NotificationTarget
+  status: 200
+}
     
+export type postApiNotificationsTargetsResponseComposite = postApiNotificationsTargetsResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/notifications/targets`,
-      notificationTarget,options
-    );
+export type postApiNotificationsTargetsResponse = postApiNotificationsTargetsResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiNotificationsTargetsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/targets`
+}
+
+export const postApiNotificationsTargets = async (notificationTarget: NotificationTarget, options?: RequestInit): Promise<postApiNotificationsTargetsResponse> => {
+  
+  const res = await fetch(getPostApiNotificationsTargetsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      notificationTarget,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiNotificationsTargetsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiNotificationsTargetsResponse
+}
 
 
 
-export const getPostApiNotificationsTargetsMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiNotificationsTargetsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext> => {
 
 const mutationKey = ['postApiNotificationsTargets'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -4985,7 +6727,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiNotificationsTargets>>, {data: NotificationTarget}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiNotificationsTargets(data,axiosOptions)
+          return  postApiNotificationsTargets(data,fetchOptions)
         }
 
         
@@ -4995,13 +6737,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiNotificationsTargetsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiNotificationsTargets>>>
     export type PostApiNotificationsTargetsMutationBody = NotificationTarget
-    export type PostApiNotificationsTargetsMutationError = AxiosError<unknown>
+    export type PostApiNotificationsTargetsMutationError = unknown
 
     /**
  * @summary Adds a new target
  */
-export const usePostApiNotificationsTargets = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiNotificationsTargets = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiNotificationsTargets>>,
         TError,
@@ -5017,29 +6759,56 @@ export const usePostApiNotificationsTargets = <TError = AxiosError<unknown>,
 /**
  * @summary Removes a target
  */
-export const deleteApiNotificationsTargets = (
-    notificationTarget: NotificationTarget, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type deleteApiNotificationsTargetsResponse200 = {
+  data: null
+  status: 200
+}
     
+export type deleteApiNotificationsTargetsResponseComposite = deleteApiNotificationsTargetsResponse200;
     
-    return axios.delete(
-      `https://sky.coflnet.com/api/notifications/targets`,{data:
-      notificationTarget, ...options}
-    );
+export type deleteApiNotificationsTargetsResponse = deleteApiNotificationsTargetsResponseComposite & {
+  headers: Headers;
+}
+
+export const getDeleteApiNotificationsTargetsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/targets`
+}
+
+export const deleteApiNotificationsTargets = async (notificationTarget: NotificationTarget, options?: RequestInit): Promise<deleteApiNotificationsTargetsResponse> => {
+  
+  const res = await fetch(getDeleteApiNotificationsTargetsUrl(),
+  {      
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      notificationTarget,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: deleteApiNotificationsTargetsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as deleteApiNotificationsTargetsResponse
+}
 
 
 
-export const getDeleteApiNotificationsTargetsMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, axios?: AxiosRequestConfig}
+
+export const getDeleteApiNotificationsTargetsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext> => {
 
 const mutationKey = ['deleteApiNotificationsTargets'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -5047,7 +6816,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>, {data: NotificationTarget}> = (props) => {
           const {data} = props ?? {};
 
-          return  deleteApiNotificationsTargets(data,axiosOptions)
+          return  deleteApiNotificationsTargets(data,fetchOptions)
         }
 
         
@@ -5057,13 +6826,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type DeleteApiNotificationsTargetsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>>
     export type DeleteApiNotificationsTargetsMutationBody = NotificationTarget
-    export type DeleteApiNotificationsTargetsMutationError = AxiosError<unknown>
+    export type DeleteApiNotificationsTargetsMutationError = unknown
 
     /**
  * @summary Removes a target
  */
-export const useDeleteApiNotificationsTargets = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, axios?: AxiosRequestConfig}
+export const useDeleteApiNotificationsTargets = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteApiNotificationsTargets>>,
         TError,
@@ -5079,29 +6848,56 @@ export const useDeleteApiNotificationsTargets = <TError = AxiosError<unknown>,
 /**
  * @summary Updates a target
  */
-export const putApiNotificationsTargets = (
-    notificationTarget: NotificationTarget, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type putApiNotificationsTargetsResponse200 = {
+  data: null
+  status: 200
+}
     
+export type putApiNotificationsTargetsResponseComposite = putApiNotificationsTargetsResponse200;
     
-    return axios.put(
-      `https://sky.coflnet.com/api/notifications/targets`,
-      notificationTarget,options
-    );
+export type putApiNotificationsTargetsResponse = putApiNotificationsTargetsResponseComposite & {
+  headers: Headers;
+}
+
+export const getPutApiNotificationsTargetsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/targets`
+}
+
+export const putApiNotificationsTargets = async (notificationTarget: NotificationTarget, options?: RequestInit): Promise<putApiNotificationsTargetsResponse> => {
+  
+  const res = await fetch(getPutApiNotificationsTargetsUrl(),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      notificationTarget,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: putApiNotificationsTargetsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as putApiNotificationsTargetsResponse
+}
 
 
 
-export const getPutApiNotificationsTargetsMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPutApiNotificationsTargetsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext> => {
 
 const mutationKey = ['putApiNotificationsTargets'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -5109,7 +6905,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiNotificationsTargets>>, {data: NotificationTarget}> = (props) => {
           const {data} = props ?? {};
 
-          return  putApiNotificationsTargets(data,axiosOptions)
+          return  putApiNotificationsTargets(data,fetchOptions)
         }
 
         
@@ -5119,13 +6915,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PutApiNotificationsTargetsMutationResult = NonNullable<Awaited<ReturnType<typeof putApiNotificationsTargets>>>
     export type PutApiNotificationsTargetsMutationBody = NotificationTarget
-    export type PutApiNotificationsTargetsMutationError = AxiosError<unknown>
+    export type PutApiNotificationsTargetsMutationError = unknown
 
     /**
  * @summary Updates a target
  */
-export const usePutApiNotificationsTargets = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, axios?: AxiosRequestConfig}
+export const usePutApiNotificationsTargets = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof putApiNotificationsTargets>>,
         TError,
@@ -5141,15 +6937,42 @@ export const usePutApiNotificationsTargets = <TError = AxiosError<unknown>,
 /**
  * @summary Returns notification subscriptions of the user
  */
-export const getApiNotificationsSubscriptions = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PublicSubscription[]>> => {
+export type getApiNotificationsSubscriptionsResponse200 = {
+  data: PublicSubscription[]
+  status: 200
+}
+    
+export type getApiNotificationsSubscriptionsResponseComposite = getApiNotificationsSubscriptionsResponse200;
+    
+export type getApiNotificationsSubscriptionsResponse = getApiNotificationsSubscriptionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiNotificationsSubscriptionsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/subscriptions`
+}
+
+export const getApiNotificationsSubscriptions = async ( options?: RequestInit): Promise<getApiNotificationsSubscriptionsResponse> => {
+  
+  const res = await fetch(getGetApiNotificationsSubscriptionsUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/notifications/subscriptions`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiNotificationsSubscriptionsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiNotificationsSubscriptionsResponse
+}
+
 
 
 export const getGetApiNotificationsSubscriptionsQueryKey = () => {
@@ -5157,16 +6980,16 @@ export const getGetApiNotificationsSubscriptionsQueryKey = () => {
     }
 
     
-export const getGetApiNotificationsSubscriptionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiNotificationsSubscriptionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiNotificationsSubscriptionsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>> = ({ signal }) => getApiNotificationsSubscriptions({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>> = ({ signal }) => getApiNotificationsSubscriptions({ signal, ...fetchOptions });
 
       
 
@@ -5176,39 +6999,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiNotificationsSubscriptionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>>
-export type GetApiNotificationsSubscriptionsQueryError = AxiosError<unknown>
+export type GetApiNotificationsSubscriptionsQueryError = unknown
 
 
-export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = AxiosError<unknown>>(
+export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>,
           TError,
           Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = AxiosError<unknown>>(
+export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>,
           TError,
           Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns notification subscriptions of the user
  */
 
-export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -5227,29 +7050,56 @@ export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<t
 /**
  * @summary Adds a new subscription
  */
-export const postApiNotificationsSubscriptions = (
-    publicSubscription: PublicSubscription, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PublicSubscription>> => {
+export type postApiNotificationsSubscriptionsResponse200 = {
+  data: PublicSubscription
+  status: 200
+}
     
+export type postApiNotificationsSubscriptionsResponseComposite = postApiNotificationsSubscriptionsResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/notifications/subscriptions`,
-      publicSubscription,options
-    );
+export type postApiNotificationsSubscriptionsResponse = postApiNotificationsSubscriptionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiNotificationsSubscriptionsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/subscriptions`
+}
+
+export const postApiNotificationsSubscriptions = async (publicSubscription: PublicSubscription, options?: RequestInit): Promise<postApiNotificationsSubscriptionsResponse> => {
+  
+  const res = await fetch(getPostApiNotificationsSubscriptionsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      publicSubscription,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiNotificationsSubscriptionsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiNotificationsSubscriptionsResponse
+}
 
 
 
-export const getPostApiNotificationsSubscriptionsMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiNotificationsSubscriptionsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext> => {
 
 const mutationKey = ['postApiNotificationsSubscriptions'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -5257,7 +7107,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>, {data: PublicSubscription}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiNotificationsSubscriptions(data,axiosOptions)
+          return  postApiNotificationsSubscriptions(data,fetchOptions)
         }
 
         
@@ -5267,13 +7117,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiNotificationsSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>>
     export type PostApiNotificationsSubscriptionsMutationBody = PublicSubscription
-    export type PostApiNotificationsSubscriptionsMutationError = AxiosError<unknown>
+    export type PostApiNotificationsSubscriptionsMutationError = unknown
 
     /**
  * @summary Adds a new subscription
  */
-export const usePostApiNotificationsSubscriptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiNotificationsSubscriptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>,
         TError,
@@ -5289,29 +7139,56 @@ export const usePostApiNotificationsSubscriptions = <TError = AxiosError<unknown
 /**
  * @summary Removes a subscription
  */
-export const deleteApiNotificationsSubscriptions = (
-    publicSubscription: PublicSubscription, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type deleteApiNotificationsSubscriptionsResponse200 = {
+  data: null
+  status: 200
+}
     
+export type deleteApiNotificationsSubscriptionsResponseComposite = deleteApiNotificationsSubscriptionsResponse200;
     
-    return axios.delete(
-      `https://sky.coflnet.com/api/notifications/subscriptions`,{data:
-      publicSubscription, ...options}
-    );
+export type deleteApiNotificationsSubscriptionsResponse = deleteApiNotificationsSubscriptionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getDeleteApiNotificationsSubscriptionsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/subscriptions`
+}
+
+export const deleteApiNotificationsSubscriptions = async (publicSubscription: PublicSubscription, options?: RequestInit): Promise<deleteApiNotificationsSubscriptionsResponse> => {
+  
+  const res = await fetch(getDeleteApiNotificationsSubscriptionsUrl(),
+  {      
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      publicSubscription,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: deleteApiNotificationsSubscriptionsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as deleteApiNotificationsSubscriptionsResponse
+}
 
 
 
-export const getDeleteApiNotificationsSubscriptionsMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, axios?: AxiosRequestConfig}
+
+export const getDeleteApiNotificationsSubscriptionsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext> => {
 
 const mutationKey = ['deleteApiNotificationsSubscriptions'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -5319,7 +7196,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>, {data: PublicSubscription}> = (props) => {
           const {data} = props ?? {};
 
-          return  deleteApiNotificationsSubscriptions(data,axiosOptions)
+          return  deleteApiNotificationsSubscriptions(data,fetchOptions)
         }
 
         
@@ -5329,13 +7206,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type DeleteApiNotificationsSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>>
     export type DeleteApiNotificationsSubscriptionsMutationBody = PublicSubscription
-    export type DeleteApiNotificationsSubscriptionsMutationError = AxiosError<unknown>
+    export type DeleteApiNotificationsSubscriptionsMutationError = unknown
 
     /**
  * @summary Removes a subscription
  */
-export const useDeleteApiNotificationsSubscriptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, axios?: AxiosRequestConfig}
+export const useDeleteApiNotificationsSubscriptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>,
         TError,
@@ -5351,29 +7228,56 @@ export const useDeleteApiNotificationsSubscriptions = <TError = AxiosError<unkno
 /**
  * @summary Updates a subscription
  */
-export const putApiNotificationsSubscriptions = (
-    publicSubscription: PublicSubscription, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type putApiNotificationsSubscriptionsResponse200 = {
+  data: null
+  status: 200
+}
     
+export type putApiNotificationsSubscriptionsResponseComposite = putApiNotificationsSubscriptionsResponse200;
     
-    return axios.put(
-      `https://sky.coflnet.com/api/notifications/subscriptions`,
-      publicSubscription,options
-    );
+export type putApiNotificationsSubscriptionsResponse = putApiNotificationsSubscriptionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getPutApiNotificationsSubscriptionsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/subscriptions`
+}
+
+export const putApiNotificationsSubscriptions = async (publicSubscription: PublicSubscription, options?: RequestInit): Promise<putApiNotificationsSubscriptionsResponse> => {
+  
+  const res = await fetch(getPutApiNotificationsSubscriptionsUrl(),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      publicSubscription,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: putApiNotificationsSubscriptionsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as putApiNotificationsSubscriptionsResponse
+}
 
 
 
-export const getPutApiNotificationsSubscriptionsMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPutApiNotificationsSubscriptionsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext> => {
 
 const mutationKey = ['putApiNotificationsSubscriptions'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -5381,7 +7285,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>, {data: PublicSubscription}> = (props) => {
           const {data} = props ?? {};
 
-          return  putApiNotificationsSubscriptions(data,axiosOptions)
+          return  putApiNotificationsSubscriptions(data,fetchOptions)
         }
 
         
@@ -5391,13 +7295,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PutApiNotificationsSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>>
     export type PutApiNotificationsSubscriptionsMutationBody = PublicSubscription
-    export type PutApiNotificationsSubscriptionsMutationError = AxiosError<unknown>
+    export type PutApiNotificationsSubscriptionsMutationError = unknown
 
     /**
  * @summary Updates a subscription
  */
-export const usePutApiNotificationsSubscriptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, axios?: AxiosRequestConfig}
+export const usePutApiNotificationsSubscriptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>,
         TError,
@@ -5413,29 +7317,56 @@ export const usePutApiNotificationsSubscriptions = <TError = AxiosError<unknown>
 /**
  * @summary Sends a test notification to the given target
  */
-export const postApiNotificationsTargetsTest = (
-    notificationTarget: NotificationTarget, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type postApiNotificationsTargetsTestResponse200 = {
+  data: null
+  status: 200
+}
     
+export type postApiNotificationsTargetsTestResponseComposite = postApiNotificationsTargetsTestResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/notifications/targets/test`,
-      notificationTarget,options
-    );
+export type postApiNotificationsTargetsTestResponse = postApiNotificationsTargetsTestResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiNotificationsTargetsTestUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/targets/test`
+}
+
+export const postApiNotificationsTargetsTest = async (notificationTarget: NotificationTarget, options?: RequestInit): Promise<postApiNotificationsTargetsTestResponse> => {
+  
+  const res = await fetch(getPostApiNotificationsTargetsTestUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      notificationTarget,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiNotificationsTargetsTestResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiNotificationsTargetsTestResponse
+}
 
 
 
-export const getPostApiNotificationsTargetsTestMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>, TError,{data: NotificationTarget}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiNotificationsTargetsTestMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>, TError,{data: NotificationTarget}, TContext> => {
 
 const mutationKey = ['postApiNotificationsTargetsTest'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -5443,7 +7374,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>, {data: NotificationTarget}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiNotificationsTargetsTest(data,axiosOptions)
+          return  postApiNotificationsTargetsTest(data,fetchOptions)
         }
 
         
@@ -5453,13 +7384,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiNotificationsTargetsTestMutationResult = NonNullable<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>>
     export type PostApiNotificationsTargetsTestMutationBody = NotificationTarget
-    export type PostApiNotificationsTargetsTestMutationError = AxiosError<unknown>
+    export type PostApiNotificationsTargetsTestMutationError = unknown
 
     /**
  * @summary Sends a test notification to the given target
  */
-export const usePostApiNotificationsTargetsTest = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>, TError,{data: NotificationTarget}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiNotificationsTargetsTest = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>,
         TError,
@@ -5475,29 +7406,56 @@ export const usePostApiNotificationsTargetsTest = <TError = AxiosError<unknown>,
 /**
  * @summary Adds a new listener
  */
-export const postApiNotificationsListeners = (
-    listener: Listener, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Listener>> => {
+export type postApiNotificationsListenersResponse200 = {
+  data: Listener
+  status: 200
+}
     
+export type postApiNotificationsListenersResponseComposite = postApiNotificationsListenersResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/notifications/listeners`,
-      listener,options
-    );
+export type postApiNotificationsListenersResponse = postApiNotificationsListenersResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiNotificationsListenersUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/listeners`
+}
+
+export const postApiNotificationsListeners = async (listener: Listener, options?: RequestInit): Promise<postApiNotificationsListenersResponse> => {
+  
+  const res = await fetch(getPostApiNotificationsListenersUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      listener,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiNotificationsListenersResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiNotificationsListenersResponse
+}
 
 
 
-export const getPostApiNotificationsListenersMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsListeners>>, TError,{data: Listener}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiNotificationsListenersMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsListeners>>, TError,{data: Listener}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsListeners>>, TError,{data: Listener}, TContext> => {
 
 const mutationKey = ['postApiNotificationsListeners'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -5505,7 +7463,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiNotificationsListeners>>, {data: Listener}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiNotificationsListeners(data,axiosOptions)
+          return  postApiNotificationsListeners(data,fetchOptions)
         }
 
         
@@ -5515,13 +7473,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiNotificationsListenersMutationResult = NonNullable<Awaited<ReturnType<typeof postApiNotificationsListeners>>>
     export type PostApiNotificationsListenersMutationBody = Listener
-    export type PostApiNotificationsListenersMutationError = AxiosError<unknown>
+    export type PostApiNotificationsListenersMutationError = unknown
 
     /**
  * @summary Adds a new listener
  */
-export const usePostApiNotificationsListeners = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsListeners>>, TError,{data: Listener}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiNotificationsListeners = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsListeners>>, TError,{data: Listener}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiNotificationsListeners>>,
         TError,
@@ -5537,15 +7495,42 @@ export const usePostApiNotificationsListeners = <TError = AxiosError<unknown>,
 /**
  * @summary Lists all listeners
  */
-export const getApiNotificationsListeners = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Listener[]>> => {
+export type getApiNotificationsListenersResponse200 = {
+  data: Listener[]
+  status: 200
+}
+    
+export type getApiNotificationsListenersResponseComposite = getApiNotificationsListenersResponse200;
+    
+export type getApiNotificationsListenersResponse = getApiNotificationsListenersResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiNotificationsListenersUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/listeners`
+}
+
+export const getApiNotificationsListeners = async ( options?: RequestInit): Promise<getApiNotificationsListenersResponse> => {
+  
+  const res = await fetch(getGetApiNotificationsListenersUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/notifications/listeners`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiNotificationsListenersResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiNotificationsListenersResponse
+}
+
 
 
 export const getGetApiNotificationsListenersQueryKey = () => {
@@ -5553,16 +7538,16 @@ export const getGetApiNotificationsListenersQueryKey = () => {
     }
 
     
-export const getGetApiNotificationsListenersQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiNotificationsListenersQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiNotificationsListenersQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiNotificationsListeners>>> = ({ signal }) => getApiNotificationsListeners({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiNotificationsListeners>>> = ({ signal }) => getApiNotificationsListeners({ signal, ...fetchOptions });
 
       
 
@@ -5572,39 +7557,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiNotificationsListenersQueryResult = NonNullable<Awaited<ReturnType<typeof getApiNotificationsListeners>>>
-export type GetApiNotificationsListenersQueryError = AxiosError<unknown>
+export type GetApiNotificationsListenersQueryError = unknown
 
 
-export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = AxiosError<unknown>>(
+export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsListeners>>,
           TError,
           Awaited<ReturnType<typeof getApiNotificationsListeners>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = AxiosError<unknown>>(
+export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsListeners>>,
           TError,
           Awaited<ReturnType<typeof getApiNotificationsListeners>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Lists all listeners
  */
 
-export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -5623,29 +7608,56 @@ export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeo
 /**
  * @summary Removes a listener
  */
-export const deleteApiNotificationsListeners = (
-    listener: Listener, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type deleteApiNotificationsListenersResponse200 = {
+  data: null
+  status: 200
+}
     
+export type deleteApiNotificationsListenersResponseComposite = deleteApiNotificationsListenersResponse200;
     
-    return axios.delete(
-      `https://sky.coflnet.com/api/notifications/listeners`,{data:
-      listener, ...options}
-    );
+export type deleteApiNotificationsListenersResponse = deleteApiNotificationsListenersResponseComposite & {
+  headers: Headers;
+}
+
+export const getDeleteApiNotificationsListenersUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/notifications/listeners`
+}
+
+export const deleteApiNotificationsListeners = async (listener: Listener, options?: RequestInit): Promise<deleteApiNotificationsListenersResponse> => {
+  
+  const res = await fetch(getDeleteApiNotificationsListenersUrl(),
+  {      
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      listener,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: deleteApiNotificationsListenersResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as deleteApiNotificationsListenersResponse
+}
 
 
 
-export const getDeleteApiNotificationsListenersMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>, TError,{data: Listener}, TContext>, axios?: AxiosRequestConfig}
+
+export const getDeleteApiNotificationsListenersMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>, TError,{data: Listener}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>, TError,{data: Listener}, TContext> => {
 
 const mutationKey = ['deleteApiNotificationsListeners'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -5653,7 +7665,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>, {data: Listener}> = (props) => {
           const {data} = props ?? {};
 
-          return  deleteApiNotificationsListeners(data,axiosOptions)
+          return  deleteApiNotificationsListeners(data,fetchOptions)
         }
 
         
@@ -5663,13 +7675,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type DeleteApiNotificationsListenersMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>>
     export type DeleteApiNotificationsListenersMutationBody = Listener
-    export type DeleteApiNotificationsListenersMutationError = AxiosError<unknown>
+    export type DeleteApiNotificationsListenersMutationError = unknown
 
     /**
  * @summary Removes a listener
  */
-export const useDeleteApiNotificationsListeners = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>, TError,{data: Listener}, TContext>, axios?: AxiosRequestConfig}
+export const useDeleteApiNotificationsListeners = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>, TError,{data: Listener}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteApiNotificationsListeners>>,
         TError,
@@ -5685,18 +7697,51 @@ export const useDeleteApiNotificationsListeners = <TError = AxiosError<unknown>,
 /**
  * @summary The last 10 bids (with auction) a player did
  */
-export const getApiPlayerPlayerUuidBids = (
-    playerUuid: string,
-    params?: GetApiPlayerPlayerUuidBidsParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<BidResult[]>> => {
+export type getApiPlayerPlayerUuidBidsResponse200 = {
+  data: BidResult[]
+  status: 200
+}
     
+export type getApiPlayerPlayerUuidBidsResponseComposite = getApiPlayerPlayerUuidBidsResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/player/${playerUuid}/bids`,{
+export type getApiPlayerPlayerUuidBidsResponse = getApiPlayerPlayerUuidBidsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiPlayerPlayerUuidBidsUrl = (playerUuid: string,
+    params?: GetApiPlayerPlayerUuidBidsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/player/${playerUuid}/bids?${stringifiedParams}` : `https://sky.coflnet.com/api/player/${playerUuid}/bids`
+}
+
+export const getApiPlayerPlayerUuidBids = async (playerUuid: string,
+    params?: GetApiPlayerPlayerUuidBidsParams, options?: RequestInit): Promise<getApiPlayerPlayerUuidBidsResponse> => {
+  
+  const res = await fetch(getGetApiPlayerPlayerUuidBidsUrl(playerUuid,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiPlayerPlayerUuidBidsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiPlayerPlayerUuidBidsResponse
+}
+
 
 
 export const getGetApiPlayerPlayerUuidBidsQueryKey = (playerUuid?: string,
@@ -5705,17 +7750,17 @@ export const getGetApiPlayerPlayerUuidBidsQueryKey = (playerUuid?: string,
     }
 
     
-export const getGetApiPlayerPlayerUuidBidsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError = AxiosError<unknown>>(playerUuid: string,
-    params?: GetApiPlayerPlayerUuidBidsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiPlayerPlayerUuidBidsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError = unknown>(playerUuid: string,
+    params?: GetApiPlayerPlayerUuidBidsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiPlayerPlayerUuidBidsQueryKey(playerUuid,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>> = ({ signal }) => getApiPlayerPlayerUuidBids(playerUuid,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>> = ({ signal }) => getApiPlayerPlayerUuidBids(playerUuid,params, { signal, ...fetchOptions });
 
       
 
@@ -5725,10 +7770,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiPlayerPlayerUuidBidsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>>
-export type GetApiPlayerPlayerUuidBidsQueryError = AxiosError<unknown>
+export type GetApiPlayerPlayerUuidBidsQueryError = unknown
 
 
-export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError = AxiosError<unknown>>(
+export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError = unknown>(
  playerUuid: string,
     params: undefined |  GetApiPlayerPlayerUuidBidsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -5736,10 +7781,10 @@ export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError = AxiosError<unknown>>(
+export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError = unknown>(
  playerUuid: string,
     params?: GetApiPlayerPlayerUuidBidsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -5747,21 +7792,21 @@ export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError = AxiosError<unknown>>(
+export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError = unknown>(
  playerUuid: string,
-    params?: GetApiPlayerPlayerUuidBidsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiPlayerPlayerUuidBidsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary The last 10 bids (with auction) a player did
  */
 
-export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError = AxiosError<unknown>>(
+export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError = unknown>(
  playerUuid: string,
-    params?: GetApiPlayerPlayerUuidBidsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiPlayerPlayerUuidBidsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidBids>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -5780,18 +7825,51 @@ export function useGetApiPlayerPlayerUuidBids<TData = Awaited<ReturnType<typeof 
 /**
  * @summary The last 10 auctions a player created
  */
-export const getApiPlayerPlayerUuidAuctions = (
-    playerUuid: string,
-    params?: GetApiPlayerPlayerUuidAuctionsParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AuctionResult[]>> => {
+export type getApiPlayerPlayerUuidAuctionsResponse200 = {
+  data: AuctionResult[]
+  status: 200
+}
     
+export type getApiPlayerPlayerUuidAuctionsResponseComposite = getApiPlayerPlayerUuidAuctionsResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/player/${playerUuid}/auctions`,{
+export type getApiPlayerPlayerUuidAuctionsResponse = getApiPlayerPlayerUuidAuctionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiPlayerPlayerUuidAuctionsUrl = (playerUuid: string,
+    params?: GetApiPlayerPlayerUuidAuctionsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/player/${playerUuid}/auctions?${stringifiedParams}` : `https://sky.coflnet.com/api/player/${playerUuid}/auctions`
+}
+
+export const getApiPlayerPlayerUuidAuctions = async (playerUuid: string,
+    params?: GetApiPlayerPlayerUuidAuctionsParams, options?: RequestInit): Promise<getApiPlayerPlayerUuidAuctionsResponse> => {
+  
+  const res = await fetch(getGetApiPlayerPlayerUuidAuctionsUrl(playerUuid,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiPlayerPlayerUuidAuctionsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiPlayerPlayerUuidAuctionsResponse
+}
+
 
 
 export const getGetApiPlayerPlayerUuidAuctionsQueryKey = (playerUuid?: string,
@@ -5800,17 +7878,17 @@ export const getGetApiPlayerPlayerUuidAuctionsQueryKey = (playerUuid?: string,
     }
 
     
-export const getGetApiPlayerPlayerUuidAuctionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError = AxiosError<unknown>>(playerUuid: string,
-    params?: GetApiPlayerPlayerUuidAuctionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiPlayerPlayerUuidAuctionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError = unknown>(playerUuid: string,
+    params?: GetApiPlayerPlayerUuidAuctionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiPlayerPlayerUuidAuctionsQueryKey(playerUuid,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>> = ({ signal }) => getApiPlayerPlayerUuidAuctions(playerUuid,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>> = ({ signal }) => getApiPlayerPlayerUuidAuctions(playerUuid,params, { signal, ...fetchOptions });
 
       
 
@@ -5820,10 +7898,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiPlayerPlayerUuidAuctionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>>
-export type GetApiPlayerPlayerUuidAuctionsQueryError = AxiosError<unknown>
+export type GetApiPlayerPlayerUuidAuctionsQueryError = unknown
 
 
-export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError = AxiosError<unknown>>(
+export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError = unknown>(
  playerUuid: string,
     params: undefined |  GetApiPlayerPlayerUuidAuctionsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -5831,10 +7909,10 @@ export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typ
           TError,
           Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError = AxiosError<unknown>>(
+export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError = unknown>(
  playerUuid: string,
     params?: GetApiPlayerPlayerUuidAuctionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -5842,21 +7920,21 @@ export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typ
           TError,
           Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError = AxiosError<unknown>>(
+export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError = unknown>(
  playerUuid: string,
-    params?: GetApiPlayerPlayerUuidAuctionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiPlayerPlayerUuidAuctionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary The last 10 auctions a player created
  */
 
-export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError = AxiosError<unknown>>(
+export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError = unknown>(
  playerUuid: string,
-    params?: GetApiPlayerPlayerUuidAuctionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiPlayerPlayerUuidAuctionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidAuctions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -5875,17 +7953,42 @@ export function useGetApiPlayerPlayerUuidAuctions<TData = Awaited<ReturnType<typ
 /**
  * @summary The name for a given uuid
  */
-export const getApiPlayerPlayerUuidName = (
-    playerUuid: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<string>> => {
+export type getApiPlayerPlayerUuidNameResponse200 = {
+  data: string
+  status: 200
+}
+    
+export type getApiPlayerPlayerUuidNameResponseComposite = getApiPlayerPlayerUuidNameResponse200;
+    
+export type getApiPlayerPlayerUuidNameResponse = getApiPlayerPlayerUuidNameResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiPlayerPlayerUuidNameUrl = (playerUuid: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/player/${playerUuid}/name`
+}
+
+export const getApiPlayerPlayerUuidName = async (playerUuid: string, options?: RequestInit): Promise<getApiPlayerPlayerUuidNameResponse> => {
+  
+  const res = await fetch(getGetApiPlayerPlayerUuidNameUrl(playerUuid),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/player/${playerUuid}/name`,{
-        responseType: 'text',
-    ...options,}
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiPlayerPlayerUuidNameResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiPlayerPlayerUuidNameResponse
+}
+
 
 
 export const getGetApiPlayerPlayerUuidNameQueryKey = (playerUuid?: string,) => {
@@ -5893,16 +7996,16 @@ export const getGetApiPlayerPlayerUuidNameQueryKey = (playerUuid?: string,) => {
     }
 
     
-export const getGetApiPlayerPlayerUuidNameQueryOptions = <TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError = AxiosError<unknown>>(playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiPlayerPlayerUuidNameQueryOptions = <TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError = unknown>(playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiPlayerPlayerUuidNameQueryKey(playerUuid);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>> = ({ signal }) => getApiPlayerPlayerUuidName(playerUuid, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>> = ({ signal }) => getApiPlayerPlayerUuidName(playerUuid, { signal, ...fetchOptions });
 
       
 
@@ -5912,39 +8015,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiPlayerPlayerUuidNameQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>>
-export type GetApiPlayerPlayerUuidNameQueryError = AxiosError<unknown>
+export type GetApiPlayerPlayerUuidNameQueryError = unknown
 
 
-export function useGetApiPlayerPlayerUuidName<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError = AxiosError<unknown>>(
+export function useGetApiPlayerPlayerUuidName<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError = unknown>(
  playerUuid: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>,
           TError,
           Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPlayerPlayerUuidName<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError = AxiosError<unknown>>(
+export function useGetApiPlayerPlayerUuidName<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError = unknown>(
  playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>,
           TError,
           Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPlayerPlayerUuidName<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError = AxiosError<unknown>>(
- playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiPlayerPlayerUuidName<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError = unknown>(
+ playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary The name for a given uuid
  */
 
-export function useGetApiPlayerPlayerUuidName<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError = AxiosError<unknown>>(
- playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiPlayerPlayerUuidName<TData = Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError = unknown>(
+ playerUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerPlayerUuidName>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -5963,30 +8066,55 @@ export function useGetApiPlayerPlayerUuidName<TData = Awaited<ReturnType<typeof 
 /**
  * @summary The name for a given uuid
  */
-export const postApiPlayerPlayerUuidName = (
-    playerUuid: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<string>> => {
+export type postApiPlayerPlayerUuidNameResponse200 = {
+  data: string
+  status: 200
+}
+    
+export type postApiPlayerPlayerUuidNameResponseComposite = postApiPlayerPlayerUuidNameResponse200;
+    
+export type postApiPlayerPlayerUuidNameResponse = postApiPlayerPlayerUuidNameResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiPlayerPlayerUuidNameUrl = (playerUuid: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/player/${playerUuid}/name`
+}
+
+export const postApiPlayerPlayerUuidName = async (playerUuid: string, options?: RequestInit): Promise<postApiPlayerPlayerUuidNameResponse> => {
+  
+  const res = await fetch(getPostApiPlayerPlayerUuidNameUrl(playerUuid),
+  {      
+    ...options,
+    method: 'POST'
     
     
-    return axios.post(
-      `https://sky.coflnet.com/api/player/${playerUuid}/name`,undefined,{
-        responseType: 'text',
-    ...options,}
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiPlayerPlayerUuidNameResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiPlayerPlayerUuidNameResponse
+}
 
 
 
-export const getPostApiPlayerPlayerUuidNameMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPlayerPlayerUuidName>>, TError,{playerUuid: string}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiPlayerPlayerUuidNameMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPlayerPlayerUuidName>>, TError,{playerUuid: string}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiPlayerPlayerUuidName>>, TError,{playerUuid: string}, TContext> => {
 
 const mutationKey = ['postApiPlayerPlayerUuidName'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -5994,7 +8122,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPlayerPlayerUuidName>>, {playerUuid: string}> = (props) => {
           const {playerUuid} = props ?? {};
 
-          return  postApiPlayerPlayerUuidName(playerUuid,axiosOptions)
+          return  postApiPlayerPlayerUuidName(playerUuid,fetchOptions)
         }
 
         
@@ -6004,13 +8132,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiPlayerPlayerUuidNameMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPlayerPlayerUuidName>>>
     
-    export type PostApiPlayerPlayerUuidNameMutationError = AxiosError<unknown>
+    export type PostApiPlayerPlayerUuidNameMutationError = unknown
 
     /**
  * @summary The name for a given uuid
  */
-export const usePostApiPlayerPlayerUuidName = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPlayerPlayerUuidName>>, TError,{playerUuid: string}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiPlayerPlayerUuidName = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPlayerPlayerUuidName>>, TError,{playerUuid: string}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPlayerPlayerUuidName>>,
         TError,
@@ -6026,29 +8154,66 @@ export const usePostApiPlayerPlayerUuidName = <TError = AxiosError<unknown>,
 /**
  * @summary Batch name retrieval
  */
-export const postApiPlayerNames = (
-    postApiPlayerNamesBody: string[], options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PostApiPlayerNames200One | PostApiPlayerNames200Two | PostApiPlayerNames200Three>> => {
+export type postApiPlayerNamesResponse200TextPlain = {
+  data: PostApiPlayerNames200One
+  status: 200
+}
+
+export type postApiPlayerNamesResponse200ApplicationJson = {
+  data: PostApiPlayerNames200Two
+  status: 200
+}
+
+export type postApiPlayerNamesResponse200TextJson = {
+  data: PostApiPlayerNames200Three
+  status: 200
+}
     
+export type postApiPlayerNamesResponseComposite = postApiPlayerNamesResponse200TextPlain | postApiPlayerNamesResponse200ApplicationJson | postApiPlayerNamesResponse200TextJson;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/player/names`,
-      postApiPlayerNamesBody,options
-    );
+export type postApiPlayerNamesResponse = postApiPlayerNamesResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiPlayerNamesUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/player/names`
+}
+
+export const postApiPlayerNames = async (postApiPlayerNamesBody: string[], options?: RequestInit): Promise<postApiPlayerNamesResponse> => {
+  
+  const res = await fetch(getPostApiPlayerNamesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      postApiPlayerNamesBody,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiPlayerNamesResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiPlayerNamesResponse
+}
 
 
 
-export const getPostApiPlayerNamesMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPlayerNames>>, TError,{data: string[]}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiPlayerNamesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPlayerNames>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiPlayerNames>>, TError,{data: string[]}, TContext> => {
 
 const mutationKey = ['postApiPlayerNames'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -6056,7 +8221,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPlayerNames>>, {data: string[]}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiPlayerNames(data,axiosOptions)
+          return  postApiPlayerNames(data,fetchOptions)
         }
 
         
@@ -6066,13 +8231,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiPlayerNamesMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPlayerNames>>>
     export type PostApiPlayerNamesMutationBody = string[]
-    export type PostApiPlayerNamesMutationError = AxiosError<unknown>
+    export type PostApiPlayerNamesMutationError = unknown
 
     /**
  * @summary Batch name retrieval
  */
-export const usePostApiPlayerNames = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPlayerNames>>, TError,{data: string[]}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiPlayerNames = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPlayerNames>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPlayerNames>>,
         TError,
@@ -6088,15 +8253,42 @@ export const usePostApiPlayerNames = <TError = AxiosError<unknown>,
 /**
  * @summary Products to top up
  */
-export const getApiTopupOptions = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TopUpProduct[]>> => {
+export type getApiTopupOptionsResponse200 = {
+  data: TopUpProduct[]
+  status: 200
+}
+    
+export type getApiTopupOptionsResponseComposite = getApiTopupOptionsResponse200;
+    
+export type getApiTopupOptionsResponse = getApiTopupOptionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiTopupOptionsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/topup/options`
+}
+
+export const getApiTopupOptions = async ( options?: RequestInit): Promise<getApiTopupOptionsResponse> => {
+  
+  const res = await fetch(getGetApiTopupOptionsUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/topup/options`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiTopupOptionsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiTopupOptionsResponse
+}
+
 
 
 export const getGetApiTopupOptionsQueryKey = () => {
@@ -6104,16 +8296,16 @@ export const getGetApiTopupOptionsQueryKey = () => {
     }
 
     
-export const getGetApiTopupOptionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiTopupOptions>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTopupOptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiTopupOptionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiTopupOptions>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTopupOptions>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiTopupOptionsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTopupOptions>>> = ({ signal }) => getApiTopupOptions({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTopupOptions>>> = ({ signal }) => getApiTopupOptions({ signal, ...fetchOptions });
 
       
 
@@ -6123,39 +8315,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiTopupOptionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTopupOptions>>>
-export type GetApiTopupOptionsQueryError = AxiosError<unknown>
+export type GetApiTopupOptionsQueryError = unknown
 
 
-export function useGetApiTopupOptions<TData = Awaited<ReturnType<typeof getApiTopupOptions>>, TError = AxiosError<unknown>>(
+export function useGetApiTopupOptions<TData = Awaited<ReturnType<typeof getApiTopupOptions>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTopupOptions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiTopupOptions>>,
           TError,
           Awaited<ReturnType<typeof getApiTopupOptions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiTopupOptions<TData = Awaited<ReturnType<typeof getApiTopupOptions>>, TError = AxiosError<unknown>>(
+export function useGetApiTopupOptions<TData = Awaited<ReturnType<typeof getApiTopupOptions>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTopupOptions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiTopupOptions>>,
           TError,
           Awaited<ReturnType<typeof getApiTopupOptions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiTopupOptions<TData = Awaited<ReturnType<typeof getApiTopupOptions>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTopupOptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiTopupOptions<TData = Awaited<ReturnType<typeof getApiTopupOptions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTopupOptions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Products to top up
  */
 
-export function useGetApiTopupOptions<TData = Awaited<ReturnType<typeof getApiTopupOptions>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTopupOptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiTopupOptions<TData = Awaited<ReturnType<typeof getApiTopupOptions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTopupOptions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -6174,30 +8366,57 @@ export function useGetApiTopupOptions<TData = Awaited<ReturnType<typeof getApiTo
 /**
  * @summary Start a new topup session with stripe
  */
-export const postApiTopupStripeProductSlug = (
-    productSlug: string,
-    topUpArguments: TopUpArguments, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TopUpIdResponse>> => {
+export type postApiTopupStripeProductSlugResponse200 = {
+  data: TopUpIdResponse
+  status: 200
+}
     
+export type postApiTopupStripeProductSlugResponseComposite = postApiTopupStripeProductSlugResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/topup/stripe/${productSlug}`,
-      topUpArguments,options
-    );
+export type postApiTopupStripeProductSlugResponse = postApiTopupStripeProductSlugResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiTopupStripeProductSlugUrl = (productSlug: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/topup/stripe/${productSlug}`
+}
+
+export const postApiTopupStripeProductSlug = async (productSlug: string,
+    topUpArguments: TopUpArguments, options?: RequestInit): Promise<postApiTopupStripeProductSlugResponse> => {
+  
+  const res = await fetch(getPostApiTopupStripeProductSlugUrl(productSlug),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      topUpArguments,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiTopupStripeProductSlugResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiTopupStripeProductSlugResponse
+}
 
 
 
-export const getPostApiTopupStripeProductSlugMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiTopupStripeProductSlugMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext> => {
 
 const mutationKey = ['postApiTopupStripeProductSlug'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -6205,7 +8424,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>, {productSlug: string;data: TopUpArguments}> = (props) => {
           const {productSlug,data} = props ?? {};
 
-          return  postApiTopupStripeProductSlug(productSlug,data,axiosOptions)
+          return  postApiTopupStripeProductSlug(productSlug,data,fetchOptions)
         }
 
         
@@ -6215,13 +8434,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiTopupStripeProductSlugMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>>
     export type PostApiTopupStripeProductSlugMutationBody = TopUpArguments
-    export type PostApiTopupStripeProductSlugMutationError = AxiosError<unknown>
+    export type PostApiTopupStripeProductSlugMutationError = unknown
 
     /**
  * @summary Start a new topup session with stripe
  */
-export const usePostApiTopupStripeProductSlug = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiTopupStripeProductSlug = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>,
         TError,
@@ -6237,30 +8456,57 @@ export const usePostApiTopupStripeProductSlug = <TError = AxiosError<unknown>,
 /**
  * @summary Start a new topup session with paypal
  */
-export const postApiTopupPaypalProductSlug = (
-    productSlug: string,
-    topUpArguments: TopUpArguments, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TopUpIdResponse>> => {
+export type postApiTopupPaypalProductSlugResponse200 = {
+  data: TopUpIdResponse
+  status: 200
+}
     
+export type postApiTopupPaypalProductSlugResponseComposite = postApiTopupPaypalProductSlugResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/topup/paypal/${productSlug}`,
-      topUpArguments,options
-    );
+export type postApiTopupPaypalProductSlugResponse = postApiTopupPaypalProductSlugResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiTopupPaypalProductSlugUrl = (productSlug: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/topup/paypal/${productSlug}`
+}
+
+export const postApiTopupPaypalProductSlug = async (productSlug: string,
+    topUpArguments: TopUpArguments, options?: RequestInit): Promise<postApiTopupPaypalProductSlugResponse> => {
+  
+  const res = await fetch(getPostApiTopupPaypalProductSlugUrl(productSlug),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      topUpArguments,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiTopupPaypalProductSlugResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiTopupPaypalProductSlugResponse
+}
 
 
 
-export const getPostApiTopupPaypalProductSlugMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiTopupPaypalProductSlugMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext> => {
 
 const mutationKey = ['postApiTopupPaypalProductSlug'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -6268,7 +8514,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>, {productSlug: string;data: TopUpArguments}> = (props) => {
           const {productSlug,data} = props ?? {};
 
-          return  postApiTopupPaypalProductSlug(productSlug,data,axiosOptions)
+          return  postApiTopupPaypalProductSlug(productSlug,data,fetchOptions)
         }
 
         
@@ -6278,13 +8524,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiTopupPaypalProductSlugMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>>
     export type PostApiTopupPaypalProductSlugMutationBody = TopUpArguments
-    export type PostApiTopupPaypalProductSlugMutationError = AxiosError<unknown>
+    export type PostApiTopupPaypalProductSlugMutationError = unknown
 
     /**
  * @summary Start a new topup session with paypal
  */
-export const usePostApiTopupPaypalProductSlug = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiTopupPaypalProductSlug = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>,
         TError,
@@ -6300,30 +8546,57 @@ export const usePostApiTopupPaypalProductSlug = <TError = AxiosError<unknown>,
 /**
  * @summary Start a new topup session with lemonsqueezy
  */
-export const postApiTopupLemonsqueezyProductSlug = (
-    productSlug: string,
-    topUpArguments: TopUpArguments, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TopUpIdResponse>> => {
+export type postApiTopupLemonsqueezyProductSlugResponse200 = {
+  data: TopUpIdResponse
+  status: 200
+}
     
+export type postApiTopupLemonsqueezyProductSlugResponseComposite = postApiTopupLemonsqueezyProductSlugResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/topup/lemonsqueezy/${productSlug}`,
-      topUpArguments,options
-    );
+export type postApiTopupLemonsqueezyProductSlugResponse = postApiTopupLemonsqueezyProductSlugResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiTopupLemonsqueezyProductSlugUrl = (productSlug: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/topup/lemonsqueezy/${productSlug}`
+}
+
+export const postApiTopupLemonsqueezyProductSlug = async (productSlug: string,
+    topUpArguments: TopUpArguments, options?: RequestInit): Promise<postApiTopupLemonsqueezyProductSlugResponse> => {
+  
+  const res = await fetch(getPostApiTopupLemonsqueezyProductSlugUrl(productSlug),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      topUpArguments,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiTopupLemonsqueezyProductSlugResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiTopupLemonsqueezyProductSlugResponse
+}
 
 
 
-export const getPostApiTopupLemonsqueezyProductSlugMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiTopupLemonsqueezyProductSlugMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext> => {
 
 const mutationKey = ['postApiTopupLemonsqueezyProductSlug'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -6331,7 +8604,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>, {productSlug: string;data: TopUpArguments}> = (props) => {
           const {productSlug,data} = props ?? {};
 
-          return  postApiTopupLemonsqueezyProductSlug(productSlug,data,axiosOptions)
+          return  postApiTopupLemonsqueezyProductSlug(productSlug,data,fetchOptions)
         }
 
         
@@ -6341,13 +8614,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiTopupLemonsqueezyProductSlugMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>>
     export type PostApiTopupLemonsqueezyProductSlugMutationBody = TopUpArguments
-    export type PostApiTopupLemonsqueezyProductSlugMutationError = AxiosError<unknown>
+    export type PostApiTopupLemonsqueezyProductSlugMutationError = unknown
 
     /**
  * @summary Start a new topup session with lemonsqueezy
  */
-export const usePostApiTopupLemonsqueezyProductSlug = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiTopupLemonsqueezyProductSlug = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>,
         TError,
@@ -6360,17 +8633,49 @@ export const usePostApiTopupLemonsqueezyProductSlug = <TError = AxiosError<unkno
       return useMutation(mutationOptions , queryClient);
     }
     
-export const getApiLinkvertise = (
-    params?: GetApiLinkvertiseParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type getApiLinkvertiseResponse200 = {
+  data: null
+  status: 200
+}
     
+export type getApiLinkvertiseResponseComposite = getApiLinkvertiseResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/linkvertise`,{
+export type getApiLinkvertiseResponse = getApiLinkvertiseResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiLinkvertiseUrl = (params?: GetApiLinkvertiseParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/linkvertise?${stringifiedParams}` : `https://sky.coflnet.com/api/linkvertise`
+}
+
+export const getApiLinkvertise = async (params?: GetApiLinkvertiseParams, options?: RequestInit): Promise<getApiLinkvertiseResponse> => {
+  
+  const res = await fetch(getGetApiLinkvertiseUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiLinkvertiseResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiLinkvertiseResponse
+}
+
 
 
 export const getGetApiLinkvertiseQueryKey = (params?: GetApiLinkvertiseParams,) => {
@@ -6378,16 +8683,16 @@ export const getGetApiLinkvertiseQueryKey = (params?: GetApiLinkvertiseParams,) 
     }
 
     
-export const getGetApiLinkvertiseQueryOptions = <TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = AxiosError<unknown>>(params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiLinkvertiseQueryOptions = <TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiLinkvertiseQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiLinkvertise>>> = ({ signal }) => getApiLinkvertise(params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiLinkvertise>>> = ({ signal }) => getApiLinkvertise(params, { signal, ...fetchOptions });
 
       
 
@@ -6397,36 +8702,36 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiLinkvertiseQueryResult = NonNullable<Awaited<ReturnType<typeof getApiLinkvertise>>>
-export type GetApiLinkvertiseQueryError = AxiosError<unknown>
+export type GetApiLinkvertiseQueryError = unknown
 
 
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = AxiosError<unknown>>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
  params: undefined |  GetApiLinkvertiseParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiLinkvertise>>,
           TError,
           Awaited<ReturnType<typeof getApiLinkvertise>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = AxiosError<unknown>>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
  params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiLinkvertise>>,
           TError,
           Awaited<ReturnType<typeof getApiLinkvertise>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = AxiosError<unknown>>(
- params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
+ params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = AxiosError<unknown>>(
- params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
+ params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -6445,29 +8750,56 @@ export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLin
 /**
  * @summary Purchase a service
  */
-export const postApiServicePurchase = (
-    purchaseArgs: PurchaseArgs, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type postApiServicePurchaseResponse200 = {
+  data: null
+  status: 200
+}
     
+export type postApiServicePurchaseResponseComposite = postApiServicePurchaseResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/service/purchase`,
-      purchaseArgs,options
-    );
+export type postApiServicePurchaseResponse = postApiServicePurchaseResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiServicePurchaseUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/service/purchase`
+}
+
+export const postApiServicePurchase = async (purchaseArgs: PurchaseArgs, options?: RequestInit): Promise<postApiServicePurchaseResponse> => {
+  
+  const res = await fetch(getPostApiServicePurchaseUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      purchaseArgs,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiServicePurchaseResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiServicePurchaseResponse
+}
 
 
 
-export const getPostApiServicePurchaseMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiServicePurchase>>, TError,{data: PurchaseArgs}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiServicePurchaseMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiServicePurchase>>, TError,{data: PurchaseArgs}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiServicePurchase>>, TError,{data: PurchaseArgs}, TContext> => {
 
 const mutationKey = ['postApiServicePurchase'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -6475,7 +8807,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiServicePurchase>>, {data: PurchaseArgs}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiServicePurchase(data,axiosOptions)
+          return  postApiServicePurchase(data,fetchOptions)
         }
 
         
@@ -6485,13 +8817,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiServicePurchaseMutationResult = NonNullable<Awaited<ReturnType<typeof postApiServicePurchase>>>
     export type PostApiServicePurchaseMutationBody = PurchaseArgs
-    export type PostApiServicePurchaseMutationError = AxiosError<unknown>
+    export type PostApiServicePurchaseMutationError = unknown
 
     /**
  * @summary Purchase a service
  */
-export const usePostApiServicePurchase = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiServicePurchase>>, TError,{data: PurchaseArgs}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiServicePurchase = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiServicePurchase>>, TError,{data: PurchaseArgs}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiServicePurchase>>,
         TError,
@@ -6508,29 +8840,56 @@ export const usePostApiServicePurchase = <TError = AxiosError<unknown>,
  * @deprecated
  * @summary Get adjusted prices
  */
-export const postApiPremiumPricesAdjusted = (
-    postApiPremiumPricesAdjustedBody: string[], options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type postApiPremiumPricesAdjustedResponse200 = {
+  data: null
+  status: 200
+}
     
+export type postApiPremiumPricesAdjustedResponseComposite = postApiPremiumPricesAdjustedResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/premium/prices/adjusted`,
-      postApiPremiumPricesAdjustedBody,options
-    );
+export type postApiPremiumPricesAdjustedResponse = postApiPremiumPricesAdjustedResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiPremiumPricesAdjustedUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/premium/prices/adjusted`
+}
+
+export const postApiPremiumPricesAdjusted = async (postApiPremiumPricesAdjustedBody: string[], options?: RequestInit): Promise<postApiPremiumPricesAdjustedResponse> => {
+  
+  const res = await fetch(getPostApiPremiumPricesAdjustedUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      postApiPremiumPricesAdjustedBody,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiPremiumPricesAdjustedResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiPremiumPricesAdjustedResponse
+}
 
 
 
-export const getPostApiPremiumPricesAdjustedMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>, TError,{data: string[]}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiPremiumPricesAdjustedMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>, TError,{data: string[]}, TContext> => {
 
 const mutationKey = ['postApiPremiumPricesAdjusted'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -6538,7 +8897,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>, {data: string[]}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiPremiumPricesAdjusted(data,axiosOptions)
+          return  postApiPremiumPricesAdjusted(data,fetchOptions)
         }
 
         
@@ -6548,14 +8907,14 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiPremiumPricesAdjustedMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>>
     export type PostApiPremiumPricesAdjustedMutationBody = string[]
-    export type PostApiPremiumPricesAdjustedMutationError = AxiosError<unknown>
+    export type PostApiPremiumPricesAdjustedMutationError = unknown
 
     /**
  * @deprecated
  * @summary Get adjusted prices
  */
-export const usePostApiPremiumPricesAdjusted = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>, TError,{data: string[]}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiPremiumPricesAdjusted = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>,
         TError,
@@ -6571,29 +8930,66 @@ export const usePostApiPremiumPricesAdjusted = <TError = AxiosError<unknown>,
 /**
  * @summary Get adjusted prices
  */
-export const postApiPremiumUserOwns = (
-    postApiPremiumUserOwnsBody: string[], options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PostApiPremiumUserOwns200One | PostApiPremiumUserOwns200Two | PostApiPremiumUserOwns200Three>> => {
+export type postApiPremiumUserOwnsResponse200TextPlain = {
+  data: PostApiPremiumUserOwns200One
+  status: 200
+}
+
+export type postApiPremiumUserOwnsResponse200ApplicationJson = {
+  data: PostApiPremiumUserOwns200Two
+  status: 200
+}
+
+export type postApiPremiumUserOwnsResponse200TextJson = {
+  data: PostApiPremiumUserOwns200Three
+  status: 200
+}
     
+export type postApiPremiumUserOwnsResponseComposite = postApiPremiumUserOwnsResponse200TextPlain | postApiPremiumUserOwnsResponse200ApplicationJson | postApiPremiumUserOwnsResponse200TextJson;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/premium/user/owns`,
-      postApiPremiumUserOwnsBody,options
-    );
+export type postApiPremiumUserOwnsResponse = postApiPremiumUserOwnsResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiPremiumUserOwnsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/premium/user/owns`
+}
+
+export const postApiPremiumUserOwns = async (postApiPremiumUserOwnsBody: string[], options?: RequestInit): Promise<postApiPremiumUserOwnsResponse> => {
+  
+  const res = await fetch(getPostApiPremiumUserOwnsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      postApiPremiumUserOwnsBody,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiPremiumUserOwnsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiPremiumUserOwnsResponse
+}
 
 
 
-export const getPostApiPremiumUserOwnsMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumUserOwns>>, TError,{data: string[]}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiPremiumUserOwnsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumUserOwns>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumUserOwns>>, TError,{data: string[]}, TContext> => {
 
 const mutationKey = ['postApiPremiumUserOwns'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -6601,7 +8997,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumUserOwns>>, {data: string[]}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiPremiumUserOwns(data,axiosOptions)
+          return  postApiPremiumUserOwns(data,fetchOptions)
         }
 
         
@@ -6611,13 +9007,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiPremiumUserOwnsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumUserOwns>>>
     export type PostApiPremiumUserOwnsMutationBody = string[]
-    export type PostApiPremiumUserOwnsMutationError = AxiosError<unknown>
+    export type PostApiPremiumUserOwnsMutationError = unknown
 
     /**
  * @summary Get adjusted prices
  */
-export const usePostApiPremiumUserOwns = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumUserOwns>>, TError,{data: string[]}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiPremiumUserOwns = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumUserOwns>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPremiumUserOwns>>,
         TError,
@@ -6633,15 +9029,42 @@ export const usePostApiPremiumUserOwns = <TError = AxiosError<unknown>,
 /**
  * @summary Get transaction history
  */
-export const getApiPremiumTransactions = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<CoinTransaction[]>> => {
+export type getApiPremiumTransactionsResponse200 = {
+  data: CoinTransaction[]
+  status: 200
+}
+    
+export type getApiPremiumTransactionsResponseComposite = getApiPremiumTransactionsResponse200;
+    
+export type getApiPremiumTransactionsResponse = getApiPremiumTransactionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiPremiumTransactionsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/premium/transactions`
+}
+
+export const getApiPremiumTransactions = async ( options?: RequestInit): Promise<getApiPremiumTransactionsResponse> => {
+  
+  const res = await fetch(getGetApiPremiumTransactionsUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/premium/transactions`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiPremiumTransactionsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiPremiumTransactionsResponse
+}
+
 
 
 export const getGetApiPremiumTransactionsQueryKey = () => {
@@ -6649,16 +9072,16 @@ export const getGetApiPremiumTransactionsQueryKey = () => {
     }
 
     
-export const getGetApiPremiumTransactionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiPremiumTransactionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiPremiumTransactionsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumTransactions>>> = ({ signal }) => getApiPremiumTransactions({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumTransactions>>> = ({ signal }) => getApiPremiumTransactions({ signal, ...fetchOptions });
 
       
 
@@ -6668,39 +9091,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiPremiumTransactionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumTransactions>>>
-export type GetApiPremiumTransactionsQueryError = AxiosError<unknown>
+export type GetApiPremiumTransactionsQueryError = unknown
 
 
-export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = AxiosError<unknown>>(
+export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPremiumTransactions>>,
           TError,
           Awaited<ReturnType<typeof getApiPremiumTransactions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = AxiosError<unknown>>(
+export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPremiumTransactions>>,
           TError,
           Awaited<ReturnType<typeof getApiPremiumTransactions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get transaction history
  */
 
-export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -6719,28 +9142,55 @@ export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof g
 /**
  * @summary Purchase a service
  */
-export const postApiPremiumSubscriptionSubscriptionSlug = (
-    subscriptionSlug: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TopUpIdResponse>> => {
+export type postApiPremiumSubscriptionSubscriptionSlugResponse200 = {
+  data: TopUpIdResponse
+  status: 200
+}
+    
+export type postApiPremiumSubscriptionSubscriptionSlugResponseComposite = postApiPremiumSubscriptionSubscriptionSlugResponse200;
+    
+export type postApiPremiumSubscriptionSubscriptionSlugResponse = postApiPremiumSubscriptionSubscriptionSlugResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiPremiumSubscriptionSubscriptionSlugUrl = (subscriptionSlug: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/premium/subscription/${subscriptionSlug}`
+}
+
+export const postApiPremiumSubscriptionSubscriptionSlug = async (subscriptionSlug: string, options?: RequestInit): Promise<postApiPremiumSubscriptionSubscriptionSlugResponse> => {
+  
+  const res = await fetch(getPostApiPremiumSubscriptionSubscriptionSlugUrl(subscriptionSlug),
+  {      
+    ...options,
+    method: 'POST'
     
     
-    return axios.post(
-      `https://sky.coflnet.com/api/premium/subscription/${subscriptionSlug}`,undefined,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiPremiumSubscriptionSubscriptionSlugResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiPremiumSubscriptionSubscriptionSlugResponse
+}
 
 
 
-export const getPostApiPremiumSubscriptionSubscriptionSlugMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiPremiumSubscriptionSubscriptionSlugMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext> => {
 
 const mutationKey = ['postApiPremiumSubscriptionSubscriptionSlug'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -6748,7 +9198,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, {subscriptionSlug: string}> = (props) => {
           const {subscriptionSlug} = props ?? {};
 
-          return  postApiPremiumSubscriptionSubscriptionSlug(subscriptionSlug,axiosOptions)
+          return  postApiPremiumSubscriptionSubscriptionSlug(subscriptionSlug,fetchOptions)
         }
 
         
@@ -6758,13 +9208,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiPremiumSubscriptionSubscriptionSlugMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>>
     
-    export type PostApiPremiumSubscriptionSubscriptionSlugMutationError = AxiosError<unknown>
+    export type PostApiPremiumSubscriptionSubscriptionSlugMutationError = unknown
 
     /**
  * @summary Purchase a service
  */
-export const usePostApiPremiumSubscriptionSubscriptionSlug = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiPremiumSubscriptionSubscriptionSlug = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>,
         TError,
@@ -6777,15 +9227,42 @@ export const usePostApiPremiumSubscriptionSubscriptionSlug = <TError = AxiosErro
       return useMutation(mutationOptions , queryClient);
     }
     
-export const getApiPremiumSubscription = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PremiumSubscription[]>> => {
+export type getApiPremiumSubscriptionResponse200 = {
+  data: PremiumSubscription[]
+  status: 200
+}
+    
+export type getApiPremiumSubscriptionResponseComposite = getApiPremiumSubscriptionResponse200;
+    
+export type getApiPremiumSubscriptionResponse = getApiPremiumSubscriptionResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiPremiumSubscriptionUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/premium/subscription`
+}
+
+export const getApiPremiumSubscription = async ( options?: RequestInit): Promise<getApiPremiumSubscriptionResponse> => {
+  
+  const res = await fetch(getGetApiPremiumSubscriptionUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/premium/subscription`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiPremiumSubscriptionResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiPremiumSubscriptionResponse
+}
+
 
 
 export const getGetApiPremiumSubscriptionQueryKey = () => {
@@ -6793,16 +9270,16 @@ export const getGetApiPremiumSubscriptionQueryKey = () => {
     }
 
     
-export const getGetApiPremiumSubscriptionQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiPremiumSubscriptionQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiPremiumSubscriptionQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumSubscription>>> = ({ signal }) => getApiPremiumSubscription({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumSubscription>>> = ({ signal }) => getApiPremiumSubscription({ signal, ...fetchOptions });
 
       
 
@@ -6812,36 +9289,36 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiPremiumSubscriptionQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumSubscription>>>
-export type GetApiPremiumSubscriptionQueryError = AxiosError<unknown>
+export type GetApiPremiumSubscriptionQueryError = unknown
 
 
-export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = AxiosError<unknown>>(
+export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPremiumSubscription>>,
           TError,
           Awaited<ReturnType<typeof getApiPremiumSubscription>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = AxiosError<unknown>>(
+export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPremiumSubscription>>,
           TError,
           Awaited<ReturnType<typeof getApiPremiumSubscription>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -6857,28 +9334,55 @@ export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof g
 
 
 
-export const deleteApiPremiumSubscriptionExternalId = (
-    externalId: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type deleteApiPremiumSubscriptionExternalIdResponse200 = {
+  data: null
+  status: 200
+}
+    
+export type deleteApiPremiumSubscriptionExternalIdResponseComposite = deleteApiPremiumSubscriptionExternalIdResponse200;
+    
+export type deleteApiPremiumSubscriptionExternalIdResponse = deleteApiPremiumSubscriptionExternalIdResponseComposite & {
+  headers: Headers;
+}
+
+export const getDeleteApiPremiumSubscriptionExternalIdUrl = (externalId: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/premium/subscription/${externalId}`
+}
+
+export const deleteApiPremiumSubscriptionExternalId = async (externalId: string, options?: RequestInit): Promise<deleteApiPremiumSubscriptionExternalIdResponse> => {
+  
+  const res = await fetch(getDeleteApiPremiumSubscriptionExternalIdUrl(externalId),
+  {      
+    ...options,
+    method: 'DELETE'
     
     
-    return axios.delete(
-      `https://sky.coflnet.com/api/premium/subscription/${externalId}`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: deleteApiPremiumSubscriptionExternalIdResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as deleteApiPremiumSubscriptionExternalIdResponse
+}
 
 
 
-export const getDeleteApiPremiumSubscriptionExternalIdMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>, TError,{externalId: string}, TContext>, axios?: AxiosRequestConfig}
+
+export const getDeleteApiPremiumSubscriptionExternalIdMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>, TError,{externalId: string}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>, TError,{externalId: string}, TContext> => {
 
 const mutationKey = ['deleteApiPremiumSubscriptionExternalId'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -6886,7 +9390,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>, {externalId: string}> = (props) => {
           const {externalId} = props ?? {};
 
-          return  deleteApiPremiumSubscriptionExternalId(externalId,axiosOptions)
+          return  deleteApiPremiumSubscriptionExternalId(externalId,fetchOptions)
         }
 
         
@@ -6896,10 +9400,10 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type DeleteApiPremiumSubscriptionExternalIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>>
     
-    export type DeleteApiPremiumSubscriptionExternalIdMutationError = AxiosError<unknown>
+    export type DeleteApiPremiumSubscriptionExternalIdMutationError = unknown
 
-    export const useDeleteApiPremiumSubscriptionExternalId = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>, TError,{externalId: string}, TContext>, axios?: AxiosRequestConfig}
+    export const useDeleteApiPremiumSubscriptionExternalId = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>, TError,{externalId: string}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>,
         TError,
@@ -6916,18 +9420,51 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
  * @summary Aggregated sumary of item prices for the 2 last days
 stackable items are reduced to a single item
  */
-export const getApiItemPriceItemTag = (
-    itemTag: string,
-    params?: GetApiItemPriceItemTagParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PriceSumary>> => {
+export type getApiItemPriceItemTagResponse200 = {
+  data: PriceSumary
+  status: 200
+}
     
+export type getApiItemPriceItemTagResponseComposite = getApiItemPriceItemTagResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/price/${itemTag}`,{
+export type getApiItemPriceItemTagResponse = getApiItemPriceItemTagResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemPriceItemTagUrl = (itemTag: string,
+    params?: GetApiItemPriceItemTagParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/item/price/${itemTag}?${stringifiedParams}` : `https://sky.coflnet.com/api/item/price/${itemTag}`
+}
+
+export const getApiItemPriceItemTag = async (itemTag: string,
+    params?: GetApiItemPriceItemTagParams, options?: RequestInit): Promise<getApiItemPriceItemTagResponse> => {
+  
+  const res = await fetch(getGetApiItemPriceItemTagUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemPriceItemTagResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemPriceItemTagResponse
+}
+
 
 
 export const getGetApiItemPriceItemTagQueryKey = (itemTag?: string,
@@ -6936,17 +9473,17 @@ export const getGetApiItemPriceItemTagQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiItemPriceItemTagQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiItemPriceItemTagParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemPriceItemTagQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError = unknown>(itemTag: string,
+    params?: GetApiItemPriceItemTagParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemPriceItemTagQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTag>>> = ({ signal }) => getApiItemPriceItemTag(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTag>>> = ({ signal }) => getApiItemPriceItemTag(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -6956,10 +9493,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemPriceItemTagQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemPriceItemTag>>>
-export type GetApiItemPriceItemTagQueryError = AxiosError<unknown>
+export type GetApiItemPriceItemTagQueryError = unknown
 
 
-export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiItemPriceItemTagParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -6967,10 +9504,10 @@ export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getA
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTag>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError = unknown>(
  itemTag: string,
     params?: GetApiItemPriceItemTagParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -6978,12 +9515,12 @@ export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getA
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTag>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -6991,9 +9528,9 @@ export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getA
 stackable items are reduced to a single item
  */
 
-export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTag>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -7012,18 +9549,51 @@ export function useGetApiItemPriceItemTag<TData = Awaited<ReturnType<typeof getA
 /**
  * @summary Gets the lowest bin by item type
  */
-export const getApiItemPriceItemTagBin = (
-    itemTag: string,
-    params?: GetApiItemPriceItemTagBinParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<BinResponse>> => {
+export type getApiItemPriceItemTagBinResponse200 = {
+  data: BinResponse
+  status: 200
+}
     
+export type getApiItemPriceItemTagBinResponseComposite = getApiItemPriceItemTagBinResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/price/${itemTag}/bin`,{
+export type getApiItemPriceItemTagBinResponse = getApiItemPriceItemTagBinResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemPriceItemTagBinUrl = (itemTag: string,
+    params?: GetApiItemPriceItemTagBinParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/item/price/${itemTag}/bin?${stringifiedParams}` : `https://sky.coflnet.com/api/item/price/${itemTag}/bin`
+}
+
+export const getApiItemPriceItemTagBin = async (itemTag: string,
+    params?: GetApiItemPriceItemTagBinParams, options?: RequestInit): Promise<getApiItemPriceItemTagBinResponse> => {
+  
+  const res = await fetch(getGetApiItemPriceItemTagBinUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemPriceItemTagBinResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemPriceItemTagBinResponse
+}
+
 
 
 export const getGetApiItemPriceItemTagBinQueryKey = (itemTag?: string,
@@ -7032,17 +9602,17 @@ export const getGetApiItemPriceItemTagBinQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiItemPriceItemTagBinQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiItemPriceItemTagBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemPriceItemTagBinQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError = unknown>(itemTag: string,
+    params?: GetApiItemPriceItemTagBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemPriceItemTagBinQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>> = ({ signal }) => getApiItemPriceItemTagBin(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>> = ({ signal }) => getApiItemPriceItemTagBin(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -7052,10 +9622,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemPriceItemTagBinQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>>
-export type GetApiItemPriceItemTagBinQueryError = AxiosError<unknown>
+export type GetApiItemPriceItemTagBinQueryError = unknown
 
 
-export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiItemPriceItemTagBinParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -7063,10 +9633,10 @@ export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof g
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError = unknown>(
  itemTag: string,
     params?: GetApiItemPriceItemTagBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -7074,21 +9644,21 @@ export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof g
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets the lowest bin by item type
  */
 
-export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagBinParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagBin>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -7107,18 +9677,51 @@ export function useGetApiItemPriceItemTagBin<TData = Awaited<ReturnType<typeof g
 /**
  * @summary Gets the current (latest known) price for an item and available quantity, supports items from bazaar and ah
  */
-export const getApiItemPriceItemTagCurrent = (
-    itemTag: string,
-    params?: GetApiItemPriceItemTagCurrentParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<CurrentPrice>> => {
+export type getApiItemPriceItemTagCurrentResponse200 = {
+  data: CurrentPrice
+  status: 200
+}
     
+export type getApiItemPriceItemTagCurrentResponseComposite = getApiItemPriceItemTagCurrentResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/price/${itemTag}/current`,{
+export type getApiItemPriceItemTagCurrentResponse = getApiItemPriceItemTagCurrentResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemPriceItemTagCurrentUrl = (itemTag: string,
+    params?: GetApiItemPriceItemTagCurrentParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/item/price/${itemTag}/current?${stringifiedParams}` : `https://sky.coflnet.com/api/item/price/${itemTag}/current`
+}
+
+export const getApiItemPriceItemTagCurrent = async (itemTag: string,
+    params?: GetApiItemPriceItemTagCurrentParams, options?: RequestInit): Promise<getApiItemPriceItemTagCurrentResponse> => {
+  
+  const res = await fetch(getGetApiItemPriceItemTagCurrentUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemPriceItemTagCurrentResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemPriceItemTagCurrentResponse
+}
+
 
 
 export const getGetApiItemPriceItemTagCurrentQueryKey = (itemTag?: string,
@@ -7127,17 +9730,17 @@ export const getGetApiItemPriceItemTagCurrentQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiItemPriceItemTagCurrentQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiItemPriceItemTagCurrentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemPriceItemTagCurrentQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError = unknown>(itemTag: string,
+    params?: GetApiItemPriceItemTagCurrentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemPriceItemTagCurrentQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>> = ({ signal }) => getApiItemPriceItemTagCurrent(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>> = ({ signal }) => getApiItemPriceItemTagCurrent(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -7147,10 +9750,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemPriceItemTagCurrentQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>>
-export type GetApiItemPriceItemTagCurrentQueryError = AxiosError<unknown>
+export type GetApiItemPriceItemTagCurrentQueryError = unknown
 
 
-export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiItemPriceItemTagCurrentParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -7158,10 +9761,10 @@ export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<type
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError = unknown>(
  itemTag: string,
     params?: GetApiItemPriceItemTagCurrentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -7169,21 +9772,21 @@ export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<type
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagCurrentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagCurrentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets the current (latest known) price for an item and available quantity, supports items from bazaar and ah
  */
 
-export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagCurrentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagCurrentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagCurrent>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -7202,18 +9805,51 @@ export function useGetApiItemPriceItemTagCurrent<TData = Awaited<ReturnType<type
 /**
  * @summary Gets the price history for an item for the last 24 hours
  */
-export const getApiItemPriceItemTagHistoryDay = (
-    itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryDayParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AveragePrice[]>> => {
+export type getApiItemPriceItemTagHistoryDayResponse200 = {
+  data: AveragePrice[]
+  status: 200
+}
     
+export type getApiItemPriceItemTagHistoryDayResponseComposite = getApiItemPriceItemTagHistoryDayResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/price/${itemTag}/history/day`,{
+export type getApiItemPriceItemTagHistoryDayResponse = getApiItemPriceItemTagHistoryDayResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemPriceItemTagHistoryDayUrl = (itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryDayParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/item/price/${itemTag}/history/day?${stringifiedParams}` : `https://sky.coflnet.com/api/item/price/${itemTag}/history/day`
+}
+
+export const getApiItemPriceItemTagHistoryDay = async (itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryDayParams, options?: RequestInit): Promise<getApiItemPriceItemTagHistoryDayResponse> => {
+  
+  const res = await fetch(getGetApiItemPriceItemTagHistoryDayUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemPriceItemTagHistoryDayResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemPriceItemTagHistoryDayResponse
+}
+
 
 
 export const getGetApiItemPriceItemTagHistoryDayQueryKey = (itemTag?: string,
@@ -7222,17 +9858,17 @@ export const getGetApiItemPriceItemTagHistoryDayQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiItemPriceItemTagHistoryDayQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryDayParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemPriceItemTagHistoryDayQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError = unknown>(itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryDayParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemPriceItemTagHistoryDayQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>> = ({ signal }) => getApiItemPriceItemTagHistoryDay(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>> = ({ signal }) => getApiItemPriceItemTagHistoryDay(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -7242,10 +9878,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemPriceItemTagHistoryDayQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>>
-export type GetApiItemPriceItemTagHistoryDayQueryError = AxiosError<unknown>
+export type GetApiItemPriceItemTagHistoryDayQueryError = unknown
 
 
-export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiItemPriceItemTagHistoryDayParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -7253,10 +9889,10 @@ export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<t
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError = unknown>(
  itemTag: string,
     params?: GetApiItemPriceItemTagHistoryDayParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -7264,21 +9900,21 @@ export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<t
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryDayParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagHistoryDayParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets the price history for an item for the last 24 hours
  */
 
-export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryDayParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagHistoryDayParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryDay>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -7297,18 +9933,51 @@ export function useGetApiItemPriceItemTagHistoryDay<TData = Awaited<ReturnType<t
 /**
  * @summary Gets the price history for an item for the last 7 days
  */
-export const getApiItemPriceItemTagHistoryWeek = (
-    itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryWeekParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AveragePrice[]>> => {
+export type getApiItemPriceItemTagHistoryWeekResponse200 = {
+  data: AveragePrice[]
+  status: 200
+}
     
+export type getApiItemPriceItemTagHistoryWeekResponseComposite = getApiItemPriceItemTagHistoryWeekResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/price/${itemTag}/history/week`,{
+export type getApiItemPriceItemTagHistoryWeekResponse = getApiItemPriceItemTagHistoryWeekResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemPriceItemTagHistoryWeekUrl = (itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryWeekParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/item/price/${itemTag}/history/week?${stringifiedParams}` : `https://sky.coflnet.com/api/item/price/${itemTag}/history/week`
+}
+
+export const getApiItemPriceItemTagHistoryWeek = async (itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryWeekParams, options?: RequestInit): Promise<getApiItemPriceItemTagHistoryWeekResponse> => {
+  
+  const res = await fetch(getGetApiItemPriceItemTagHistoryWeekUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemPriceItemTagHistoryWeekResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemPriceItemTagHistoryWeekResponse
+}
+
 
 
 export const getGetApiItemPriceItemTagHistoryWeekQueryKey = (itemTag?: string,
@@ -7317,17 +9986,17 @@ export const getGetApiItemPriceItemTagHistoryWeekQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiItemPriceItemTagHistoryWeekQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryWeekParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemPriceItemTagHistoryWeekQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError = unknown>(itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryWeekParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemPriceItemTagHistoryWeekQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>> = ({ signal }) => getApiItemPriceItemTagHistoryWeek(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>> = ({ signal }) => getApiItemPriceItemTagHistoryWeek(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -7337,10 +10006,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemPriceItemTagHistoryWeekQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>>
-export type GetApiItemPriceItemTagHistoryWeekQueryError = AxiosError<unknown>
+export type GetApiItemPriceItemTagHistoryWeekQueryError = unknown
 
 
-export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiItemPriceItemTagHistoryWeekParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -7348,10 +10017,10 @@ export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError = unknown>(
  itemTag: string,
     params?: GetApiItemPriceItemTagHistoryWeekParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -7359,21 +10028,21 @@ export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryWeekParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagHistoryWeekParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets the price history for an item for the last 7 days
  */
 
-export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryWeekParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagHistoryWeekParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryWeek>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -7392,18 +10061,51 @@ export function useGetApiItemPriceItemTagHistoryWeek<TData = Awaited<ReturnType<
 /**
  * @summary Gets the price history for an item for one month
  */
-export const getApiItemPriceItemTagHistoryMonth = (
-    itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryMonthParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AveragePrice[]>> => {
+export type getApiItemPriceItemTagHistoryMonthResponse200 = {
+  data: AveragePrice[]
+  status: 200
+}
     
+export type getApiItemPriceItemTagHistoryMonthResponseComposite = getApiItemPriceItemTagHistoryMonthResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/price/${itemTag}/history/month`,{
+export type getApiItemPriceItemTagHistoryMonthResponse = getApiItemPriceItemTagHistoryMonthResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemPriceItemTagHistoryMonthUrl = (itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryMonthParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/item/price/${itemTag}/history/month?${stringifiedParams}` : `https://sky.coflnet.com/api/item/price/${itemTag}/history/month`
+}
+
+export const getApiItemPriceItemTagHistoryMonth = async (itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryMonthParams, options?: RequestInit): Promise<getApiItemPriceItemTagHistoryMonthResponse> => {
+  
+  const res = await fetch(getGetApiItemPriceItemTagHistoryMonthUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemPriceItemTagHistoryMonthResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemPriceItemTagHistoryMonthResponse
+}
+
 
 
 export const getGetApiItemPriceItemTagHistoryMonthQueryKey = (itemTag?: string,
@@ -7412,17 +10114,17 @@ export const getGetApiItemPriceItemTagHistoryMonthQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiItemPriceItemTagHistoryMonthQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryMonthParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemPriceItemTagHistoryMonthQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError = unknown>(itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryMonthParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemPriceItemTagHistoryMonthQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>> = ({ signal }) => getApiItemPriceItemTagHistoryMonth(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>> = ({ signal }) => getApiItemPriceItemTagHistoryMonth(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -7432,10 +10134,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemPriceItemTagHistoryMonthQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>>
-export type GetApiItemPriceItemTagHistoryMonthQueryError = AxiosError<unknown>
+export type GetApiItemPriceItemTagHistoryMonthQueryError = unknown
 
 
-export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiItemPriceItemTagHistoryMonthParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -7443,10 +10145,10 @@ export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError = unknown>(
  itemTag: string,
     params?: GetApiItemPriceItemTagHistoryMonthParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -7454,21 +10156,21 @@ export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryMonthParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagHistoryMonthParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets the price history for an item for one month
  */
 
-export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryMonthParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagHistoryMonthParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryMonth>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -7487,15 +10189,42 @@ export function useGetApiItemPriceItemTagHistoryMonth<TData = Awaited<ReturnType
 /**
  * @summary Gets the price history for an item for all time
  */
-export const getApiItemPriceItemTagHistoryFull = (
-    itemTag: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AveragePrice[]>> => {
+export type getApiItemPriceItemTagHistoryFullResponse200 = {
+  data: AveragePrice[]
+  status: 200
+}
+    
+export type getApiItemPriceItemTagHistoryFullResponseComposite = getApiItemPriceItemTagHistoryFullResponse200;
+    
+export type getApiItemPriceItemTagHistoryFullResponse = getApiItemPriceItemTagHistoryFullResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemPriceItemTagHistoryFullUrl = (itemTag: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/item/price/${itemTag}/history/full`
+}
+
+export const getApiItemPriceItemTagHistoryFull = async (itemTag: string, options?: RequestInit): Promise<getApiItemPriceItemTagHistoryFullResponse> => {
+  
+  const res = await fetch(getGetApiItemPriceItemTagHistoryFullUrl(itemTag),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/price/${itemTag}/history/full`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemPriceItemTagHistoryFullResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemPriceItemTagHistoryFullResponse
+}
+
 
 
 export const getGetApiItemPriceItemTagHistoryFullQueryKey = (itemTag?: string,) => {
@@ -7503,16 +10232,16 @@ export const getGetApiItemPriceItemTagHistoryFullQueryKey = (itemTag?: string,) 
     }
 
     
-export const getGetApiItemPriceItemTagHistoryFullQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError = AxiosError<unknown>>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemPriceItemTagHistoryFullQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError = unknown>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemPriceItemTagHistoryFullQueryKey(itemTag);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>> = ({ signal }) => getApiItemPriceItemTagHistoryFull(itemTag, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>> = ({ signal }) => getApiItemPriceItemTagHistoryFull(itemTag, { signal, ...fetchOptions });
 
       
 
@@ -7522,39 +10251,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemPriceItemTagHistoryFullQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>>
-export type GetApiItemPriceItemTagHistoryFullQueryError = AxiosError<unknown>
+export type GetApiItemPriceItemTagHistoryFullQueryError = unknown
 
 
-export function useGetApiItemPriceItemTagHistoryFull<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryFull<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError = unknown>(
  itemTag: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>,
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryFull<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryFull<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError = unknown>(
  itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>,
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryFull<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItemPriceItemTagHistoryFull<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Gets the price history for an item for all time
  */
 
-export function useGetApiItemPriceItemTagHistoryFull<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItemPriceItemTagHistoryFull<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryFull>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -7570,18 +10299,51 @@ export function useGetApiItemPriceItemTagHistoryFull<TData = Awaited<ReturnType<
 
 
 
-export const getApiItemPriceItemTagHistoryYear = (
-    itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryYearParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PriceStatistics>> => {
+export type getApiItemPriceItemTagHistoryYearResponse200 = {
+  data: PriceStatistics
+  status: 200
+}
     
+export type getApiItemPriceItemTagHistoryYearResponseComposite = getApiItemPriceItemTagHistoryYearResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/price/${itemTag}/history/year`,{
+export type getApiItemPriceItemTagHistoryYearResponse = getApiItemPriceItemTagHistoryYearResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemPriceItemTagHistoryYearUrl = (itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryYearParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/item/price/${itemTag}/history/year?${stringifiedParams}` : `https://sky.coflnet.com/api/item/price/${itemTag}/history/year`
+}
+
+export const getApiItemPriceItemTagHistoryYear = async (itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryYearParams, options?: RequestInit): Promise<getApiItemPriceItemTagHistoryYearResponse> => {
+  
+  const res = await fetch(getGetApiItemPriceItemTagHistoryYearUrl(itemTag,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemPriceItemTagHistoryYearResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemPriceItemTagHistoryYearResponse
+}
+
 
 
 export const getGetApiItemPriceItemTagHistoryYearQueryKey = (itemTag?: string,
@@ -7590,17 +10352,17 @@ export const getGetApiItemPriceItemTagHistoryYearQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiItemPriceItemTagHistoryYearQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = AxiosError<unknown>>(itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemPriceItemTagHistoryYearQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = unknown>(itemTag: string,
+    params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemPriceItemTagHistoryYearQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>> = ({ signal }) => getApiItemPriceItemTagHistoryYear(itemTag,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>> = ({ signal }) => getApiItemPriceItemTagHistoryYear(itemTag,params, { signal, ...fetchOptions });
 
       
 
@@ -7610,10 +10372,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemPriceItemTagHistoryYearQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>>
-export type GetApiItemPriceItemTagHistoryYearQueryError = AxiosError<unknown>
+export type GetApiItemPriceItemTagHistoryYearQueryError = unknown
 
 
-export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiItemPriceItemTagHistoryYearParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -7621,10 +10383,10 @@ export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = unknown>(
  itemTag: string,
     params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -7632,18 +10394,18 @@ export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<
           TError,
           Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = AxiosError<unknown>>(
+export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = unknown>(
  itemTag: string,
-    params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -7662,17 +10424,49 @@ export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<
 /**
  * @summary Returns all available filters with all available options
  */
-export const getApiFilterOptions = (
-    params?: GetApiFilterOptionsParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<FilterOptions[]>> => {
+export type getApiFilterOptionsResponse200 = {
+  data: FilterOptions[]
+  status: 200
+}
     
+export type getApiFilterOptionsResponseComposite = getApiFilterOptionsResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/filter/options`,{
+export type getApiFilterOptionsResponse = getApiFilterOptionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFilterOptionsUrl = (params?: GetApiFilterOptionsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/filter/options?${stringifiedParams}` : `https://sky.coflnet.com/api/filter/options`
+}
+
+export const getApiFilterOptions = async (params?: GetApiFilterOptionsParams, options?: RequestInit): Promise<getApiFilterOptionsResponse> => {
+  
+  const res = await fetch(getGetApiFilterOptionsUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFilterOptionsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFilterOptionsResponse
+}
+
 
 
 export const getGetApiFilterOptionsQueryKey = (params?: GetApiFilterOptionsParams,) => {
@@ -7680,16 +10474,16 @@ export const getGetApiFilterOptionsQueryKey = (params?: GetApiFilterOptionsParam
     }
 
     
-export const getGetApiFilterOptionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiFilterOptions>>, TError = AxiosError<unknown>>(params?: GetApiFilterOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilterOptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiFilterOptionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiFilterOptions>>, TError = unknown>(params?: GetApiFilterOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilterOptions>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiFilterOptionsQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFilterOptions>>> = ({ signal }) => getApiFilterOptions(params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFilterOptions>>> = ({ signal }) => getApiFilterOptions(params, { signal, ...fetchOptions });
 
       
 
@@ -7699,39 +10493,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiFilterOptionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFilterOptions>>>
-export type GetApiFilterOptionsQueryError = AxiosError<unknown>
+export type GetApiFilterOptionsQueryError = unknown
 
 
-export function useGetApiFilterOptions<TData = Awaited<ReturnType<typeof getApiFilterOptions>>, TError = AxiosError<unknown>>(
+export function useGetApiFilterOptions<TData = Awaited<ReturnType<typeof getApiFilterOptions>>, TError = unknown>(
  params: undefined |  GetApiFilterOptionsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilterOptions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFilterOptions>>,
           TError,
           Awaited<ReturnType<typeof getApiFilterOptions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFilterOptions<TData = Awaited<ReturnType<typeof getApiFilterOptions>>, TError = AxiosError<unknown>>(
+export function useGetApiFilterOptions<TData = Awaited<ReturnType<typeof getApiFilterOptions>>, TError = unknown>(
  params?: GetApiFilterOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilterOptions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFilterOptions>>,
           TError,
           Awaited<ReturnType<typeof getApiFilterOptions>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFilterOptions<TData = Awaited<ReturnType<typeof getApiFilterOptions>>, TError = AxiosError<unknown>>(
- params?: GetApiFilterOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilterOptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFilterOptions<TData = Awaited<ReturnType<typeof getApiFilterOptions>>, TError = unknown>(
+ params?: GetApiFilterOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilterOptions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns all available filters with all available options
  */
 
-export function useGetApiFilterOptions<TData = Awaited<ReturnType<typeof getApiFilterOptions>>, TError = AxiosError<unknown>>(
- params?: GetApiFilterOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilterOptions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiFilterOptions<TData = Awaited<ReturnType<typeof getApiFilterOptions>>, TError = unknown>(
+ params?: GetApiFilterOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFilterOptions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -7747,29 +10541,66 @@ export function useGetApiFilterOptions<TData = Awaited<ReturnType<typeof getApiF
 
 
 
-export const postApiItemFilters = (
-    itemRepresent: ItemRepresent, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PostApiItemFilters200One | PostApiItemFilters200Two | PostApiItemFilters200Three>> => {
+export type postApiItemFiltersResponse200TextPlain = {
+  data: PostApiItemFilters200One
+  status: 200
+}
+
+export type postApiItemFiltersResponse200ApplicationJson = {
+  data: PostApiItemFilters200Two
+  status: 200
+}
+
+export type postApiItemFiltersResponse200TextJson = {
+  data: PostApiItemFilters200Three
+  status: 200
+}
     
+export type postApiItemFiltersResponseComposite = postApiItemFiltersResponse200TextPlain | postApiItemFiltersResponse200ApplicationJson | postApiItemFiltersResponse200TextJson;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/item/filters`,
-      itemRepresent,options
-    );
+export type postApiItemFiltersResponse = postApiItemFiltersResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiItemFiltersUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/item/filters`
+}
+
+export const postApiItemFilters = async (itemRepresent: ItemRepresent, options?: RequestInit): Promise<postApiItemFiltersResponse> => {
+  
+  const res = await fetch(getPostApiItemFiltersUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      itemRepresent,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiItemFiltersResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiItemFiltersResponse
+}
 
 
 
-export const getPostApiItemFiltersMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiItemFilters>>, TError,{data: ItemRepresent}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiItemFiltersMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiItemFilters>>, TError,{data: ItemRepresent}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiItemFilters>>, TError,{data: ItemRepresent}, TContext> => {
 
 const mutationKey = ['postApiItemFilters'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -7777,7 +10608,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiItemFilters>>, {data: ItemRepresent}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiItemFilters(data,axiosOptions)
+          return  postApiItemFilters(data,fetchOptions)
         }
 
         
@@ -7787,10 +10618,10 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiItemFiltersMutationResult = NonNullable<Awaited<ReturnType<typeof postApiItemFilters>>>
     export type PostApiItemFiltersMutationBody = ItemRepresent
-    export type PostApiItemFiltersMutationError = AxiosError<unknown>
+    export type PostApiItemFiltersMutationError = unknown
 
-    export const usePostApiItemFilters = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiItemFilters>>, TError,{data: ItemRepresent}, TContext>, axios?: AxiosRequestConfig}
+    export const usePostApiItemFilters = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiItemFilters>>, TError,{data: ItemRepresent}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiItemFilters>>,
         TError,
@@ -7807,29 +10638,56 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
  * @summary Returns price estimations for nbt data (for in game mods) 
 NOTE: THIS WILL probably BE A PAID FEATURE IN THE FUTURE
  */
-export const postApiPriceNbt = (
-    inventoryData: InventoryData, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PriceEstimate[]>> => {
+export type postApiPriceNbtResponse200 = {
+  data: PriceEstimate[]
+  status: 200
+}
     
+export type postApiPriceNbtResponseComposite = postApiPriceNbtResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/price/nbt`,
-      inventoryData,options
-    );
+export type postApiPriceNbtResponse = postApiPriceNbtResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiPriceNbtUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/price/nbt`
+}
+
+export const postApiPriceNbt = async (inventoryData: InventoryData, options?: RequestInit): Promise<postApiPriceNbtResponse> => {
+  
+  const res = await fetch(getPostApiPriceNbtUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      inventoryData,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiPriceNbtResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiPriceNbtResponse
+}
 
 
 
-export const getPostApiPriceNbtMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPriceNbt>>, TError,{data: InventoryData}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiPriceNbtMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPriceNbt>>, TError,{data: InventoryData}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiPriceNbt>>, TError,{data: InventoryData}, TContext> => {
 
 const mutationKey = ['postApiPriceNbt'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -7837,7 +10695,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPriceNbt>>, {data: InventoryData}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiPriceNbt(data,axiosOptions)
+          return  postApiPriceNbt(data,fetchOptions)
         }
 
         
@@ -7847,14 +10705,14 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiPriceNbtMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPriceNbt>>>
     export type PostApiPriceNbtMutationBody = InventoryData
-    export type PostApiPriceNbtMutationError = AxiosError<unknown>
+    export type PostApiPriceNbtMutationError = unknown
 
     /**
  * @summary Returns price estimations for nbt data (for in game mods) 
 NOTE: THIS WILL probably BE A PAID FEATURE IN THE FUTURE
  */
-export const usePostApiPriceNbt = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPriceNbt>>, TError,{data: InventoryData}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiPriceNbt = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPriceNbt>>, TError,{data: InventoryData}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPriceNbt>>,
         TError,
@@ -7870,15 +10728,52 @@ export const usePostApiPriceNbt = <TError = AxiosError<unknown>,
 /**
  * @summary Returns price in NEU format - but more accurate
  */
-export const getApiPricesNeu = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetApiPricesNeu200One | GetApiPricesNeu200Two | GetApiPricesNeu200Three>> => {
+export type getApiPricesNeuResponse200TextPlain = {
+  data: GetApiPricesNeu200One
+  status: 200
+}
+
+export type getApiPricesNeuResponse200ApplicationJson = {
+  data: GetApiPricesNeu200Two
+  status: 200
+}
+
+export type getApiPricesNeuResponse200TextJson = {
+  data: GetApiPricesNeu200Three
+  status: 200
+}
+    
+export type getApiPricesNeuResponseComposite = getApiPricesNeuResponse200TextPlain | getApiPricesNeuResponse200ApplicationJson | getApiPricesNeuResponse200TextJson;
+    
+export type getApiPricesNeuResponse = getApiPricesNeuResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiPricesNeuUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/prices/neu`
+}
+
+export const getApiPricesNeu = async ( options?: RequestInit): Promise<getApiPricesNeuResponse> => {
+  
+  const res = await fetch(getGetApiPricesNeuUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/prices/neu`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiPricesNeuResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiPricesNeuResponse
+}
+
 
 
 export const getGetApiPricesNeuQueryKey = () => {
@@ -7886,16 +10781,16 @@ export const getGetApiPricesNeuQueryKey = () => {
     }
 
     
-export const getGetApiPricesNeuQueryOptions = <TData = Awaited<ReturnType<typeof getApiPricesNeu>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPricesNeu>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiPricesNeuQueryOptions = <TData = Awaited<ReturnType<typeof getApiPricesNeu>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPricesNeu>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiPricesNeuQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPricesNeu>>> = ({ signal }) => getApiPricesNeu({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPricesNeu>>> = ({ signal }) => getApiPricesNeu({ signal, ...fetchOptions });
 
       
 
@@ -7905,39 +10800,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiPricesNeuQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPricesNeu>>>
-export type GetApiPricesNeuQueryError = AxiosError<unknown>
+export type GetApiPricesNeuQueryError = unknown
 
 
-export function useGetApiPricesNeu<TData = Awaited<ReturnType<typeof getApiPricesNeu>>, TError = AxiosError<unknown>>(
+export function useGetApiPricesNeu<TData = Awaited<ReturnType<typeof getApiPricesNeu>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPricesNeu>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPricesNeu>>,
           TError,
           Awaited<ReturnType<typeof getApiPricesNeu>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPricesNeu<TData = Awaited<ReturnType<typeof getApiPricesNeu>>, TError = AxiosError<unknown>>(
+export function useGetApiPricesNeu<TData = Awaited<ReturnType<typeof getApiPricesNeu>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPricesNeu>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPricesNeu>>,
           TError,
           Awaited<ReturnType<typeof getApiPricesNeu>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPricesNeu<TData = Awaited<ReturnType<typeof getApiPricesNeu>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPricesNeu>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiPricesNeu<TData = Awaited<ReturnType<typeof getApiPricesNeu>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPricesNeu>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns price in NEU format - but more accurate
  */
 
-export function useGetApiPricesNeu<TData = Awaited<ReturnType<typeof getApiPricesNeu>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPricesNeu>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiPricesNeu<TData = Awaited<ReturnType<typeof getApiPricesNeu>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPricesNeu>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -7956,15 +10851,52 @@ export function useGetApiPricesNeu<TData = Awaited<ReturnType<typeof getApiPrice
 /**
  * @deprecated
  */
-export const getApiPriceAttributes = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetApiPriceAttributes200One | GetApiPriceAttributes200Two | GetApiPriceAttributes200Three>> => {
+export type getApiPriceAttributesResponse200TextPlain = {
+  data: GetApiPriceAttributes200One
+  status: 200
+}
+
+export type getApiPriceAttributesResponse200ApplicationJson = {
+  data: GetApiPriceAttributes200Two
+  status: 200
+}
+
+export type getApiPriceAttributesResponse200TextJson = {
+  data: GetApiPriceAttributes200Three
+  status: 200
+}
+    
+export type getApiPriceAttributesResponseComposite = getApiPriceAttributesResponse200TextPlain | getApiPriceAttributesResponse200ApplicationJson | getApiPriceAttributesResponse200TextJson;
+    
+export type getApiPriceAttributesResponse = getApiPriceAttributesResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiPriceAttributesUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/price/attributes`
+}
+
+export const getApiPriceAttributes = async ( options?: RequestInit): Promise<getApiPriceAttributesResponse> => {
+  
+  const res = await fetch(getGetApiPriceAttributesUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/price/attributes`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiPriceAttributesResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiPriceAttributesResponse
+}
+
 
 
 export const getGetApiPriceAttributesQueryKey = () => {
@@ -7972,16 +10904,16 @@ export const getGetApiPriceAttributesQueryKey = () => {
     }
 
     
-export const getGetApiPriceAttributesQueryOptions = <TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPriceAttributes>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiPriceAttributesQueryOptions = <TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPriceAttributes>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiPriceAttributesQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPriceAttributes>>> = ({ signal }) => getApiPriceAttributes({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPriceAttributes>>> = ({ signal }) => getApiPriceAttributes({ signal, ...fetchOptions });
 
       
 
@@ -7991,39 +10923,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiPriceAttributesQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPriceAttributes>>>
-export type GetApiPriceAttributesQueryError = AxiosError<unknown>
+export type GetApiPriceAttributesQueryError = unknown
 
 
-export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = AxiosError<unknown>>(
+export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPriceAttributes>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPriceAttributes>>,
           TError,
           Awaited<ReturnType<typeof getApiPriceAttributes>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = AxiosError<unknown>>(
+export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPriceAttributes>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPriceAttributes>>,
           TError,
           Awaited<ReturnType<typeof getApiPriceAttributes>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPriceAttributes>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPriceAttributes>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @deprecated
  */
 
-export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPriceAttributes>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPriceAttributes>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -8043,17 +10975,42 @@ export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getAp
  * @deprecated
  * @summary Returns bazaar history
  */
-export const getApiBazaarItemHistoryItemTagStatus = (
-    itemTag: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<string>> => {
+export type getApiBazaarItemHistoryItemTagStatusResponse200 = {
+  data: string
+  status: 200
+}
+    
+export type getApiBazaarItemHistoryItemTagStatusResponseComposite = getApiBazaarItemHistoryItemTagStatusResponse200;
+    
+export type getApiBazaarItemHistoryItemTagStatusResponse = getApiBazaarItemHistoryItemTagStatusResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiBazaarItemHistoryItemTagStatusUrl = (itemTag: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/bazaar/item/history/${itemTag}/status`
+}
+
+export const getApiBazaarItemHistoryItemTagStatus = async (itemTag: string, options?: RequestInit): Promise<getApiBazaarItemHistoryItemTagStatusResponse> => {
+  
+  const res = await fetch(getGetApiBazaarItemHistoryItemTagStatusUrl(itemTag),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/bazaar/item/history/${itemTag}/status`,{
-        responseType: 'text',
-    ...options,}
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiBazaarItemHistoryItemTagStatusResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiBazaarItemHistoryItemTagStatusResponse
+}
+
 
 
 export const getGetApiBazaarItemHistoryItemTagStatusQueryKey = (itemTag?: string,) => {
@@ -8061,16 +11018,16 @@ export const getGetApiBazaarItemHistoryItemTagStatusQueryKey = (itemTag?: string
     }
 
     
-export const getGetApiBazaarItemHistoryItemTagStatusQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError = AxiosError<unknown>>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiBazaarItemHistoryItemTagStatusQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError = unknown>(itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiBazaarItemHistoryItemTagStatusQueryKey(itemTag);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>> = ({ signal }) => getApiBazaarItemHistoryItemTagStatus(itemTag, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>> = ({ signal }) => getApiBazaarItemHistoryItemTagStatus(itemTag, { signal, ...fetchOptions });
 
       
 
@@ -8080,31 +11037,31 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiBazaarItemHistoryItemTagStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>>
-export type GetApiBazaarItemHistoryItemTagStatusQueryError = AxiosError<unknown>
+export type GetApiBazaarItemHistoryItemTagStatusQueryError = unknown
 
 
-export function useGetApiBazaarItemHistoryItemTagStatus<TData = Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemHistoryItemTagStatus<TData = Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError = unknown>(
  itemTag: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>,
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemHistoryItemTagStatus<TData = Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError = AxiosError<unknown>>(
+export function useGetApiBazaarItemHistoryItemTagStatus<TData = Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError = unknown>(
  itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>,
           TError,
           Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemHistoryItemTagStatus<TData = Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiBazaarItemHistoryItemTagStatus<TData = Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -8112,8 +11069,8 @@ export function useGetApiBazaarItemHistoryItemTagStatus<TData = Awaited<ReturnTy
  * @summary Returns bazaar history
  */
 
-export function useGetApiBazaarItemHistoryItemTagStatus<TData = Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError = AxiosError<unknown>>(
- itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiBazaarItemHistoryItemTagStatus<TData = Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError = unknown>(
+ itemTag: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemHistoryItemTagStatus>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -8132,29 +11089,56 @@ export function useGetApiBazaarItemHistoryItemTagStatus<TData = Awaited<ReturnTy
 /**
  * @summary Networth estimation for a profile based on market data
  */
-export const postApiNetworth = (
-    profile: Profile, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<NetworthBreakDown>> => {
+export type postApiNetworthResponse200 = {
+  data: NetworthBreakDown
+  status: 200
+}
     
+export type postApiNetworthResponseComposite = postApiNetworthResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/networth`,
-      profile,options
-    );
+export type postApiNetworthResponse = postApiNetworthResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiNetworthUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/networth`
+}
+
+export const postApiNetworth = async (profile: Profile, options?: RequestInit): Promise<postApiNetworthResponse> => {
+  
+  const res = await fetch(getPostApiNetworthUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      profile,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiNetworthResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiNetworthResponse
+}
 
 
 
-export const getPostApiNetworthMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNetworth>>, TError,{data: Profile}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiNetworthMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNetworth>>, TError,{data: Profile}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiNetworth>>, TError,{data: Profile}, TContext> => {
 
 const mutationKey = ['postApiNetworth'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -8162,7 +11146,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiNetworth>>, {data: Profile}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiNetworth(data,axiosOptions)
+          return  postApiNetworth(data,fetchOptions)
         }
 
         
@@ -8172,13 +11156,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiNetworthMutationResult = NonNullable<Awaited<ReturnType<typeof postApiNetworth>>>
     export type PostApiNetworthMutationBody = Profile
-    export type PostApiNetworthMutationError = AxiosError<unknown>
+    export type PostApiNetworthMutationError = unknown
 
     /**
  * @summary Networth estimation for a profile based on market data
  */
-export const usePostApiNetworth = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNetworth>>, TError,{data: Profile}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiNetworth = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNetworth>>, TError,{data: Profile}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiNetworth>>,
         TError,
@@ -8194,29 +11178,66 @@ export const usePostApiNetworth = <TError = AxiosError<unknown>,
 /**
  * @summary Networth estimation for a profile based on market data
  */
-export const postApiProfileItems = (
-    member: Member, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PostApiProfileItems200One | PostApiProfileItems200Two | PostApiProfileItems200Three>> => {
+export type postApiProfileItemsResponse200TextPlain = {
+  data: PostApiProfileItems200One
+  status: 200
+}
+
+export type postApiProfileItemsResponse200ApplicationJson = {
+  data: PostApiProfileItems200Two
+  status: 200
+}
+
+export type postApiProfileItemsResponse200TextJson = {
+  data: PostApiProfileItems200Three
+  status: 200
+}
     
+export type postApiProfileItemsResponseComposite = postApiProfileItemsResponse200TextPlain | postApiProfileItemsResponse200ApplicationJson | postApiProfileItemsResponse200TextJson;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/profile/items`,
-      member,options
-    );
+export type postApiProfileItemsResponse = postApiProfileItemsResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiProfileItemsUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/profile/items`
+}
+
+export const postApiProfileItems = async (member: Member, options?: RequestInit): Promise<postApiProfileItemsResponse> => {
+  
+  const res = await fetch(getPostApiProfileItemsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      member,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiProfileItemsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiProfileItemsResponse
+}
 
 
 
-export const getPostApiProfileItemsMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProfileItems>>, TError,{data: Member}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiProfileItemsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProfileItems>>, TError,{data: Member}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiProfileItems>>, TError,{data: Member}, TContext> => {
 
 const mutationKey = ['postApiProfileItems'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -8224,7 +11245,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiProfileItems>>, {data: Member}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiProfileItems(data,axiosOptions)
+          return  postApiProfileItems(data,fetchOptions)
         }
 
         
@@ -8234,13 +11255,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiProfileItemsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiProfileItems>>>
     export type PostApiProfileItemsMutationBody = Member
-    export type PostApiProfileItemsMutationError = AxiosError<unknown>
+    export type PostApiProfileItemsMutationError = unknown
 
     /**
  * @summary Networth estimation for a profile based on market data
  */
-export const usePostApiProfileItems = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProfileItems>>, TError,{data: Member}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiProfileItems = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProfileItems>>, TError,{data: Member}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiProfileItems>>,
         TError,
@@ -8256,29 +11277,56 @@ export const usePostApiProfileItems = <TError = AxiosError<unknown>,
 /**
  * @summary tells the backend that the user was referred by someone
  */
-export const postApiReferralReferredBy = (
-    referredBy: ReferredBy, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type postApiReferralReferredByResponse200 = {
+  data: null
+  status: 200
+}
     
+export type postApiReferralReferredByResponseComposite = postApiReferralReferredByResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/referral/referred/by`,
-      referredBy,options
-    );
+export type postApiReferralReferredByResponse = postApiReferralReferredByResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiReferralReferredByUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/referral/referred/by`
+}
+
+export const postApiReferralReferredBy = async (referredBy: ReferredBy, options?: RequestInit): Promise<postApiReferralReferredByResponse> => {
+  
+  const res = await fetch(getPostApiReferralReferredByUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      referredBy,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiReferralReferredByResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiReferralReferredByResponse
+}
 
 
 
-export const getPostApiReferralReferredByMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiReferralReferredBy>>, TError,{data: ReferredBy}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiReferralReferredByMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiReferralReferredBy>>, TError,{data: ReferredBy}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiReferralReferredBy>>, TError,{data: ReferredBy}, TContext> => {
 
 const mutationKey = ['postApiReferralReferredBy'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -8286,7 +11334,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiReferralReferredBy>>, {data: ReferredBy}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiReferralReferredBy(data,axiosOptions)
+          return  postApiReferralReferredBy(data,fetchOptions)
         }
 
         
@@ -8296,13 +11344,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiReferralReferredByMutationResult = NonNullable<Awaited<ReturnType<typeof postApiReferralReferredBy>>>
     export type PostApiReferralReferredByMutationBody = ReferredBy
-    export type PostApiReferralReferredByMutationError = AxiosError<unknown>
+    export type PostApiReferralReferredByMutationError = unknown
 
     /**
  * @summary tells the backend that the user was referred by someone
  */
-export const usePostApiReferralReferredBy = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiReferralReferredBy>>, TError,{data: ReferredBy}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiReferralReferredBy = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiReferralReferredBy>>, TError,{data: ReferredBy}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiReferralReferredBy>>,
         TError,
@@ -8318,15 +11366,42 @@ export const usePostApiReferralReferredBy = <TError = AxiosError<unknown>,
 /**
  * @summary Returns ReferralCode and statistics for the user
  */
-export const getApiReferralInfo = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<ReferralInfo>> => {
+export type getApiReferralInfoResponse200 = {
+  data: ReferralInfo
+  status: 200
+}
+    
+export type getApiReferralInfoResponseComposite = getApiReferralInfoResponse200;
+    
+export type getApiReferralInfoResponse = getApiReferralInfoResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiReferralInfoUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/referral/info`
+}
+
+export const getApiReferralInfo = async ( options?: RequestInit): Promise<getApiReferralInfoResponse> => {
+  
+  const res = await fetch(getGetApiReferralInfoUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/referral/info`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiReferralInfoResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiReferralInfoResponse
+}
+
 
 
 export const getGetApiReferralInfoQueryKey = () => {
@@ -8334,16 +11409,16 @@ export const getGetApiReferralInfoQueryKey = () => {
     }
 
     
-export const getGetApiReferralInfoQueryOptions = <TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiReferralInfoQueryOptions = <TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiReferralInfoQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiReferralInfo>>> = ({ signal }) => getApiReferralInfo({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiReferralInfo>>> = ({ signal }) => getApiReferralInfo({ signal, ...fetchOptions });
 
       
 
@@ -8353,39 +11428,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiReferralInfoQueryResult = NonNullable<Awaited<ReturnType<typeof getApiReferralInfo>>>
-export type GetApiReferralInfoQueryError = AxiosError<unknown>
+export type GetApiReferralInfoQueryError = unknown
 
 
-export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = AxiosError<unknown>>(
+export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiReferralInfo>>,
           TError,
           Awaited<ReturnType<typeof getApiReferralInfo>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = AxiosError<unknown>>(
+export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiReferralInfo>>,
           TError,
           Awaited<ReturnType<typeof getApiReferralInfo>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns ReferralCode and statistics for the user
  */
 
-export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -8404,15 +11479,42 @@ export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiRe
 /**
  * @summary Searches through all items, includes the rarity of items
  */
-export const getApiItemSearchSearchVal = (
-    searchVal: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<SearchResultItem[]>> => {
+export type getApiItemSearchSearchValResponse200 = {
+  data: SearchResultItem[]
+  status: 200
+}
+    
+export type getApiItemSearchSearchValResponseComposite = getApiItemSearchSearchValResponse200;
+    
+export type getApiItemSearchSearchValResponse = getApiItemSearchSearchValResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiItemSearchSearchValUrl = (searchVal: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/item/search/${searchVal}`
+}
+
+export const getApiItemSearchSearchVal = async (searchVal: string, options?: RequestInit): Promise<getApiItemSearchSearchValResponse> => {
+  
+  const res = await fetch(getGetApiItemSearchSearchValUrl(searchVal),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/item/search/${searchVal}`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiItemSearchSearchValResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiItemSearchSearchValResponse
+}
+
 
 
 export const getGetApiItemSearchSearchValQueryKey = (searchVal?: string,) => {
@@ -8420,16 +11522,16 @@ export const getGetApiItemSearchSearchValQueryKey = (searchVal?: string,) => {
     }
 
     
-export const getGetApiItemSearchSearchValQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = AxiosError<unknown>>(searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiItemSearchSearchValQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiItemSearchSearchValQueryKey(searchVal);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>> = ({ signal }) => getApiItemSearchSearchVal(searchVal, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>> = ({ signal }) => getApiItemSearchSearchVal(searchVal, { signal, ...fetchOptions });
 
       
 
@@ -8439,39 +11541,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiItemSearchSearchValQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>>
-export type GetApiItemSearchSearchValQueryError = AxiosError<unknown>
+export type GetApiItemSearchSearchValQueryError = unknown
 
 
-export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = AxiosError<unknown>>(
+export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(
  searchVal: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemSearchSearchVal>>,
           TError,
           Awaited<ReturnType<typeof getApiItemSearchSearchVal>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = AxiosError<unknown>>(
+export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(
  searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemSearchSearchVal>>,
           TError,
           Awaited<ReturnType<typeof getApiItemSearchSearchVal>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = AxiosError<unknown>>(
- searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(
+ searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Searches through all items, includes the rarity of items
  */
 
-export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = AxiosError<unknown>>(
- searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(
+ searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -8490,18 +11592,51 @@ export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof g
 /**
  * @summary Full search, includes item types, items (by uuid), players, auctions and enchantments
  */
-export const getApiSearchSearchVal = (
-    searchVal: string,
-    params?: GetApiSearchSearchValParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<SearchResultItem[]>> => {
+export type getApiSearchSearchValResponse200 = {
+  data: SearchResultItem[]
+  status: 200
+}
     
+export type getApiSearchSearchValResponseComposite = getApiSearchSearchValResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/search/${searchVal}`,{
+export type getApiSearchSearchValResponse = getApiSearchSearchValResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiSearchSearchValUrl = (searchVal: string,
+    params?: GetApiSearchSearchValParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/search/${searchVal}?${stringifiedParams}` : `https://sky.coflnet.com/api/search/${searchVal}`
+}
+
+export const getApiSearchSearchVal = async (searchVal: string,
+    params?: GetApiSearchSearchValParams, options?: RequestInit): Promise<getApiSearchSearchValResponse> => {
+  
+  const res = await fetch(getGetApiSearchSearchValUrl(searchVal,params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    
+    
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiSearchSearchValResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiSearchSearchValResponse
+}
+
 
 
 export const getGetApiSearchSearchValQueryKey = (searchVal?: string,
@@ -8510,17 +11645,17 @@ export const getGetApiSearchSearchValQueryKey = (searchVal?: string,
     }
 
     
-export const getGetApiSearchSearchValQueryOptions = <TData = Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError = AxiosError<unknown>>(searchVal: string,
-    params?: GetApiSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiSearchSearchValQueryOptions = <TData = Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError = unknown>(searchVal: string,
+    params?: GetApiSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiSearchSearchValQueryKey(searchVal,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiSearchSearchVal>>> = ({ signal }) => getApiSearchSearchVal(searchVal,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiSearchSearchVal>>> = ({ signal }) => getApiSearchSearchVal(searchVal,params, { signal, ...fetchOptions });
 
       
 
@@ -8530,10 +11665,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiSearchSearchValQueryResult = NonNullable<Awaited<ReturnType<typeof getApiSearchSearchVal>>>
-export type GetApiSearchSearchValQueryError = AxiosError<unknown>
+export type GetApiSearchSearchValQueryError = unknown
 
 
-export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError = AxiosError<unknown>>(
+export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError = unknown>(
  searchVal: string,
     params: undefined |  GetApiSearchSearchValParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -8541,10 +11676,10 @@ export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getAp
           TError,
           Awaited<ReturnType<typeof getApiSearchSearchVal>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError = AxiosError<unknown>>(
+export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError = unknown>(
  searchVal: string,
     params?: GetApiSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -8552,21 +11687,21 @@ export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getAp
           TError,
           Awaited<ReturnType<typeof getApiSearchSearchVal>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError = AxiosError<unknown>>(
+export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError = unknown>(
  searchVal: string,
-    params?: GetApiSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Full search, includes item types, items (by uuid), players, auctions and enchantments
  */
 
-export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError = AxiosError<unknown>>(
+export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError = unknown>(
  searchVal: string,
-    params?: GetApiSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -8585,15 +11720,42 @@ export function useGetApiSearchSearchVal<TData = Awaited<ReturnType<typeof getAp
 /**
  * @summary Search player
  */
-export const getApiSearchPlayerPlayerName = (
-    playerName: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PlayerResult[]>> => {
+export type getApiSearchPlayerPlayerNameResponse200 = {
+  data: PlayerResult[]
+  status: 200
+}
+    
+export type getApiSearchPlayerPlayerNameResponseComposite = getApiSearchPlayerPlayerNameResponse200;
+    
+export type getApiSearchPlayerPlayerNameResponse = getApiSearchPlayerPlayerNameResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiSearchPlayerPlayerNameUrl = (playerName: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/search/player/${playerName}`
+}
+
+export const getApiSearchPlayerPlayerName = async (playerName: string, options?: RequestInit): Promise<getApiSearchPlayerPlayerNameResponse> => {
+  
+  const res = await fetch(getGetApiSearchPlayerPlayerNameUrl(playerName),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/search/player/${playerName}`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiSearchPlayerPlayerNameResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiSearchPlayerPlayerNameResponse
+}
+
 
 
 export const getGetApiSearchPlayerPlayerNameQueryKey = (playerName?: string,) => {
@@ -8601,16 +11763,16 @@ export const getGetApiSearchPlayerPlayerNameQueryKey = (playerName?: string,) =>
     }
 
     
-export const getGetApiSearchPlayerPlayerNameQueryOptions = <TData = Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError = AxiosError<unknown>>(playerName: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiSearchPlayerPlayerNameQueryOptions = <TData = Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError = unknown>(playerName: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiSearchPlayerPlayerNameQueryKey(playerName);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>> = ({ signal }) => getApiSearchPlayerPlayerName(playerName, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>> = ({ signal }) => getApiSearchPlayerPlayerName(playerName, { signal, ...fetchOptions });
 
       
 
@@ -8620,39 +11782,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiSearchPlayerPlayerNameQueryResult = NonNullable<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>>
-export type GetApiSearchPlayerPlayerNameQueryError = AxiosError<unknown>
+export type GetApiSearchPlayerPlayerNameQueryError = unknown
 
 
-export function useGetApiSearchPlayerPlayerName<TData = Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError = AxiosError<unknown>>(
+export function useGetApiSearchPlayerPlayerName<TData = Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError = unknown>(
  playerName: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>,
           TError,
           Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiSearchPlayerPlayerName<TData = Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError = AxiosError<unknown>>(
+export function useGetApiSearchPlayerPlayerName<TData = Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError = unknown>(
  playerName: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>,
           TError,
           Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiSearchPlayerPlayerName<TData = Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError = AxiosError<unknown>>(
- playerName: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiSearchPlayerPlayerName<TData = Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError = unknown>(
+ playerName: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Search player
  */
 
-export function useGetApiSearchPlayerPlayerName<TData = Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError = AxiosError<unknown>>(
- playerName: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiSearchPlayerPlayerName<TData = Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError = unknown>(
+ playerName: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiSearchPlayerPlayerName>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -8671,15 +11833,42 @@ export function useGetApiSearchPlayerPlayerName<TData = Awaited<ReturnType<typeo
 /**
  * @summary Returns the last known inventory of the player based on his account token
  */
-export const getApiInventory = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Item[]>> => {
+export type getApiInventoryResponse200 = {
+  data: Item[]
+  status: 200
+}
+    
+export type getApiInventoryResponseComposite = getApiInventoryResponse200;
+    
+export type getApiInventoryResponse = getApiInventoryResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiInventoryUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/inventory`
+}
+
+export const getApiInventory = async ( options?: RequestInit): Promise<getApiInventoryResponse> => {
+  
+  const res = await fetch(getGetApiInventoryUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/inventory`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiInventoryResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiInventoryResponse
+}
+
 
 
 export const getGetApiInventoryQueryKey = () => {
@@ -8687,16 +11876,16 @@ export const getGetApiInventoryQueryKey = () => {
     }
 
     
-export const getGetApiInventoryQueryOptions = <TData = Awaited<ReturnType<typeof getApiInventory>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiInventoryQueryOptions = <TData = Awaited<ReturnType<typeof getApiInventory>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiInventoryQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiInventory>>> = ({ signal }) => getApiInventory({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiInventory>>> = ({ signal }) => getApiInventory({ signal, ...fetchOptions });
 
       
 
@@ -8706,39 +11895,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiInventoryQueryResult = NonNullable<Awaited<ReturnType<typeof getApiInventory>>>
-export type GetApiInventoryQueryError = AxiosError<unknown>
+export type GetApiInventoryQueryError = unknown
 
 
-export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = AxiosError<unknown>>(
+export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiInventory>>,
           TError,
           Awaited<ReturnType<typeof getApiInventory>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = AxiosError<unknown>>(
+export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiInventory>>,
           TError,
           Awaited<ReturnType<typeof getApiInventory>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns the last known inventory of the player based on his account token
  */
 
-export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -8757,29 +11946,56 @@ export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInven
 /**
  * @summary Creates a new trade request
  */
-export const postApiTrades = (
-    tradeRequest: TradeRequest[], options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type postApiTradesResponse200 = {
+  data: null
+  status: 200
+}
     
+export type postApiTradesResponseComposite = postApiTradesResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/trades`,
-      tradeRequest,options
-    );
+export type postApiTradesResponse = postApiTradesResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiTradesUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/trades`
+}
+
+export const postApiTrades = async (tradeRequest: TradeRequest[], options?: RequestInit): Promise<postApiTradesResponse> => {
+  
+  const res = await fetch(getPostApiTradesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      tradeRequest,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiTradesResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiTradesResponse
+}
 
 
 
-export const getPostApiTradesMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTrades>>, TError,{data: TradeRequest[]}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiTradesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTrades>>, TError,{data: TradeRequest[]}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiTrades>>, TError,{data: TradeRequest[]}, TContext> => {
 
 const mutationKey = ['postApiTrades'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -8787,7 +12003,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTrades>>, {data: TradeRequest[]}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiTrades(data,axiosOptions)
+          return  postApiTrades(data,fetchOptions)
         }
 
         
@@ -8797,13 +12013,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiTradesMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTrades>>>
     export type PostApiTradesMutationBody = TradeRequest[]
-    export type PostApiTradesMutationError = AxiosError<unknown>
+    export type PostApiTradesMutationError = unknown
 
     /**
  * @summary Creates a new trade request
  */
-export const usePostApiTrades = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTrades>>, TError,{data: TradeRequest[]}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiTrades = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTrades>>, TError,{data: TradeRequest[]}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiTrades>>,
         TError,
@@ -8819,18 +12035,51 @@ export const usePostApiTrades = <TError = AxiosError<unknown>,
 /**
  * @summary Returns trades based on the given filters
  */
-export const getApiTrades = (
-    getApiTradesBody: GetApiTradesBodyOne | GetApiTradesBodyTwo | GetApiTradesBodyThree | GetApiTradesBodyFour,
-    params?: GetApiTradesParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TradeRequest[]>> => {
+export type getApiTradesResponse200 = {
+  data: TradeRequest[]
+  status: 200
+}
     
+export type getApiTradesResponseComposite = getApiTradesResponse200;
     
-    return axios.get(
-      `https://sky.coflnet.com/api/trades`,{
+export type getApiTradesResponse = getApiTradesResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiTradesUrl = (params?: GetApiTradesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/trades?${stringifiedParams}` : `https://sky.coflnet.com/api/trades`
+}
+
+export const getApiTrades = async (getApiTradesBody: GetApiTradesBodyOne | GetApiTradesBodyTwo | GetApiTradesBodyThree | GetApiTradesBodyFour,
+    params?: GetApiTradesParams, options?: RequestInit): Promise<getApiTradesResponse> => {
+  
+  const res = await fetch(getGetApiTradesUrl(params),
+  {      
     ...options,
-        params: {...params, ...options?.params},}
-    );
+    method: 'GET'
+    ,
+    body: JSON.stringify(
+      getApiTradesBody,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiTradesResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiTradesResponse
+}
+
 
 
 export const getGetApiTradesQueryKey = (getApiTradesBody?: GetApiTradesBodyOne | GetApiTradesBodyTwo | GetApiTradesBodyThree | GetApiTradesBodyFour,
@@ -8839,17 +12088,17 @@ export const getGetApiTradesQueryKey = (getApiTradesBody?: GetApiTradesBodyOne |
     }
 
     
-export const getGetApiTradesQueryOptions = <TData = Awaited<ReturnType<typeof getApiTrades>>, TError = AxiosError<unknown>>(getApiTradesBody: GetApiTradesBodyOne | GetApiTradesBodyTwo | GetApiTradesBodyThree | GetApiTradesBodyFour,
-    params?: GetApiTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTrades>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiTradesQueryOptions = <TData = Awaited<ReturnType<typeof getApiTrades>>, TError = unknown>(getApiTradesBody: GetApiTradesBodyOne | GetApiTradesBodyTwo | GetApiTradesBodyThree | GetApiTradesBodyFour,
+    params?: GetApiTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTrades>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiTradesQueryKey(getApiTradesBody,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTrades>>> = ({ signal }) => getApiTrades(getApiTradesBody,params, { signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTrades>>> = ({ signal }) => getApiTrades(getApiTradesBody,params, { signal, ...fetchOptions });
 
       
 
@@ -8859,10 +12108,10 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiTradesQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTrades>>>
-export type GetApiTradesQueryError = AxiosError<unknown>
+export type GetApiTradesQueryError = unknown
 
 
-export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>, TError = AxiosError<unknown>>(
+export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>, TError = unknown>(
  getApiTradesBody: GetApiTradesBodyOne | GetApiTradesBodyTwo | GetApiTradesBodyThree | GetApiTradesBodyFour,
     params: undefined |  GetApiTradesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTrades>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -8870,10 +12119,10 @@ export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>
           TError,
           Awaited<ReturnType<typeof getApiTrades>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>, TError = AxiosError<unknown>>(
+export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>, TError = unknown>(
  getApiTradesBody: GetApiTradesBodyOne | GetApiTradesBodyTwo | GetApiTradesBodyThree | GetApiTradesBodyFour,
     params?: GetApiTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTrades>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -8881,21 +12130,21 @@ export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>
           TError,
           Awaited<ReturnType<typeof getApiTrades>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>, TError = AxiosError<unknown>>(
+export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>, TError = unknown>(
  getApiTradesBody: GetApiTradesBodyOne | GetApiTradesBodyTwo | GetApiTradesBodyThree | GetApiTradesBodyFour,
-    params?: GetApiTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTrades>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTrades>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Returns trades based on the given filters
  */
 
-export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>, TError = AxiosError<unknown>>(
+export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>, TError = unknown>(
  getApiTradesBody: GetApiTradesBodyOne | GetApiTradesBodyTwo | GetApiTradesBodyThree | GetApiTradesBodyFour,
-    params?: GetApiTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTrades>>, TError, TData>>, axios?: AxiosRequestConfig}
+    params?: GetApiTradesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTrades>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -8914,28 +12163,55 @@ export function useGetApiTrades<TData = Awaited<ReturnType<typeof getApiTrades>>
 /**
  * @summary Deletes the trade with the given id
  */
-export const deleteApiTradesId = (
-    id: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type deleteApiTradesIdResponse200 = {
+  data: null
+  status: 200
+}
+    
+export type deleteApiTradesIdResponseComposite = deleteApiTradesIdResponse200;
+    
+export type deleteApiTradesIdResponse = deleteApiTradesIdResponseComposite & {
+  headers: Headers;
+}
+
+export const getDeleteApiTradesIdUrl = (id: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/trades/${id}`
+}
+
+export const deleteApiTradesId = async (id: string, options?: RequestInit): Promise<deleteApiTradesIdResponse> => {
+  
+  const res = await fetch(getDeleteApiTradesIdUrl(id),
+  {      
+    ...options,
+    method: 'DELETE'
     
     
-    return axios.delete(
-      `https://sky.coflnet.com/api/trades/${id}`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: deleteApiTradesIdResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as deleteApiTradesIdResponse
+}
 
 
 
-export const getDeleteApiTradesIdMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiTradesId>>, TError,{id: string}, TContext>, axios?: AxiosRequestConfig}
+
+export const getDeleteApiTradesIdMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiTradesId>>, TError,{id: string}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteApiTradesId>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['deleteApiTradesId'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -8943,7 +12219,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiTradesId>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  deleteApiTradesId(id,axiosOptions)
+          return  deleteApiTradesId(id,fetchOptions)
         }
 
         
@@ -8953,13 +12229,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type DeleteApiTradesIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiTradesId>>>
     
-    export type DeleteApiTradesIdMutationError = AxiosError<unknown>
+    export type DeleteApiTradesIdMutationError = unknown
 
     /**
  * @summary Deletes the trade with the given id
  */
-export const useDeleteApiTradesId = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiTradesId>>, TError,{id: string}, TContext>, axios?: AxiosRequestConfig}
+export const useDeleteApiTradesId = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiTradesId>>, TError,{id: string}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteApiTradesId>>,
         TError,
@@ -8975,15 +12251,42 @@ export const useDeleteApiTradesId = <TError = AxiosError<unknown>,
 /**
  * @summary Trades of current user
  */
-export const getApiTradesOwn = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TradeRequest[]>> => {
+export type getApiTradesOwnResponse200 = {
+  data: TradeRequest[]
+  status: 200
+}
+    
+export type getApiTradesOwnResponseComposite = getApiTradesOwnResponse200;
+    
+export type getApiTradesOwnResponse = getApiTradesOwnResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiTradesOwnUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/trades/own`
+}
+
+export const getApiTradesOwn = async ( options?: RequestInit): Promise<getApiTradesOwnResponse> => {
+  
+  const res = await fetch(getGetApiTradesOwnUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/trades/own`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiTradesOwnResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiTradesOwnResponse
+}
+
 
 
 export const getGetApiTradesOwnQueryKey = () => {
@@ -8991,16 +12294,16 @@ export const getGetApiTradesOwnQueryKey = () => {
     }
 
     
-export const getGetApiTradesOwnQueryOptions = <TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiTradesOwnQueryOptions = <TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiTradesOwnQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTradesOwn>>> = ({ signal }) => getApiTradesOwn({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTradesOwn>>> = ({ signal }) => getApiTradesOwn({ signal, ...fetchOptions });
 
       
 
@@ -9010,39 +12313,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiTradesOwnQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTradesOwn>>>
-export type GetApiTradesOwnQueryError = AxiosError<unknown>
+export type GetApiTradesOwnQueryError = unknown
 
 
-export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = AxiosError<unknown>>(
+export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiTradesOwn>>,
           TError,
           Awaited<ReturnType<typeof getApiTradesOwn>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = AxiosError<unknown>>(
+export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiTradesOwn>>,
           TError,
           Awaited<ReturnType<typeof getApiTradesOwn>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Trades of current user
  */
 
-export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -9061,15 +12364,42 @@ export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTrade
 /**
  * @summary Get the users privacy settings (requires google token)
  */
-export const getApiUserPrivacy = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PrivacySettings>> => {
+export type getApiUserPrivacyResponse200 = {
+  data: PrivacySettings
+  status: 200
+}
+    
+export type getApiUserPrivacyResponseComposite = getApiUserPrivacyResponse200;
+    
+export type getApiUserPrivacyResponse = getApiUserPrivacyResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiUserPrivacyUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/user/privacy`
+}
+
+export const getApiUserPrivacy = async ( options?: RequestInit): Promise<getApiUserPrivacyResponse> => {
+  
+  const res = await fetch(getGetApiUserPrivacyUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
-    return axios.get(
-      `https://sky.coflnet.com/api/user/privacy`,options
-    );
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiUserPrivacyResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiUserPrivacyResponse
+}
+
 
 
 export const getGetApiUserPrivacyQueryKey = () => {
@@ -9077,16 +12407,16 @@ export const getGetApiUserPrivacyQueryKey = () => {
     }
 
     
-export const getGetApiUserPrivacyQueryOptions = <TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiUserPrivacyQueryOptions = <TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetApiUserPrivacyQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiUserPrivacy>>> = ({ signal }) => getApiUserPrivacy({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiUserPrivacy>>> = ({ signal }) => getApiUserPrivacy({ signal, ...fetchOptions });
 
       
 
@@ -9096,39 +12426,39 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 }
 
 export type GetApiUserPrivacyQueryResult = NonNullable<Awaited<ReturnType<typeof getApiUserPrivacy>>>
-export type GetApiUserPrivacyQueryError = AxiosError<unknown>
+export type GetApiUserPrivacyQueryError = unknown
 
 
-export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = AxiosError<unknown>>(
+export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiUserPrivacy>>,
           TError,
           Awaited<ReturnType<typeof getApiUserPrivacy>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = AxiosError<unknown>>(
+export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiUserPrivacy>>,
           TError,
           Awaited<ReturnType<typeof getApiUserPrivacy>>
         > , 'initialData'
-      >, axios?: AxiosRequestConfig}
+      >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get the users privacy settings (requires google token)
  */
 
-export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>>, axios?: AxiosRequestConfig}
+export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -9147,29 +12477,56 @@ export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUse
 /**
  * @summary Update users privacy settings (requires google token)
  */
-export const postApiUserPrivacy = (
-    privacySettings: PrivacySettings, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<null>> => {
+export type postApiUserPrivacyResponse200 = {
+  data: null
+  status: 200
+}
     
+export type postApiUserPrivacyResponseComposite = postApiUserPrivacyResponse200;
     
-    return axios.post(
-      `https://sky.coflnet.com/api/user/privacy`,
-      privacySettings,options
-    );
+export type postApiUserPrivacyResponse = postApiUserPrivacyResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiUserPrivacyUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/user/privacy`
+}
+
+export const postApiUserPrivacy = async (privacySettings: PrivacySettings, options?: RequestInit): Promise<postApiUserPrivacyResponse> => {
+  
+  const res = await fetch(getPostApiUserPrivacyUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      privacySettings,)
   }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiUserPrivacyResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiUserPrivacyResponse
+}
 
 
 
-export const getPostApiUserPrivacyMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiUserPrivacy>>, TError,{data: PrivacySettings}, TContext>, axios?: AxiosRequestConfig}
+
+export const getPostApiUserPrivacyMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiUserPrivacy>>, TError,{data: PrivacySettings}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiUserPrivacy>>, TError,{data: PrivacySettings}, TContext> => {
 
 const mutationKey = ['postApiUserPrivacy'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+      : {mutation: { mutationKey, }, fetch: undefined};
 
       
 
@@ -9177,7 +12534,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiUserPrivacy>>, {data: PrivacySettings}> = (props) => {
           const {data} = props ?? {};
 
-          return  postApiUserPrivacy(data,axiosOptions)
+          return  postApiUserPrivacy(data,fetchOptions)
         }
 
         
@@ -9187,13 +12544,13 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
     export type PostApiUserPrivacyMutationResult = NonNullable<Awaited<ReturnType<typeof postApiUserPrivacy>>>
     export type PostApiUserPrivacyMutationBody = PrivacySettings
-    export type PostApiUserPrivacyMutationError = AxiosError<unknown>
+    export type PostApiUserPrivacyMutationError = unknown
 
     /**
  * @summary Update users privacy settings (requires google token)
  */
-export const usePostApiUserPrivacy = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiUserPrivacy>>, TError,{data: PrivacySettings}, TContext>, axios?: AxiosRequestConfig}
+export const usePostApiUserPrivacy = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiUserPrivacy>>, TError,{data: PrivacySettings}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiUserPrivacy>>,
         TError,
