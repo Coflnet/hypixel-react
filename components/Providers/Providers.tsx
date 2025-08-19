@@ -1,34 +1,13 @@
 'use client'
 import { MatomoProvider, createInstance } from '@jonkoops/matomo-tracker-react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-import { isServer, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { getQueryClient } from '../../utils/QueryUtils'
 
 const matomoTrackingInstance = createInstance({
     urlBase: 'https://track.coflnet.com',
     siteId: 1
 })
-
-function makeQueryClient() {
-    return new QueryClient({
-        defaultOptions: {
-            queries: {
-                staleTime: 60 * 1000,
-            },
-        },
-    })
-}
-
-let browserQueryClient: QueryClient | undefined = undefined
-
-// https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr
-function getQueryClient() {
-    if (isServer) {
-        return makeQueryClient()
-    } else {
-        if (!browserQueryClient) browserQueryClient = makeQueryClient()
-        return browserQueryClient
-    }
-}
 
 export function Providers({ children }) {
     const queryClient = getQueryClient()
