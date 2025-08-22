@@ -1,0 +1,292 @@
+'use client'
+import React, { ChangeEvent, useEffect, useState } from 'react'
+import { Form, ListGroup } from 'react-bootstrap'
+import Link from 'next/link'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import api from '../../api/ApiHelper'
+import styles from './GenericFlipList.module.css'
+
+export interface SortOption<T> {
+    label: string
+    value: string
+    sortFunction(items: T[], ...args: any[]): T[]
+}
+
+export interface FlipListProps<T> {
+    items: T[]
+    sortOptions: SortOption<T>[]
+    renderFlipContentAction: (item: T, blur: boolean) => React.ReactNode
+    onFlipClick?: (item: T, event: React.MouseEvent) => void
+    filterFunction?: (item: T, nameFilter: string | null | undefined, minimumProfit: number) => boolean
+    getItemKeyAction: (item: T) => string
+    censoredItemGenerator?: (item: T) => T
+    premiumMessage?: string
+    clickMessage?: string
+    showColumns?: boolean
+    customFilters?: React.ReactNode
+    sortFunctionArgs?: any[]
+    customItemWrapper?: (item: T, blur: boolean, key: string, content: React.ReactNode, flipCardClass: string) => React.ReactNode
+    onAfterSignIn?: () => void
+    customHeader?: (isLoggedIn: boolean) => React.ReactNode
+}
+
+let observer: MutationObserver
+
+export function GenericFlipList<T>({
+    items,
+    sortOptions,
+    renderFlipContentAction,
+    onFlipClick,
+    filterFunction,
+    getItemKeyAction,
+    censoredItemGenerator,
+    premiumMessage = "The top 3 flips can only be seen with starter premium or better",
+    clickMessage = "Click on a flip for further details",
+    showColumns = false,
+    customFilters,
+    sortFunctionArgs = [],
+    customItemWrapper,
+    onAfterSignIn,
+    customHeader
+}: FlipListProps<T>) {
+    const [nameFilter, setNameFilter] = useState<string | null>()
+    const [minimumProfit, setMinimumProfit] = useState<number>(0)
+    const [orderBy, setOrderBy] = useState<SortOption<T>>(sortOptions[0])
+    const [hasPremium, setHasPremium] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
+    const [columns, setColumns] = useState<number>()
+
+    useEffect(() => {
+        // reset the blur observer, when something changed
+        setTimeout(setBlurObserver, 100)
+        if (showColumns) {
+            setColumns(getDefaultColumns())
+        }
+    }, [])
+
+    function setBlurObserver() {
+        if (observer) {
+            observer.disconnect()
+        }
+        observer = new MutationObserver(function () {
+            setShowTechSavvyMessage(true)
+        })
+
+        var targets = document.getElementsByClassName('blur')
+        for (var i = 0; i < targets.length; i++) {
+            var config = {
+                attributes: true,
+                childList: true,
+                characterData: true,
+                attributeFilter: ['style']
+            }
+            observer.observe(targets[i], config)
+        }
+    }
+
+    function getDefaultColumns() {
+        const screenWidth = window.innerWidth
+
+        if (screenWidth >= 1424) {
+            return 3
+        } else if (screenWidth >= 768) {
+            return 2
+        } else {
+            return 1
+        }
+    }
+
+    function onAfterLogin() {
+        setIsLoggedIn(true)
+        api.refreshLoadPremiumProducts(products => {
+            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
+        })
+
+        // Call the custom onAfterSignIn if provided
+        if (onAfterSignIn) {
+            onAfterSignIn()
+        }
+    }
+
+    function onNameFilterChange(e: any) {
+        setNameFilter(e.target.value)
+    }
+
+    function onMinimumProfitChange(e: any) {
+        setMinimumProfit(e.target.value)
+    }
+
+    function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
+        let selectedIndex = event.target.options.selectedIndex
+        let value = event.target.options[selectedIndex].getAttribute('value')!
+        let sortOption = sortOptions.find(option => option.value === value)
+        if (sortOption) {
+            setOrderBy(sortOption)
+        }
+    }
+
+    function handleColumnChange(event: ChangeEvent<HTMLSelectElement>) {
+        const value = parseInt(event.target.value, 10)
+        setColumns(value)
+    }
+
+    const blurStyle: React.CSSProperties = {
+        WebkitFilter: 'blur(5px)',
+        msFilter: 'blur(5px)',
+        filter: 'blur(5px)',
+        pointerEvents: 'none'
+    }
+
+    function getListElement(item: T, blur: boolean) {
+        // Apply filtering logic
+        if (filterFunction && !blur) {
+            if (!filterFunction(item, nameFilter, minimumProfit)) {
+                return <span key={getItemKeyAction(item)} />
+            }
+        }
+
+        return (
+            <ListGroup.Item
+                key={getItemKeyAction(item)}
+                action={!blur}
+                onClick={e => {
+                    if (onFlipClick && !blur) {
+                        onFlipClick(item, e)
+                    }
+                }}
+                style={{ height: '100%', padding: '15px' }}
+            >
+                {blur ? (
+                    <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
+                        {premiumMessage}
+                    </p>
+                ) : null}
+                {showTechSavvyMessage && blur ? (
+                    <p
+                        style={{
+                            position: 'absolute',
+                            top: '25%',
+                            left: '25%',
+                            width: '50%',
+                            fontSize: 'large',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            backgroundColor: 'gray'
+                        }}
+                    >
+                        You seem like a tech savvy person, contribute to the project to get premium for free. :)
+                    </p>
+                ) : (
+                    ''
+                )}
+                <div className={blur ? 'blur' : ''} style={blur ? blurStyle : {}}>
+                    {renderFlipContentAction(item, blur)}
+                </div>
+            </ListGroup.Item>
+        )
+    }
+
+    // Apply sorting
+    let orderedItems = [...items]
+    if (orderBy) {
+        const sortOption = sortOptions.find(option => option.value === orderBy.value)
+        if (sortOption) {
+            orderedItems = sortOption.sortFunction([...items], ...sortFunctionArgs)
+        }
+    }
+
+    // Apply filtering and create list
+    let shown = 0
+    const filteredItems = orderedItems.filter(item => {
+        if (filterFunction) {
+            return filterFunction(item, nameFilter, minimumProfit)
+        }
+        return true
+    })
+
+    const list = filteredItems.map(item => {
+        const defaultContent = getListElement(item, false)
+
+        if (!hasPremium && ++shown <= 3) {
+            const censoredItem = censoredItemGenerator ? censoredItemGenerator(item) : item
+            const censoredContent = getListElement(censoredItem, true)
+
+            if (customItemWrapper) {
+                return customItemWrapper(censoredItem, true, getItemKeyAction(item), censoredContent, styles.flipCard)
+            }
+
+            return (
+                <div className={`${styles.flipCard} ${styles.preventSelect}`} key={getItemKeyAction(item)}>
+                    {censoredContent}
+                </div>
+            )
+        } else {
+            if (customItemWrapper) {
+                return customItemWrapper(item, false, getItemKeyAction(item), defaultContent, styles.flipCard)
+            }
+
+            return (
+                <div className={styles.flipCard} key={getItemKeyAction(item)}>
+                    {defaultContent}
+                </div>
+            )
+        }
+    })
+
+    const flipListClass = showColumns && columns ? `${styles.flipList} ${styles[`columns-${columns}`]}` : styles.flipList
+
+    return (
+        <div className={styles.genericFlipList}>
+            {customHeader && customHeader(isLoggedIn)}
+            <div>
+                <GoogleSignIn onAfterLogin={onAfterLogin} />
+                {!isLoggedIn ? <hr /> : ''}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Form.Control
+                    className={styles.filterInput}
+                    placeholder="Item name..."
+                    onChange={onNameFilterChange}
+                />
+                <Form.Select
+                    className={styles.filterInput}
+                    defaultValue={orderBy.value}
+                    onChange={updateOrderBy}
+                >
+                    {sortOptions.map(option => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </Form.Select>
+                <Form.Control
+                    className={styles.filterInput}
+                    placeholder="Minimum Profit"
+                    onChange={onMinimumProfitChange}
+                />
+                {showColumns && (
+                    <Form.Select className={styles.filterInput} value={columns} onChange={handleColumnChange}>
+                        <option value={1}>1 Column</option>
+                        <option value={2}>2 Columns</option>
+                        <option value={3}>3 Columns</option>
+                        <option value={4}>4 Columns</option>
+                        <option value={5}>5 Columns</option>
+                    </Form.Select>
+                )}
+                {customFilters}
+            </div>
+            <hr />
+            {hasPremium ? null : (
+                <p>
+                    Click <Link href="/linkvertise">here</Link> to get Starter Premium for free to see the top flips
+                </p>
+            )}
+            <p>{clickMessage}</p>
+            <div className={flipListClass}>
+                <ListGroup className={styles.list}>{list}</ListGroup>
+            </div>
+        </div>
+    )
+}
