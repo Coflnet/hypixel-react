@@ -44,7 +44,7 @@ function OptionsMenu(props: Props) {
         available.push({ title: 'Fandom', url: 'https://hypixel-skyblock.fandom.com/wiki/' + fandomName })
         available.push({ title: 'Wiki', url: 'https://wiki.hypixel.net/' + wikiName })
         if ((props.selected as Item).bazaar) {
-            available.push({ title: 'Skyblock.bz', url: 'https://Skyblock.bz/product/' + tag })
+            available.push({ title: 'Skyblock.finance', url: 'https://Skyblock.finance/items/' + tag })
         }
     } else if (isPlayerPage) {
         let player = props.selected as Player
