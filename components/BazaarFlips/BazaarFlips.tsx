@@ -8,6 +8,7 @@ import { SpreadFlip } from '../../api/_generated/skyApi.schemas'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getApiFlipBazaarSpread, getGetApiFlipBazaarSpreadQueryKey } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
+import Link from 'next/link'
 
 const SORT_OPTIONS: SortOption<SpreadFlip>[] = [
     {
@@ -38,35 +39,36 @@ export function BazaarFlips() {
             <>
                 <h4>{getFlipHeader(flip)}</h4>
                 <p>
-                    <span style={{ width: '150px', float: 'left' }}>Purchase Cost:</span>{' '}
+                    <span style={{ width: '150px', float: 'left' }}>Buy-order at:</span> <Number number={Math.round((flip.flip?.sellPrice || 0) * 10) / 10} />
+                </p>
+                <p>
+                    <span style={{ width: '150px', float: 'left' }}>Sell-order at:</span>{' '}
                     <Number number={Math.round(flip.flip?.buyPrice || 0)} /> Coins
-                </p>
-                <p>
-                    <span style={{ width: '150px', float: 'left' }}>Sell Price:</span> <Number number={Math.round(flip.flip?.sellPrice || 0)} />
-                </p>
-                <p>
-                    <span style={{ width: '150px', float: 'left' }}>Estimated Fees:</span>
-                    <Number number={flip.flip?.estimatedFees || 0} /> Coins
                 </p>
                 {flip.flip?.medianBuyPrice &&
                     <p>
-                        <span style={{ width: '150px', float: 'left' }}>Median:</span> <Number number={Math.round(flip.flip?.medianBuyPrice || 0)} /> Coins
+                        <span style={{ width: '150px', float: 'left' }}>Median:</span> <Number number={Math.round((flip.flip?.medianBuyPrice || 0) * 10) / 10} /> Coins
                     </p>}
                 <p>
                     <span style={{ width: '150px', float: 'left' }}>Profit per Hour:</span>{' '}
                     <Number number={flip.flip?.profitPerHour || 0} /> Coins
                 </p>
                 <p>
-                    <span style={{ width: '150px', float: 'left' }}>Volume:</span>
-                    <Number number={flip.flip?.volume || 0} />
+                    <span style={{ width: '150px', float: 'left' }}>Sells/hour:</span>
+                    <Number number={Math.round((flip.flip?.volume || 0) / 24)} />
                 </p>
                 {flip.isManipulated &&
                     <p style={{ display: 'flex', justifyContent: 'end' }}>
-                        <Badge bg="info" style={{ width: '150px', float: 'left' }}>Manipulated</Badge>
+                        <Badge bg="info" style={{ width: '150px', float: 'left' }}>Seems Manipulated</Badge>
                     </p>
                 }
             </>
         )
+    }
+
+    function onFlipClick(flip: SpreadFlip) {
+        const url = `https://sky.coflnet.com/item/${flip.flip?.itemTag}`
+        window.open(url, '_blank')
     }
 
     function getFlipHeader(flip: SpreadFlip) {
@@ -110,15 +112,49 @@ export function BazaarFlips() {
     }
 
     return (
-        <GenericFlipList
-            items={flips}
-            sortOptions={SORT_OPTIONS}
-            renderFlipContentAction={renderFlipContent}
-            filterFunction={filterFunction}
-            getItemKeyAction={(flip) => flip.itemName || ''}
-            censoredItemGenerator={censoredItemGenerator}
-            premiumMessage="The top 3 flips can only be seen with starter premium or better"
-            clickMessage="Click on a flip for further details"
-        />
+        <>
+            <details><summary>These are bazaar spread based flips</summary>
+                <p>the spread is the difference between buy and sell price. <br />
+                    They are calculated using <code>{'({sell price}-{buy price})*{sales per week}/{hours per week}'}</code> 
+                    that calculation is used by most other hypixel skyblock bazaar website/mods and doesn't need data storing.<br />
+                    It displays you the potential profit under perfect conditions. If you are inpacient its probably lower, but it can also be higher if you are lucky.<br />
+                    We enhanced this by marking items that are probably manipulated to protect you from loosing coins.
+                </p>
+            </details>
+            <details>
+                <summary>How do we detect manipulated items?</summary>
+                <p>Using our hypixel skyblock bazaar data archive we know what an item usually sells for. If it suddenly spikes its usually manipulated.
+                    Sometimes its also because of a game update.
+                    So these items are still displayed for you to make a decission on if you want to risk you coins for potentially more reward.
+                </p>
+            </details>
+            <details>
+                <summary>Why are the top 3 hidden</summary>
+                <p>The manipulation detection and other feathres depend on our data archive.
+                    To finance the archive storage, the top 3 flips are only available with starter premium.
+                    You either buy any premium tier or <Link href="/linkvertise">watched an ad</Link>to  get starter premium for free
+                </p>
+            </details>
+            <details>
+                <summary>How to do these flips?</summary>
+                <ol>
+                    <li>Go to the skyblock bazaar and search up the item. (This is simpler if you use this list in game with /cofl bazaar)</li>
+                    <li>Place a top buyorder (should be within one coin of whats displayed here)</li>
+                    <li>If you don't know how much to order select fill your inventory if its an item below 10k coins, otherwise you buy a stack, make sure to not spend your whole purse at once</li>
+                    <li>Wait for the order to fill, if you notice that taking long times you may want to try our <Link href="/bazaar-premium">premium bazaar flips</Link></li>
+                    <li>Once its filled you claim the items and place the lowest sell order</li>
+                </ol></details>
+            <GenericFlipList
+                items={flips}
+                sortOptions={SORT_OPTIONS}
+                onFlipClick={onFlipClick}
+                renderFlipContentAction={renderFlipContent}
+                filterFunction={filterFunction}
+                getItemKeyAction={(flip) => flip.itemName || ''}
+                censoredItemGenerator={censoredItemGenerator}
+                premiumMessage="The top 3 flips can only be seen with starter premium or better"
+                clickMessage="Click on a flip for further details"
+            />
+        </>
     )
 }
