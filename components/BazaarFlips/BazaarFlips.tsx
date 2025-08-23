@@ -17,14 +17,29 @@ const SORT_OPTIONS: SortOption<SpreadFlip>[] = [
         sortFunction: flips => flips.sort((a, b) => (b.flip?.profitPerHour || 0) - (a.flip?.profitPerHour || 0))
     },
     {
-        label: 'Time ⇧',
-        value: 'timeAsc',
+        label: 'Profit ⇧',
+        value: 'profitAsc',
         sortFunction: flips => flips.sort((a, b) => (b.flip?.profitPerHour || 0) - (a.flip?.profitPerHour || 0))
     },
     {
-        label: 'Time ⇩',
-        value: 'timeDesc',
+        label: 'Profit ⇩',
+        value: 'profitDesc',
         sortFunction: flips => flips.sort((a, b) => (a.flip?.profitPerHour || 0) - (b.flip?.profitPerHour || 0))
+    },
+    {
+        label: 'Volume ⇩',
+        value: 'volumeAsc',
+        sortFunction: flips => flips.sort((a, b) => (b.flip?.volume || 0) - (a.flip?.volume || 0))
+    },
+    {
+        label: 'Price ⇧',
+        value: 'priceDesc',
+        sortFunction: flips => flips.sort((a, b) => (a.flip?.sellPrice || 0) - (b.flip?.sellPrice || 0))
+    },
+    {
+        label: 'Price ⇩',
+        value: 'priceAsc',
+        sortFunction: flips => flips.sort((a, b) => (b.flip?.sellPrice || 0) - (a.flip?.sellPrice || 0))
     }
 ]
 
@@ -48,7 +63,8 @@ export function BazaarFlips() {
                 {flip.flip?.medianBuyPrice &&
                     <p>
                         <span style={{ width: '150px', float: 'left' }}>Median:</span> <Number number={Math.round((flip.flip?.medianBuyPrice || 0) * 10) / 10} /> Coins
-                    </p>}
+                    </p>
+                }
                 <p>
                     <span style={{ width: '150px', float: 'left' }}>Profit per Hour:</span>{' '}
                     <Number number={flip.flip?.profitPerHour || 0} /> Coins
