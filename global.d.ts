@@ -390,7 +390,6 @@ interface ReloadFeedback {
 interface ErrorReportData {
     userDescription: string
     includeErrorDetails: boolean
-    contactMethod: 'discord' | 'email' | 'none'
 }
 
 interface ProfitableCraft {
