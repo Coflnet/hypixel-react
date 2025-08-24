@@ -56,17 +56,18 @@ export default function Custom500({ error, reset }) {
         setIsReporting(true)
         try {
             const errorReport = {
-                type: 'server_error_manual',
-                error: error?.message || 'Unknown server error',
-                stack: reportData.includeErrorDetails ? (error?.stack || 'No stack trace available') : 'User opted not to include technical details',
-                digest: reportData.includeErrorDetails ? (error?.digest || 'No digest available') : 'Not included',
-                timestamp: new Date().toISOString(),
-                url: window.location.href,
-                userAgent: navigator.userAgent,
-                userDescription: reportData.userDescription,
-                contactMethod: reportData.contactMethod,
-                automaticReport: false
-            }
+                otherIssue : true,
+                additionalInformation: JSON.stringify({
+                    userDescription: reportData.userDescription,
+                    type: 'server_error_manual',
+                    error: error?.message || 'Unknown server error',
+                    stack: reportData.includeErrorDetails ? (error?.stack || 'No stack trace available') : 'User opted not to include technical details',
+                    digest: reportData.includeErrorDetails ? (error?.digest || 'No digest available') : 'Not included',
+                    timestamp: new Date().toISOString(),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent,
+                })
+            } as ReloadFeedback
 
             await api.sendFeedback('server_error_manual', errorReport)
             toast.success('Error report sent successfully! Thank you for helping us improve.')
@@ -155,18 +156,6 @@ export default function Custom500({ error, reset }) {
                                                         checked={reportData.includeErrorDetails}
                                                         onChange={(e) => setReportData({...reportData, includeErrorDetails: e.target.checked})}
                                                     />
-                                                </Form.Group>
-
-                                                <Form.Group className="mb-3">
-                                                    <Form.Label>Preferred contact method (optional):</Form.Label>
-                                                    <Form.Select
-                                                        value={reportData.contactMethod}
-                                                        onChange={(e) => setReportData({...reportData, contactMethod: e.target.value as any})}
-                                                    >
-                                                        <option value="none">No contact needed</option>
-                                                        <option value="discord">Discord</option>
-                                                        <option value="email">Email</option>
-                                                    </Form.Select>
                                                 </Form.Group>
 
                                                 <Button
