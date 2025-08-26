@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Container, Card, Row, Col } from 'react-bootstrap'
-import { Pets, Build, Storefront, Agriculture, ShowChart, AutoFixHigh, Help, JoinFull, Volcano, QuestionMark } from '@mui/icons-material'
+import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark } from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
@@ -47,6 +47,18 @@ const flipKinds = [
         path: undefined,
         description: <span>Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard. This flip is currently only available via <code>/cofl fusionflip</code> using our mod</span>,
         icon: <JoinFull fontSize="large" />
+    },
+    {
+        name: 'Item Upgrade Flips',
+        path: undefined,
+        description: <span>Use the the hex or just manually apply enchantments, Hot potato books etc to an item to make it worth more than it costs. Available via <code>/cofl attributeflip</code> using our mod</span>,
+        icon: <Handyman fontSize="large" />
+    },
+    {
+        name: 'Ananke Feather Flips',
+        path: undefined,
+        description: <span>Find the best items to use Ananke Feather on in RNG-Meters. Shows you the most profitable item to target, how much it costs and how much profit is to be made. Available via <code>/cofl ananke</code> using our mod</span>,
+        icon: <Handyman fontSize="large" />
     },
     {
         name: 'suggest new',
