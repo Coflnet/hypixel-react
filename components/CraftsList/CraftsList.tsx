@@ -1,50 +1,41 @@
 'use client'
 import Image from 'next/image'
-import React, { ChangeEvent, useEffect, useState, type JSX } from 'react'
-import { Form, ListGroup } from 'react-bootstrap'
+import React, { useEffect, useMemo, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import Number from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
-import styles from './CraftsList.module.css'
 import { parseProfitableCrafts } from '../../utils/Parser/APIResponseParser'
-import Link from 'next/link'
+import { GenericFlipList, SortOption } from '../GenericFlipList'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 
 interface Props {
     crafts?: any[]
     bazaarTags?: string[]
 }
 
-interface SortOption {
-    label: string
-    value: string
-    sortFunction(crafts: ProfitableCraft[], bazaarTags: string[])
-}
-
-const SORT_OPTIONS: SortOption[] = [
+const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
     {
         label: 'Profit',
         value: 'profit',
-        sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
+        sortFunction: (crafts: ProfitableCraft[]) => crafts.sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
     },
     {
         label: 'Sell Price',
         value: 'sellPrice',
-        sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - a.sellPrice)
+        sortFunction: (crafts: ProfitableCraft[]) => crafts.sort((a, b) => b.sellPrice - a.sellPrice)
     },
     {
         label: 'Craft Cost',
         value: 'craftCost',
-        sortFunction: crafts => crafts.sort((a, b) => b.craftCost - a.craftCost)
+        sortFunction: (crafts: ProfitableCraft[]) => crafts.sort((a, b) => b.craftCost - a.craftCost)
     },
     {
         label: 'Sell Offer (Bazaar)',
         value: 'bazaarCrafts',
-        sortFunction: (crafts, bazaarTags) =>
+        sortFunction: (crafts: ProfitableCraft[], bazaarTags: string[] = []) =>
             crafts
                 .sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
                 .filter(craft => {
@@ -64,182 +55,57 @@ const SORT_OPTIONS: SortOption[] = [
     }
 ]
 
-let observer: MutationObserver
-
 export function CraftsList(props: Props) {
-    let [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts ? parseProfitableCrafts(props.crafts) : [])
-    let [nameFilter, setNameFilter] = useState<string | null>()
-    let [orderBy, setOrderBy] = useState<SortOption>(SORT_OPTIONS[0])
-    let [accountInfo, setAccountInfo] = useState<AccountInfo>()
-    let [isLoadingProfileData, setIsLoadingProfileData] = useState(true)
-    let [hasPremium, setHasPremium] = useState(false)
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [bazaarTags, setBazaarTags] = useState<string[]>(props.bazaarTags || [])
-    let [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
-    let [minimumProfit, setMinimumProfit] = useState<number>(0)
-    let [columns, setColumns] = useState<number>()
+    const [accountInfo, setAccountInfo] = useState<AccountInfo>()
+    const crafts = useMemo(() => props.crafts ? parseProfitableCrafts(props.crafts) : [], [props.crafts])
 
-    useEffect(() => {
-        setIsLoadingProfileData(true)
-        loadCrafts()
-    }, [])
-
-    useEffect(() => {
-        // reset the blur observer, when something changed
-        setTimeout(() => {
-            setBlurObserver()
-        }, 100)
-        setColumns(getDefaultColumns()) // Set columns based on screen width after mounting
-    }, [])
-
-    function loadCrafts() {
-        api.getProfitableCrafts().then(crafts => {
-            setCrafts(crafts)
+    function onAfterSignIn() {
+        api.getAccountInfo().then(info => {
+            setAccountInfo(info)
         })
     }
 
-    function setBlurObserver() {
-        if (observer) {
-            observer.disconnect()
-        }
-        observer = new MutationObserver(function () {
-            setShowTechSavvyMessage(true)
-        })
-
-        var targets = document.getElementsByClassName('blur')
-        for (var i = 0; i < targets.length; i++) {
-            var config = {
-                attributes: true,
-                childList: true,
-                characterData: true,
-                attributeFilter: ['style']
-            }
-            observer.observe(targets[i], config)
-        }
-    }
-
-    function getDefaultColumns() {
-        const screenWidth = window.innerWidth
-
-        if (screenWidth >= 1424) {
-            return 3
-        } else if (screenWidth >= 768) {
-            return 2
-        } else {
-            return 1
-        }
-    }
-
-    function onAfterLogin() {
-        setIsLoggedIn(true)
-        api.refreshLoadPremiumProducts(products => {
-            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
-            api.getAccountInfo().then(info => {
-                setAccountInfo(info)
-                setIsLoadingProfileData(false)
-            })
-        })
-    }
-
-    function onNameFilterChange(e: any) {
-        setNameFilter(e.target.value)
-    }
-
-    function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
-        let selectedIndex = event.target.options.selectedIndex
-        let value = event.target.options[selectedIndex].getAttribute('value')!
-        let sortOption = SORT_OPTIONS.find(option => option.value === value)
-        if (sortOption) {
-            setOrderBy(sortOption)
-        }
-    }
-    function onMinimumProfitChange(e: any) {
-        setMinimumProfit(e.target.value)
-    }
-
-    function handleColumnChange(event: ChangeEvent<HTMLSelectElement>) {
-        const value = parseInt(event.target.value, 10)
-        setColumns(value)
-    }
-
-    let blurStyle: React.CSSProperties = {
-        WebkitFilter: 'blur(5px)',
-        msFilter: 'blur(5px)',
-        filter: 'blur(5px)'
-    }
-
-    function getListElement(craft: ProfitableCraft, blur: boolean) {
-        if (
-            ((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || craft.sellPrice - craft.craftCost < minimumProfit) &&
-            !blur
-        ) {
-            return <span />
-        }
+    function renderFlipContent(craft: ProfitableCraft) {
         return (
-            <ListGroup.Item action={!blur}>
-                {blur ? (
-                    <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
-                        The top 3 crafts can only be seen with starter premium or better
+            <>
+                <h4>{getCraftHeader(craft)}</h4>
+                <p>
+                    <span style={{ width: '150px', float: 'left' }}>Crafting Cost:</span> <Number number={Math.round(craft.craftCost)} /> Coins
+                </p>
+                <p>
+                    <span style={{ width: '150px', float: 'left' }}>Sell Price:</span> <Number number={Math.round(craft.sellPrice)} /> Coins
+                </p>
+                <p>
+                    <span style={{ width: '150px', float: 'left' }}>Median:</span>{' '}
+                    {craft.median > 0 ? (
+                        <span>
+                            <Number number={Math.round(craft.median)} /> Coins
+                        </span>
+                    ) : (
+                        'unknown'
+                    )}
+                </p>
+                <p>
+                    <span style={{ width: '150px', float: 'left' }}>Volume:</span> {craft.volume > 0 ? <Number number={Math.round(craft.volume)} /> : 'unknown'}
+                </p>
+                {craft.requiredCollection ? (
+                    <p style={{ textAlign: 'right' }}>
+                        <span style={{ marginRight: '10px' }}>Req. Collection:</span>
+                        {convertTagToName(craft.requiredCollection.name) + ' ' + craft.requiredCollection.level}
                     </p>
                 ) : null}
-                {showTechSavvyMessage && blur ? (
-                    <p
-                        style={{
-                            position: 'absolute',
-                            top: '25%',
-                            left: '25%',
-                            width: '50%',
-                            fontSize: 'large',
-                            fontWeight: 'bold',
-                            textAlign: 'center',
-                            backgroundColor: 'gray'
-                        }}
-                    >
-                        You seem like a tech savvy person, contribute to the project to get premium for free. :)
+                {craft.requiredSlayer ? (
+                    <p style={{ textAlign: 'right' }}>
+                        <span style={{ marginRight: '10px' }}>Req. Slayer:</span>
+                        {convertTagToName(craft.requiredSlayer.name) + ' ' + craft.requiredSlayer.level}
                     </p>
-                ) : (
-                    ''
-                )}
-                <div className={`${blur ? 'blur' : null}`} style={blur ? blurStyle : {}}>
-                    <h4>{getCraftHeader(craft)}</h4>
-                    <p>
-                        <span className={styles.label}>Crafting Cost:</span> <Number number={Math.round(craft.craftCost)} /> Coins
-                    </p>
-                    <p>
-                        <span className={styles.label}>Sell Price:</span> <Number number={Math.round(craft.sellPrice)} /> Coins
-                    </p>
-                    <p>
-                        <span className={styles.label}>Median:</span>{' '}
-                        {craft.median > 0 ? (
-                            <span>
-                                <Number number={Math.round(craft.median)} /> Coins
-                            </span>
-                        ) : (
-                            'unknown'
-                        )}
-                    </p>
-                    <p>
-                        <span className={styles.label}>Volume:</span> {craft.volume > 0 ? <Number number={Math.round(craft.volume)} /> : 'unknown'}
-                    </p>
-                    {craft.requiredCollection ? (
-                        <p className={styles.craftRequirement}>
-                            <span className={styles.craftRequirementLabel}>Req. Collection:</span>
-                            {convertTagToName(craft.requiredCollection.name) + ' ' + craft.requiredCollection.level}
-                        </p>
-                    ) : null}
-                    {craft.requiredSlayer ? (
-                        <p className={styles.craftRequirement}>
-                            <span className={styles.craftRequirementLabel}>Req. Slayer:</span>
-                            {convertTagToName(craft.requiredSlayer.name) + ' ' + craft.requiredSlayer.level}
-                        </p>
-                    ) : null}
-                    {!craft.requiredCollection && !craft.requiredSlayer ? <p className={styles.craftRequirement}>No Collection/Slayer required</p> : null}
-                </div>
-            </ListGroup.Item>
+                ) : null}
+                {!craft.requiredCollection && !craft.requiredSlayer ? <p style={{ textAlign: 'right' }}>No Collection/Slayer required</p> : null}
+            </>
         )
     }
 
-    function getCraftHeader(craft: ProfitableCraft): JSX.Element {
+    function getCraftHeader(craft: ProfitableCraft): React.JSX.Element {
         return (
             <span>
                 <Image
@@ -256,66 +122,63 @@ export function CraftsList(props: Props) {
         )
     }
 
-    let orderedCrafts = crafts
-    if (orderBy) {
-        let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
-        orderedCrafts = sortOption?.sortFunction(crafts, bazaarTags)
+    function filterFunction(craft: ProfitableCraft, nameFilter: string | null | undefined, minimumProfit: number): boolean {
+        const nameMatch = !nameFilter || (craft.item.name?.toLowerCase().includes(nameFilter.toLowerCase()) ?? false)
+        const profitMatch = craft.sellPrice - craft.craftCost >= minimumProfit
+        return nameMatch && profitMatch
     }
 
-    let shown = 0
-    let list = orderedCrafts
-        .filter(
-            craft =>
-                !((nameFilter && craft.item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) || craft.sellPrice - craft.craftCost < minimumProfit)
-        )
-        .map(craft => {
-            shown++
-
-            if (!hasPremium && shown <= 3) {
-                let censoredCraft = { ...craft }
-                censoredCraft.item = {
-                    tag: '',
-                    name: '§6You cheated the blur ☺',
-                    iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
-                }
-                censoredCraft.craftCost = 42
-                censoredCraft.sellPrice = 69
-                censoredCraft.ingredients = [
-                    {
-                        cost: 119999545.7,
-                        count: 80,
-                        item: {
-                            tag: 'ASPECT_OF_THE_DRAGONS',
-                            name: 'Sword',
-                            iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
-                        }
+    function censoredItemGenerator(craft: ProfitableCraft): ProfitableCraft {
+        return {
+            ...craft,
+            item: {
+                tag: '',
+                name: '§6You cheated the blur ☺',
+                iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
+            },
+            craftCost: 42,
+            sellPrice: 69,
+            ingredients: [
+                {
+                    cost: 119999545.7,
+                    count: 80,
+                    item: {
+                        tag: 'ASPECT_OF_THE_DRAGONS',
+                        name: 'Sword',
+                        iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
                     }
-                ]
-                censoredCraft.median = -1
-                censoredCraft.volume = 123123
-                censoredCraft.requiredCollection = undefined
-                censoredCraft.requiredSlayer = undefined
+                }
+            ],
+            median: -1,
+            volume: 123123,
+            requiredCollection: undefined,
+            requiredSlayer: undefined
+        }
+    }
 
-                return (
-                    <div key={craft.item.tag} className={`${styles.preventSelect} ${styles.craftCard}`}>
-                        {getListElement(censoredCraft, true)}
-                    </div>
-                )
-            } else {
-                return (
-                    <Tooltip
-                        key={craft.item.tag}
-                        className={`${styles.craftCard}`}
-                        type="click"
-                        content={getListElement(craft, false)}
-                        tooltipTitle={getCraftHeader(craft)}
-                        tooltipContent={<CraftDetails craft={craft} />}
-                    />
-                )
-            }
-        })
+    // Wrapper function for rendering with tooltip
+    function customItemWrapper(craft: ProfitableCraft, blur: boolean, key: string, content: React.ReactNode, flipCardClass: string) {
+        if (blur) {
+            return (
+                <div key={key} className={flipCardClass}>
+                    {content}
+                </div>
+            )
+        } else {
+            return (
+                <Tooltip
+                    key={key}
+                    className={flipCardClass}
+                    type="click"
+                    content={<>{content}</>}
+                    tooltipTitle={getCraftHeader(craft)}
+                    tooltipContent={<CraftDetails craft={craft} />}
+                />
+            )
+        }
+    }
 
-    let connectMinecraftTooltip = (
+    const connectMinecraftTooltip = (
         <Tooltip
             type="hover"
             content={<span style={{ color: '#007bff' }}>connect your Minecraft Account</span>}
@@ -330,53 +193,36 @@ export function CraftsList(props: Props) {
         />
     )
 
-    const craftsListClass = `${styles.craftsList} ${styles[`columns-${columns}`]}`
+    function renderCustomHeader(isLoggedIn: boolean) {
+        return (
+            <div>
+                <div>
+                    {!isLoggedIn ? (
+                        <p>To use the profile filter, please login with Google and {connectMinecraftTooltip}:</p>
+                    ) : !accountInfo?.mcId ? (
+                        <p>To use the profile filter, please {connectMinecraftTooltip}</p>
+                    ) : null
+                    }
+                </div>
+            </div>
+        )
+    }
 
     return (
-        <div>
-            <div>
-                {isLoadingProfileData && isLoggedIn ? (
-                    getLoadingElement()
-                ) : (
-                    <div>
-                        {!isLoggedIn ? (
-                            <p>To use the the profile filter, please login with Google and {connectMinecraftTooltip}:</p>
-                        ) : !accountInfo?.mcId ? (
-                            <p>To use the the profile filter, please {connectMinecraftTooltip}</p>
-                        ) : (
-                            ''
-                        )}
-                    </div>
-                )}
-                <GoogleSignIn onAfterLogin={onAfterLogin} />
-                {!isLoggedIn || !accountInfo?.mcId ? <hr /> : ''}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
-                <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
-                    {SORT_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>
-                            {option.label}
-                        </option>
-                    ))}
-                </Form.Select>
-                <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />
-                <Form.Select className={styles.filterInput} value={columns} onChange={handleColumnChange}>
-                    <option value={1}>1 Column</option>
-                    <option value={2}>2 Columns</option>
-                    <option value={3}>3 Columns</option>
-                    <option value={4}>4 Columns</option>
-                    <option value={5}>5 Columns</option>
-                </Form.Select>
-            </div>
-            <hr />
-            <p>
-                <Link href="/linkvertise">Look at some advertising</Link> to get Starter Premium for free and see the top crafts
-            </p>
-            <p>Click on a craft for further details</p>
-            <div className={craftsListClass}>
-                <ListGroup className={styles.list}>{list}</ListGroup>
-            </div>
-        </div>
+        <GenericFlipList
+            items={crafts}
+            sortOptions={SORT_OPTIONS}
+            renderFlipContentAction={renderFlipContent}
+            filterFunction={filterFunction}
+            getItemKeyAction={(craft) => craft.item.tag}
+            censoredItemGenerator={censoredItemGenerator}
+            premiumMessage="The top 3 crafts can only be seen with starter premium or better"
+            clickMessage="Click on a craft for further details"
+            showColumns={true}
+            sortFunctionArgs={[props.bazaarTags]}
+            customItemWrapper={customItemWrapper}
+            onAfterSignIn={onAfterSignIn}
+            customHeader={renderCustomHeader}
+        />
     )
 }

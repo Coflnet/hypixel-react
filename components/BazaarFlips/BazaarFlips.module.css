@@ -1,0 +1,61 @@
+.bazaarFlips :global(.list-group-item) {
+    width: -webkit-fill-available;
+    border-radius: 20px;
+}
+
+.list {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    flex-direction: initial;
+}
+
+#tooltip-container .tooltip-inner {
+    max-width: fit-content;
+}
+
+.bazaarFlips .flipCard {
+    width: calc(100% - 10px);
+    height: auto;
+    padding-bottom: 15px;
+}
+
+@media all and (min-width: 768px) {
+    .bazaarFlips .flipCard {
+        width: calc(50% - 10px);
+    }
+}
+
+@media all and (min-width: 1424px) {
+    .bazaarFlips .flipCard {
+        width: calc(33% - 10px);
+    }
+}
+
+.bazaarFlips .preventSelect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.bazaarFlips .label {
+    width: 150px;
+    float: left;
+}
+
+.bazaarFlips :global(.list-group-item) :global(p) {
+    margin: 0;
+}
+.bazaarFlips :global(.list-group-item) .craftRequirement {
+    text-align: right;
+}
+
+.bazaarFlips :global(.list-group-item) .craftRequirementLabel {
+    margin-right: 10px;
+}
+.filterInput {
+    width: 100%;
+    margin-right: 3vh;
+}

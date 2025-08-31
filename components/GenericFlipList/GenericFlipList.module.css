@@ -1,0 +1,85 @@
+.genericFlipList :global(.list-group-item) {
+    width: -webkit-fill-available;
+    border-radius: 20px;
+}
+
+.list {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    flex-direction: initial;
+}
+
+#tooltip-container .tooltip-inner {
+    max-width: fit-content;
+}
+
+.genericFlipList .flipCard {
+    width: calc(100% - 10px);
+    height: auto;
+    padding-bottom: 15px;
+}
+
+@media all and (min-width: 768px) {
+    .genericFlipList .flipCard {
+        width: calc(50% - 10px);
+    }
+}
+
+@media all and (min-width: 1424px) {
+    .genericFlipList .flipCard {
+        width: calc(33% - 10px);
+    }
+}
+
+.genericFlipList .preventSelect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.genericFlipList .label {
+    width: 150px;
+    float: left;
+}
+
+.genericFlipList :global(.list-group-item) :global(p) {
+    margin: 0;
+}
+
+.genericFlipList :global(.list-group-item) .craftRequirement {
+    text-align: right;
+}
+
+.genericFlipList :global(.list-group-item) .craftRequirementLabel {
+    margin-right: 10px;
+}
+
+/* Column-based layouts for CraftsList compatibility */
+.flipList.columns-1 .flipCard {
+    width: calc(100% - 10px);
+}
+
+.flipList.columns-2 .flipCard {
+    width: calc(50% - 10px);
+}
+
+.flipList.columns-3 .flipCard {
+    width: calc(33% - 10px);
+}
+
+.flipList.columns-4 .flipCard {
+    width: calc(25% - 10px);
+}
+
+.flipList.columns-5 .flipCard {
+    width: calc(20% - 10px);
+}
+
+.filterInput {
+    width: 100%;
+    margin-right: 3vh;
+}

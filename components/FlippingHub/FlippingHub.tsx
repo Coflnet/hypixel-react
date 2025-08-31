@@ -32,7 +32,7 @@ const flipKinds = [
     },
     {
         name: 'Bazaar Flips',
-        path: undefined,
+        path: '/bazaar',
         description: <span>Bazaar flips with anit market manipulation, shows you to the items to buy order and flip to sell order accounts for average insta sells and insta buys. Run <code>/cofl bazaar</code> with our mod to access</span>,
         icon: <ShowChart fontSize="large" />
     },
