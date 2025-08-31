@@ -1,4 +1,4 @@
-// app/get-query-client.ts
+// utils/QueryUtils.tsx
 import {
     isServer,
     QueryClient,
