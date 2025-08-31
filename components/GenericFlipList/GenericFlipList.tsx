@@ -1,22 +1,17 @@
 'use client'
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Form, ListGroup } from 'react-bootstrap'
+import React, { ChangeEvent, useEffect, useState, useMemo, useCallback } from 'react'
+import { Form, ListGroup, Spinner } from 'react-bootstrap'
 import Link from 'next/link'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import api from '../../api/ApiHelper'
 import styles from './GenericFlipList.module.css'
-
-export interface SortOption<T> {
-    label: string
-    value: string
-    sortFunction(items: T[], ...args: any[]): T[]
-}
+import { useSortedAndFilteredItems } from '../../hooks/useSortedAndFilteredItems'
 
 export interface FlipListProps<T> {
     items: T[]
     sortOptions: SortOption<T>[]
-    renderFlipContentAction: (item: T, blur: boolean) => React.ReactNode
+    renderFlipContentAction: (item: T) => React.ReactNode
     onFlipClick?: (item: T, event: React.MouseEvent) => void
     filterFunction?: (item: T, nameFilter: string | null | undefined, minimumProfit: number) => boolean
     getItemKeyAction: (item: T) => string
@@ -30,6 +25,13 @@ export interface FlipListProps<T> {
     onAfterSignIn?: () => void
     customHeader?: (isLoggedIn: boolean) => React.ReactNode
 }
+
+export interface SortOption<T> {
+    label: string
+    value: string
+    sortFunction(items: T[], ...args: any[]): T[]
+}
+
 
 let observer: MutationObserver
 
@@ -57,6 +59,15 @@ export function GenericFlipList<T>({
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
     const [columns, setColumns] = useState<number>()
+
+    const { processedItems, isProcessing } = useSortedAndFilteredItems(
+        items,
+        orderBy,
+        nameFilter,
+        minimumProfit,
+        filterFunction,
+        sortFunctionArgs
+    )
 
     useEffect(() => {
         // reset the blur observer, when something changed
@@ -110,27 +121,31 @@ export function GenericFlipList<T>({
         }
     }
 
-    function onNameFilterChange(e: any) {
+    const onNameFilterChange = useCallback((e: any) => {
         setNameFilter(e.target.value)
-    }
+    }, [])
 
-    function onMinimumProfitChange(e: any) {
+    const onMinimumProfitChange = useCallback((e: any) => {
         setMinimumProfit(e.target.value)
-    }
+    }, [])
 
-    function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
-        let selectedIndex = event.target.options.selectedIndex
-        let value = event.target.options[selectedIndex].getAttribute('value')!
-        let sortOption = sortOptions.find(option => option.value === value)
-        if (sortOption) {
-            setOrderBy(sortOption)
+    const updateOrderBy = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+        if (!isProcessing) {
+            let selectedIndex = event.target.options.selectedIndex
+            let value = event.target.options[selectedIndex].getAttribute('value')!
+            let sortOption = sortOptions.find(option => option.value === value)
+            if (sortOption) {
+                setOrderBy(sortOption)
+            }
         }
-    }
+    }, [isProcessing, sortOptions])
 
-    function handleColumnChange(event: ChangeEvent<HTMLSelectElement>) {
-        const value = parseInt(event.target.value, 10)
-        setColumns(value)
-    }
+    const handleColumnChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+        if (!isProcessing) {
+            const value = parseInt(event.target.value, 10)
+            setColumns(value)
+        }
+    }, [isProcessing])
 
     const blurStyle: React.CSSProperties = {
         WebkitFilter: 'blur(5px)',
@@ -140,13 +155,6 @@ export function GenericFlipList<T>({
     }
 
     function getListElement(item: T, blur: boolean) {
-        // Apply filtering logic
-        if (filterFunction && !blur) {
-            if (!filterFunction(item, nameFilter, minimumProfit)) {
-                return <span key={getItemKeyAction(item)} />
-            }
-        }
-
         return (
             <ListGroup.Item
                 key={getItemKeyAction(item)}
@@ -178,65 +186,54 @@ export function GenericFlipList<T>({
                     >
                         You seem like a tech savvy person, contribute to the project to get premium for free. :)
                     </p>
-                ) : (
-                    ''
-                )}
+                ) : null}
                 <div className={blur ? 'blur' : ''} style={blur ? blurStyle : {}}>
-                    {renderFlipContentAction(item, blur)}
+                    {renderFlipContentAction(item)}
                 </div>
             </ListGroup.Item>
         )
     }
 
-    // Apply sorting
-    let orderedItems = [...items]
-    if (orderBy) {
-        const sortOption = sortOptions.find(option => option.value === orderBy.value)
-        if (sortOption) {
-            orderedItems = sortOption.sortFunction([...items], ...sortFunctionArgs)
+    // Memoized displayed items
+    const list = useMemo(() => {
+        if (isProcessing) {
+            return []
         }
-    }
 
-    // Apply filtering and create list
-    let shown = 0
-    const filteredItems = orderedItems.filter(item => {
-        if (filterFunction) {
-            return filterFunction(item, nameFilter, minimumProfit)
-        }
-        return true
-    })
+        let shown = 0
+        const list = processedItems.map(item => {
+            const defaultContent = getListElement(item, false)
 
-    const list = filteredItems.map(item => {
-        const defaultContent = getListElement(item, false)
+            if (!hasPremium && ++shown <= 3) {
+                const censoredItem = censoredItemGenerator ? censoredItemGenerator(item) : item
+                const censoredContent = getListElement(censoredItem, true)
 
-        if (!hasPremium && ++shown <= 3) {
-            const censoredItem = censoredItemGenerator ? censoredItemGenerator(item) : item
-            const censoredContent = getListElement(censoredItem, true)
+                if (customItemWrapper) {
+                    return customItemWrapper(censoredItem, true, getItemKeyAction(item), censoredContent, styles.flipCard)
+                }
 
-            if (customItemWrapper) {
-                return customItemWrapper(censoredItem, true, getItemKeyAction(item), censoredContent, styles.flipCard)
+                return (
+                    <div className={`${styles.flipCard} ${styles.preventSelect}`} key={getItemKeyAction(item)}>
+                        {censoredContent}
+                    </div>
+                )
+            } else {
+                if (customItemWrapper) {
+                    return customItemWrapper(item, false, getItemKeyAction(item), defaultContent, styles.flipCard)
+                }
+
+                return (
+                    <div className={styles.flipCard} key={getItemKeyAction(item)}>
+                        {defaultContent}
+                    </div>
+                )
             }
+        })
 
-            return (
-                <div className={`${styles.flipCard} ${styles.preventSelect}`} key={getItemKeyAction(item)}>
-                    {censoredContent}
-                </div>
-            )
-        } else {
-            if (customItemWrapper) {
-                return customItemWrapper(item, false, getItemKeyAction(item), defaultContent, styles.flipCard)
-            }
-
-            return (
-                <div className={styles.flipCard} key={getItemKeyAction(item)}>
-                    {defaultContent}
-                </div>
-            )
-        }
-    })
+        return list
+    }, [processedItems, hasPremium, isProcessing, censoredItemGenerator, customItemWrapper])
 
     const flipListClass = showColumns && columns ? `${styles.flipList} ${styles[`columns-${columns}`]}` : styles.flipList
-
     return (
         <div className={styles.genericFlipList}>
             {customHeader && customHeader(isLoggedIn)}
@@ -267,7 +264,11 @@ export function GenericFlipList<T>({
                     onChange={onMinimumProfitChange}
                 />
                 {showColumns && (
-                    <Form.Select className={styles.filterInput} value={columns} onChange={handleColumnChange}>
+                    <Form.Select
+                        className={styles.filterInput}
+                        value={columns}
+                        onChange={handleColumnChange}
+                    >
                         <option value={1}>1 Column</option>
                         <option value={2}>2 Columns</option>
                         <option value={3}>3 Columns</option>
@@ -285,7 +286,21 @@ export function GenericFlipList<T>({
             )}
             <p>{clickMessage}</p>
             <div className={flipListClass}>
-                <ListGroup className={styles.list}>{list}</ListGroup>
+                {isProcessing ? (
+                    <div className={styles.loadingContainer} style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: '200px',
+                        flexDirection: 'column',
+                        gap: '16px'
+                    }}>
+                        <Spinner animation="border" role="status" variant="primary" />
+                        <span>Processing items...</span>
+                    </div>
+                ) : (
+                    <ListGroup className={styles.list}>{list}</ListGroup>
+                )}
             </div>
         </div>
     )

@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -20,22 +20,22 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
     {
         label: 'Profit',
         value: 'profit',
-        sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
+        sortFunction: (crafts: ProfitableCraft[]) => crafts.sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
     },
     {
         label: 'Sell Price',
         value: 'sellPrice',
-        sortFunction: crafts => crafts.sort((a, b) => b.sellPrice - a.sellPrice)
+        sortFunction: (crafts: ProfitableCraft[]) => crafts.sort((a, b) => b.sellPrice - a.sellPrice)
     },
     {
         label: 'Craft Cost',
         value: 'craftCost',
-        sortFunction: crafts => crafts.sort((a, b) => b.craftCost - a.craftCost)
+        sortFunction: (crafts: ProfitableCraft[]) => crafts.sort((a, b) => b.craftCost - a.craftCost)
     },
     {
         label: 'Sell Offer (Bazaar)',
         value: 'bazaarCrafts',
-        sortFunction: (crafts, bazaarTags = []) =>
+        sortFunction: (crafts: ProfitableCraft[], bazaarTags: string[] = []) =>
             crafts
                 .sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
                 .filter(craft => {
@@ -56,34 +56,16 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
 ]
 
 export function CraftsList(props: Props) {
-    const [crafts, setCrafts] = useState<ProfitableCraft[]>(props.crafts ? parseProfitableCrafts(props.crafts) : [])
     const [accountInfo, setAccountInfo] = useState<AccountInfo>()
-    const [isLoadingProfileData, setIsLoadingProfileData] = useState(true)
-    const [bazaarTags, setBazaarTags] = useState<string[]>(props.bazaarTags || [])
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
-
-    useEffect(() => {
-        setIsLoadingProfileData(true)
-        loadCrafts()
-    }, [])
-
-    function loadCrafts() {
-        api.getProfitableCrafts().then(crafts => {
-            setCrafts(crafts)
-        })
-    }
+    const crafts = useMemo(() => props.crafts ? parseProfitableCrafts(props.crafts) : [], [props.crafts])
 
     function onAfterSignIn() {
-        setIsLoggedIn(true)
-        api.refreshLoadPremiumProducts(products => {
-            api.getAccountInfo().then(info => {
-                setAccountInfo(info)
-                setIsLoadingProfileData(false)
-            })
+        api.getAccountInfo().then(info => {
+            setAccountInfo(info)
         })
     }
 
-    function renderFlipContent(craft: ProfitableCraft, blur: boolean) {
+    function renderFlipContent(craft: ProfitableCraft) {
         return (
             <>
                 <h4>{getCraftHeader(craft)}</h4>
@@ -214,21 +196,19 @@ export function CraftsList(props: Props) {
     function renderCustomHeader(isLoggedIn: boolean) {
         return (
             <div>
-                {isLoadingProfileData && isLoggedIn ? (
-                    getLoadingElement()
-                ) : (
-                    <div>
-                        {!isLoggedIn ? (
-                            <p>To use the profile filter, please login with Google and {connectMinecraftTooltip}:</p>
-                        ) : !accountInfo?.mcId ? (
-                            <p>To use the profile filter, please {connectMinecraftTooltip}</p>
-                        ) : null
-                        }
-                    </div>
-                )}
+                <div>
+                    {!isLoggedIn ? (
+                        <p>To use the profile filter, please login with Google and {connectMinecraftTooltip}:</p>
+                    ) : !accountInfo?.mcId ? (
+                        <p>To use the profile filter, please {connectMinecraftTooltip}</p>
+                    ) : null
+                    }
+                </div>
             </div>
         )
     }
+
+    console.log("rerender")
 
     return (
         <GenericFlipList
@@ -241,7 +221,7 @@ export function CraftsList(props: Props) {
             premiumMessage="The top 3 crafts can only be seen with starter premium or better"
             clickMessage="Click on a craft for further details"
             showColumns={true}
-            sortFunctionArgs={[bazaarTags]}
+            sortFunctionArgs={[props.bazaarTags]}
             customItemWrapper={customItemWrapper}
             onAfterSignIn={onAfterSignIn}
             customHeader={renderCustomHeader}
