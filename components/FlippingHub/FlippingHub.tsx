@@ -32,7 +32,7 @@ const flipKinds = [
     },
     {
         name: 'Bazaar Flips',
-        path: undefined,
+        path: '/bazaar',
         description: <span>Bazaar Flips are all about trading items on the Hypixel Bazaar for profit. Monitor market trends, find arbitrage opportunities, and learn the best flipping tactics for every item. Run <code>/cofl bazaar</code> with our mod to access</span>,
         icon: <ShowChart fontSize="large" />
     },
