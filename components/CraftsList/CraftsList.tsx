@@ -208,8 +208,6 @@ export function CraftsList(props: Props) {
         )
     }
 
-    console.log("rerender")
-
     return (
         <GenericFlipList
             items={crafts}
