@@ -37,7 +37,7 @@ Selects estimated profit percentage of a flip, so how much profit you make compa
 Selects the algorithm that found the flip. Allows you to blacklist certain items from one algorithm. For example you might want to have a different minprofit for the sniper finder so you could add:
 ```
 WHITELIST
-Minprofit: {{MIN_PROFIT}}*0.5
+Profit: >{{MIN_PROFIT}}*0.5
 FlipFinder: sniper
 ```
 To set the minprofit to just half for all flips found by the sniper finder (lbin based flips)
