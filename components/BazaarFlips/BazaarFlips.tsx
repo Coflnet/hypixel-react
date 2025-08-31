@@ -157,7 +157,7 @@ export function BazaarFlips() {
                     <li>Go to the skyblock bazaar and search up the item. (This is simpler if you use this list in game with /cofl bazaar)</li>
                     <li>Place a top buyorder (should be within one coin of whats displayed here)</li>
                     <li>If you don't know how much to order select fill your inventory if its an item below 10k coins, otherwise you buy a stack, make sure to not spend your whole purse at once</li>
-                    <li>Wait for the order to fill, if you notice that taking long times you may want to try our <Link href="/bazaar-premium">premium bazaar flips</Link></li>
+                    <li>Wait for the order to fill, if you notice that taking long times you may want to try our premium demand based bazaar flips</li>
                     <li>Once its filled you claim the items and place the lowest sell order</li>
                 </ol></details>
             <GenericFlipList
