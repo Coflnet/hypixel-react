@@ -131,7 +131,7 @@ export function BazaarFlips() {
         <>
             <details><summary>These are bazaar spread based flips</summary>
                 <p>the spread is the difference between buy and sell price. <br />
-                    They are calculated using <code>{'({sell price}-{buy price})*{sales per week}/{hours per week}'}</code> 
+                    They are calculated using <code>{'({sell price}-{buy price})*{sales per week}/{hours per week}'}</code>
                     that calculation is used by most other hypixel skyblock bazaar website/mods and doesn't need data storing.<br />
                     It displays you the potential profit under perfect conditions. If you are inpacient its probably lower, but it can also be higher if you are lucky.<br />
                     We enhanced this by marking items that are probably manipulated to protect you from loosing coins.

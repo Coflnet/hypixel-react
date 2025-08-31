@@ -156,7 +156,7 @@ export function useSortedAndFilteredItems<T>(
             filterFunction,
             sortFunctionArgs
         )
-    }, [items, orderBy, debouncedNameFilter, debouncedMinimumProfit, filterFunction, sortFunctionArgs, processItems])
+    }, [items, orderBy, debouncedNameFilter, debouncedMinimumProfit, filterFunction, processItems])
 
     useEffect(() => {
         return () => {
