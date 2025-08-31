@@ -146,7 +146,7 @@ export function BazaarFlips() {
             </details>
             <details>
                 <summary>Why are the top 3 hidden</summary>
-                <p>The manipulation detection and other feathres depend on our data archive.
+                <p>The manipulation detection and other features depend on our data archive.
                     To finance the archive storage, the top 3 flips are only available with starter premium.
                     You either buy any premium tier or <Link href="/linkvertise">watched an ad</Link> to  get starter premium for free
                 </p>
