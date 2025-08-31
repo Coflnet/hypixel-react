@@ -44,4 +44,4 @@ export default function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Feedback')
+export const metadata = getHeadMetadata('Feedback', 'Share your ideas and suggestions for improving our Hypixel SkyBlock tools. Contact our support team via email or Discord to help us build better features for the community.')

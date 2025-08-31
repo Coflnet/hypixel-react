@@ -17,4 +17,4 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Trading')
+export const metadata = getHeadMetadata('Trading', 'Create and manage Hypixel SkyBlock item trades. Connect with other players, set up wanted items, and find trading partners for efficient item exchanges in the SkyBlock community.')

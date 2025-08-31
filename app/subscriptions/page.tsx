@@ -19,4 +19,4 @@ export default function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Notifiers')
+export const metadata = getHeadMetadata('Notifiers', 'Set up custom price alerts and notifications for Hypixel SkyBlock items. Get notified about auction house deals, bazaar price changes, and profitable flipping opportunities via Discord or in-game.')
