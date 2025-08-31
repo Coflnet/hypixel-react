@@ -4,6 +4,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import matter from 'gray-matter';
+import { getHeadMetadata } from '../../utils/SSRUtils';
 
 const docsDirectory = path.join(process.cwd(), 'app/wiki/docs');
 
@@ -40,3 +41,5 @@ export default async function Wiki() {
         </article>
     );
 }
+
+export const metadata = getHeadMetadata('Wiki', 'Comprehensive guides and documentation for Hypixel SkyBlock tools, trading strategies, mod features, and optimization tips. Learn how to maximize your profits and improve your gameplay.');

@@ -14,4 +14,4 @@ export default function Page() {
     )
 }
 
-export const metadata = getHeadMetadata()
+export const metadata = getHeadMetadata('Referral Success', 'Welcome! You\'ve been referred to the best Hypixel SkyBlock auction house and bazaar tracking tools. Start exploring profitable flips, price history, and trading opportunities.')
