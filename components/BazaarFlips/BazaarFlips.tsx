@@ -49,7 +49,7 @@ export function BazaarFlips() {
         queryFn: () => getApiFlipBazaarSpread(),
     })
 
-    function renderFlipContent(flip: SpreadFlip, blur: boolean) {
+    function renderFlipContent(flip: SpreadFlip) {
         return (
             <>
                 <h4>{getFlipHeader(flip)}</h4>

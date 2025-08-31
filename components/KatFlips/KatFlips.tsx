@@ -60,7 +60,7 @@ export function KatFlips(props: Props) {
         )
     }
 
-    function renderFlipContent(flip: KatFlip, blur: boolean) {
+    function renderFlipContent(flip: KatFlip) {
         return (
             <>
                 <h4>{getFlipHeader(flip)}</h4>
