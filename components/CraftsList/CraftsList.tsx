@@ -1,15 +1,13 @@
 'use client'
 import Image from 'next/image'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
-import { getLoadingElement } from '../../utils/LoadingUtils'
 import Number from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import { parseProfitableCrafts } from '../../utils/Parser/APIResponseParser'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
-import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 
 interface Props {
     crafts?: any[]
@@ -56,14 +54,7 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
 ]
 
 export function CraftsList(props: Props) {
-    const [accountInfo, setAccountInfo] = useState<AccountInfo>()
     const crafts = useMemo(() => props.crafts ? parseProfitableCrafts(props.crafts) : [], [props.crafts])
-
-    function onAfterSignIn() {
-        api.getAccountInfo().then(info => {
-            setAccountInfo(info)
-        })
-    }
 
     function renderFlipContent(craft: ProfitableCraft) {
         return (
@@ -178,36 +169,6 @@ export function CraftsList(props: Props) {
         }
     }
 
-    const connectMinecraftTooltip = (
-        <Tooltip
-            type="hover"
-            content={<span style={{ color: '#007bff' }}>connect your Minecraft Account</span>}
-            tooltipContent={
-                <div style={{ width: 'max-width' }}>
-                    <p>
-                        To connect your Minecraft Account, search your ingame name in the search bar. On the player page you should see a text "You? Claim
-                        account."
-                    </p>
-                </div>
-            }
-        />
-    )
-
-    function renderCustomHeader(isLoggedIn: boolean) {
-        return (
-            <div>
-                <div>
-                    {!isLoggedIn ? (
-                        <p>To use the profile filter, please login with Google and {connectMinecraftTooltip}:</p>
-                    ) : !accountInfo?.mcId ? (
-                        <p>To use the profile filter, please {connectMinecraftTooltip}</p>
-                    ) : null
-                    }
-                </div>
-            </div>
-        )
-    }
-
     return (
         <GenericFlipList
             items={crafts}
@@ -221,8 +182,6 @@ export function CraftsList(props: Props) {
             showColumns={true}
             sortFunctionArgs={[props.bazaarTags]}
             customItemWrapper={customItemWrapper}
-            onAfterSignIn={onAfterSignIn}
-            customHeader={renderCustomHeader}
         />
     )
 }
