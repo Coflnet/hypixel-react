@@ -37,7 +37,7 @@ export function useSortedAndFilteredItems<T>(
     sortFunctionArgs: any[] = [],
     debounceMs: number = 300
 ) {
-    const [processedItems, setProcessedItems] = useState<T[]>([])
+    const [processedItems, setProcessedItems] = useState<T[]>(items)
     const [isProcessing, setIsProcessing] = useState(false)
     const [debouncedNameFilter, setDebouncedNameFilter] = useState(nameFilter)
     const [debouncedMinimumProfit, setDebouncedMinimumProfit] = useState(minimumProfit)
