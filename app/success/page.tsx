@@ -26,4 +26,4 @@ export default function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Payment successful')
+export const metadata = getHeadMetadata('Payment Successful', 'Thank you for your purchase! Your premium subscription is now active. Enjoy advanced features, priority support, and enhanced Hypixel SkyBlock tools to maximize your trading profits.')

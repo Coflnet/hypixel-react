@@ -11,6 +11,7 @@ import Image from 'next/image'
 
 interface Props {
     tag: string
+    isBazaarItem?: boolean
 }
 
 function RelatedItems(props: Props) {
@@ -30,6 +31,26 @@ function RelatedItems(props: Props) {
     }
 
     if (!relatedItems) {
+        return null
+    }
+
+    // Show bazaar flip notice if it's a bazaar item and there are no related items
+    if (props.isBazaarItem && relatedItems.length === 0) {
+        return (
+            <div style={{ paddingBottom: '25px' }}>
+                <h3>Similar items</h3>
+                <p style={{ color: '#6c757d', fontStyle: 'italic' }}>
+                    No similar items found. Looking for flip opportunities?{' '}
+                    <Link href="/bazaar" style={{ textDecoration: 'none' }}>
+                        Check out Bazaar Flips →
+                    </Link>
+                </p>
+            </div>
+        )
+    }
+
+    // If no related items for non-bazaar items, don't show anything
+    if (relatedItems.length === 0) {
         return null
     }
 

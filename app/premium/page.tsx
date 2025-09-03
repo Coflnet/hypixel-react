@@ -13,4 +13,4 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Premium', 'See available premium options to support this project')
+export const metadata = getHeadMetadata('Premium', 'Upgrade to premium for advanced Hypixel SkyBlock features: priority flip notifications, enhanced bazaar analysis, exclusive tools, and priority support. Support our project while maximizing your profits.')

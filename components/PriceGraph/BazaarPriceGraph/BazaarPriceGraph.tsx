@@ -461,7 +461,7 @@ function BazaarPriceGraph(props: Props) {
                     </div>
                 </div>
                 <hr />
-                <RelatedItems tag={props.item.tag} />
+                <RelatedItems tag={props.item.tag} isBazaarItem={true} />
                 <BazaarSnapshot item={props.item} />
             </div>
         </div>
