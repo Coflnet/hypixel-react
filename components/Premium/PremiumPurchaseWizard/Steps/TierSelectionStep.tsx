@@ -154,7 +154,7 @@ export default function TierSelectionStep({ selectedTier, onTierSelect }: Props)
                         <p className={styles.tierDescription}>All Premium features plus exclusive access to</p>
                         <ul className={styles.featureList}>
                             <li>Fastest auction flips</li>
-                            <li>5 year data exports</li>
+                            <li>6 year data exports</li>
                             <li>Realtime market analysis</li>
                             <li>Access to advanced tools</li>
                             <li>Advanced money making methods (soon™️)</li>
