@@ -65,6 +65,8 @@ export const getDurationOptions = (tier: PremiumTier, type: PurchaseType) => {
                 return []
         }
     } else {
+        if (tier === PremiumTier.STARTER)
+            return [{ label: 'Yearly', desc: 'Due to payment fees there is only yearly for starter', icon: '🎯', value: Duration.YEARLY }]
         // Subscription type
         return [
             { label: 'Monthly', desc: 'Flexible monthly subscription', icon: '📅', value: Duration.MONTHLY },

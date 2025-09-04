@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
 import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import api from '../../../api/ApiHelper'
 import { Button, Card, Col, Row } from 'react-bootstrap'
 import styles from './BuySubscription.module.css'
 import NumberElement from '../../Number/Number'
+import { toast } from 'react-toastify'
 import { Duration, PremiumTier, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 
 interface Props {
@@ -23,6 +23,7 @@ function BuySubscription(props: Props) {
             switch (props.selectedTier) {
                 case PremiumTier.PREMIUM: return type.productId === 'premium'
                 case PremiumTier.PREMIUM_PLUS: return type.productId === 'premium_plus'
+                case PremiumTier.STARTER: return type.productId === 'starter_premium'
                 default: return type.productId === 'premium'
             }
         }) : undefined
@@ -35,6 +36,7 @@ function BuySubscription(props: Props) {
 
     function getSubscriptionPrice() {
         const targetType = selectedPremiumType || wizardSelectedType
+        console.log('targetType', targetType, selectedPremiumType, wizardSelectedType)
         if (!targetType) {
             return -1
         }
@@ -46,19 +48,19 @@ function BuySubscription(props: Props) {
         if (targetType.productId === 'premium_plus') {
             return yearOption ? 354.20 : 35.69
         }
+        if (targetType.productId === 'starter_premium') {
+            return 16.99 // only yearly option
+        }
         return -1
     }
 
-    function onSubscriptionBuyCancel() {
-        setSelectedPremiumType(undefined)
-    }
-
-    function onSubscriptionBuy(googleToken: string) {
-        const targetType = selectedPremiumType || wizardSelectedType
-        if (!targetType) {
+    function startSubscriptionPurchase(targetType: PremiumType, yearOption: boolean) {
+        if (!targetType) return
+        const googleToken = sessionStorage.getItem('googleId')
+        if (!googleToken) {
+            toast.error('Please login to continue with the purchase')
             return
         }
-        const yearOption = isYearOption !== undefined ? isYearOption : wizardIsYearOption
 
         let productId = ''
         if (targetType.productId === 'premium') {
@@ -67,12 +69,17 @@ function BuySubscription(props: Props) {
         if (targetType.productId === 'premium_plus') {
             productId = 'l_prem_plus'
         }
+        if (targetType.productId === 'starter_premium') {
+            productId = 'l_starter_premium'
+        }
         if (yearOption) {
             productId += '-year'
         }
 
         api.purchasePremiumSubscription(productId, googleToken).then(data => {
             window.open(data.directLink, '_self')
+        }).catch(() => {
+            toast.error('Failed to redirect to payment provider. Please try again.')
         })
     }
 
@@ -134,6 +141,12 @@ function BuySubscription(props: Props) {
                                 onClick={() => {
                                     setSelectedPremiumType(targetType)
                                     setIsYearOption(yearOption)
+                                    startSubscriptionPurchase(selectedPremiumType || wizardSelectedType!, isYearOption !== undefined ? isYearOption : wizardIsYearOption)
+                                    const activeEl = document.activeElement as HTMLElement | null;
+                                    if (activeEl && activeEl.tagName === 'BUTTON') {
+                                        activeEl.innerText = 'Redirecting to payment provider...';
+                                        (activeEl as HTMLButtonElement).disabled = true;
+                                    }
                                 }}
                             >
                                 Continue to our secure payment processor
@@ -141,18 +154,6 @@ function BuySubscription(props: Props) {
                         </div>
                     </Card.Body>
                 </Card>
-                {(selectedPremiumType || wizardSelectedType) && (
-                    <BuyPremiumConfirmationDialog
-                        type="subscription"
-                        show={selectedPremiumType !== undefined}
-                        purchasePremiumOption={PREMIUM_TYPES.find(type => type.productId === 'premium')?.options[0]!}
-                        purchasePrice={<>{getSubscriptionPrice()} {(isYearOption !== undefined ? isYearOption : wizardIsYearOption) ? 'per year' : 'per month'}</>}
-                        purchasePremiumType={selectedPremiumType || wizardSelectedType!}
-                        onHide={onSubscriptionBuyCancel}
-                        onConfirm={onSubscriptionBuy}
-                        activePremiumProduct={props.activePremiumProduct}
-                    />
-                )}
             </>
         )
     }
@@ -237,18 +238,6 @@ function BuySubscription(props: Props) {
                     </Card>
                 </Col>
             </Row>
-            {selectedPremiumType && (
-                <BuyPremiumConfirmationDialog
-                    type="subscription"
-                    show={selectedPremiumType !== undefined}
-                    purchasePremiumOption={PREMIUM_TYPES.find(type => type.productId === 'premium')?.options[0]!}
-                    purchasePrice={<>{getSubscriptionPrice()} {isYearOption ? 'per year' : 'per month'}</>}
-                    purchasePremiumType={selectedPremiumType!}
-                    onHide={onSubscriptionBuyCancel}
-                    onConfirm={onSubscriptionBuy}
-                    activePremiumProduct={props.activePremiumProduct}
-                />
-            )}
         </>
     )
 }

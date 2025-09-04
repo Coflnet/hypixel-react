@@ -2,7 +2,7 @@
 import { Button, Modal } from 'react-bootstrap'
 import styles from './BuyPremiumConfirmationDialog.module.css'
 import { getPremiumType } from '../../../utils/PremiumTypeUtils'
-import { useState, type JSX } from 'react';
+import { useState, useEffect, type JSX } from 'react';
 import { GoogleLogin } from '@react-oauth/google'
 import { toast } from 'react-toastify'
 import { duration } from 'moment'
@@ -20,7 +20,11 @@ interface Props {
 }
 
 export default function BuyPremiumConfirmationDialog(props: Props) {
-    let [hasConfirmedLogin, setHasConfirmedLogin] = useState(false)
+    // skip the extra login confirmation for subscription purchases
+    let [hasConfirmedLogin, setHasConfirmedLogin] = useState(props.type === 'subscription')
+    useEffect(() => {
+        setHasConfirmedLogin(props.type === 'subscription')
+    }, [props.type])
     let [googleToken, setGoogleToken] = useState('')
 
     return (
