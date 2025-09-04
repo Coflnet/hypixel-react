@@ -50,7 +50,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                 </h4>
             </div>
 
-            <Card style={{ marginBottom: '30px', backgroundColor: '#f8f9fa' }}>
+            <Card style={{ marginBottom: '30px', backgroundColor: '#2a3644', border: '1px solid #495057' }}>
                 <Card.Body>
                     <div style={{ 
                         display: 'flex', 
@@ -59,18 +59,18 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                         marginBottom: '15px'
                     }}>
                         <div>
-                            <h5 style={{ margin: 0, fontWeight: '600', color: '#212529' }}>
+                            <h5 style={{ margin: 0, fontWeight: '600', color: '#f8f9fa' }}>
                                 <Number number={selectedOption.amount} /> CoflCoins
                             </h5>
-                            <p style={{ margin: 0, color: '#6c757d', fontSize: '0.9rem' }}>
+                            <p style={{ margin: 0, color: '#adb5bd', fontSize: '0.9rem' }}>
                                 Current balance: <Number number={coflCoins} /> coins
                             </p>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '1.3rem', fontWeight: '600', color: '#28a745' }}>
+                            <div style={{ fontSize: '1.3rem', fontWeight: '600', color: '#20c997' }}>
                                 From €{selectedOption.stripePrice.toFixed(2)}
                             </div>
-                            <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
+                            <div style={{ fontSize: '0.85rem', color: '#adb5bd' }}>
                                 €{(selectedOption.stripePrice / selectedOption.amount).toFixed(4)} per coin
                             </div>
                         </div>
@@ -78,8 +78,8 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                     
                     <div style={{ 
                         padding: '10px 0', 
-                        borderTop: '1px solid #dee2e6',
-                        color: '#495057',
+                        borderTop: '1px solid #495057',
+                        color: '#e9ecef',
                         fontSize: '0.9rem'
                     }}>
                         <strong>After purchase:</strong> <Number number={coflCoins + selectedOption.amount} /> CoflCoins total
@@ -89,7 +89,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
 
             <div style={{ marginBottom: '20px' }}>
                 <h5>Choose Payment Method</h5>
-                <p style={{ color: '#6c757d', fontSize: '0.9rem', margin: 0 }}>
+                <p style={{ color: '#adb5bd', fontSize: '0.9rem', margin: 0 }}>
                     Select your preferred payment provider below. Prices may vary slightly between providers.
                 </p>
             </div>

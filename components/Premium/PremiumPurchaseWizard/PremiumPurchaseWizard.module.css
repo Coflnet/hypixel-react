@@ -82,9 +82,9 @@
 }
 
 .optionCard.selected {
-    border-color: var(--border-selected, #004085);
-    background-color: var(--bg-selected, #eef4ff);
-    box-shadow: 0 6px 20px rgba(0, 64, 133, 0.18);
+    border-color: var(--border-selected, #0056b3);
+    background-color: var(--bg-selected, #1a3a52);
+    box-shadow: 0 6px 20px rgba(0, 86, 179, 0.3);
 }
 
 .optionBody {
@@ -129,8 +129,8 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    background-color: #e7f3ff;
-    border: 1px solid #bee5eb;
+    background-color: #1a4b5c;
+    border: 1px solid #0c5460;
     border-radius: 8px;
     padding: 20px;
     margin: 20px 0;
@@ -142,8 +142,8 @@
 }
 
 .summaryBox {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
+    background-color: #2a3644;
+    border: 1px solid #495057;
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 30px;
@@ -152,22 +152,22 @@
 .summaryBox h6 {
     margin-bottom: 15px;
     font-weight: 600;
-    color: #495057;
+    color: #e9ecef;
 }
 
 .summaryBox p {
     margin-bottom: 8px;
-    color: #6c757d;
+    color: #adb5bd;
 }
 
 .purchaseComponent {
-    border-top: 1px solid #dee2e6;
+    border-top: 1px solid #495057;
     padding-top: 30px;
 }
 
 .wizardFooter {
-    background-color: #f8f9fa;
-    border-top: 1px solid #dee2e6;
+    background-color: #2a3644;
+    border-top: 1px solid #495057;
     padding: 20px 30px;
 }
 
@@ -188,8 +188,8 @@
 }
 
 .backButton:hover {
-    background-color: #6c757d;
-    border-color: #6c757d;
+    background-color: #adb5bd;
+    border-color: #adb5bd;
 }
 
 .nextButton {
@@ -209,7 +209,7 @@
 
 .finalStep {
     text-align: center;
-    color: #6c757d;
+    color: #adb5bd;
     font-style: italic;
 }
 

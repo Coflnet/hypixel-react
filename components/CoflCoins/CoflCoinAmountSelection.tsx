@@ -100,8 +100,8 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
             <h4 style={{ marginBottom: '30px', textAlign: 'center' }}>Choose CoflCoin Amount</h4>
             
             {specificOption && (
-                <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#e7f3ff', borderRadius: '8px', border: '1px solid #bee5eb' }}>
-                    <p style={{ margin: 0, color: '#0c5460', fontSize: '0.9rem' }}>
+                <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#1a4b5c', borderRadius: '8px', border: '1px solid #0c5460' }}>
+                    <p style={{ margin: 0, color: '#17a2b8', fontSize: '0.9rem' }}>
                         <strong>Recommended:</strong> Your current balance isn't divisible by 1800. 
                         Consider buying <Number number={specificOption.amount} /> CoflCoins to optimize your premium purchases.
                     </p>
@@ -120,10 +120,10 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                             className={`${styles.premiumPlanCard} ${isSelected ? styles.selectedCard : ''}`}
                             style={{ 
                                 cursor: 'pointer',
-                                border: isSelected ? '2px solid #004085' : '2px solid #dee2e6',
-                                backgroundColor: isSelected ? '#eef4ff' : 'white',
+                                border: isSelected ? '2px solid #0056b3' : '2px solid #495057',
+                                backgroundColor: isSelected ? '#1a3a52' : '#2a3644',
                                 transform: isSelected ? 'translateY(-2px)' : 'none',
-                                boxShadow: isSelected ? '0 6px 20px rgba(0, 64, 133, 0.18)' : '0 2px 4px rgba(0,0,0,0.1)'
+                                boxShadow: isSelected ? '0 6px 20px rgba(0, 86, 179, 0.3)' : '0 2px 4px rgba(0,0,0,0.3)'
                             }}
                             onClick={() => setSelectedOption(option)}
                         >
@@ -168,17 +168,17 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                             </Card.Header>
                             <Card.Body>
                                 <div style={{ textAlign: 'center' }}>
-                                    <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '10px', color: '#28a745' }}>
+                                    <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '10px', color: '#20c997' }}>
                                         From €{option.stripePrice.toFixed(2)}
                                     </div>
-                                    <div style={{ fontSize: '0.9rem', color: '#6c757d', marginBottom: '15px' }}>
+                                    <div style={{ fontSize: '0.9rem', color: '#adb5bd', marginBottom: '15px' }}>
                                         €{getPricePerCoin(option).toFixed(4)} per coin
                                     </div>
                                     
                                     {savings > 0 && !isSpecialOption && (
                                         <div style={{ 
                                             fontSize: '0.9rem', 
-                                            color: '#28a745', 
+                                            color: '#20c997', 
                                             fontWeight: '600',
                                             marginBottom: '10px'
                                         }}>
@@ -189,7 +189,7 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                                     {isSpecialOption && (
                                         <div style={{ 
                                             fontSize: '0.9rem', 
-                                            color: '#0c5460',
+                                            color: '#17a2b8',
                                             marginBottom: '10px'
                                         }}>
                                             Makes your total divisible by 1800

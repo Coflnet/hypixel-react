@@ -16,7 +16,7 @@
 }
 
 .summarySection {
-    background-color: #f8f9fa;
+    background-color: #2a3644;
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 20px;
@@ -25,17 +25,17 @@
 .summarySection h6 {
     font-weight: 700;
     margin-bottom: 10px;
-    color: #495057;
+    color: #e9ecef;
 }
 
 .summarySection p {
     margin-bottom: 8px;
     font-size: 14px;
-    color: #495057;
+    color: #adb5bd;
 }
 
 .discount {
-    color: #28a745 !important;
+    color: #20c997 !important;
     font-weight: 600;
 }
 
@@ -46,7 +46,7 @@
 .featuresSection h6 {
     font-weight: 700;
     margin-bottom: 10px;
-    color: #495057;
+    color: #e9ecef;
 }
 
 .featuresSection ul {
