@@ -12,7 +12,12 @@ export const PREMIUM_TYPES: PremiumType[] = [
         label: 'Premium',
         durationString: 'month',
         priority: PREMIUM_RANK.PREMIUM,
-        options: generateNumberOptionArray(1, 12, 'premium', 1800)
+        options: [
+            { value: 1, label: '1 hour', productId: 'premium-hour', price: 150 },
+            { value: 1, label: '1 week', productId: 'premium-week', price: 1000 },
+            { value: 1, label: '1 month', productId: 'premium', price: 1800 },
+            { value: 1, label: '1 year', productId: 'premium-year', price: 20000 }
+        ]
     },
     {
         productId: 'premium_plus',
@@ -20,12 +25,13 @@ export const PREMIUM_TYPES: PremiumType[] = [
         durationString: '',
         priority: PREMIUM_RANK.PREMIUM_PLUS,
         options: [
-            { value: 1, label: '1 week for 2700', productId: 'premium_plus', price: 2700 },
+            { value: 1, label: '1 hour', productId: 'premium_plus-hour', price: 200 },
+            { value: 1, label: '1 day', productId: 'premium_plus-day', price: 600 },
+            { value: 1, label: '1 week', productId: 'premium_plus', price: 2700 },
             { value: 2, label: '2 weeks', productId: 'premium_plus', price: 2700 },
             { value: 1, label: '4 weeks (2250/week)', productId: 'premium_plus-weeks', price: 9000 },
             { value: 1, label: '11 weeks (1964/w)', productId: 'premium_plus-months', price: 21600 },
-            { value: 1, label: '1 hour', productId: 'premium_plus-hour', price: 200 },
-            { value: 1, label: '1 day', productId: 'premium_plus-day', price: 600 }
+            { value: 1, label: '1 year', productId: 'premium_plus-year', price: 95000 }
         ]
     },
     {

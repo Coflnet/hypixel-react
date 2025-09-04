@@ -69,3 +69,106 @@
     border-color: white;
     font-weight: bold;
 }
+
+/* Wizard summary styles */
+.selectedOptionCard {
+    margin-bottom: 20px;
+    border: 2px solid #28a745;
+}
+
+.summarySection {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.summarySection h6 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #3e4246;
+}
+
+.summarySection p {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #27292c;
+}
+
+.balanceSection {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.remainingBalance {
+    color: #28a745;
+    font-weight: 600;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.insufficientFunds {
+    color: #dc3545;
+    font-weight: 600;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.featuresSection {
+    margin-bottom: 20px;
+}
+
+.featuresSection h6 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+.featuresSection ul {
+    margin-bottom: 0;
+}
+
+.featuresSection li {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.purchaseInfo {
+    font-style: italic;
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+.purchaseButtonContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.purchaseButton {
+    width: 80%;
+}
+
+.premiumTypeGroup {
+    display: inline-flex;
+    width: 250px;
+}
+
+/* Wide screens - ensure all premium types display in one row */
+@media (min-width: 768px) {
+    .premiumTypeGroup {
+        width: auto;
+        display: inline-flex;
+        flex-wrap: nowrap;
+    }
+    
+    .premiumTypeGroup .priceRangeButton {
+        flex: 1;
+        white-space: nowrap;
+        min-width: 120px;
+    }
+}

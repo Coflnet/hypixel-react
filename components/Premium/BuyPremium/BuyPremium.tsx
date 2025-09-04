@@ -1,5 +1,5 @@
 'use client'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useState, useEffect } from 'react'
 import { Button, Card, Form, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../../api/ApiHelper'
@@ -10,20 +10,79 @@ import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import Number from '../../Number/Number'
 import styles from './BuyPremium.module.css'
 import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
+import { PremiumTier, Duration, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 
 interface Props {
     activePremiumProduct: PremiumProduct
     premiumSubscriptions: PremiumSubscription[]
     onNewActivePremiumProduct()
+    selectedTier?: PremiumTier
+    selectedDuration?: Duration | null
+}
+
+// Helper function to find the best matching premium option based on wizard duration
+const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Duration | null | undefined): PremiumTypeOption => {
+    if (!wizardDuration) return premiumType.options[0]
+    
+    const durationOption = premiumType.options.find(option => {
+        const labelStr = typeof option.label === 'string' ? option.label : String(option.label)
+        const lowerLabel = labelStr.toLowerCase()
+        
+        switch (wizardDuration) {
+            case Duration.HOUR:
+                return lowerLabel.includes('hour')
+            case Duration.WEEK:
+                return lowerLabel.includes('week') && !lowerLabel.includes('month')
+            case Duration.MONTHLY:
+                return lowerLabel.includes('month') || lowerLabel.includes('4 weeks')
+            case Duration.QUATER:
+                return lowerLabel.includes('11 weeks') || lowerLabel.includes('6 months')
+            case Duration.YEARLY:
+                return lowerLabel.includes('year') || lowerLabel.includes('12 months')
+            default:
+                return false
+        }
+    })
+    
+    return durationOption || premiumType.options[0]
 }
 
 function BuyPremium(props: Props) {
-    let [purchasePremiumType, setPurchasePremiumType] = useState<PremiumType>(PREMIUM_TYPES[0])
+    // Get initial premium type based on selected tier
+    const getInitialPremiumType = () => {
+        if (!props.selectedTier) return PREMIUM_TYPES[0]
+        
+        switch (props.selectedTier) {
+            case PremiumTier.STARTER:
+                return PREMIUM_TYPES.find(type => type.productId === 'starter_premium') || PREMIUM_TYPES[0]
+            case PremiumTier.PREMIUM:
+                return PREMIUM_TYPES.find(type => type.productId === 'premium') || PREMIUM_TYPES[0]
+            case PremiumTier.PREMIUM_PLUS:
+                return PREMIUM_TYPES.find(type => type.productId === 'premium_plus') || PREMIUM_TYPES[0]
+            default:
+                return PREMIUM_TYPES[0]
+        }
+    }
+
+    const initialPremiumType = getInitialPremiumType()
+    let [purchasePremiumType, setPurchasePremiumType] = useState<PremiumType>(initialPremiumType)
     let [purchaseSuccessfulOption, setPurchaseSuccessfulDuration] = useState<PremiumTypeOption>()
     let [isPurchasing, setIsPurchasing] = useState(false)
-    let [purchasePremiumOption, setPurchasePremiumOption] = useState<PremiumTypeOption>(PREMIUM_TYPES[0].options[0])
+    let [purchasePremiumOption, setPurchasePremiumOption] = useState<PremiumTypeOption>(
+        findMatchingPremiumOption(initialPremiumType, props.selectedDuration)
+    )
     let [showPrepaidConfirmationDialog, setShowPrepaidConfirmationDialog] = useState(false)
     let coflCoins = useCoflCoins()
+
+    // Set initial selection based on wizard choices
+    useEffect(() => {
+        const premiumType = getInitialPremiumType()
+        setPurchasePremiumType(premiumType)
+        
+        // Use the helper function to find the best matching option
+        const initialOption = findMatchingPremiumOption(premiumType, props.selectedDuration)
+        setPurchasePremiumOption(initialOption)
+    }, [props.selectedTier, props.selectedDuration])
 
     function onDurationChange(event: ChangeEvent<HTMLSelectElement>) {
         let option = JSON.parse(event.target.value)
@@ -60,6 +119,7 @@ function BuyPremium(props: Props) {
     }
 
     function getPurchasePrice() {
+        console.log('Calculating price:', purchasePremiumOption.value, purchasePremiumOption.price)
         return purchasePremiumOption.value * purchasePremiumOption.price
     }
 
@@ -83,6 +143,122 @@ function BuyPremium(props: Props) {
         }
     }
 
+    const getDisplayTierName = () => {
+        return props.selectedTier ? getTierDisplayName(props.selectedTier) : purchasePremiumType.label
+    }
+
+    const getDurationDisplayName = () => {
+        if (!props.selectedDuration) return getDurationString()
+        switch (props.selectedDuration) {
+            case Duration.HOUR:
+                return '1 Hour'
+            case Duration.WEEK:
+                return '1 Week'  
+            case Duration.MONTHLY:
+                return 'Monthly'
+            case Duration.QUATER:
+                return 'Quarterly'
+            case Duration.YEARLY:
+                return 'Yearly'
+            default:
+                return getDurationString()
+        }
+    }
+
+    // If coming from wizard, show only the selected option with summary
+    if (props.selectedTier && props.selectedDuration !== undefined) {
+        return (
+            <>
+                <Card className={styles.selectedOptionCard}>
+                    <Card.Header>
+                        <Card.Title>Complete Your {getDisplayTierName()} Purchase</Card.Title>
+                    </Card.Header>
+                    <Card.Body>
+                        <div className={styles.summarySection}>
+                            <h6>Your Selection:</h6>
+                            <p><strong>Tier:</strong> <span className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''}`}>{getDisplayTierName()}</span></p>
+                            <p><strong>Payment Method:</strong> CoflCoins</p>
+                            <p><strong>Duration:</strong> {purchasePremiumOption.value > 1 ? purchasePremiumOption.value +"x" : ""}{purchasePremiumOption.label}</p>
+                            <p><strong>Price:</strong> <Number number={getPurchasePrice()} /> CoflCoins</p>
+                        </div>
+                        
+                        <div className={styles.balanceSection}>
+                            <div className={styles.coinBalance}>
+                                <CoflCoinsDisplay />
+                            </div>
+                            {coflCoins >= getPurchasePrice() ? (
+                                <p className={styles.remainingBalance}>
+                                    <strong>Remaining after purchase:</strong> <Number number={coflCoins - getPurchasePrice()} /> CoflCoins
+                                </p>
+                            ) : (
+                                <p className={styles.insufficientFunds}>
+                                    You don't have enough CoflCoins for this purchase, scroll down to buy more!
+                                </p>
+                            )}
+                        </div>
+
+                        <div className={styles.featuresSection}>
+                            <h6>What you'll get:</h6>
+                            <ul>
+                                {props.selectedTier === PremiumTier.PREMIUM_PLUS ? (
+                                    <>
+                                        <li>Top flip receive time</li>
+                                        <li>All tools for analysis</li>
+                                        <li>Full auction archive</li>
+                                        <li>Data export & API access</li>
+                                    </>
+                                ) : props.selectedTier === PremiumTier.PREMIUM ? (
+                                    <>
+                                        <li>Up to 1s slower than Premium+</li>
+                                        <li>A lot of tools</li>
+                                        <li>Extended history & filter access</li>
+                                    </>
+                                ) : (
+                                    <>
+                                        <li>Premium flip notifications</li>
+                                        <li>Basic tools and analysis</li>
+                                        <li>Limited history access</li>
+                                    </>
+                                )}
+                            </ul>
+                        </div>
+
+                        <div className={styles.purchaseInfo}>
+                            <p>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
+                        </div>
+
+                        <div className={styles.purchaseButtonContainer}>
+                            <Button
+                                variant="success"
+                                size="lg"
+                                className={styles.purchaseButton}
+                                onClick={() => setShowPrepaidConfirmationDialog(true)}
+                                disabled={getPurchasePrice() > coflCoins || isPurchasing}
+                            >
+                                Purchase for <Number number={getPurchasePrice()} /> CoflCoins
+                            </Button>
+                        </div>
+                    </Card.Body>
+                </Card>
+                <BuyPremiumConfirmationDialog
+                    type="prepaid"
+                    show={showPrepaidConfirmationDialog}
+                    durationString={getDurationString()}
+                    purchasePremiumOption={purchasePremiumOption}
+                    purchasePrice={
+                        <>
+                            <Number number={getPurchasePrice()} /> CoflCoins
+                        </>
+                    }
+                    purchasePremiumType={purchasePremiumType}
+                    onHide={onPremiumBuyCancel}
+                    onConfirm={onPremiumBuy}
+                    activePremiumProduct={props.activePremiumProduct}
+                />
+            </>
+        )
+    }
+
     return (
         <>
             <Card className={styles.purchaseCard}>
@@ -95,7 +271,7 @@ function BuyPremium(props: Props) {
                             <div style={{ marginBottom: '15px' }}>
                                 <label className={styles.label}>Premium type:</label>
                                 <ToggleButtonGroup
-                                    style={{ width: '250px', display: 'inline' }}
+                                    className={styles.premiumTypeGroup}
                                     type="radio"
                                     name="options"
                                     value={purchasePremiumType.productId}

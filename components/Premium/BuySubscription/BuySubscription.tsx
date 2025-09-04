@@ -5,24 +5,46 @@ import api from '../../../api/ApiHelper'
 import { Button, Card, Col, Row } from 'react-bootstrap'
 import styles from './BuySubscription.module.css'
 import NumberElement from '../../Number/Number'
+import { Duration, PremiumTier, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 
 interface Props {
     activePremiumProduct: PremiumProduct
+    selectedTier?: PremiumTier
+    selectedDuration?: Duration | null
 }
 
 function BuySubscription(props: Props) {
     const [selectedPremiumType, setSelectedPremiumType] = useState<PremiumType>()
     const [isYearOption, setIsYearOption] = useState<boolean>()
 
+    // If we have wizard selections, use them to determine the selected type and duration
+    const wizardSelectedType = props.selectedTier ?
+        PREMIUM_TYPES.find(type => {
+            switch (props.selectedTier) {
+                case PremiumTier.PREMIUM: return type.productId === 'premium'
+                case PremiumTier.PREMIUM_PLUS: return type.productId === 'premium_plus'
+                default: return type.productId === 'premium'
+            }
+        }) : undefined
+
+    const wizardIsYearOption = props.selectedDuration === Duration.YEARLY
+
+    const getDisplayTierName = () => {
+        return props.selectedTier ? getTierDisplayName(props.selectedTier) : 'Premium'
+    }
+
     function getSubscriptionPrice() {
-        if (!selectedPremiumType) {
+        const targetType = selectedPremiumType || wizardSelectedType
+        if (!targetType) {
             return -1
         }
-        if (selectedPremiumType.productId === 'premium') {
-            return isYearOption ? 96.69 : 8.69
+        const yearOption = isYearOption !== undefined ? isYearOption : wizardIsYearOption
+
+        if (targetType.productId === 'premium') {
+            return yearOption ? 96.69 : 8.69
         }
-        if (selectedPremiumType.productId === 'premium_plus') {
-            return isYearOption ? 354.20 : 35.69
+        if (targetType.productId === 'premium_plus') {
+            return yearOption ? 354.20 : 35.69
         }
         return -1
     }
@@ -32,23 +54,107 @@ function BuySubscription(props: Props) {
     }
 
     function onSubscriptionBuy(googleToken: string) {
-        if (!selectedPremiumType) {
+        const targetType = selectedPremiumType || wizardSelectedType
+        if (!targetType) {
             return
         }
+        const yearOption = isYearOption !== undefined ? isYearOption : wizardIsYearOption
+
         let productId = ''
-        if (selectedPremiumType.productId === 'premium') {
+        if (targetType.productId === 'premium') {
             productId = 'l_premium'
         }
-        if (selectedPremiumType.productId === 'premium_plus') {
+        if (targetType.productId === 'premium_plus') {
             productId = 'l_prem_plus'
         }
-        if (isYearOption) {
+        if (yearOption) {
             productId += '-year'
         }
 
         api.purchasePremiumSubscription(productId, googleToken).then(data => {
             window.open(data.directLink, '_self')
         })
+    }
+
+    // If coming from wizard, show only the selected option with summary
+    if (props.selectedTier && props.selectedDuration !== undefined) {
+        const targetType = wizardSelectedType!
+        const yearOption = wizardIsYearOption
+        const price = getSubscriptionPrice()
+
+        return (
+            <>
+                <Card className={styles.selectedOptionCard}>
+                    <Card.Header>
+                        <Card.Title>Complete Your {getDisplayTierName()} Subscription</Card.Title>
+                    </Card.Header>
+                    <Card.Body>
+                        <div className={styles.summarySection}>
+                            <h6>Your Selection:</h6>
+                            <p><strong>Tier:</strong> <span className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''}`}>{getDisplayTierName()}</span></p>
+                            <p><strong>Billing:</strong> {yearOption ? 'Yearly (52 weeks)' : 'Monthly (4 weeks)'}</p>
+                            <p><strong>Price:</strong> <NumberElement number={price} /> Euro (+VAT) {yearOption ? 'per year' : 'per month'}</p>
+                            {yearOption && (
+                                <>
+                                    <p className={styles.discount}>
+                                        <strong>Savings:</strong> {targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing
+                                    </p>
+                                    <p>
+                                        You qualify for using code <code>M2OTC1OQ</code> at checkout, to get an extra <strong>20% discount</strong> on the yearly option
+                                    </p>
+                                </>
+                            )}
+                        </div>
+
+                        <div className={styles.featuresSection}>
+                            <h6>What you'll get:</h6>
+                            <ul>
+                                {targetType.productId === 'premium_plus' ? (
+                                    <>
+                                        <li>Top flip receive time</li>
+                                        <li>All tools for analysis</li>
+                                        <li>Full auction archive</li>
+                                        <li>Data export & API access</li>
+                                    </>
+                                ) : (
+                                    <>
+                                        <li>Up to 1s slower than Premium+</li>
+                                        <li>A lot of tools</li>
+                                        <li>Extended history & filter access</li>
+                                    </>
+                                )}
+                            </ul>
+                        </div>
+
+                        <div className={styles.purchaseButtonContainer}>
+                            <Button
+                                variant="success"
+                                size="lg"
+                                className={styles.purchaseButton}
+                                onClick={() => {
+                                    setSelectedPremiumType(targetType)
+                                    setIsYearOption(yearOption)
+                                }}
+                            >
+                                Subscribe for <NumberElement number={price} /> Euro (+VAT) {yearOption ? '/ year' : '/ month'}
+                            </Button>
+                        </div>
+                    </Card.Body>
+                </Card>
+                {(selectedPremiumType || wizardSelectedType) && (
+                    <BuyPremiumConfirmationDialog
+                        type="subscription"
+                        show={selectedPremiumType !== undefined}
+                        purchasePremiumOption={PREMIUM_TYPES.find(type => type.productId === 'premium')?.options[0]!}
+                        purchasePrice={<>{getSubscriptionPrice()} {(isYearOption !== undefined ? isYearOption : wizardIsYearOption) ? 'per year' : 'per month'}</>}
+                        purchasePremiumType={selectedPremiumType || wizardSelectedType!}
+                        onHide={onSubscriptionBuyCancel}
+                        onConfirm={onSubscriptionBuy}
+                        activePremiumProduct={props.activePremiumProduct}
+                    />
+                )}
+            </>
+        )
     }
 
     return (

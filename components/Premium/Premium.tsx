@@ -116,6 +116,8 @@ function Premium() {
                     <h2>Get Premium</h2>
                     <PremiumPurchaseWizard
                         activePremiumProduct={activePremiumProduct!}
+                        premiumSubscriptions={premiumSubscriptions}
+                        onNewActivePremiumProduct={loadPremiumProducts}
                         cancellationRightLossConfirmed={cancellationRightLossConfirmed}
                     />
                 </div>

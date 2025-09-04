@@ -39,8 +39,13 @@ function Payment(props: Props) {
         let response: Response | null = null
         try {
             response = await fetch('https://api.country.is')
-        } catch {
-            console.error('Failed to fetch country from api.country.is')
+        } catch (error) {
+            console.warn('Failed to fetch country from api.country.is:', error)
+            // Fallback to country from browser language
+            let country = getCountryFromUserLanguage()
+            setDefaultCountry(country)
+            setSelectedCountry(country)
+            return
         }
 
         if (response && response.ok) {
