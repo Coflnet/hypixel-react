@@ -100,8 +100,8 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
             <h4 style={{ marginBottom: '30px', textAlign: 'center' }}>Choose CoflCoin Amount</h4>
             
             {specificOption && (
-                <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#1a4b5c', borderRadius: '8px', border: '1px solid #0c5460' }}>
-                    <p style={{ margin: 0, color: '#17a2b8', fontSize: '0.9rem' }}>
+                <div className="alert alert-info" role="alert" style={{ marginBottom: '20px' }}>
+                    <p className="mb-0 small">
                         <strong>Recommended:</strong> Your current balance isn't divisible by 1800. 
                         Consider buying <Number number={specificOption.amount} /> CoflCoins to optimize your premium purchases.
                     </p>
@@ -117,83 +117,37 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                     return (
                         <Card 
                             key={option.amount}
-                            className={`${styles.premiumPlanCard} ${isSelected ? styles.selectedCard : ''}`}
+                            className={`${styles.premiumPlanCard} ${isSelected ? 'border-primary shadow' : 'border-secondary'}`}
                             style={{ 
                                 cursor: 'pointer',
-                                border: isSelected ? '2px solid #0056b3' : '2px solid #495057',
-                                backgroundColor: isSelected ? '#1a3a52' : '#2a3644',
-                                transform: isSelected ? 'translateY(-2px)' : 'none',
-                                boxShadow: isSelected ? '0 6px 20px rgba(0, 86, 179, 0.3)' : '0 2px 4px rgba(0,0,0,0.3)'
+                                transform: isSelected ? 'translateY(-2px)' : 'none'
                             }}
                             onClick={() => setSelectedOption(option)}
                         >
-                            <Card.Header style={{ position: 'relative' }}>
+                            <Card.Header className="position-relative">
                                 <Card.Title>
                                     <Number number={option.amount} /> CoflCoins
                                 </Card.Title>
                                 {isSpecialOption && (
-                                    <span style={{
-                                        position: 'absolute',
-                                        top: '10px',
-                                        right: '10px',
-                                        background: 'linear-gradient(135deg, #28a745, #20c997)',
-                                        color: 'white',
-                                        padding: '4px 12px',
-                                        borderRadius: '20px',
-                                        fontSize: '0.75rem',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.5px'
-                                    }}>
-                                        OPTIMAL
-                                    </span>
+                                    <span className="position-absolute top-0 end-0 mt-2 me-2 badge bg-success">OPTIMAL</span>
                                 )}
                                 {savings > 0 && !isSpecialOption && (
-                                    <span style={{
-                                        position: 'absolute',
-                                        top: '10px',
-                                        right: '10px',
-                                        background: 'linear-gradient(135deg, #ff6b35, #f7931e)',
-                                        color: 'white',
-                                        padding: '4px 12px',
-                                        borderRadius: '20px',
-                                        fontSize: '0.75rem',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.5px'
-                                    }}>
-                                        SAVE {Math.round(savings)}%
-                                    </span>
+                                    <span className="position-absolute top-0 end-0 mt-2 me-2 badge bg-warning text-dark">SAVE {Math.round(savings)}%</span>
                                 )}
                             </Card.Header>
                             <Card.Body>
                                 <div style={{ textAlign: 'center' }}>
-                                    <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '10px', color: '#20c997' }}>
-                                        From €{option.stripePrice.toFixed(2)}
-                                    </div>
-                                    <div style={{ fontSize: '0.9rem', color: '#adb5bd', marginBottom: '15px' }}>
-                                        €{getPricePerCoin(option).toFixed(4)} per coin
-                                    </div>
-                                    
+                                    <div className="h5 fw-semibold text-success mb-2">From €{option.stripePrice.toFixed(2)}</div>
+                                    <div className="small text-muted mb-3">€{getPricePerCoin(option).toFixed(4)} per coin</div>
+
                                     {savings > 0 && !isSpecialOption && (
-                                        <div style={{ 
-                                            fontSize: '0.9rem', 
-                                            color: '#20c997', 
-                                            fontWeight: '600',
-                                            marginBottom: '10px'
-                                        }}>
+                                        <div className="small text-success fw-semibold mb-2">
                                             {Math.round(savings)}% cheaper than {baseOption.amount} coins
                                         </div>
                                     )}
 
                                     {isSpecialOption && (
-                                        <div style={{ 
-                                            fontSize: '0.9rem', 
-                                            color: '#17a2b8',
-                                            marginBottom: '10px'
-                                        }}>
-                                            Makes your total divisible by 1800
-                                        </div>
+                                        <div className="small text-info mb-2">Makes your total divisible by 1800</div>
                                     )}
                                 </div>
                             </Card.Body>

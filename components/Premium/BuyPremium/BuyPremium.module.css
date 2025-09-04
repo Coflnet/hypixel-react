@@ -27,12 +27,12 @@
 }
 
 .dropdown::-webkit-scrollbar-thumb {
-    background: #3a3f44;
+    background: transparent;
     border-radius: 10px;
 }
 
 .dropdown::-webkit-scrollbar-thumb:hover {
-    background: #7a8288;
+    background: transparent;
 }
 
 @media all and (max-width: 768px) {
@@ -57,62 +57,62 @@
 
 /** Show the not selected price options more clearly as not selected **/
 .purchaseCard :global(:not(.btn-check:checked)) + .priceRangeButton{
-    background-color: #2a3644; /* dark neutral background */
-    border-color: #495057;
+    background-color: transparent; /* neutral background replaced with Bootstrap defaults */
+    border-color: var(--bs-border-color, #d1d7de);
     font-weight: 600;
-    color: #adb5bd; /* bright readable neutral text */
+    color: var(--bs-secondary); /* muted text */
 }
 
 /** Show the selected price option more clearly as selected **/
 .purchaseCard :global(.btn-check:checked) + .priceRangeButton{
-    border-color: #0056b3;
-    background-color: #1a3a52; /* dark blue tint to indicate selection */
+    border-color: var(--bs-primary);
+    background-color: transparent; /* selection indicated with border/primary styles */
     font-weight: 700;
-    color: #e3f2fd; /* bright blue text for contrast */
+    color: var(--bs-white);
 }
 
 /* Wizard summary styles */
 .selectedOptionCard {
     margin-bottom: 20px;
-    border: 2px solid #20c997;
+    border: 2px solid var(--bs-success);
 }
 
 .summarySection {
-    background-color: #2a3644;
+    background-color: transparent;
     padding: 15px;
     border-radius: 8px;
-    color: #e9ecef;
+    color: var(--bs-body-color);
     margin-bottom: 20px;
 }
 
 .summarySection h6 {
     font-weight: 700;
     margin-bottom: 10px;
-    border: 2px solid #17a085; /* darker green border for better contrast */
+    border: 2px solid var(--bs-success); /* darker green border for better contrast */
 }
 
 .summarySection p {
     margin-bottom: 8px;
     font-size: 14px;
-    color: #adb5bd; /* bright readable paragraph color */
+    color: var(--bs-emphasis); /* muted paragraph color */
 }
 
 .balanceSection {
     margin-bottom: 20px;
     padding: 15px;
-    background-color: #2a3644;
+    background-color: transparent;
     border-radius: 8px;
 }
 
 .remainingBalance {
-    color: #20c997;
+    color: var(--bs-success);
     font-weight: 600;
     margin-top: 10px;
     margin-bottom: 0;
 }
 
 .insufficientFunds {
-    color: #e74c3c;
+    color: var(--bs-danger);
     font-weight: 600;
     margin-top: 10px;
     margin-bottom: 0;
@@ -125,7 +125,7 @@
 .featuresSection h6 {
     font-weight: 700;
     margin-bottom: 10px;
-    color: #e9ecef;
+    color: var(--bs-body-color);
 }
 
 .featuresSection ul {
@@ -139,7 +139,7 @@
 
 .purchaseInfo {
     font-style: italic;
-    color: #adb5bd;
+    color: var(--bs-secondary);
     margin-bottom: 20px;
 }
 

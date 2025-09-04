@@ -10,13 +10,13 @@
     margin-bottom: 20px;
     font-size: 1.4rem;
     font-weight: 600;
-    color: #6f9dca;
+    color: var(--bs-primary);
     line-height: 1.3;
 }
 
 .stepDescription {
     text-align: center;
-    color: #aebecf;
+    color: var(--bs-emphasis);
     font-size: 1rem;
     margin-bottom: 10px;
     line-height: 1.5;
@@ -101,7 +101,7 @@
 .tierPrice {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--tier-price-color, #4a90e2);
+    color: var(--bs-primary);
     margin-bottom: 10px;
     padding: 5px 10px;
     background-color: rgba(74, 144, 226, 0.1);
@@ -110,7 +110,7 @@
 }
 
 .optionCard.selected .tierPrice {
-    color: var(--tier-price-selected, #17a2b8);
+    color: var(--bs-info);
     background-color: rgba(0, 58, 102, 0.1);
     border-color: rgba(0, 58, 102, 0.2);
 }
@@ -138,7 +138,7 @@
 
 .optionCard.selected .optionIcon,
 .optionCard.selected .checkIcon {
-    color: #17a2b8;
+    color: var(--bs-info);
 }
 
 .optionCard.selected .featureList li:before {
@@ -146,7 +146,7 @@
 }
 
 .optionCard.selected .recommendation {
-    background: linear-gradient(135deg, #1e7a33, #15a88d);
+    background-color: var(--bs-success);
     box-shadow: 0 4px 14px rgba(15,85,34,0.15);
 }
 
@@ -195,7 +195,7 @@
 }
 
 .recommendation {
-    background: linear-gradient(135deg, var(--success-color), #20c997);
+    background-color: var(--bs-success);
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
@@ -233,12 +233,12 @@
 }
 
 .tierNote {
-    background-color: #1a4b5c;
-    border: 1px solid #0c5460;
+    background-color: transparent;
+    border: 1px solid var(--bs-border-color, #d1d7de);
     border-radius: 8px;
     padding: 15px;
     text-align: center;
-    color: #17a2b8;
+    color: var(--bs-info);
     font-size: 0.9rem;
     line-height: 1.4;
 }
@@ -247,8 +247,8 @@
     display: flex;
     align-items: flex-start;
     gap: 15px;
-    background-color: #1a4b5c;
-    border: 1px solid #0c5460;
+    background-color: transparent;
+    border: 1px solid var(--bs-border-color, #d1d7de);
     border-radius: 8px;
     padding: 20px;
     margin: 20px 0;
@@ -270,8 +270,8 @@
 
 /* Summary Box */
 .summaryBox {
-    background-color: #2a3644;
-    border: 1px solid #495057;
+    background-color: transparent;
+    border: 1px solid var(--bs-border-color, #d1d7de);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 30px;
@@ -280,19 +280,19 @@
 .summaryTitle {
     margin-bottom: 15px;
     font-weight: 700;
-    color: #e9ecef;
+    color: var(--bs-body-color);
     font-size: 1.1rem;
 }
 
 .summaryDetails p {
     margin-bottom: 8px;
-    color: #adb5bd; /* bright for summary text */
+    color: var(--bs-secondary); /* muted for summary text */
     font-size: 0.95rem;
     line-height: 1.4;
 }
 
 .summaryValue {
-    color: #f8f9fa; /* very bright for contrast */
+    color: var(--bs-white); /* very bright for contrast */
     font-weight: 600;
 }
 

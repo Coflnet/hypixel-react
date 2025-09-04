@@ -140,7 +140,7 @@ export default function TierSelectionStep({ selectedTier, onTierSelect }: Props)
                                     <span>{premiumPlusDiscounted.displayText}</span>
                                     <br />
                                     <small
-                                        style={{ color: '#28a745', cursor: 'help' }}
+                                        style={{ cursor: 'help' }} className="text-success"
                                         title={`Apply code ${discountInfo.code} at checkout to receive ${discountInfo.percentage}% off`}
                                     >
                                         -{discountInfo.percentage}% with code <strong>{discountInfo.code}</strong>

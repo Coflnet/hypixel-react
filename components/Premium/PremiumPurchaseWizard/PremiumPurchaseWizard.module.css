@@ -13,7 +13,7 @@
 
 .wizardHeader {
     /* darker gradient so white text meets contrast */
-    background: linear-gradient(135deg, #0056b3, #003f7a);
+    background-color: var(--bs-primary);
     color: white;
     text-align: center;
     padding: 30px 20px;
@@ -24,7 +24,7 @@
     margin-bottom: 15px;
     font-size: 1.5rem;
     font-weight: 600;
-    color: #ffffff; /* force white for high contrast on gradient */
+    color: var(--bs-white);
 }
 
 .progressBar {
@@ -55,7 +55,7 @@
     margin-bottom: 30px;
     font-size: 1.3rem;
     font-weight: 500;
-    color: #333;
+    color: var(--bs-body-color);
 }
 
 .optionsGrid {
@@ -67,7 +67,7 @@
 
 .optionCard {
     cursor: pointer;
-    border: 2px solid var(--border-default, #d1d7de);
+    border: 2px solid var(--bs-border-color, #d1d7de);
     border-radius: 12px;
     transition: all 0.3s ease;
     width: 100%;
@@ -76,14 +76,14 @@
 }
 
 .optionCard:hover {
-    border-color: var(--border-hover, #0056b3);
+    border-color: var(--bs-primary);
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(0, 86, 179, 0.18);
 }
 
 .optionCard.selected {
-    border-color: var(--border-selected, #0056b3);
-    background-color: var(--bg-selected, #1a3a52);
+    border-color: var(--bs-primary);
+    background-color: transparent;
     box-shadow: 0 6px 20px rgba(0, 86, 179, 0.3);
 }
 
@@ -102,17 +102,17 @@
 .optionBody h5 {
     margin-bottom: 10px;
     font-weight: 600;
-    color: var(--unselected-text-primary, #98a6b5);
+    color: var(--bs-secondary);
 }
 
 .optionBody p {
-    color: var(--unselected-text-muted, #93a1af);
+    color: var(--bs-secondary);
     margin-bottom: 10px;
     font-size: 0.9rem;
 }
 
 .recommendation {
-    background: linear-gradient(135deg, var(--success-color, #28a745), #20c997);
+    background-color: var(--bs-success);
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
@@ -129,21 +129,21 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    background-color: #1a4b5c;
-    border: 1px solid #0c5460;
+    background-color: transparent;
+    border: 1px solid var(--bs-border-color, #d1d7de);
     border-radius: 8px;
     padding: 20px;
     margin: 20px 0;
 }
 
 .checkIcon {
-    color: var(--success-color, #28a745);
+    color: var(--bs-success);
     font-size: 1.5rem;
 }
 
 .summaryBox {
-    background-color: #2a3644;
-    border: 1px solid #495057;
+    background-color: transparent;
+    border: 1px solid var(--bs-border-color, #d1d7de);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 30px;
@@ -152,22 +152,22 @@
 .summaryBox h6 {
     margin-bottom: 15px;
     font-weight: 600;
-    color: #e9ecef;
+    color: var(--bs-body-color);
 }
 
 .summaryBox p {
     margin-bottom: 8px;
-    color: #adb5bd;
+    color: var(--bs-secondary);
 }
 
 .purchaseComponent {
-    border-top: 1px solid #495057;
+    border-top: 1px solid var(--bs-border-color, #d1d7de);
     padding-top: 30px;
 }
 
 .wizardFooter {
-    background-color: #2a3644;
-    border-top: 1px solid #495057;
+    background-color: transparent;
+    border-top: 1px solid var(--bs-border-color, #d1d7de);
     padding: 20px 30px;
 }
 
@@ -188,17 +188,17 @@
 }
 
 .backButton:hover {
-    background-color: #adb5bd;
-    border-color: #adb5bd;
+    background-color: transparent;
+    border-color: var(--bs-border-color, #d1d7de);
 }
 
 .nextButton {
-    background: linear-gradient(135deg, #007bff, #0056b3);
+    background-color: var(--bs-primary);
     border: none;
 }
 
 .nextButton:hover:not(:disabled) {
-    background: linear-gradient(135deg, #0056b3, #004085);
+    background-color: var(--bs-primary);
     transform: translateY(-1px);
 }
 
@@ -209,7 +209,7 @@
 
 .finalStep {
     text-align: center;
-    color: #adb5bd;
+    color: var(--bs-secondary);
     font-style: italic;
 }
 

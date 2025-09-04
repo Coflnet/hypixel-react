@@ -135,9 +135,9 @@ function BuyPremium(props: Props) {
     function getPremiumToggleButtonStyle(premiumType: PremiumType) {
         switch (premiumType.productId) {
             case 'premium':
-                return { color: '#08583a' }
+                return { color: 'var(--bs-success)' }
             case 'premium_plus':
-                return { color: '#6f4b00' }
+                return { color: 'var(--bs-body-color)' }
             default:
                 return {}
         }
@@ -169,77 +169,70 @@ function BuyPremium(props: Props) {
     if (props.selectedTier && props.selectedDuration !== undefined) {
         return (
             <>
-                <Card className={styles.selectedOptionCard}>
-                    <Card.Header>
-                        <Card.Title>Complete Your {getDisplayTierName()} Purchase</Card.Title>
-                    </Card.Header>
-                    <Card.Body>
-                        <div className={styles.summarySection}>
-                            <h6>Your Selection:</h6>
-                            <p><strong>Tier:</strong> <span className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''}`}>{getDisplayTierName()}</span></p>
-                            <p><strong>Payment Method:</strong> CoflCoins</p>
-                            <p><strong>Duration:</strong> {purchasePremiumOption.value > 1 ? purchasePremiumOption.value +"x" : ""}{purchasePremiumOption.label}</p>
-                            <p><strong>Price:</strong> <Number number={getPurchasePrice()} /> CoflCoins</p>
-                        </div>
-                        
-                        <div className={styles.balanceSection}>
-                            <div className={styles.coinBalance}>
-                                <CoflCoinsDisplay />
-                            </div>
-                            {coflCoins >= getPurchasePrice() ? (
-                                <p className={styles.remainingBalance}>
-                                    <strong>Remaining after purchase:</strong> <Number number={coflCoins - getPurchasePrice()} /> CoflCoins
-                                </p>
-                            ) : (
-                                <p className={styles.insufficientFunds}>
-                                    You don't have enough CoflCoins for this purchase, scroll down to buy more!
-                                </p>
-                            )}
-                        </div>
+                <div className={styles.summarySection}>
+                    <h6>Your Selection:</h6>
+                    <p><strong>Tier:</strong> <span className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''}`}>{getDisplayTierName()}</span></p>
+                    <p><strong>Payment Method:</strong> CoflCoins</p>
+                    <p><strong>Duration:</strong> {purchasePremiumOption.value > 1 ? purchasePremiumOption.value +"x" : ""}{purchasePremiumOption.label}</p>
+                    <p><strong>Price:</strong> <Number number={getPurchasePrice()} /> CoflCoins</p>
+                </div>
+                
+                <div className={styles.balanceSection}>
+                    <div className={styles.coinBalance}>
+                        <CoflCoinsDisplay />
+                    </div>
+                    {coflCoins >= getPurchasePrice() ? (
+                        <p className={styles.remainingBalance}>
+                            <strong>Remaining after purchase:</strong> <Number number={coflCoins - getPurchasePrice()} /> CoflCoins
+                        </p>
+                    ) : (
+                        <p className={styles.insufficientFunds}>
+                            You don't have enough CoflCoins for this purchase, scroll down to buy more!
+                        </p>
+                    )}
+                </div>
 
-                        <div className={styles.featuresSection}>
-                            <h6>What you'll get:</h6>
-                            <ul>
-                                {props.selectedTier === PremiumTier.PREMIUM_PLUS ? (
-                                    <>
-                                        <li>Top flip receive time</li>
-                                        <li>All tools for analysis</li>
-                                        <li>Full auction archive</li>
-                                        <li>Data export & API access</li>
-                                    </>
-                                ) : props.selectedTier === PremiumTier.PREMIUM ? (
-                                    <>
-                                        <li>Up to 1s slower than Premium+</li>
-                                        <li>A lot of tools</li>
-                                        <li>Extended history & filter access</li>
-                                    </>
-                                ) : (
-                                    <>
-                                        <li>Premium flip notifications</li>
-                                        <li>Basic tools and analysis</li>
-                                        <li>Limited history access</li>
-                                    </>
-                                )}
-                            </ul>
-                        </div>
+                <div className={styles.featuresSection}>
+                    <h6>What you'll get:</h6>
+                    <ul>
+                        {props.selectedTier === PremiumTier.PREMIUM_PLUS ? (
+                            <>
+                                <li>Top flip receive time</li>
+                                <li>All tools for analysis</li>
+                                <li>Full auction archive</li>
+                                <li>Data export & API access</li>
+                            </>
+                        ) : props.selectedTier === PremiumTier.PREMIUM ? (
+                            <>
+                                <li>Up to 1s slower than Premium+</li>
+                                <li>A lot of tools</li>
+                                <li>Extended history & filter access</li>
+                            </>
+                        ) : (
+                            <>
+                                <li>Premium flip notifications</li>
+                                <li>Basic tools and analysis</li>
+                                <li>Limited history access</li>
+                            </>
+                        )}
+                    </ul>
+                </div>
 
-                        <div className={styles.purchaseInfo}>
-                            <p>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
-                        </div>
+                <div className={styles.purchaseInfo}>
+                    <p>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
+                </div>
 
-                        <div className={styles.purchaseButtonContainer}>
-                            <Button
-                                variant="success"
-                                size="lg"
-                                className={styles.purchaseButton}
-                                onClick={() => setShowPrepaidConfirmationDialog(true)}
-                                disabled={getPurchasePrice() > coflCoins || isPurchasing}
-                            >
-                                Purchase for <Number number={getPurchasePrice()} /> CoflCoins
-                            </Button>
-                        </div>
-                    </Card.Body>
-                </Card>
+                <div className={styles.purchaseButtonContainer}>
+                    <Button
+                        variant="success"
+                        size="lg"
+                        className={styles.purchaseButton}
+                        onClick={() => setShowPrepaidConfirmationDialog(true)}
+                        disabled={getPurchasePrice() > coflCoins || isPurchasing}
+                    >
+                        Purchase for <Number number={getPurchasePrice()} /> CoflCoins
+                    </Button>
+                </div>
                 <BuyPremiumConfirmationDialog
                     type="prepaid"
                     show={showPrepaidConfirmationDialog}

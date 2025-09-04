@@ -91,87 +91,80 @@ function BuySubscription(props: Props) {
 
         return (
             <>
-                <Card className={styles.selectedOptionCard}>
-                    <Card.Header>
-                        <Card.Title>Complete Your {getDisplayTierName()} Subscription</Card.Title>
-                    </Card.Header>
-                    <Card.Body>
-                        <div className={styles.summarySection}>
-                            <h6>Your Selection:</h6>
-                            <p><strong>Tier:</strong> <span className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''}`}>{getDisplayTierName()}</span></p>
-                            <p><strong>Billing:</strong> {yearOption ? 'Yearly (52 weeks)' : 'Monthly (4 weeks)'}</p>
-                            <p>{yearOption ? (
-                                <>
-                                    <strong>Price:</strong> <NumberElement number={price} /> Euro (+VAT) per year&nbsp;<br/>
-                                    (<NumberElement number={parseFloat((price / 13).toFixed(2))} /> Euro (+VAT) per 4 weeks)
-                                </>
-                            ) : (
-                                <>
-                                    <strong>Price:</strong> <NumberElement number={price} /> Euro (+VAT) per 4 weeks
-                                </>
-                            )}
+                <div className={styles.summarySection}>
+                    <h6>Your Selection:</h6>
+                    <p><strong>Tier:</strong> <span className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''}`}>{getDisplayTierName()}</span></p>
+                    <p><strong>Billing:</strong> {yearOption ? 'Yearly (52 weeks)' : 'Monthly (4 weeks)'}</p>
+                    <p>{yearOption ? (
+                        <>
+                            <strong>Price:</strong> <NumberElement number={price} /> Euro (+VAT) per year&nbsp;<br />
+                            (<NumberElement number={parseFloat((price / 13).toFixed(2))} /> Euro (+VAT) per 4 weeks)
+                        </>
+                    ) : (
+                        <>
+                            <strong>Price:</strong> <NumberElement number={price} /> Euro (+VAT) per 4 weeks
+                        </>
+                    )}
+                    </p>
+                    {yearOption && (
+                        <>
+                            {targetType.productId !== 'starter_premium' && (
+                                <p className={styles.discount}>
+                                    <strong>Savings:</strong> {targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing
                                 </p>
-                            {yearOption && (
-                                <>
-                                    {targetType.productId !== 'starter_premium' && (
-                                        <p className={styles.discount}>
-                                            <strong>Savings:</strong> {targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing
-                                        </p>
-                                    )}
-                                    <p>
-                                        You qualify for using code <code>M2OTC1OQ</code> at checkout, to get an extra <strong>20% discount</strong> on the yearly option
-                                    </p>
-                                </>
                             )}
-                        </div>
+                            <p>
+                                You qualify for using code <code>M2OTC1OQ</code> at checkout, to get an extra <strong>20% discount</strong> on the yearly option
+                            </p>
+                        </>
+                    )}
+                </div>
 
-                        <div className={styles.featuresSection}>
-                            <h6>What you'll get:</h6>
-                            <ul>
-                                {targetType.productId === 'premium_plus' ? (
-                                    <>
-                                        <li>Top flip receive time</li>
-                                        <li>All tools for analysis</li>
-                                        <li>Full auction archive</li>
-                                        <li>Data export & API access</li>
-                                    </>
-                                ) : targetType.productId === 'starter_premium' ? (
-                                    <>
-                                        <li>Ad-free experience</li>
-                                        <li>Extended limits across features</li>
-                                        <li>Starter tools & access</li>
-                                    </>
-                                ) : (
-                                    <>
-                                        <li>Up to 1s slower than Premium+</li>
-                                        <li>A lot of tools</li>
-                                        <li>Extended history & filter access</li>
-                                    </>
-                                )}
-                            </ul>
-                        </div>
+                <div className={styles.featuresSection}>
+                    <h6>What you'll get:</h6>
+                    <ul>
+                        {targetType.productId === 'premium_plus' ? (
+                            <>
+                                <li>Top flip receive time</li>
+                                <li>All tools for analysis</li>
+                                <li>Full auction archive</li>
+                                <li>Data export & API access</li>
+                            </>
+                        ) : targetType.productId === 'starter_premium' ? (
+                            <>
+                                <li>Ad-free experience</li>
+                                <li>Extended limits across features</li>
+                                <li>Starter tools & access</li>
+                            </>
+                        ) : (
+                            <>
+                                <li>Up to 1s slower than Premium+</li>
+                                <li>A lot of tools</li>
+                                <li>Extended history & filter access</li>
+                            </>
+                        )}
+                    </ul>
+                </div>
 
-                        <div className={styles.purchaseButtonContainer}>
-                            <Button
-                                variant="success"
-                                size="lg"
-                                className={styles.purchaseButton}
-                                onClick={() => {
-                                    setSelectedPremiumType(targetType)
-                                    setIsYearOption(yearOption)
-                                    startSubscriptionPurchase(selectedPremiumType || wizardSelectedType!, isYearOption !== undefined ? isYearOption : wizardIsYearOption)
-                                    const activeEl = document.activeElement as HTMLElement | null;
-                                    if (activeEl && activeEl.tagName === 'BUTTON') {
-                                        activeEl.innerText = 'Redirecting to payment provider...';
-                                        (activeEl as HTMLButtonElement).disabled = true;
-                                    }
-                                }}
-                            >
-                                Continue to our secure payment processor
-                            </Button>
-                        </div>
-                    </Card.Body>
-                </Card>
+                <div className={styles.purchaseButtonContainer}>
+                    <Button
+                        variant="success"
+                        size="lg"
+                        className={styles.purchaseButton}
+                        onClick={() => {
+                            setSelectedPremiumType(targetType)
+                            setIsYearOption(yearOption)
+                            startSubscriptionPurchase(selectedPremiumType || wizardSelectedType!, isYearOption !== undefined ? isYearOption : wizardIsYearOption)
+                            const activeEl = document.activeElement as HTMLElement | null;
+                            if (activeEl && activeEl.tagName === 'BUTTON') {
+                                activeEl.innerText = 'Redirecting to payment provider...';
+                                (activeEl as HTMLButtonElement).disabled = true;
+                            }
+                        }}
+                    >
+                        Continue to our secure payment processor
+                    </Button>
+                </div>
             </>
         )
     }
