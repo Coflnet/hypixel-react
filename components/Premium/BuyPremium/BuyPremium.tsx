@@ -135,9 +135,9 @@ function BuyPremium(props: Props) {
     function getPremiumToggleButtonStyle(premiumType: PremiumType) {
         switch (premiumType.productId) {
             case 'premium':
-                return { color: '#32de84' }
+                return { color: '#08583a' }
             case 'premium_plus':
-                return { color: '#ffaa00' }
+                return { color: '#6f4b00' }
             default:
                 return {}
         }

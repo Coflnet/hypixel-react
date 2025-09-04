@@ -12,7 +12,8 @@
 }
 
 .wizardHeader {
-    background: linear-gradient(135deg, #007bff, #0056b3);
+    /* darker gradient so white text meets contrast */
+    background: linear-gradient(135deg, #0056b3, #003f7a);
     color: white;
     text-align: center;
     padding: 30px 20px;
@@ -23,6 +24,7 @@
     margin-bottom: 15px;
     font-size: 1.5rem;
     font-weight: 600;
+    color: #ffffff; /* force white for high contrast on gradient */
 }
 
 .progressBar {
@@ -65,7 +67,7 @@
 
 .optionCard {
     cursor: pointer;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--border-default, #d1d7de);
     border-radius: 12px;
     transition: all 0.3s ease;
     width: 100%;
@@ -74,15 +76,15 @@
 }
 
 .optionCard:hover {
-    border-color: #007bff;
+    border-color: var(--border-hover, #0056b3);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+    box-shadow: 0 6px 18px rgba(0, 86, 179, 0.18);
 }
 
 .optionCard.selected {
-    border-color: #007bff;
-    background-color: #f8f9ff;
-    box-shadow: 0 4px 16px rgba(0, 123, 255, 0.2);
+    border-color: var(--border-selected, #004085);
+    background-color: var(--bg-selected, #eef4ff);
+    box-shadow: 0 6px 20px rgba(0, 64, 133, 0.18);
 }
 
 .optionBody {
@@ -100,17 +102,17 @@
 .optionBody h5 {
     margin-bottom: 10px;
     font-weight: 600;
-    color: #333;
+    color: var(--unselected-text-primary, #98a6b5);
 }
 
 .optionBody p {
-    color: #666;
+    color: var(--unselected-text-muted, #93a1af);
     margin-bottom: 10px;
     font-size: 0.9rem;
 }
 
 .recommendation {
-    background: linear-gradient(135deg, #28a745, #20c997);
+    background: linear-gradient(135deg, var(--success-color, #28a745), #20c997);
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
@@ -135,7 +137,7 @@
 }
 
 .checkIcon {
-    color: #28a745;
+    color: var(--success-color, #28a745);
     font-size: 1.5rem;
 }
 

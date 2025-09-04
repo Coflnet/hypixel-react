@@ -136,7 +136,7 @@ function BuySubscription(props: Props) {
                                     setIsYearOption(yearOption)
                                 }}
                             >
-                                Subscribe for <NumberElement number={price} /> Euro (+VAT) {yearOption ? '/ year' : '/ month'}
+                                Continue to our secure payment processor
                             </Button>
                         </div>
                     </Card.Body>

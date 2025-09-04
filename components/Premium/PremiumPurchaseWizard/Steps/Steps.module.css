@@ -10,13 +10,13 @@
     margin-bottom: 20px;
     font-size: 1.4rem;
     font-weight: 600;
-    color: #2c3e50;
+    color: #6f9dca;
     line-height: 1.3;
 }
 
 .stepDescription {
     text-align: center;
-    color: #495057; /* darker for contrast */
+    color: #aebecf;
     font-size: 1rem;
     margin-bottom: 10px;
     line-height: 1.5;
@@ -32,7 +32,7 @@
 
 .optionCard {
     cursor: pointer;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--border-default);
     border-radius: 12px;
     transition: all 0.3s ease;
     width: 100%;
@@ -41,15 +41,15 @@
 }
 
 .optionCard:hover {
-    border-color: #007bff;
+    border-color: var(--border-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+    box-shadow: 0 6px 18px rgba(0, 86, 179, 0.18);
 }
 
 .optionCard.selected {
-    border-color: #007bff;
-    background-color: #f8f9ff;
-    box-shadow: 0 4px 16px rgba(0, 123, 255, 0.2);
+    border-color: var(--border-selected);
+    background-color: var(--bg-selected);
+    box-shadow: 0 6px 20px rgba(0, 64, 133, 0.18);
 }
 
 .optionBody {
@@ -68,39 +68,74 @@
 .tierTitle {
     margin-bottom: 10px;
     font-weight: 700;
-    color: #2c3e50; /* stronger neutral color */
+    color: var(--unselected-text-primary);
     font-size: 1.2rem;
     line-height: 1.2;
 }
 
-
 /* Tier specific colors */
 .tierPremium {
-    color: #116530; /* dark green */
+    color: var(--tier-premium-color);
 }
 
 .tierPremiumPlus {
-    color: #b8860b; /* gold */
+    color: var(--tier-premium-plus-color);
 }
+
 .tierDescription {
-    color: #495057; /* darker for readability */
+    color: var(--unselected-text-secondary);
     margin-bottom: 15px;
     font-size: 0.95rem;
     line-height: 1.4;
     font-weight: 500;
+}
+/* Selected state overrides - use CSS variables for consistency */
+.optionCard.selected .tierTitle {
+    color: var(--selected-text-primary);
+}
+
+.optionCard.selected .tierDescription,
+.optionCard.selected .paymentDescription,
+.optionCard.selected .durationDescription,
+.optionCard.selected .coflcoinsDescription,
+.optionCard.selected .infoText,
+.optionCard.selected .featureList li {
+    color: var(--selected-text-secondary);
+}
+
+.optionCard.selected .tierPremium {
+    color: var(--tier-premium-selected);
+}
+
+.optionCard.selected .tierPremiumPlus {
+    color: var(--tier-premium-plus-selected);
+}
+
+.optionCard.selected .optionIcon,
+.optionCard.selected .checkIcon {
+    color: #003a66;
+}
+
+.optionCard.selected .featureList li:before {
+    color: var(--success-dark);
+}
+
+.optionCard.selected .recommendation {
+    background: linear-gradient(135deg, #1e7a33, #15a88d);
+    box-shadow: 0 4px 14px rgba(15,85,34,0.15);
 }
 
 /* Payment Method Styles */
 .paymentTitle {
     margin-bottom: 10px;
     font-weight: 700;
-    color: #2c3e50;
+    color: var(--unselected-text-primary);
     font-size: 1.2rem;
     line-height: 1.2;
 }
 
 .paymentDescription {
-    color: #343a40; /* stronger */
+    color: var(--unselected-text-primary);
     margin-bottom: 10px;
     font-size: 0.95rem;
     line-height: 1.4;
@@ -111,13 +146,13 @@
 .durationTitle {
     margin-bottom: 10px;
     font-weight: 700;
-    color: #2c3e50;
+    color: var(--unselected-text-primary);
     font-size: 1.2rem;
     line-height: 1.2;
 }
 
 .durationDescription {
-    color: #3e4246; /* slightly darker for contrast */
+    color: var(--unselected-text-primary);
     margin-bottom: 10px;
     font-size: 0.95rem;
     line-height: 1.4;
@@ -127,7 +162,7 @@
 /* CoflCoins specific */
 .coflcoinsDescription {
     text-align: center;
-    color: #3e4246; /* darker */
+    color: var(--unselected-text-primary);
     font-size: 1.1rem;
     margin-bottom: 20px;
     line-height: 1.5;
@@ -135,7 +170,7 @@
 }
 
 .recommendation {
-    background: linear-gradient(135deg, #28a745, #20c997);
+    background: linear-gradient(135deg, var(--success-color), #20c997);
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
@@ -157,7 +192,7 @@
 
 .featureList li {
     padding: 4px 0;
-    color: #495057; /* readable */
+    color: var(--unselected-text-muted);
     font-size: 0.95rem;
     position: relative;
     padding-left: 20px;
@@ -166,7 +201,7 @@
 
 .featureList li:before {
     content: "✓";
-    color: #28a745;
+    color: var(--success-color);
     font-weight: bold;
     position: absolute;
     left: 0;
@@ -195,14 +230,14 @@
 }
 
 .checkIcon {
-    color: #28a745;
+    color: var(--success-color);
     font-size: 1.5rem;
     margin-top: 2px;
     flex-shrink: 0;
 }
 
 .infoText {
-    color: #0b3b3b; /* keep teal but stronger */
+    color: var(--selected-text-muted);
     font-size: 1rem;
     line-height: 1.5;
     font-weight: 500;

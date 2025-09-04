@@ -54,7 +54,7 @@ export default function BuyPremiumConfirmationDialog(props: Props) {
                     <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
                 )}
                 {props.type === 'subscription' && (
-                    <p>This subscription will be automatically renewed every month. It can be canceled at any time and will then run out.</p>
+                    <p>This subscription will be automatically renewed. It can be canceled at any time and will then run out.</p>
                 )}
                 {props.activePremiumProduct && getPremiumType(props.activePremiumProduct)?.productId !== props.purchasePremiumType.productId ? (
                     <div>

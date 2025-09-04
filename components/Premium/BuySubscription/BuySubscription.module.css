@@ -12,7 +12,7 @@
 
 .selectedOptionCard {
     margin-bottom: 20px;
-    border: 2px solid #28a745;
+    border: 2px solid #1a9b55; /* slightly darker green border */
 }
 
 .summarySection {

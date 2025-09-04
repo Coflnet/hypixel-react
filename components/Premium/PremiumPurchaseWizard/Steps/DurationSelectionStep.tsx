@@ -39,7 +39,11 @@ export default function DurationSelectionStep({
                                 <div className={styles.optionIcon}>{opt.icon}</div>
                                 <h5 className={styles.durationTitle}>{opt.label}</h5>
                                 <p className={styles.durationDescription}>{opt.desc}</p>
-                                {opt.value === Duration.YEARLY ? <small className={styles.recommendation}>Best Value</small> : null}
+                                {opt.badge ? (
+                                    <small className={styles.recommendation}>{opt.badge}</small>
+                                ) : opt.value === Duration.YEARLY ? (
+                                    <small className={styles.recommendation}>Best Value</small>
+                                ) : null}
                             </Card.Body>
                         </Card>
                     ))}
@@ -66,7 +70,11 @@ export default function DurationSelectionStep({
                             <div className={styles.optionIcon}>{opt.icon}</div>
                             <h5 className={styles.durationTitle}>{opt.label}</h5>
                             <p className={styles.durationDescription}>{opt.desc}</p>
-                            {opt.value === Duration.YEARLY ? <small className={styles.recommendation}>Best Value</small> : null}
+                            {opt.badge ? (
+                                <small className={styles.recommendation}>{opt.badge}</small>
+                            ) : opt.value === Duration.YEARLY ? (
+                                <small className={styles.recommendation}>Best Value</small>
+                            ) : null}
                         </Card.Body>
                     </Card>
                 ))}

@@ -1,3 +1,32 @@
+:root {
+    /* Premium Purchase Color Variables */
+    /* Unselected state colors (high contrast on dark) */
+    --unselected-text-primary: #98a6b5; /* main text, improved contrast */
+    --unselected-text-secondary: #cedff0; /* secondary text */
+    --unselected-text-muted: #93a1af; /* muted text like features */
+    
+    /* Selected state colors (dark text on light background) */
+    --selected-text-primary: #16222b; /* main text */
+    --selected-text-secondary: #5f7178; /* secondary text */
+    --selected-text-muted: #495057; /* muted text */
+    
+    /* Accent colors */
+    --tier-premium-color: #116530; /* dark green */
+    --tier-premium-plus-color: #c59d0a; /* gold */
+    --tier-premium-selected: #083a1b; /* darker green for selected */
+    --tier-premium-plus-selected: #7f5d00; /* darker gold for selected */
+    
+    /* Interactive colors */
+    --border-default: #d1d7de;
+    --border-hover: #0056b3;
+    --border-selected: #004085;
+    --bg-selected: #eef4ff;
+    
+    /* Success/accent colors */
+    --success-color: #28a745;
+    --success-dark: #1f7a3b;
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
