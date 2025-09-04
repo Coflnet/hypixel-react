@@ -100,12 +100,24 @@ function BuySubscription(props: Props) {
                             <h6>Your Selection:</h6>
                             <p><strong>Tier:</strong> <span className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''}`}>{getDisplayTierName()}</span></p>
                             <p><strong>Billing:</strong> {yearOption ? 'Yearly (52 weeks)' : 'Monthly (4 weeks)'}</p>
-                            <p><strong>Price:</strong> <NumberElement number={price} /> Euro (+VAT) {yearOption ? 'per year' : 'per month'}</p>
+                            <p>{yearOption ? (
+                                <>
+                                    <strong>Price:</strong> <NumberElement number={price} /> Euro (+VAT) per year&nbsp;<br/>
+                                    (<NumberElement number={parseFloat((price / 13).toFixed(2))} /> Euro (+VAT) per 4 weeks)
+                                </>
+                            ) : (
+                                <>
+                                    <strong>Price:</strong> <NumberElement number={price} /> Euro (+VAT) per 4 weeks
+                                </>
+                            )}
+                                </p>
                             {yearOption && (
                                 <>
-                                    <p className={styles.discount}>
-                                        <strong>Savings:</strong> {targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing
-                                    </p>
+                                    {targetType.productId !== 'starter_premium' && (
+                                        <p className={styles.discount}>
+                                            <strong>Savings:</strong> {targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing
+                                        </p>
+                                    )}
                                     <p>
                                         You qualify for using code <code>M2OTC1OQ</code> at checkout, to get an extra <strong>20% discount</strong> on the yearly option
                                     </p>
@@ -122,6 +134,12 @@ function BuySubscription(props: Props) {
                                         <li>All tools for analysis</li>
                                         <li>Full auction archive</li>
                                         <li>Data export & API access</li>
+                                    </>
+                                ) : targetType.productId === 'starter_premium' ? (
+                                    <>
+                                        <li>Ad-free experience</li>
+                                        <li>Extended limits across features</li>
+                                        <li>Starter tools & access</li>
                                     </>
                                 ) : (
                                     <>
@@ -184,7 +202,7 @@ function BuySubscription(props: Props) {
                                     <NumberElement number={35.69} /> Euro (+VAT) / 4 weeks
                                 </Button>
                                 {(!props.activePremiumProduct || props.activePremiumProduct.expires.getTime() < new Date().getTime() + 3600 * 24 * 3) ?
-                                    (<><p>Use code <code>M2OTC1OQ</code> at checkout, to get an extra <b>20% discount</b> on the yearly options</p>
+                                    (<><p>Use code <code>M2OTC1OQ</code> at checkout, to get a <b>20% discount</b> on the yearly options</p>
                                         <Button
                                             variant="success"
                                             className={styles.purchaseButton}
