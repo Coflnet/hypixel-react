@@ -24,6 +24,10 @@ export interface FlipListProps<T> {
     customItemWrapper?: (item: T, blur: boolean, key: string, content: React.ReactNode, flipCardClass: string) => React.ReactNode
     onAfterSignIn?: () => void
     customHeader?: (isLoggedIn: boolean) => React.ReactNode
+    // Optional: provide a function that returns a href for a flip item.
+    // If provided, non-blurred flips will be wrapped in a plain <a> so
+    // the link exists in the HTML for users/search engines with JS disabled.
+    getFlipLink?: (item: T) => string | null | undefined
 }
 
 export interface SortOption<T> {
@@ -50,7 +54,8 @@ export function GenericFlipList<T>({
     sortFunctionArgs = [],
     customItemWrapper,
     onAfterSignIn,
-    customHeader
+    customHeader,
+    getFlipLink
 }: FlipListProps<T>) {
     const [nameFilter, setNameFilter] = useState<string | null>()
     const [minimumProfit, setMinimumProfit] = useState<number>(0)
@@ -155,17 +160,9 @@ export function GenericFlipList<T>({
     }
 
     function getListElement(item: T, blur: boolean) {
-        return (
-            <ListGroup.Item
-                key={getItemKeyAction(item)}
-                action={!blur}
-                onClick={e => {
-                    if (onFlipClick && !blur) {
-                        onFlipClick(item, e)
-                    }
-                }}
-                style={{ height: '100%', padding: '15px' }}
-            >
+        // Build the inner content (blur messages + actual content)
+        const inner = (
+            <>
                 {blur ? (
                     <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
                         {premiumMessage}
@@ -190,6 +187,45 @@ export function GenericFlipList<T>({
                 <div className={blur ? 'blur' : ''} style={blur ? blurStyle : {}}>
                     {renderFlipContentAction(item)}
                 </div>
+            </>
+        )
+
+        // If a link generator was provided and this isn't a blurred (censored) item,
+        // wrap the inner content in a plain anchor so it exists in the static HTML.
+        let wrappedInner: React.ReactNode = inner
+        if (!blur && typeof getFlipLink === 'function') {
+            const href = getFlipLink(item)
+            if (href) {
+                const handleAnchorClick = (e: React.MouseEvent) => {
+                    // If there's an onFlipClick handler, call it and prevent default
+                    // so client-side navigation/behavior can occur. If not, allow
+                    // the anchor to work normally (useful when JS is disabled).
+                    if (onFlipClick) {
+                        e.preventDefault()
+                        onFlipClick(item, e)
+                    }
+                }
+
+                wrappedInner = (
+                    <a href={href} onClick={handleAnchorClick} style={{ color: 'inherit', textDecoration: 'none', display: 'block', height: '100%' }}>
+                        {inner}
+                    </a>
+                )
+            }
+        }
+
+        return (
+            <ListGroup.Item
+                key={getItemKeyAction(item)}
+                action={!blur}
+                onClick={e => {
+                    if (onFlipClick && !blur) {
+                        onFlipClick(item, e)
+                    }
+                }}
+                style={{ height: '100%', padding: '15px' }}
+            >
+                {wrappedInner}
             </ListGroup.Item>
         )
     }

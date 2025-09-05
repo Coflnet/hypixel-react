@@ -164,6 +164,7 @@ export function BazaarFlips() {
                 items={flips}
                 sortOptions={SORT_OPTIONS}
                 onFlipClick={onFlipClick}
+                getFlipLink={flip => `https://sky.coflnet.com/item/${flip.flip?.itemTag}`}
                 renderFlipContentAction={renderFlipContent}
                 filterFunction={filterFunction}
                 getItemKeyAction={(flip) => flip.itemName || ''}
