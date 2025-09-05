@@ -28,6 +28,11 @@ export interface FlipListProps<T> {
     // If provided, non-blurred flips will be wrapped in a plain <a> so
     // the link exists in the HTML for users/search engines with JS disabled.
     getFlipLink?: (item: T) => string | null | undefined
+    // When lists are large, render a small initial batch and load more as the
+    // user scrolls to reduce DOM size and JS work. Defaults keep at least 3
+    // items to preserve top-3 censoring for SSR.
+    renderBatchSize?: number
+    initialRenderCount?: number
 }
 
 export interface SortOption<T> {
@@ -56,6 +61,9 @@ export function GenericFlipList<T>({
     onAfterSignIn,
     customHeader,
     getFlipLink
+    ,
+    renderBatchSize = 42,
+    initialRenderCount = 42
 }: FlipListProps<T>) {
     const [nameFilter, setNameFilter] = useState<string | null>()
     const [minimumProfit, setMinimumProfit] = useState<number>(0)
@@ -74,13 +82,37 @@ export function GenericFlipList<T>({
         sortFunctionArgs
     )
 
+    // Batch rendering state to limit DOM nodes for very large lists
+    const safeInitial = Math.max(3, initialRenderCount || 0)
+    const [renderedCount, setRenderedCount] = useState<number>(safeInitial)
+    const batchSize = Math.max(1, renderBatchSize || 50)
+    const sentinelRef = React.useRef<HTMLDivElement | null>(null)
+
     useEffect(() => {
         // reset the blur observer, when something changed
         setTimeout(setBlurObserver, 100)
         if (showColumns) {
             setColumns(getDefaultColumns())
         }
+        // Reset rendered count when the processed items change (new search/sort)
+        setRenderedCount(Math.max(3, safeInitial))
     }, [])
+
+    // Observe the sentinel to incrementally render more items when the user
+    // scrolls near the end of the currently rendered batch.
+    useEffect(() => {
+        if (!sentinelRef.current) return
+        const el = sentinelRef.current
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setRenderedCount(prev => Math.min(processedItems.length, prev + batchSize))
+                }
+            })
+        })
+        observer.observe(el)
+        return () => observer.disconnect()
+    }, [sentinelRef.current, processedItems.length, batchSize])
 
     function setBlurObserver() {
         if (observer) {
@@ -237,7 +269,9 @@ export function GenericFlipList<T>({
         }
 
         let shown = 0
-        const list = processedItems.map(item => {
+        // Only render up to renderedCount to reduce DOM size
+        const toRender = processedItems.slice(0, renderedCount)
+        const list = toRender.map(item => {
             const defaultContent = getListElement(item, false)
 
             if (!hasPremium && ++shown <= 3) {
@@ -267,7 +301,7 @@ export function GenericFlipList<T>({
         })
 
         return list
-    }, [processedItems, hasPremium, isProcessing, censoredItemGenerator, customItemWrapper])
+    }, [processedItems, hasPremium, isProcessing, censoredItemGenerator, customItemWrapper, renderedCount])
 
     const flipListClass = showColumns && columns ? `${styles.flipList} ${styles[`columns-${columns}`]}` : styles.flipList
     return (
@@ -335,7 +369,16 @@ export function GenericFlipList<T>({
                         <span>Processing items...</span>
                     </div>
                 ) : (
-                    <ListGroup className={styles.list}>{list}</ListGroup>
+                    <>
+                        {(() => {
+                            const visibleList = list.slice()
+                            if (renderedCount < processedItems.length) {
+                                const insertIndex = Math.max(0, visibleList.length - 6)
+                                visibleList.splice(insertIndex, 0, <div key="sentinel" ref={sentinelRef as any} style={{ height: 1 }} />)
+                            }
+                            return <ListGroup className={styles.list}>{visibleList}</ListGroup>
+                        })()}
+                    </>
                 )}
             </div>
         </div>
