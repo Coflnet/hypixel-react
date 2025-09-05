@@ -9,6 +9,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { getApiFlipBazaarSpread, getGetApiFlipBazaarSpreadQueryKey } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import Link from 'next/link'
+import { formatToPriceToShorten } from '../../utils/Formatter'
 
 const SORT_OPTIONS: SortOption<SpreadFlip>[] = [
     {
@@ -67,7 +68,7 @@ export function BazaarFlips() {
                 }
                 <p>
                     <span style={{ width: '150px', float: 'left' }}>Profit per Hour:</span>{' '}
-                    <Number number={flip.flip?.profitPerHour || 0} /> Coins
+                    {formatToPriceToShorten(flip.flip?.profitPerHour || 0)} Coins
                 </p>
                 <p>
                     <span style={{ width: '150px', float: 'left' }}>Sells/hour:</span>

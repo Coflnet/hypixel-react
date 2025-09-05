@@ -426,6 +426,9 @@ export function GenericFlipList<T>({
                     </>
                 )}
             </div>
+            <Link href="/flips" >
+                <p style={{ textAlign: 'center', marginTop: '20px' }}>See all hypixel skyblock flips</p>
+            </Link>
         </div>
     )
 }
