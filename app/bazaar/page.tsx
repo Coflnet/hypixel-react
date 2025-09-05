@@ -29,4 +29,4 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Bazaar Flips', 'Discover profitable Hypixel SkyBlock bazaar flipping opportunities. Real-time flip analysis, buy/sell spreads, and instant order data to maximize your coin profits.')
+export const metadata = getHeadMetadata('Bazaar Flips', 'Discover profitable Hypixel SkyBlock bazaar flipping opportunities. Real-time flip analysis, buy/sell spreads, and insta-buy order data to maximize your coin profits.', undefined, ['bazaar', 'flips', 'hypixel', 'skyblock', 'flip', 'bazaar flips', 'bazaar flipper'])

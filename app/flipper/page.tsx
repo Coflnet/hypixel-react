@@ -3,6 +3,7 @@ import { initAPI } from '../../api/ApiHelper'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import Flipper from '../../components/Flipper/Flipper'
 import { Container } from 'react-bootstrap'
+import Link from 'next/link'
 
 export default async function Page() {
     let api = initAPI(true)
@@ -21,6 +22,9 @@ export default async function Page() {
                 <h2>Item Flipper</h2>
                 <hr />
                 <Flipper flips={flips} />
+                <Link href="/bazaar" style={{ marginTop: '20px', display: 'inline-block' }}>
+                    Go to Bazaar Flips
+                </Link>
             </Container>
         </>
     )
