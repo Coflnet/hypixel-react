@@ -351,15 +351,16 @@ function Startpage(props: Props) {
 
             <Card className={styles.startpageCard} style={{ marginTop: '40px' }}>
                 <Card.Header>
-                    <Card.Title>Hypixel Auction House History</Card.Title>
+                    <Card.Title>SkyCofl - Hypixel Auction House and Bazaar History</Card.Title>
                 </Card.Header>
                 <Card.Body>
                     <p>View, search, browse, and filter by reforge or enchantment.</p>
                     <p>You can find all current and historic prices for the auction house and bazaar on this web tracker.</p>
                     <p>
-                        We're tracking over 800 million auctions. We've saved more than 350 million bazaar prices in intervals of 10 seconds. Furthermore, there
+                        We're tracking over 800 million auctions. We've saved more than a billion bazaar orders. Furthermore, there
                         are over three million skyblock players that you can search by their Minecraft usernames. You can browse through the auctions they made
-                        over the past two years. New items are added automatically and are available within two minutes after the first auction is started.
+                        over the past six years. New items are added automatically and are available within two minutes after the first auction is started.
+                        Elisabet Firesale items are also added ahead of time so they are checked easily as soon as the firesale starts.
                     </p>
                     <p>
                         The search autocomplete is ranked by popularity and allows you to find whatever item you want faster. Quick URLs allow you to link to
@@ -374,11 +375,16 @@ function Startpage(props: Props) {
                         What's more is that you can see what auctions were used as reference to determine if a flip is profitable.
                     </p>
                     <p>
-                        We allow you to subscribe to auctions, item prices and being outbid with more to come. Please use the contact on the{' '}
-                        <Link href="/feedback" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}>
-                            Feedback site ↗️
+                        We have the longest bazaar history database and you can browser through bazaar items just as easily as through the auction house.
+                        See the full orderbook of any point in the last 5 years and discorver {' '}
+                        <Link href="/bazaar" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}>
+                            Bazaar Flips ↗️
                         </Link>{' '}
-                        to send us suggestions or bug reports.
+                        we calculate based on the current bazaar prices.
+                    </p>
+                    <p>
+                        We built a mod, discord bot and android app as well as provide access to most of our data via a free API. You can find
+                        more information on the <Link href="/wiki/api">wiki api page</Link>. 
                     </p>
                 </Card.Body>
             </Card>
