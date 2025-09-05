@@ -3,6 +3,7 @@ import React, { ChangeEvent, useEffect, useState, useMemo, useCallback } from 'r
 import { Form, ListGroup, Spinner } from 'react-bootstrap'
 import Link from 'next/link'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import PremiumModal from '../PremiumModal/PremiumModal'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import api from '../../api/ApiHelper'
 import styles from './GenericFlipList.module.css'
@@ -72,6 +73,7 @@ export function GenericFlipList<T>({
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
     const [columns, setColumns] = useState<number>()
+    const [showPremiumModal, setShowPremiumModal] = useState(false)
 
     const { processedItems, isProcessing } = useSortedAndFilteredItems(
         items,
@@ -196,8 +198,54 @@ export function GenericFlipList<T>({
         const inner = (
             <>
                 {blur ? (
-                    <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
-                        {premiumMessage}
+                    <p
+                        style={{
+                            position: 'absolute',
+                            top: '25%',
+                            left: '25%',
+                            width: '50%',
+                            fontSize: 'large',
+                            fontWeight: 'bold',
+                            textAlign: 'center'
+                        }}
+                    >
+                        {(() => {
+                            const text = premiumMessage || ''
+                            const match = text.match(/starter premium/i)
+                            if (match && typeof match.index === 'number') {
+                                const idx = match.index
+                                const before = text.slice(0, idx)
+                                const target = text.slice(idx, idx + match[0].length)
+                                const after = text.slice(idx + match[0].length)
+                                return (
+                                    <>
+                                        {before}
+                                        <span
+                                            role="button"
+                                            tabIndex={0}
+                                            aria-label="Get Starter Premium"
+                                            onKeyDown={(e: React.KeyboardEvent) => {
+                                                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                                                    setShowPremiumModal(true)
+                                                }
+                                            }}
+                                            onClick={() => setShowPremiumModal(true)}
+                                            style={{ color: '#0d6efd', textDecoration: 'underline', cursor: 'pointer' }}
+                                        >
+                                            {target}
+                                        </span>
+                                        {after}
+                                    </>
+                                )
+                            }
+
+                            // Fallback: render message and allow click to open modal, but don't style anything
+                            return (
+                                <span onClick={() => setShowPremiumModal(true)} style={{ cursor: 'pointer' }}>
+                                    {text}
+                                </span>
+                            )
+                        })()}
                     </p>
                 ) : null}
                 {showTechSavvyMessage && blur ? (
@@ -349,11 +397,8 @@ export function GenericFlipList<T>({
                 {customFilters}
             </div>
             <hr />
-            {hasPremium ? null : (
-                <p>
-                    Click <Link href="/linkvertise">here</Link> to get Starter Premium for free to see the top flips
-                </p>
-            )}
+            {/* Premium modal trigger moved to the blurred message so users and crawlers still see the message in-place */}
+            <PremiumModal show={showPremiumModal} onHide={() => setShowPremiumModal(false)} />
             <p>{clickMessage}</p>
             <div className={flipListClass}>
                 {isProcessing ? (
