@@ -2,14 +2,12 @@
 import Image from 'next/image'
 import React, { useMemo } from 'react'
 import api from '../../api/ApiHelper'
-import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
+import { getMinecraftColorCodedElement } from '../../utils/Formatter'
 import Number from '../Number/Number'
-import Tooltip from '../Tooltip/Tooltip'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getApiFlipNpc, getGetApiFlipNpcQueryKey } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import { parseProfitableCrafts } from '../../utils/Parser/APIResponseParser'
-import { CraftDetails } from '../CraftsList/CraftDetails/CraftDetails'
 
 const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
     {
