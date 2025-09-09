@@ -37,6 +37,12 @@ const flipKinds = [
         icon: <ShowChart fontSize="large" />
     },
     {
+        name: 'Recent Flips',
+        path: '/recentflips',
+        description: 'See the most recent profitable flips found by our system. Great for discovering what is currently being flipped and for how much profit.',
+        icon: <Storefront fontSize="large" />
+    },
+    {
         name: 'Forge Flips',
         path: undefined,
         description: <span>Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes. Run <code>/cofl forge</code> with our mod to access</span>,
