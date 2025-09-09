@@ -43,6 +43,12 @@ const flipKinds = [
         icon: <Volcano fontSize="large" />
     },
     {
+        name: 'NPC Flips',
+        path: '/npc',
+        description: 'Buy items from NPCs and sell them on the Auction House or Bazaar for profit. Find out which items offer the best margins.',
+        icon: <Storefront fontSize="large" />
+    },
+    {
         name: 'Attribute Fusion Machine Flips',
         path: undefined,
         description: <span>Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard. This flip is currently only available via <code>/cofl fusionflip</code> using our mod</span>,
