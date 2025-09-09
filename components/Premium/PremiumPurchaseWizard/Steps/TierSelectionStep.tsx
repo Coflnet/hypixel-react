@@ -133,7 +133,7 @@ export default function TierSelectionStep({ selectedTier, onTierSelect }: Props)
                         <div className={styles.tierPrice}>
                             {discountInfo && discountInfo.percentage > 0 ? (
                                 <>
-                                    starts at <br/>
+                                    (yearly) starts at <br/>
                                     <span style={{ textDecoration: 'line-through', marginRight: 8, opacity: 0.7 }}>
                                         {premiumPlusPricing.displayText}
                                     </span><br/>
