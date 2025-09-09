@@ -17,6 +17,7 @@ import { getMinecraftColorCodedElement } from '../../utils/Formatter'
 import Number from '../Number/Number'
 import styles from './Startpage.module.css'
 import { StartpageLargeElementSkeleton } from './StartpageLargeElementSkeleton'
+import { getApiDataUpdatesYearMonth } from '../../api/_generated/skyApi'
 
 interface Props {
     newAuctions?: Auction[]
@@ -33,6 +34,7 @@ function Startpage(props: Props) {
     let [popularSearches, setPopularSearches] = useState<PopularSearch[]>(props.popularSearches || [])
     let [newPlayers, setNewPlayers] = useState<Player[]>(props.newPlayers || [])
     let [newItems, setNewItems] = useState<Item[]>(props.newItems || [])
+    let [recentUpdate, setRecentUpdate] = useState<any | null>(null)
     let [isSSR, setIsSSR] = useState(true)
 
     useEffect(() => {
@@ -41,8 +43,28 @@ function Startpage(props: Props) {
             attachScrollEvent(styles.startpageListElementWrapper)
         }, 500)
         loadEndedAuctions()
+        loadRecentUpdate()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    async function loadRecentUpdate() {
+        try {
+            const now = new Date()
+            const year = now.getFullYear()
+            const month = now.getMonth() + 1
+            const res = await getApiDataUpdatesYearMonth(year, month)
+            const messages = res?.data || []
+            if (messages.length > 0) {
+                const last = messages[messages.length - 1]
+                const created = new Date(last.createdAt)
+                if (now.getTime() - created.getTime() < 24 * 60 * 60 * 1000) {
+                    setRecentUpdate(last)
+                }
+            }
+        } catch (e) {
+            // ignore
+        }
+    }
 
     function loadEndedAuctions() {
         api.getEndedAuctions().then(endedAuctions => {
@@ -354,6 +376,13 @@ function Startpage(props: Props) {
                     <Card.Title>SkyCofl - Hypixel Auction House and Bazaar History</Card.Title>
                 </Card.Header>
                 <Card.Body>
+                    {recentUpdate ? (
+                        <div style={{ marginBottom: '12px' }}>
+                            <h5>Recent update</h5>
+                            <p style={{ whiteSpace: 'pre-wrap' }}>{recentUpdate.content}</p>
+                            <Link href={`/updates/${new Date(recentUpdate.createdAt).getFullYear()}/${new Date(recentUpdate.createdAt).getMonth() + 1}`}>View all updates</Link>
+                        </div>
+                    ) : null}
                     <p>View, search, browse, and filter by reforge or enchantment.</p>
                     <p>You can find all current and historic prices for the auction house and bazaar on this web tracker.</p>
                     <p>
