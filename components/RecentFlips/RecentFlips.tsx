@@ -126,11 +126,10 @@ export function RecentFlips() {
     return (
         <>
             <details>
-                <summary>These are the most recent flips found by our system</summary>
+                <summary>These are flips that were done but not found automatically</summary>
                 <p>
                     These flips are gathered from the auction house and show the most recent profitable trades found by our system.<br />
                     You can use this to see what items are currently being flipped and for how much profit.<br />
-                    The top 3 flips are only available with starter premium or better.
                 </p>
             </details>
             <GenericFlipList
