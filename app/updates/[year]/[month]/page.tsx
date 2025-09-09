@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import MarkdownIt from 'markdown-it'
 import Link from 'next/link'
 import { getApiDataUpdatesYearMonth } from '../../../../api/_generated/skyApi'
+import styles from './page.module.css'
 
 export default async function UpdatesMonthPage(props: any) {
     const params = await props.params
@@ -85,22 +86,48 @@ export default async function UpdatesMonthPage(props: any) {
         })
         .join('\n\n---\n\n')
 
-    const mdRenderer = new MarkdownIt({ html: true, linkify: true, typographer: true })
+    const mdRenderer = new MarkdownIt({ html: false, linkify: true, typographer: true, breaks: true })
     const html = mdRenderer.render(md)
 
     return (
         <article>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {showPrev ? <Link href={`/updates/${prev.year}/${prev.month}`}>← Prev</Link> : <span />}
-                <h1>Updates - {year}/{month}</h1>
-                {!isCurrent ? <Link href={`/updates/${next.year}/${next.month}`}>Next →</Link> : <span />}
+            <div className={styles.topNav}>
+                {showPrev ? <Link className={styles.navLink} href={`/updates/${prev.year}/${prev.month}`}>← Prev</Link> : <div />}
+                <h1 className={styles.title}>Updates — {year}/{month}</h1>
+                {!isCurrent ? <Link className={styles.navLink} href={`/updates/${next.year}/${next.month}`}>Next →</Link> : <div />}
             </div>
 
-            <div dangerouslySetInnerHTML={{ __html: html }} />
+            <div className={styles.messages}>
+                {messages.map((m: any) => {
+                    const date = m.createdAt ? new Date(m.createdAt).toLocaleString() : ''
+                    const author = m.authorName || 'Unknown'
+                    const contentHtml = mdRenderer.render(m.content || '')
+                    const attachments: string[] = m.attachments ? Object.values(m.attachments) : []
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
-                {showPrev ? <Link href={`/updates/${prev.year}/${prev.month}`}>← Prev</Link> : <span />}
-                {!isCurrent ? <Link href={`/updates/${next.year}/${next.month}`}>Next →</Link> : <span />}
+                    return (
+                        <div className={styles.messageCard} key={m.messageId || Math.random()}>
+                            <div className={styles.messageHeader}>
+                                <div className={styles.author}>{author}</div>
+                                <div className={styles.date}>{date}</div>
+                            </div>
+                            <div className={styles.messageContent} dangerouslySetInnerHTML={{ __html: contentHtml }} />
+                            {attachments.length > 0 ? (
+                                <div className={styles.attachments}>
+                                    {attachments.map((url, idx) => (
+                                        <a key={idx} href={url} target="_blank" rel="noreferrer" className={styles.attachmentLink}>
+                                            <img src={url} className={styles.attachmentImg} loading="lazy" alt={`attachment-${idx}`} />
+                                        </a>
+                                    ))}
+                                </div>
+                            ) : null}
+                        </div>
+                    )
+                })}
+            </div>
+
+            <div className={styles.bottomNav}>
+                {showPrev ? <Link className={styles.navLink} href={`/updates/${prev.year}/${prev.month}`}>← Prev</Link> : <div />}
+                {!isCurrent ? <Link className={styles.navLink} href={`/updates/${next.year}/${next.month}`}>Next →</Link> : <div />}
             </div>
         </article>
     )
