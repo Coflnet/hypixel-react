@@ -15,6 +15,11 @@ export default async function UpdatesMonthPage(props: any) {
 
     const res = await getApiDataUpdatesYearMonth(year, month)
     const messages = res?.data ?? []
+    // only display messages that contain the ➡️ marker
+    const displayMessages = messages.filter((m: any) => {
+        const content = m.content || ''
+        return content.includes('➡️')
+    })
 
     const now = new Date()
     const isCurrent = now.getFullYear() === year && now.getMonth() + 1 === month
@@ -45,7 +50,7 @@ export default async function UpdatesMonthPage(props: any) {
     const prevDate = new Date(prev.year, prev.month - 1, 1)
     const showPrev = prevDate >= minDate
 
-    const hasUpdates = !!(messages && messages.length > 0)
+    const hasUpdates = !!(displayMessages && displayMessages.length > 0)
 
     if (!hasUpdates) {
         return (
@@ -64,30 +69,7 @@ export default async function UpdatesMonthPage(props: any) {
         )
     }
 
-    // concatenate messages into a markdown document
-    const md = messages
-        .map(m => {
-            const date = m.createdAt ? new Date(m.createdAt).toLocaleString() : ''
-            const author = m.authorName || 'Unknown'
-            const content = m.content || ''
-            // attachments is an object mapping names to urls, or null
-            let attachmentsMd = ''
-            if (m.attachments) {
-                try {
-                    const urls = Object.values(m.attachments)
-                    attachmentsMd = urls
-                        .map(u => `![](${u})`)
-                        .join('\n\n')
-                } catch (e) {
-                    attachmentsMd = ''
-                }
-            }
-            return `### ${author} - ${date}\n\n${content}${attachmentsMd ? '\n\n' + attachmentsMd : ''}`
-        })
-        .join('\n\n---\n\n')
-
     const mdRenderer = new MarkdownIt({ html: false, linkify: true, typographer: true, breaks: true })
-    const html = mdRenderer.render(md)
 
     return (
         <article>
@@ -98,7 +80,7 @@ export default async function UpdatesMonthPage(props: any) {
             </div>
 
             <div className={styles.messages}>
-                {messages.map((m: any) => {
+                {displayMessages.map((m: any) => {
                     const date = m.createdAt ? new Date(m.createdAt).toLocaleString() : ''
                     const author = m.authorName || 'Unknown'
                     const contentHtml = mdRenderer.render(m.content || '')
