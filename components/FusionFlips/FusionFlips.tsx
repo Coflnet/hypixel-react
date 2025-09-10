@@ -52,7 +52,7 @@ export function FusionFlips() {
                     <span style={{ width: '150px', float: 'left' }}>Output Count:</span> <Number number={Math.round(flip.outputCount)} />
                 </p>
                 <p>
-                    <span style={{ width: '150px', float: 'left' }}>Volume:</span> <Number number={Math.round(flip.volume)} /> Coins
+                    <span style={{ width: '150px', float: 'left' }}>Volume:</span> <Number number={Math.round(flip.volume)} />
                 </p>
                 <hr />
                 {flip.inputs ? Object.keys(flip.inputs).map(input => {
