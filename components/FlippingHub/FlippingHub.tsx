@@ -67,6 +67,12 @@ const flipKinds = [
         icon: <Handyman fontSize="large" />
     },
     {
+        name: 'Book Flips',
+        path: '/bookFlips',
+        description: <span>Combine books to a higher level and sell them back for a profit. Available via <code>/cofl attributeflip</code> using our mod</span>,
+        icon: <Handyman fontSize="large" />
+    },
+    {
         name: 'Ananke Feather Flips',
         path: undefined,
         description: <span>Find the best items to use Ananke Feather on in RNG-Meters. Shows you the most profitable item to target, how much it costs and how much profit is to be made. Available via <code>/cofl ananke</code> using our mod</span>,
