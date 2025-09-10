@@ -51,7 +51,8 @@ export function addPreviousSearchResultsToDisplay(searchText: string, searchResu
     previousSearches.forEach(prevSearch => {
         let alreadyFoundIndex = newSearchResults.findIndex(r => r.id === prevSearch.id)
         if (alreadyFoundIndex !== -1) {
-            newSearchResults[alreadyFoundIndex] = prevSearch
+            newSearchResults[alreadyFoundIndex].isPreviousSearch = true
+            newSearchResults[alreadyFoundIndex].pinned = prevSearch.pinned
             matchingPreviousSearchesInResuls++
         } else if (prevSearch.dataItem.name.toLowerCase().indexOf(searchText.toLowerCase()) !== -1) {
             matches.unshift(prevSearch)
