@@ -73,9 +73,17 @@ export function BookFlips() {
     }
 
     function filterFunction(flip: BookFlip, nameFilter: string | null | undefined, minimumProfit: number): boolean {
-        const nameMatch = !nameFilter || (flip.startTag ? convertTagToName(flip.startTag!).toLowerCase().includes(nameFilter!.toLowerCase()) : false) || (flip.endTag ? convertTagToName(flip.endTag)?.toLowerCase().includes(nameFilter!.toLowerCase()) : false)
-        const profitMatch = flip.profitPerHour >= minimumProfit
-        return nameMatch && profitMatch
+        const hasNoFilter = !nameFilter;
+        const lowerNameFilter = nameFilter ? nameFilter.toLowerCase() : '';
+        const startTagMatch = flip.startTag
+            ? convertTagToName(flip.startTag).toLowerCase().includes(lowerNameFilter)
+            : false;
+        const endTagMatch = flip.endTag
+            ? convertTagToName(flip.endTag).toLowerCase().includes(lowerNameFilter)
+            : false;
+        const nameMatch = hasNoFilter || startTagMatch || endTagMatch;
+        const profitMatch = flip.profitPerHour >= minimumProfit;
+        return nameMatch && profitMatch;
     }
 
     function censoredItemGenerator(flip: BookFlip): BookFlip {
