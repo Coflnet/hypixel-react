@@ -44,8 +44,8 @@ const flipKinds = [
     },
     {
         name: 'Attribute Fusion Machine Flips',
-        path: undefined,
-        description: <span>Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard. This flip is currently only available via <code>/cofl fusionflip</code> using our mod</span>,
+        path: "/fusion",
+        description: <span>Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard.</span>,
         icon: <JoinFull fontSize="large" />
     },
     {
