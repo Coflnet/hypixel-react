@@ -1,0 +1,83 @@
+.container {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: var(--bs-body-font-family);
+}
+
+.topNav, .bottomNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.navLink {
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  margin: 8px;
+  gap: 16px;
+}
+
+.messageCard {
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.author {
+  font-weight: 600;
+}
+
+.date {
+  color: var(--bs-body-color);
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
+
+.messageContent {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.attachments {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.attachmentLink {
+  display: inline-block;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.attachmentImg {
+  display: block;
+  max-width: 240px;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 600px) {
+  .attachmentImg { max-width: 140px }
+}
