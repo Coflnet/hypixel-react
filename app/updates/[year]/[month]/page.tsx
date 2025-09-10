@@ -3,6 +3,7 @@ import MarkdownIt from 'markdown-it'
 import Link from 'next/link'
 import { getApiDataUpdatesYearMonth } from '../../../../api/_generated/skyApi'
 import styles from './page.module.css'
+import { Container } from 'react-bootstrap'
 
 export default async function UpdatesMonthPage(props: any) {
     const params = await props.params
@@ -71,7 +72,7 @@ export default async function UpdatesMonthPage(props: any) {
 
     const mdRenderer = new MarkdownIt({ html: false, linkify: true, typographer: true, breaks: true })
 
-    return (
+    return <Container>
         <article>
             <div className={styles.topNav}>
                 {showPrev ? <Link className={styles.navLink} href={`/updates/${prev.year}/${prev.month}`}>← Prev</Link> : <div />}
@@ -96,9 +97,9 @@ export default async function UpdatesMonthPage(props: any) {
                             {attachments.length > 0 ? (
                                 <div className={styles.attachments}>
                                     {attachments.map((url, idx) => (
-                                        <a key={idx} href={url} target="_blank" rel="noreferrer" className={styles.attachmentLink}>
-                                            <img src={url} className={styles.attachmentImg} loading="lazy" alt={`attachment-${idx}`} />
-                                        </a>
+                                        <Link key={idx} href={url} target="_blank" rel="noreferrer" className='disableLinkStyle'>
+                                            <img src={url} className={styles.attachmentImg} loading="lazy" alt={`attachment-${idx}`} style={{ color: "white" }} />
+                                        </Link>
                                     ))}
                                 </div>
                             ) : null}
@@ -112,7 +113,7 @@ export default async function UpdatesMonthPage(props: any) {
                 {!isCurrent ? <Link className={styles.navLink} href={`/updates/${next.year}/${next.month}`}>Next →</Link> : <div />}
             </div>
         </article>
-    )
+    </Container>
 }
 
 export async function generateMetadata(props: any) {
