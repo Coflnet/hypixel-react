@@ -69,7 +69,7 @@ const flipKinds = [
     {
         name: 'Book Flips',
         path: '/bookFlips',
-        description: <span>Combine books to a higher level and sell them back for a profit. Available via <code>/cofl attributeflip</code> using our mod</span>,
+        description: <span>Combine books to a higher level and sell them back for a profit.</span>,
         icon: <Handyman fontSize="large" />
     },
     {
