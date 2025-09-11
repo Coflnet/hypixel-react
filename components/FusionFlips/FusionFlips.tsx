@@ -118,16 +118,53 @@ export function FusionFlips() {
     }
 
     return (
-        <GenericFlipList
-            items={flips}
-            sortOptions={SORT_OPTIONS}
-            renderFlipContentAction={renderFlipContent}
-            filterFunction={filterFunction}
-            getItemKeyAction={flip => flip.output || `${JSON.stringify(flip)}`}
-            censoredItemGenerator={censoredItemGenerator}
-            premiumMessage="The top 3 flips can only be seen with starter premium or better"
-            clickMessage="Click on a flip for further details"
-            showColumns={true}
-        />
+        <>
+            <p>
+                This is a curated list of profitable Fusion Flips in Hypixel SkyBlock — find opportunities to fuse shards and sell the fused shard for a profit.
+                The list highlights input cost, output value, output count and trade volume so you can quickly spot high-margin fusion flips.
+                This is one of the newest Skyblock money making methods introduced with the the <strong>Galatea Foraging update</strong>.
+            </p>
+            <details><summary>How to do fusion flipping</summary>
+                <ol>
+                    <li>Pick a fusion flip that has a positive profit from the list below.</li>
+                    <li>Buy order the displayed amount of each shard</li>
+                    <li>Go to the fusion machine on galatea, select first one then the other shard and fuse them.</li>
+                    <li>Create a sell order on the bazaar with the resulting shards</li>
+                    <li>Repeat when margins and volume look healthy.</li>
+                </ol>
+            </details>
+            <details><summary>Why Galatea Foraging matters</summary>
+                <p>
+                    The Galatea Foraging update introduced shards and shard fusion. The prices of shards can fluctuate widly throughout the week and create new fusion flipping opportunities giving you the chance to profit from these changes.
+                </p>
+            </details>
+            <details><summary>What do the columns mean?</summary>
+                <p>
+                    <strong>Input Cost:</strong> Estimated total cost to obtain all inputs required for the fusion.
+                </p>
+                <p>
+                    <strong>Output Value:</strong> Typical market value of the fused item. A useful proxy for expected sale price.
+                </p>
+                <p>
+                    <strong>Output Count:</strong> How many items the craft produces.
+                </p>
+                <p>
+                    <strong>Volume:</strong> Estimated daily sales (higher volume = easier to sell).
+                </p>
+            </details>
+            <br />
+            <GenericFlipList
+                items={flips}
+                sortOptions={SORT_OPTIONS}
+                renderFlipContentAction={renderFlipContent}
+                filterFunction={filterFunction}
+                getItemKeyAction={flip => flip.output || `${JSON.stringify(flip)}`}
+                getFlipLink={(flip) => flip.output ? `https://sky.coflnet.com/item/${flip.output}` : undefined}
+                censoredItemGenerator={censoredItemGenerator}
+                premiumMessage="The top 3 flips can only be seen with starter premium or better"
+                clickMessage="Click on a flip for further details"
+                showColumns={true}
+            />
+        </>
     )
 }
