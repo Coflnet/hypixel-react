@@ -7,7 +7,7 @@ import api from "../../api/ApiHelper";
 import Number from "../Number/Number";
 import { GenericFlipList, SortOption } from "../GenericFlipList";
 import Link from "next/link";
-import { formatToPriceToShorten, getStyleForTier } from "../../utils/Formatter";
+import { formatToPriceToShorten, getStyleForTier, getMinecraftColorCodedElement, convertTagToName } from "../../utils/Formatter";
 import { toast } from "react-toastify";
 import { Error } from "../Error/Error";
 
@@ -59,11 +59,19 @@ export function RecentFlips() {
     }
 
     function renderFlipContent(flip: FlipDetails) {
+    const displayName: string = String(flip.itemName ?? convertTagToName(flip.itemTag ?? ''))
         return (
             <>
                 <h4>
-                    <span style={getStyleForTier(flip.tier ?? undefined)}>
-                        {flip.itemName || flip.itemTag}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                        <img
+                            src={api.getItemImageUrl({ tag: flip.itemTag } as any) || ''}
+                            alt="item icon"
+                            style={{ width: 32, height: 32, verticalAlign: 'middle' }}
+                        />
+                        <span style={getStyleForTier(flip.tier ?? undefined)}>
+                            {getMinecraftColorCodedElement(displayName)}
+                        </span>
                     </span>
                 </h4>
                 <p>
@@ -76,10 +84,10 @@ export function RecentFlips() {
                     <span style={{ width: "150px", float: "left" }}>Profit:</span> {formatToPriceToShorten(flip.profit || 0)} Coins
                 </p>
                 <p>
-                    <span style={{ width: "150px", float: "left" }}>Bought:</span> {flip.buyTime}
+                    <span style={{ width: "150px", float: "left" }}>Sold after:</span> {formatDurationBetween(flip.buyTime, flip.sellTime)}
                 </p>
                 <p>
-                    <span style={{ width: "150px", float: "left" }}>Sold:</span> {flip.sellTime}
+                    <span style={{ width: "150px", float: "left" }}>Sold:</span> {formatAgeFrom(flip.sellTime)}
                 </p>
                 {flip.flags && flip.flags !== "None" && (
                     <p>
@@ -88,6 +96,56 @@ export function RecentFlips() {
                 )}
             </>
         );
+    }
+
+    // Helpers: accept Date or string (or undefined) as input
+    function parseToDate(d?: string | Date | null): Date | undefined {
+        if (!d) return undefined
+        if (d instanceof Date) return d
+        try {
+            let s = d as string
+            // Treat timestamps as UTC. If missing Z, append it.
+            if (s.slice(-1) === 'Z') {
+                const parsed = new Date(s)
+                if (isNaN(parsed.getTime())) return undefined
+                return parsed
+            }
+            const parsed = new Date(s + 'Z')
+            if (isNaN(parsed.getTime())) return undefined
+            return parsed
+        } catch {
+            return undefined
+        }
+    }
+
+    function convertMsToLegible(ms: number): string {
+        if (ms <= 0) return '0s'
+        const sec = Math.floor(ms / 1000)
+        const days = Math.floor(sec / 86400)
+        const hours = Math.floor((sec % 86400) / 3600)
+        const minutes = Math.floor((sec % 3600) / 60)
+        const seconds = sec % 60
+        if (days > 0) return `${days}d ${hours}h`
+        if (hours > 0) return `${hours}h ${minutes}m`
+        if (minutes > 0) return `${minutes}m ${seconds}s`
+        return `${seconds}s`
+    }
+
+    function formatDurationBetween(buy?: string | Date | null, sell?: string | Date | null): string {
+        const b = parseToDate(buy)
+        const s = parseToDate(sell)
+        if (!b || !s) return '-'
+        const diff = s.getTime() - b.getTime()
+        if (diff < 0) return '-'
+        return convertMsToLegible(diff)
+    }
+
+    function formatAgeFrom(sell?: string | Date | null): string {
+        const s = parseToDate(sell)
+        if (!s) return '-'
+        const diff = Date.now() - s.getTime()
+        if (diff < 0) return 'in future'
+        return `${convertMsToLegible(diff)} ago`
     }
 
     function onFlipClick(flip: FlipDetails) {
@@ -125,24 +183,27 @@ export function RecentFlips() {
 
     return (
         <>
-            <details>
-                <summary>These are flips that were done but not found automatically</summary>
                 <p>
-                    These flips are gathered from the auction house and show the most recent profitable trades found by our system.<br />
+                    These are flips we tracked but could not determine why they sold for so much.<br />
                     You can use this to see what items are currently being flipped and for how much profit.<br />
                 </p>
-            </details>
+                <p>
+                    You can use these flips both to replicate them, basically skyblock copy trading, or find irl traders that moved coins.
+                </p>
+                <p>
+                    Because the market insight this information provides possibly making you billions of coins this feature is exclusive to premium plus users.
+                </p>
             <GenericFlipList
                 items={flips}
                 sortOptions={SORT_OPTIONS}
                 onFlipClick={onFlipClick}
-                getFlipLink={flip => (flip.itemTag ? `https://sky.coflnet.com/item/${flip.itemTag}` : undefined)}
+                getFlipLink={flip => (flip.itemTag ? `https://sky.coflnet.com/auction/${flip.originAuction}` : undefined)}
                 renderFlipContentAction={renderFlipContent}
                 filterFunction={filterFunction}
                 getItemKeyAction={flip => flip.uId?.toString() || flip.itemTag || ''}
                 censoredItemGenerator={censoredItemGenerator}
                 premiumMessage="The top 3 flips can only be seen with starter premium or better"
-                clickMessage="Click on a flip for further details"
+                clickMessage="Click on a flip for the origin auction"
             />
         </>
     );
