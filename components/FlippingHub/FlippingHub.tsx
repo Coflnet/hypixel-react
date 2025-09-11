@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Container, Card, Row, Col } from 'react-bootstrap'
-import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy } from '@mui/icons-material'
+import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule } from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
@@ -40,7 +40,7 @@ const flipKinds = [
         name: 'Recent Flips',
         path: '/recentflips',
         description: 'See the most recent profitable flips found by our system. Great for discovering what is currently being flipped and for how much profit.',
-        icon: <Storefront fontSize="large" />
+        icon: <Schedule fontSize="large" />
     },
     {
         name: 'Forge Flips',
