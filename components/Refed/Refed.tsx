@@ -36,7 +36,7 @@ export default function Refed() {
                             }
                         />{' '}
                         to get {TEST_PREMIUM_DAYS} days of our <Link href="/premium">premium plan</Link> for free. That includes our{' '}
-                        <Link href="/flipper">advanced auction flipper</Link>.
+                        <Link href="/flipper">advanced auction flipper</Link> as well as a lot of other <Link href="/flips">hypixel skyblock flips</Link>.
                     </p>
                     <p>
                         We also provide a Minecraft mod to use the flipper in game. You can get it{' '}
