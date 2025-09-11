@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Container, Card, Row, Col } from 'react-bootstrap'
-import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark } from '@mui/icons-material'
+import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy } from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
@@ -46,7 +46,7 @@ const flipKinds = [
         name: 'NPC Flips',
         path: '/npc',
         description: 'Buy items from NPCs and sell them on the Auction House or Bazaar for profit. Find out which items offer the best margins.',
-        icon: <Storefront fontSize="large" />
+        icon: <SmartToy fontSize="large" />
     },
     {
         name: 'Attribute Fusion Machine Flips',
@@ -64,13 +64,13 @@ const flipKinds = [
         name: 'Book Flips',
         path: '/bookFlips',
         description: <span>Combine books to a higher level and sell them back for a profit.</span>,
-        icon: <Handyman fontSize="large" />
+        icon: <MenuBook fontSize="large" />
     },
     {
         name: 'Ananke Feather Flips',
         path: undefined,
         description: <span>Find the best items to use Ananke Feather on in RNG-Meters. Shows you the most profitable item to target, how much it costs and how much profit is to be made. Available via <code>/cofl ananke</code> using our mod</span>,
-        icon: <Handyman fontSize="large" />
+        icon: <DonutSmall fontSize="large" />
     },
     {
         name: 'suggest new',
