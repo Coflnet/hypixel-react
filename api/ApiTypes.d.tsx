@@ -37,6 +37,7 @@ export enum RequestType {
     GET_FLIP_BASED_AUCTIONS = 'flipBased',
     PAYPAL_PAYMENT = 'topup/paypal',
     LEMONSQUEEZY_PAYMENT = 'topup/lemonsqueezy',
+    GOOGLE_PLAY_PAYMENT = 'topup/googleplay',
     GET_REF_INFO = 'referral/info',
     SET_REF = 'referral/referred/by',
     ACTIVE_AUCTIONS = 'activeAuctions',

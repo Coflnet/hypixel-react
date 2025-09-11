@@ -250,6 +250,7 @@ interface API {
     getOwnerHistory(uid: string): Promise<OwnerHistory[]>
     getMayorData(start: Date, end: Date): Promise<MayorData[]>
     lemonsqueezyPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
+    googlePlayPurchase(productId: string, purchaseToken: string, coinAmount?: number): Promise<PaymentResponse>
     getPlayerInventory(): Promise<InventoryData[]>
     createTradeOffer(playerUUID: string, offer?: InventoryData, wantedItems?: WantedItem[], offeredCoins?: number): Promise<void>
     getTradeOffers(onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]>

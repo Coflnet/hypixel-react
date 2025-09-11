@@ -4,7 +4,10 @@ import { Button, Alert } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { useCoflCoins } from '../../utils/Hooks'
+import { isGooglePlayStorePWA, isGooglePlayBillingAvailable } from '../../utils/PlatformUtils'
 import CoflCoinPurchaseWizard from './CoflCoinPurchaseWizard'
+import GooglePlayCoflCoinsPurchase from './GooglePlayCoflCoinsPurchase'
+import GooglePlayTestingUtils from './GooglePlayTestingUtils'
 import PurchaseElement from './PurchaseElement'
 import { Country, getCountry, getCountryFromUserLanguage } from '../../utils/CountryUtils'
 import CountrySelect from '../CountrySelect/CountrySelect'
@@ -23,12 +26,19 @@ function Payment(props: Props) {
     let [defaultCountry, setDefaultCountry] = useState<Country>()
     let [selectedCountry, setSelectedCountry] = useState<Country>()
     let [useWizard, setUseWizard] = useState(true)
+    let [isGooglePlayEnvironment, setIsGooglePlayEnvironment] = useState(false)
     let coflCoins = useCoflCoins()
     let isDisabled = !props.cancellationRightLossConfirmed || !selectedCountry
 
     useEffect(() => {
         loadDefaultCountry()
+        checkGooglePlayEnvironment()
     }, [])
+
+    function checkGooglePlayEnvironment() {
+        const isGooglePlay = isGooglePlayStorePWA() && isGooglePlayBillingAvailable()
+        setIsGooglePlayEnvironment(isGooglePlay)
+    }
 
     async function loadDefaultCountry() {
         let cachedCountryCode = localStorage.getItem(USER_COUNTRY_CODE)
@@ -113,6 +123,19 @@ function Payment(props: Props) {
     }
     let disabledTooltip = getDisabledPaymentTooltip()
 
+    // If in Google Play Store environment, show Google Play specific interface
+    if (isGooglePlayEnvironment) {
+        return (
+            <div>
+                <GooglePlayTestingUtils />
+                <GooglePlayCoflCoinsPurchase 
+                    cancellationRightLossConfirmed={props.cancellationRightLossConfirmed}
+                    userCountry={props.userCountry}
+                />
+            </div>
+        )
+    }
+
     if (!props.cancellationRightLossConfirmed || !selectedCountry) {
         return (
             <div>
@@ -140,6 +163,7 @@ function Payment(props: Props) {
     if (useWizard) {
         return (
             <div>
+                <GooglePlayTestingUtils />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div>
                         {defaultCountry ? (
@@ -171,6 +195,7 @@ function Payment(props: Props) {
 
     return (
         <div>
+            <GooglePlayTestingUtils />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div>
                     {defaultCountry ? (
@@ -193,9 +218,9 @@ function Payment(props: Props) {
                     coflCoinsToBuy={1800}
                     loadingProductId={loadingId}
                     redirectLink={currentRedirectLink}
-                    paypalPrice={8.69}
-                    stripePrice={8.42}
-                    lemonsqueezyPrice={8.69}
+                    paypalPrice={9.69}
+                    stripePrice={9.69}
+                    lemonsqueezyPrice={9.69}
                     disabledTooltip={disabledTooltip}
                     isDisabled={isDisabled}
                     onPayPalPay={onPayPaypal}
@@ -210,9 +235,9 @@ function Payment(props: Props) {
                     coflCoinsToBuy={5400}
                     loadingProductId={loadingId}
                     redirectLink={currentRedirectLink}
-                    paypalPrice={22.99}
-                    stripePrice={22.69}
-                    lemonsqueezyPrice={22.69}
+                    paypalPrice={24.69}
+                    stripePrice={24.69}
+                    lemonsqueezyPrice={24.69}
                     disabledTooltip={disabledTooltip}
                     isDisabled={isDisabled}
                     onPayPalPay={onPayPaypal}
