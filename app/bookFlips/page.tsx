@@ -18,7 +18,7 @@ export default async function Page() {
             <Container>
                 <h2>
                     <NavBar />
-                    Book Flips
+                    Book Flips (WIP)
                 </h2>
                 <hr />
                 <HydrationBoundary state={dehydrate(queryClient)}>
