@@ -8,7 +8,10 @@
     "lint": "next lint",
     "cypress:open": "cypress open",
     "cypress:run": "cross-env TEST_RUNNER=true cypress run",
-    "generate_api": "orval --config orval.config.ts"
+    "generate_api": "orval --config orval.config.ts",
+    "sitemap:generate": "node scripts/regenerate-sitemaps.mjs",
+    "sitemap:check": "curl -s -I https://sky.coflnet.com/sitemap.xml | grep -E '(HTTP|Content-Type|Cache-Control)'",
+    "sitemap:validate": "curl -s https://sky.coflnet.com/sitemap.xml | head -20"
   },
   "dependencies": {
     "@jonkoops/matomo-tracker-react": "^0.7.0",
