@@ -140,7 +140,7 @@ export function BazaarFlips() {
             </details>
             <details>
                 <summary>How do we detect manipulated items?</summary>
-                <p>Using our hypixel skyblock bazaar data archive we know what an item usually sells for. If it suddenly spikes its usually manipulated.
+                <p>Using our hypixel skyblock bazaar tracker data we know what an item usually sells for. If it suddenly spikes its usually manipulated.
                     Sometimes its also because of a game update.
                     So these items are still displayed for you to make a decission on if you want to risk you coins for potentially more reward.
                 </p>
@@ -153,7 +153,7 @@ export function BazaarFlips() {
                 </p>
             </details>
             <details>
-                <summary>How to do these flips?</summary>
+                <summary>How to do these hypixel skyblock bazaar flips?</summary>
                 <ol>
                     <li>Go to the skyblock bazaar and search up the item. (This is simpler if you use this list in game with /cofl bazaar)</li>
                     <li>Place a top buyorder (should be within one coin of whats displayed here)</li>
