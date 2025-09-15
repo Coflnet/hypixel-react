@@ -38,6 +38,29 @@ const groupedFilter = [
     ['SecondEnchantment', 'SecondEnchantLvl']
 ]
 
+/**
+ * Check if the global search bar is currently in use (has focus or contains text)
+ * @returns true if the global search is being used, false otherwise
+ */
+function isGlobalSearchInUse(): boolean {
+    if (typeof document === 'undefined') {
+        return false // Server-side rendering
+    }
+    
+    const globalSearchInput = document.getElementById('search-bar') as HTMLInputElement
+    if (!globalSearchInput) {
+        return false
+    }
+    
+    // Check if the search input has focus
+    const hasFocus = document.activeElement === globalSearchInput
+    
+    // Check if the search input contains text
+    const hasText = globalSearchInput.value && globalSearchInput.value.trim().length > 0
+    
+    return hasFocus || !!hasText
+}
+
 function ItemFilter(props: Props) {
     let router = useRouter()
     let pathname = usePathname()
@@ -402,12 +425,12 @@ function ItemFilter(props: Props) {
                                         id="add-filter-typeahead"
                                         autoFocus={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 && !isGlobalSearchInUse()
                                                 : props.autoSelect
                                         }
                                         defaultOpen={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 && !isGlobalSearchInUse()
                                                 : props.autoSelect
                                         }
                                         ref={typeaheadRef}
