@@ -404,8 +404,8 @@ function Startpage(props: Props) {
                         What's more is that you can see what auctions were used as reference to determine if a flip is profitable.
                     </p>
                     <p>
-                        We have the longest bazaar history database and you can browser through bazaar items just as easily as through the auction house.
-                        See the full orderbook of any point in the last 5 years and discorver {' '}
+                        We have the longest bazaar history database and you can browser through our hypixel skyblock bazaar tracker just as easily as through the auction house.
+                        See the full orderbook of any point in the last 5 years and discorver profitable {' '}
                         <Link href="/bazaar" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}>
                             Bazaar Flips ↗️
                         </Link>{' '}

@@ -28,4 +28,4 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Fusion Flips', 'Discover profitable Hypixel SkyBlock NPC flipping opportunities.', undefined, ['npc', 'flips', 'hypixel', 'skyblock', 'flip', 'npc flips', 'npc flipper'])
+export const metadata = getHeadMetadata('Fusion Flips', 'Discover profitable Hypixel SkyBlock Fusion machine flips.', undefined, ['shards', 'flips', 'hypixel', 'skyblock', 'flip', 'fusion', 'shard flipper'])
