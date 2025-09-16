@@ -1,11 +1,7 @@
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
-import { getApiFlipUnknown, getGetApiFlipUnknownQueryKey } from '../../api/_generated/skyApi'
-import { BazaarFlips } from '../../components/BazaarFlips/BazaarFlips'
-import { getQueryClient } from '../../utils/QueryUtils'
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { RecentFlips } from '../../components/RecentFlips/RecentFlips'
+import RecentFlipsDynamicWrapper from '../../components/RecentFlips/RecentFlipsDynamicWrapper'
 
 export default async function Page() {
     return (
@@ -16,7 +12,7 @@ export default async function Page() {
                     Recent Flips
                 </h2>
                 <hr />
-                <RecentFlips />
+                <RecentFlipsDynamicWrapper />
             </Container>
         </>
     )

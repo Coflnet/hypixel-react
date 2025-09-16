@@ -1,15 +1,17 @@
 "use client";
-import React from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getApiFlipUnknown, getGetApiFlipUnknownQueryKey, useGetApiFlipUnknown } from "../../api/_generated/skyApi";
+import React, { useState } from "react";
+import { useGetApiFlipUnknown } from "../../api/_generated/skyApi";
 import { FlipDetails } from "../../api/_generated/skyApi.schemas";
 import api from "../../api/ApiHelper";
 import Number from "../Number/Number";
 import { GenericFlipList, SortOption } from "../GenericFlipList";
-import Link from "next/link";
 import { formatToPriceToShorten, getStyleForTier, getMinecraftColorCodedElement, convertTagToName } from "../../utils/Formatter";
-import { toast } from "react-toastify";
 import { Error } from "../Error/Error";
+import { useWasAlreadyLoggedIn } from "../../utils/Hooks";
+import GoogleSignIn from "../GoogleSignIn/GoogleSignIn";
+import { set } from "cypress/types/lodash";
+import Link from "next/link";
+import { Button } from "react-bootstrap";
 
 const SORT_OPTIONS: SortOption<FlipDetails>[] = [
     {
@@ -45,21 +47,43 @@ const SORT_OPTIONS: SortOption<FlipDetails>[] = [
 ];
 
 export function RecentFlips() {
-    let googleId = sessionStorage.getItem('googleId')
+    let [googleId, setGoogleId] = useState<string>();
+    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn();
     const { data: { data: flips } = { data: [] } } = useGetApiFlipUnknown(undefined, {
         fetch: {
             headers: {
                 GoogleToken: googleId || '',
             }
+        },
+        query: {
+            enabled: !!googleId,
         }
     });
 
-    if ((flips as any).slug) {
+    function onAfterLogin() {
+        setGoogleId(sessionStorage.getItem('googleId') || "");
+    }
+
+    if ((flips as any)?.slug === "no_premium_plus" || !wasAlreadyLoggedIn || !googleId) {
+        return <><h2>Premium Plus Required</h2>
+            <p>This feature is exclusive to Premium Plus users.</p>
+            <Link href="/premium" className="disableLinkStyle">
+                <Button>Get Premium+</Button>
+            </Link>
+            <p style={{ margin: "10px" }}>or</p>
+            <Link href="/" className="disableLinkStyle">
+                <Button>Return to main page</Button>
+            </Link>
+            <hr />
+            <GoogleSignIn onAfterLogin={onAfterLogin} />
+        </>
+    }
+    if ((flips as any)?.slug) {
         return <Error title="API error while fetching recent flips" errorObject={flips} />
     }
 
     function renderFlipContent(flip: FlipDetails) {
-    const displayName: string = String(flip.itemName ?? convertTagToName(flip.itemTag ?? ''))
+        const displayName: string = String(flip.itemName ?? convertTagToName(flip.itemTag ?? ''))
         return (
             <>
                 <h4>
@@ -148,62 +172,33 @@ export function RecentFlips() {
         return `${convertMsToLegible(diff)} ago`
     }
 
-    function onFlipClick(flip: FlipDetails) {
-        if (flip.itemTag) {
-            const url = `https://sky.coflnet.com/item/${flip.itemTag}`;
-            window.open(url, "_blank");
-        }
-    }
-
     function filterFunction(flip: FlipDetails, nameFilter: string | null | undefined, minimumProfit: number): boolean {
         const nameMatch = !nameFilter || (flip.itemName?.toLowerCase().includes(nameFilter.toLowerCase()) ?? false);
         const profitMatch = (flip.profit || 0) >= minimumProfit;
         return nameMatch && profitMatch;
     }
 
-    function censoredItemGenerator(flip: FlipDetails): FlipDetails {
-        return {
-            ...flip,
-            itemName: "You cheated the blur ☺",
-            pricePaid: 12345,
-            soldFor: 69420,
-            profit: -100000,
-            itemTag: "BARRIER",
-            buyTime: "-",
-            sellTime: "-",
-            flags: "None",
-            tier: "UNKNOWN",
-            finder: flip.finder,
-            uId: flip.uId,
-            originAuction: null,
-            soldAuction: null,
-            propertyChanges: null,
-        };
-    }
-
     return (
         <>
-                <p>
-                    These are flips we tracked but could not determine why they sold for so much.<br />
-                    You can use this to see what items are currently being flipped and for how much profit.<br />
-                </p>
-                <p>
-                    You can use these flips both to replicate them, basically skyblock copy trading, or find irl traders that moved coins.
-                </p>
-                <p>
-                    Because the market insight this information provides possibly making you billions of coins this feature is exclusive to premium plus users.
-                </p>
+            <p>
+                These are flips we tracked but could not determine why they sold for so much.<br />
+                You can use this to see what items are currently being flipped and for how much profit.<br />
+            </p>
+            <p>
+                You can use these flips both to replicate them, basically skyblock copy trading, or find irl traders that moved coins.
+            </p>
+            <p>
+                Because the market insight this information provides possibly making you billions of coins this feature is exclusive to premium plus users.
+            </p>
             <GenericFlipList
                 items={flips}
                 sortOptions={SORT_OPTIONS}
-                onFlipClick={onFlipClick}
                 getFlipLink={flip => (flip.itemTag ? `https://sky.coflnet.com/auction/${flip.originAuction}` : undefined)}
                 renderFlipContentAction={renderFlipContent}
                 filterFunction={filterFunction}
                 getItemKeyAction={flip => flip.uId?.toString() || flip.itemTag || ''}
-                censoredItemGenerator={censoredItemGenerator}
-                premiumMessage="The top 3 flips can only be seen with starter premium or better"
                 clickMessage="Click on a flip for the origin auction"
+                onAfterSignIn={onAfterLogin}
             />
         </>
     );
