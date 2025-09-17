@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { SITEMAP_CONFIG, getFullUrl } from '../utils/sitemap-config'
 
 interface Item {
     tag: string;
@@ -7,166 +8,79 @@ interface Item {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sky.coflnet.com';
-    const basePath = process.env.BASE_PATH || '';
-    const fullBaseUrl = `${baseUrl}${basePath}`;
+    const today = new Date()
+    const sitemapEntries: MetadataRoute.Sitemap = []
 
-    // Static pages with SEO priorities
-    const staticRoutes: MetadataRoute.Sitemap = [
-        {
-            url: fullBaseUrl,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 1.0,
-        },
-        {
-            url: `${fullBaseUrl}/flipper`,
-            lastModified: new Date(),
-            changeFrequency: 'hourly',
-            priority: 0.9,
-        },
-        {
-            url: `${fullBaseUrl}/auction`,
-            lastModified: new Date(),
-            changeFrequency: 'hourly',
-            priority: 0.9,
-        },
-        {
-            url: `${fullBaseUrl}/bazaar`,
-            lastModified: new Date(),
-            changeFrequency: 'hourly',
-            priority: 0.9,
-        },
-        {
-            url: `${fullBaseUrl}/flips`,
-            lastModified: new Date(),
-            changeFrequency: 'hourly',
-            priority: 0.8,
-        },
-        {
-            url: `${fullBaseUrl}/player`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.7,
-        },
-        {
-            url: `${fullBaseUrl}/crafts`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.7,
-        },
-        {
-            url: `${fullBaseUrl}/lowSupply`,
-            lastModified: new Date(),
-            changeFrequency: 'hourly',
-            priority: 0.7,
-        },
-        {
-            url: `${fullBaseUrl}/recentflips`,
-            lastModified: new Date(),
-            changeFrequency: 'hourly',
-            priority: 0.7,
-        },
-        {
-            url: `${fullBaseUrl}/npc`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.6,
-        },
-        {
-            url: `${fullBaseUrl}/kat`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.6,
-        },
-        {
-            url: `${fullBaseUrl}/trade`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.6,
-        },
-        {
-            url: `${fullBaseUrl}/fusion`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.6,
-        },
-        {
-            url: `${fullBaseUrl}/bookFlips`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 0.6,
-        },
-        {
-            url: `${fullBaseUrl}/premium`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.6,
-        },
-        {
-            url: `${fullBaseUrl}/mod`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.5,
-        },
-        {
-            url: `${fullBaseUrl}/about`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.5,
-        },
-        {
-            url: `${fullBaseUrl}/subscriptions`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.4,
-        },
-        {
-            url: `${fullBaseUrl}/account`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.4,
-        },
-        {
-            url: `${fullBaseUrl}/feedback`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.3,
-        }
-    ];
+    // Add static pages
+    const staticPages = SITEMAP_CONFIG.staticPages.map(page => ({
+        url: getFullUrl(page.url),
+        lastModified: today,
+        changeFrequency: page.changefreq,
+        priority: page.priority,
+    }))
+    
+    sitemapEntries.push(...staticPages)
 
+    // Add auction items (limited for sitemap size)
     try {
-        // Fetch items from API for dynamic routes
-        const itemsResponse = await fetch(`${baseUrl}/api/items`, {
-            headers: {
-                'User-Agent': 'Hypixel SkyBlock Price Tracker Sitemap Generator'
-            }
-        });
+        const auctionItems = await generateItemSitemap('auction')
+        sitemapEntries.push(...auctionItems.slice(0, 15000)) // Limit for performance
+    } catch (error) {
+        console.error('Error adding auction items to sitemap:', error)
+    }
 
-        let itemRoutes: MetadataRoute.Sitemap = [];
+    // Add bazaar items (limited for sitemap size)
+    try {
+        const bazaarItems = await generateItemSitemap('bazaar')
+        sitemapEntries.push(...bazaarItems.slice(0, 15000)) // Limit for performance
+    } catch (error) {
+        console.error('Error adding bazaar items to sitemap:', error)
+    }
+
+    return sitemapEntries
+}
+
+// Helper function to generate item sitemaps
+async function generateItemSitemap(type: 'auction' | 'bazaar'): Promise<MetadataRoute.Sitemap> {
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sky.coflnet.com'
+        const response = await fetch(`${baseUrl}/api/items`)
         
-        if (itemsResponse.ok) {
-            const items: Item[] = await itemsResponse.json();
-            
-            // Generate item routes with SEO optimization
-            itemRoutes = items
-                .filter(item => item.tag && item.name)
-                .map((item): MetadataRoute.Sitemap[0] => {
-                    const isBazaarItem = typeof item.flags === 'string' && item.flags.includes('BAZAAR');
-                    
-                    return {
-                        url: `${fullBaseUrl}/item/${encodeURIComponent(item.tag)}`,
-                        lastModified: new Date(),
-                        changeFrequency: isBazaarItem ? 'hourly' : 'daily',
-                        priority: isBazaarItem ? 0.8 : 0.7,
-                    };
-                })
-                .slice(0, 45000); // Limit to stay within sitemap size limits
+        if (!response.ok) {
+            console.error(`Failed to fetch items: ${response.status}`)
+            return []
         }
 
-        return [...staticRoutes, ...itemRoutes];
+        const items: Item[] = await response.json()
+        const today = new Date()
+        
+        // Filter items based on type
+        const filteredItems = items.filter(item => {
+            const isBazaar = isBazaarItem(item)
+            return type === 'bazaar' ? isBazaar : !isBazaar
+        })
+
+        const config = type === 'bazaar' 
+            ? SITEMAP_CONFIG.itemConfig.bazaarItems 
+            : SITEMAP_CONFIG.itemConfig.auctionItems
+
+        return filteredItems.map(item => ({
+            url: getFullUrl(`/item/${item.tag}`),
+            lastModified: today,
+            changeFrequency: config.changefreq,
+            priority: config.priority,
+        }))
+
     } catch (error) {
-        console.error('Error generating dynamic sitemap:', error);
-        return staticRoutes; // Return static routes if API fails
+        console.error(`Error generating ${type} sitemap:`, error)
+        return []
     }
+}
+
+// Helper function to check if item is bazaar item
+function isBazaarItem(item: Item): boolean {
+    if (typeof item.flags === 'number') {
+        return (item.flags & 1) === 1
+    }
+    return typeof item.flags === 'string' && item.flags.includes('BAZAAR')
 }

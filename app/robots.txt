@@ -3,19 +3,15 @@ User-agent: *
 Disallow:
 
 # Sitemaps for Hypixel SkyBlock Price Tracker
-Sitemap: https://sky.coflnet.com/sitemap-index.xml
 Sitemap: https://sky.coflnet.com/sitemap.xml
-Sitemap: https://sky.coflnet.com/sitemap-pages.xml
-Sitemap: https://sky.coflnet.com/sitemap-items.xml
-Sitemap: https://sky.coflnet.com/sitemap-bazaar.xml
 
 # Allow all search engines to crawl auction and bazaar data
 User-agent: *
 Allow: /item/
 Allow: /auction/
-Allow: /bazaar/
+Allow: /bazaar
 Allow: /player/
-Allow: /flipper/
+Allow: /flipper
 
 # Optimize crawl budget for price-sensitive pages
 Crawl-delay: 1
