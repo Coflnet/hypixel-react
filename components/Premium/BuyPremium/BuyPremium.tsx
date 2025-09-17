@@ -119,7 +119,6 @@ function BuyPremium(props: Props) {
     }
 
     function getPurchasePrice() {
-        console.log('Calculating price:', purchasePremiumOption.value, purchasePremiumOption.price)
         return purchasePremiumOption.value * purchasePremiumOption.price
     }
 

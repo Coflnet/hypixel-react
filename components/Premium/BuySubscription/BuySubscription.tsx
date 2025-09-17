@@ -36,7 +36,6 @@ function BuySubscription(props: Props) {
 
     function getSubscriptionPrice() {
         const targetType = selectedPremiumType || wizardSelectedType
-        console.log('targetType', targetType, selectedPremiumType, wizardSelectedType)
         if (!targetType) {
             return -1
         }
