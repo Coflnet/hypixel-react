@@ -49,7 +49,7 @@ export function ProfitLeaderboardComponent() {
         </>
     }
     if ((leaderboardEntries as any)?.slug) {
-        return <Error title="API error while fetching recent flips" errorObject={leaderboardEntries} />
+        return <Error title="API error while fetching profit leaderboard" errorObject={leaderboardEntries} />
     }
 
     return (
