@@ -35,7 +35,7 @@ const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Dur
                 return lowerLabel.includes('week') && !lowerLabel.includes('month')
             case Duration.MONTHLY:
                 return lowerLabel.includes('month') || lowerLabel.includes('4 weeks')
-            case Duration.QUATER:
+            case Duration.QUARTER:
                 return lowerLabel.includes('11 weeks') || lowerLabel.includes('6 months')
             case Duration.YEARLY:
                 return lowerLabel.includes('year') || lowerLabel.includes('12 months')
@@ -156,7 +156,7 @@ function BuyPremium(props: Props) {
                 return '1 Week'  
             case Duration.MONTHLY:
                 return 'Monthly'
-            case Duration.QUATER:
+            case Duration.QUARTER:
                 return 'Quarterly'
             case Duration.YEARLY:
                 return 'Yearly'

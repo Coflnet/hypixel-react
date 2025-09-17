@@ -13,7 +13,7 @@ export enum Duration {
     HOUR = 'hour',
     WEEK = 'week',
     MONTHLY = 'monthly',
-    QUATER = 'quater',
+    QUARTER = 'quarter',
     YEARLY = 'yearly'
 }
 
@@ -33,7 +33,7 @@ export const getDurationDisplayName = (duration: Duration | null): string => {
         case Duration.HOUR: return '1 Hour'
         case Duration.WEEK: return '1 Week'
         case Duration.MONTHLY: return 'Monthly'
-        case Duration.QUATER: return 'Quarterly'
+        case Duration.QUARTER: return 'Quarterly'
         case Duration.YEARLY: return 'Yearly'
         default: return ''
     }
@@ -45,20 +45,20 @@ export const getDurationOptions = (tier: PremiumTier, type: PurchaseType) => {
         switch (tier) {
             case PremiumTier.STARTER:
                 return [
-                    { label: '6 Months', desc: 'Half-year access', icon: '🕒', value: Duration.QUATER },
+                    { label: '6 Months', desc: 'Half-year access', icon: '🕒', value: Duration.QUARTER },
                     { label: '12 Months', desc: 'Full year access', icon: '🎯', value: Duration.YEARLY }
                 ]
             case PremiumTier.PREMIUM:
                 return [
                     { label: '1 Month', desc: 'Monthly access', icon: '📅', value: Duration.MONTHLY },
-                    { label: '6 Months', desc: 'Half-year access', icon: '🕒', value: Duration.QUATER },
+                    { label: '6 Months', desc: 'Half-year access', icon: '🕒', value: Duration.QUARTER },
                     { label: '12 Months', desc: 'Full year access', icon: '🎯', value: Duration.YEARLY }
                 ]
             case PremiumTier.PREMIUM_PLUS:
                 return [
                     { label: '1 Week', desc: 'Weekly access', icon: '📆', value: Duration.WEEK },
                     { label: '4 Weeks', desc: 'Approximately one month', icon: '📅', value: Duration.MONTHLY, badge: 'Popular' },
-                    { label: '11 Weeks', desc: 'Extended multi-week access', icon: '🔁', value: Duration.QUATER, badge: 'Best Value' },
+                    { label: '11 Weeks', desc: 'Extended multi-week access', icon: '🔁', value: Duration.QUARTER, badge: 'Best Value' },
                     { label: '1 Hour', desc: 'Short access period', icon: '⏱️', value: Duration.HOUR }
                 ]
             default:
