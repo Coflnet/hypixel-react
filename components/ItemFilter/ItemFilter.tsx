@@ -16,6 +16,7 @@ import { btoaUnicode } from '../../utils/Base64Utils'
 import { ITEM_FILTER_USE_COUNT, LAST_USED_FILTER, getSettingsObject, setSetting } from '../../utils/SettingsUtils'
 import ModAdvert from './ModAdvert'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import { isAnySearchInputInUse } from '../../utils/SearchFocusUtils'
 import { usePathname, useRouter } from 'next/navigation'
 import option from '../PriceGraph/AuctionHousePriceGraph/PriceGraphConfig'
 
@@ -402,12 +403,12 @@ function ItemFilter(props: Props) {
                                         id="add-filter-typeahead"
                                         autoFocus={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 && !isAnySearchInputInUse()
                                                 : props.autoSelect
                                         }
                                         defaultOpen={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 && !isAnySearchInputInUse()
                                                 : props.autoSelect
                                         }
                                         ref={typeaheadRef}

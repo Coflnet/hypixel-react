@@ -3,6 +3,7 @@ import React, { ChangeEvent, useEffect, useState, useMemo, useCallback } from 'r
 import { Form, ListGroup, Spinner } from 'react-bootstrap'
 import Link from 'next/link'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import PremiumModal from '../PremiumModal/PremiumModal'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import api from '../../api/ApiHelper'
 import styles from './GenericFlipList.module.css'
@@ -24,6 +25,15 @@ export interface FlipListProps<T> {
     customItemWrapper?: (item: T, blur: boolean, key: string, content: React.ReactNode, flipCardClass: string) => React.ReactNode
     onAfterSignIn?: () => void
     customHeader?: (isLoggedIn: boolean) => React.ReactNode
+    // Optional: provide a function that returns a href for a flip item.
+    // If provided, non-blurred flips will be wrapped in a plain <a> so
+    // the link exists in the HTML for users/search engines with JS disabled.
+    getFlipLink?: (item: T) => string | null | undefined
+    // When lists are large, render a small initial batch and load more as the
+    // user scrolls to reduce DOM size and JS work. Defaults keep at least 3
+    // items to preserve top-3 censoring for SSR.
+    renderBatchSize?: number
+    initialRenderCount?: number
 }
 
 export interface SortOption<T> {
@@ -50,7 +60,11 @@ export function GenericFlipList<T>({
     sortFunctionArgs = [],
     customItemWrapper,
     onAfterSignIn,
-    customHeader
+    customHeader,
+    getFlipLink
+    ,
+    renderBatchSize = 42,
+    initialRenderCount = 42
 }: FlipListProps<T>) {
     const [nameFilter, setNameFilter] = useState<string | null>()
     const [minimumProfit, setMinimumProfit] = useState<number>(0)
@@ -59,6 +73,7 @@ export function GenericFlipList<T>({
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
     const [columns, setColumns] = useState<number>()
+    const [showPremiumModal, setShowPremiumModal] = useState(false)
 
     const { processedItems, isProcessing } = useSortedAndFilteredItems(
         items,
@@ -69,13 +84,37 @@ export function GenericFlipList<T>({
         sortFunctionArgs
     )
 
+    // Batch rendering state to limit DOM nodes for very large lists
+    const safeInitial = Math.max(3, initialRenderCount || 0)
+    const [renderedCount, setRenderedCount] = useState<number>(safeInitial)
+    const batchSize = Math.max(1, renderBatchSize || 50)
+    const sentinelRef = React.useRef<HTMLDivElement | null>(null)
+
     useEffect(() => {
         // reset the blur observer, when something changed
         setTimeout(setBlurObserver, 100)
         if (showColumns) {
             setColumns(getDefaultColumns())
         }
+        // Reset rendered count when the processed items change (new search/sort)
+        setRenderedCount(Math.max(3, safeInitial))
     }, [])
+
+    // Observe the sentinel to incrementally render more items when the user
+    // scrolls near the end of the currently rendered batch.
+    useEffect(() => {
+        if (!sentinelRef.current) return
+        const el = sentinelRef.current
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setRenderedCount(prev => Math.min(processedItems.length, prev + batchSize))
+                }
+            })
+        })
+        observer.observe(el)
+        return () => observer.disconnect()
+    }, [sentinelRef.current, processedItems.length, batchSize])
 
     function setBlurObserver() {
         if (observer) {
@@ -155,20 +194,58 @@ export function GenericFlipList<T>({
     }
 
     function getListElement(item: T, blur: boolean) {
-        return (
-            <ListGroup.Item
-                key={getItemKeyAction(item)}
-                action={!blur}
-                onClick={e => {
-                    if (onFlipClick && !blur) {
-                        onFlipClick(item, e)
-                    }
-                }}
-                style={{ height: '100%', padding: '15px' }}
-            >
+        // Build the inner content (blur messages + actual content)
+        const inner = (
+            <>
                 {blur ? (
-                    <p style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', fontSize: 'large', fontWeight: 'bold', textAlign: 'center' }}>
-                        {premiumMessage}
+                    <p
+                        style={{
+                            position: 'absolute',
+                            top: '25%',
+                            left: '25%',
+                            width: '50%',
+                            fontSize: 'large',
+                            fontWeight: 'bold',
+                            textAlign: 'center'
+                        }}
+                    >
+                        {(() => {
+                            const text = premiumMessage || ''
+                            const match = text.match(/starter premium/i)
+                            if (match && typeof match.index === 'number') {
+                                const idx = match.index
+                                const before = text.slice(0, idx)
+                                const target = text.slice(idx, idx + match[0].length)
+                                const after = text.slice(idx + match[0].length)
+                                return (
+                                    <>
+                                        {before}
+                                        <span
+                                            role="button"
+                                            tabIndex={0}
+                                            aria-label="Get Starter Premium"
+                                            onKeyDown={(e: React.KeyboardEvent) => {
+                                                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                                                    setShowPremiumModal(true)
+                                                }
+                                            }}
+                                            onClick={() => setShowPremiumModal(true)}
+                                            style={{ color: '#0d6efd', textDecoration: 'underline', cursor: 'pointer' }}
+                                        >
+                                            {target}
+                                        </span>
+                                        {after}
+                                    </>
+                                )
+                            }
+
+                            // Fallback: render message and allow click to open modal, but don't style anything
+                            return (
+                                <span onClick={() => setShowPremiumModal(true)} style={{ cursor: 'pointer' }}>
+                                    {text}
+                                </span>
+                            )
+                        })()}
                     </p>
                 ) : null}
                 {showTechSavvyMessage && blur ? (
@@ -190,6 +267,45 @@ export function GenericFlipList<T>({
                 <div className={blur ? 'blur' : ''} style={blur ? blurStyle : {}}>
                     {renderFlipContentAction(item)}
                 </div>
+            </>
+        )
+
+        // If a link generator was provided and this isn't a blurred (censored) item,
+        // wrap the inner content in a plain anchor so it exists in the static HTML.
+        let wrappedInner: React.ReactNode = inner
+        if (!blur && typeof getFlipLink === 'function') {
+            const href = getFlipLink(item)
+            if (href) {
+                const handleAnchorClick = (e: React.MouseEvent) => {
+                    // If there's an onFlipClick handler, call it and prevent default
+                    // so client-side navigation/behavior can occur. If not, allow
+                    // the anchor to work normally (useful when JS is disabled).
+                    if (onFlipClick) {
+                        e.preventDefault()
+                        onFlipClick(item, e)
+                    }
+                }
+
+                wrappedInner = (
+                    <a href={href} onClick={handleAnchorClick} style={{ color: 'inherit', textDecoration: 'none', display: 'block', height: '100%' }}>
+                        {inner}
+                    </a>
+                )
+            }
+        }
+
+        return (
+            <ListGroup.Item
+                key={getItemKeyAction(item)}
+                action={!blur}
+                onClick={e => {
+                    if (onFlipClick && !blur) {
+                        onFlipClick(item, e)
+                    }
+                }}
+                style={{ height: '100%', padding: '15px' }}
+            >
+                {wrappedInner}
             </ListGroup.Item>
         )
     }
@@ -201,7 +317,9 @@ export function GenericFlipList<T>({
         }
 
         let shown = 0
-        const list = processedItems.map(item => {
+        // Only render up to renderedCount to reduce DOM size
+        const toRender = processedItems.slice(0, renderedCount)
+        const list = toRender.map(item => {
             const defaultContent = getListElement(item, false)
 
             if (!hasPremium && ++shown <= 3) {
@@ -231,7 +349,7 @@ export function GenericFlipList<T>({
         })
 
         return list
-    }, [processedItems, hasPremium, isProcessing, censoredItemGenerator, customItemWrapper])
+    }, [processedItems, hasPremium, isProcessing, censoredItemGenerator, customItemWrapper, renderedCount])
 
     const flipListClass = showColumns && columns ? `${styles.flipList} ${styles[`columns-${columns}`]}` : styles.flipList
     return (
@@ -279,11 +397,8 @@ export function GenericFlipList<T>({
                 {customFilters}
             </div>
             <hr />
-            {hasPremium ? null : (
-                <p>
-                    Click <Link href="/linkvertise">here</Link> to get Starter Premium for free to see the top flips
-                </p>
-            )}
+            {/* Premium modal trigger moved to the blurred message so users and crawlers still see the message in-place */}
+            <PremiumModal show={showPremiumModal} onHide={() => setShowPremiumModal(false)} />
             <p>{clickMessage}</p>
             <div className={flipListClass}>
                 {isProcessing ? (
@@ -299,9 +414,21 @@ export function GenericFlipList<T>({
                         <span>Processing items...</span>
                     </div>
                 ) : (
-                    <ListGroup className={styles.list}>{list}</ListGroup>
+                    <>
+                        {(() => {
+                            const visibleList = list.slice()
+                            if (renderedCount < processedItems.length) {
+                                const insertIndex = Math.max(0, visibleList.length - 6)
+                                visibleList.splice(insertIndex, 0, <div key="sentinel" ref={sentinelRef as any} style={{ height: 1 }} />)
+                            }
+                            return <ListGroup className={styles.list}>{visibleList}</ListGroup>
+                        })()}
+                    </>
                 )}
             </div>
+            <Link href="/flips" >
+                <p style={{ textAlign: 'center', marginTop: '20px' }}>See all hypixel skyblock flips</p>
+            </Link>
         </div>
     )
 }

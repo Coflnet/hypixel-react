@@ -29,7 +29,13 @@ export default function Page() {
                                 <Link href="/flipper">An AH flipper</Link>
                             </li>
                             <li>
-                                <Link href="/">An AH Browser</Link>
+                                <Link href="/bazaar">A skyblock bazaar flipper</Link>
+                            </li>
+                            <li>
+                                <Link href="/bazaar">Other Hypixel Skyblock flips</Link>
+                            </li>
+                            <li>
+                                <Link href="/">An AH and bazaar Browser</Link>
                             </li>
                         </ul>
 

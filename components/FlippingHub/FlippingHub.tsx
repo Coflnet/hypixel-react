@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Container, Card, Row, Col } from 'react-bootstrap'
-import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark } from '@mui/icons-material'
+import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule } from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
@@ -37,15 +37,27 @@ const flipKinds = [
         icon: <ShowChart fontSize="large" />
     },
     {
+        name: 'Recent Flips',
+        path: '/recentflips',
+        description: 'See the most recent profitable flips found by our system. Great for discovering what is currently being flipped and for how much profit.',
+        icon: <Schedule fontSize="large" />
+    },
+    {
         name: 'Forge Flips',
         path: undefined,
         description: <span>Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes. Run <code>/cofl forge</code> with our mod to access</span>,
         icon: <Volcano fontSize="large" />
     },
     {
+        name: 'NPC Flips',
+        path: '/npc',
+        description: 'Buy items from NPCs and sell them on the Auction House or Bazaar for profit. Find out which items offer the best margins.',
+        icon: <SmartToy fontSize="large" />
+    },
+    {
         name: 'Attribute Fusion Machine Flips',
-        path: undefined,
-        description: <span>Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard. This flip is currently only available via <code>/cofl fusionflip</code> using our mod</span>,
+        path: "/fusion",
+        description: <span>Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard.</span>,
         icon: <JoinFull fontSize="large" />
     },
     {
@@ -55,10 +67,16 @@ const flipKinds = [
         icon: <Handyman fontSize="large" />
     },
     {
+        name: 'Book Flips',
+        path: '/bookFlips',
+        description: <span>Combine books to a higher level and sell them back for a profit.</span>,
+        icon: <MenuBook fontSize="large" />
+    },
+    {
         name: 'Ananke Feather Flips',
         path: undefined,
         description: <span>Find the best items to use Ananke Feather on in RNG-Meters. Shows you the most profitable item to target, how much it costs and how much profit is to be made. Available via <code>/cofl ananke</code> using our mod</span>,
-        icon: <Handyman fontSize="large" />
+        icon: <DonutSmall fontSize="large" />
     },
     {
         name: 'suggest new',
