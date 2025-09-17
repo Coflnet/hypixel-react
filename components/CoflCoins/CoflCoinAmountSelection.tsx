@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Card, Button } from 'react-bootstrap'
 import Number from '../Number/Number'
 import styles from './CoflCoinsPurchase.module.css'
+import NumberElement from '../Number/Number'
 
 interface CoflCoinOption {
     amount: number
@@ -59,15 +60,13 @@ const coflCoinOptions: CoflCoinOption[] = [
     }
 ]
 
-// Calculate price per coin for comparison
 function getPricePerCoin(option: CoflCoinOption, provider: 'paypal' | 'stripe' | 'lemonsqueezy' = 'stripe'): number {
-    const price = provider === 'paypal' ? option.paypalPrice : 
-                  provider === 'stripe' ? option.stripePrice : 
-                  option.lemonsqueezyPrice
+    const price = provider === 'paypal' ? option.paypalPrice :
+        provider === 'stripe' ? option.stripePrice :
+            option.lemonsqueezyPrice
     return price / option.amount
 }
 
-// Calculate savings compared to base option
 function calculateSavings(baseOption: CoflCoinOption, currentOption: CoflCoinOption): number {
     const basePricePerCoin = getPricePerCoin(baseOption)
     const currentPricePerCoin = getPricePerCoin(currentOption)
@@ -76,7 +75,7 @@ function calculateSavings(baseOption: CoflCoinOption, currentOption: CoflCoinOpt
 
 function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
     const [selectedOption, setSelectedOption] = useState<CoflCoinOption | null>(null)
-    const baseOption = coflCoinOptions[0] // 1800 coins option as base
+    const baseOption = coflCoinOptions[0]
 
     // Check if user needs specific amount to make their coins divisible by 1800
     const remainder = coflCoins % 1800
@@ -98,11 +97,11 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
     return (
         <div>
             <h4 style={{ marginBottom: '30px', textAlign: 'center' }}>Choose CoflCoin Amount</h4>
-            
+
             {specificOption && (
                 <div className="alert alert-info" role="alert" style={{ marginBottom: '20px' }}>
                     <p className="mb-0 small">
-                        <strong>Recommended:</strong> Your current balance isn't divisible by 1800. 
+                        <strong>Recommended:</strong> Your current balance isn't divisible by 1800.
                         Consider buying <Number number={specificOption.amount} /> CoflCoins to optimize your premium purchases.
                     </p>
                 </div>
@@ -115,10 +114,10 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                     const isSpecialOption = option === specificOption
 
                     return (
-                        <Card 
+                        <Card
                             key={option.amount}
                             className={`${styles.premiumPlanCard} ${isSelected ? 'border-primary shadow' : 'border-secondary'}`}
-                            style={{ 
+                            style={{
                                 cursor: 'pointer',
                                 transform: isSelected ? 'translateY(-2px)' : 'none'
                             }}
@@ -142,7 +141,7 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
 
                                     {savings > 0 && !isSpecialOption && (
                                         <div className="small text-success fw-semibold mb-2">
-                                            {Math.round(savings)}% cheaper than {baseOption.amount} coins
+                                            {Math.round(savings)}% cheaper than <Number number={baseOption.amount} /> coins
                                         </div>
                                     )}
 
@@ -156,10 +155,10 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                 })}
             </div>
 
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                marginTop: '30px' 
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginTop: '30px'
             }}>
                 <Button
                     variant="primary"
@@ -172,7 +171,7 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                         fontWeight: '600'
                     }}
                 >
-                    {selectedOption ? `Continue with ${selectedOption.amount} CoflCoins` : 'Select an Amount'}
+                    {selectedOption ? <span>Continue with <NumberElement number={selectedOption.amount} /> CoflCoins</span> : 'Select an Amount'}
                 </Button>
             </div>
         </div>
