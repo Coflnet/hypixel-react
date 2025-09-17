@@ -60,7 +60,7 @@ export function ProfitLeaderboardComponent() {
                     <tr>
                         <th>#</th>
                         <th>Player</th>
-                        <th>Profit</th>
+                        <th>Score</th>
                     </tr>
                 </thead>
                 <tbody>
