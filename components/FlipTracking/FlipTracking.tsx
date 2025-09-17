@@ -2,7 +2,7 @@
 import DangerousIcon from '@mui/icons-material/Dangerous'
 import Image from 'next/image'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { Form, ListGroup } from 'react-bootstrap'
+import { Button, Form, ListGroup } from 'react-bootstrap'
 import { Item, Menu, useContextMenu } from 'react-contexify'
 import { useForceUpdate, useQueryParamState, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getSettingsObject, IGNORE_FLIP_TRACKING_PROFIT, setSetting } from '../../utils/SettingsUtils'
@@ -96,6 +96,7 @@ export function FlipTracking(props: Props) {
     let [rangeStartDate, setRangeStartDate] = useState(new Date(new Date().getTime() - DEFAULT_TIME_FILTER_RANGE))
     let [rangeEndDate, setRangeEndDate] = useState(new Date())
     let [hasPremium, setHasPremium] = useState(false)
+    let [hasPremiumPlus, setHasPremiumPlus] = useState(false)
     let [isLoading, setIsLoading] = useState(false)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [wasManualLoginClick, setWasManualLoginClick] = useState(false)
@@ -179,10 +180,11 @@ export function FlipTracking(props: Props) {
     function onAfterLogin() {
         setIsLoggedIn(true)
         api.refreshLoadPremiumProducts(products => {
-            let hasEnoughPremium = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
-            setHasPremium(hasEnoughPremium)
+            let hasPremium = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
+            setHasPremium(hasPremium)
+            setHasPremiumPlus(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM_PLUS))
 
-            if (wasManualLoginClick && hasEnoughPremium) {
+            if (wasManualLoginClick && hasPremium) {
                 window.scrollTo({ top: 0, behavior: 'smooth' })
             }
         })
@@ -243,7 +245,12 @@ export function FlipTracking(props: Props) {
 
     return (
         <div>
-            <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <FlipTrackingTotalProfitCalculation flips={trackedFlips} ignoreProfitMap={ignoreProfitMap} />
+                <Link href={'/profitLeaderboard'} className="disableLinkStyle">
+                    <Button variant="primary">Profit Leaderboard</Button>
+                </Link>
+            </div>
             <div className={styles.topContainer}>
                 <ShowMoreText
                     allowShowLess
