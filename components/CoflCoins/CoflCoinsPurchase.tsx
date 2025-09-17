@@ -1,14 +1,15 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Button } from 'react-bootstrap'
+import { Button, Alert } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { useCoflCoins } from '../../utils/Hooks'
-import styles from './CoflCoinsPurchase.module.css'
+import CoflCoinPurchaseWizard from './CoflCoinPurchaseWizard'
 import PurchaseElement from './PurchaseElement'
 import { Country, getCountry, getCountryFromUserLanguage } from '../../utils/CountryUtils'
 import CountrySelect from '../CountrySelect/CountrySelect'
 import { USER_COUNTRY_CODE } from '../../utils/SettingsUtils'
+import styles from './CoflCoinsPurchase.module.css'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
@@ -21,6 +22,7 @@ function Payment(props: Props) {
     let [showAll, setShowAll] = useState(false)
     let [defaultCountry, setDefaultCountry] = useState<Country>()
     let [selectedCountry, setSelectedCountry] = useState<Country>()
+    let [useWizard, setUseWizard] = useState(true)
     let coflCoins = useCoflCoins()
     let isDisabled = !props.cancellationRightLossConfirmed || !selectedCountry
 
@@ -39,8 +41,13 @@ function Payment(props: Props) {
         let response: Response | null = null
         try {
             response = await fetch('https://api.country.is')
-        } catch {
-            console.error('Failed to fetch country from api.country.is')
+        } catch (error) {
+            console.warn('Failed to fetch country from api.country.is:', error)
+            // Fallback to country from browser language
+            let country = getCountryFromUserLanguage()
+            setDefaultCountry(country)
+            setSelectedCountry(country)
+            return
         }
 
         if (response && response.ok) {
@@ -106,119 +113,184 @@ function Payment(props: Props) {
     }
     let disabledTooltip = getDisabledPaymentTooltip()
 
-    return (
-        <div>
+    if (!props.cancellationRightLossConfirmed || !selectedCountry) {
+        return (
             <div>
                 {defaultCountry ? (
                     <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
                 ) : (
                     <CountrySelect key="loading-country-select" isLoading />
                 )}
+                
+                {!props.cancellationRightLossConfirmed && (
+                    <Alert variant="warning" style={{ marginTop: '20px' }}>
+                        Please note the information regarding your cancellation right above.
+                    </Alert>
+                )}
+                
+                {!selectedCountry && (
+                    <Alert variant="info" style={{ marginTop: '20px' }}>
+                        Please select your country. This information is necessary for tax purposes.
+                    </Alert>
+                )}
+            </div>
+        )
+    }
 
-                <div className={styles.productGrid}>
-                    <PurchaseElement
-                        coflCoinsToBuy={1800}
-                        loadingProductId={loadingId}
-                        redirectLink={currentRedirectLink}
-                        paypalPrice={8.69}
-                        stripePrice={8.42}
-                        lemonsqueezyPrice={8.69}
-                        disabledTooltip={disabledTooltip}
-                        isDisabled={isDisabled}
-                        onPayPalPay={onPayPaypal}
-                        onStripePay={onPayStripe}
-                        onLemonSqeezyPay={onPayLemonSqueezy}
-                        paypalProductId="p_cc_1800"
-                        stripeProductId="s_cc_1800"
-                        lemonsqueezyProductId="l_cc_1800"
-                        countryCode={selectedCountry ? selectedCountry.value : undefined}
-                    />
-                    <PurchaseElement
-                        coflCoinsToBuy={5400}
-                        loadingProductId={loadingId}
-                        redirectLink={currentRedirectLink}
-                        paypalPrice={22.99}
-                        stripePrice={22.69}
-                        lemonsqueezyPrice={22.69}
-                        disabledTooltip={disabledTooltip}
-                        isDisabled={isDisabled}
-                        onPayPalPay={onPayPaypal}
-                        onStripePay={onPayStripe}
-                        onLemonSqeezyPay={onPayLemonSqueezy}
-                        paypalProductId="p_cc_5400"
-                        stripeProductId="s_cc_5400"
-                        lemonsqueezyProductId="l_cc_5400"
-                        countryCode={selectedCountry ? selectedCountry.value : undefined}
-                    />
-                    {!showAll ? (
-                        <Button
-                            style={{ width: '100%' }}
-                            onClick={() => {
-                                setShowAll(true)
-                            }}
-                        >
-                            Show all CoflCoin Options
-                        </Button>
-                    ) : null}
-                    {showAll ? (
-                        <>
-                            <PurchaseElement
-                                coflCoinsToBuy={10800}
-                                loadingProductId={loadingId}
-                                redirectLink={currentRedirectLink}
-                                paypalPrice={39.69}
-                                stripePrice={38.99}
-                                lemonsqueezyPrice={39.69}
-                                disabledTooltip={disabledTooltip}
-                                isDisabled={isDisabled}
-                                onPayPalPay={onPayPaypal}
-                                onStripePay={onPayStripe}
-                                onLemonSqeezyPay={onPayLemonSqueezy}
-                                paypalProductId="p_cc_10800"
-                                stripeProductId="s_cc_10800"
-                                lemonsqueezyProductId="l_cc_10800"
-                                countryCode={selectedCountry ? selectedCountry.value : undefined}
-                            />
-                            <PurchaseElement
-                                coflCoinsToBuy={21600}
-                                loadingProductId={loadingId}
-                                redirectLink={currentRedirectLink}
-                                paypalPrice={78.69}
-                                stripePrice={74.99}
-                                lemonsqueezyPrice={78.69}
-                                disabledTooltip={disabledTooltip}
-                                isDisabled={isDisabled}
-                                onPayPalPay={onPayPaypal}
-                                onStripePay={onPayStripe}
-                                onLemonSqeezyPay={onPayLemonSqueezy}
-                                paypalProductId="p_cc_21600"
-                                stripeProductId="s_cc_21600"
-                                lemonsqueezyProductId="l_cc_21600"
-                                countryCode={selectedCountry ? selectedCountry.value : undefined}
-                            />
-                            {coflCoins % 1800 != 0 ? (
-                                <PurchaseElement
-                                    coflCoinsToBuy={1800 + (1800 - (coflCoins % 1800))}
-                                    loadingProductId={loadingId}
-                                    redirectLink={currentRedirectLink}
-                                    paypalPrice={(8.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
-                                    stripePrice={(8.42 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
-                                    lemonsqueezyPrice={(8.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
-                                    disabledTooltip={disabledTooltip}
-                                    isDisabled={isDisabled}
-                                    onPayPalPay={onPayPaypal}
-                                    onStripePay={onPayStripe}
-                                    onLemonSqeezyPay={onPayLemonSqueezy}
-                                    isSpecial1800CoinsMultiplier
-                                    paypalProductId="p_cc_1800"
-                                    stripeProductId="s_cc_1800"
-                                    lemonsqueezyProductId="l_cc_1800"
-                                    countryCode={selectedCountry ? selectedCountry.value : undefined}
-                                />
-                            ) : null}
-                        </>
-                    ) : null}
+    if (useWizard) {
+        return (
+            <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <div>
+                        {defaultCountry ? (
+                            <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
+                        ) : (
+                            <CountrySelect key="loading-country-select" isLoading />
+                        )}
+                    </div>
+                    <Button 
+                        variant="outline-secondary"
+                        size="sm"
+                        onClick={() => setUseWizard(false)}
+                    >
+                        Switch to Classic View
+                    </Button>
                 </div>
+                
+                <CoflCoinPurchaseWizard
+                    coflCoins={coflCoins}
+                    countryCode={selectedCountry?.value}
+                    onPayPalPay={onPayPaypal}
+                    onStripePay={onPayStripe}
+                    onLemonSqueezyPay={onPayLemonSqueezy}
+                    loadingProductId={loadingId}
+                />
+            </div>
+        )
+    }
+
+    return (
+        <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <div>
+                    {defaultCountry ? (
+                        <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
+                    ) : (
+                        <CountrySelect key="loading-country-select" isLoading />
+                    )}
+                </div>
+                <Button 
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => setUseWizard(true)}
+                >
+                    Switch to New Wizard
+                </Button>
+            </div>
+
+            <div className={styles.productGrid}>
+                <PurchaseElement
+                    coflCoinsToBuy={1800}
+                    loadingProductId={loadingId}
+                    redirectLink={currentRedirectLink}
+                    paypalPrice={8.69}
+                    stripePrice={8.42}
+                    lemonsqueezyPrice={8.69}
+                    disabledTooltip={disabledTooltip}
+                    isDisabled={isDisabled}
+                    onPayPalPay={onPayPaypal}
+                    onStripePay={onPayStripe}
+                    onLemonSqeezyPay={onPayLemonSqueezy}
+                    paypalProductId="p_cc_1800"
+                    stripeProductId="s_cc_1800"
+                    lemonsqueezyProductId="l_cc_1800"
+                    countryCode={selectedCountry ? selectedCountry.value : undefined}
+                />
+                <PurchaseElement
+                    coflCoinsToBuy={5400}
+                    loadingProductId={loadingId}
+                    redirectLink={currentRedirectLink}
+                    paypalPrice={22.99}
+                    stripePrice={22.69}
+                    lemonsqueezyPrice={22.69}
+                    disabledTooltip={disabledTooltip}
+                    isDisabled={isDisabled}
+                    onPayPalPay={onPayPaypal}
+                    onStripePay={onPayStripe}
+                    onLemonSqeezyPay={onPayLemonSqueezy}
+                    paypalProductId="p_cc_5400"
+                    stripeProductId="s_cc_5400"
+                    lemonsqueezyProductId="l_cc_5400"
+                    countryCode={selectedCountry ? selectedCountry.value : undefined}
+                />
+                {!showAll ? (
+                    <Button
+                        style={{ width: '100%' }}
+                        onClick={() => {
+                            setShowAll(true)
+                        }}
+                    >
+                        Show all CoflCoin Options
+                    </Button>
+                ) : null}
+                {showAll ? (
+                    <>
+                        <PurchaseElement
+                            coflCoinsToBuy={10800}
+                            loadingProductId={loadingId}
+                            redirectLink={currentRedirectLink}
+                            paypalPrice={39.69}
+                            stripePrice={38.99}
+                            lemonsqueezyPrice={39.69}
+                            disabledTooltip={disabledTooltip}
+                            isDisabled={isDisabled}
+                            onPayPalPay={onPayPaypal}
+                            onStripePay={onPayStripe}
+                            onLemonSqeezyPay={onPayLemonSqueezy}
+                            paypalProductId="p_cc_10800"
+                            stripeProductId="s_cc_10800"
+                            lemonsqueezyProductId="l_cc_10800"
+                            countryCode={selectedCountry ? selectedCountry.value : undefined}
+                        />
+                        <PurchaseElement
+                            coflCoinsToBuy={21600}
+                            loadingProductId={loadingId}
+                            redirectLink={currentRedirectLink}
+                            paypalPrice={78.69}
+                            stripePrice={74.99}
+                            lemonsqueezyPrice={78.69}
+                            disabledTooltip={disabledTooltip}
+                            isDisabled={isDisabled}
+                            onPayPalPay={onPayPaypal}
+                            onStripePay={onPayStripe}
+                            onLemonSqeezyPay={onPayLemonSqueezy}
+                            paypalProductId="p_cc_21600"
+                            stripeProductId="s_cc_21600"
+                            lemonsqueezyProductId="l_cc_21600"
+                            countryCode={selectedCountry ? selectedCountry.value : undefined}
+                        />
+                        {coflCoins % 1800 != 0 ? (
+                            <PurchaseElement
+                                coflCoinsToBuy={1800 + (1800 - (coflCoins % 1800))}
+                                loadingProductId={loadingId}
+                                redirectLink={currentRedirectLink}
+                                paypalPrice={(8.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
+                                stripePrice={(8.42 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
+                                lemonsqueezyPrice={(8.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
+                                disabledTooltip={disabledTooltip}
+                                isDisabled={isDisabled}
+                                onPayPalPay={onPayPaypal}
+                                onStripePay={onPayStripe}
+                                onLemonSqeezyPay={onPayLemonSqueezy}
+                                isSpecial1800CoinsMultiplier
+                                paypalProductId="p_cc_1800"
+                                stripeProductId="s_cc_1800"
+                                lemonsqueezyProductId="l_cc_1800"
+                                countryCode={selectedCountry ? selectedCountry.value : undefined}
+                            />
+                        ) : null}
+                    </>
+                ) : null}
             </div>
         </div>
     )

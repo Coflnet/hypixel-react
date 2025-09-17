@@ -9,3 +9,51 @@
 .purchaseButton{
     width: 80%;
 }
+
+.selectedOptionCard {
+    margin-bottom: 20px;
+    border: 2px solid var(--bs-success);
+}
+
+.summarySection {
+    background-color: transparent;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.summarySection h6 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--bs-body-color);
+}
+
+.summarySection p {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--bs-emphasis);
+}
+
+.discount {
+    color: var(--bs-success) !important;
+    font-weight: 600;
+}
+
+.featuresSection {
+    margin-bottom: 20px;
+}
+
+.featuresSection h6 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #e9ecef;
+}
+
+.featuresSection ul {
+    margin-bottom: 0;
+}
+
+.featuresSection li {
+    margin-bottom: 5px;
+    font-size: 14px;
+}

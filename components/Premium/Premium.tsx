@@ -15,6 +15,7 @@ import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import PremiumStatus from './PremiumStatus/PremiumStatus'
 import { toast } from 'react-toastify'
 import BuySubscription from './BuySubscription/BuySubscription'
+import PremiumPurchaseWizard from './PremiumPurchaseWizard/PremiumPurchaseWizard'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -92,7 +93,7 @@ function Premium() {
                     <p style={{ color: 'yellow', margin: 0 }}>To use Premium please login with Google.</p>
                 </div>
             ) : hasPremium ? (
-                <p style={{ color: '#00bc8c' }}>You have a Premium account. Thank you for your support.</p>
+                <p className="text-success">You have a Premium account. Thank you for your support.</p>
             ) : (
                 <div>
                     <p style={{ color: 'red', margin: 0 }}>You do not have a Premium account.</p>
@@ -109,22 +110,44 @@ function Premium() {
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 <div>{isLoading ? getLoadingElement() : ''}</div>
             </div>
-            {isLoggedIn ? (
-                <div style={{ marginBottom: '20px' }}>
+            {isLoggedIn && !hasPremium ? (
+                <div style={{ marginBottom: '40px' }}>
                     <hr />
-                    <h2>Subscriptions</h2>
-                    <BuySubscription activePremiumProduct={activePremiumProduct!} />
-                </div>
-            ) : null}
-            {isLoggedIn ? (
-                <div style={{ marginBottom: '20px' }}>
-                    <hr />
-                    <h2>Prepaid</h2>
-                    <BuyPremium
+                    <h2>Get Premium</h2>
+                    <PremiumPurchaseWizard
                         activePremiumProduct={activePremiumProduct!}
                         premiumSubscriptions={premiumSubscriptions}
                         onNewActivePremiumProduct={loadPremiumProducts}
+                        cancellationRightLossConfirmed={cancellationRightLossConfirmed}
                     />
+                </div>
+            ) : null}
+            {isLoggedIn && hasPremium ? (
+                <div style={{ marginBottom: '20px' }}>
+                    <hr />
+                    <h2>Extend Premium</h2>
+                    <p style={{ marginBottom: '30px' }} className="text-muted">
+                        Already have premium? You can extend your subscription or add more time.
+                    </p>
+                    <details>
+                        <summary style={{ cursor: 'pointer', marginBottom: '20px' }}>
+                            <strong>Advanced Options</strong>
+                        </summary>
+                        <div style={{ marginLeft: '20px' }}>
+                            <div style={{ marginBottom: '20px' }}>
+                                <h4>Subscriptions</h4>
+                                <BuySubscription activePremiumProduct={activePremiumProduct!} />
+                            </div>
+                            <div style={{ marginBottom: '20px' }}>
+                                <h4>Prepaid</h4>
+                                <BuyPremium
+                                    activePremiumProduct={activePremiumProduct!}
+                                    premiumSubscriptions={premiumSubscriptions}
+                                    onNewActivePremiumProduct={loadPremiumProducts}
+                                />
+                            </div>
+                        </div>
+                    </details>
                 </div>
             ) : null}
             {isLoggedIn ? (

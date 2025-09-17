@@ -27,12 +27,12 @@
 }
 
 .dropdown::-webkit-scrollbar-thumb {
-    background: #3a3f44;
+    background: transparent;
     border-radius: 10px;
 }
 
 .dropdown::-webkit-scrollbar-thumb:hover {
-    background: #7a8288;
+    background: transparent;
 }
 
 @media all and (max-width: 768px) {
@@ -57,15 +57,120 @@
 
 /** Show the not selected price options more clearly as not selected **/
 .purchaseCard :global(:not(.btn-check:checked)) + .priceRangeButton{
-    background-color: #2a3644;
-    border-color: #2a3644;
-    filter: grayscale(70%);
-    font-weight: bold;
-    color: lightgray;
+    background-color: transparent; /* neutral background replaced with Bootstrap defaults */
+    border-color: var(--bs-border-color, #d1d7de);
+    font-weight: 600;
+    color: var(--bs-secondary); /* muted text */
 }
 
 /** Show the selected price option more clearly as selected **/
 .purchaseCard :global(.btn-check:checked) + .priceRangeButton{
-    border-color: white;
-    font-weight: bold;
+    border-color: var(--bs-primary);
+    background-color: transparent; /* selection indicated with border/primary styles */
+    font-weight: 700;
+    color: var(--bs-white);
+}
+
+/* Wizard summary styles */
+.selectedOptionCard {
+    margin-bottom: 20px;
+    border: 2px solid var(--bs-success);
+}
+
+.summarySection {
+    background-color: transparent;
+    padding: 15px;
+    border-radius: 8px;
+    color: var(--bs-body-color);
+    margin-bottom: 20px;
+}
+
+.summarySection h6 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    border: 2px solid var(--bs-success); /* darker green border for better contrast */
+}
+
+.summarySection p {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--bs-emphasis); /* muted paragraph color */
+}
+
+.balanceSection {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: transparent;
+    border-radius: 8px;
+}
+
+.remainingBalance {
+    color: var(--bs-success);
+    font-weight: 600;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.insufficientFunds {
+    color: var(--bs-danger);
+    font-weight: 600;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.featuresSection {
+    margin-bottom: 20px;
+}
+
+.featuresSection h6 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--bs-body-color);
+}
+
+.featuresSection ul {
+    margin-bottom: 0;
+}
+
+.featuresSection li {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.purchaseInfo {
+    font-style: italic;
+    color: var(--bs-secondary);
+    margin-bottom: 20px;
+}
+
+.purchaseButtonContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.purchaseButton {
+    width: 80%;
+}
+
+.premiumTypeGroup {
+    display: inline-flex;
+    width: 250px;
+}
+
+/* Wide screens - ensure all premium types display in one row */
+@media (min-width: 768px) {
+    .premiumTypeGroup {
+        width: auto;
+        display: inline-flex;
+        flex-wrap: nowrap;
+    }
+    
+    .premiumTypeGroup .priceRangeButton {
+        flex: 1;
+        white-space: nowrap;
+        min-width: 120px;
+    }
 }

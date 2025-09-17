@@ -26,12 +26,12 @@ export default function GenericProviderPurchaseCard(props: Props) {
                 {props.type === 'PayPal' ? (
                     <Tooltip
                         content={
-                            <>
+                            <span>
                                 Buy with {props.type}{' '}
                                 <span style={{ marginLeft: '5px' }}>
                                     <HelpIcon />
                                 </span>
-                            </>
+                            </span>
                         }
                         type="hover"
                         tooltipContent={<p>Higher price than with credit card due to higher fees</p>}

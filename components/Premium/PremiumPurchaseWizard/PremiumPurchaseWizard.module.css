@@ -1,0 +1,249 @@
+.wizard {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.wizardCard {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.wizardHeader {
+    /* darker gradient so white text meets contrast */
+    background-color: var(--bs-primary);
+    color: white;
+    text-align: center;
+    padding: 30px 20px;
+    border-bottom: none;
+}
+
+.wizardHeader h3 {
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--bs-white);
+}
+
+.progressBar {
+    margin: 15px 0 10px 0;
+    height: 8px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.stepIndicator {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+.wizardBody {
+    padding: 40px 30px;
+    min-height: 400px;
+}
+
+.stepContent {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.stepQuestion {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--bs-body-color);
+}
+
+.optionsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    justify-items: center;
+}
+
+.optionCard {
+    cursor: pointer;
+    border: 2px solid var(--bs-border-color, #d1d7de);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 280px;
+    position: relative;
+}
+
+.optionCard:hover {
+    border-color: var(--bs-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 86, 179, 0.18);
+}
+
+.optionCard.selected {
+    border-color: var(--bs-primary);
+    background-color: transparent;
+    box-shadow: 0 6px 20px rgba(0, 86, 179, 0.3);
+}
+
+.optionBody {
+    text-align: center;
+    padding: 25px 20px;
+    position: relative;
+}
+
+.optionIcon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.optionBody h5 {
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--bs-secondary);
+}
+
+.optionBody p {
+    color: var(--bs-secondary);
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.recommendation {
+    background-color: var(--bs-success);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.infoBox {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: transparent;
+    border: 1px solid var(--bs-border-color, #d1d7de);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.checkIcon {
+    color: var(--bs-success);
+    font-size: 1.5rem;
+}
+
+.summaryBox {
+    background-color: transparent;
+    border: 1px solid var(--bs-border-color, #d1d7de);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.summaryBox h6 {
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+.summaryBox p {
+    margin-bottom: 8px;
+    color: var(--bs-secondary);
+}
+
+.purchaseComponent {
+    border-top: 1px solid var(--bs-border-color, #d1d7de);
+    padding-top: 30px;
+}
+
+.wizardFooter {
+    background-color: transparent;
+    border-top: 1px solid var(--bs-border-color, #d1d7de);
+    padding: 20px 30px;
+}
+
+.navigationButtons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.backButton, .nextButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 25px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.backButton:hover {
+    background-color: transparent;
+    border-color: var(--bs-border-color, #d1d7de);
+}
+
+.nextButton {
+    background-color: var(--bs-primary);
+    border: none;
+}
+
+.nextButton:hover:not(:disabled) {
+    background-color: var(--bs-primary);
+    transform: translateY(-1px);
+}
+
+.nextButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.finalStep {
+    text-align: center;
+    color: var(--bs-secondary);
+    font-style: italic;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .wizard {
+        padding: 10px;
+    }
+    
+    .wizardHeader {
+        padding: 20px 15px;
+    }
+    
+    .wizardBody {
+        padding: 30px 20px;
+        min-height: 350px;
+    }
+    
+    .optionsGrid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .stepQuestion {
+        font-size: 1.2rem;
+    }
+    
+    .navigationButtons {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .backButton, .nextButton {
+        width: 100%;
+        justify-content: center;
+    }
+}
