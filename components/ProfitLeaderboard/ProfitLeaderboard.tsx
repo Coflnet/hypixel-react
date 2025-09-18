@@ -31,12 +31,19 @@ export function ProfitLeaderboardComponent() {
         setGoogleId(sessionStorage.getItem('googleId') || "");
     }
 
+    let description = <p>This is the leaderboard of the skyblock ah flippers with the most profit in the last 7 days.<br />
+        The board resets every Monday Morning and gets updated whenever the tracked flips of a player are viewed.<br />
+        Ultime list to find skyblock bilonaires!
+    </p>
+
     if (wasAlreadyLoggedIn && !googleId) {
         return <GoogleSignIn onAfterLogin={onAfterLogin} />
     }
     if ((leaderboardEntries as any)?.slug === "no_premium_plus" || !wasAlreadyLoggedIn || !googleId) {
-        return <><h2>Premium Plus Required</h2>
-            <p>This feature is exclusive to Premium Plus users.</p>
+        return <>
+            {description}
+            <h2>Premium Plus Required</h2>
+            <p>Seeing this list is exclusive to Premium Plus users.</p>
             <Link href="/premium" className="disableLinkStyle">
                 <Button>Get Premium+</Button>
             </Link>
@@ -45,6 +52,7 @@ export function ProfitLeaderboardComponent() {
                 <Button>Return to main page</Button>
             </Link>
             <hr />
+            <p>If you already have prem+ sign in here to unlock the list</p>
             <GoogleSignIn onAfterLogin={onAfterLogin} />
         </>
     }
@@ -54,13 +62,13 @@ export function ProfitLeaderboardComponent() {
 
     return (
         <>
-            <p>This is the leaderboard of the most profitable flippers on our platform.</p>
+            {description}
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Player</th>
-                        <th>Score</th>
+                        <th>Profit made</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,7 +91,7 @@ export function ProfitLeaderboardComponent() {
                                         height={32}
                                     />
                                 )}
-                                <Link href={`/player/${player.uuid}`}>{player.name}</Link>
+                                <Link href={`/player/${player.uuid}/flips`}>{player.name}</Link>
                             </td>
                             <td><Number number={entry.score} /></td>
                         </tr>} type="hover" tooltipContent={<span>Last updated: <br />{new Date(entry.timeStamp).toLocaleString()}</span>} />
