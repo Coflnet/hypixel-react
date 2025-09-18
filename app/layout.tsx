@@ -9,6 +9,9 @@ import { MainApp } from '../components/MainApp/MainApp'
 function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
+            <head>
+                <meta name="google-adsense-account" content="ca-pub-6429823223434612" />
+            </head>
             <Script async={true} src={'/preScript.js'} />
             <body>
                 <div className="page">
