@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Card, Button } from 'react-bootstrap'
+import { Card, Button, Form, InputGroup, Alert } from 'react-bootstrap'
 import Number from '../Number/Number'
 import styles from './CoflCoinsPurchase.module.css'
 import NumberElement from '../Number/Number'
@@ -75,6 +75,8 @@ function calculateSavings(baseOption: CoflCoinOption, currentOption: CoflCoinOpt
 
 function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
     const [selectedOption, setSelectedOption] = useState<CoflCoinOption | null>(null)
+    const [customAmount, setCustomAmount] = useState<string>('')
+    const [showCustomInput, setShowCustomInput] = useState(false)
     const baseOption = coflCoinOptions[0]
 
     // Check if user needs specific amount to make their coins divisible by 1800
@@ -93,6 +95,56 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
     } : null
 
     const allOptions = specificOption ? [specificOption, ...coflCoinOptions] : coflCoinOptions
+
+    // Custom amount helpers
+    const getCustomAmountValue = (): number => {
+        return parseInt(customAmount) || 0
+    }
+
+    const isCustomAmountValid = (): boolean => {
+        const amount = getCustomAmountValue()
+        return amount >= 1800
+    }
+
+    const calculateCustomPrice = (amount: number, basePrice: number): number => {
+        const pricePerCoin = basePrice / baseOption.amount
+        return pricePerCoin * amount
+    }
+
+    const createCustomOption = (amount: number): CoflCoinOption => {
+        return {
+            amount,
+            paypalPrice: calculateCustomPrice(amount, baseOption.paypalPrice),
+            stripePrice: calculateCustomPrice(amount, baseOption.stripePrice),
+            lemonsqueezyPrice: calculateCustomPrice(amount, baseOption.lemonsqueezyPrice),
+            paypalProductId: baseOption.paypalProductId,
+            stripeProductId: baseOption.stripeProductId,
+            lemonsqueezyProductId: baseOption.lemonsqueezyProductId
+        }
+    }
+
+    const handleCustomAmountChange = (value: string) => {
+        // Only allow numbers
+        const numericValue = value.replace(/[^0-9]/g, '')
+        setCustomAmount(numericValue)
+        
+        // If we have a valid custom amount, clear the selected predefined option
+        if (numericValue && parseInt(numericValue) >= 1800) {
+            setSelectedOption(null)
+        }
+    }
+
+    const handleCustomAmountSelect = () => {
+        if (isCustomAmountValid()) {
+            const customOption = createCustomOption(getCustomAmountValue())
+            onAmountSelected(customOption)
+        }
+    }
+
+    const handlePredefinedOptionSelect = (option: CoflCoinOption) => {
+        setSelectedOption(option)
+        setCustomAmount('')
+    }
 
     return (
         <div>
@@ -121,7 +173,7 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                                 cursor: 'pointer',
                                 transform: isSelected ? 'translateY(-2px)' : 'none'
                             }}
-                            onClick={() => setSelectedOption(option)}
+                            onClick={() => handlePredefinedOptionSelect(option)}
                         >
                             <Card.Header className="position-relative">
                                 <Card.Title>
@@ -153,6 +205,70 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                         </Card>
                     )
                 })}
+            </div>
+
+            {/* Custom Amount Section */}
+            <div style={{ marginTop: '30px', padding: '20px', border: '1px solid var(--bs-border-color)', borderRadius: '8px', backgroundColor: 'transparent' }}>
+                <h5 style={{ marginBottom: '15px' }}>Need a different amount?</h5>
+                <p className="text-muted small" style={{ marginBottom: '15px' }}>
+                    Enter any amount of 1800 CoflCoins or more. Price is calculated proportionally.
+                </p>
+                
+                {!showCustomInput ? (
+                    <Button 
+                        variant="outline-primary" 
+                        size="sm"
+                        onClick={() => setShowCustomInput(true)}
+                    >
+                        Enter Custom Amount
+                    </Button>
+                ) : (
+                    <div>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Custom Amount (minimum 1800 CoflCoins)</Form.Label>
+                            <InputGroup>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="1800"
+                                    value={customAmount}
+                                    onChange={(e) => handleCustomAmountChange(e.target.value)}
+                                />
+                                <InputGroup.Text>CoflCoins</InputGroup.Text>
+                            </InputGroup>
+                            {customAmount && (
+                                <Form.Text className="text-muted">
+                                    {isCustomAmountValid() ? (
+                                        <>
+                                            Price: €{calculateCustomPrice(getCustomAmountValue(), baseOption.stripePrice).toFixed(2)} 
+                                            (€{(calculateCustomPrice(getCustomAmountValue(), baseOption.stripePrice) / getCustomAmountValue()).toFixed(4)} per coin)
+                                        </>
+                                    ) : (
+                                        <span className="text-danger">Minimum amount is 1800 CoflCoins</span>
+                                    )}
+                                </Form.Text>
+                            )}
+                        </Form.Group>
+                        
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <Button 
+                                variant="primary"
+                                disabled={!isCustomAmountValid()}
+                                onClick={handleCustomAmountSelect}
+                            >
+                                Continue with {isCustomAmountValid() ? getCustomAmountValue().toLocaleString() : 'Custom'} CoflCoins
+                            </Button>
+                            <Button 
+                                variant="outline-secondary" 
+                                onClick={() => {
+                                    setShowCustomInput(false)
+                                    setCustomAmount('')
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div style={{

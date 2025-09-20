@@ -1,30 +1,29 @@
 :root {
-    /* Premium Purchase Color Variables */
-    /* Unselected state colors (high contrast on dark) */
-    --unselected-text-primary: #98a6b5; /* main text, improved contrast */
-    --unselected-text-secondary: #cedff0; /* secondary text */
-    --unselected-text-muted: #93a1af; /* muted text like features */
-    
-    /* Selected state colors (dark text on light background) */
-    --selected-text-primary: #16222b; /* main text */
-    --selected-text-secondary: #5f7178; /* secondary text */
-    --selected-text-muted: #495057; /* muted text */
-    
-    /* Accent colors */
-    --tier-premium-color: #116530; /* dark green */
-    --tier-premium-plus-color: #c59d0a; /* gold */
-    --tier-premium-selected: #083a1b; /* darker green for selected */
-    --tier-premium-plus-selected: #7f5d00; /* darker gold for selected */
-    
-    /* Interactive colors */
-    --border-default: #d1d7de;
-    --border-hover: #0056b3;
-    --border-selected: #004085;
-    --bg-selected: #eef4ff;
-    
+    /* Map custom site variables to Bootstrap theme variables where possible. */
+    --unselected-text-primary: var(--bs-body-color);
+    --unselected-text-secondary: var(--bs-secondary);
+    --unselected-text-muted: var(--bs-secondary);
+
+    /* Selected state colors should follow the Bootstrap body color and muted variations */
+    --selected-text-primary: var(--bs-body-color);
+    --selected-text-secondary: var(--bs-secondary);
+    --selected-text-muted: var(--bs-secondary);
+
+    /* Accent colors use Bootstrap semantic colors */
+    --tier-premium-color: var(--bs-success);
+    --tier-premium-plus-color: var(--bs-warning);
+    --tier-premium-selected: var(--bs-success);
+    --tier-premium-plus-selected: var(--bs-warning);
+
+    /* Interactive colors mapped to Bootstrap border / primary */
+    --border-default: var(--bs-border-color);
+    --border-hover: var(--bs-primary);
+    --border-selected: var(--bs-primary);
+    --bg-selected: transparent;
+
     /* Success/accent colors */
-    --success-color: #28a745;
-    --success-dark: #1f7a3b;
+    --success-color: var(--bs-success);
+    --success-dark: var(--bs-success);
 }
 
 body {
@@ -35,7 +34,8 @@ body {
     -moz-osx-font-smoothing: grayscale;
     position: relative;
     min-height: 100%;
-    background-color: #222;
+    background-color: var(--bs-body-bg, #222);
+    color: var(--bs-body-color);
     display: inline-block;
     width: 100%;
     overflow-x: hidden;
@@ -79,7 +79,7 @@ code {
 }
 
 a {
-    color: #007bff;
+    color: var(--bs-primary);
     cursor: pointer;
 }
 
@@ -103,21 +103,21 @@ img {
 }
 
 option {
-    background-color: #222;
-    color: #fff;
-    border-color: #444;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
 }
 
-.form-control,.form-select {
-    background-color: #222;
-    color: #fff;
-    border-color: #444;
+.form-control, .form-select {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
 }
 
-.form-control:focus,.form-select:focus {
-    background-color: #222;
-    color: #fff;
-    border-color: #444;
+.form-control:focus, .form-select:focus {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
 }
 
 .form-control:disabled,.form-select:disabled {

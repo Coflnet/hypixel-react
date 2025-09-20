@@ -16,6 +16,7 @@ import PremiumStatus from './PremiumStatus/PremiumStatus'
 import { toast } from 'react-toastify'
 import BuySubscription from './BuySubscription/BuySubscription'
 import PremiumPurchaseWizard from './PremiumPurchaseWizard/PremiumPurchaseWizard'
+import { parseTierFromUrl } from '../../utils/PremiumUpgradeUtils'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -27,12 +28,32 @@ function Premium() {
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
     let [cancellationRightLossConfirmed, setCancellationRightLossConfirmed] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
+    let [showUpgradeWizard, setShowUpgradeWizard] = useState(false)
 
     useEffect(() => {
         setIsSSR(false)
         setCancellationRightLossConfirmed(localStorage.getItem(CANCELLATION_RIGHT_CONFIRMED) === 'true')
+        
+        // Check for tier parameter to show upgrade wizard
+        checkForUpgradeRequest()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    // Check if user is requesting an upgrade via URL parameter
+    function checkForUpgradeRequest() {
+        if (typeof window === 'undefined') return
+        
+        const urlParams = new URLSearchParams(window.location.search)
+        const tierParam = urlParams.get('tier')
+        const upgradeParam = urlParams.get('upgrade')
+        
+        // Show upgrade wizard if tier parameter is present or upgrade=true
+        if (tierParam && parseTierFromUrl(tierParam)) {
+            setShowUpgradeWizard(true)
+        } else if (upgradeParam === 'true') {
+            setShowUpgradeWizard(true)
+        }
+    }
 
     function loadPremiumProducts(): Promise<void> {
         return api.refreshLoadPremiumProducts(products => {
@@ -46,6 +67,9 @@ function Premium() {
                 setHasPremium(true)
                 setActivePremiumProduct(activePremiumProduct)
             }
+            
+            // Check for upgrade request after loading premium status
+            checkForUpgradeRequest()
         })
     }
 
@@ -110,10 +134,28 @@ function Premium() {
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 <div>{isLoading ? getLoadingElement() : ''}</div>
             </div>
-            {isLoggedIn && !hasPremium ? (
+            {isLoggedIn && (!hasPremium || showUpgradeWizard) ? (
                 <div style={{ marginBottom: '40px' }}>
                     <hr />
-                    <h2>Get Premium</h2>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h2>{hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
+                        {hasPremium && showUpgradeWizard && (
+                            <Button 
+                                variant="outline-secondary" 
+                                size="sm"
+                                onClick={() => {
+                                    setShowUpgradeWizard(false)
+                                    // Remove URL parameters
+                                    const url = new URL(window.location.href)
+                                    url.searchParams.delete('tier')
+                                    url.searchParams.delete('upgrade')
+                                    window.history.replaceState({}, '', url.pathname)
+                                }}
+                            >
+                                ← Back to Premium Management
+                            </Button>
+                        )}
+                    </div>
                     <PremiumPurchaseWizard
                         activePremiumProduct={activePremiumProduct!}
                         premiumSubscriptions={premiumSubscriptions}
@@ -122,12 +164,20 @@ function Premium() {
                     />
                 </div>
             ) : null}
-            {isLoggedIn && hasPremium ? (
+            {isLoggedIn && hasPremium && !showUpgradeWizard ? (
                 <div style={{ marginBottom: '20px' }}>
                     <hr />
-                    <h2>Extend Premium</h2>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h2>Extend Premium</h2>
+                        <Button 
+                            variant="success" 
+                            onClick={() => setShowUpgradeWizard(true)}
+                        >
+                            🚀 Upgrade to Higher Tier
+                        </Button>
+                    </div>
                     <p style={{ marginBottom: '30px' }} className="text-muted">
-                        Already have premium? You can extend your subscription or add more time.
+                        Already have premium? You can extend your subscription, add more time, or upgrade to a higher tier.
                     </p>
                     <details>
                         <summary style={{ cursor: 'pointer', marginBottom: '20px' }}>

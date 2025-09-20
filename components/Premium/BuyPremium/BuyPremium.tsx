@@ -31,6 +31,8 @@ const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Dur
         switch (wizardDuration) {
             case Duration.HOUR:
                 return lowerLabel.includes('hour')
+            case Duration.DAY:
+                return lowerLabel.includes('day') && !lowerLabel.includes('week')
             case Duration.WEEK:
                 return lowerLabel.includes('week') && !lowerLabel.includes('month')
             case Duration.MONTHLY:

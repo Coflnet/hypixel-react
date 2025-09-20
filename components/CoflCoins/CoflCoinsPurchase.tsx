@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Button, Alert } from 'react-bootstrap'
+import { Alert, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { useCoflCoins } from '../../utils/Hooks'
@@ -111,6 +111,7 @@ function Payment(props: Props) {
         }
         return undefined
     }
+
     let disabledTooltip = getDisabledPaymentTooltip()
 
     if (!props.cancellationRightLossConfirmed || !selectedCountry) {

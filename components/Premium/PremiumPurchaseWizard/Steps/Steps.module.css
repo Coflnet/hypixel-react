@@ -50,13 +50,13 @@
 .optionCard:hover {
     border-color: var(--border-hover);
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 86, 179, 0.18);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
 .optionCard.selected {
     border-color: var(--border-selected);
-    background-color: var(--bg-selected);
-    box-shadow: 0 6px 20px rgba(0, 64, 133, 0.18);
+    background-color: transparent;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
 }
 
 .optionBody {
@@ -104,15 +104,15 @@
     color: var(--bs-primary);
     margin-bottom: 10px;
     padding: 5px 10px;
-    background-color: rgba(74, 144, 226, 0.1);
+    background-color: transparent;
     border-radius: 6px;
-    border: 1px solid rgba(74, 144, 226, 0.2);
+    border: 1px solid var(--bs-border-color);
 }
 
 .optionCard.selected .tierPrice {
     color: var(--bs-info);
-    background-color: rgba(0, 58, 102, 0.1);
-    border-color: rgba(0, 58, 102, 0.2);
+    background-color: transparent;
+    border-color: var(--bs-border-color);
 }
 /* Selected state overrides - use CSS variables for consistency */
 .optionCard.selected .tierTitle {
@@ -142,7 +142,7 @@
 }
 
 .optionCard.selected .featureList li:before {
-    color: var(--success-dark);
+    color: var(--bs-success);
 }
 
 .optionCard.selected .recommendation {
@@ -196,7 +196,7 @@
 
 .recommendation {
     background-color: var(--bs-success);
-    color: white;
+    color: var(--bs-white);
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.75rem;
@@ -346,4 +346,78 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 15px;
     }
+}
+
+/* Upgrade-specific styles */
+.disabled {
+    opacity: 0.6;
+    cursor: not-allowed !important;
+    position: relative;
+}
+
+.disabled:hover {
+    transform: none !important;
+    border-color: var(--bs-border-color) !important;
+}
+
+.disabledOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: var(--bs-secondary);
+    font-weight: 600;
+}
+
+.currentTier {
+    border-color: var(--bs-info) !important;
+    background-color: transparent;
+}
+
+.currentBadge {
+    background-color: var(--bs-info);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 8px;
+}
+
+.suggested {
+    border-color: var(--bs-success) !important;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.suggestedBadge {
+    background: var(--bs-success);
+    color: var(--bs-white);
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 8px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,0,0,0.0); }
+    70% { box-shadow: 0 0 0 0 rgba(0,0,0,0.0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,0,0,0.0); }
+}
+
+.newFeature {
+    color: var(--bs-success) !important;
+    font-weight: 600;
 }
