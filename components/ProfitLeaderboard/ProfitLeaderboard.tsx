@@ -44,7 +44,7 @@ export function ProfitLeaderboardComponent() {
             {description}
             <h2>Premium Plus Required</h2>
             <p>Seeing this list is exclusive to Premium Plus users.</p>
-            <Link href="/premium" className="disableLinkStyle">
+            <Link href="/premium?tier=premium_plus" className="disableLinkStyle">
                 <Button>Get Premium+</Button>
             </Link>
             <p style={{ margin: "10px" }}>or</p>

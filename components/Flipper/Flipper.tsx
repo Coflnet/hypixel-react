@@ -75,11 +75,11 @@ function Flipper(props: Props) {
     let [isSSR, setIsSSR] = useState(true)
     let [showResetToDefaultDialog, setShowResetToDefaultDialog] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    let router = useRouter()
 
     let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID())
 
-    let router = useRouter()
-
+                                
     const { show } = useContextMenu({
         id: FLIP_CONEXT_MENU_ID
     })

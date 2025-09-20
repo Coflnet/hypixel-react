@@ -18,7 +18,7 @@ export function checkForExpiredPremium(premiumExpirationDate: Date) {
         toast.warn('Your premium expired. Click here to renew it now.', {
             autoClose: 20000,
             onClick: () => {
-                window.location.href = '/premium'
+                window.location.href = '/premium?tier=premium'
             }
         })
     }

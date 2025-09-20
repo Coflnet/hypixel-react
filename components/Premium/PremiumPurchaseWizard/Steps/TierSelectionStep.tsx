@@ -181,7 +181,7 @@ export default function TierSelectionStep({
                     <Card.Body className={styles.optionBody}>
                         <div className={styles.optionIcon}>⭐</div>
                         <h5 className={styles.tierTitle}>
-                            Starter Premium
+                            Starter
                             {getTierStatus(PremiumTier.STARTER) === 'current' && (
                                 <span className={styles.currentBadge}>Current</span>
                             )}

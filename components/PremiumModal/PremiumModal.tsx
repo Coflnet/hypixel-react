@@ -22,7 +22,7 @@ export default function PremiumModal({ show, onHide }: PremiumModalProps) {
                 <a href="/linkvertise" className="btn btn-secondary" onClick={onHide}>
                     Get access to this for free
                 </a>
-                <a href="/premium" className="btn btn-primary" onClick={onHide} style={{ marginLeft: 8 }}>
+                <a href="/premium?tier=starter" className="btn btn-primary" onClick={onHide} style={{ marginLeft: 8 }}>
                     Buy access (Premium)
                 </a>
                 <Button variant="light" onClick={onHide} style={{ marginLeft: 8 }}>

@@ -25,17 +25,17 @@ export default function Refed() {
                             content={
                                 <span>
                                     <HelpIcon />
-                                </span>
-                            }
-                            type="hover"
-                            tooltipContent={
-                                <p>
-                                    To connect your Minecraft account, search and click yourself in the search bar. Afterwards click "You? Claim account." to
-                                    get a full explanation.{' '}
-                                </p>
-                            }
-                        />{' '}
-                        to get {TEST_PREMIUM_DAYS} days of our <Link href="/premium">premium plan</Link> for free. That includes our{' '}
+                                            </span>
+                                        }
+                                        type="hover"
+                                        tooltipContent={
+                                            <p>
+                                                To connect your Minecraft account, search and click yourself in the search bar. Afterwards click "You? Claim account." to
+                                                get a full explanation.{' '}
+                                            </p>
+                                        }
+                                    />{' '}
+                                    to get {TEST_PREMIUM_DAYS} days of our <Link href="/premium?tier=premium">premium plan</Link> for free. That includes our{' '}
                         <Link href="/flipper">advanced auction flipper</Link> as well as a lot of other <Link href="/flips">hypixel skyblock flips</Link>.
                     </p>
                     <p>

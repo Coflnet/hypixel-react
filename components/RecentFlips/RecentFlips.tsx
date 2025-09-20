@@ -67,7 +67,7 @@ export function RecentFlips() {
     if ((flips as any)?.slug === "no_premium_plus" || !wasAlreadyLoggedIn || !googleId) {
         return <><h2>Premium Plus Required</h2>
             <p>This feature is exclusive to Premium Plus users.</p>
-            <Link href="/premium" className="disableLinkStyle">
+            <Link href="/premium?tier=premium_plus" className="disableLinkStyle">
                 <Button>Get Premium+</Button>
             </Link>
             <p style={{ margin: "10px" }}>or</p>

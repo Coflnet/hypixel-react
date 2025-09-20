@@ -261,8 +261,8 @@ function RecentAuctions(props: Props) {
                                 <Button>Archived Auctions</Button>
                             </Link>
                         ) : (
-                            <div style={{ textAlign: 'center', marginBottom: '15px' }}>
-                                You can search through all our archived auctions with <Link href={'/premium'}>Premium+</Link>
+                                <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+                                You can search through all our archived auctions with <Link href={'/premium?tier=premium_plus'}>Premium+</Link>
                             </div>
                         )}
                     </div>
@@ -275,8 +275,8 @@ function RecentAuctions(props: Props) {
                     wasAlreadyLoggedIn,
                     premiumType,
                     onAfterLogin,
-                    <span style={{ textAlign: 'center', marginBottom: '15px' }}>
-                        You currently use Starter Premium. You can see up to 120 recent auctions with <Link href={'/premium'}>Premium</Link>
+                        <span style={{ textAlign: 'center', marginBottom: '15px' }}>
+                        You currently use Starter Premium. You can see up to 120 recent auctions with <Link href={'/premium?tier=premium'}>Premium</Link>
                     </span>
                 )}
         </div>

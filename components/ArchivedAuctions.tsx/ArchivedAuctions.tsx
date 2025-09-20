@@ -151,7 +151,7 @@ const ArchivedAuctionsList = (props: Props) => {
                 <div>
                     <p>To see archived auctions, you need to sign in with Google and be a Premium+ user.</p>
                 </div>
-                <Link href={'/premium'}>
+                <Link href={'/premium?tier=premium_plus'}>
                     <Button>Get Premium+</Button>
                 </Link>
                 <GoogleSignIn key="googleSignin" onAfterLogin={onAfterLogin} />
