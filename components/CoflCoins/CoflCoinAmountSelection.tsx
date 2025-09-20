@@ -14,6 +14,7 @@ interface CoflCoinOption {
     stripeProductId: string
     lemonsqueezyProductId: string
     discount?: number
+    isCustom?: boolean
 }
 
 interface Props {
@@ -146,6 +147,20 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
         setCustomAmount('')
     }
 
+    // Build a lightweight custom option placeholder (will be shown as a card)
+    const customOptionPlaceholder: CoflCoinOption = {
+        amount: getCustomAmountValue() || 0,
+        paypalPrice: calculateCustomPrice(getCustomAmountValue(), baseOption.paypalPrice),
+        stripePrice: calculateCustomPrice(getCustomAmountValue(), baseOption.stripePrice),
+        lemonsqueezyPrice: calculateCustomPrice(getCustomAmountValue(), baseOption.lemonsqueezyPrice),
+        paypalProductId: baseOption.paypalProductId,
+        stripeProductId: baseOption.stripeProductId,
+        lemonsqueezyProductId: baseOption.lemonsqueezyProductId,
+        isCustom: true
+    }
+
+    const displayedOptions = [...allOptions, customOptionPlaceholder]
+
     return (
         <div>
             <h4 style={{ marginBottom: '30px', textAlign: 'center' }}>Choose CoflCoin Amount</h4>
@@ -160,45 +175,101 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
             )}
 
             <div className={styles.productGrid}>
-                {allOptions.map((option, index) => {
-                    const savings = index === 0 && !specificOption ? 0 : calculateSavings(baseOption, option)
-                    const isSelected = selectedOption?.amount === option.amount
+                {displayedOptions.map((option, index) => {
+                    const isCustom = !!option.isCustom
+                    const rawSavings = !isCustom ? (index === 0 && !specificOption ? 0 : calculateSavings(baseOption, option)) : 0
+                    const savings = typeof rawSavings === 'number' ? rawSavings : 0
+                    const isSelected = selectedOption?.amount === option.amount && !isCustom
                     const isSpecialOption = option === specificOption
+
+                    // For custom option card, expand if showCustomInput or if user typed a valid amount
+                    const shouldExpandCustom = isCustom && (showCustomInput || (customAmount && isCustomAmountValid()))
 
                     return (
                         <Card
-                            key={option.amount}
+                            key={isCustom ? 'custom-option' : option.amount}
                             className={`${styles.premiumPlanCard} ${isSelected ? 'border-primary shadow' : 'border-secondary'}`}
                             style={{
                                 cursor: 'pointer',
-                                transform: isSelected ? 'translateY(-2px)' : 'none'
+                                transform: (isSelected || (isCustom && shouldExpandCustom)) ? 'translateY(-2px)' : 'none'
                             }}
-                            onClick={() => handlePredefinedOptionSelect(option)}
+                            onClick={() => !isCustom && handlePredefinedOptionSelect(option)}
                         >
                             <Card.Header className="position-relative">
                                 <Card.Title>
-                                    <Number number={option.amount} /> CoflCoins
+                                    {isCustom ? 'Custom Amount' : <Number number={option.amount} />}
                                 </Card.Title>
                                 {isSpecialOption && (
                                     <span className="position-absolute top-0 end-0 mt-2 me-2 badge bg-success">OPTIMAL</span>
                                 )}
-                                {savings > 0 && !isSpecialOption && (
+                                {!isCustom && savings > 0 && (
                                     <span className="position-absolute top-0 end-0 mt-2 me-2 badge bg-warning text-dark">SAVE {Math.round(savings)}%</span>
                                 )}
                             </Card.Header>
                             <Card.Body>
                                 <div style={{ textAlign: 'center' }}>
-                                    <div className="h5 fw-semibold text-success mb-2">From €{option.stripePrice.toFixed(2)}</div>
-                                    <div className="small text-muted mb-3">€{getPricePerCoin(option).toFixed(4)} per coin</div>
+                                    {!isCustom && (
+                                        <>
+                                            <div className="h5 fw-semibold text-success mb-2">From €{option.stripePrice.toFixed(2)}</div>
+                                            <div className="small text-muted mb-3">€{getPricePerCoin(option).toFixed(4)} per coin</div>
 
-                                    {savings > 0 && !isSpecialOption && (
-                                        <div className="small text-success fw-semibold mb-2">
-                                            {Math.round(savings)}% cheaper than <Number number={baseOption.amount} /> coins
-                                        </div>
+                                            {savings > 0 && (
+                                                <div className="small text-success fw-semibold mb-2">
+                                                    {Math.round(savings)}% cheaper than <Number number={baseOption.amount} /> coins
+                                                </div>
+                                            )}
+
+                                            {isSpecialOption && (
+                                                <div className="small text-info mb-2">Makes your total divisible by 1800</div>
+                                            )}
+                                        </>
                                     )}
 
-                                    {isSpecialOption && (
-                                        <div className="small text-info mb-2">Makes your total divisible by 1800</div>
+                                    {isCustom && (
+                                        <div>
+                                            {!shouldExpandCustom && (
+                                                <>
+                                                    <div className="small text-muted mb-2">Need a different amount?</div>
+                                                    <Button variant="outline-primary" size="sm" onClick={() => setShowCustomInput(true)}>
+                                                        Enter Custom Amount
+                                                    </Button>
+                                                </>
+                                            )}
+
+                                            {shouldExpandCustom && (
+                                                <div style={{ marginTop: 10 }}>
+                                                    <Form.Group className="mb-3">
+                                                        <InputGroup>
+                                                            <Form.Control
+                                                                type="text"
+                                                                placeholder="1800"
+                                                                value={customAmount}
+                                                                onChange={(e) => handleCustomAmountChange(e.target.value)}
+                                                            />
+                                                            <InputGroup.Text>CoflCoins</InputGroup.Text>
+                                                        </InputGroup>
+                                                        {customAmount && (
+                                                            <Form.Text className="text-muted">
+                                                                {isCustomAmountValid() ? (
+                                                                    <>Price: €{calculateCustomPrice(getCustomAmountValue(), baseOption.stripePrice).toFixed(2)}</>
+                                                                ) : (
+                                                                    <span className="text-danger">Minimum amount is 1800 CoflCoins</span>
+                                                                )}
+                                                            </Form.Text>
+                                                        )}
+                                                    </Form.Group>
+
+                                                    <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
+                                                        <Button variant="primary" disabled={!isCustomAmountValid()} onClick={handleCustomAmountSelect}>
+                                                            Continue
+                                                        </Button>
+                                                        <Button variant="outline-secondary" onClick={() => { setShowCustomInput(false); setCustomAmount('') }}>
+                                                            Cancel
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
                             </Card.Body>
@@ -207,69 +278,7 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                 })}
             </div>
 
-            {/* Custom Amount Section */}
-            <div style={{ marginTop: '30px', padding: '20px', border: '1px solid var(--bs-border-color)', borderRadius: '8px', backgroundColor: 'transparent' }}>
-                <h5 style={{ marginBottom: '15px' }}>Need a different amount?</h5>
-                <p className="text-muted small" style={{ marginBottom: '15px' }}>
-                    Enter any amount of 1800 CoflCoins or more. Price is calculated proportionally.
-                </p>
-                
-                {!showCustomInput ? (
-                    <Button 
-                        variant="outline-primary" 
-                        size="sm"
-                        onClick={() => setShowCustomInput(true)}
-                    >
-                        Enter Custom Amount
-                    </Button>
-                ) : (
-                    <div>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Custom Amount (minimum 1800 CoflCoins)</Form.Label>
-                            <InputGroup>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="1800"
-                                    value={customAmount}
-                                    onChange={(e) => handleCustomAmountChange(e.target.value)}
-                                />
-                                <InputGroup.Text>CoflCoins</InputGroup.Text>
-                            </InputGroup>
-                            {customAmount && (
-                                <Form.Text className="text-muted">
-                                    {isCustomAmountValid() ? (
-                                        <>
-                                            Price: €{calculateCustomPrice(getCustomAmountValue(), baseOption.stripePrice).toFixed(2)} 
-                                            (€{(calculateCustomPrice(getCustomAmountValue(), baseOption.stripePrice) / getCustomAmountValue()).toFixed(4)} per coin)
-                                        </>
-                                    ) : (
-                                        <span className="text-danger">Minimum amount is 1800 CoflCoins</span>
-                                    )}
-                                </Form.Text>
-                            )}
-                        </Form.Group>
-                        
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            <Button 
-                                variant="primary"
-                                disabled={!isCustomAmountValid()}
-                                onClick={handleCustomAmountSelect}
-                            >
-                                Continue with {isCustomAmountValid() ? getCustomAmountValue().toLocaleString() : 'Custom'} CoflCoins
-                            </Button>
-                            <Button 
-                                variant="outline-secondary" 
-                                onClick={() => {
-                                    setShowCustomInput(false)
-                                    setCustomAmount('')
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </div>
+            
 
             <div style={{
                 display: 'flex',
