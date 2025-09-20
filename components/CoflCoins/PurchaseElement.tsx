@@ -32,6 +32,13 @@ let PAYPAL_STRIPE_ALLOWED = [...EU_Countries, 'GB', 'US']
 
 export default function PurchaseElement(props: Props) {
     let isDisabled = props.isDisabled || !props.countryCode
+    
+    // Check if this is a custom amount (not one of the standard predefined amounts)
+    const standardAmounts = [1800, 5400, 10800, 36000, 90000]
+    const isCustomAmount = !standardAmounts.includes(props.coflCoinsToBuy)
+    
+    // Pass custom amount for both special multiplier and custom amounts from wizard
+    const shouldPassCustomAmount = props.isSpecial1800CoinsMultiplier || isCustomAmount
 
     return (
         <Card className={styles.premiumPlanCard} style={props.isSpecial1800CoinsMultiplier ? { width: '100%' } : {}}>
@@ -60,13 +67,13 @@ export default function PurchaseElement(props: Props) {
                             type="PayPal"
                             isDisabled={isDisabled}
                             onPay={() => {
-                                props.onPayPalPay(props.paypalProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
+                                props.onPayPalPay(props.paypalProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
                             }}
                             price={props.paypalPrice}
                             redirectLink={props.redirectLink}
                             discount={props.discount}
                             isRedirecting={
-                                !props.isSpecial1800CoinsMultiplier
+                                !shouldPassCustomAmount
                                     ? props.paypalProductId === props.loadingProductId
                                     : `${props.paypalProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                             }
@@ -76,13 +83,13 @@ export default function PurchaseElement(props: Props) {
                             type="Stripe"
                             isDisabled={isDisabled}
                             onPay={() => {
-                                props.onStripePay(props.stripeProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
+                                props.onStripePay(props.stripeProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
                             }}
                             price={props.stripePrice}
                             redirectLink={props.redirectLink}
                             discount={props.discount}
                             isRedirecting={
-                                !props.isSpecial1800CoinsMultiplier
+                                !shouldPassCustomAmount
                                     ? props.stripeProductId === props.loadingProductId
                                     : `${props.stripeProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                             }
@@ -94,13 +101,13 @@ export default function PurchaseElement(props: Props) {
                         type="LemonSqueezy"
                         isDisabled={isDisabled}
                         onPay={() => {
-                            props.onLemonSqeezyPay(props.lemonsqueezyProductId, props.isSpecial1800CoinsMultiplier ? props.coflCoinsToBuy : undefined)
+                            props.onLemonSqeezyPay(props.lemonsqueezyProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
                         }}
                         price={props.lemonsqueezyPrice}
                         redirectLink={props.redirectLink}
                         discount={props.discount}
                         isRedirecting={
-                            !props.isSpecial1800CoinsMultiplier
+                            !shouldPassCustomAmount
                                 ? props.lemonsqueezyProductId === props.loadingProductId
                                 : `${props.lemonsqueezyProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                         }
