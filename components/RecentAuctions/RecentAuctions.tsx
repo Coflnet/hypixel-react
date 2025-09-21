@@ -19,7 +19,7 @@ interface Props {
     item: Item
     itemFilter: ItemFilter
     onChangeToActiveAuctions?(): void
-    yearRecentSamples?: any[] // For year view recent samples
+    yearRecentSamples?: RecentAuction[] // For year view recent samples
     isYearView?: boolean // To disable certain features for year view
 }
 
@@ -111,7 +111,9 @@ function RecentAuctions(props: Props) {
                 break
         }
 
-        if (page >= maxPages) {
+        // If we are paginating local year samples, ignore the maxPages limit so consumers can
+        // page through all provided samples. Otherwise enforce the premium-based maxPages.
+        if (!(props.isYearView && props.yearRecentSamples) && page >= maxPages) {
             setAllElementsLoaded(true)
             return
         }
