@@ -79,12 +79,12 @@ export function RecentFlips() {
     if ((flips as any)?.slug === "no_premium_plus" || !wasAlreadyLoggedIn || !googleId) {
         return <>{explanation}<h2>Premium Plus Required</h2>
             <p>This feature is exclusive to Premium Plus users.</p>
-            <Link href="/premium?tier=premium_plus" className="disableLinkStyle">
+            <Link href="/premium?tier=premium_plus" className="disableLinkStyle" rel="nofollow">
                 <Button>Get Premium+</Button>
             </Link>
             <p style={{ margin: "10px" }}>or</p>
-            <Link href="/" className="disableLinkStyle">
-                <Button>Return to main page</Button>
+            <Link href="/flips" className="disableLinkStyle">
+                <Button>Look at other flip methods</Button>
             </Link>
             <hr />
             <GoogleSignIn onAfterLogin={onAfterLogin} />
