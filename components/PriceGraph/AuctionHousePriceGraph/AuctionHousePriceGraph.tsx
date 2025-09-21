@@ -22,7 +22,15 @@ import EChartsReact from 'echarts-for-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { v4 as generateUUID } from 'uuid'
-import { useGetApiItemPriceItemTagHistoryYear, getApiMayor } from '../../../api/_generated/skyApi'
+import { getApiMayor } from '../../../api/_generated/skyApi'
+import type { PriceStatistics, CoflnetSkyMayorModelsModelElectionPeriod, AuctionPreview } from '../../../api/_generated/skyApi.schemas'
+
+// Extended year statistics type: the server or error handling code may attach preview flags
+type YearStatistics = PriceStatistics & {
+    isPremiumRequired?: boolean
+    isPremiumPreview?: boolean
+    recentAuctions?: AuctionPreview[]
+}
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 
 interface Props {
@@ -47,10 +55,10 @@ function AuctionHousePriceGraph(props: Props) {
     let [mayorData, setMayorData] = useState<MayorData[]>([])
     let [rangeSelectKey, setRangeSelectKey] = useState(generateUUID)
     let [hasPremium, setHasPremium] = useState(false)
-    let [yearStatistics, setYearStatistics] = useState<any>(null)
+    let [yearStatistics, setYearStatistics] = useState<YearStatistics | null>(null)
     let [customStartDate, setCustomStartDate] = useState<string>('')
     let [customEndDate, setCustomEndDate] = useState<string>('')
-    let [mayorPeriods, setMayorPeriods] = useState<any[]>([])
+    let [mayorPeriods, setMayorPeriods] = useState<CoflnetSkyMayorModelsModelElectionPeriod[]>([])
     let [showCustomDatePicker, setShowCustomDatePicker] = useState(false)
     let [loadingMessage, setLoadingMessage] = useState('')
     let [isYearLoading, setIsYearLoading] = useState(false)
@@ -628,7 +636,17 @@ function AuctionHousePriceGraph(props: Props) {
                     <RecentAuctions 
                         item={props.item} 
                         itemFilter={itemFilter || {}} 
-                        yearRecentSamples={fetchspan === DateRange.YEAR ? yearStatistics?.recentSamples || yearStatistics?.recentAuctions : undefined}
+                        yearRecentSamples={
+                            fetchspan === DateRange.YEAR && yearStatistics
+                                ? ( (yearStatistics.recentSamples || yearStatistics.recentAuctions) || [] ).map(s => ({
+                                    end: s.end ? new Date(s.end) : new Date(),
+                                    price: s.price,
+                                    seller: { name: s.seller || '', uuid: '' , iconUrl: undefined },
+                                    uuid: s.uuid || '',
+                                    playerName: s.playerName || ''
+                                }))
+                                : undefined
+                        }
                         isYearView={fetchspan === DateRange.YEAR}
                         onChangeToActiveAuctions={() => {
                             onRangeChange(DateRange.ACTIVE)
