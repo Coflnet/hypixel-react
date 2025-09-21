@@ -2457,6 +2457,10 @@ export type PostApiDataPlayerNamesParams = {
 source?: string;
 };
 
+export type GetApiFlipBazaarSpreadDeemand401One = {
+  message?: string;
+};
+
 export type PostApiFlipTrackPurchaseAuctionIdParams = {
 /**
  * Identifier of finder
@@ -2590,13 +2594,16 @@ export type PostApiPremiumUserOwns200Three = {[key: string]: OwnerShip};
 
 export type GetApiItemPriceItemTagParams = {
 /**
- * Filter query
+ * Filter parameters - can be added directly as query parameters (e.g., ?Reforge=Legendary&Rarity=EPIC)
  */
-query?: {[key: string]: string};
+filters?: {[key: string]: string};
 };
 
 export type GetApiItemPriceItemTagBinParams = {
-query?: {[key: string]: string};
+/**
+ * Filter parameters - can be added directly as query parameters
+ */
+filters?: {[key: string]: string};
 };
 
 export type GetApiItemPriceItemTagCurrentParams = {
@@ -2608,27 +2615,34 @@ count?: number;
 
 export type GetApiItemPriceItemTagHistoryDayParams = {
 /**
- * filter query
+ * Filter parameters - can be added directly as query parameters
  */
-query?: {[key: string]: string};
+filters?: {[key: string]: string};
 };
 
 export type GetApiItemPriceItemTagHistoryWeekParams = {
 /**
- * filter query
+ * Filter parameters - can be added directly as query parameters
  */
-query?: {[key: string]: string};
+filters?: {[key: string]: string};
 };
 
 export type GetApiItemPriceItemTagHistoryMonthParams = {
 /**
- * filter query
+ * Filter parameters - can be added directly as query parameters
  */
-query?: {[key: string]: string};
+filters?: {[key: string]: string};
 };
 
 export type GetApiItemPriceItemTagHistoryYearParams = {
-query?: {[key: string]: string};
+/**
+ * Filter parameters - can be added directly as query parameters
+ */
+filters?: {[key: string]: string};
+};
+
+export type GetApiItemPriceItemTagHistoryYear401One = {
+  message?: string;
 };
 
 export type GetApiFilterOptionsParams = {

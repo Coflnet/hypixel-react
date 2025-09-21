@@ -13,6 +13,7 @@ export enum DateRange {
     DAY = 'day',
     WEEK = 'week',
     MONTH = 'month',
+    YEAR = 'year',
     ALL = 'full'
 }
 
@@ -21,6 +22,7 @@ interface Props {
     item: Item
     disabled?: boolean
     disableAllTime?: boolean
+    disableYear?: boolean
     setToDefaultRangeSwitch?: boolean
     dateRangesToDisplay: DateRange[]
 }
@@ -35,6 +37,13 @@ export function ItemPriceRange(props: Props) {
     let [selectedDateRange, _setSelectedDateRange] = useState(searchParams.get('range') || DEFAULT_DATE_RANGE)
 
     if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
+        setSelectedDateRange(DateRange.MONTH)
+        if (props.onRangeChange) {
+            props.onRangeChange(DateRange.MONTH)
+        }
+    }
+
+    if (props.disableYear && selectedDateRange === DateRange.YEAR) {
         setSelectedDateRange(DateRange.MONTH)
         if (props.onRangeChange) {
             props.onRangeChange(DateRange.MONTH)
@@ -90,6 +99,8 @@ export function ItemPriceRange(props: Props) {
                 return '1 Week'
             case DateRange.MONTH:
                 return '1 Month'
+            case DateRange.YEAR:
+                return '1 Year'
             case DateRange.ALL:
                 return 'All Time'
         }
@@ -139,15 +150,23 @@ export function ItemPriceRange(props: Props) {
                 return (
                     <ToggleButton
                         id={key}
-                        className="price-range-button"
+                        className={`price-range-button ${dateRange === DateRange.YEAR ? 'year-option-highlight' : ''}`}
                         value={dateRange}
                         variant={getButtonVariant(dateRange)}
-                        disabled={props.disabled || (props.disableAllTime && dateRange === DateRange.ALL)}
+                        disabled={props.disabled || (props.disableAllTime && dateRange === DateRange.ALL) || (props.disableYear && dateRange === DateRange.YEAR)}
                         onChange={removeWrongFocus}
                         size="sm"
                         key={key}
+                        style={dateRange === DateRange.YEAR ? {
+                            background: selectedDateRange === dateRange ? '#0d6efd' : 'linear-gradient(45deg, #ffd700, #ffed4e)',
+                            border: '2px solid #ffd700',
+                            color: selectedDateRange === dateRange ? 'white' : '#000',
+                            fontWeight: 'bold',
+                            boxShadow: '0 0 10px rgba(255, 215, 0, 0.5)'
+                        } : {}}
                     >
                         {getButtonText(dateRange)}
+                        {dateRange === DateRange.YEAR && <span style={{ marginLeft: '4px' }}>✨</span>}
                     </ToggleButton>
                 )
             })}

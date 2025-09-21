@@ -66,6 +66,7 @@ import type {
   GetApiCraftRecipeItemTag200Two,
   GetApiDataAiParams,
   GetApiFilterOptionsParams,
+  GetApiFlipBazaarSpreadDeemand401One,
   GetApiFlipStatsFinderFinderNameParams,
   GetApiFlipStatsPlayerPlayerUuidParams,
   GetApiFlipUnknownParams,
@@ -74,6 +75,7 @@ import type {
   GetApiItemPriceItemTagHistoryDayParams,
   GetApiItemPriceItemTagHistoryMonthParams,
   GetApiItemPriceItemTagHistoryWeekParams,
+  GetApiItemPriceItemTagHistoryYear401One,
   GetApiItemPriceItemTagHistoryYearParams,
   GetApiItemPriceItemTagParams,
   GetApiLeaderboardProfitParams,
@@ -3451,8 +3453,23 @@ export type getApiFlipBazaarSpreadDeemandResponse200 = {
   data: DemandSpreadFlip[]
   status: 200
 }
+
+export type getApiFlipBazaarSpreadDeemandResponse401ApplicationJson = {
+  data: GetApiFlipBazaarSpreadDeemand401One
+  status: 401
+}
+
+export type getApiFlipBazaarSpreadDeemandResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiFlipBazaarSpreadDeemandResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiFlipBazaarSpreadDeemandResponseComposite = getApiFlipBazaarSpreadDeemandResponse200;
+export type getApiFlipBazaarSpreadDeemandResponseComposite = getApiFlipBazaarSpreadDeemandResponse200 | getApiFlipBazaarSpreadDeemandResponse401ApplicationJson | getApiFlipBazaarSpreadDeemandResponse401TextPlain | getApiFlipBazaarSpreadDeemandResponse403;
     
 export type getApiFlipBazaarSpreadDeemandResponse = getApiFlipBazaarSpreadDeemandResponseComposite & {
   headers: Headers;
@@ -3490,7 +3507,7 @@ export const getGetApiFlipBazaarSpreadDeemandQueryKey = () => {
     }
 
     
-export const getGetApiFlipBazaarSpreadDeemandQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiFlipBazaarSpreadDeemandQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = GetApiFlipBazaarSpreadDeemand401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -3509,10 +3526,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiFlipBazaarSpreadDeemandQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>>
-export type GetApiFlipBazaarSpreadDeemandQueryError = unknown
+export type GetApiFlipBazaarSpreadDeemandQueryError = GetApiFlipBazaarSpreadDeemand401One | string | null
 
 
-export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = unknown>(
+export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = GetApiFlipBazaarSpreadDeemand401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>,
@@ -3522,7 +3539,7 @@ export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<type
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = unknown>(
+export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = GetApiFlipBazaarSpreadDeemand401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>,
@@ -3532,7 +3549,7 @@ export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<type
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = unknown>(
+export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = GetApiFlipBazaarSpreadDeemand401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -3540,7 +3557,7 @@ export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<type
  * @summary Spread based bazaar flips (top order to top order) with real time demand sorting
  */
 
-export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = unknown>(
+export function useGetApiFlipBazaarSpreadDeemand<TData = Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError = GetApiFlipBazaarSpreadDeemand401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipBazaarSpreadDeemand>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -10887,12 +10904,30 @@ export function useGetApiItemPriceItemTagHistoryFull<TData = Awaited<ReturnType<
 
 
 
+/**
+ * @summary Gets the price history for an item for one year (Premium only)
+ */
 export type getApiItemPriceItemTagHistoryYearResponse200 = {
   data: PriceStatistics
   status: 200
 }
+
+export type getApiItemPriceItemTagHistoryYearResponse401ApplicationJson = {
+  data: GetApiItemPriceItemTagHistoryYear401One
+  status: 401
+}
+
+export type getApiItemPriceItemTagHistoryYearResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiItemPriceItemTagHistoryYearResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiItemPriceItemTagHistoryYearResponseComposite = getApiItemPriceItemTagHistoryYearResponse200;
+export type getApiItemPriceItemTagHistoryYearResponseComposite = getApiItemPriceItemTagHistoryYearResponse200 | getApiItemPriceItemTagHistoryYearResponse401ApplicationJson | getApiItemPriceItemTagHistoryYearResponse401TextPlain | getApiItemPriceItemTagHistoryYearResponse403;
     
 export type getApiItemPriceItemTagHistoryYearResponse = getApiItemPriceItemTagHistoryYearResponseComposite & {
   headers: Headers;
@@ -10940,7 +10975,7 @@ export const getGetApiItemPriceItemTagHistoryYearQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiItemPriceItemTagHistoryYearQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = unknown>(itemTag: string,
+export const getGetApiItemPriceItemTagHistoryYearQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = GetApiItemPriceItemTagHistoryYear401One | string | null>(itemTag: string,
     params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
@@ -10960,10 +10995,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiItemPriceItemTagHistoryYearQueryResult = NonNullable<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>>
-export type GetApiItemPriceItemTagHistoryYearQueryError = unknown
+export type GetApiItemPriceItemTagHistoryYearQueryError = GetApiItemPriceItemTagHistoryYear401One | string | null
 
 
-export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = unknown>(
+export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = GetApiItemPriceItemTagHistoryYear401One | string | null>(
  itemTag: string,
     params: undefined |  GetApiItemPriceItemTagHistoryYearParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -10974,7 +11009,7 @@ export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = unknown>(
+export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = GetApiItemPriceItemTagHistoryYear401One | string | null>(
  itemTag: string,
     params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -10985,13 +11020,16 @@ export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = unknown>(
+export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = GetApiItemPriceItemTagHistoryYear401One | string | null>(
  itemTag: string,
     params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Gets the price history for an item for one year (Premium only)
+ */
 
-export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = unknown>(
+export function useGetApiItemPriceItemTagHistoryYear<TData = Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError = GetApiItemPriceItemTagHistoryYear401One | string | null>(
  itemTag: string,
     params?: GetApiItemPriceItemTagHistoryYearParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemPriceItemTagHistoryYear>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
@@ -11129,6 +11167,9 @@ export function useGetApiFilterOptions<TData = Awaited<ReturnType<typeof getApiF
 
 
 
+/**
+ * @summary Gets filter parameters for a specific item based on its properties
+ */
 export type postApiItemFiltersResponse200TextPlain = {
   data: PostApiItemFilters200One
   status: 200
@@ -11208,7 +11249,10 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
     export type PostApiItemFiltersMutationBody = ItemRepresent
     export type PostApiItemFiltersMutationError = unknown
 
-    export const usePostApiItemFilters = <TError = unknown,
+    /**
+ * @summary Gets filter parameters for a specific item based on its properties
+ */
+export const usePostApiItemFilters = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiItemFilters>>, TError,{data: ItemRepresent}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiItemFilters>>,
@@ -11438,6 +11482,7 @@ export function useGetApiPricesNeu<TData = Awaited<ReturnType<typeof getApiPrice
 
 /**
  * @deprecated
+ * @summary Returns price information for attribute-enhanced items (Deprecated)
  */
 export type getApiPriceAttributesResponse200TextPlain = {
   data: GetApiPriceAttributes200One
@@ -11540,6 +11585,7 @@ export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getAp
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @deprecated
+ * @summary Returns price information for attribute-enhanced items (Deprecated)
  */
 
 export function useGetApiPriceAttributes<TData = Awaited<ReturnType<typeof getApiPriceAttributes>>, TError = unknown>(

@@ -545,6 +545,7 @@ enum DateRange {
     DAY = 'day',
     MONTH = 'month',
     WEEK = 'week',
+    YEAR = 'year',
     ALL = 'ALL'
 }
 

@@ -19,6 +19,8 @@ interface Props {
     item: Item
     itemFilter: ItemFilter
     onChangeToActiveAuctions?(): void
+    yearRecentSamples?: any[] // For year view recent samples
+    isYearView?: boolean // To disable certain features for year view
 }
 
 enum RECENT_AUCTIONS_FETCH_TYPE {
@@ -55,9 +57,18 @@ function RecentAuctions(props: Props) {
     }, [])
 
     useEffect(() => {
-        loadRecentAuctions(true)
+        // Use external data for year view if provided — but allow incremental loading from the array
+        if (props.yearRecentSamples && props.isYearView) {
+            const samples = props.yearRecentSamples || []
+            const initial = samples.slice(0, FETCH_RESULT_SIZE)
+            setRecentAuctions(initial)
+            setAllElementsLoaded(initial.length >= samples.length)
+            setNoResults(samples.length === 0)
+        } else {
+            loadRecentAuctions(true)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.item.tag, JSON.stringify(props.itemFilter)])
+    }, [props.item.tag, JSON.stringify(props.itemFilter), props.yearRecentSamples, props.isYearView])
 
     function loadRecentAuctions(reset: boolean = false) {
         let recentAuctions = reset ? [] : recentAuctionsRef.current
@@ -85,7 +96,7 @@ function RecentAuctions(props: Props) {
             }
         }
 
-        let page = Math.ceil(recentAuctions.length / FETCH_RESULT_SIZE)
+    let page = Math.ceil(recentAuctions.length / FETCH_RESULT_SIZE)
         let maxPages = 10
         switch (premiumType?.priority) {
             case PREMIUM_RANK.STARTER:
@@ -105,6 +116,26 @@ function RecentAuctions(props: Props) {
             return
         }
         itemFilter['page'] = page.toString()
+        // If year view provides recent samples, paginate those locally instead of calling API
+        if (props.isYearView && props.yearRecentSamples) {
+            const samples = props.yearRecentSamples || []
+            const start = page * FETCH_RESULT_SIZE
+            const end = start + FETCH_RESULT_SIZE
+            const newRecentAuctions = samples.slice(start, end)
+
+            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
+                return
+            }
+
+            if (newRecentAuctions.length === 0) {
+                setNoResults(true)
+            }
+            if (end >= samples.length) {
+                setAllElementsLoaded(true)
+            }
+            setRecentAuctions([...recentAuctions, ...newRecentAuctions])
+            return
+        }
 
         api.getRecentAuctions(props.item.tag, itemFilter).then(newRecentAuctions => {
             if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
@@ -209,8 +240,8 @@ function RecentAuctions(props: Props) {
     return (
         <div className={styles.recentAuctions}>
             <h3>
-                Recent auctions
-                {!isSSR ? (
+                {props.isYearView ? 'Last matching auctions' : 'Recent auctions'}
+                {!isSSR && !props.isYearView ? (
                     <Form.Select
                         defaultValue={localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY) || RECENT_AUCTIONS_FETCH_TYPE.SOLD}
                         className={styles.recentAuctionsFetchType}
