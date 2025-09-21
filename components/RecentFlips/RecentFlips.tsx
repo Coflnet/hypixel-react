@@ -64,8 +64,20 @@ export function RecentFlips() {
         setGoogleId(sessionStorage.getItem('googleId') || "");
     }
 
+    let explanation = <>
+            <p>
+                These are flips we tracked but could not determine automatically why they sold for so much.<br />
+                You can use this to see what items are currently being flipped and for how much profit.<br />
+            </p>
+            <p>
+                You can use these flips both to replicate them, basically skyblock copy trading, or find hypixel skyblock irl traders that moved coins.
+            </p>
+            <p>
+                Because the market insight this information provides possibly making you billions of coins this feature is exclusive to premium plus users.
+            </p></>
+
     if ((flips as any)?.slug === "no_premium_plus" || !wasAlreadyLoggedIn || !googleId) {
-        return <><h2>Premium Plus Required</h2>
+        return <>{explanation}<h2>Premium Plus Required</h2>
             <p>This feature is exclusive to Premium Plus users.</p>
             <Link href="/premium?tier=premium_plus" className="disableLinkStyle">
                 <Button>Get Premium+</Button>
@@ -179,17 +191,7 @@ export function RecentFlips() {
     }
 
     return (
-        <>
-            <p>
-                These are flips we tracked but could not determine why they sold for so much.<br />
-                You can use this to see what items are currently being flipped and for how much profit.<br />
-            </p>
-            <p>
-                You can use these flips both to replicate them, basically skyblock copy trading, or find irl traders that moved coins.
-            </p>
-            <p>
-                Because the market insight this information provides possibly making you billions of coins this feature is exclusive to premium plus users.
-            </p>
+        <>{explanation}
             <GenericFlipList
                 items={flips}
                 sortOptions={SORT_OPTIONS}
