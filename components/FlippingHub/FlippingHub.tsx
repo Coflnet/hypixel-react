@@ -38,7 +38,7 @@ const flipKinds = [
     },
     {
         name: 'Recent Flips',
-        path: '/recentflips',
+        path: '/recentFlips',
         description: 'See the most recent profitable flips found by our system. Great for discovering what is currently being flipped and for how much profit.',
         icon: <Schedule fontSize="large" />
     },
