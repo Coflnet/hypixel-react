@@ -2,6 +2,7 @@ import { NextFetchEvent, NextRequest, NextResponse } from 'next/server'
 import api from './api/ApiHelper'
 
 export async function middleware(req: NextRequest, ev: NextFetchEvent) {
+    // Handle player redirects (existing functionality)
     if (req.nextUrl.pathname.startsWith('/player')) {
         const url = req.nextUrl.clone()
         let split = url.pathname.split('/')
@@ -30,5 +31,51 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
             return NextResponse.redirect(url)
         }
     }
-    return NextResponse.next()
+
+    // Get the response
+    const response = NextResponse.next()
+    
+    // Add SEO and sitemap headers for better search engine optimization
+    const pathname = req.nextUrl.pathname;
+    
+    // Add sitemap links to all HTML responses
+    if (!pathname.startsWith('/api/') && 
+        !pathname.startsWith('/_next/') && 
+        !pathname.includes('.xml') &&
+        !pathname.includes('.txt')) {
+        
+        const sitemapLinks = [
+            '</sitemap-index.xml>; rel="sitemap"; type="application/xml"',
+            '</sitemap.xml>; rel="sitemap"; type="application/xml"'
+        ];
+        
+        // Add specific sitemap links for item pages
+        if (pathname.startsWith('/item/')) {
+            sitemapLinks.push(
+                '</sitemap-items.xml>; rel="sitemap"; type="application/xml"',
+                '</sitemap-bazaar.xml>; rel="sitemap"; type="application/xml"'
+            );
+        }
+        
+        response.headers.set('Link', sitemapLinks.join(', '));
+    }
+    
+    // Add robots meta tags for SEO-important pages
+    if (pathname === '/' || 
+        pathname.startsWith('/flipper') || 
+        pathname.startsWith('/auction') || 
+        pathname.startsWith('/bazaar') ||
+        pathname.startsWith('/item/') ||
+        pathname.startsWith('/player/')) {
+        
+        response.headers.set('X-Robots-Tag', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+    }
+    
+    // Add cache headers for sitemap files
+    if (pathname.includes('sitemap') && pathname.endsWith('.xml')) {
+        response.headers.set('Content-Type', 'application/xml');
+        response.headers.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+    }
+
+    return response
 }
