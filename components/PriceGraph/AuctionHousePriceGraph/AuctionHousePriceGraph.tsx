@@ -42,6 +42,9 @@ let currentLoadingString
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true
 
+// Map to deduplicate in-flight YEAR requests. Keyed by request parameters JSON.
+const pendingYearRequests: Map<string, Promise<any>> = new Map()
+
 function AuctionHousePriceGraph(props: Props) {
     let searchParams = useSearchParams()
     let [fetchspan, setFetchspan] = useState(searchParams.get('range') as DateRange || DEFAULT_DATE_RANGE)
@@ -199,15 +202,12 @@ function AuctionHousePriceGraph(props: Props) {
 
             // Use the year history API - use the generated client
             import('../../../api/_generated/skyApi').then(({ getApiItemPriceItemTagHistoryYear }) => {
-                // Pass item filters directly as query parameters, not nested in a query object
+                // Build params and options
                 let params: any = {}
-                
-                // Add item filters directly to params
                 if (itemFilter && Object.keys(itemFilter).length > 0) {
                     params = { ...itemFilter }
                 }
 
-                // Add authentication headers for premium access
                 const requestOptions: RequestInit = {}
                 if (typeof window !== 'undefined') {
                     const googleId = sessionStorage.getItem('googleId')
@@ -218,8 +218,24 @@ function AuctionHousePriceGraph(props: Props) {
                         }
                     }
                 }
-                
-                return getApiItemPriceItemTagHistoryYear(props.item.tag, Object.keys(params).length > 0 ? params : undefined, requestOptions)
+
+                // Deduplicate identical in-flight requests using a key derived from tag, params and auth
+                const dedupeKey = JSON.stringify({ tag: props.item.tag, params, auth: requestOptions.headers || null })
+                if (pendingYearRequests.has(dedupeKey)) {
+                    return pendingYearRequests.get(dedupeKey)
+                }
+
+                const reqPromise = getApiItemPriceItemTagHistoryYear(props.item.tag, Object.keys(params).length > 0 ? params : undefined, requestOptions)
+
+                // Store the promise so concurrent callers can reuse it
+                pendingYearRequests.set(dedupeKey, reqPromise)
+
+                // Ensure cleanup of the map entry when the request finishes
+                reqPromise.finally(() => {
+                    pendingYearRequests.delete(dedupeKey)
+                })
+
+                return reqPromise
             })
             .then(response => {
                 if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan, itemFilter })) {
