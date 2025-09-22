@@ -550,6 +550,7 @@ function AuctionHousePriceGraph(props: Props) {
                         <h6 style={{ marginBottom: '15px', color: 'var(--bs-warning)' }}>📊 Statistics Summary</h6>
                         
                         {!yearStatistics.isPremiumPreview ? (
+                            <>
                             <div className="row">
                                 <div className="col-md-6">
                                     <div style={{ marginBottom: '10px' }}>
@@ -584,6 +585,14 @@ function AuctionHousePriceGraph(props: Props) {
                                     </div>
                                 </div>
                             </div>
+                            {(yearStatistics.totalAuctions || 0) > 399000 && (
+                                <div className="row">
+                                    <div className="col-12" style={{ marginTop: '12px', color: 'var(--bs-warning)' }}>
+                                        <strong>Note:</strong>{' '}Yearly queries are limited to 400k auctions to manage data size. To get more insights, please add more filters or specify a different date range.
+                                    </div>
+                                </div>
+                            )}
+                            </>
                         ) : (
                             // If the API returned 401 -> show login + link to premium
                             yearStatistics && yearStatistics.isPremiumRequired ? (
