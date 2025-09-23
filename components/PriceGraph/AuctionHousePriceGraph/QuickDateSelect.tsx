@@ -1,6 +1,9 @@
 "use client"
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DateRange } from '../../ItemPriceRange/ItemPriceRange'
+import { Button, Row, Col, Form } from 'react-bootstrap'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 
 interface Props {
     mayorPeriods: any[]
@@ -27,6 +30,17 @@ export default function QuickDateSelect(props: Props) {
         updateChart
     } = props
 
+    const [refreshKey, setRefreshKey] = useState(0)
+    const prevMayorCountRef = useRef(mayorPeriods ? mayorPeriods.length : 0)
+
+    useEffect(() => {
+        const currentCount = mayorPeriods ? mayorPeriods.length : 0
+        if (currentCount !== prevMayorCountRef.current) {
+            prevMayorCountRef.current = currentCount
+            setRefreshKey(k => k + 1)
+        }
+    }, [mayorPeriods])
+
     function buildCleanFilter(overrides?: { start?: string; end?: string }) {
         const startDate = overrides?.start || customStartDate
         const endDate = overrides?.end || customEndDate
@@ -47,24 +61,22 @@ export default function QuickDateSelect(props: Props) {
 
     return (
         <div style={{ marginTop: '20px', padding: '15px', backgroundColor: 'var(--bs-secondary)', borderRadius: '5px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <div className="d-flex justify-content-between align-items-center mb-3">
                 <h6 style={{ margin: 0 }}>📅 Custom Date Range</h6>
-                <button
-                    className="btn btn-sm btn-outline-light"
-                    onClick={() => setShowCustomDatePicker(!showCustomDatePicker)}
-                >
+                <Button variant="outline-light" size="sm" onClick={() => setShowCustomDatePicker(!showCustomDatePicker)}>
                     {showCustomDatePicker ? 'Hide' : 'Show'} Date Picker
-                </button>
+                </Button>
             </div>
 
             {/* Quick Select Options */}
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>🎯 Quick Select:</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <div className="mb-3" key={`quick-select-${refreshKey}`}>
+                <Form.Label className="d-block mb-2 fw-bold">🎯 Quick Select:</Form.Label>
+                <div className="d-flex flex-wrap gap-2">
                     {/* Previous Mayor */}
                     {mayorPeriods.length > 1 && (
-                        <button
-                            className="btn btn-sm btn-outline-warning"
+                        <Button
+                            variant="outline-warning"
+                            size="sm"
                             onClick={() => {
                                 const prevMayor = mayorPeriods[1]
                                 const startDate = new Date(prevMayor.start || '').toISOString().split('T')[0]
@@ -75,13 +87,14 @@ export default function QuickDateSelect(props: Props) {
                             }}
                         >
                             👑 Previous Mayor ({mayorPeriods[1]?.winner?.name || 'Unknown'})
-                        </button>
+                        </Button>
                     )}
 
                     {/* Around Current Mayor Start */}
                     {mayorPeriods.length > 0 && (
-                        <button
-                            className="btn btn-sm btn-outline-info"
+                        <Button
+                            variant="outline-info"
+                            size="sm"
                             onClick={() => {
                                 const currentMayor = mayorPeriods[0]
                                 let mayorStartDate = currentMayor && currentMayor.start ? new Date(currentMayor.start) : new Date()
@@ -105,12 +118,13 @@ export default function QuickDateSelect(props: Props) {
                             }}
                         >
                             {`📅 Last time ${mayorPeriods[0]?.winner?.name || 'current mayor'} was elected (±5 days)`}
-                        </button>
+                        </Button>
                     )}
 
                     {/* 1 Year Ago */}
-                    <button
-                        className="btn btn-sm btn-outline-success"
+                    <Button
+                        variant="outline-success"
+                        size="sm"
                         onClick={() => {
                             const now = new Date()
                             const yearAgoStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() - 365)
@@ -123,45 +137,45 @@ export default function QuickDateSelect(props: Props) {
                         }}
                     >
                         📈 1 Year Ago (7 days period)
-                    </button>
+                    </Button>
                 </div>
             </div>
 
             {/* Custom Date Inputs */}
             {showCustomDatePicker && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '10px', alignItems: 'end' }}>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Start Date:</label>
-                        <input
-                            type="date"
+                <Row className="align-items-end g-2">
+                    <Col xs={12} md={5}>
+                        <Form.Label className="d-block mb-1" style={{ fontSize: '0.9rem' }}>Start Date:</Form.Label>
+                        <DatePicker
+                            selected={customStartDate ? new Date(customStartDate + 'T00:00:00Z') : null}
+                            onChange={(d: Date | null) => setCustomStartDate(d ? d.toISOString().split('T')[0] : '')}
+                            maxDate={new Date()}
                             className="form-control form-control-sm"
-                            value={customStartDate}
-                            onChange={(e) => setCustomStartDate(e.target.value)}
-                            max={new Date().toISOString().split('T')[0]}
+                            dateFormat="yyyy-MM-dd"
                         />
-                    </div>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>End Date:</label>
-                        <input
-                            type="date"
+                    </Col>
+                    <Col xs={12} md={5}>
+                        <Form.Label className="d-block mb-1" style={{ fontSize: '0.9rem' }}>End Date:</Form.Label>
+                        <DatePicker
+                            selected={customEndDate ? new Date(customEndDate + 'T00:00:00Z') : null}
+                            onChange={(d: Date | null) => setCustomEndDate(d ? d.toISOString().split('T')[0] : '')}
+                            maxDate={new Date()}
                             className="form-control form-control-sm"
-                            value={customEndDate}
-                            onChange={(e) => setCustomEndDate(e.target.value)}
-                            max={new Date().toISOString().split('T')[0]}
+                            dateFormat="yyyy-MM-dd"
                         />
-                    </div>
-                    <div style={{ display: 'flex', gap: '5px' }}>
-                        <button
-                            className="btn btn-sm btn-primary"
-                            onClick={() => {
-                                updateChart(DateRange.YEAR, buildCleanFilter())
-                            }}
+                    </Col>
+                    <Col xs={12} md={2} className="d-flex gap-2">
+                        <Button
+                            size="sm"
+                            variant="primary"
+                            onClick={() => updateChart(DateRange.YEAR, buildCleanFilter())}
                             disabled={!customStartDate && !customEndDate}
                         >
                             Apply
-                        </button>
-                        <button
-                            className="btn btn-sm btn-outline-secondary"
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline-secondary"
                             onClick={() => {
                                 setCustomStartDate('')
                                 setCustomEndDate('')
@@ -169,9 +183,9 @@ export default function QuickDateSelect(props: Props) {
                             }}
                         >
                             Reset
-                        </button>
-                    </div>
-                </div>
+                        </Button>
+                    </Col>
+                </Row>
             )}
         </div>
     )
