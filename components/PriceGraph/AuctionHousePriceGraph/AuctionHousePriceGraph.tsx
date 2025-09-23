@@ -2,6 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import ReactECharts from 'echarts-for-react'
 import { useEffect, useId, useRef, useState } from 'react'
+import useRotatingMessages from '../../../hooks/useRotatingMessages'
 import api from '../../../api/ApiHelper'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
@@ -20,6 +21,7 @@ import graphConfig from './PriceGraphConfig'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
 import EChartsReact from 'echarts-for-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useGetApiItemPriceItemTagHistoryYear } from '../../../api/_generated/skyApi'
 import Link from 'next/link'
 import { v4 as generateUUID } from 'uuid'
 import { useGetApiMayor } from '../../../api/_generated/skyApi'
@@ -32,6 +34,21 @@ type YearStatistics = PriceStatistics & {
     recentAuctions?: AuctionPreview[]
 }
 
+// Base empty statistics object used for premium/preview placeholders.
+// Created once so identical objects are not duplicated inline.
+const EMPTY_YEAR_STATISTICS_BASE: YearStatistics = {
+    averageSellTimeSeconds: 0,
+    totalAuctionsSold: 0,
+    totalListed: 0,
+    totalSellers: 0,
+    totalBuyers: 0,
+    totalBids: 0,
+    totalCoinsTransferred: 0,
+    totalAuctions: 0,
+    totalItemsSold: 0,
+    binCount: 0
+}
+
 interface Props {
     item: Item
 }
@@ -39,8 +56,6 @@ interface Props {
 let currentLoadingString
 
 let mounted = true
-
-const pendingYearRequests: Map<string, Promise<any>> = new Map()
 
 function AuctionHousePriceGraph(props: Props) {
     let searchParams = useSearchParams()
@@ -60,11 +75,24 @@ function AuctionHousePriceGraph(props: Props) {
     let [customEndDate, setCustomEndDate] = useState<string>('')
     let [mayorPeriods, setMayorPeriods] = useState<CoflnetSkyMayorModelsModelElectionPeriod[]>([])
     let [showCustomDatePicker, setShowCustomDatePicker] = useState(false)
-    let [loadingMessage, setLoadingMessage] = useState('')
     let [isYearLoading, setIsYearLoading] = useState(false)
+    let [yearParams, setYearParams] = useState<any | undefined>(undefined)
+    let [yearFetchOptions, setYearFetchOptions] = useState<RequestInit | undefined>(undefined)
+    let loadingMessage = useRotatingMessages(isYearLoading, [
+        "Loading year history data... This might take a while! 📊",
+        "Crunching numbers from the past year... Stay tuned! 🔢",
+        "Fetching auction data... It's a lot of information! 📈",
+        "Almost there! Processing historical market trends... 📋",
+        "Loading complete market analysis... Worth the wait! 🎯",
+        "Gathering seller and buyer statistics... Hang tight! 👥",
+        "Fun fact: We're processing millions of auction records! 🎪",
+        "Did you know? Year data includes every single transaction! 💰"
+    ], 10000)
     let graphRef = useRef<EChartsReact>(null)
     let router = useRouter()
     let pathname = usePathname()
+
+    const isSignedIn = typeof window !== 'undefined' && !!sessionStorage.getItem('googleId')
 
     let fetchspanRef = useRef(fetchspan)
     fetchspanRef.current = fetchspan
@@ -124,42 +152,104 @@ function AuctionHousePriceGraph(props: Props) {
         }
     }, [mayorQuery.data, mayorQuery.error])
 
+
+    const authKey = yearFetchOptions?.headers ? yearFetchOptions.headers : null
+    const yearQuery = useGetApiItemPriceItemTagHistoryYear(
+        props.item.tag,
+        yearParams,
+        {
+            query: {
+                enabled: isYearLoading,
+                queryKey: ['yearHistory', props.item.tag, yearParams ?? null, authKey]
+            },
+            fetch: yearFetchOptions
+        }
+    )
+
     useEffect(() => {
-        let intervalId: NodeJS.Timeout
-        
-        if (isYearLoading) {
-            const messages = [
-                "Loading year history data... This might take a while! 📊",
-                "Crunching numbers from the past year... Stay tuned! 🔢",
-                "Fetching auction data... It's a lot of information! 📈",
-                "Almost there! Processing historical market trends... 📋",
-                "Loading complete market analysis... Worth the wait! 🎯",
-                "Gathering seller and buyer statistics... Hang tight! 👥",
-                "Fun fact: We're processing millions of auction records! 🎪",
-                "Did you know? Year data includes every single transaction! 💰"
-            ]
-            
-            let messageIndex = 0
-            setLoadingMessage(messages[0])
-            
-            intervalId = setInterval(() => {
-                messageIndex = (messageIndex + 1) % messages.length
-                setLoadingMessage(messages[messageIndex])
-            }, 10000) // Change message every 10 seconds
-        } else {
-            setLoadingMessage('')
-        }
-        
-        return () => {
-            if (intervalId) {
-                clearInterval(intervalId)
+        if (!isYearLoading) return
+
+        if (yearQuery.data) {
+            const response = yearQuery.data as any
+
+            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan, itemFilter })) {
+                setIsYearLoading(false)
+                return
             }
+
+            setIsYearLoading(false)
+            const data = response.data
+
+            if (data && typeof data === 'object' && (data && ((data as any).isPremiumRequired || (data as any).premiumRequired || (data as any).error === 'premium_required' || (data as any).status === 401))) {
+                setIsYearLoading(false)
+                setIsLoading(false)
+                setYearStatistics({ ...EMPTY_YEAR_STATISTICS_BASE, isPremiumRequired: true })
+                setNoDataFound(false)
+                setAvgPrice(0)
+                return
+            }
+
+            if (data && typeof data === 'object' && 'prices' in data) {
+                setYearStatistics(data as any)
+
+                let filteredPrices = data.prices || []
+
+                if (filteredPrices.length > 0) {
+                    if (customStartDate || customEndDate) {
+                        filteredPrices = filteredPrices.filter(item => {
+                            const itemDate = new Date(item.time)
+                            const startDate = customStartDate ? new Date(customStartDate) : new Date(0)
+                            const endDate = customEndDate ? new Date(customEndDate) : new Date()
+
+                            return itemDate >= startDate && itemDate <= endDate
+                        })
+                    }
+
+                    chartOptions.xAxis[0].data = filteredPrices.map(item => new Date(item.time).getTime())
+                    chartOptions.series[0].data = filteredPrices.map(item => item.avg.toFixed(2))
+                    chartOptions.series[1].data = filteredPrices.map(item => item.min.toFixed(2))
+                    chartOptions.series[2].data = filteredPrices.map(item => item.max.toFixed(2))
+                    chartOptions.series[3].data = filteredPrices.map(item => item.volume.toFixed(2))
+
+                    let priceSum = filteredPrices.reduce((sum, item) => sum + item.avg, 0)
+                    setAvgPrice(Math.round(priceSum / filteredPrices.length))
+                } else {
+                    setAvgPrice(0)
+                }
+
+                setIsLoading(false)
+                setNoDataFound(filteredPrices?.length === 0)
+                setChartOptions(chartOptions)
+            } else {
+                setIsLoading(false)
+                setNoDataFound(true)
+                setAvgPrice(0)
+                setYearStatistics(null)
+            }
+        } else if (yearQuery.error) {
+            const e: any = yearQuery.error
+            console.error(e)
+            setIsYearLoading(false)
+            setIsLoading(false)
+
+            const is401 = e?.status === 401 || e?.response?.status === 401 || (e?.message && /\b401\b/.test(e.message))
+
+            if (is401) {
+                setYearStatistics({ ...EMPTY_YEAR_STATISTICS_BASE, isPremiumRequired: true })
+                setNoDataFound(false)
+            } else if (e?.message && e.message.includes('premium')) {
+                setYearStatistics({ ...EMPTY_YEAR_STATISTICS_BASE, isPremiumPreview: true })
+                setNoDataFound(false)
+            } else {
+                setNoDataFound(true)
+                setYearStatistics(null)
+            }
+            setAvgPrice(0)
         }
-    }, [isYearLoading])
+    }, [yearQuery.data, yearQuery.error])
+
 
     let updateChart = (fetchspan: DateRange, itemFilter?: ItemFilter) => {
-        
-        
         if (fetchspan === DateRange.ACTIVE) {
             setIsLoading(false)
             return
@@ -186,148 +276,24 @@ function AuctionHousePriceGraph(props: Props) {
         if (fetchspan === DateRange.YEAR) {
             setIsYearLoading(true)
 
-            import('../../../api/_generated/skyApi').then(({ getApiItemPriceItemTagHistoryYear }) => {
-                let params: any = {}
-                if (itemFilter && Object.keys(itemFilter).length > 0) {
-                    params = { ...itemFilter }
-                }
+            let params: any = {}
+            if (itemFilter && Object.keys(itemFilter).length > 0) {
+                params = { ...itemFilter }
+            }
 
-                const requestOptions: RequestInit = {}
-                if (typeof window !== 'undefined') {
-                    const googleId = sessionStorage.getItem('googleId')
-                    if (googleId) {
-                        requestOptions.headers = {
-                            'GoogleToken': googleId,
-                            'Content-Type': 'application/json'
-                        }
+            const requestOptions: RequestInit = {}
+            if (typeof window !== 'undefined') {
+                const googleId = isSignedIn ? sessionStorage.getItem('googleId') : null
+                if (googleId) {
+                    requestOptions.headers = {
+                        'GoogleToken': googleId,
+                        'Content-Type': 'application/json'
                     }
                 }
+            }
 
-                const dedupeKey = JSON.stringify({ tag: props.item.tag, params, auth: requestOptions.headers || null })
-                if (pendingYearRequests.has(dedupeKey)) {
-                    return pendingYearRequests.get(dedupeKey)
-                }
-
-                const reqPromise = getApiItemPriceItemTagHistoryYear(props.item.tag, Object.keys(params).length > 0 ? params : undefined, requestOptions)
-
-                pendingYearRequests.set(dedupeKey, reqPromise)
-
-                reqPromise.finally(() => {
-                    pendingYearRequests.delete(dedupeKey)
-                })
-
-                return reqPromise
-            })
-            .then(response => {
-                if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan, itemFilter })) {
-                    return
-                }
-                
-                setIsYearLoading(false)
-                const data = response.data
-
-                if (data && typeof data === 'object' && (data && ((data as any).isPremiumRequired || (data as any).premiumRequired || (data as any).error === 'premium_required' || (data as any).status === 401))) {
-                    setIsYearLoading(false)
-                    setIsLoading(false)
-                    setYearStatistics({
-                        averageSellTimeSeconds: 0,
-                        totalAuctionsSold: 0,
-                        totalListed: 0,
-                        totalSellers: 0,
-                        totalBuyers: 0,
-                        totalBids: 0,
-                        totalCoinsTransferred: 0,
-                        totalAuctions: 0,
-                        totalItemsSold: 0,
-                        binCount: 0,
-                        isPremiumRequired: true
-                    })
-                    setNoDataFound(false)
-                    setAvgPrice(0)
-                    return
-                }
-
-                if (data && typeof data === 'object' && 'prices' in data) {
-                    setYearStatistics(data as any) // Type assertion for PriceStatistics
-                    
-                    let filteredPrices = data.prices || []
-                    
-                    if (filteredPrices.length > 0) {
-                        if (customStartDate || customEndDate) {
-                            filteredPrices = filteredPrices.filter(item => {
-                                const itemDate = new Date(item.time)
-                                const startDate = customStartDate ? new Date(customStartDate) : new Date(0)
-                                const endDate = customEndDate ? new Date(customEndDate) : new Date()
-                                
-                                return itemDate >= startDate && itemDate <= endDate
-                            })
-                        }
-                        
-                        chartOptions.xAxis[0].data = filteredPrices.map(item => new Date(item.time).getTime())
-                        chartOptions.series[0].data = filteredPrices.map(item => item.avg.toFixed(2))
-                        chartOptions.series[1].data = filteredPrices.map(item => item.min.toFixed(2))
-                        chartOptions.series[2].data = filteredPrices.map(item => item.max.toFixed(2))
-                        chartOptions.series[3].data = filteredPrices.map(item => item.volume.toFixed(2))
-
-                        let priceSum = filteredPrices.reduce((sum, item) => sum + item.avg, 0)
-                        setAvgPrice(Math.round(priceSum / filteredPrices.length))
-                    } else {
-                        setAvgPrice(0)
-                    }
-
-                    setIsLoading(false)
-                    setNoDataFound(filteredPrices?.length === 0)
-                    setChartOptions(chartOptions)
-                } else {
-                    setIsLoading(false)
-                    setNoDataFound(true)
-                    setAvgPrice(0)
-                    setYearStatistics(null)
-                }
-            })
-            .catch(e => {
-                console.error(e)
-                setIsYearLoading(false)
-                setIsLoading(false)
-
-                const is401 = e?.status === 401 || e?.response?.status === 401 || (e?.message && /\b401\b/.test(e.message))
-
-                if (is401) {
-                    setYearStatistics({
-                        averageSellTimeSeconds: 0,
-                        totalAuctionsSold: 0,
-                        totalListed: 0,
-                        totalSellers: 0,
-                        totalBuyers: 0,
-                        totalBids: 0,
-                        totalCoinsTransferred: 0,
-                        totalAuctions: 0,
-                        totalItemsSold: 0,
-                        binCount: 0,
-                        isPremiumRequired: true
-                    })
-                    setNoDataFound(false)
-                } else if (e?.message && e.message.includes('premium')) {
-                    setYearStatistics({
-                        averageSellTimeSeconds: 0,
-                        totalAuctionsSold: 0,
-                        totalListed: 0,
-                        totalSellers: 0,
-                        totalBuyers: 0,
-                        totalBids: 0,
-                        totalCoinsTransferred: 0,
-                        totalAuctions: 0,
-                        totalItemsSold: 0,
-                        binCount: 0,
-                        isPremiumPreview: true
-                    })
-                    setNoDataFound(false)
-                } else {
-                    setNoDataFound(true)
-                    setYearStatistics(null)
-                }
-                setAvgPrice(0)
-            })
+            setYearParams(Object.keys(params).length > 0 ? params : undefined)
+            setYearFetchOptions(requestOptions)
             return
         }
 
@@ -444,7 +410,6 @@ function AuctionHousePriceGraph(props: Props) {
     ) : null;
 
     if (fetchspan === DateRange.YEAR && !isLoading && !isYearLoading && !hasPremium) {
-        const isSignedIn = typeof window !== 'undefined' && !!sessionStorage.getItem('googleId')
 
         graphOverlayElement = (
             <div className={styles.graphOverlay} style={{ padding: '20px' }}>
