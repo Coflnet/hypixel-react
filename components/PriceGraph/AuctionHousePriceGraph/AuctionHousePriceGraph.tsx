@@ -22,15 +22,15 @@ import EChartsReact from 'echarts-for-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { v4 as generateUUID } from 'uuid'
-import { getApiMayor } from '../../../api/_generated/skyApi'
+import { useGetApiMayor } from '../../../api/_generated/skyApi'
 import type { PriceStatistics, CoflnetSkyMayorModelsModelElectionPeriod, AuctionPreview } from '../../../api/_generated/skyApi.schemas'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 
 type YearStatistics = PriceStatistics & {
     isPremiumRequired?: boolean
     isPremiumPreview?: boolean
     recentAuctions?: AuctionPreview[]
 }
-import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 
 interface Props {
     item: Item
@@ -90,15 +90,7 @@ function AuctionHousePriceGraph(props: Props) {
         })
     }, [props.item.tag])
 
-    useEffect(() => {
-        if (typeof window !== 'undefined' && sessionStorage.getItem('googleId')) {
-            api.getPremiumProducts().then(products => {
-                setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM))
-            }).catch(() => {
-                setHasPremium(false)
-            })
-        }
-    }, [])
+
 
     function handleAfterLoginForPremium() {
         api.getPremiumProducts().then(products => {
@@ -110,22 +102,27 @@ function AuctionHousePriceGraph(props: Props) {
         }).catch(() => {})
     }
 
+    const currentDateForMayor = new Date()
+    const twoYearsAgoForMayor = new Date(currentDateForMayor.getFullYear() - 2, currentDateForMayor.getMonth(), currentDateForMayor.getDate())
+
+    const mayorParams = fetchspan === DateRange.YEAR ? {
+        from: twoYearsAgoForMayor.toISOString(),
+        to: currentDateForMayor.toISOString()
+    } : undefined
+
+    const mayorQuery = useGetApiMayor(mayorParams, { query: { enabled: fetchspan === DateRange.YEAR } })
+
     useEffect(() => {
-        if (fetchspan === DateRange.YEAR) {
-            const currentDate = new Date()
-            const twoYearsAgo = new Date(currentDate.getFullYear() - 2, currentDate.getMonth(), currentDate.getDate())
-            getApiMayor({
-                from: twoYearsAgo.toISOString(),
-                to: currentDate.toISOString()
-            }).then(response => {
-                const periods = response.data || []
-                const sortedPeriods = periods.sort((a: any, b: any) => 
-                    new Date(b.start).getTime() - new Date(a.start).getTime()
-                )
-                setMayorPeriods(sortedPeriods)
-            }).catch(console.error)
+        if (mayorQuery.data) {
+            const periods = mayorQuery.data.data || []
+            const sortedPeriods = periods.sort((a: any, b: any) =>
+                new Date(b.start).getTime() - new Date(a.start).getTime()
+            )
+            setMayorPeriods(sortedPeriods)
+        } else if (mayorQuery.error) {
+            console.error(mayorQuery.error)
         }
-    }, [fetchspan])
+    }, [mayorQuery.data, mayorQuery.error])
 
     useEffect(() => {
         let intervalId: NodeJS.Timeout
