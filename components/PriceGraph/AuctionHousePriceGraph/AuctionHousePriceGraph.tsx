@@ -25,7 +25,6 @@ import { v4 as generateUUID } from 'uuid'
 import { getApiMayor } from '../../../api/_generated/skyApi'
 import type { PriceStatistics, CoflnetSkyMayorModelsModelElectionPeriod, AuctionPreview } from '../../../api/_generated/skyApi.schemas'
 
-// Extended year statistics type: the server or error handling code may attach preview flags
 type YearStatistics = PriceStatistics & {
     isPremiumRequired?: boolean
     isPremiumPreview?: boolean
@@ -39,10 +38,8 @@ interface Props {
 
 let currentLoadingString
 
-// Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true
 
-// Map to deduplicate in-flight YEAR requests. Keyed by request parameters JSON.
 const pendingYearRequests: Map<string, Promise<any>> = new Map()
 
 function AuctionHousePriceGraph(props: Props) {
@@ -94,7 +91,6 @@ function AuctionHousePriceGraph(props: Props) {
     }, [props.item.tag])
 
     useEffect(() => {
-        // Check premium status
         if (typeof window !== 'undefined' && sessionStorage.getItem('googleId')) {
             api.getPremiumProducts().then(products => {
                 setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM))
@@ -105,7 +101,6 @@ function AuctionHousePriceGraph(props: Props) {
     }, [])
 
     function handleAfterLoginForPremium() {
-        // Re-check premium products after login and retry year chart if allowed
         api.getPremiumProducts().then(products => {
             const ok = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
             setHasPremium(ok)
@@ -116,18 +111,14 @@ function AuctionHousePriceGraph(props: Props) {
     }
 
     useEffect(() => {
-        // Load mayor data for quick select options
         if (fetchspan === DateRange.YEAR) {
             const currentDate = new Date()
-            // Get data from 2 years ago to include more mayor periods
             const twoYearsAgo = new Date(currentDate.getFullYear() - 2, currentDate.getMonth(), currentDate.getDate())
-            
             getApiMayor({
                 from: twoYearsAgo.toISOString(),
                 to: currentDate.toISOString()
             }).then(response => {
                 const periods = response.data || []
-                // Sort by start date descending to get most recent mayors first
                 const sortedPeriods = periods.sort((a: any, b: any) => 
                     new Date(b.start).getTime() - new Date(a.start).getTime()
                 )
@@ -136,7 +127,6 @@ function AuctionHousePriceGraph(props: Props) {
         }
     }, [fetchspan])
 
-    // Rotating loading messages for year data
     useEffect(() => {
         let intervalId: NodeJS.Timeout
         
@@ -171,8 +161,8 @@ function AuctionHousePriceGraph(props: Props) {
     }, [isYearLoading])
 
     let updateChart = (fetchspan: DateRange, itemFilter?: ItemFilter) => {
-        // active auction is selected
-        // no need to get new price data
+        
+        
         if (fetchspan === DateRange.ACTIVE) {
             setIsLoading(false)
             return
@@ -197,12 +187,9 @@ function AuctionHousePriceGraph(props: Props) {
         })
 
         if (fetchspan === DateRange.YEAR) {
-            // Start loading year data - always try the API first
             setIsYearLoading(true)
 
-            // Use the year history API - use the generated client
             import('../../../api/_generated/skyApi').then(({ getApiItemPriceItemTagHistoryYear }) => {
-                // Build params and options
                 let params: any = {}
                 if (itemFilter && Object.keys(itemFilter).length > 0) {
                     params = { ...itemFilter }
@@ -219,7 +206,6 @@ function AuctionHousePriceGraph(props: Props) {
                     }
                 }
 
-                // Deduplicate identical in-flight requests using a key derived from tag, params and auth
                 const dedupeKey = JSON.stringify({ tag: props.item.tag, params, auth: requestOptions.headers || null })
                 if (pendingYearRequests.has(dedupeKey)) {
                     return pendingYearRequests.get(dedupeKey)
@@ -227,10 +213,8 @@ function AuctionHousePriceGraph(props: Props) {
 
                 const reqPromise = getApiItemPriceItemTagHistoryYear(props.item.tag, Object.keys(params).length > 0 ? params : undefined, requestOptions)
 
-                // Store the promise so concurrent callers can reuse it
                 pendingYearRequests.set(dedupeKey, reqPromise)
 
-                // Ensure cleanup of the map entry when the request finishes
                 reqPromise.finally(() => {
                     pendingYearRequests.delete(dedupeKey)
                 })
@@ -245,7 +229,6 @@ function AuctionHousePriceGraph(props: Props) {
                 setIsYearLoading(false)
                 const data = response.data
 
-                // If the server signals that this endpoint requires premium access
                 if (data && typeof data === 'object' && (data && ((data as any).isPremiumRequired || (data as any).premiumRequired || (data as any).error === 'premium_required' || (data as any).status === 401))) {
                     setIsYearLoading(false)
                     setIsLoading(false)
@@ -267,15 +250,12 @@ function AuctionHousePriceGraph(props: Props) {
                     return
                 }
 
-                // Handle the PriceStatistics response
                 if (data && typeof data === 'object' && 'prices' in data) {
                     setYearStatistics(data as any) // Type assertion for PriceStatistics
                     
                     let filteredPrices = data.prices || []
                     
-                    // If there are price data points, display them in the chart
                     if (filteredPrices.length > 0) {
-                        // Apply custom date filtering if dates are provided
                         if (customStartDate || customEndDate) {
                             filteredPrices = filteredPrices.filter(item => {
                                 const itemDate = new Date(item.time)
@@ -302,7 +282,6 @@ function AuctionHousePriceGraph(props: Props) {
                     setNoDataFound(filteredPrices?.length === 0)
                     setChartOptions(chartOptions)
                 } else {
-                    // Handle non-success response (like premium_required error)
                     setIsLoading(false)
                     setNoDataFound(true)
                     setAvgPrice(0)
@@ -314,7 +293,6 @@ function AuctionHousePriceGraph(props: Props) {
                 setIsYearLoading(false)
                 setIsLoading(false)
 
-                // Detect HTTP 401 (unauthorized) from the year endpoint and show standard zeroed stats with a premium link
                 const is401 = e?.status === 401 || e?.response?.status === 401 || (e?.message && /\b401\b/.test(e.message))
 
                 if (is401) {
@@ -333,7 +311,6 @@ function AuctionHousePriceGraph(props: Props) {
                     })
                     setNoDataFound(false)
                 } else if (e?.message && e.message.includes('premium')) {
-                    // Show premium preview for users without premium access (legacy behavior)
                     setYearStatistics({
                         averageSellTimeSeconds: 0,
                         totalAuctionsSold: 0,
@@ -469,7 +446,6 @@ function AuctionHousePriceGraph(props: Props) {
         </div>
     ) : null;
 
-    // Premium/Login overlay for YEAR view - ensure it's highly visible where the graph normally is
     if (fetchspan === DateRange.YEAR && !isLoading && !isYearLoading && !hasPremium) {
         const isSignedIn = typeof window !== 'undefined' && !!sessionStorage.getItem('googleId')
 
@@ -492,7 +468,6 @@ function AuctionHousePriceGraph(props: Props) {
                                 <button
                                     className="btn btn-sm btn-outline-secondary"
                                     onClick={() => {
-                                        // Retry year chart - this will re-check premium status if user recently upgraded
                                         updateChart(DateRange.YEAR, itemFilter)
                                     }}
                                 >
@@ -610,7 +585,6 @@ function AuctionHousePriceGraph(props: Props) {
                             )}
                             </>
                         ) : (
-                            // If the API returned 401 -> show login + link to premium
                             yearStatistics && yearStatistics.isPremiumRequired ? (
                                 <div style={{ textAlign: 'center', padding: '20px' }}>
                                     <div style={{ fontSize: '48px', marginBottom: '15px' }}>🔒</div>

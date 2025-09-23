@@ -36,7 +36,6 @@ export function ItemPriceRange(props: Props) {
     let searchParams = useSearchParams()
     let [selectedDateRange, _setSelectedDateRange] = useState(searchParams.get('range') || DEFAULT_DATE_RANGE)
 
-    // Avoid changing state during render — perform redirects when props or selection change
     useEffect(() => {
         if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
             setSelectedDateRange(DateRange.MONTH)
