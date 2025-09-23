@@ -131,7 +131,7 @@ function AuctionHousePriceGraph(props: Props) {
     }
 
     const currentDateForMayor = new Date()
-    const twoYearsAgoForMayor = new Date(currentDateForMayor.getFullYear() - 2, currentDateForMayor.getMonth(), currentDateForMayor.getDate())
+    const twoYearsAgoForMayor = new Date(currentDateForMayor.getFullYear() - 1, currentDateForMayor.getMonth(), currentDateForMayor.getDate() + 1)
 
     const mayorParams = fetchspan === DateRange.YEAR ? {
         from: twoYearsAgoForMayor.toISOString(),
@@ -579,12 +579,15 @@ function AuctionHousePriceGraph(props: Props) {
                     </div>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <SubscribeButton type="item" topic={props.item.tag} />
-                    <ShareButton
-                        title={'Prices for ' + props.item.name}
-                        text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock"
-                    />
+                <div className="d-flex justify-content-between align-items-center flex-wrap" style={{ gap: '8px' }}>
+                    <div style={{ flex: '1 1 auto' }} />
+                    <div className="d-flex align-items-center" style={{ gap: '8px', minWidth: '220px', justifyContent: 'flex-end' }}>
+                        <SubscribeButton type="item" topic={props.item.tag} />
+                        <ShareButton
+                            title={'Prices for ' + props.item.name}
+                            text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock"
+                        />
+                    </div>
                 </div>
                 <hr />
             </div>
