@@ -57,7 +57,6 @@ function RecentAuctions(props: Props) {
     }, [])
 
     useEffect(() => {
-        // Use external data for year view if provided — but allow incremental loading from the array
         if (props.yearRecentSamples && props.isYearView) {
             const samples = props.yearRecentSamples || []
             const initial = samples.slice(0, FETCH_RESULT_SIZE)
@@ -111,14 +110,11 @@ function RecentAuctions(props: Props) {
                 break
         }
 
-        // If we are paginating local year samples, ignore the maxPages limit so consumers can
-        // page through all provided samples. Otherwise enforce the premium-based maxPages.
         if (!(props.isYearView && props.yearRecentSamples) && page >= maxPages) {
             setAllElementsLoaded(true)
             return
         }
         itemFilter['page'] = page.toString()
-        // If year view provides recent samples, paginate those locally instead of calling API
         if (props.isYearView && props.yearRecentSamples) {
             const samples = props.yearRecentSamples || []
             const start = page * FETCH_RESULT_SIZE
