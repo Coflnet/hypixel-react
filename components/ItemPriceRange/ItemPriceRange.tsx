@@ -162,16 +162,20 @@ export function ItemPriceRange(props: Props) {
                         onChange={removeWrongFocus}
                         size="sm"
                         key={key}
-                        style={dateRange === DateRange.YEAR ? {
-                            background: selectedDateRange === dateRange ? '#0d6efd' : 'linear-gradient(45deg, #ffd700, #ffed4e)',
-                            border: '2px solid #ffd700',
-                            color: selectedDateRange === dateRange ? 'white' : '#000',
-                            fontWeight: 'bold',
-                            boxShadow: '0 0 10px rgba(255, 215, 0, 0.5)'
-                        } : {}}
+                        style={dateRange === DateRange.YEAR ? (
+                            selectedDateRange === dateRange
+                                ? {
+                                      background: '#0d6efd',
+                                      border: '1px solid rgba(13,110,253,0.9)',
+                                      color: 'white'
+                                  }
+                                : {
+                                      border: '1px solid rgba(224, 239, 50, 0.75)',
+                                      color: '#111'
+                                  }
+                        ) : {}}
                     >
                         {getButtonText(dateRange)}
-                        {dateRange === DateRange.YEAR && <span style={{ marginLeft: '4px' }}>✨</span>}
                     </ToggleButton>
                 )
             })}
