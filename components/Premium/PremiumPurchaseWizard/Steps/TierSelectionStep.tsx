@@ -282,7 +282,7 @@ export default function TierSelectionStep({
                                         style={{ cursor: 'help' }} className="text-success"
                                         title={`Apply code ${discountInfo.code} at checkout to receive ${discountInfo.percentage}% off`}
                                     >
-                                        -{discountInfo.percentage}% with code <strong>{discountInfo.code}</strong>
+                                        -{discountInfo.percentage}% with code <strong>{discountInfo.code}</strong> *
                                     </small>
                                 </>
                             ) : (
@@ -319,7 +319,8 @@ export default function TierSelectionStep({
                 {isUpgrade && (
                     <><br/><strong>Upgrade Protection:</strong> Your current subscription will be paused (not cancelled) while the upgrade is active.</>
                 )}
-                <br/>Prices include applicable VAT/sales tax for your country where available. For the US and some other countries, VAT will be added at checkout.
+                <br/>Prices include applicable VAT/sales tax for your country where available. For the US and some other countries, VAT will be added at checkout.<br />
+                * Using discount codes NOMACRO or similar adds the condition that you won't use any automated software (macros) to interact with Hypixel otherwise you risk getting service revoked with no refund.
             </div>
         </div>
     )
