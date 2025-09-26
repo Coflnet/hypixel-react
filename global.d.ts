@@ -1,6 +1,15 @@
 // declaration.d.ts
 declare module '*.scss'
 
+declare global {
+  interface Window {
+    __cmp?: any;
+    __tcfapi?: any;
+    nitroAds?: any;
+    __npcmp?: any;
+  }
+}
+
 interface Player {
     name: string
     uuid: string

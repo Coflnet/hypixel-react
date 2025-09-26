@@ -31,6 +31,7 @@ initCoflCoinManager()
 export function MainApp(props: any) {
     const [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false)
     const [isReloadTracked, setIsReloadTracked] = useState(false)
+    const [hasNitroCMP, setHasNitroCMP] = useState(false)
     const { trackPageView, trackEvent, pushInstruction } = useMatomo()
     const router = useRouter()
 
@@ -84,6 +85,60 @@ export function MainApp(props: any) {
         registerNotificationCallback(router)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isClientSideRendering() ? location : null])
+
+    useEffect(() => {
+        function onNitroOptOut() {
+            try {
+                // mirror the CMP opt-out into our app consent flow
+                pushInstruction('forgetConsentGiven')
+                Cookies.set('nonEssentialCookiesAllowed', false)
+            } catch (e) {}
+        }
+
+        window.addEventListener('nitro.optout', onNitroOptOut as EventListener)
+        return () => window.removeEventListener('nitro.optout', onNitroOptOut as EventListener)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    useEffect(() => {
+        function onNitroOptIn() {
+            try {
+                pushInstruction('rememberConsentGiven')
+                Cookies.set('nonEssentialCookiesAllowed', 'true')
+            } catch (e) {}
+        }
+
+        window.addEventListener('nitro.optin', onNitroOptIn as EventListener)
+        return () => window.removeEventListener('nitro.optin', onNitroOptIn as EventListener)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    useEffect(() => {
+        // detect whether NitroPay CMP banner is present; if so, suppress our cookie banner
+        function checkNitroCMP() {
+            try {
+                const banner = document.querySelector('#ncmp__tool .ncmp__banner')
+                // consider banner present if element exists and is active or just exists
+                const present = !!banner && (banner.classList.contains('ncmp__active') || true)
+                setHasNitroCMP(present)
+            } catch (e) {
+                setHasNitroCMP(false)
+            }
+        }
+
+        // initial check
+        checkNitroCMP()
+
+        const obs = new MutationObserver(() => checkNitroCMP())
+        obs.observe(document.body, { childList: true, subtree: true })
+        window.addEventListener('nitro.cmp.ready', checkNitroCMP as EventListener)
+
+        return () => {
+            obs.disconnect()
+            window.removeEventListener('nitro.cmp.ready', checkNitroCMP as EventListener)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         trackPageView({})
@@ -147,29 +202,31 @@ export function MainApp(props: any) {
             <OfflineBanner />
             <TopLoadingAnimation />
             {props.children}
-            <CookieConsent
-                enableDeclineButton
-                declineButtonStyle={{ backgroundColor: 'rgb(65, 65, 65)', borderRadius: '10px', color: 'lightgrey', fontSize: '14px' }}
-                buttonStyle={{ backgroundColor: 'green', borderRadius: '10px', color: 'white', fontSize: '20px' }}
-                contentStyle={{ marginBottom: '0px' }}
-                buttonText="Yes, I understand"
-                declineButtonText="Decline"
-                cookieName="nonEssentialCookiesAllowed"
-                data-nosnippet
-                style={{ paddingLeft: '2vw' }}
-                onAccept={() => {
-                    setTrackingAllowed()
-                }}
-            >
-                <span data-nosnippet>
-                    <p style={{ margin: '0' }}>
-                        We use cookies for analytics. By clicking the "Yes, I understand" button, you consent our use of cookies. View our{' '}
-                        <a href="https://coflnet.com/privacy" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}>
-                            Privacy Policy ↗️
-                        </a>
-                    </p>
-                </span>
-            </CookieConsent>
+            {!hasNitroCMP ? (
+                <CookieConsent
+                    enableDeclineButton
+                    declineButtonStyle={{ backgroundColor: 'rgb(65, 65, 65)', borderRadius: '10px', color: 'lightgrey', fontSize: '14px' }}
+                    buttonStyle={{ backgroundColor: 'green', borderRadius: '10px', color: 'white', fontSize: '20px' }}
+                    contentStyle={{ marginBottom: '0px' }}
+                    buttonText="Yes, I understand"
+                    declineButtonText="Decline"
+                    cookieName="nonEssentialCookiesAllowed"
+                    data-nosnippet
+                    style={{ paddingLeft: '2vw' }}
+                    onAccept={() => {
+                        setTrackingAllowed()
+                    }}
+                >
+                    <span data-nosnippet>
+                        <p style={{ margin: '0' }}>
+                            We use cookies for analytics. By clicking the "Yes, I understand" button, you consent our use of cookies. View our{' '}
+                            <a href="https://coflnet.com/privacy" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}>
+                                Privacy Policy ↗️
+                            </a>
+                        </p>
+                    </span>
+                </CookieConsent>
+            ) : null}
             {refreshFeedbackDialog}
             <ToastContainer theme={'colored'} stacked />
         </>

@@ -5,6 +5,9 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { Providers } from '../components/Providers/Providers'
 import Script from 'next/script'
 import { MainApp } from '../components/MainApp/MainApp'
+import AdScriptLoader from '../components/AdScriptLoader'
+import ConsentButton from '../components/ConsentButton'
+import NitroCMPEnhancer from '../components/NitroCMPEnhancer'
 
 function RootLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -19,22 +22,13 @@ function RootLayout({ children }: { children: React.ReactNode }) {
                         <MainApp>{children}</MainApp>
                     </Providers>
                 </div>
+                <AdScriptLoader />
+                <ConsentButton />
+                <NitroCMPEnhancer />
             </body>
         </html>
     )
 }
-
-// Only uncomment this method if you have blocking data requirements for
-// every single page in your application. This disables the ability to
-// perform automatic static optimization, causing every page in your app to
-// be server-side rendered.
-//
-// MyApp.getInitialProps = async (appContext) => {
-//   // calls page's `getInitialProps` and fills `appProps.pageProps`
-//   const appProps = await App.getInitialProps(appContext);
-//
-//   return { ...appProps }
-// }
 
 export default RootLayout
 
