@@ -10,6 +10,11 @@ export function middleware(request: NextRequest) {
     // Add sitemap headers to all responses for better SEO
     const response = NextResponse.next();
     
+    // Set CCPA opt-out cookie for all users, we just generally tell everybody to not sell data
+    if (!request.cookies.get('CCPAOPTOUT')) {
+        response.cookies.set('CCPAOPTOUT', '1');
+    }
+    
     // Add sitemap links to HTML pages
     if (url.pathname === '/' || url.pathname.startsWith('/item/') || url.pathname.startsWith('/player/')) {
         response.headers.set('Link', [
