@@ -9,6 +9,7 @@ import BazaarPriceGraph from '../../../components/PriceGraph/BazaarPriceGraph/Ba
 import AuctionHousePriceGraph from '../../../components/PriceGraph/AuctionHousePriceGraph/AuctionHousePriceGraph'
 import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { Container } from 'react-bootstrap'
+import NitroAdSlot from '../../../components/Ads/NitroAdSlot'
 
 export default async function Page(props) {
     const params = await props.params
@@ -35,6 +36,36 @@ export default async function Page(props) {
                 <Search selected={getItem()} type="item" />
                 {item.bazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
             </Container>
+            <NitroAdSlot
+                slotId="flip-banner"
+                config={{
+                    delayLoading: true,
+                    report: {
+                        enabled: true,
+                        icon: true,
+                        wording: 'Report Ad',
+                        position: 'bottom-right'
+                    }
+                }}
+            />
+            <NitroAdSlot
+                slotId="bottom-banner"
+                config={{
+                    format: 'anchor-v2',
+                    anchor: 'bottom',
+                    anchorBgColor: 'rgb(0 0 0 / 80%)',
+                    anchorClose: true,
+                    anchorPersistClose: false,
+                    anchorStickyOffset: 0,
+                    mediaQuery: '(min-width: 0px)',
+                    report: {
+                        enabled: true,
+                        icon: true,
+                        wording: 'Report Ad',
+                        position: 'top-right'
+                    }
+                }}
+            />
         </>
     )
 }
