@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Container, Card, Row, Col } from 'react-bootstrap'
-import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule } from '@mui/icons-material'
+import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule, SwapHoriz } from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
@@ -53,6 +53,12 @@ const flipKinds = [
         path: '/npc',
         description: 'Buy items from NPCs and sell them on the Auction House or Bazaar for profit. Find out which items offer the best margins.',
         icon: <SmartToy fontSize="large" />
+    },
+    {
+        name: 'Reverse NPC Flips',
+        path: '/reverseNpc',
+        description: 'Buy items from other players below their NPC sell value and turn them in for guaranteed coin profits with up-to-date pricing.',
+        icon: <SwapHoriz fontSize="large" />
     },
     {
         name: 'Attribute Fusion Machine Flips',

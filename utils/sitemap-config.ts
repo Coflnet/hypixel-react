@@ -106,6 +106,14 @@ export const SITEMAP_CONFIG = {
             keywords: ['npc prices', 'npc trading', 'vendor prices', 'npc profit']
         },
         {
+            url: '/reverseNpc',
+            priority: 0.6,
+            changefreq: 'daily' as const,
+            title: 'Reverse NPC Flip Tracker & Guaranteed Profit Calculator',
+            description: 'Track reverse NPC flip opportunities where you buy from players and sell to vendors for guaranteed coins.',
+            keywords: ['reverse npc flips', 'vendor flips', 'npc profit', 'hypixel skyblock flips']
+        },
+        {
             url: '/kat',
             priority: 0.6,
             changefreq: 'daily' as const,
