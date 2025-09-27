@@ -464,6 +464,16 @@ export interface DescriptionSetting {
   preferLbinInSuggestions: boolean;
   suggestQuicksell: boolean;
   /** @nullable */
+  replaceGrayWith: string | null;
+  /** @nullable */
+  replaceAquaWith: string | null;
+  /** @nullable */
+  replaceYellowWith: string | null;
+  /** @nullable */
+  replaceGoldWith: string | null;
+  /** @nullable */
+  replaceWhiteWith: string | null;
+  /** @nullable */
   fields?: DescriptionField[][] | null;
   highlightInfo?: HighlightInfo;
 }
@@ -1584,6 +1594,18 @@ export const NotifyWhen = {
   NUMBER_2: 2,
 } as const;
 
+export interface NpcFlip {
+  /** @nullable */
+  itemId?: string | null;
+  /** @nullable */
+  itemName?: string | null;
+  buyPrice: number;
+  npcSellPrice: number;
+  profit: number;
+  profitMargin: number;
+  lastUpdated: string;
+}
+
 export interface Offer {
   isSell: boolean;
   /** @nullable */
@@ -2461,6 +2483,14 @@ export type GetApiFlipBazaarSpreadDeemand401One = {
   message?: string;
 };
 
+export type GetApiFlipNpcReverseParams = {
+requestRefresh?: boolean;
+};
+
+export type GetApiFlipNpcReverse401One = {
+  message?: string;
+};
+
 export type PostApiFlipTrackPurchaseAuctionIdParams = {
 /**
  * Identifier of finder
@@ -2547,8 +2577,60 @@ export type PostApiModAuthParams = {
 newId?: string;
 };
 
+export type PostApiModAuth401One = {
+  message?: string;
+};
+
 export type GetApiModItemUuidParams = {
 count?: number;
+};
+
+export type GetApiNotificationsTargets401One = {
+  message?: string;
+};
+
+export type PostApiNotificationsTargets401One = {
+  message?: string;
+};
+
+export type DeleteApiNotificationsTargets401One = {
+  message?: string;
+};
+
+export type PutApiNotificationsTargets401One = {
+  message?: string;
+};
+
+export type GetApiNotificationsSubscriptions401One = {
+  message?: string;
+};
+
+export type PostApiNotificationsSubscriptions401One = {
+  message?: string;
+};
+
+export type DeleteApiNotificationsSubscriptions401One = {
+  message?: string;
+};
+
+export type PutApiNotificationsSubscriptions401One = {
+  message?: string;
+};
+
+export type PostApiNotificationsTargetsTest401One = {
+  message?: string;
+};
+
+export type PostApiNotificationsListeners401One = {
+  message?: string;
+};
+
+export type GetApiNotificationsListeners401One = {
+  message?: string;
+};
+
+export type DeleteApiNotificationsListeners401One = {
+  message?: string;
 };
 
 export type GetApiPlayerPlayerUuidBidsParams = {
@@ -2581,9 +2663,33 @@ export type GetApiPlayerExtractedParams = {
 apiKey?: string;
 };
 
+export type PostApiTopupStripeProductSlug401One = {
+  message?: string;
+};
+
+export type PostApiTopupPaypalProductSlug401One = {
+  message?: string;
+};
+
+export type PostApiTopupLemonsqueezyProductSlug401One = {
+  message?: string;
+};
+
 export type GetApiLinkvertiseParams = {
 hash?: string;
 email?: string;
+};
+
+export type GetApiLinkvertise401One = {
+  message?: string;
+};
+
+export type PostApiServicePurchase401One = {
+  message?: string;
+};
+
+export type PostApiPremiumPricesAdjusted401One = {
+  message?: string;
 };
 
 export type PostApiPremiumUserOwns200One = {[key: string]: OwnerShip};
@@ -2591,6 +2697,26 @@ export type PostApiPremiumUserOwns200One = {[key: string]: OwnerShip};
 export type PostApiPremiumUserOwns200Two = {[key: string]: OwnerShip};
 
 export type PostApiPremiumUserOwns200Three = {[key: string]: OwnerShip};
+
+export type PostApiPremiumUserOwns401One = {
+  message?: string;
+};
+
+export type GetApiPremiumTransactions401One = {
+  message?: string;
+};
+
+export type PostApiPremiumSubscriptionSubscriptionSlug401One = {
+  message?: string;
+};
+
+export type GetApiPremiumSubscription401One = {
+  message?: string;
+};
+
+export type DeleteApiPremiumSubscriptionExternalId401One = {
+  message?: string;
+};
 
 export type GetApiItemPriceItemTagParams = {
 /**
@@ -2673,11 +2799,27 @@ export type PostApiProfileItems200Two = {[key: string]: SaveAuction[]};
 
 export type PostApiProfileItems200Three = {[key: string]: SaveAuction[]};
 
+export type PostApiReferralReferredBy401One = {
+  message?: string;
+};
+
+export type GetApiReferralInfo401One = {
+  message?: string;
+};
+
 export type GetApiSearchSearchValParams = {
 /**
  * The maximum amount of results to return
  */
 limit?: number;
+};
+
+export type GetApiInventory401One = {
+  message?: string;
+};
+
+export type PostApiTrades401One = {
+  message?: string;
 };
 
 export type GetApiTradesParams = {
@@ -2692,4 +2834,20 @@ export type GetApiTradesBodyTwo = {[key: string]: string};
 export type GetApiTradesBodyThree = {[key: string]: string};
 
 export type GetApiTradesBodyFour = {[key: string]: string};
+
+export type DeleteApiTradesId401One = {
+  message?: string;
+};
+
+export type GetApiTradesOwn401One = {
+  message?: string;
+};
+
+export type GetApiUserPrivacy401One = {
+  message?: string;
+};
+
+export type PostApiUserPrivacy401One = {
+  message?: string;
+};
 

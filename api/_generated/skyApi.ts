@@ -38,6 +38,11 @@ import type {
   CommandListEntry,
   CraftInstruction,
   CurrentPrice,
+  DeleteApiNotificationsListeners401One,
+  DeleteApiNotificationsSubscriptions401One,
+  DeleteApiNotificationsTargets401One,
+  DeleteApiPremiumSubscriptionExternalId401One,
+  DeleteApiTradesId401One,
   DemandSpreadFlip,
   DescModification,
   DiscordMessage,
@@ -67,9 +72,12 @@ import type {
   GetApiDataAiParams,
   GetApiFilterOptionsParams,
   GetApiFlipBazaarSpreadDeemand401One,
+  GetApiFlipNpcReverse401One,
+  GetApiFlipNpcReverseParams,
   GetApiFlipStatsFinderFinderNameParams,
   GetApiFlipStatsPlayerPlayerUuidParams,
   GetApiFlipUnknownParams,
+  GetApiInventory401One,
   GetApiItemPriceItemTagBinParams,
   GetApiItemPriceItemTagCurrentParams,
   GetApiItemPriceItemTagHistoryDayParams,
@@ -79,25 +87,34 @@ import type {
   GetApiItemPriceItemTagHistoryYearParams,
   GetApiItemPriceItemTagParams,
   GetApiLeaderboardProfitParams,
+  GetApiLinkvertise401One,
   GetApiLinkvertiseParams,
   GetApiMayorParams,
   GetApiModItemUuidParams,
+  GetApiNotificationsListeners401One,
+  GetApiNotificationsSubscriptions401One,
+  GetApiNotificationsTargets401One,
   GetApiPlayerBazaarOrdersParams,
   GetApiPlayerExtractedParams,
   GetApiPlayerPlayerUuidAuctionsParams,
   GetApiPlayerPlayerUuidBidsParams,
+  GetApiPremiumSubscription401One,
+  GetApiPremiumTransactions401One,
   GetApiPriceAttributes200One,
   GetApiPriceAttributes200Three,
   GetApiPriceAttributes200Two,
   GetApiPricesNeu200One,
   GetApiPricesNeu200Three,
   GetApiPricesNeu200Two,
+  GetApiReferralInfo401One,
   GetApiSearchSearchValParams,
   GetApiTradesBodyFour,
   GetApiTradesBodyOne,
   GetApiTradesBodyThree,
   GetApiTradesBodyTwo,
+  GetApiTradesOwn401One,
   GetApiTradesParams,
+  GetApiUserPrivacy401One,
   GraphResult,
   Int32Int64ValueTuple,
   InventoryBatchLookup,
@@ -116,6 +133,7 @@ import type {
   Member,
   NetworthBreakDown,
   NotificationTarget,
+  NpcFlip,
   Offer,
   PlayerResult,
   PostApiAuctionsUidsSold200One,
@@ -131,16 +149,31 @@ import type {
   PostApiItemsNames200One,
   PostApiItemsNames200Three,
   PostApiItemsNames200Two,
+  PostApiModAuth401One,
   PostApiModAuthParams,
+  PostApiNotificationsListeners401One,
+  PostApiNotificationsSubscriptions401One,
+  PostApiNotificationsTargets401One,
+  PostApiNotificationsTargetsTest401One,
   PostApiPlayerNames200One,
   PostApiPlayerNames200Three,
   PostApiPlayerNames200Two,
+  PostApiPremiumPricesAdjusted401One,
+  PostApiPremiumSubscriptionSubscriptionSlug401One,
   PostApiPremiumUserOwns200One,
   PostApiPremiumUserOwns200Three,
   PostApiPremiumUserOwns200Two,
+  PostApiPremiumUserOwns401One,
   PostApiProfileItems200One,
   PostApiProfileItems200Three,
   PostApiProfileItems200Two,
+  PostApiReferralReferredBy401One,
+  PostApiServicePurchase401One,
+  PostApiTopupLemonsqueezyProductSlug401One,
+  PostApiTopupPaypalProductSlug401One,
+  PostApiTopupStripeProductSlug401One,
+  PostApiTrades401One,
+  PostApiUserPrivacy401One,
   PremiumSubscription,
   PriceEstimate,
   PriceStatistics,
@@ -151,6 +184,8 @@ import type {
   ProfitableCraft,
   PublicSubscription,
   PurchaseArgs,
+  PutApiNotificationsSubscriptions401One,
+  PutApiNotificationsTargets401One,
   ReferralInfo,
   ReferredBy,
   SaveAuction,
@@ -3907,6 +3942,135 @@ export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc
 
 
 
+export type getApiFlipNpcReverseResponse200 = {
+  data: NpcFlip[]
+  status: 200
+}
+
+export type getApiFlipNpcReverseResponse401ApplicationJson = {
+  data: GetApiFlipNpcReverse401One
+  status: 401
+}
+
+export type getApiFlipNpcReverseResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiFlipNpcReverseResponse403 = {
+  data: null
+  status: 403
+}
+    
+export type getApiFlipNpcReverseResponseComposite = getApiFlipNpcReverseResponse200 | getApiFlipNpcReverseResponse401ApplicationJson | getApiFlipNpcReverseResponse401TextPlain | getApiFlipNpcReverseResponse403;
+    
+export type getApiFlipNpcReverseResponse = getApiFlipNpcReverseResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipNpcReverseUrl = (params?: GetApiFlipNpcReverseParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/flip/npc/reverse?${stringifiedParams}` : `https://sky.coflnet.com/api/flip/npc/reverse`
+}
+
+export const getApiFlipNpcReverse = async (params?: GetApiFlipNpcReverseParams, options?: RequestInit): Promise<getApiFlipNpcReverseResponse> => {
+  
+  const res = await fetch(getGetApiFlipNpcReverseUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipNpcReverseResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipNpcReverseResponse
+}
+
+
+
+export const getGetApiFlipNpcReverseQueryKey = (params?: GetApiFlipNpcReverseParams,) => {
+    return [`https://sky.coflnet.com/api/flip/npc/reverse`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getGetApiFlipNpcReverseQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError = GetApiFlipNpcReverse401One | string | null>(params?: GetApiFlipNpcReverseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiFlipNpcReverseQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipNpcReverse>>> = ({ signal }) => getApiFlipNpcReverse(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiFlipNpcReverseQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipNpcReverse>>>
+export type GetApiFlipNpcReverseQueryError = GetApiFlipNpcReverse401One | string | null
+
+
+export function useGetApiFlipNpcReverse<TData = Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError = GetApiFlipNpcReverse401One | string | null>(
+ params: undefined |  GetApiFlipNpcReverseParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiFlipNpcReverse>>,
+          TError,
+          Awaited<ReturnType<typeof getApiFlipNpcReverse>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiFlipNpcReverse<TData = Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError = GetApiFlipNpcReverse401One | string | null>(
+ params?: GetApiFlipNpcReverseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiFlipNpcReverse>>,
+          TError,
+          Awaited<ReturnType<typeof getApiFlipNpcReverse>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiFlipNpcReverse<TData = Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError = GetApiFlipNpcReverse401One | string | null>(
+ params?: GetApiFlipNpcReverseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiFlipNpcReverse<TData = Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError = GetApiFlipNpcReverse401One | string | null>(
+ params?: GetApiFlipNpcReverseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiFlipNpcReverseQueryOptions(params,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
 /**
  * @summary Discover flips using the fusion machine
  */
@@ -6186,8 +6350,23 @@ export type postApiModAuthResponse200 = {
   data: null
   status: 200
 }
+
+export type postApiModAuthResponse401ApplicationJson = {
+  data: PostApiModAuth401One
+  status: 401
+}
+
+export type postApiModAuthResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiModAuthResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiModAuthResponseComposite = postApiModAuthResponse200;
+export type postApiModAuthResponseComposite = postApiModAuthResponse200 | postApiModAuthResponse401ApplicationJson | postApiModAuthResponse401TextPlain | postApiModAuthResponse403;
     
 export type postApiModAuthResponse = postApiModAuthResponseComposite & {
   headers: Headers;
@@ -6228,7 +6407,7 @@ export const postApiModAuth = async (params?: PostApiModAuthParams, options?: Re
 
 
 
-export const getPostApiModAuthMutationOptions = <TError = unknown,
+export const getPostApiModAuthMutationOptions = <TError = PostApiModAuth401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModAuth>>, TError,{params?: PostApiModAuthParams}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiModAuth>>, TError,{params?: PostApiModAuthParams}, TContext> => {
 
@@ -6255,12 +6434,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiModAuthMutationResult = NonNullable<Awaited<ReturnType<typeof postApiModAuth>>>
     
-    export type PostApiModAuthMutationError = unknown
+    export type PostApiModAuthMutationError = PostApiModAuth401One | string | null
 
     /**
  * @summary Authorize a mod instance
  */
-export const usePostApiModAuth = <TError = unknown,
+export const usePostApiModAuth = <TError = PostApiModAuth401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModAuth>>, TError,{params?: PostApiModAuthParams}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiModAuth>>,
@@ -6926,8 +7105,23 @@ export type getApiNotificationsTargetsResponse200 = {
   data: NotificationTarget[]
   status: 200
 }
+
+export type getApiNotificationsTargetsResponse401ApplicationJson = {
+  data: GetApiNotificationsTargets401One
+  status: 401
+}
+
+export type getApiNotificationsTargetsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiNotificationsTargetsResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiNotificationsTargetsResponseComposite = getApiNotificationsTargetsResponse200;
+export type getApiNotificationsTargetsResponseComposite = getApiNotificationsTargetsResponse200 | getApiNotificationsTargetsResponse401ApplicationJson | getApiNotificationsTargetsResponse401TextPlain | getApiNotificationsTargetsResponse403;
     
 export type getApiNotificationsTargetsResponse = getApiNotificationsTargetsResponseComposite & {
   headers: Headers;
@@ -6965,7 +7159,7 @@ export const getGetApiNotificationsTargetsQueryKey = () => {
     }
 
     
-export const getGetApiNotificationsTargetsQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiNotificationsTargetsQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = GetApiNotificationsTargets401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -6984,10 +7178,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiNotificationsTargetsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiNotificationsTargets>>>
-export type GetApiNotificationsTargetsQueryError = unknown
+export type GetApiNotificationsTargetsQueryError = GetApiNotificationsTargets401One | string | null
 
 
-export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = unknown>(
+export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = GetApiNotificationsTargets401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsTargets>>,
@@ -6997,7 +7191,7 @@ export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof 
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = unknown>(
+export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = GetApiNotificationsTargets401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsTargets>>,
@@ -7007,7 +7201,7 @@ export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof 
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = unknown>(
+export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = GetApiNotificationsTargets401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -7015,7 +7209,7 @@ export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof 
  * @summary Returns notification targets of the user
  */
 
-export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = unknown>(
+export function useGetApiNotificationsTargets<TData = Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError = GetApiNotificationsTargets401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsTargets>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -7039,8 +7233,23 @@ export type postApiNotificationsTargetsResponse200 = {
   data: NotificationTarget
   status: 200
 }
+
+export type postApiNotificationsTargetsResponse401ApplicationJson = {
+  data: PostApiNotificationsTargets401One
+  status: 401
+}
+
+export type postApiNotificationsTargetsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiNotificationsTargetsResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiNotificationsTargetsResponseComposite = postApiNotificationsTargetsResponse200;
+export type postApiNotificationsTargetsResponseComposite = postApiNotificationsTargetsResponse200 | postApiNotificationsTargetsResponse401ApplicationJson | postApiNotificationsTargetsResponse401TextPlain | postApiNotificationsTargetsResponse403;
     
 export type postApiNotificationsTargetsResponse = postApiNotificationsTargetsResponseComposite & {
   headers: Headers;
@@ -7075,7 +7284,7 @@ export const postApiNotificationsTargets = async (notificationTarget: Notificati
 
 
 
-export const getPostApiNotificationsTargetsMutationOptions = <TError = unknown,
+export const getPostApiNotificationsTargetsMutationOptions = <TError = PostApiNotificationsTargets401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext> => {
 
@@ -7102,12 +7311,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiNotificationsTargetsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiNotificationsTargets>>>
     export type PostApiNotificationsTargetsMutationBody = NotificationTarget
-    export type PostApiNotificationsTargetsMutationError = unknown
+    export type PostApiNotificationsTargetsMutationError = PostApiNotificationsTargets401One | string | null
 
     /**
  * @summary Adds a new target
  */
-export const usePostApiNotificationsTargets = <TError = unknown,
+export const usePostApiNotificationsTargets = <TError = PostApiNotificationsTargets401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiNotificationsTargets>>,
@@ -7128,8 +7337,23 @@ export type deleteApiNotificationsTargetsResponse200 = {
   data: null
   status: 200
 }
+
+export type deleteApiNotificationsTargetsResponse401ApplicationJson = {
+  data: DeleteApiNotificationsTargets401One
+  status: 401
+}
+
+export type deleteApiNotificationsTargetsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type deleteApiNotificationsTargetsResponse403 = {
+  data: null
+  status: 403
+}
     
-export type deleteApiNotificationsTargetsResponseComposite = deleteApiNotificationsTargetsResponse200;
+export type deleteApiNotificationsTargetsResponseComposite = deleteApiNotificationsTargetsResponse200 | deleteApiNotificationsTargetsResponse401ApplicationJson | deleteApiNotificationsTargetsResponse401TextPlain | deleteApiNotificationsTargetsResponse403;
     
 export type deleteApiNotificationsTargetsResponse = deleteApiNotificationsTargetsResponseComposite & {
   headers: Headers;
@@ -7164,7 +7388,7 @@ export const deleteApiNotificationsTargets = async (notificationTarget: Notifica
 
 
 
-export const getDeleteApiNotificationsTargetsMutationOptions = <TError = unknown,
+export const getDeleteApiNotificationsTargetsMutationOptions = <TError = DeleteApiNotificationsTargets401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext> => {
 
@@ -7191,12 +7415,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type DeleteApiNotificationsTargetsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>>
     export type DeleteApiNotificationsTargetsMutationBody = NotificationTarget
-    export type DeleteApiNotificationsTargetsMutationError = unknown
+    export type DeleteApiNotificationsTargetsMutationError = DeleteApiNotificationsTargets401One | string | null
 
     /**
  * @summary Removes a target
  */
-export const useDeleteApiNotificationsTargets = <TError = unknown,
+export const useDeleteApiNotificationsTargets = <TError = DeleteApiNotificationsTargets401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteApiNotificationsTargets>>,
@@ -7217,8 +7441,23 @@ export type putApiNotificationsTargetsResponse200 = {
   data: null
   status: 200
 }
+
+export type putApiNotificationsTargetsResponse401ApplicationJson = {
+  data: PutApiNotificationsTargets401One
+  status: 401
+}
+
+export type putApiNotificationsTargetsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type putApiNotificationsTargetsResponse403 = {
+  data: null
+  status: 403
+}
     
-export type putApiNotificationsTargetsResponseComposite = putApiNotificationsTargetsResponse200;
+export type putApiNotificationsTargetsResponseComposite = putApiNotificationsTargetsResponse200 | putApiNotificationsTargetsResponse401ApplicationJson | putApiNotificationsTargetsResponse401TextPlain | putApiNotificationsTargetsResponse403;
     
 export type putApiNotificationsTargetsResponse = putApiNotificationsTargetsResponseComposite & {
   headers: Headers;
@@ -7253,7 +7492,7 @@ export const putApiNotificationsTargets = async (notificationTarget: Notificatio
 
 
 
-export const getPutApiNotificationsTargetsMutationOptions = <TError = unknown,
+export const getPutApiNotificationsTargetsMutationOptions = <TError = PutApiNotificationsTargets401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext> => {
 
@@ -7280,12 +7519,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PutApiNotificationsTargetsMutationResult = NonNullable<Awaited<ReturnType<typeof putApiNotificationsTargets>>>
     export type PutApiNotificationsTargetsMutationBody = NotificationTarget
-    export type PutApiNotificationsTargetsMutationError = unknown
+    export type PutApiNotificationsTargetsMutationError = PutApiNotificationsTargets401One | string | null
 
     /**
  * @summary Updates a target
  */
-export const usePutApiNotificationsTargets = <TError = unknown,
+export const usePutApiNotificationsTargets = <TError = PutApiNotificationsTargets401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsTargets>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof putApiNotificationsTargets>>,
@@ -7306,8 +7545,23 @@ export type getApiNotificationsSubscriptionsResponse200 = {
   data: PublicSubscription[]
   status: 200
 }
+
+export type getApiNotificationsSubscriptionsResponse401ApplicationJson = {
+  data: GetApiNotificationsSubscriptions401One
+  status: 401
+}
+
+export type getApiNotificationsSubscriptionsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiNotificationsSubscriptionsResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiNotificationsSubscriptionsResponseComposite = getApiNotificationsSubscriptionsResponse200;
+export type getApiNotificationsSubscriptionsResponseComposite = getApiNotificationsSubscriptionsResponse200 | getApiNotificationsSubscriptionsResponse401ApplicationJson | getApiNotificationsSubscriptionsResponse401TextPlain | getApiNotificationsSubscriptionsResponse403;
     
 export type getApiNotificationsSubscriptionsResponse = getApiNotificationsSubscriptionsResponseComposite & {
   headers: Headers;
@@ -7345,7 +7599,7 @@ export const getGetApiNotificationsSubscriptionsQueryKey = () => {
     }
 
     
-export const getGetApiNotificationsSubscriptionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiNotificationsSubscriptionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = GetApiNotificationsSubscriptions401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -7364,10 +7618,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiNotificationsSubscriptionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>>
-export type GetApiNotificationsSubscriptionsQueryError = unknown
+export type GetApiNotificationsSubscriptionsQueryError = GetApiNotificationsSubscriptions401One | string | null
 
 
-export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = unknown>(
+export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = GetApiNotificationsSubscriptions401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>,
@@ -7377,7 +7631,7 @@ export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<t
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = unknown>(
+export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = GetApiNotificationsSubscriptions401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>,
@@ -7387,7 +7641,7 @@ export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<t
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = unknown>(
+export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = GetApiNotificationsSubscriptions401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -7395,7 +7649,7 @@ export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<t
  * @summary Returns notification subscriptions of the user
  */
 
-export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = unknown>(
+export function useGetApiNotificationsSubscriptions<TData = Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError = GetApiNotificationsSubscriptions401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsSubscriptions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -7419,8 +7673,23 @@ export type postApiNotificationsSubscriptionsResponse200 = {
   data: PublicSubscription
   status: 200
 }
+
+export type postApiNotificationsSubscriptionsResponse401ApplicationJson = {
+  data: PostApiNotificationsSubscriptions401One
+  status: 401
+}
+
+export type postApiNotificationsSubscriptionsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiNotificationsSubscriptionsResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiNotificationsSubscriptionsResponseComposite = postApiNotificationsSubscriptionsResponse200;
+export type postApiNotificationsSubscriptionsResponseComposite = postApiNotificationsSubscriptionsResponse200 | postApiNotificationsSubscriptionsResponse401ApplicationJson | postApiNotificationsSubscriptionsResponse401TextPlain | postApiNotificationsSubscriptionsResponse403;
     
 export type postApiNotificationsSubscriptionsResponse = postApiNotificationsSubscriptionsResponseComposite & {
   headers: Headers;
@@ -7455,7 +7724,7 @@ export const postApiNotificationsSubscriptions = async (publicSubscription: Publ
 
 
 
-export const getPostApiNotificationsSubscriptionsMutationOptions = <TError = unknown,
+export const getPostApiNotificationsSubscriptionsMutationOptions = <TError = PostApiNotificationsSubscriptions401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext> => {
 
@@ -7482,12 +7751,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiNotificationsSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>>
     export type PostApiNotificationsSubscriptionsMutationBody = PublicSubscription
-    export type PostApiNotificationsSubscriptionsMutationError = unknown
+    export type PostApiNotificationsSubscriptionsMutationError = PostApiNotificationsSubscriptions401One | string | null
 
     /**
  * @summary Adds a new subscription
  */
-export const usePostApiNotificationsSubscriptions = <TError = unknown,
+export const usePostApiNotificationsSubscriptions = <TError = PostApiNotificationsSubscriptions401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiNotificationsSubscriptions>>,
@@ -7508,8 +7777,23 @@ export type deleteApiNotificationsSubscriptionsResponse200 = {
   data: null
   status: 200
 }
+
+export type deleteApiNotificationsSubscriptionsResponse401ApplicationJson = {
+  data: DeleteApiNotificationsSubscriptions401One
+  status: 401
+}
+
+export type deleteApiNotificationsSubscriptionsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type deleteApiNotificationsSubscriptionsResponse403 = {
+  data: null
+  status: 403
+}
     
-export type deleteApiNotificationsSubscriptionsResponseComposite = deleteApiNotificationsSubscriptionsResponse200;
+export type deleteApiNotificationsSubscriptionsResponseComposite = deleteApiNotificationsSubscriptionsResponse200 | deleteApiNotificationsSubscriptionsResponse401ApplicationJson | deleteApiNotificationsSubscriptionsResponse401TextPlain | deleteApiNotificationsSubscriptionsResponse403;
     
 export type deleteApiNotificationsSubscriptionsResponse = deleteApiNotificationsSubscriptionsResponseComposite & {
   headers: Headers;
@@ -7544,7 +7828,7 @@ export const deleteApiNotificationsSubscriptions = async (publicSubscription: Pu
 
 
 
-export const getDeleteApiNotificationsSubscriptionsMutationOptions = <TError = unknown,
+export const getDeleteApiNotificationsSubscriptionsMutationOptions = <TError = DeleteApiNotificationsSubscriptions401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext> => {
 
@@ -7571,12 +7855,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type DeleteApiNotificationsSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>>
     export type DeleteApiNotificationsSubscriptionsMutationBody = PublicSubscription
-    export type DeleteApiNotificationsSubscriptionsMutationError = unknown
+    export type DeleteApiNotificationsSubscriptionsMutationError = DeleteApiNotificationsSubscriptions401One | string | null
 
     /**
  * @summary Removes a subscription
  */
-export const useDeleteApiNotificationsSubscriptions = <TError = unknown,
+export const useDeleteApiNotificationsSubscriptions = <TError = DeleteApiNotificationsSubscriptions401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteApiNotificationsSubscriptions>>,
@@ -7597,8 +7881,23 @@ export type putApiNotificationsSubscriptionsResponse200 = {
   data: null
   status: 200
 }
+
+export type putApiNotificationsSubscriptionsResponse401ApplicationJson = {
+  data: PutApiNotificationsSubscriptions401One
+  status: 401
+}
+
+export type putApiNotificationsSubscriptionsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type putApiNotificationsSubscriptionsResponse403 = {
+  data: null
+  status: 403
+}
     
-export type putApiNotificationsSubscriptionsResponseComposite = putApiNotificationsSubscriptionsResponse200;
+export type putApiNotificationsSubscriptionsResponseComposite = putApiNotificationsSubscriptionsResponse200 | putApiNotificationsSubscriptionsResponse401ApplicationJson | putApiNotificationsSubscriptionsResponse401TextPlain | putApiNotificationsSubscriptionsResponse403;
     
 export type putApiNotificationsSubscriptionsResponse = putApiNotificationsSubscriptionsResponseComposite & {
   headers: Headers;
@@ -7633,7 +7932,7 @@ export const putApiNotificationsSubscriptions = async (publicSubscription: Publi
 
 
 
-export const getPutApiNotificationsSubscriptionsMutationOptions = <TError = unknown,
+export const getPutApiNotificationsSubscriptionsMutationOptions = <TError = PutApiNotificationsSubscriptions401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext> => {
 
@@ -7660,12 +7959,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PutApiNotificationsSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>>
     export type PutApiNotificationsSubscriptionsMutationBody = PublicSubscription
-    export type PutApiNotificationsSubscriptionsMutationError = unknown
+    export type PutApiNotificationsSubscriptionsMutationError = PutApiNotificationsSubscriptions401One | string | null
 
     /**
  * @summary Updates a subscription
  */
-export const usePutApiNotificationsSubscriptions = <TError = unknown,
+export const usePutApiNotificationsSubscriptions = <TError = PutApiNotificationsSubscriptions401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>, TError,{data: PublicSubscription}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof putApiNotificationsSubscriptions>>,
@@ -7686,8 +7985,23 @@ export type postApiNotificationsTargetsTestResponse200 = {
   data: null
   status: 200
 }
+
+export type postApiNotificationsTargetsTestResponse401ApplicationJson = {
+  data: PostApiNotificationsTargetsTest401One
+  status: 401
+}
+
+export type postApiNotificationsTargetsTestResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiNotificationsTargetsTestResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiNotificationsTargetsTestResponseComposite = postApiNotificationsTargetsTestResponse200;
+export type postApiNotificationsTargetsTestResponseComposite = postApiNotificationsTargetsTestResponse200 | postApiNotificationsTargetsTestResponse401ApplicationJson | postApiNotificationsTargetsTestResponse401TextPlain | postApiNotificationsTargetsTestResponse403;
     
 export type postApiNotificationsTargetsTestResponse = postApiNotificationsTargetsTestResponseComposite & {
   headers: Headers;
@@ -7722,7 +8036,7 @@ export const postApiNotificationsTargetsTest = async (notificationTarget: Notifi
 
 
 
-export const getPostApiNotificationsTargetsTestMutationOptions = <TError = unknown,
+export const getPostApiNotificationsTargetsTestMutationOptions = <TError = PostApiNotificationsTargetsTest401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>, TError,{data: NotificationTarget}, TContext> => {
 
@@ -7749,12 +8063,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiNotificationsTargetsTestMutationResult = NonNullable<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>>
     export type PostApiNotificationsTargetsTestMutationBody = NotificationTarget
-    export type PostApiNotificationsTargetsTestMutationError = unknown
+    export type PostApiNotificationsTargetsTestMutationError = PostApiNotificationsTargetsTest401One | string | null
 
     /**
  * @summary Sends a test notification to the given target
  */
-export const usePostApiNotificationsTargetsTest = <TError = unknown,
+export const usePostApiNotificationsTargetsTest = <TError = PostApiNotificationsTargetsTest401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>, TError,{data: NotificationTarget}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiNotificationsTargetsTest>>,
@@ -7775,8 +8089,23 @@ export type postApiNotificationsListenersResponse200 = {
   data: Listener
   status: 200
 }
+
+export type postApiNotificationsListenersResponse401ApplicationJson = {
+  data: PostApiNotificationsListeners401One
+  status: 401
+}
+
+export type postApiNotificationsListenersResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiNotificationsListenersResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiNotificationsListenersResponseComposite = postApiNotificationsListenersResponse200;
+export type postApiNotificationsListenersResponseComposite = postApiNotificationsListenersResponse200 | postApiNotificationsListenersResponse401ApplicationJson | postApiNotificationsListenersResponse401TextPlain | postApiNotificationsListenersResponse403;
     
 export type postApiNotificationsListenersResponse = postApiNotificationsListenersResponseComposite & {
   headers: Headers;
@@ -7811,7 +8140,7 @@ export const postApiNotificationsListeners = async (listener: Listener, options?
 
 
 
-export const getPostApiNotificationsListenersMutationOptions = <TError = unknown,
+export const getPostApiNotificationsListenersMutationOptions = <TError = PostApiNotificationsListeners401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsListeners>>, TError,{data: Listener}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsListeners>>, TError,{data: Listener}, TContext> => {
 
@@ -7838,12 +8167,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiNotificationsListenersMutationResult = NonNullable<Awaited<ReturnType<typeof postApiNotificationsListeners>>>
     export type PostApiNotificationsListenersMutationBody = Listener
-    export type PostApiNotificationsListenersMutationError = unknown
+    export type PostApiNotificationsListenersMutationError = PostApiNotificationsListeners401One | string | null
 
     /**
  * @summary Adds a new listener
  */
-export const usePostApiNotificationsListeners = <TError = unknown,
+export const usePostApiNotificationsListeners = <TError = PostApiNotificationsListeners401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiNotificationsListeners>>, TError,{data: Listener}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiNotificationsListeners>>,
@@ -7864,8 +8193,23 @@ export type getApiNotificationsListenersResponse200 = {
   data: Listener[]
   status: 200
 }
+
+export type getApiNotificationsListenersResponse401ApplicationJson = {
+  data: GetApiNotificationsListeners401One
+  status: 401
+}
+
+export type getApiNotificationsListenersResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiNotificationsListenersResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiNotificationsListenersResponseComposite = getApiNotificationsListenersResponse200;
+export type getApiNotificationsListenersResponseComposite = getApiNotificationsListenersResponse200 | getApiNotificationsListenersResponse401ApplicationJson | getApiNotificationsListenersResponse401TextPlain | getApiNotificationsListenersResponse403;
     
 export type getApiNotificationsListenersResponse = getApiNotificationsListenersResponseComposite & {
   headers: Headers;
@@ -7903,7 +8247,7 @@ export const getGetApiNotificationsListenersQueryKey = () => {
     }
 
     
-export const getGetApiNotificationsListenersQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiNotificationsListenersQueryOptions = <TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = GetApiNotificationsListeners401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -7922,10 +8266,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiNotificationsListenersQueryResult = NonNullable<Awaited<ReturnType<typeof getApiNotificationsListeners>>>
-export type GetApiNotificationsListenersQueryError = unknown
+export type GetApiNotificationsListenersQueryError = GetApiNotificationsListeners401One | string | null
 
 
-export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = unknown>(
+export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = GetApiNotificationsListeners401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsListeners>>,
@@ -7935,7 +8279,7 @@ export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeo
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = unknown>(
+export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = GetApiNotificationsListeners401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiNotificationsListeners>>,
@@ -7945,7 +8289,7 @@ export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeo
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = unknown>(
+export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = GetApiNotificationsListeners401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -7953,7 +8297,7 @@ export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeo
  * @summary Lists all listeners
  */
 
-export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = unknown>(
+export function useGetApiNotificationsListeners<TData = Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError = GetApiNotificationsListeners401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiNotificationsListeners>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -7977,8 +8321,23 @@ export type deleteApiNotificationsListenersResponse200 = {
   data: null
   status: 200
 }
+
+export type deleteApiNotificationsListenersResponse401ApplicationJson = {
+  data: DeleteApiNotificationsListeners401One
+  status: 401
+}
+
+export type deleteApiNotificationsListenersResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type deleteApiNotificationsListenersResponse403 = {
+  data: null
+  status: 403
+}
     
-export type deleteApiNotificationsListenersResponseComposite = deleteApiNotificationsListenersResponse200;
+export type deleteApiNotificationsListenersResponseComposite = deleteApiNotificationsListenersResponse200 | deleteApiNotificationsListenersResponse401ApplicationJson | deleteApiNotificationsListenersResponse401TextPlain | deleteApiNotificationsListenersResponse403;
     
 export type deleteApiNotificationsListenersResponse = deleteApiNotificationsListenersResponseComposite & {
   headers: Headers;
@@ -8013,7 +8372,7 @@ export const deleteApiNotificationsListeners = async (listener: Listener, option
 
 
 
-export const getDeleteApiNotificationsListenersMutationOptions = <TError = unknown,
+export const getDeleteApiNotificationsListenersMutationOptions = <TError = DeleteApiNotificationsListeners401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>, TError,{data: Listener}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>, TError,{data: Listener}, TContext> => {
 
@@ -8040,12 +8399,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type DeleteApiNotificationsListenersMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>>
     export type DeleteApiNotificationsListenersMutationBody = Listener
-    export type DeleteApiNotificationsListenersMutationError = unknown
+    export type DeleteApiNotificationsListenersMutationError = DeleteApiNotificationsListeners401One | string | null
 
     /**
  * @summary Removes a listener
  */
-export const useDeleteApiNotificationsListeners = <TError = unknown,
+export const useDeleteApiNotificationsListeners = <TError = DeleteApiNotificationsListeners401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiNotificationsListeners>>, TError,{data: Listener}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteApiNotificationsListeners>>,
@@ -8975,8 +9334,23 @@ export type postApiTopupStripeProductSlugResponse200 = {
   data: TopUpIdResponse
   status: 200
 }
+
+export type postApiTopupStripeProductSlugResponse401ApplicationJson = {
+  data: PostApiTopupStripeProductSlug401One
+  status: 401
+}
+
+export type postApiTopupStripeProductSlugResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiTopupStripeProductSlugResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiTopupStripeProductSlugResponseComposite = postApiTopupStripeProductSlugResponse200;
+export type postApiTopupStripeProductSlugResponseComposite = postApiTopupStripeProductSlugResponse200 | postApiTopupStripeProductSlugResponse401ApplicationJson | postApiTopupStripeProductSlugResponse401TextPlain | postApiTopupStripeProductSlugResponse403;
     
 export type postApiTopupStripeProductSlugResponse = postApiTopupStripeProductSlugResponseComposite & {
   headers: Headers;
@@ -9012,7 +9386,7 @@ export const postApiTopupStripeProductSlug = async (productSlug: string,
 
 
 
-export const getPostApiTopupStripeProductSlugMutationOptions = <TError = unknown,
+export const getPostApiTopupStripeProductSlugMutationOptions = <TError = PostApiTopupStripeProductSlug401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext> => {
 
@@ -9039,12 +9413,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiTopupStripeProductSlugMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>>
     export type PostApiTopupStripeProductSlugMutationBody = TopUpArguments
-    export type PostApiTopupStripeProductSlugMutationError = unknown
+    export type PostApiTopupStripeProductSlugMutationError = PostApiTopupStripeProductSlug401One | string | null
 
     /**
  * @summary Start a new topup session with stripe
  */
-export const usePostApiTopupStripeProductSlug = <TError = unknown,
+export const usePostApiTopupStripeProductSlug = <TError = PostApiTopupStripeProductSlug401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiTopupStripeProductSlug>>,
@@ -9065,8 +9439,23 @@ export type postApiTopupPaypalProductSlugResponse200 = {
   data: TopUpIdResponse
   status: 200
 }
+
+export type postApiTopupPaypalProductSlugResponse401ApplicationJson = {
+  data: PostApiTopupPaypalProductSlug401One
+  status: 401
+}
+
+export type postApiTopupPaypalProductSlugResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiTopupPaypalProductSlugResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiTopupPaypalProductSlugResponseComposite = postApiTopupPaypalProductSlugResponse200;
+export type postApiTopupPaypalProductSlugResponseComposite = postApiTopupPaypalProductSlugResponse200 | postApiTopupPaypalProductSlugResponse401ApplicationJson | postApiTopupPaypalProductSlugResponse401TextPlain | postApiTopupPaypalProductSlugResponse403;
     
 export type postApiTopupPaypalProductSlugResponse = postApiTopupPaypalProductSlugResponseComposite & {
   headers: Headers;
@@ -9102,7 +9491,7 @@ export const postApiTopupPaypalProductSlug = async (productSlug: string,
 
 
 
-export const getPostApiTopupPaypalProductSlugMutationOptions = <TError = unknown,
+export const getPostApiTopupPaypalProductSlugMutationOptions = <TError = PostApiTopupPaypalProductSlug401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext> => {
 
@@ -9129,12 +9518,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiTopupPaypalProductSlugMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>>
     export type PostApiTopupPaypalProductSlugMutationBody = TopUpArguments
-    export type PostApiTopupPaypalProductSlugMutationError = unknown
+    export type PostApiTopupPaypalProductSlugMutationError = PostApiTopupPaypalProductSlug401One | string | null
 
     /**
  * @summary Start a new topup session with paypal
  */
-export const usePostApiTopupPaypalProductSlug = <TError = unknown,
+export const usePostApiTopupPaypalProductSlug = <TError = PostApiTopupPaypalProductSlug401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiTopupPaypalProductSlug>>,
@@ -9155,8 +9544,23 @@ export type postApiTopupLemonsqueezyProductSlugResponse200 = {
   data: TopUpIdResponse
   status: 200
 }
+
+export type postApiTopupLemonsqueezyProductSlugResponse401ApplicationJson = {
+  data: PostApiTopupLemonsqueezyProductSlug401One
+  status: 401
+}
+
+export type postApiTopupLemonsqueezyProductSlugResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiTopupLemonsqueezyProductSlugResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiTopupLemonsqueezyProductSlugResponseComposite = postApiTopupLemonsqueezyProductSlugResponse200;
+export type postApiTopupLemonsqueezyProductSlugResponseComposite = postApiTopupLemonsqueezyProductSlugResponse200 | postApiTopupLemonsqueezyProductSlugResponse401ApplicationJson | postApiTopupLemonsqueezyProductSlugResponse401TextPlain | postApiTopupLemonsqueezyProductSlugResponse403;
     
 export type postApiTopupLemonsqueezyProductSlugResponse = postApiTopupLemonsqueezyProductSlugResponseComposite & {
   headers: Headers;
@@ -9192,7 +9596,7 @@ export const postApiTopupLemonsqueezyProductSlug = async (productSlug: string,
 
 
 
-export const getPostApiTopupLemonsqueezyProductSlugMutationOptions = <TError = unknown,
+export const getPostApiTopupLemonsqueezyProductSlugMutationOptions = <TError = PostApiTopupLemonsqueezyProductSlug401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext> => {
 
@@ -9219,12 +9623,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiTopupLemonsqueezyProductSlugMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>>
     export type PostApiTopupLemonsqueezyProductSlugMutationBody = TopUpArguments
-    export type PostApiTopupLemonsqueezyProductSlugMutationError = unknown
+    export type PostApiTopupLemonsqueezyProductSlugMutationError = PostApiTopupLemonsqueezyProductSlug401One | string | null
 
     /**
  * @summary Start a new topup session with lemonsqueezy
  */
-export const usePostApiTopupLemonsqueezyProductSlug = <TError = unknown,
+export const usePostApiTopupLemonsqueezyProductSlug = <TError = PostApiTopupLemonsqueezyProductSlug401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>, TError,{productSlug: string;data: TopUpArguments}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiTopupLemonsqueezyProductSlug>>,
@@ -9242,8 +9646,23 @@ export type getApiLinkvertiseResponse200 = {
   data: null
   status: 200
 }
+
+export type getApiLinkvertiseResponse401ApplicationJson = {
+  data: GetApiLinkvertise401One
+  status: 401
+}
+
+export type getApiLinkvertiseResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiLinkvertiseResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiLinkvertiseResponseComposite = getApiLinkvertiseResponse200;
+export type getApiLinkvertiseResponseComposite = getApiLinkvertiseResponse200 | getApiLinkvertiseResponse401ApplicationJson | getApiLinkvertiseResponse401TextPlain | getApiLinkvertiseResponse403;
     
 export type getApiLinkvertiseResponse = getApiLinkvertiseResponseComposite & {
   headers: Headers;
@@ -9288,7 +9707,7 @@ export const getGetApiLinkvertiseQueryKey = (params?: GetApiLinkvertiseParams,) 
     }
 
     
-export const getGetApiLinkvertiseQueryOptions = <TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiLinkvertiseQueryOptions = <TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = GetApiLinkvertise401One | string | null>(params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -9307,10 +9726,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiLinkvertiseQueryResult = NonNullable<Awaited<ReturnType<typeof getApiLinkvertise>>>
-export type GetApiLinkvertiseQueryError = unknown
+export type GetApiLinkvertiseQueryError = GetApiLinkvertise401One | string | null
 
 
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = GetApiLinkvertise401One | string | null>(
  params: undefined |  GetApiLinkvertiseParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiLinkvertise>>,
@@ -9320,7 +9739,7 @@ export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLin
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = GetApiLinkvertise401One | string | null>(
  params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiLinkvertise>>,
@@ -9330,12 +9749,12 @@ export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLin
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = GetApiLinkvertise401One | string | null>(
  params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = GetApiLinkvertise401One | string | null>(
  params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -9359,8 +9778,23 @@ export type postApiServicePurchaseResponse200 = {
   data: null
   status: 200
 }
+
+export type postApiServicePurchaseResponse401ApplicationJson = {
+  data: PostApiServicePurchase401One
+  status: 401
+}
+
+export type postApiServicePurchaseResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiServicePurchaseResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiServicePurchaseResponseComposite = postApiServicePurchaseResponse200;
+export type postApiServicePurchaseResponseComposite = postApiServicePurchaseResponse200 | postApiServicePurchaseResponse401ApplicationJson | postApiServicePurchaseResponse401TextPlain | postApiServicePurchaseResponse403;
     
 export type postApiServicePurchaseResponse = postApiServicePurchaseResponseComposite & {
   headers: Headers;
@@ -9395,7 +9829,7 @@ export const postApiServicePurchase = async (purchaseArgs: PurchaseArgs, options
 
 
 
-export const getPostApiServicePurchaseMutationOptions = <TError = unknown,
+export const getPostApiServicePurchaseMutationOptions = <TError = PostApiServicePurchase401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiServicePurchase>>, TError,{data: PurchaseArgs}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiServicePurchase>>, TError,{data: PurchaseArgs}, TContext> => {
 
@@ -9422,12 +9856,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiServicePurchaseMutationResult = NonNullable<Awaited<ReturnType<typeof postApiServicePurchase>>>
     export type PostApiServicePurchaseMutationBody = PurchaseArgs
-    export type PostApiServicePurchaseMutationError = unknown
+    export type PostApiServicePurchaseMutationError = PostApiServicePurchase401One | string | null
 
     /**
  * @summary Purchase a service
  */
-export const usePostApiServicePurchase = <TError = unknown,
+export const usePostApiServicePurchase = <TError = PostApiServicePurchase401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiServicePurchase>>, TError,{data: PurchaseArgs}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiServicePurchase>>,
@@ -9449,8 +9883,23 @@ export type postApiPremiumPricesAdjustedResponse200 = {
   data: null
   status: 200
 }
+
+export type postApiPremiumPricesAdjustedResponse401ApplicationJson = {
+  data: PostApiPremiumPricesAdjusted401One
+  status: 401
+}
+
+export type postApiPremiumPricesAdjustedResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiPremiumPricesAdjustedResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiPremiumPricesAdjustedResponseComposite = postApiPremiumPricesAdjustedResponse200;
+export type postApiPremiumPricesAdjustedResponseComposite = postApiPremiumPricesAdjustedResponse200 | postApiPremiumPricesAdjustedResponse401ApplicationJson | postApiPremiumPricesAdjustedResponse401TextPlain | postApiPremiumPricesAdjustedResponse403;
     
 export type postApiPremiumPricesAdjustedResponse = postApiPremiumPricesAdjustedResponseComposite & {
   headers: Headers;
@@ -9485,7 +9934,7 @@ export const postApiPremiumPricesAdjusted = async (postApiPremiumPricesAdjustedB
 
 
 
-export const getPostApiPremiumPricesAdjustedMutationOptions = <TError = unknown,
+export const getPostApiPremiumPricesAdjustedMutationOptions = <TError = PostApiPremiumPricesAdjusted401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>, TError,{data: string[]}, TContext> => {
 
@@ -9512,13 +9961,13 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiPremiumPricesAdjustedMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>>
     export type PostApiPremiumPricesAdjustedMutationBody = string[]
-    export type PostApiPremiumPricesAdjustedMutationError = unknown
+    export type PostApiPremiumPricesAdjustedMutationError = PostApiPremiumPricesAdjusted401One | string | null
 
     /**
  * @deprecated
  * @summary Get adjusted prices
  */
-export const usePostApiPremiumPricesAdjusted = <TError = unknown,
+export const usePostApiPremiumPricesAdjusted = <TError = PostApiPremiumPricesAdjusted401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPremiumPricesAdjusted>>,
@@ -9549,8 +9998,23 @@ export type postApiPremiumUserOwnsResponse200TextJson = {
   data: PostApiPremiumUserOwns200Three
   status: 200
 }
+
+export type postApiPremiumUserOwnsResponse401ApplicationJson = {
+  data: PostApiPremiumUserOwns401One
+  status: 401
+}
+
+export type postApiPremiumUserOwnsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiPremiumUserOwnsResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiPremiumUserOwnsResponseComposite = postApiPremiumUserOwnsResponse200TextPlain | postApiPremiumUserOwnsResponse200ApplicationJson | postApiPremiumUserOwnsResponse200TextJson;
+export type postApiPremiumUserOwnsResponseComposite = postApiPremiumUserOwnsResponse200TextPlain | postApiPremiumUserOwnsResponse200ApplicationJson | postApiPremiumUserOwnsResponse200TextJson | postApiPremiumUserOwnsResponse401ApplicationJson | postApiPremiumUserOwnsResponse401TextPlain | postApiPremiumUserOwnsResponse403;
     
 export type postApiPremiumUserOwnsResponse = postApiPremiumUserOwnsResponseComposite & {
   headers: Headers;
@@ -9585,7 +10049,7 @@ export const postApiPremiumUserOwns = async (postApiPremiumUserOwnsBody: string[
 
 
 
-export const getPostApiPremiumUserOwnsMutationOptions = <TError = unknown,
+export const getPostApiPremiumUserOwnsMutationOptions = <TError = PostApiPremiumUserOwns401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumUserOwns>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumUserOwns>>, TError,{data: string[]}, TContext> => {
 
@@ -9612,12 +10076,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiPremiumUserOwnsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumUserOwns>>>
     export type PostApiPremiumUserOwnsMutationBody = string[]
-    export type PostApiPremiumUserOwnsMutationError = unknown
+    export type PostApiPremiumUserOwnsMutationError = PostApiPremiumUserOwns401One | string | null
 
     /**
  * @summary Get adjusted prices
  */
-export const usePostApiPremiumUserOwns = <TError = unknown,
+export const usePostApiPremiumUserOwns = <TError = PostApiPremiumUserOwns401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumUserOwns>>, TError,{data: string[]}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPremiumUserOwns>>,
@@ -9638,8 +10102,23 @@ export type getApiPremiumTransactionsResponse200 = {
   data: CoinTransaction[]
   status: 200
 }
+
+export type getApiPremiumTransactionsResponse401ApplicationJson = {
+  data: GetApiPremiumTransactions401One
+  status: 401
+}
+
+export type getApiPremiumTransactionsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiPremiumTransactionsResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiPremiumTransactionsResponseComposite = getApiPremiumTransactionsResponse200;
+export type getApiPremiumTransactionsResponseComposite = getApiPremiumTransactionsResponse200 | getApiPremiumTransactionsResponse401ApplicationJson | getApiPremiumTransactionsResponse401TextPlain | getApiPremiumTransactionsResponse403;
     
 export type getApiPremiumTransactionsResponse = getApiPremiumTransactionsResponseComposite & {
   headers: Headers;
@@ -9677,7 +10156,7 @@ export const getGetApiPremiumTransactionsQueryKey = () => {
     }
 
     
-export const getGetApiPremiumTransactionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiPremiumTransactionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = GetApiPremiumTransactions401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -9696,10 +10175,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiPremiumTransactionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumTransactions>>>
-export type GetApiPremiumTransactionsQueryError = unknown
+export type GetApiPremiumTransactionsQueryError = GetApiPremiumTransactions401One | string | null
 
 
-export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = unknown>(
+export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = GetApiPremiumTransactions401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPremiumTransactions>>,
@@ -9709,7 +10188,7 @@ export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof g
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = unknown>(
+export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = GetApiPremiumTransactions401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPremiumTransactions>>,
@@ -9719,7 +10198,7 @@ export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof g
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = unknown>(
+export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = GetApiPremiumTransactions401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -9727,7 +10206,7 @@ export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof g
  * @summary Get transaction history
  */
 
-export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = unknown>(
+export function useGetApiPremiumTransactions<TData = Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError = GetApiPremiumTransactions401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumTransactions>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -9751,8 +10230,23 @@ export type postApiPremiumSubscriptionSubscriptionSlugResponse200 = {
   data: TopUpIdResponse
   status: 200
 }
+
+export type postApiPremiumSubscriptionSubscriptionSlugResponse401ApplicationJson = {
+  data: PostApiPremiumSubscriptionSubscriptionSlug401One
+  status: 401
+}
+
+export type postApiPremiumSubscriptionSubscriptionSlugResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiPremiumSubscriptionSubscriptionSlugResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiPremiumSubscriptionSubscriptionSlugResponseComposite = postApiPremiumSubscriptionSubscriptionSlugResponse200;
+export type postApiPremiumSubscriptionSubscriptionSlugResponseComposite = postApiPremiumSubscriptionSubscriptionSlugResponse200 | postApiPremiumSubscriptionSubscriptionSlugResponse401ApplicationJson | postApiPremiumSubscriptionSubscriptionSlugResponse401TextPlain | postApiPremiumSubscriptionSubscriptionSlugResponse403;
     
 export type postApiPremiumSubscriptionSubscriptionSlugResponse = postApiPremiumSubscriptionSubscriptionSlugResponseComposite & {
   headers: Headers;
@@ -9786,7 +10280,7 @@ export const postApiPremiumSubscriptionSubscriptionSlug = async (subscriptionSlu
 
 
 
-export const getPostApiPremiumSubscriptionSubscriptionSlugMutationOptions = <TError = unknown,
+export const getPostApiPremiumSubscriptionSubscriptionSlugMutationOptions = <TError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext> => {
 
@@ -9813,12 +10307,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiPremiumSubscriptionSubscriptionSlugMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>>
     
-    export type PostApiPremiumSubscriptionSubscriptionSlugMutationError = unknown
+    export type PostApiPremiumSubscriptionSubscriptionSlugMutationError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | null
 
     /**
  * @summary Purchase a service
  */
-export const usePostApiPremiumSubscriptionSubscriptionSlug = <TError = unknown,
+export const usePostApiPremiumSubscriptionSubscriptionSlug = <TError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>,
@@ -9836,8 +10330,23 @@ export type getApiPremiumSubscriptionResponse200 = {
   data: PremiumSubscription[]
   status: 200
 }
+
+export type getApiPremiumSubscriptionResponse401ApplicationJson = {
+  data: GetApiPremiumSubscription401One
+  status: 401
+}
+
+export type getApiPremiumSubscriptionResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiPremiumSubscriptionResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiPremiumSubscriptionResponseComposite = getApiPremiumSubscriptionResponse200;
+export type getApiPremiumSubscriptionResponseComposite = getApiPremiumSubscriptionResponse200 | getApiPremiumSubscriptionResponse401ApplicationJson | getApiPremiumSubscriptionResponse401TextPlain | getApiPremiumSubscriptionResponse403;
     
 export type getApiPremiumSubscriptionResponse = getApiPremiumSubscriptionResponseComposite & {
   headers: Headers;
@@ -9875,7 +10384,7 @@ export const getGetApiPremiumSubscriptionQueryKey = () => {
     }
 
     
-export const getGetApiPremiumSubscriptionQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiPremiumSubscriptionQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = GetApiPremiumSubscription401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -9894,10 +10403,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiPremiumSubscriptionQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumSubscription>>>
-export type GetApiPremiumSubscriptionQueryError = unknown
+export type GetApiPremiumSubscriptionQueryError = GetApiPremiumSubscription401One | string | null
 
 
-export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = unknown>(
+export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = GetApiPremiumSubscription401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPremiumSubscription>>,
@@ -9907,7 +10416,7 @@ export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof g
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = unknown>(
+export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = GetApiPremiumSubscription401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPremiumSubscription>>,
@@ -9917,12 +10426,12 @@ export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof g
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = unknown>(
+export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = GetApiPremiumSubscription401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = unknown>(
+export function useGetApiPremiumSubscription<TData = Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError = GetApiPremiumSubscription401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscription>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -9943,8 +10452,23 @@ export type deleteApiPremiumSubscriptionExternalIdResponse200 = {
   data: null
   status: 200
 }
+
+export type deleteApiPremiumSubscriptionExternalIdResponse401ApplicationJson = {
+  data: DeleteApiPremiumSubscriptionExternalId401One
+  status: 401
+}
+
+export type deleteApiPremiumSubscriptionExternalIdResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type deleteApiPremiumSubscriptionExternalIdResponse403 = {
+  data: null
+  status: 403
+}
     
-export type deleteApiPremiumSubscriptionExternalIdResponseComposite = deleteApiPremiumSubscriptionExternalIdResponse200;
+export type deleteApiPremiumSubscriptionExternalIdResponseComposite = deleteApiPremiumSubscriptionExternalIdResponse200 | deleteApiPremiumSubscriptionExternalIdResponse401ApplicationJson | deleteApiPremiumSubscriptionExternalIdResponse401TextPlain | deleteApiPremiumSubscriptionExternalIdResponse403;
     
 export type deleteApiPremiumSubscriptionExternalIdResponse = deleteApiPremiumSubscriptionExternalIdResponseComposite & {
   headers: Headers;
@@ -9978,7 +10502,7 @@ export const deleteApiPremiumSubscriptionExternalId = async (externalId: string,
 
 
 
-export const getDeleteApiPremiumSubscriptionExternalIdMutationOptions = <TError = unknown,
+export const getDeleteApiPremiumSubscriptionExternalIdMutationOptions = <TError = DeleteApiPremiumSubscriptionExternalId401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>, TError,{externalId: string}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>, TError,{externalId: string}, TContext> => {
 
@@ -10005,9 +10529,9 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type DeleteApiPremiumSubscriptionExternalIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>>
     
-    export type DeleteApiPremiumSubscriptionExternalIdMutationError = unknown
+    export type DeleteApiPremiumSubscriptionExternalIdMutationError = DeleteApiPremiumSubscriptionExternalId401One | string | null
 
-    export const useDeleteApiPremiumSubscriptionExternalId = <TError = unknown,
+    export const useDeleteApiPremiumSubscriptionExternalId = <TError = DeleteApiPremiumSubscriptionExternalId401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>, TError,{externalId: string}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteApiPremiumSubscriptionExternalId>>,
@@ -11915,8 +12439,23 @@ export type postApiReferralReferredByResponse200 = {
   data: null
   status: 200
 }
+
+export type postApiReferralReferredByResponse401ApplicationJson = {
+  data: PostApiReferralReferredBy401One
+  status: 401
+}
+
+export type postApiReferralReferredByResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiReferralReferredByResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiReferralReferredByResponseComposite = postApiReferralReferredByResponse200;
+export type postApiReferralReferredByResponseComposite = postApiReferralReferredByResponse200 | postApiReferralReferredByResponse401ApplicationJson | postApiReferralReferredByResponse401TextPlain | postApiReferralReferredByResponse403;
     
 export type postApiReferralReferredByResponse = postApiReferralReferredByResponseComposite & {
   headers: Headers;
@@ -11951,7 +12490,7 @@ export const postApiReferralReferredBy = async (referredBy: ReferredBy, options?
 
 
 
-export const getPostApiReferralReferredByMutationOptions = <TError = unknown,
+export const getPostApiReferralReferredByMutationOptions = <TError = PostApiReferralReferredBy401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiReferralReferredBy>>, TError,{data: ReferredBy}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiReferralReferredBy>>, TError,{data: ReferredBy}, TContext> => {
 
@@ -11978,12 +12517,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiReferralReferredByMutationResult = NonNullable<Awaited<ReturnType<typeof postApiReferralReferredBy>>>
     export type PostApiReferralReferredByMutationBody = ReferredBy
-    export type PostApiReferralReferredByMutationError = unknown
+    export type PostApiReferralReferredByMutationError = PostApiReferralReferredBy401One | string | null
 
     /**
  * @summary tells the backend that the user was referred by someone
  */
-export const usePostApiReferralReferredBy = <TError = unknown,
+export const usePostApiReferralReferredBy = <TError = PostApiReferralReferredBy401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiReferralReferredBy>>, TError,{data: ReferredBy}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiReferralReferredBy>>,
@@ -12004,8 +12543,23 @@ export type getApiReferralInfoResponse200 = {
   data: ReferralInfo
   status: 200
 }
+
+export type getApiReferralInfoResponse401ApplicationJson = {
+  data: GetApiReferralInfo401One
+  status: 401
+}
+
+export type getApiReferralInfoResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiReferralInfoResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiReferralInfoResponseComposite = getApiReferralInfoResponse200;
+export type getApiReferralInfoResponseComposite = getApiReferralInfoResponse200 | getApiReferralInfoResponse401ApplicationJson | getApiReferralInfoResponse401TextPlain | getApiReferralInfoResponse403;
     
 export type getApiReferralInfoResponse = getApiReferralInfoResponseComposite & {
   headers: Headers;
@@ -12043,7 +12597,7 @@ export const getGetApiReferralInfoQueryKey = () => {
     }
 
     
-export const getGetApiReferralInfoQueryOptions = <TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiReferralInfoQueryOptions = <TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = GetApiReferralInfo401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -12062,10 +12616,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiReferralInfoQueryResult = NonNullable<Awaited<ReturnType<typeof getApiReferralInfo>>>
-export type GetApiReferralInfoQueryError = unknown
+export type GetApiReferralInfoQueryError = GetApiReferralInfo401One | string | null
 
 
-export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = unknown>(
+export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = GetApiReferralInfo401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiReferralInfo>>,
@@ -12075,7 +12629,7 @@ export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiRe
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = unknown>(
+export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = GetApiReferralInfo401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiReferralInfo>>,
@@ -12085,7 +12639,7 @@ export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiRe
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = unknown>(
+export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = GetApiReferralInfo401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -12093,7 +12647,7 @@ export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiRe
  * @summary Returns ReferralCode and statistics for the user
  */
 
-export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = unknown>(
+export function useGetApiReferralInfo<TData = Awaited<ReturnType<typeof getApiReferralInfo>>, TError = GetApiReferralInfo401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiReferralInfo>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -12471,8 +13025,23 @@ export type getApiInventoryResponse200 = {
   data: Item[]
   status: 200
 }
+
+export type getApiInventoryResponse401ApplicationJson = {
+  data: GetApiInventory401One
+  status: 401
+}
+
+export type getApiInventoryResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiInventoryResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiInventoryResponseComposite = getApiInventoryResponse200;
+export type getApiInventoryResponseComposite = getApiInventoryResponse200 | getApiInventoryResponse401ApplicationJson | getApiInventoryResponse401TextPlain | getApiInventoryResponse403;
     
 export type getApiInventoryResponse = getApiInventoryResponseComposite & {
   headers: Headers;
@@ -12510,7 +13079,7 @@ export const getGetApiInventoryQueryKey = () => {
     }
 
     
-export const getGetApiInventoryQueryOptions = <TData = Awaited<ReturnType<typeof getApiInventory>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiInventoryQueryOptions = <TData = Awaited<ReturnType<typeof getApiInventory>>, TError = GetApiInventory401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -12529,10 +13098,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiInventoryQueryResult = NonNullable<Awaited<ReturnType<typeof getApiInventory>>>
-export type GetApiInventoryQueryError = unknown
+export type GetApiInventoryQueryError = GetApiInventory401One | string | null
 
 
-export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = unknown>(
+export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = GetApiInventory401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiInventory>>,
@@ -12542,7 +13111,7 @@ export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInven
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = unknown>(
+export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = GetApiInventory401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiInventory>>,
@@ -12552,7 +13121,7 @@ export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInven
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = unknown>(
+export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = GetApiInventory401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -12560,7 +13129,7 @@ export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInven
  * @summary Returns the last known inventory of the player based on his account token
  */
 
-export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = unknown>(
+export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInventory>>, TError = GetApiInventory401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiInventory>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -12584,8 +13153,23 @@ export type postApiTradesResponse200 = {
   data: null
   status: 200
 }
+
+export type postApiTradesResponse401ApplicationJson = {
+  data: PostApiTrades401One
+  status: 401
+}
+
+export type postApiTradesResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiTradesResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiTradesResponseComposite = postApiTradesResponse200;
+export type postApiTradesResponseComposite = postApiTradesResponse200 | postApiTradesResponse401ApplicationJson | postApiTradesResponse401TextPlain | postApiTradesResponse403;
     
 export type postApiTradesResponse = postApiTradesResponseComposite & {
   headers: Headers;
@@ -12620,7 +13204,7 @@ export const postApiTrades = async (tradeRequest: TradeRequest[], options?: Requ
 
 
 
-export const getPostApiTradesMutationOptions = <TError = unknown,
+export const getPostApiTradesMutationOptions = <TError = PostApiTrades401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTrades>>, TError,{data: TradeRequest[]}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiTrades>>, TError,{data: TradeRequest[]}, TContext> => {
 
@@ -12647,12 +13231,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiTradesMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTrades>>>
     export type PostApiTradesMutationBody = TradeRequest[]
-    export type PostApiTradesMutationError = unknown
+    export type PostApiTradesMutationError = PostApiTrades401One | string | null
 
     /**
  * @summary Creates a new trade request
  */
-export const usePostApiTrades = <TError = unknown,
+export const usePostApiTrades = <TError = PostApiTrades401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTrades>>, TError,{data: TradeRequest[]}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiTrades>>,
@@ -12801,8 +13385,23 @@ export type deleteApiTradesIdResponse200 = {
   data: null
   status: 200
 }
+
+export type deleteApiTradesIdResponse401ApplicationJson = {
+  data: DeleteApiTradesId401One
+  status: 401
+}
+
+export type deleteApiTradesIdResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type deleteApiTradesIdResponse403 = {
+  data: null
+  status: 403
+}
     
-export type deleteApiTradesIdResponseComposite = deleteApiTradesIdResponse200;
+export type deleteApiTradesIdResponseComposite = deleteApiTradesIdResponse200 | deleteApiTradesIdResponse401ApplicationJson | deleteApiTradesIdResponse401TextPlain | deleteApiTradesIdResponse403;
     
 export type deleteApiTradesIdResponse = deleteApiTradesIdResponseComposite & {
   headers: Headers;
@@ -12836,7 +13435,7 @@ export const deleteApiTradesId = async (id: string, options?: RequestInit): Prom
 
 
 
-export const getDeleteApiTradesIdMutationOptions = <TError = unknown,
+export const getDeleteApiTradesIdMutationOptions = <TError = DeleteApiTradesId401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiTradesId>>, TError,{id: string}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteApiTradesId>>, TError,{id: string}, TContext> => {
 
@@ -12863,12 +13462,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type DeleteApiTradesIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiTradesId>>>
     
-    export type DeleteApiTradesIdMutationError = unknown
+    export type DeleteApiTradesIdMutationError = DeleteApiTradesId401One | string | null
 
     /**
  * @summary Deletes the trade with the given id
  */
-export const useDeleteApiTradesId = <TError = unknown,
+export const useDeleteApiTradesId = <TError = DeleteApiTradesId401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiTradesId>>, TError,{id: string}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteApiTradesId>>,
@@ -12889,8 +13488,23 @@ export type getApiTradesOwnResponse200 = {
   data: TradeRequest[]
   status: 200
 }
+
+export type getApiTradesOwnResponse401ApplicationJson = {
+  data: GetApiTradesOwn401One
+  status: 401
+}
+
+export type getApiTradesOwnResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiTradesOwnResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiTradesOwnResponseComposite = getApiTradesOwnResponse200;
+export type getApiTradesOwnResponseComposite = getApiTradesOwnResponse200 | getApiTradesOwnResponse401ApplicationJson | getApiTradesOwnResponse401TextPlain | getApiTradesOwnResponse403;
     
 export type getApiTradesOwnResponse = getApiTradesOwnResponseComposite & {
   headers: Headers;
@@ -12928,7 +13542,7 @@ export const getGetApiTradesOwnQueryKey = () => {
     }
 
     
-export const getGetApiTradesOwnQueryOptions = <TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiTradesOwnQueryOptions = <TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = GetApiTradesOwn401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -12947,10 +13561,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiTradesOwnQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTradesOwn>>>
-export type GetApiTradesOwnQueryError = unknown
+export type GetApiTradesOwnQueryError = GetApiTradesOwn401One | string | null
 
 
-export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = unknown>(
+export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = GetApiTradesOwn401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiTradesOwn>>,
@@ -12960,7 +13574,7 @@ export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTrade
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = unknown>(
+export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = GetApiTradesOwn401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiTradesOwn>>,
@@ -12970,7 +13584,7 @@ export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTrade
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = unknown>(
+export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = GetApiTradesOwn401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -12978,7 +13592,7 @@ export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTrade
  * @summary Trades of current user
  */
 
-export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = unknown>(
+export function useGetApiTradesOwn<TData = Awaited<ReturnType<typeof getApiTradesOwn>>, TError = GetApiTradesOwn401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTradesOwn>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -13002,8 +13616,23 @@ export type getApiUserPrivacyResponse200 = {
   data: PrivacySettings
   status: 200
 }
+
+export type getApiUserPrivacyResponse401ApplicationJson = {
+  data: GetApiUserPrivacy401One
+  status: 401
+}
+
+export type getApiUserPrivacyResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiUserPrivacyResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiUserPrivacyResponseComposite = getApiUserPrivacyResponse200;
+export type getApiUserPrivacyResponseComposite = getApiUserPrivacyResponse200 | getApiUserPrivacyResponse401ApplicationJson | getApiUserPrivacyResponse401TextPlain | getApiUserPrivacyResponse403;
     
 export type getApiUserPrivacyResponse = getApiUserPrivacyResponseComposite & {
   headers: Headers;
@@ -13041,7 +13670,7 @@ export const getGetApiUserPrivacyQueryKey = () => {
     }
 
     
-export const getGetApiUserPrivacyQueryOptions = <TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiUserPrivacyQueryOptions = <TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = GetApiUserPrivacy401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -13060,10 +13689,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiUserPrivacyQueryResult = NonNullable<Awaited<ReturnType<typeof getApiUserPrivacy>>>
-export type GetApiUserPrivacyQueryError = unknown
+export type GetApiUserPrivacyQueryError = GetApiUserPrivacy401One | string | null
 
 
-export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = unknown>(
+export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = GetApiUserPrivacy401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiUserPrivacy>>,
@@ -13073,7 +13702,7 @@ export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUse
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = unknown>(
+export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = GetApiUserPrivacy401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiUserPrivacy>>,
@@ -13083,7 +13712,7 @@ export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUse
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = unknown>(
+export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = GetApiUserPrivacy401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -13091,7 +13720,7 @@ export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUse
  * @summary Get the users privacy settings (requires google token)
  */
 
-export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = unknown>(
+export function useGetApiUserPrivacy<TData = Awaited<ReturnType<typeof getApiUserPrivacy>>, TError = GetApiUserPrivacy401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserPrivacy>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -13115,8 +13744,23 @@ export type postApiUserPrivacyResponse200 = {
   data: null
   status: 200
 }
+
+export type postApiUserPrivacyResponse401ApplicationJson = {
+  data: PostApiUserPrivacy401One
+  status: 401
+}
+
+export type postApiUserPrivacyResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiUserPrivacyResponse403 = {
+  data: null
+  status: 403
+}
     
-export type postApiUserPrivacyResponseComposite = postApiUserPrivacyResponse200;
+export type postApiUserPrivacyResponseComposite = postApiUserPrivacyResponse200 | postApiUserPrivacyResponse401ApplicationJson | postApiUserPrivacyResponse401TextPlain | postApiUserPrivacyResponse403;
     
 export type postApiUserPrivacyResponse = postApiUserPrivacyResponseComposite & {
   headers: Headers;
@@ -13151,7 +13795,7 @@ export const postApiUserPrivacy = async (privacySettings: PrivacySettings, optio
 
 
 
-export const getPostApiUserPrivacyMutationOptions = <TError = unknown,
+export const getPostApiUserPrivacyMutationOptions = <TError = PostApiUserPrivacy401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiUserPrivacy>>, TError,{data: PrivacySettings}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof postApiUserPrivacy>>, TError,{data: PrivacySettings}, TContext> => {
 
@@ -13178,12 +13822,12 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type PostApiUserPrivacyMutationResult = NonNullable<Awaited<ReturnType<typeof postApiUserPrivacy>>>
     export type PostApiUserPrivacyMutationBody = PrivacySettings
-    export type PostApiUserPrivacyMutationError = unknown
+    export type PostApiUserPrivacyMutationError = PostApiUserPrivacy401One | string | null
 
     /**
  * @summary Update users privacy settings (requires google token)
  */
-export const usePostApiUserPrivacy = <TError = unknown,
+export const usePostApiUserPrivacy = <TError = PostApiUserPrivacy401One | string | null,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiUserPrivacy>>, TError,{data: PrivacySettings}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiUserPrivacy>>,
