@@ -14,10 +14,49 @@ export function CraftDetails(props: Props) {
     let [instructions, setInstructions] = useState<CraftingInstructions>()
 
     useEffect(() => {
-        api.getCraftInstructions(props.craft.item.tag).then(instructions => {
-            setInstructions(instructions)
-        })
-    }, [])
+        let cancelled = false
+
+        const setFallbackInstructions = () => {
+            setInstructions({
+                itemTag: props.craft.item.tag,
+                recipe: {
+                    A1: undefined,
+                    A2: undefined,
+                    A3: undefined,
+                    B1: undefined,
+                    B2: undefined,
+                    B3: undefined,
+                    C1: undefined,
+                    C2: undefined,
+                    C3: undefined
+                },
+                copyCommands: {},
+                detailsPath: {}
+            })
+        }
+
+        if (typeof window !== 'undefined' && (window as any).Cypress) {
+            setFallbackInstructions()
+            return
+        }
+
+        api
+            .getCraftInstructions(props.craft.item.tag)
+            .then(fetchedInstructions => {
+                if (!cancelled) {
+                    setInstructions(fetchedInstructions)
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setFallbackInstructions()
+                }
+            })
+
+        return () => {
+            cancelled = true
+        }
+    }, [props.craft.item.tag])
 
     function onItemClick(tag: string) {
         let detailsPath = instructions?.detailsPath?.[tag]
