@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Card, Row, Col } from 'react-bootstrap'
 import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule, SwapHoriz, TrendingUp } from '@mui/icons-material'
+
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
@@ -50,8 +51,8 @@ const flipKinds = [
     },
     {
         name: 'Forge Flips',
-        path: undefined,
-        description: <span>Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes. Run <code>/cofl forge</code> with our mod to access</span>,
+        path: '/forge',
+        description: <span>Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes in-game or right here on the site.</span>,
         icon: <Volcano fontSize="large" />
     },
     {
