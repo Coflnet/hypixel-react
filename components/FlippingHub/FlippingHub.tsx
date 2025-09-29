@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { Card, Row, Col } from 'react-bootstrap'
 import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule, SwapHoriz, TrendingUp } from '@mui/icons-material'
-
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
