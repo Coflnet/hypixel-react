@@ -921,6 +921,20 @@ export interface FlipSumary {
   totalProfit: number;
 }
 
+/**
+ * @nullable
+ */
+export type ForgeFlipRequirements = {[key: string]: number} | null;
+
+export interface ForgeFlip {
+  craftData?: ProfitableCraft;
+  duration: number;
+  requiredHotMLevel: number;
+  profitPerHour: number;
+  /** @nullable */
+  requirements?: ForgeFlipRequirements;
+}
+
 export interface ForgeItem {
   /** @nullable */
   itemName?: string | null;
@@ -984,6 +998,7 @@ export interface Ingredient {
   itemId?: string | null;
   count: number;
   cost: number;
+  craftCost: number;
   /** @nullable */
   type?: string | null;
 }
@@ -1833,6 +1848,8 @@ export interface ProfitableCraft {
   reqCollection?: RequiredCollection;
   reqSlayer?: RequiredCollection;
   reqSkill?: RequiredSkill;
+  /** @nullable */
+  type?: string | null;
   volume: number;
   median: number;
   lastUpdated: string;
@@ -1884,6 +1901,28 @@ export const QueryStatus = {
   Pending: 'Pending',
   Partial: 'Partial',
 } as const;
+
+export interface Recipe {
+  /** @nullable */
+  A1: string | null;
+  /** @nullable */
+  A2: string | null;
+  /** @nullable */
+  A3: string | null;
+  /** @nullable */
+  B1: string | null;
+  /** @nullable */
+  B2: string | null;
+  /** @nullable */
+  B3: string | null;
+  /** @nullable */
+  C1: string | null;
+  /** @nullable */
+  C2: string | null;
+  /** @nullable */
+  C3: string | null;
+  count: number;
+}
 
 export interface ReferralInfo {
   referedCount: number;
@@ -2473,12 +2512,6 @@ export type GetApiCraftProfitParams = {
 player?: string;
 profile?: string;
 };
-
-export type GetApiCraftRecipeItemTag200One = {[key: string]: string};
-
-export type GetApiCraftRecipeItemTag200Two = {[key: string]: string};
-
-export type GetApiCraftRecipeItemTag200Three = {[key: string]: string};
 
 export type PostApiDataPlayerNameParams = {
 name?: string;
