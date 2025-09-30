@@ -28,6 +28,28 @@ import { useGetApiMayor } from '../../../api/_generated/skyApi'
 import type { PriceStatistics, CoflnetSkyMayorModelsModelElectionPeriod, AuctionPreview } from '../../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 
+const HOUR_IN_MS = 60 * 60 * 1000
+
+const normaliseMayorRange = (start: Date, end: Date) => {
+    let from = new Date(start.getTime())
+    let to = new Date(end.getTime())
+
+    if (to < from) {
+        ;[from, to] = [to, from]
+    }
+
+    from.setMinutes(0, 0, 0)
+    to.setMinutes(0, 0, 0)
+
+    if (to.getTime() <= from.getTime()) {
+        to = new Date(from.getTime() + HOUR_IN_MS)
+    } else if (to.getTime() < end.getTime()) {
+        to = new Date(to.getTime() + HOUR_IN_MS)
+    }
+
+    return { from, to }
+}
+
 type YearStatistics = PriceStatistics & {
     isPremiumRequired?: boolean
     isPremiumPreview?: boolean
@@ -130,12 +152,13 @@ function AuctionHousePriceGraph(props: Props) {
         }).catch(() => {})
     }
 
-    const currentDateForMayor = new Date()
-    const twoYearsAgoForMayor = new Date(currentDateForMayor.getFullYear() - 1, currentDateForMayor.getMonth(), currentDateForMayor.getDate() + 1)
+    const now = new Date()
+    const lookbackStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() + 1)
+    const { from: currentMayorFrom, to: currentMayorTo } = normaliseMayorRange(lookbackStart, now)
 
     const mayorParams = fetchspan === DateRange.YEAR ? {
-        from: twoYearsAgoForMayor.toISOString(),
-        to: currentDateForMayor.toISOString()
+        from: currentMayorFrom.toISOString(),
+        to: currentMayorTo.toISOString()
     } : undefined
 
     const mayorQuery = useGetApiMayor(mayorParams, { query: { enabled: fetchspan === DateRange.YEAR } })
