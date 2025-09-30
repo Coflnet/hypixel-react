@@ -5,6 +5,7 @@ import { initAPI } from '../api/ApiHelper'
 import { parseAuction, parseItem, parsePlayer, parsePopularSearch } from '../utils/Parser/APIResponseParser'
 import { getHeadMetadata } from '../utils/SSRUtils'
 import { Container } from 'react-bootstrap'
+import FavoriteItemsBar from '../components/Favorites/FavoriteItemsBar'
 
 export default async function Page() {
     let api = initAPI(true)
@@ -26,6 +27,7 @@ export default async function Page() {
         <>
             <Container>
                 <Search />
+                <FavoriteItemsBar />
                 <StartpageComponent
                     newAuctions={data.newAuctions?.map(parseAuction)}
                     newItems={data.newItems?.map(parseItem)}

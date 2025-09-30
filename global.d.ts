@@ -28,6 +28,22 @@ interface Item {
     bazaar?: boolean
 }
 
+interface FavoriteItemEntry {
+    tag: string
+    name?: string
+    iconUrl?: string
+    bazaar?: boolean
+    addedAt?: string
+}
+
+interface FavoriteItemEntry {
+    tag: string
+    name?: string
+    iconUrl?: string
+    bazaar?: boolean
+    addedAt?: string
+}
+
 interface ItemPrice {
     item: Item
     end: Date
@@ -244,6 +260,7 @@ interface API {
     getPremiumProducts(): Promise<PremiumProduct[]>
     unsubscribeAll(): Promise<void>
     getItemNames(items: Item[]): Promise<{ [key: string]: string }>
+    getPriceMovements(itemTags: string[]): Promise<Record<string, ItemPriceMovement>>
     checkFilter(auction: AuctionDetails, filter: ItemFilter): Promise<boolean>
     refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void, onError?: () => void)
     getRelatedItems(tag: string): Promise<Item[]>
@@ -451,6 +468,15 @@ interface ItemPriceSummary {
     mode: number
     volume: number
     max: number
+}
+
+interface ItemPriceMovement {
+    tag: string
+    recent: number
+    monthly: number
+    volume: number
+    now: number
+    lastUpdated?: Date
 }
 
 interface PaymentResponse {
