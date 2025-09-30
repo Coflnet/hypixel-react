@@ -55,6 +55,7 @@ import type {
   FlipDetails,
   FlipSettings,
   FlipSumary,
+  ForgeFlip,
   FuseFlip,
   GetApiAuctionRandomParams,
   GetApiAuctionsBatchParams,
@@ -66,9 +67,6 @@ import type {
   GetApiBazaarItemTagHistoryParams,
   GetApiBazaarItemTagSnapshotParams,
   GetApiCraftProfitParams,
-  GetApiCraftRecipeItemTag200One,
-  GetApiCraftRecipeItemTag200Three,
-  GetApiCraftRecipeItemTag200Two,
   GetApiDataAiParams,
   GetApiFilterOptionsParams,
   GetApiFlipBazaarSpreadDeemand401One,
@@ -190,6 +188,7 @@ import type {
   PurchaseArgs,
   PutApiNotificationsSubscriptions401One,
   PutApiNotificationsTargets401One,
+  Recipe,
   ReferralInfo,
   ReferredBy,
   SaveAuction,
@@ -2661,22 +2660,12 @@ export function useGetApiCraftProfit<TData = Awaited<ReturnType<typeof getApiCra
 /**
  * @summary Returns the crafting recipe for some item
  */
-export type getApiCraftRecipeItemTagResponse200TextPlain = {
-  data: GetApiCraftRecipeItemTag200One
-  status: 200
-}
-
-export type getApiCraftRecipeItemTagResponse200ApplicationJson = {
-  data: GetApiCraftRecipeItemTag200Two
-  status: 200
-}
-
-export type getApiCraftRecipeItemTagResponse200TextJson = {
-  data: GetApiCraftRecipeItemTag200Three
+export type getApiCraftRecipeItemTagResponse200 = {
+  data: Recipe
   status: 200
 }
     
-export type getApiCraftRecipeItemTagResponseComposite = getApiCraftRecipeItemTagResponse200TextPlain | getApiCraftRecipeItemTagResponse200ApplicationJson | getApiCraftRecipeItemTagResponse200TextJson;
+export type getApiCraftRecipeItemTagResponseComposite = getApiCraftRecipeItemTagResponse200;
     
 export type getApiCraftRecipeItemTagResponse = getApiCraftRecipeItemTagResponseComposite & {
   headers: Headers;
@@ -4177,6 +4166,119 @@ export function useGetApiFlipFusion<TData = Awaited<ReturnType<typeof getApiFlip
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetApiFlipFusionQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Forge flips from dwarfern mines
+ */
+export type getApiFlipForgeResponse200 = {
+  data: ForgeFlip[]
+  status: 200
+}
+    
+export type getApiFlipForgeResponseComposite = getApiFlipForgeResponse200;
+    
+export type getApiFlipForgeResponse = getApiFlipForgeResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipForgeUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/flip/forge`
+}
+
+export const getApiFlipForge = async ( options?: RequestInit): Promise<getApiFlipForgeResponse> => {
+  
+  const res = await fetch(getGetApiFlipForgeUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipForgeResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipForgeResponse
+}
+
+
+
+export const getGetApiFlipForgeQueryKey = () => {
+    return [`https://sky.coflnet.com/api/flip/forge`] as const;
+    }
+
+    
+export const getGetApiFlipForgeQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiFlipForgeQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipForge>>> = ({ signal }) => getApiFlipForge({ signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiFlipForgeQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipForge>>>
+export type GetApiFlipForgeQueryError = unknown
+
+
+export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiFlipForge>>,
+          TError,
+          Awaited<ReturnType<typeof getApiFlipForge>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiFlipForge>>,
+          TError,
+          Awaited<ReturnType<typeof getApiFlipForge>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Forge flips from dwarfern mines
+ */
+
+export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiFlipForgeQueryOptions(options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
