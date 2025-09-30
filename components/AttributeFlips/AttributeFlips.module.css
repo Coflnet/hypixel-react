@@ -1,0 +1,149 @@
+.attributeFlips {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.flipHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.itemTitle {
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+.tierLabel {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.metaGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.metaCard {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    min-width: 180px;
+    flex: 1 1 180px;
+}
+
+.metaLabel {
+    display: block;
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin-bottom: 0.25rem;
+}
+
+.metaValue {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.sectionTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.ingredientList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ingredientItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.ingredientName {
+    flex: 1 1 auto;
+    font-weight: 500;
+}
+
+.badgeRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.keyGrid {
+    display: grid;
+    gap: 1rem;
+}
+
+@media (min-width: 992px) {
+    .keyGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.keyCard {
+    border-radius: 8px;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.keyTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.keyLine {
+    margin: 0.2rem 0;
+    font-size: 0.95rem;
+}
+
+.muted {
+    opacity: 0.7;
+}
+
+.alertWrapper {
+    margin-top: 1.5rem;
+}
+
+.ctaRow {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.premiumTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.apiMessage {
+    margin-top: 0.75rem;
+    opacity: 0.85;
+}
+
+.timeInfo {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}

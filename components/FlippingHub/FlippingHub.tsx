@@ -68,8 +68,8 @@ const flipKinds = [
     },
     {
         name: 'Item Upgrade Flips',
-        path: undefined,
-        description: <span>Use the the hex or just manually apply enchantments, Hot potato books etc to an item to make it worth more than it costs. Available via <code>/cofl attributeflip</code> using our mod</span>,
+        path: '/attributeFlips',
+        description: <span>Use the hex or manually apply enchantments, hot potato books, attributes and other upgrades to increase an item&apos;s value. Browse them here or run <code>/cofl attributeflip</code> in our mod.</span>,
         icon: <Handyman fontSize="large" />
     },
     {
