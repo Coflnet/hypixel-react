@@ -50,8 +50,8 @@ const flipKinds = [
     },
     {
         name: 'Forge Flips',
-        path: undefined,
-        description: <span>Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes. Run <code>/cofl forge</code> with our mod to access</span>,
+        path: '/forge',
+        description: <span>Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes in-game or right here on the site.</span>,
         icon: <Volcano fontSize="large" />
     },
     {
