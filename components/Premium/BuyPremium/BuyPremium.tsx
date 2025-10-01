@@ -23,11 +23,11 @@ interface Props {
 // Helper function to find the best matching premium option based on wizard duration
 const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Duration | null | undefined): PremiumTypeOption => {
     if (!wizardDuration) return premiumType.options[0]
-    
+
     const durationOption = premiumType.options.find(option => {
         const labelStr = typeof option.label === 'string' ? option.label : String(option.label)
         const lowerLabel = labelStr.toLowerCase()
-        
+
         switch (wizardDuration) {
             case Duration.HOUR:
                 return lowerLabel.includes('hour')
@@ -45,7 +45,7 @@ const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Dur
                 return false
         }
     })
-    
+
     return durationOption || premiumType.options[0]
 }
 
@@ -53,7 +53,7 @@ function BuyPremium(props: Props) {
     // Get initial premium type based on selected tier
     const getInitialPremiumType = () => {
         if (!props.selectedTier) return PREMIUM_TYPES[0]
-        
+
         switch (props.selectedTier) {
             case PremiumTier.STARTER:
                 return PREMIUM_TYPES.find(type => type.productId === 'starter_premium') || PREMIUM_TYPES[0]
@@ -70,9 +70,7 @@ function BuyPremium(props: Props) {
     let [purchasePremiumType, setPurchasePremiumType] = useState<PremiumType>(initialPremiumType)
     let [purchaseSuccessfulOption, setPurchaseSuccessfulDuration] = useState<PremiumTypeOption>()
     let [isPurchasing, setIsPurchasing] = useState(false)
-    let [purchasePremiumOption, setPurchasePremiumOption] = useState<PremiumTypeOption>(
-        findMatchingPremiumOption(initialPremiumType, props.selectedDuration)
-    )
+    let [purchasePremiumOption, setPurchasePremiumOption] = useState<PremiumTypeOption>(findMatchingPremiumOption(initialPremiumType, props.selectedDuration))
     let [showPrepaidConfirmationDialog, setShowPrepaidConfirmationDialog] = useState(false)
     let coflCoins = useCoflCoins()
 
@@ -80,7 +78,7 @@ function BuyPremium(props: Props) {
     useEffect(() => {
         const premiumType = getInitialPremiumType()
         setPurchasePremiumType(premiumType)
-        
+
         // Use the helper function to find the best matching option
         const initialOption = findMatchingPremiumOption(premiumType, props.selectedDuration)
         setPurchasePremiumOption(initialOption)
@@ -154,7 +152,7 @@ function BuyPremium(props: Props) {
             case Duration.HOUR:
                 return '1 Hour'
             case Duration.WEEK:
-                return '1 Week'  
+                return '1 Week'
             case Duration.MONTHLY:
                 return 'Monthly'
             case Duration.QUARTER:
@@ -172,12 +170,28 @@ function BuyPremium(props: Props) {
             <>
                 <div className={styles.summarySection}>
                     <h6>Your Selection:</h6>
-                    <p><strong>Tier:</strong> <span className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''}`}>{getDisplayTierName()}</span></p>
-                    <p><strong>Payment Method:</strong> CoflCoins</p>
-                    <p><strong>Duration:</strong> {purchasePremiumOption.value > 1 ? purchasePremiumOption.value +"x" : ""}{purchasePremiumOption.label}</p>
-                    <p><strong>Price:</strong> <Number number={getPurchasePrice()} /> CoflCoins</p>
+                    <p>
+                        <strong>Tier:</strong>{' '}
+                        <span
+                            className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${
+                                props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
+                            }`}
+                        >
+                            {getDisplayTierName()}
+                        </span>
+                    </p>
+                    <p>
+                        <strong>Payment Method:</strong> CoflCoins
+                    </p>
+                    <p>
+                        <strong>Duration:</strong> {purchasePremiumOption.value > 1 ? purchasePremiumOption.value + 'x' : ''}
+                        {purchasePremiumOption.label}
+                    </p>
+                    <p>
+                        <strong>Price:</strong> <Number number={getPurchasePrice()} /> CoflCoins
+                    </p>
                 </div>
-                
+
                 <div className={styles.balanceSection}>
                     <div className={styles.coinBalance}>
                         <CoflCoinsDisplay />
@@ -187,9 +201,7 @@ function BuyPremium(props: Props) {
                             <strong>Remaining after purchase:</strong> <Number number={coflCoins - getPurchasePrice()} /> CoflCoins
                         </p>
                     ) : (
-                        <p className={styles.insufficientFunds}>
-                            You don't have enough CoflCoins for this purchase, scroll down to buy more!
-                        </p>
+                        <p className={styles.insufficientFunds}>You don't have enough CoflCoins for this purchase, scroll down to buy more!</p>
                     )}
                 </div>
 

@@ -75,8 +75,8 @@ export default function LowSupply() {
                                 </li>
                                 <li>
                                     <strong>
-                                        After you have completed the task, you get the option to be redirected back to our website and receive 1 hour of
-                                        Starter Premium
+                                        After you have completed the task, you get the option to be redirected back to our website and receive 1 hour of Starter
+                                        Premium
                                     </strong>
                                 </li>
                             </ol>

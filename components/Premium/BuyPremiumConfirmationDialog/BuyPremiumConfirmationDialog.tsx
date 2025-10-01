@@ -2,7 +2,7 @@
 import { Button, Modal } from 'react-bootstrap'
 import styles from './BuyPremiumConfirmationDialog.module.css'
 import { getPremiumType } from '../../../utils/PremiumTypeUtils'
-import { useState, useEffect, type JSX } from 'react';
+import { useState, useEffect, type JSX } from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { toast } from 'react-toastify'
 import { duration } from 'moment'
@@ -57,9 +57,7 @@ export default function BuyPremiumConfirmationDialog(props: Props) {
                 {props.type === 'prepaid' && (
                     <p>The time will be added to account. After you confirmed the purchase, it can't be canceled/moved to another account</p>
                 )}
-                {props.type === 'subscription' && (
-                    <p>This subscription will be automatically renewed. It can be canceled at any time and will then run out.</p>
-                )}
+                {props.type === 'subscription' && <p>This subscription will be automatically renewed. It can be canceled at any time and will then run out.</p>}
                 {props.activePremiumProduct && getPremiumType(props.activePremiumProduct)?.productId !== props.purchasePremiumType.productId ? (
                     <div>
                         <hr />

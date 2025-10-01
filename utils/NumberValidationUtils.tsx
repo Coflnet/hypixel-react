@@ -1,7 +1,11 @@
 import { getNumberFromShortenString, numberWithThousandsSeparators } from './Formatter'
 
 const getRangeErrorMessage = (lower: string, higher: string) =>
-    'Please choose a value between ' + numberWithThousandsSeparators(parseInt(lower)) + ' and ' + numberWithThousandsSeparators(parseInt(higher)) + '. Options not available have not been listed on ah before (won\'t find anything).'
+    'Please choose a value between ' +
+    numberWithThousandsSeparators(parseInt(lower)) +
+    ' and ' +
+    numberWithThousandsSeparators(parseInt(higher)) +
+    ". Options not available have not been listed on ah before (won't find anything)."
 const INVALID_NUMBER_ERROR = 'This is not a valid number'
 const INVALID_NUMBER_RANGE_ERROR = 'This is not a valid number range'
 const RANGE_ORDER_ERROR = 'The range order is invalid'
@@ -17,10 +21,9 @@ function removeRangeSymbols(input: string) {
 }
 
 function getFilterNumber(number: string) {
-    let numberRegexp = new RegExp( /^({{MIN_PROFIT}}\*|{{MAX_COST}}\*|{{MIN_VOLUME}}\*|{{MIN_PROFIT_PERCENT}}\*|)(\d*\.?\d+[kKmMbB]?)\|?$/)
+    let numberRegexp = new RegExp(/^({{MIN_PROFIT}}\*|{{MAX_COST}}\*|{{MIN_VOLUME}}\*|{{MIN_PROFIT_PERCENT}}\*|)(\d*\.?\d+[kKmMbB]?)\|?$/)
     if (numberRegexp.test(number)) {
-        if (number.includes('{'))
-            return 1; // static 1 for variables
+        if (number.includes('{')) return 1 // static 1 for variables
         return getNumberFromShortenString(number) as number
     }
     return null

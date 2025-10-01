@@ -1,4 +1,4 @@
-import { get, set, clear } from 'idb-keyval'
+import { clear, get, set } from 'idb-keyval'
 import api from '../api/ApiHelper'
 import { isClientSideRendering } from './SSRUtils'
 

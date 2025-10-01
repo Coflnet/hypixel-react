@@ -35,7 +35,7 @@ const SORT_OPTIONS: SortOption<FuseFlip>[] = [
 export function FusionFlips() {
     const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
         queryKey: [getGetApiFlipFusionQueryKey()],
-        queryFn: () => getApiFlipFusion(),
+        queryFn: () => getApiFlipFusion()
     })
 
     function renderFlipContent(flip: FuseFlip) {
@@ -55,22 +55,28 @@ export function FusionFlips() {
                     <span style={{ width: '150px', float: 'left' }}>Volume:</span> <Number number={Math.round(flip.volume)} />
                 </p>
                 <hr />
-                {flip.inputs ? Object.keys(flip.inputs).map(input => {
-                    return <p key={input}>
-                        <Image
-                            crossOrigin="anonymous"
-                            src={api.getItemImageUrl({
-                                tag: input
-                            }) || ''}
-                            height="24"
-                            width="24"
-                            alt=""
-                            style={{ marginRight: '5px' }}
-                            loading="lazy"
-                        />
-                        {convertTagToName(input) + ' (' + flip.inputs![input] + 'x)'}
-                    </p>
-                }) : null}
+                {flip.inputs
+                    ? Object.keys(flip.inputs).map(input => {
+                          return (
+                              <p key={input}>
+                                  <Image
+                                      crossOrigin="anonymous"
+                                      src={
+                                          api.getItemImageUrl({
+                                              tag: input
+                                          }) || ''
+                                      }
+                                      height="24"
+                                      width="24"
+                                      alt=""
+                                      style={{ marginRight: '5px' }}
+                                      loading="lazy"
+                                  />
+                                  {convertTagToName(input) + ' (' + flip.inputs![input] + 'x)'}
+                              </p>
+                          )
+                      })
+                    : null}
             </>
         )
     }
@@ -79,30 +85,34 @@ export function FusionFlips() {
         if (!flip.output) {
             return <span>-</span>
         }
-        return <div>
-            <span>
-                <Image
-                    crossOrigin="anonymous"
-                    src={api.getItemImageUrl({
-                        tag: flip.output
-                    }) || ''}
-                    height="32"
-                    width="32"
-                    alt=""
-                    style={{ marginRight: '5px' }}
-                    loading="lazy"
-                />
-                {convertTagToName(flip.output)}
-            </span>
-        </div>
+        return (
+            <div>
+                <span>
+                    <Image
+                        crossOrigin="anonymous"
+                        src={
+                            api.getItemImageUrl({
+                                tag: flip.output
+                            }) || ''
+                        }
+                        height="32"
+                        width="32"
+                        alt=""
+                        style={{ marginRight: '5px' }}
+                        loading="lazy"
+                    />
+                    {convertTagToName(flip.output)}
+                </span>
+            </div>
+        )
     }
 
     function filterFunction(flip: FuseFlip, nameFilter: string | null | undefined, minimumProfit: number): boolean {
-        let nameMatch = true;
-        let inputs = flip.inputs ? Object.keys(flip.inputs).map(input => convertTagToName(input).toLowerCase()) : [];
-        let outputMatch = flip.output && nameFilter ? convertTagToName(flip.output).toLowerCase().includes(nameFilter.toLowerCase()) : false;
+        let nameMatch = true
+        let inputs = flip.inputs ? Object.keys(flip.inputs).map(input => convertTagToName(input).toLowerCase()) : []
+        let outputMatch = flip.output && nameFilter ? convertTagToName(flip.output).toLowerCase().includes(nameFilter.toLowerCase()) : false
         if (nameFilter && !inputs.find(input => nameFilter && input.includes(nameFilter.toLowerCase())) && !outputMatch) {
-            nameMatch = false;
+            nameMatch = false
         }
         const profitMatch = flip.outputValue - flip.inputCost >= minimumProfit
         return nameMatch && profitMatch
@@ -113,7 +123,7 @@ export function FusionFlips() {
             inputCost: 42,
             outputCount: 69,
             outputValue: 123123,
-            volume: 123123,
+            volume: 123123
         }
     }
 
@@ -121,10 +131,11 @@ export function FusionFlips() {
         <>
             <p>
                 This is a curated list of profitable Fusion Flips in Hypixel SkyBlock — find opportunities to fuse shards and sell the fused shard for a profit.
-                The list highlights input cost, output value, output count and trade volume so you can quickly spot high-margin fusion flips.
-                This is one of the newest Skyblock money making methods introduced with the the <strong>Galatea Foraging update</strong>.
+                The list highlights input cost, output value, output count and trade volume so you can quickly spot high-margin fusion flips. This is one of the
+                newest Skyblock money making methods introduced with the the <strong>Galatea Foraging update</strong>.
             </p>
-            <details><summary>How to do fusion flipping</summary>
+            <details>
+                <summary>How to do fusion flipping</summary>
                 <ol>
                     <li>Pick a fusion flip that has a positive profit from the list below.</li>
                     <li>Buy order the displayed amount of each shard</li>
@@ -133,12 +144,15 @@ export function FusionFlips() {
                     <li>Repeat when margins and volume look healthy.</li>
                 </ol>
             </details>
-            <details><summary>Why Galatea Foraging matters</summary>
+            <details>
+                <summary>Why Galatea Foraging matters</summary>
                 <p>
-                    The Galatea Foraging update introduced shards and shard fusion. The prices of shards can fluctuate widly throughout the week and create new fusion flipping opportunities giving you the chance to profit from these changes.
+                    The Galatea Foraging update introduced shards and shard fusion. The prices of shards can fluctuate widly throughout the week and create new
+                    fusion flipping opportunities giving you the chance to profit from these changes.
                 </p>
             </details>
-            <details><summary>What do the columns mean?</summary>
+            <details>
+                <summary>What do the columns mean?</summary>
                 <p>
                     <strong>Input Cost:</strong> Estimated total cost to obtain all inputs required for the fusion.
                 </p>
@@ -159,7 +173,7 @@ export function FusionFlips() {
                 renderFlipContentAction={renderFlipContent}
                 filterFunction={filterFunction}
                 getItemKeyAction={flip => flip.output || `${JSON.stringify(flip)}`}
-                getFlipLink={(flip) => flip.output ? `https://sky.coflnet.com/item/${flip.output}` : undefined}
+                getFlipLink={flip => (flip.output ? `https://sky.coflnet.com/item/${flip.output}` : undefined)}
                 censoredItemGenerator={censoredItemGenerator}
                 premiumMessage="The top 3 flips can only be seen with starter premium or better"
                 clickMessage="Click on a flip for further details"

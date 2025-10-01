@@ -14,7 +14,6 @@ export function NumericalFilterElement(props: Props) {
         props.onChange(values.value || '')
     }
 
-
     return (
         <NumericFormat
             onValueChange={_onChange}

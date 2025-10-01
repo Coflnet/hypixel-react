@@ -35,27 +35,29 @@ export function EqualFilterElement(props: Props) {
                 return event.key === 'Enter' || shouldSelect
             }}
             renderMenu={(results, menuProps) => {
-                return <Menu id={menuProps.id} style={menuProps.style} innerRef={menuProps.innerRef} >
-                    {results.map((result, index) => {
-                        if (result['paginationOption']) {
+                return (
+                    <Menu id={menuProps.id} style={menuProps.style} innerRef={menuProps.innerRef}>
+                        {results.map((result, index) => {
+                            if (result['paginationOption']) {
+                                return (
+                                    <MenuItem option={result} position={index} key={index}>
+                                        More results...
+                                    </MenuItem>
+                                )
+                            }
                             return (
-                                <MenuItem option={result} position={index} key={index}>
-                                    More results...
-                                </MenuItem>
+                                <Item option={result} position={index} key={index}>
+                                    {typeof result === 'string' ? convertTagToName(result as string) : (result as Option)['label']}
+                                    {props.showIcon && result !== 'None' && result !== 'Any' && (
+                                        <div style={{ float: 'right' }}>
+                                            <img src={api.getItemImageUrl({ tag: result as string })} style={{ width: '24px', height: '24px' }}></img>
+                                        </div>
+                                    )}
+                                </Item>
                             )
-                        }
-                        return (
-                            <Item option={result} position={index} key={index}>
-                                {typeof result === 'string' ? convertTagToName(result as string) : (result as Option)['label']}
-                                {props.showIcon && result !== 'None' && result !== 'Any' && (
-                                    <div style={{ float: 'right' }}>
-                                        <img src={api.getItemImageUrl({ tag: result as string })} style={{ width: '24px', height: '24px' }}></img>
-                                    </div>
-                                )}
-                            </Item>
-                        )
-                    })}
-                </Menu>
+                        })}
+                    </Menu>
+                )
             }}
         ></Typeahead>
     )

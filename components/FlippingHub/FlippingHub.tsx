@@ -2,38 +2,68 @@
 
 import Link from 'next/link'
 import { Card, Row, Col } from 'react-bootstrap'
-import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule, SwapHoriz, TrendingUp } from '@mui/icons-material'
+import {
+    Pets,
+    Build,
+    Storefront,
+    Agriculture,
+    ShowChart,
+    Handyman,
+    Help,
+    JoinFull,
+    Volcano,
+    QuestionMark,
+    MenuBook,
+    DonutSmall,
+    SmartToy,
+    Schedule,
+    SwapHoriz,
+    TrendingUp
+} from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
     {
         name: 'Kat Flips',
         path: '/kat',
-        description: 'Kat Flips are profitable pet upgrades using the NPC "Kat". Discover which pets can be upgraded for profit and maximize your coins with detailed analysis and real-time data.',
+        description:
+            'Kat Flips are profitable pet upgrades using the NPC "Kat". Discover which pets can be upgraded for profit and maximize your coins with detailed analysis and real-time data.',
         icon: <Pets fontSize="large" />
     },
     {
         name: 'Craft Flips',
         path: '/crafts',
-        description: 'Craft Flips involve buying materials and crafting items to sell for profit. Find the best recipes, track material prices, and optimize your crafting strategy for maximum returns.',
+        description:
+            'Craft Flips involve buying materials and crafting items to sell for profit. Find the best recipes, track material prices, and optimize your crafting strategy for maximum returns.',
         icon: <Build fontSize="large" />
     },
     {
         name: 'AH Flipper',
         path: '/flipper',
-        description: 'Auction House Flips (AH Flipper) help you buy low and sell high on the Hypixel SkyBlock Auction House. Analyze trends, snipe deals, and boost your profits with advanced flipping tools.',
+        description:
+            'Auction House Flips (AH Flipper) help you buy low and sell high on the Hypixel SkyBlock Auction House. Analyze trends, snipe deals, and boost your profits with advanced flipping tools.',
         icon: <Storefront fontSize="large" />
     },
     {
         name: 'Composter Flips',
         path: undefined,
-        description: <span>Composter Flips let you profit from the Garden update by converting crops and resources in the composter. Its part of the profitable task system of our mod, run <code>/cofl task</code> to access it.</span>,
+        description: (
+            <span>
+                Composter Flips let you profit from the Garden update by converting crops and resources in the composter. Its part of the profitable task system
+                of our mod, run <code>/cofl task</code> to access it.
+            </span>
+        ),
         icon: <Agriculture fontSize="large" />
     },
     {
         name: 'Bazaar Flips',
         path: '/bazaar',
-        description: <span>Bazaar flips with anit market manipulation, shows you to the items to buy order and flip to sell order accounts for average insta sells and insta buys. Run <code>/cofl bazaar</code> with our mod to access</span>,
+        description: (
+            <span>
+                Bazaar flips with anit market manipulation, shows you to the items to buy order and flip to sell order accounts for average insta sells and
+                insta buys. Run <code>/cofl bazaar</code> with our mod to access
+            </span>
+        ),
         icon: <ShowChart fontSize="large" />
     },
     {
@@ -51,7 +81,12 @@ const flipKinds = [
     {
         name: 'Forge Flips',
         path: '/forge',
-        description: <span>Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes in-game or right here on the site.</span>,
+        description: (
+            <span>
+                Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable
+                forge recipes in-game or right here on the site.
+            </span>
+        ),
         icon: <Volcano fontSize="large" />
     },
     {
@@ -68,14 +103,23 @@ const flipKinds = [
     },
     {
         name: 'Attribute Fusion Machine Flips',
-        path: "/fusion",
-        description: <span>Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard.</span>,
+        path: '/fusion',
+        description: (
+            <span>
+                Use the Attribute Fusion Machine on galatea to combine two shards that you got from a buy order and create a sell order for the resulting shard.
+            </span>
+        ),
         icon: <JoinFull fontSize="large" />
     },
     {
         name: 'Item Upgrade Flips',
         path: '/attributeFlips',
-        description: <span>Use the hex or manually apply enchantments, hot potato books, attributes and other upgrades to increase an item&apos;s value. Browse them here or run <code>/cofl attributeflip</code> in our mod.</span>,
+        description: (
+            <span>
+                Use the the hex or just manually apply enchantments, Hot potato books etc to an item to make it worth more than it costs. Available via{' '}
+                <code>/cofl attributeflip</code> using our mod
+            </span>
+        ),
         icon: <Handyman fontSize="large" />
     },
     {
@@ -87,13 +131,19 @@ const flipKinds = [
     {
         name: 'Ananke Feather Flips',
         path: undefined,
-        description: <span>Find the best items to use Ananke Feather on in RNG-Meters. Shows you the most profitable item to target, how much it costs and how much profit is to be made. Available via <code>/cofl ananke</code> using our mod</span>,
+        description: (
+            <span>
+                Find the best items to use Ananke Feather on in RNG-Meters. Shows you the most profitable item to target, how much it costs and how much profit
+                is to be made. Available via <code>/cofl ananke</code> using our mod
+            </span>
+        ),
         icon: <DonutSmall fontSize="large" />
     },
     {
         name: 'suggest new',
         path: 'https://discord.gg/wvKXfTgCfb',
-        description: 'We are always looking to expand our flipping hub. If you have a new flip type that you think should be included, please suggest it on our Discord server.',
+        description:
+            'We are always looking to expand our flipping hub. If you have a new flip type that you think should be included, please suggest it on our Discord server.',
         icon: <QuestionMark fontSize="large" />
     }
 ]
@@ -122,9 +172,8 @@ export default function FlippingHub() {
                                             }
                                             tooltipContent={
                                                 <span>
-                                                    This feature is only available in-game and requires the use of our
-                                                    Hypixel SkyBlock mod, its available on github, curseforge and modrinth.
-                                                    Click to learn more.
+                                                    This feature is only available in-game and requires the use of our Hypixel SkyBlock mod, its available on
+                                                    github, curseforge and modrinth. Click to learn more.
                                                 </span>
                                             }
                                         />
@@ -135,9 +184,7 @@ export default function FlippingHub() {
                         <Card.Body>
                             <Card.Text>{flip.description}</Card.Text>
                             <Card.Link as={Link} href={flip.path ?? '/mod'}>
-                                <button className="btn btn-primary">
-                                    Go to {flip.name}
-                                </button>
+                                <button className="btn btn-primary">Go to {flip.name}</button>
                             </Card.Link>
                         </Card.Body>
                     </Card>

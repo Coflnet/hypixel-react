@@ -19,4 +19,7 @@ export default function NotFound() {
     )
 }
 
-export const metadata = getHeadMetadata('Page Not Found', 'The page you\'re looking for doesn\'t exist. Return to our Hypixel SkyBlock auction house tracker and bazaar analyzer to continue exploring price data and trading opportunities.')
+export const metadata = getHeadMetadata(
+    'Page Not Found',
+    "The page you're looking for doesn't exist. Return to our Hypixel SkyBlock auction house tracker and bazaar analyzer to continue exploring price data and trading opportunities."
+)

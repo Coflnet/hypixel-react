@@ -22,17 +22,19 @@ function PremiumStatus(props: Props) {
     let [showCancelSubscriptionDialogSubscription, setShowCancelSubscriptionDialogSubscription] = useState<PremiumSubscription>()
 
     useEffect(() => {
-        let products = props.products.map(product => {
-            return {
-                ...product,
-                timeDifference: 0
-            };
-        }).sort((a, b) => getPremiumType(b)?.priority - getPremiumType(a)?.priority);
+        let products = props.products
+            .map(product => {
+                return {
+                    ...product,
+                    timeDifference: 0
+                }
+            })
+            .sort((a, b) => getPremiumType(b)?.priority - getPremiumType(a)?.priority)
 
         // Hide lower tier products that are most likely bought automatically together (<1min time difference)
         if (products.length > 1) {
             for (let i = 1; i < products.length; i++) {
-                const diff = Math.abs(products[i - 1].expires.getTime() - products[i].expires.getTime());
+                const diff = Math.abs(products[i - 1].expires.getTime() - products[i].expires.getTime())
                 if (diff < 60000) {
                     if (getPremiumType(products[i - 1])?.priority > getPremiumType(products[i])?.priority) {
                         products.splice(i, 1)
@@ -40,8 +42,7 @@ function PremiumStatus(props: Props) {
                         products.splice(i - 1, 1)
                     }
                     i = 0
-                } else
-                    products[i].timeDifference = diff
+                } else products[i].timeDifference = diff
             }
         }
 
@@ -56,8 +57,18 @@ function PremiumStatus(props: Props) {
                 <span>{getPremiumType(product)?.label}</span>
                 <Tooltip
                     type="hover"
-                    content={<span> (ends {moment(product.expires).fromNow()}{
-                        product.timeDifference > 0 ? (<>, <span className={styles.timeDifference}>{moment.duration(product.timeDifference).humanize()}</span> after</>) : null})</span>}
+                    content={
+                        <span>
+                            {' '}
+                            (ends {moment(product.expires).fromNow()}
+                            {product.timeDifference > 0 ? (
+                                <>
+                                    , <span className={styles.timeDifference}>{moment.duration(product.timeDifference).humanize()}</span> after
+                                </>
+                            ) : null}
+                            )
+                        </span>
+                    }
                     tooltipContent={<span>At {getLocalDateAndTime(product.expires)}</span>}
                 />
             </>
@@ -74,7 +85,9 @@ function PremiumStatus(props: Props) {
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
                             Premium Status:
                         </span>
-                        {props.hasLoadingError === true ? 'Premium Status could not be loaded' :
+                        {props.hasLoadingError === true ? (
+                            'Premium Status could not be loaded'
+                        ) : (
                             <ul style={{ float: 'left' }}>
                                 {props.subscriptions.map(subscription => (
                                     <li key={subscription.externalId}>
@@ -119,7 +132,7 @@ function PremiumStatus(props: Props) {
                                     <li key={product.productSlug}>{getProductListEntry(product)}</li>
                                 ))}
                             </ul>
-                        }
+                        )}
                     </div>
                 ) : (
                     <p>
@@ -127,11 +140,13 @@ function PremiumStatus(props: Props) {
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
                             Premium Status:
                         </span>
-                        {props.hasLoadingError === true ? 'Premium Status could not be loaded' :
+                        {props.hasLoadingError === true ? (
+                            'Premium Status could not be loaded'
+                        ) : (
                             <>
                                 {highestPriorityProduct ? getProductListEntry({ ...highestPriorityProduct } as PremiumProductWithtimeDifference) : 'No Premium'}
                             </>
-                        }
+                        )}
                     </p>
                 )}
             </div>

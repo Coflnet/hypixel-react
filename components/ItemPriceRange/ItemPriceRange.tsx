@@ -157,22 +157,26 @@ export function ItemPriceRange(props: Props) {
                         className={`price-range-button ${dateRange === DateRange.YEAR ? 'year-option-highlight' : ''}`}
                         value={dateRange}
                         variant={getButtonVariant(dateRange)}
-                        disabled={props.disabled || (props.disableAllTime && dateRange === DateRange.ALL) || (props.disableYear && dateRange === DateRange.YEAR)}
+                        disabled={
+                            props.disabled || (props.disableAllTime && dateRange === DateRange.ALL) || (props.disableYear && dateRange === DateRange.YEAR)
+                        }
                         onChange={removeWrongFocus}
                         size="sm"
                         key={key}
-                        style={dateRange === DateRange.YEAR ? (
-                            selectedDateRange === dateRange
-                                ? {
-                                      background: '#0d6efd',
-                                      border: '1px solid rgba(13,110,253,0.9)',
-                                      color: 'white'
-                                  }
-                                : {
-                                      border: '1px solid rgba(224, 239, 50, 0.75)',
-                                      color: '#111'
-                                  }
-                        ) : {}}
+                        style={
+                            dateRange === DateRange.YEAR
+                                ? selectedDateRange === dateRange
+                                    ? {
+                                          background: '#0d6efd',
+                                          border: '1px solid rgba(13,110,253,0.9)',
+                                          color: 'white'
+                                      }
+                                    : {
+                                          border: '1px solid rgba(224, 239, 50, 0.75)',
+                                          color: '#111'
+                                      }
+                                : {}
+                        }
                     >
                         {getButtonText(dateRange)}
                     </ToggleButton>

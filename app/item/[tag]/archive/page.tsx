@@ -8,7 +8,7 @@ import { getHeadMetadata } from '../../../../utils/SSRUtils'
 import { atobUnicode } from '../../../../utils/Base64Utils'
 
 export default async function Page(props) {
-    const params = await props.params;
+    const params = await props.params
     let tag = params.tag as string
 
     let item = parseItem({
@@ -30,8 +30,8 @@ export default async function Page(props) {
 }
 
 export async function generateMetadata(props) {
-    const searchParams = await props.searchParams;
-    const params = await props.params;
+    const searchParams = await props.searchParams
+    const params = await props.params
     function getFiltersText(filter) {
         if (!filter) {
             return ' '

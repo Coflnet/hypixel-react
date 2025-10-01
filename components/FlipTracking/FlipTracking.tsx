@@ -365,7 +365,8 @@ export function FlipTracking(props: Props) {
                         />
                     </div>
                     <div className={styles.noPremiumInfoText}>
-                        Only auctions sold in the last 7 days are displayed here. <br /> You can see more with <Link href={'/premium?tier=premium'}>Premium</Link>
+                        Only auctions sold in the last 7 days are displayed here. <br /> You can see more with{' '}
+                        <Link href={'/premium?tier=premium'}>Premium</Link>
                     </div>
                 </div>
             </div>

@@ -115,4 +115,7 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('About', 'Learn about Hypixel SkyBlock\'s premier auction house tracker and bazaar analyzer. Discover our features, credits, API access, and how we help millions of players optimize their trading strategies.')
+export const metadata = getHeadMetadata(
+    'About',
+    "Learn about Hypixel SkyBlock's premier auction house tracker and bazaar analyzer. Discover our features, credits, API access, and how we help millions of players optimize their trading strategies."
+)

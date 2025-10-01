@@ -1,14 +1,13 @@
 'use client'
-import { forwardRef, Ref, useRef, useState } from 'react'
-import { AsyncTypeahead } from 'react-bootstrap-typeahead'
-import { v4 as generateUUID } from 'uuid'
-import Typeahead from 'react-bootstrap-typeahead/types/core/Typeahead'
-import api from '../../api/ApiHelper'
-import { Option } from 'react-bootstrap-typeahead/types/types'
-import styles from './Search.module.css'
 import Image from 'next/image'
+import { useRef, useState } from 'react'
+import { AsyncTypeahead } from 'react-bootstrap-typeahead'
+import Typeahead from 'react-bootstrap-typeahead/types/core/Typeahead'
+import { Option } from 'react-bootstrap-typeahead/types/types'
+import { v4 as generateUUID } from 'uuid'
+import api from '../../api/ApiHelper'
 import { getStyleForTier } from '../../utils/Formatter'
-import { Form } from 'react-bootstrap'
+import styles from './Search.module.css'
 
 interface Props {
     onChange(selected: SearchResultItem[], searchText?: string)

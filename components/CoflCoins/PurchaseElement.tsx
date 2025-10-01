@@ -1,10 +1,10 @@
-'use client';
+'use client'
 import { Card } from 'react-bootstrap'
 import styles from './CoflCoinsPurchase.module.css'
 import Number from '../Number/Number'
 import GenericProviderPurchaseCard from './GenericProviderPurchaseCard'
 
-import type { JSX } from "react";
+import type { JSX } from 'react'
 
 interface Props {
     coflCoinsToBuy: number
@@ -32,11 +32,11 @@ let PAYPAL_STRIPE_ALLOWED = [...EU_Countries, 'GB', 'US']
 
 export default function PurchaseElement(props: Props) {
     let isDisabled = props.isDisabled || !props.countryCode
-    
+
     // Check if this is a custom amount (not one of the standard predefined amounts)
     const standardAmounts = [1800, 5400, 10800, 36000, 90000]
     const isCustomAmount = !standardAmounts.includes(props.coflCoinsToBuy)
-    
+
     // Pass custom amount for both special multiplier and custom amounts from wizard
     const shouldPassCustomAmount = props.isSpecial1800CoinsMultiplier || isCustomAmount
 

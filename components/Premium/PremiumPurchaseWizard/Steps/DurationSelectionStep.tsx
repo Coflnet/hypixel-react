@@ -11,21 +11,34 @@ interface Props {
     onDurationSelect: (duration: Duration) => void
 }
 
-export default function DurationSelectionStep({
-    selectedType,
-    selectedTier,
-    selectedDuration,
-    onDurationSelect
-}: Props) {
+export default function DurationSelectionStep({ selectedType, selectedTier, selectedDuration, onDurationSelect }: Props) {
     const tierDisplayName = getTierDisplayName(selectedTier)
     const durationOptions = getDurationOptions(selectedTier, selectedType)
 
     if (selectedType === PurchaseType.COFLCOINS) {
         return (
             <div className={styles.stepContent}>
-                <h4 className={styles.stepQuestion}>How long would you like your <span className={`${selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''}`}>{tierDisplayName}</span>?</h4>
+                <h4 className={styles.stepQuestion}>
+                    How long would you like your{' '}
+                    <span
+                        className={`${selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${
+                            selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
+                        }`}
+                    >
+                        {tierDisplayName}
+                    </span>
+                    ?
+                </h4>
                 <p className={styles.coflcoinsDescription}>
-                    Choose your preferred duration for <span className={`${selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''}`}>{tierDisplayName}</span>. Different durations may have different per-week pricing.
+                    Choose your preferred duration for{' '}
+                    <span
+                        className={`${selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${
+                            selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
+                        }`}
+                    >
+                        {tierDisplayName}
+                    </span>
+                    . Different durations may have different per-week pricing.
                 </p>
 
                 <div className={styles.optionsGrid}>

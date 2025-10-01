@@ -124,30 +124,23 @@ function renderForgeFlip(flip: ForgeFlip) {
     return (
         <>
             <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {imageUrl ? (
-                    <Image src={imageUrl} alt={getOutputName(flip)} width={32} height={32} loading="lazy" crossOrigin="anonymous" />
-                ) : null}
+                {imageUrl ? <Image src={imageUrl} alt={getOutputName(flip)} width={32} height={32} loading="lazy" crossOrigin="anonymous" /> : null}
                 <span>{getOutputName(flip)}</span>
             </h4>
             <p>
-                <span style={{ width: '200px', float: 'left' }}>Profit / hour:</span>{' '}
-                <NumberElement number={Math.round(flip.profitPerHour)} /> Coins
+                <span style={{ width: '200px', float: 'left' }}>Profit / hour:</span> <NumberElement number={Math.round(flip.profitPerHour)} /> Coins
             </p>
             <p>
-                <span style={{ width: '200px', float: 'left' }}>Craft profit:</span>{' '}
-                <NumberElement number={Math.round(profit)} /> Coins
+                <span style={{ width: '200px', float: 'left' }}>Craft profit:</span> <NumberElement number={Math.round(profit)} /> Coins
             </p>
             <p>
-                <span style={{ width: '200px', float: 'left' }}>Median sell price:</span>{' '}
-                <NumberElement number={Math.round(craft?.sellPrice ?? 0)} /> Coins
+                <span style={{ width: '200px', float: 'left' }}>Median sell price:</span> <NumberElement number={Math.round(craft?.sellPrice ?? 0)} /> Coins
             </p>
             <p>
-                <span style={{ width: '200px', float: 'left' }}>Craft cost:</span>{' '}
-                <NumberElement number={Math.round(craft?.craftCost ?? 0)} /> Coins
+                <span style={{ width: '200px', float: 'left' }}>Craft cost:</span> <NumberElement number={Math.round(craft?.craftCost ?? 0)} /> Coins
             </p>
             <p>
-                <span style={{ width: '200px', float: 'left' }}>Volume:</span>{' '}
-                <NumberElement number={Math.round(craft?.volume ?? 0)} />
+                <span style={{ width: '200px', float: 'left' }}>Volume:</span> <NumberElement number={Math.round(craft?.volume ?? 0)} />
             </p>
             <p>
                 <span style={{ width: '200px', float: 'left' }}>Duration:</span> {durationText}
@@ -186,15 +179,15 @@ function censoredFlip(): ForgeFlip {
             craftCost: 500_000,
             volume: 999,
             median: 900_000,
-            lastUpdated: new Date().toISOString(),
-        },
+            lastUpdated: new Date().toISOString()
+        }
     }
 }
 
 export function ForgeFlips() {
     const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
         queryKey: [getGetApiFlipForgeQueryKey()],
-        queryFn: () => getApiFlipForge(),
+        queryFn: () => getApiFlipForge()
     })
 
     const safeFlips = useMemo(() => flips ?? [], [flips])
@@ -202,7 +195,9 @@ export function ForgeFlips() {
     return (
         <div>
             <p>
-                Track the hottest Dwarven Mines forge flips. We pull in live craft costs, sale medians, and forge durations so you can maximise coins per hour while meeting Heart of the Mountain requirements.<br/>
+                Track the hottest Dwarven Mines forge flips. We pull in live craft costs, sale medians, and forge durations so you can maximise coins per hour
+                while meeting Heart of the Mountain requirements.
+                <br />
                 Use our mod to filter options in game and only see the relevant ones where you meet the required collections and hotm level.
             </p>
             <details>
@@ -217,9 +212,15 @@ export function ForgeFlips() {
             <details>
                 <summary>What to watch for</summary>
                 <ul>
-                    <li><strong>Profit / hour:</strong> Adjusted for forge time so you can compare long vs short crafts.</li>
-                    <li><strong>Volume:</strong> Higher volume means faster sales.</li>
-                    <li><strong>Requirements:</strong> Some flips need specific nucleus powders, commissions, or unlocks.</li>
+                    <li>
+                        <strong>Profit / hour:</strong> Adjusted for forge time so you can compare long vs short crafts.
+                    </li>
+                    <li>
+                        <strong>Volume:</strong> Higher volume means faster sales.
+                    </li>
+                    <li>
+                        <strong>Requirements:</strong> Some flips need specific nucleus powders, commissions, or unlocks.
+                    </li>
                 </ul>
             </details>
             <br />
