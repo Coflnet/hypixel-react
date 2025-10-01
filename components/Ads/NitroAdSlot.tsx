@@ -15,9 +15,7 @@ export default function NitroAdSlot({ slotId, config, className, style }: NitroA
     const configRef = useRef(config)
     const hasRequestedRef = useRef(false)
 
-    useEffect(() => {
-        configRef.current = config
-    }, [config])
+    configRef.current = config
 
     useEffect(() => {
         if (!shouldShowAds) {
