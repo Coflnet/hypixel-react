@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Card, Row, Col } from 'react-bootstrap'
-import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule, SwapHoriz } from '@mui/icons-material'
+import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule, SwapHoriz, TrendingUp } from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
@@ -41,6 +41,12 @@ const flipKinds = [
         path: '/recentFlips',
         description: 'See the most recent profitable flips found by our system. Great for discovering what is currently being flipped and for how much profit.',
         icon: <Schedule fontSize="large" />
+    },
+    {
+        name: 'Top Movers',
+        path: '/topMovers',
+        description: 'Monitor the biggest 24h price swings across Hypixel SkyBlock items with filters, sorting, and direct item links.',
+        icon: <TrendingUp fontSize="large" />
     },
     {
         name: 'Forge Flips',
