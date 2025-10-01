@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import moment from 'moment'
 import { Alert, Badge, Button } from 'react-bootstrap'
+import PremiumNotifier from '../Premium/PremiumNotifier'
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import api from '../../api/ApiHelper'
 import Number from '../Number/Number'
@@ -12,16 +13,19 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
 import {
-    fetchAttributeFlips,
-    type AttributeFlip,
-    type AttributeFlipApiResponse,
-    type AttributeFlipAuctionKey,
-    type AttributeFlipIngredient,
-    type AttributeFlipModifier
-} from '../../api/attributeFlips'
+    getApiFlipAttribute,
+    getGetApiFlipAttributeQueryOptions,
+    type getApiFlipAttributeResponse
+} from '../../api/_generated/skyApi'
+import type {
+    AttributeFlip as GeneratedAttributeFlip,
+    AttributeFlipAuctionKey as GeneratedAttributeFlipAuctionKey,
+    AttributeFlipIngredient as GeneratedAttributeFlipIngredient,
+    AttributeFlipModifier as GeneratedAttributeFlipModifier
+} from '../../api/_generated/skyApi.schemas'
 import styles from './AttributeFlips.module.css'
 
-const SORT_OPTIONS: SortOption<AttributeFlip>[] = [
+const SORT_OPTIONS: SortOption<GeneratedAttributeFlip>[] = [
     {
         label: 'Profit ⇧',
         value: 'profitDesc',
@@ -54,24 +58,24 @@ const SORT_OPTIONS: SortOption<AttributeFlip>[] = [
     }
 ]
 
-function getTotalCost(flip: AttributeFlip): number {
+function getTotalCost(flip: GeneratedAttributeFlip): number {
     return flip.auctionPrice + flip.estimatedCraftingCost
 }
 
-function getProfit(flip: AttributeFlip): number {
+function getProfit(flip: GeneratedAttributeFlip): number {
     return flip.target - getTotalCost(flip)
 }
 
-function getDisplayName(flip: AttributeFlip): string {
+function getDisplayName(flip: GeneratedAttributeFlip): string {
     return flip.itemName ?? convertTagToName(flip.tag ?? '')
 }
 
-function formatModifier(modifier: AttributeFlipModifier): string {
+function formatModifier(modifier: GeneratedAttributeFlipModifier): string {
     const label = convertTagToName(modifier.key ?? '')
     return modifier.value ? `${label} ${modifier.value}` : label
 }
 
-function renderAuctionKey(title: string, key?: AttributeFlipAuctionKey) {
+function renderAuctionKey(title: string, key?: GeneratedAttributeFlipAuctionKey) {
     if (!key) {
         return null
     }
@@ -91,29 +95,33 @@ function renderAuctionKey(title: string, key?: AttributeFlipAuctionKey) {
                 </p>
             ) : null}
             <p className={styles.keyLine}><span className={styles.muted}>Stack Size:</span> {count}</p>
-            {enchants && enchants.length > 0 ? (
-                <div className={styles.badgeRow}>
-                    {enchants.map(enchant => (
-                        <Badge bg="info" key={`${enchant.type}-${enchant.lvl}`}>
-                            {`${convertTagToName(enchant.type ?? '')} ${enchant.lvl}`}
-                        </Badge>
-                    ))}
-                </div>
-            ) : null}
-            {modifiers && modifiers.length > 0 ? (
-                <div className={styles.badgeRow}>
-                    {modifiers.map(modifier => (
-                        <Badge bg="secondary" key={`${modifier.key}-${modifier.value}`}>
-                            {formatModifier(modifier)}
-                        </Badge>
-                    ))}
+            {(enchants && enchants.length > 0) || (modifiers && modifiers.length > 0) ? (
+                <div className={styles.badgesSection}>
+                    {enchants && enchants.length > 0 ? (
+                        <div className={styles.badgeRow}>
+                            {enchants.map(enchant => (
+                                <Badge bg="info" key={`${enchant.type}-${enchant.lvl}`}>
+                                    <span className="ellipse">{`${convertTagToName(enchant.type ?? '')} ${enchant.lvl}`}</span>
+                                </Badge>
+                            ))}
+                        </div>
+                    ) : null}
+                    {modifiers && modifiers.length > 0 ? (
+                        <div className={styles.badgeRow}>
+                            {modifiers.map(modifier => (
+                                <Badge bg="secondary" key={`${modifier.key}-${modifier.value}`}>
+                                    <span className="ellipse">{formatModifier(modifier)}</span>
+                                </Badge>
+                            ))}
+                        </div>
+                    ) : null}
                 </div>
             ) : null}
         </div>
     )
 }
 
-function renderIngredient(ingredient: AttributeFlipIngredient, index: number) {
+function renderIngredient(ingredient: GeneratedAttributeFlipIngredient, index: number) {
     const iconTag = ingredient.itemId || undefined
     const label = ingredient.itemId ? convertTagToName(ingredient.itemId) : convertTagToName(ingredient.attributeName ?? '')
     const amount = ingredient.amount
@@ -137,7 +145,7 @@ function renderIngredient(ingredient: AttributeFlipIngredient, index: number) {
     )
 }
 
-function renderFlipContent(flip: AttributeFlip) {
+function renderFlipContent(flip: GeneratedAttributeFlip) {
     const totalCost = getTotalCost(flip)
     const profit = getProfit(flip)
     const name = getDisplayName(flip)
@@ -217,7 +225,7 @@ function renderFlipContent(flip: AttributeFlip) {
     )
 }
 
-function filterAttributeFlip(flip: AttributeFlip, nameFilter: string | null | undefined, minimumProfit: number): boolean {
+function filterAttributeFlip(flip: GeneratedAttributeFlip, nameFilter: string | null | undefined, minimumProfit: number): boolean {
     const profitMatch = getProfit(flip) >= minimumProfit
 
     if (!nameFilter) {
@@ -270,7 +278,7 @@ function filterAttributeFlip(flip: AttributeFlip, nameFilter: string | null | un
     return profitMatch && candidates.some(candidate => convertTagToName(candidate).toLowerCase().includes(search))
 }
 
-function censoredItemGenerator(flip: AttributeFlip): AttributeFlip {
+function censoredItemGenerator(flip: GeneratedAttributeFlip): GeneratedAttributeFlip {
     return {
         ...flip,
         itemName: 'Unlock Starter Premium to view',
@@ -281,7 +289,7 @@ function censoredItemGenerator(flip: AttributeFlip): AttributeFlip {
     }
 }
 
-function getFlipLink(flip: AttributeFlip): string | null {
+function getFlipLink(flip: GeneratedAttributeFlip): string | null {
     if (flip.auctionToBuy) {
         return `https://sky.coflnet.com/auction/${flip.auctionToBuy}`
     }
@@ -291,7 +299,7 @@ function getFlipLink(flip: AttributeFlip): string | null {
     return null
 }
 
-function onFlipClick(flip: AttributeFlip): void {
+function onFlipClick(flip: GeneratedAttributeFlip): void {
     const link = getFlipLink(flip)
     if (link) {
         window.open(link, '_blank', 'noopener')
@@ -300,9 +308,9 @@ function onFlipClick(flip: AttributeFlip): void {
 
 export function AttributeFlips() {
     const queryClient = useQueryClient()
-    const { data: response } = useSuspenseQuery<AttributeFlipApiResponse>({
+    const { data: response } = useSuspenseQuery<getApiFlipAttributeResponse>({
         queryKey: ['attributeFlips', 'default'],
-        queryFn: () => fetchAttributeFlips()
+        queryFn: () => getApiFlipAttribute()
     })
 
     const handleAfterLogin = useCallback(() => {
@@ -312,31 +320,23 @@ export function AttributeFlips() {
     if (response.status !== 200 || !Array.isArray(response.data)) {
         const messageFromApi = typeof response.data === 'string'
             ? response.data
-            : (response.data && typeof response.data === 'object' && 'message' in response.data ? String(response.data.message) : undefined)
+            : (response.data && typeof response.data === 'object' && 'message' in response.data ? String((response.data as any).message) : undefined)
 
         return (
             <div className={styles.alertWrapper}>
-                <Alert variant="info">
-                    <h3 className={styles.premiumTitle}>Premium access required</h3>
+                <PremiumNotifier messageFromApi={messageFromApi} onAfterLogin={handleAfterLogin}>
                     <p>
                         Attribute flips are high-tier crafting plays where you stack enchants, attribute shards, reforges, and other upgrades to push an item&apos;s resale value.
                     </p>
                     <p>
                         Because the workflow is so intricate and data-heavy, we keep this toolbox exclusively for members with premium access.
                     </p>
-                    {messageFromApi ? <p className={styles.apiMessage}>{messageFromApi}</p> : null}
-                </Alert>
-                <div className={styles.ctaRow}>
-                    <Link href="/premium" className="disableLinkStyle" rel="nofollow">
-                        <Button variant="primary">See premium plans</Button>
-                    </Link>
-                    <GoogleSignIn onAfterLogin={handleAfterLogin} />
-                </div>
+                </PremiumNotifier>
             </div>
         )
     }
 
-    const flips = response.data
+    const flips = response.data as GeneratedAttributeFlip[]
 
     return (
         <div className={styles.attributeFlips}>

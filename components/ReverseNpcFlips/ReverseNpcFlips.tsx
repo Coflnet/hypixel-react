@@ -3,6 +3,7 @@ import Image from 'next/image'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Alert, Button, Spinner } from 'react-bootstrap'
+import PremiumNotifier from '../Premium/PremiumNotifier'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import NumberElement from '../Number/Number'
@@ -372,9 +373,9 @@ export function ReverseNpcFlips() {
                             </small>
                         </div>
                     ) : (
-                        <Alert variant="warning" className="mb-0">
+                        <PremiumNotifier variant="warning" showCta={false} title="Starter Premium required">
                             Starter Premium unlocks the reverse NPC recalculation button. You can still browse the current flips below.
-                        </Alert>
+                        </PremiumNotifier>
                     )}
                 </div>
             )}

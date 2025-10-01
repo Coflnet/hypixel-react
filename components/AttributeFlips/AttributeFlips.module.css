@@ -88,6 +88,14 @@
     gap: 0.5rem;
 }
 
+.badgesSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    /* small top margin to visually separate enchants from modifiers when both exist */
+    margin-top: 0.5rem;
+}
+
 .keyGrid {
     display: grid;
     gap: 1rem;

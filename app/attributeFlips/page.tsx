@@ -4,14 +4,14 @@ import { HydrationBoundary, dehydrate } from '@tanstack/react-query'
 import { getQueryClient } from '../../utils/QueryUtils'
 import AttributeFlips from '../../components/AttributeFlips/AttributeFlips'
 import { getHeadMetadata } from '../../utils/SSRUtils'
-import { fetchAttributeFlips } from '../../api/attributeFlips'
+import { getGetApiFlipAttributeQueryOptions } from '../../api/_generated/skyApi'
 
 export default async function Page() {
     const queryClient = getQueryClient()
 
     await queryClient.prefetchQuery({
-        queryKey: ['attributeFlips', 'default'],
-        queryFn: () => fetchAttributeFlips()
+        ...getGetApiFlipAttributeQueryOptions(undefined, { fetch: { cache: 'no-store' } }),
+        queryKey: ['attributeFlips', 'default']
     })
 
     return (
