@@ -20,9 +20,9 @@ function RootLayout({ children }: { children: React.ReactNode }) {
                 <div className="page">
                     <Providers>
                         <MainApp>{children}</MainApp>
+                        <AdScriptLoader />
                     </Providers>
                 </div>
-                <AdScriptLoader />
                 <ConsentButton />
                 <NitroCMPEnhancer />
             </body>
