@@ -25,10 +25,6 @@ function evaluateShouldShowAds(): boolean {
     }
 }
 
-/**
- * Returns whether ads should be displayed for the current user.
- * Relies on the cached premium products stored in localStorage.
- */
 export function useShouldShowAds(): boolean {
     const [shouldShowAds, setShouldShowAds] = useState<boolean>(() => evaluateShouldShowAds())
     const isMountedRef = useRef(true)

@@ -20,7 +20,7 @@ export default function ConsentButton() {
             }
         }
 
-        // also reflect existing cookie state
+        
         const cookies = document.cookie.split(';').map(c => c.trim())
         if (cookies.some(c => c.startsWith('CCPAOPTOUT='))) {
             setOptedOut(true)
@@ -37,10 +37,10 @@ export default function ConsentButton() {
 
     const doOptOut = () => {
         try {
-            // set the local cookie used by the app/middleware
+            
             setCookie('CCPAOPTOUT', '1')
 
-            // notify NitroPay via its queue'd API (safe to call because pre-script defines addUserToken as queue pusher)
+            
             try {
                 if ((window as any).nitroAds && typeof (window as any).nitroAds.addUserToken === 'function') {
                     ;(window as any).nitroAds.addUserToken('optout')
@@ -48,21 +48,20 @@ export default function ConsentButton() {
                     (window as any).nitroAds.queue.push(['addUserToken', ['optout']])
                 }
             } catch (e) {
-                // ignore nitro notify errors
+                
             }
 
-            // best-effort to tell CMP about the change. These calls are wrapped and will fail silently if API differs.
+            
             try {
                 if ((window as any).__cmp) {
-                    // many CMPs accept a 'set' command, but implementations differ; wrap in try/catch
+                    
                     (window as any).__cmp('set', {consents: {}})
                 }
             } catch (e) {
-                // ignore
+                
             }
 
             setOptedOut(true)
-            // dispatch an event in case other code wants to react
             try { window.dispatchEvent(new CustomEvent('nitro.optout')) } catch (e) {}
         } catch (e) {
             console.error('Opt-out failed', e)
