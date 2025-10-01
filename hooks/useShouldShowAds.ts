@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../utils/PremiumTypeUtils'
 import { LAST_PREMIUM_PRODUCTS } from '../utils/SettingsUtils'
 import { parsePremiumProducts } from '../utils/Parser/APIResponseParser'
+import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
 
 function evaluateShouldShowAds(): boolean {
     if (typeof window === 'undefined') {
@@ -43,11 +44,11 @@ export function useShouldShowAds(): boolean {
             setShouldShowAds(evaluateShouldShowAds())
         }
 
-        window.addEventListener('premium.products.updated', handlePremiumUpdate as EventListener)
+    window.addEventListener(CUSTOM_EVENTS.PREMIUM_PRODUCTS_UPDATED, handlePremiumUpdate as EventListener)
         window.addEventListener('storage', handlePremiumUpdate)
 
         return () => {
-            window.removeEventListener('premium.products.updated', handlePremiumUpdate as EventListener)
+            window.removeEventListener(CUSTOM_EVENTS.PREMIUM_PRODUCTS_UPDATED, handlePremiumUpdate as EventListener)
             window.removeEventListener('storage', handlePremiumUpdate)
         }
     }, [])

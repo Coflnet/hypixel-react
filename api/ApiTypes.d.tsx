@@ -161,6 +161,7 @@ export interface HttpApi extends Connection {
 
 export let CUSTOM_EVENTS = {
     FLIP_SETTINGS_CHANGE: 'flipSettingsChange',
+    PREMIUM_PRODUCTS_UPDATED: 'premium.products.updated',
     COFLCOIN_UPDATE: 'coflCoinRefresh',
     GOOGLE_LOGIN: 'googleLogin',
     BAZAAR_SNAPSHOT_UPDATE: 'bazaarSnapshotUpdate'
