@@ -296,7 +296,7 @@ function FlipRestrictionList(props: Props) {
     }
 
     function recalculateListHeight() {
-        ; (listRef.current as any).resetAfterRowIndex(0, false)
+        ;(listRef.current as any).resetAfterRowIndex(0, false)
     }
 
     function handleContextMenuForRestriction(event) {
@@ -305,23 +305,20 @@ function FlipRestrictionList(props: Props) {
     }
 
     function getRestrictionsFilteredBySearch(restrictions: FlipRestriction[], invert = false) {
-
         let lowerCaseSearchText = searchText.toLowerCase()
-        let filterKind: string | null = null;
+        let filterKind: string | null = null
         if (lowerCaseSearchText.includes('kind:blacklist')) {
-            filterKind = 'blacklist';
-            lowerCaseSearchText = lowerCaseSearchText.replace('kind:blacklist', '').trim();
+            filterKind = 'blacklist'
+            lowerCaseSearchText = lowerCaseSearchText.replace('kind:blacklist', '').trim()
         }
         if (lowerCaseSearchText.includes('kind:whitelist')) {
-            filterKind = 'whitelist';
-            lowerCaseSearchText = lowerCaseSearchText.replace('kind:whitelist', '').trim();
+            filterKind = 'whitelist'
+            lowerCaseSearchText = lowerCaseSearchText.replace('kind:whitelist', '').trim()
         }
 
         lowerCaseSearchText = lowerCaseSearchText.replace(/_/g, ' ').replace(/'/g, '')
 
-
         return restrictions.filter(restriction => {
-
             if (filterKind && restriction.type !== filterKind) {
                 return invert ? true : false
             }

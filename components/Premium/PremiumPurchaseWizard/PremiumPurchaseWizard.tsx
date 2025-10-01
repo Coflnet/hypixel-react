@@ -26,22 +26,26 @@ function PremiumPurchaseWizard(props: Props) {
     // Helper function to get current tier from active premium product
     const getCurrentTier = (): PremiumTier | null => {
         if (!props.activePremiumProduct) return null
-        
+
         const productSlug = props.activePremiumProduct.productSlug
         if (productSlug.includes('starter')) return PremiumTier.STARTER
         if (productSlug.includes('premium_plus') || productSlug.includes('premium+')) return PremiumTier.PREMIUM_PLUS
         if (productSlug.includes('premium')) return PremiumTier.PREMIUM
-        
+
         return null
     }
 
     // Helper function to get tier rank for comparison
     const getTierRank = (tier: PremiumTier): number => {
         switch (tier) {
-            case PremiumTier.STARTER: return PREMIUM_RANK.STARTER
-            case PremiumTier.PREMIUM: return PREMIUM_RANK.PREMIUM
-            case PremiumTier.PREMIUM_PLUS: return PREMIUM_RANK.PREMIUM_PLUS
-            default: return 0
+            case PremiumTier.STARTER:
+                return PREMIUM_RANK.STARTER
+            case PremiumTier.PREMIUM:
+                return PREMIUM_RANK.PREMIUM
+            case PremiumTier.PREMIUM_PLUS:
+                return PREMIUM_RANK.PREMIUM_PLUS
+            default:
+                return 0
         }
     }
 
@@ -54,12 +58,16 @@ function PremiumPurchaseWizard(props: Props) {
     const getSuggestedUpgradeTier = (): PremiumTier | null => {
         const currentTier = getCurrentTier()
         if (!currentTier) return null
-        
+
         switch (currentTier) {
-            case PremiumTier.STARTER: return PremiumTier.PREMIUM
-            case PremiumTier.PREMIUM: return PremiumTier.PREMIUM_PLUS
-            case PremiumTier.PREMIUM_PLUS: return null // Already highest tier
-            default: return null
+            case PremiumTier.STARTER:
+                return PremiumTier.PREMIUM
+            case PremiumTier.PREMIUM:
+                return PremiumTier.PREMIUM_PLUS
+            case PremiumTier.PREMIUM_PLUS:
+                return null // Already highest tier
+            default:
+                return null
         }
     }
 
@@ -67,20 +75,19 @@ function PremiumPurchaseWizard(props: Props) {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search)
         const tierParam = urlParams.get('tier')
-        
+
         // If tier is specified in URL, pre-select it
         const preSelectedTier = parseTierFromUrl(tierParam)
-        
+
         if (preSelectedTier) {
             setSelectedTier(preSelectedTier)
-            
+
             // Skip tier selection step if it's premium+ or if user already has a lower tier
             const currentTier = getCurrentTier()
             const currentTierRank = currentTier ? getTierRank(currentTier) : 0
             const selectedTierRank = getTierRank(preSelectedTier)
-            
-            if (preSelectedTier === PremiumTier.PREMIUM_PLUS || 
-                (currentTier && selectedTierRank > currentTierRank)) {
+
+            if (preSelectedTier === PremiumTier.PREMIUM_PLUS || (currentTier && selectedTierRank > currentTierRank)) {
                 setCurrentStep(2) // Skip to payment method step
             }
         } else if (hasActivePremium()) {
@@ -95,28 +102,38 @@ function PremiumPurchaseWizard(props: Props) {
     const getStepTitle = () => {
         const currentTier = getCurrentTier()
         const isUpgrade = !!(hasActivePremium() && currentTier)
-        
+
         switch (currentStep) {
-            case 1: 
+            case 1:
                 if (isUpgrade) {
-                    return `Upgrade Your ${currentTier === PremiumTier.STARTER ? 'Starter Premium' : 
-                           currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'}`
+                    return `Upgrade Your ${
+                        currentTier === PremiumTier.STARTER ? 'Starter Premium' : currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'
+                    }`
                 }
-                return "Choose Your Premium Tier"
-            case 2: return "Choose Your Plan Type"
-            case 3: return "Select Duration"
-            case 4: return isUpgrade ? "Complete Upgrade" : "Complete Purchase"
-            default: return "Premium Purchase"
+                return 'Choose Your Premium Tier'
+            case 2:
+                return 'Choose Your Plan Type'
+            case 3:
+                return 'Select Duration'
+            case 4:
+                return isUpgrade ? 'Complete Upgrade' : 'Complete Purchase'
+            default:
+                return 'Premium Purchase'
         }
     }
 
     const canProceed = () => {
         switch (currentStep) {
-            case 1: return selectedTier !== null
-            case 2: return selectedType !== null
-            case 3: return selectedDuration !== null || selectedType === PurchaseType.COFLCOINS
-            case 4: return true
-            default: return false
+            case 1:
+                return selectedTier !== null
+            case 2:
+                return selectedType !== null
+            case 3:
+                return selectedDuration !== null || selectedType === PurchaseType.COFLCOINS
+            case 4:
+                return true
+            default:
+                return false
         }
     }
 
@@ -136,11 +153,11 @@ function PremiumPurchaseWizard(props: Props) {
         const currentTier = getCurrentTier()
         const isUpgrade = !!(hasActivePremium() && currentTier)
         const suggestedTier = getSuggestedUpgradeTier()
-        
+
         switch (currentStep) {
-            case 1: 
+            case 1:
                 return (
-                    <TierSelectionStep 
+                    <TierSelectionStep
                         selectedTier={selectedTier}
                         onTierSelect={setSelectedTier}
                         currentTier={currentTier}
@@ -149,25 +166,20 @@ function PremiumPurchaseWizard(props: Props) {
                         activePremiumProduct={props.activePremiumProduct}
                     />
                 )
-            case 2: 
+            case 2:
+                return <PaymentMethodStep selectedType={selectedType} onTypeSelect={setSelectedType} />
+            case 3:
                 return (
-                    <PaymentMethodStep 
-                        selectedType={selectedType}
-                        onTypeSelect={setSelectedType}
-                    />
-                )
-            case 3: 
-                return (
-                    <DurationSelectionStep 
+                    <DurationSelectionStep
                         selectedType={selectedType!}
                         selectedTier={selectedTier!}
                         selectedDuration={selectedDuration}
                         onDurationSelect={(duration: Duration) => setSelectedDuration(duration)}
                     />
                 )
-            case 4: 
+            case 4:
                 return (
-                    <PurchaseCompletionStep 
+                    <PurchaseCompletionStep
                         selectedTier={selectedTier!}
                         selectedType={selectedType!}
                         selectedDuration={selectedDuration}
@@ -176,7 +188,8 @@ function PremiumPurchaseWizard(props: Props) {
                         onNewActivePremiumProduct={props.onNewActivePremiumProduct}
                     />
                 )
-            default: return null
+            default:
+                return null
         }
     }
 
@@ -185,36 +198,22 @@ function PremiumPurchaseWizard(props: Props) {
             <Card className={styles.wizardCard}>
                 <Card.Header className={styles.wizardHeader}>
                     <h3>{getStepTitle()}</h3>
-                    <ProgressBar 
-                        now={(currentStep / totalSteps) * 100} 
-                        className={styles.progressBar}
-                        variant="success"
-                    />
-                    <small className={styles.stepIndicator}>Step {currentStep} of {totalSteps}</small>
+                    <ProgressBar now={(currentStep / totalSteps) * 100} className={styles.progressBar} variant="success" />
+                    <small className={styles.stepIndicator}>
+                        Step {currentStep} of {totalSteps}
+                    </small>
                 </Card.Header>
-                
-                <Card.Body className={styles.wizardBody}>
-                    {renderCurrentStep()}
-                </Card.Body>
+
+                <Card.Body className={styles.wizardBody}>{renderCurrentStep()}</Card.Body>
 
                 <Card.Footer className={styles.wizardFooter}>
                     <div className={styles.navigationButtons}>
-                        <Button 
-                            variant="outline-secondary" 
-                            onClick={handleBack}
-                            disabled={currentStep === 1}
-                            className={styles.backButton}
-                        >
+                        <Button variant="outline-secondary" onClick={handleBack} disabled={currentStep === 1} className={styles.backButton}>
                             <ChevronLeft /> Back
                         </Button>
-                        
+
                         {currentStep < totalSteps ? (
-                            <Button 
-                                variant="primary" 
-                                onClick={handleNext}
-                                disabled={!canProceed()}
-                                className={styles.nextButton}
-                            >
+                            <Button variant="primary" onClick={handleNext} disabled={!canProceed()} className={styles.nextButton}>
                                 Next <ChevronRight />
                             </Button>
                         ) : (

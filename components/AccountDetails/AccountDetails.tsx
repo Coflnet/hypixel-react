@@ -3,7 +3,7 @@ import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import { googleLogout } from '@react-oauth/google'
 import Cookies from 'js-cookie'
 import Image from 'next/image'
-import { ChangeEvent, useEffect, useState, type JSX } from 'react';
+import { ChangeEvent, useEffect, useState, type JSX } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
@@ -54,26 +54,30 @@ function AccountDetails() {
 
     function loadPremiumProducts(): Promise<void> {
         return new Promise((resolve, reject) => {
-            api.refreshLoadPremiumProducts(products => {
-                products = products.filter(product => product.expires.getTime() > new Date().getTime())
-                setProducts(products)
-                resolve()
-            }, () => {
-                reject();
-            })
-        });
-
+            api.refreshLoadPremiumProducts(
+                products => {
+                    products = products.filter(product => product.expires.getTime() > new Date().getTime())
+                    setProducts(products)
+                    resolve()
+                },
+                () => {
+                    reject()
+                }
+            )
+        })
     }
 
     function loadPremiumSubscriptions(): Promise<void> {
         return new Promise((resolve, reject) => {
-            api.getPremiumSubscriptions().then(subscriptions => {
-                subscriptions = subscriptions.filter(subscription => !subscription.endsAt || subscription.endsAt.getTime() > new Date().getTime())
-                setPremiumSubscriptions([...subscriptions])
-                resolve()
-            }).catch(() => {
-                reject();
-            })
+            api.getPremiumSubscriptions()
+                .then(subscriptions => {
+                    subscriptions = subscriptions.filter(subscription => !subscription.endsAt || subscription.endsAt.getTime() > new Date().getTime())
+                    setPremiumSubscriptions([...subscriptions])
+                    resolve()
+                })
+                .catch(() => {
+                    reject()
+                })
         })
     }
 
@@ -94,13 +98,15 @@ function AccountDetails() {
         let googleId = sessionStorage.getItem('googleId')
         setIsLoading(true)
         if (googleId) {
-            Promise.all([loadPremiumProducts(), loadPremiumSubscriptions()]).then(() => {
-                setIsLoading(false)
-            }).catch(() => {
-                setIsLoading(false)
-                setHasLoadingPremiumError(true)
-                toast.error('Error loading premium products or subscriptionss')
-            })
+            Promise.all([loadPremiumProducts(), loadPremiumSubscriptions()])
+                .then(() => {
+                    setIsLoading(false)
+                })
+                .catch(() => {
+                    setIsLoading(false)
+                    setHasLoadingPremiumError(true)
+                    toast.error('Error loading premium products or subscriptionss')
+                })
             setIsLoggedIn(true)
         }
     }

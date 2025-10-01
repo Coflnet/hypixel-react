@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import React, { type JSX } from 'react';
+import React, { type JSX } from 'react'
 import { Spinner } from 'react-bootstrap'
 
 export function getLoadingElement(text?: JSX.Element): JSX.Element {

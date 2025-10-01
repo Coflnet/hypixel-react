@@ -22,14 +22,7 @@ interface ActiveDiscount {
     code: string
 }
 
-export default function TierSelectionStep({ 
-    selectedTier, 
-    onTierSelect, 
-    currentTier, 
-    isUpgrade, 
-    suggestedTier, 
-    activePremiumProduct 
-}: Props) {
+export default function TierSelectionStep({ selectedTier, onTierSelect, currentTier, isUpgrade, suggestedTier, activePremiumProduct }: Props) {
     const [selectedCountry, setSelectedCountry] = useState<Country>()
     const [defaultCountry, setDefaultCountry] = useState<Country>()
 
@@ -70,20 +63,24 @@ export default function TierSelectionStep({
     const starterPricing = calculatePrice(PremiumTier.STARTER, selectedCountry?.value)
     const premiumPricing = calculatePrice(PremiumTier.PREMIUM, selectedCountry?.value)
     const premiumPlusPricing = calculatePrice(PremiumTier.PREMIUM_PLUS, selectedCountry?.value)
-    const discountInfo : ActiveDiscount = {
-        description: "Summer End Discount",
+    const discountInfo: ActiveDiscount = {
+        description: 'Summer End Discount',
         percentage: 40,
-        code: "NOMACRO"
-    } 
+        code: 'NOMACRO'
+    }
     const premiumPlusDiscounted = calculatePrice(PremiumTier.PREMIUM_PLUS, selectedCountry?.value, discountInfo.percentage) // 10% discount
 
     // Helper function to get tier rank for comparison
     const getTierRank = (tier: PremiumTier): number => {
         switch (tier) {
-            case PremiumTier.STARTER: return 1
-            case PremiumTier.PREMIUM: return 2
-            case PremiumTier.PREMIUM_PLUS: return 3
-            default: return 0
+            case PremiumTier.STARTER:
+                return 1
+            case PremiumTier.PREMIUM:
+                return 2
+            case PremiumTier.PREMIUM_PLUS:
+                return 3
+            default:
+                return 0
         }
     }
 
@@ -101,10 +98,10 @@ export default function TierSelectionStep({
     // Helper function to get tier display status
     const getTierStatus = (tier: PremiumTier): string => {
         if (!isUpgrade || !currentTier) return ''
-        
+
         const currentRank = getTierRank(currentTier)
         const tierRank = getTierRank(tier)
-        
+
         if (tierRank === currentRank) return 'current'
         if (tierRank < currentRank) return 'downgrade'
         if (tierRank === currentRank + 1) return 'upgrade'
@@ -113,9 +110,9 @@ export default function TierSelectionStep({
 
     // Format expiry date
     const formatExpiryDate = (date: Date): string => {
-        return date.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
@@ -124,53 +121,49 @@ export default function TierSelectionStep({
 
     return (
         <div className={styles.stepContent}>
-            <h4 className={styles.stepQuestion}>
-                {isUpgrade ? `Upgrade Your Premium` : 'Which premium tier would you like?'}
-            </h4>
+            <h4 className={styles.stepQuestion}>{isUpgrade ? `Upgrade Your Premium` : 'Which premium tier would you like?'}</h4>
             <p className={styles.stepDescription}>
                 {isUpgrade ? (
                     <>
-                        You currently have <strong>{currentTier === PremiumTier.STARTER ? 'Starter Premium' : 
-                        currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'}</strong> active until{' '}
-                        <strong>{activePremiumProduct ? formatExpiryDate(activePremiumProduct.expires) : 'Unknown'}</strong>.
-                        <br/>
-                        When you upgrade, your existing tier will be paused and you'll get the full benefits of the higher tier. 
-                        Nothing will be lost - your previous tier will resume when the upgrade expires.
+                        You currently have{' '}
+                        <strong>
+                            {currentTier === PremiumTier.STARTER ? 'Starter Premium' : currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'}
+                        </strong>{' '}
+                        active until <strong>{activePremiumProduct ? formatExpiryDate(activePremiumProduct.expires) : 'Unknown'}</strong>.
+                        <br />
+                        When you upgrade, your existing tier will be paused and you'll get the full benefits of the higher tier. Nothing will be lost - your
+                        previous tier will resume when the upgrade expires.
                     </>
                 ) : (
                     'Choose the tier that best fits your needs. Higher tiers include all features from lower tiers.'
                 )}
             </p>
-            
+
             {/* Upgrade Info Box */}
             {isUpgrade && (
                 <div className={styles.infoBox}>
                     <div className={styles.checkIcon}>ℹ️</div>
                     <div>
-                        <strong>Upgrade Protection:</strong> Your current {currentTier === PremiumTier.STARTER ? 'Starter Premium' : 
-                        currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'} subscription will be paused (not lost) 
-                        while your upgrade is active. You'll automatically return to your previous tier when the upgrade expires.
+                        <strong>Upgrade Protection:</strong> Your current{' '}
+                        {currentTier === PremiumTier.STARTER ? 'Starter Premium' : currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'}{' '}
+                        subscription will be paused (not lost) while your upgrade is active. You'll automatically return to your previous tier when the upgrade
+                        expires.
                     </div>
                 </div>
             )}
-            
+
             {/* Country Selection */}
             <div className={styles.countrySelection}>
                 {defaultCountry ? (
-                    <CountrySelect 
-                        key="country-select" 
-                        isLoading={!defaultCountry} 
-                        defaultCountry={defaultCountry} 
-                        onCountryChange={setSelectedCountry} 
-                    />
+                    <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
                 ) : (
                     <CountrySelect key="loading-country-select" isLoading />
                 )}
             </div>
-            
+
             <div className={styles.optionsGrid}>
                 {/* Starter Premium */}
-                <Card 
+                <Card
                     className={`${styles.optionCard} 
                         ${selectedTier === PremiumTier.STARTER ? styles.selected : ''} 
                         ${!canSelectTier(PremiumTier.STARTER) ? styles.disabled : ''}
@@ -182,9 +175,7 @@ export default function TierSelectionStep({
                         <div className={styles.optionIcon}>⭐</div>
                         <h5 className={styles.tierTitle}>
                             Starter
-                            {getTierStatus(PremiumTier.STARTER) === 'current' && (
-                                <span className={styles.currentBadge}>Current</span>
-                            )}
+                            {getTierStatus(PremiumTier.STARTER) === 'current' && <span className={styles.currentBadge}>Current</span>}
                         </h5>
                         <div className={styles.tierPrice}>starts at {starterPricing.displayText}</div>
                         <p className={styles.tierDescription}>Essential features for casual players</p>
@@ -202,7 +193,7 @@ export default function TierSelectionStep({
                 </Card>
 
                 {/* Premium */}
-                <Card 
+                <Card
                     className={`${styles.optionCard} 
                         ${selectedTier === PremiumTier.PREMIUM ? styles.selected : ''} 
                         ${!canSelectTier(PremiumTier.PREMIUM) ? styles.disabled : ''}
@@ -215,23 +206,16 @@ export default function TierSelectionStep({
                         <div className={styles.optionIcon}>🌟</div>
                         <h5 className={`${styles.tierTitle} ${styles.tierPremium}`}>
                             Premium
-                            {getTierStatus(PremiumTier.PREMIUM) === 'current' && (
-                                <span className={styles.currentBadge}>Current</span>
-                            )}
-                            {isSuggestedTier(PremiumTier.PREMIUM) && (
-                                <span className={styles.suggestedBadge}>Recommended Upgrade</span>
-                            )}
+                            {getTierStatus(PremiumTier.PREMIUM) === 'current' && <span className={styles.currentBadge}>Current</span>}
+                            {isSuggestedTier(PremiumTier.PREMIUM) && <span className={styles.suggestedBadge}>Recommended Upgrade</span>}
                         </h5>
                         <div className={styles.tierPrice}>starts at {premiumPricing.displayText}</div>
                         <p className={styles.tierDescription}>
-                            {isSuggestedTier(PremiumTier.PREMIUM) ? 
-                                'Upgrade from Starter to unlock advanced features' : 
-                                'All Starter features plus advanced tools'
-                            }
+                            {isSuggestedTier(PremiumTier.PREMIUM)
+                                ? 'Upgrade from Starter to unlock advanced features'
+                                : 'All Starter features plus advanced tools'}
                         </p>
-                        {!isSuggestedTier(PremiumTier.PREMIUM) && (
-                            <small className={styles.recommendation}>Most Popular</small>
-                        )}
+                        {!isSuggestedTier(PremiumTier.PREMIUM) && <small className={styles.recommendation}>Most Popular</small>}
                         {!canSelectTier(PremiumTier.PREMIUM) && (
                             <div className={styles.disabledOverlay}>
                                 <small>Cannot downgrade</small>
@@ -241,15 +225,13 @@ export default function TierSelectionStep({
                             <li>Optimized bazaar flips</li>
                             <li>1 year auction house searches</li>
                             <li>Lowball helper</li>
-                            {isSuggestedTier(PremiumTier.PREMIUM) && (
-                                <li className={styles.newFeature}>🆕 Enhanced flip detection</li>
-                            )}
+                            {isSuggestedTier(PremiumTier.PREMIUM) && <li className={styles.newFeature}>🆕 Enhanced flip detection</li>}
                         </ul>
                     </Card.Body>
                 </Card>
 
                 {/* Premium Plus */}
-                <Card 
+                <Card
                     className={`${styles.optionCard} 
                         ${selectedTier === PremiumTier.PREMIUM_PLUS ? styles.selected : ''} 
                         ${!canSelectTier(PremiumTier.PREMIUM_PLUS) ? styles.disabled : ''}
@@ -262,24 +244,20 @@ export default function TierSelectionStep({
                         <div className={styles.optionIcon}>🚀</div>
                         <h5 className={`${styles.tierTitle} ${styles.tierPremiumPlus}`}>
                             Premium Plus
-                            {getTierStatus(PremiumTier.PREMIUM_PLUS) === 'current' && (
-                                <span className={styles.currentBadge}>Current</span>
-                            )}
-                            {isSuggestedTier(PremiumTier.PREMIUM_PLUS) && (
-                                <span className={styles.suggestedBadge}>Recommended Upgrade</span>
-                            )}
+                            {getTierStatus(PremiumTier.PREMIUM_PLUS) === 'current' && <span className={styles.currentBadge}>Current</span>}
+                            {isSuggestedTier(PremiumTier.PREMIUM_PLUS) && <span className={styles.suggestedBadge}>Recommended Upgrade</span>}
                         </h5>
                         <div className={styles.tierPrice}>
                             {discountInfo && discountInfo.percentage > 0 ? (
                                 <>
-                                    (yearly) starts at <br/>
-                                    <span style={{ textDecoration: 'line-through', marginRight: 8, opacity: 0.7 }}>
-                                        {premiumPlusPricing.displayText}
-                                    </span><br/>
+                                    (yearly) starts at <br />
+                                    <span style={{ textDecoration: 'line-through', marginRight: 8, opacity: 0.7 }}>{premiumPlusPricing.displayText}</span>
+                                    <br />
                                     <span>{premiumPlusDiscounted.displayText}</span>
                                     <br />
                                     <small
-                                        style={{ cursor: 'help' }} className="text-success"
+                                        style={{ cursor: 'help' }}
+                                        className="text-success"
                                         title={`Apply code ${discountInfo.code} at checkout to receive ${discountInfo.percentage}% off`}
                                     >
                                         -{discountInfo.percentage}% with code <strong>{discountInfo.code}</strong> *
@@ -289,12 +267,11 @@ export default function TierSelectionStep({
                                 <>{premiumPlusPricing.displayText}</>
                             )}
                         </div>
-                       
+
                         <p className={styles.tierDescription}>
-                            {isSuggestedTier(PremiumTier.PREMIUM_PLUS) ? 
-                                'Upgrade to Premium Plus for the fastest experience' : 
-                                'All Premium features plus exclusive access to'
-                            }
+                            {isSuggestedTier(PremiumTier.PREMIUM_PLUS)
+                                ? 'Upgrade to Premium Plus for the fastest experience'
+                                : 'All Premium features plus exclusive access to'}
                         </p>
                         {!canSelectTier(PremiumTier.PREMIUM_PLUS) && (
                             <div className={styles.disabledOverlay}>
@@ -306,21 +283,24 @@ export default function TierSelectionStep({
                             <li>6 year data exports</li>
                             <li>Realtime market analysis</li>
                             <li>Access to advanced tools</li>
-                            {isSuggestedTier(PremiumTier.PREMIUM_PLUS) && (
-                                <li className={styles.newFeature}>Advanced money making methods (soon™️)</li>
-                            )}
+                            {isSuggestedTier(PremiumTier.PREMIUM_PLUS) && <li className={styles.newFeature}>Advanced money making methods (soon™️)</li>}
                         </ul>
                     </Card.Body>
                 </Card>
             </div>
-            
+
             <div className={styles.tierNote}>
                 <strong>Note:</strong> Higher tiers include all features from lower tiers plus additional benefits.
                 {isUpgrade && (
-                    <><br/><strong>Upgrade Protection:</strong> Your current subscription will be paused (not cancelled) while the upgrade is active.</>
+                    <>
+                        <br />
+                        <strong>Upgrade Protection:</strong> Your current subscription will be paused (not cancelled) while the upgrade is active.
+                    </>
                 )}
-                <br/>Prices include applicable VAT/sales tax for your country where available. For the US and some other countries, VAT will be added at checkout.<br />
-                * Using discount codes NOMACRO or similar adds the condition that you won't use any automated software (macros) to interact with Hypixel otherwise you risk getting service revoked with no refund.
+                <br />
+                Prices include applicable VAT/sales tax for your country where available. For the US and some other countries, VAT will be added at checkout.
+                <br />* Using discount codes NOMACRO or similar adds the condition that you won't use any automated software (macros) to interact with Hypixel
+                otherwise you risk getting service revoked with no refund.
             </div>
         </div>
     )

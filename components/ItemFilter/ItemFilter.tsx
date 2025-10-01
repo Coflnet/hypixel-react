@@ -403,12 +403,14 @@ function ItemFilter(props: Props) {
                                         id="add-filter-typeahead"
                                         autoFocus={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 && !isAnySearchInputInUse()
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 &&
+                                                  !isAnySearchInputInUse()
                                                 : props.autoSelect
                                         }
                                         defaultOpen={
                                             props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 && !isAnySearchInputInUse()
+                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 &&
+                                                  !isAnySearchInputInUse()
                                                 : props.autoSelect
                                         }
                                         ref={typeaheadRef}

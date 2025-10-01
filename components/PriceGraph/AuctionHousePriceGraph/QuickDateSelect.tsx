@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import { DateRange } from '../../ItemPriceRange/ItemPriceRange'
 import { Button, Row, Col, Form } from 'react-bootstrap'
@@ -102,7 +102,13 @@ export default function QuickDateSelect(props: Props) {
                                 const currentName = currentMayor?.winner?.name
                                 if (currentName) {
                                     const previousSame = mayorPeriods
-                                        .filter(p => p.start && p.winner && p.winner.name === currentName && new Date(p.start).getTime() < new Date(currentMayor.start).getTime())
+                                        .filter(
+                                            p =>
+                                                p.start &&
+                                                p.winner &&
+                                                p.winner.name === currentName &&
+                                                new Date(p.start).getTime() < new Date(currentMayor.start).getTime()
+                                        )
                                         .sort((a: any, b: any) => new Date(b.start).getTime() - new Date(a.start).getTime())
 
                                     if (previousSame.length > 0) {
@@ -145,7 +151,9 @@ export default function QuickDateSelect(props: Props) {
             {showCustomDatePicker && (
                 <Row className="align-items-end g-2">
                     <Col xs={12} md={5}>
-                        <Form.Label className="d-block mb-1" style={{ fontSize: '0.9rem' }}>Start Date:</Form.Label>
+                        <Form.Label className="d-block mb-1" style={{ fontSize: '0.9rem' }}>
+                            Start Date:
+                        </Form.Label>
                         <DatePicker
                             selected={customStartDate ? new Date(customStartDate + 'T00:00:00Z') : null}
                             onChange={(d: Date | null) => setCustomStartDate(d ? d.toISOString().split('T')[0] : '')}
@@ -155,7 +163,9 @@ export default function QuickDateSelect(props: Props) {
                         />
                     </Col>
                     <Col xs={12} md={5}>
-                        <Form.Label className="d-block mb-1" style={{ fontSize: '0.9rem' }}>End Date:</Form.Label>
+                        <Form.Label className="d-block mb-1" style={{ fontSize: '0.9rem' }}>
+                            End Date:
+                        </Form.Label>
                         <DatePicker
                             selected={customEndDate ? new Date(customEndDate + 'T00:00:00Z') : null}
                             onChange={(d: Date | null) => setCustomEndDate(d ? d.toISOString().split('T')[0] : '')}

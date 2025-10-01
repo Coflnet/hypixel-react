@@ -31,13 +31,14 @@ const SORT_OPTIONS: SortOption<NpcFlip>[] = [
     {
         label: 'Last Updated',
         value: 'lastUpdated',
-        sortFunction: flips => flips.sort((a, b) => {
-            const aTime = new Date(a.lastUpdated).getTime()
-            const bTime = new Date(b.lastUpdated).getTime()
-            const safeATime = Number.isNaN(aTime) ? 0 : aTime
-            const safeBTime = Number.isNaN(bTime) ? 0 : bTime
-            return safeBTime - safeATime
-        })
+        sortFunction: flips =>
+            flips.sort((a, b) => {
+                const aTime = new Date(a.lastUpdated).getTime()
+                const bTime = new Date(b.lastUpdated).getTime()
+                const safeATime = Number.isNaN(aTime) ? 0 : aTime
+                const safeBTime = Number.isNaN(bTime) ? 0 : bTime
+                return safeBTime - safeATime
+            })
     }
 ]
 
@@ -73,23 +74,26 @@ export function ReverseNpcFlips() {
     const refetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const relativeTimeFormatter = useMemo(() => new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' }), [])
 
-    const formatRelativeTimeFromNow = useCallback((dateInput: string | Date | null | undefined) => {
-        if (!dateInput) {
-            return 'unknown'
-        }
-        const date = new Date(dateInput)
-        if (Number.isNaN(date.getTime())) {
-            return 'unknown'
-        }
-        let duration = (date.getTime() - Date.now()) / 1000
-        for (const division of RELATIVE_TIME_DIVISIONS) {
-            if (Math.abs(duration) < division.amount) {
-                return relativeTimeFormatter.format(Math.round(duration), division.unit)
+    const formatRelativeTimeFromNow = useCallback(
+        (dateInput: string | Date | null | undefined) => {
+            if (!dateInput) {
+                return 'unknown'
             }
-            duration /= division.amount
-        }
-        return relativeTimeFormatter.format(Math.round(duration), 'year')
-    }, [relativeTimeFormatter])
+            const date = new Date(dateInput)
+            if (Number.isNaN(date.getTime())) {
+                return 'unknown'
+            }
+            let duration = (date.getTime() - Date.now()) / 1000
+            for (const division of RELATIVE_TIME_DIVISIONS) {
+                if (Math.abs(duration) < division.amount) {
+                    return relativeTimeFormatter.format(Math.round(duration), division.unit)
+                }
+                duration /= division.amount
+            }
+            return relativeTimeFormatter.format(Math.round(duration), 'year')
+        },
+        [relativeTimeFormatter]
+    )
 
     const getDisplayPriceValue = useCallback((value: number | null | undefined, counterpart?: number | null | undefined) => {
         const numericValue = typeof value === 'number' && Number.isFinite(value) ? value : 0
@@ -140,14 +144,15 @@ export function ReverseNpcFlips() {
 
     const { data: response, refetch } = useQuery({
         queryKey: ['reverseNpcFlips', googleToken],
-        queryFn: () => getApiFlipNpcReverse(undefined, {
-            headers: {
-                GoogleToken: googleToken,
-            },
-        }),
+        queryFn: () =>
+            getApiFlipNpcReverse(undefined, {
+                headers: {
+                    GoogleToken: googleToken
+                }
+            }),
         enabled: !!googleToken,
         staleTime: 60 * 1000,
-        retry: false,
+        retry: false
     })
 
     useEffect(() => {
@@ -202,16 +207,20 @@ export function ReverseNpcFlips() {
         }
         setIsRefreshing(true)
         try {
-            const refreshResponse = await getApiFlipNpcReverse({ requestRefresh: true }, {
-                headers: {
-                    GoogleToken: googleToken,
-                },
-            })
+            const refreshResponse = await getApiFlipNpcReverse(
+                { requestRefresh: true },
+                {
+                    headers: {
+                        GoogleToken: googleToken
+                    }
+                }
+            )
             if (refreshResponse.status !== 200) {
                 setIsRefreshing(false)
-                const message = refreshResponse.status === 403
-                    ? 'Recalculating reverse NPC flips is a premium feature.'
-                    : 'Unable to request a refresh right now. Please try again later.'
+                const message =
+                    refreshResponse.status === 403
+                        ? 'Recalculating reverse NPC flips is a premium feature.'
+                        : 'Unable to request a refresh right now. Please try again later.'
                 toast.warn(message)
                 return
             }
@@ -227,9 +236,10 @@ export function ReverseNpcFlips() {
             }, REFRESH_DELAY_MS)
         } catch (error) {
             setIsRefreshing(false)
-            const message = error instanceof Error && error.message
-                ? `Failed to request a reverse NPC refresh: ${error.message}`
-                : 'Failed to request a reverse NPC refresh. Please try again.'
+            const message =
+                error instanceof Error && error.message
+                    ? `Failed to request a reverse NPC refresh: ${error.message}`
+                    : 'Failed to request a reverse NPC refresh. Please try again.'
             toast.error(message)
         }
     }, [cooldown, googleToken, hasPremium, isRefreshing, refetch])
@@ -305,7 +315,7 @@ export function ReverseNpcFlips() {
             buyPrice: 123456,
             npcSellPrice: 654321,
             profit: 98765,
-            profitMargin: 0.42,
+            profitMargin: 0.42
         }
     }
 
@@ -315,16 +325,11 @@ export function ReverseNpcFlips() {
 
     return (
         <>
-            {!isLoggedIn && (
-                <Alert variant="info">
-                    Sign in with Google to unlock the live reverse NPC flip list and premium refresh tools.
-                </Alert>
-            )}
-            {authError && (
-                <Alert variant="danger">{authError}</Alert>
-            )}
+            {!isLoggedIn && <Alert variant="info">Sign in with Google to unlock the live reverse NPC flip list and premium refresh tools.</Alert>}
+            {authError && <Alert variant="danger">{authError}</Alert>}
             <p>
-                Reverse NPC flips take advantage of skyblock items that can always be sold back to vendors for a fixed amount of coins. When the bazaar or auction house dips below that NPC value you can buy the item from other players and instantly sell it to the NPC for a guaranteed profit.
+                Reverse NPC flips take advantage of skyblock items that can always be sold back to vendors for a fixed amount of coins. When the bazaar or
+                auction house dips below that NPC value you can buy the item from other players and instantly sell it to the NPC for a guaranteed profit.
             </p>
             <details>
                 <summary>How to execute a reverse NPC flip</summary>
@@ -337,7 +342,10 @@ export function ReverseNpcFlips() {
             </details>
             <details>
                 <summary>What the profit margin means</summary>
-                <p>The profit margin compares the NPC sell price against the current market purchase price. Higher percentages mean more coins per purchase, but items with smaller margins might have higher volume.</p>
+                <p>
+                    The profit margin compares the NPC sell price against the current market purchase price. Higher percentages mean more coins per purchase,
+                    but items with smaller margins might have higher volume.
+                </p>
             </details>
             <details>
                 <summary>Tips to stay profitable</summary>
@@ -351,11 +359,7 @@ export function ReverseNpcFlips() {
                 <div className="my-3">
                     {hasPremium ? (
                         <div className="d-flex align-items-center gap-3 flex-wrap">
-                            <Button
-                                variant="primary"
-                                disabled={isRefreshing || cooldown > 0}
-                                onClick={handleRefresh}
-                            >
+                            <Button variant="primary" disabled={isRefreshing || cooldown > 0} onClick={handleRefresh}>
                                 {isRefreshing ? (
                                     <>
                                         <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
@@ -367,9 +371,7 @@ export function ReverseNpcFlips() {
                                     <>Refresh reverse NPC flips</>
                                 )}
                             </Button>
-                            <small className="text-muted">
-                                We trigger a recalculation and fetch updated flips after {REFRESH_DELAY_SECONDS} seconds.
-                            </small>
+                            <small className="text-muted">We trigger a recalculation and fetch updated flips after {REFRESH_DELAY_SECONDS} seconds.</small>
                         </div>
                     ) : (
                         <Alert variant="warning" className="mb-0">
@@ -384,7 +386,7 @@ export function ReverseNpcFlips() {
                 sortOptions={SORT_OPTIONS}
                 renderFlipContentAction={renderFlipContent}
                 filterFunction={filterFunction}
-                getItemKeyAction={(flip) => flip.itemId ?? flip.itemName ?? `${flip.npcSellPrice}-${flip.buyPrice}`}
+                getItemKeyAction={flip => flip.itemId ?? flip.itemName ?? `${flip.npcSellPrice}-${flip.buyPrice}`}
                 censoredItemGenerator={censoredItemGenerator}
                 premiumMessage="The top 3 flips can only be seen with starter premium or better"
                 clickMessage="Click on a flip for further details"

@@ -81,7 +81,7 @@ let mounted = true
 
 function AuctionHousePriceGraph(props: Props) {
     let searchParams = useSearchParams()
-    let [fetchspan, setFetchspan] = useState(searchParams.get('range') as DateRange || DEFAULT_DATE_RANGE)
+    let [fetchspan, setFetchspan] = useState((searchParams.get('range') as DateRange) || DEFAULT_DATE_RANGE)
     let [isLoading, setIsLoading] = useState(false)
     let [noDataFound, setNoDataFound] = useState(false)
     let [avgPrice, setAvgPrice] = useState(0)
@@ -100,16 +100,20 @@ function AuctionHousePriceGraph(props: Props) {
     let [isYearLoading, setIsYearLoading] = useState(false)
     let [yearParams, setYearParams] = useState<any | undefined>(undefined)
     let [yearFetchOptions, setYearFetchOptions] = useState<RequestInit | undefined>(undefined)
-    let loadingMessage = useRotatingMessages(isYearLoading, [
-        "Loading year history data... This might take a while! 📊",
-        "Crunching numbers from the past year... Stay tuned! 🔢",
-        "Fetching auction data... It's a lot of information! 📈",
-        "Almost there! Processing historical market trends... 📋",
-        "Loading complete market analysis... Worth the wait! 🎯",
-        "Gathering seller and buyer statistics... Hang tight! 👥",
-        "Fun fact: We're processing millions of auction records! 🎪",
-        "Did you know? Year data includes every single transaction! 💰"
-    ], 10000)
+    let loadingMessage = useRotatingMessages(
+        isYearLoading,
+        [
+            'Loading year history data... This might take a while! 📊',
+            'Crunching numbers from the past year... Stay tuned! 🔢',
+            "Fetching auction data... It's a lot of information! 📈",
+            'Almost there! Processing historical market trends... 📋',
+            'Loading complete market analysis... Worth the wait! 🎯',
+            'Gathering seller and buyer statistics... Hang tight! 👥',
+            "Fun fact: We're processing millions of auction records! 🎪",
+            'Did you know? Year data includes every single transaction! 💰'
+        ],
+        10000
+    )
     let graphRef = useRef<EChartsReact>(null)
     let router = useRouter()
     let pathname = usePathname()
@@ -140,54 +144,50 @@ function AuctionHousePriceGraph(props: Props) {
         })
     }, [props.item.tag])
 
-
-
     function handleAfterLoginForPremium() {
-        api.getPremiumProducts().then(products => {
-            const ok = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
-            setHasPremium(ok)
-            if (ok) {
-                updateChart(DateRange.YEAR, itemFilter)
-            }
-        }).catch(() => {})
+        api.getPremiumProducts()
+            .then(products => {
+                const ok = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
+                setHasPremium(ok)
+                if (ok) {
+                    updateChart(DateRange.YEAR, itemFilter)
+                }
+            })
+            .catch(() => {})
     }
 
     const now = new Date()
     const lookbackStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() + 1)
     const { from: currentMayorFrom, to: currentMayorTo } = normaliseMayorRange(lookbackStart, now)
 
-    const mayorParams = fetchspan === DateRange.YEAR ? {
-        from: currentMayorFrom.toISOString(),
-        to: currentMayorTo.toISOString()
-    } : undefined
+    const mayorParams =
+        fetchspan === DateRange.YEAR
+            ? {
+                  from: currentMayorFrom.toISOString(),
+                  to: currentMayorTo.toISOString()
+              }
+            : undefined
 
     const mayorQuery = useGetApiMayor(mayorParams, { query: { enabled: fetchspan === DateRange.YEAR } })
 
     useEffect(() => {
         if (mayorQuery.data) {
             const periods = mayorQuery.data.data || []
-            const sortedPeriods = periods.sort((a: any, b: any) =>
-                new Date(b.start).getTime() - new Date(a.start).getTime()
-            )
+            const sortedPeriods = periods.sort((a: any, b: any) => new Date(b.start).getTime() - new Date(a.start).getTime())
             setMayorPeriods(sortedPeriods)
         } else if (mayorQuery.error) {
             console.error(mayorQuery.error)
         }
     }, [mayorQuery.data, mayorQuery.error])
 
-
     const authKey = yearFetchOptions?.headers ? yearFetchOptions.headers : null
-    const yearQuery = useGetApiItemPriceItemTagHistoryYear(
-        props.item.tag,
-        yearParams,
-        {
-            query: {
-                enabled: isYearLoading,
-                queryKey: ['yearHistory', props.item.tag, yearParams ?? null, authKey]
-            },
-            fetch: yearFetchOptions
-        }
-    )
+    const yearQuery = useGetApiItemPriceItemTagHistoryYear(props.item.tag, yearParams, {
+        query: {
+            enabled: isYearLoading,
+            queryKey: ['yearHistory', props.item.tag, yearParams ?? null, authKey]
+        },
+        fetch: yearFetchOptions
+    })
 
     useEffect(() => {
         if (!isYearLoading) return
@@ -203,7 +203,12 @@ function AuctionHousePriceGraph(props: Props) {
             setIsYearLoading(false)
             const data = response.data
 
-            if (data && typeof data === 'object' && (data && ((data as any).isPremiumRequired || (data as any).premiumRequired || (data as any).error === 'premium_required' || (data as any).status === 401))) {
+            if (
+                data &&
+                typeof data === 'object' &&
+                data &&
+                ((data as any).isPremiumRequired || (data as any).premiumRequired || (data as any).error === 'premium_required' || (data as any).status === 401)
+            ) {
                 setIsYearLoading(false)
                 setIsLoading(false)
                 setYearStatistics({ ...EMPTY_YEAR_STATISTICS_BASE, isPremiumRequired: true })
@@ -271,7 +276,6 @@ function AuctionHousePriceGraph(props: Props) {
         }
     }, [yearQuery.data, yearQuery.error])
 
-
     let updateChart = (fetchspan: DateRange, itemFilter?: ItemFilter) => {
         if (fetchspan === DateRange.ACTIVE) {
             setIsLoading(false)
@@ -309,7 +313,7 @@ function AuctionHousePriceGraph(props: Props) {
                 const googleId = isSignedIn ? sessionStorage.getItem('googleId') : null
                 if (googleId) {
                     requestOptions.headers = {
-                        'GoogleToken': googleId,
+                        GoogleToken: googleId,
                         'Content-Type': 'application/json'
                     }
                 }
@@ -325,11 +329,11 @@ function AuctionHousePriceGraph(props: Props) {
                 if (
                     !mounted ||
                     currentLoadingString !==
-                    JSON.stringify({
-                        tag: props.item.tag,
-                        fetchspan,
-                        itemFilter
-                    })
+                        JSON.stringify({
+                            tag: props.item.tag,
+                            fetchspan,
+                            itemFilter
+                        })
                 ) {
                     return
                 }
@@ -353,7 +357,7 @@ function AuctionHousePriceGraph(props: Props) {
                     let mayorData = await api.getMayorData(minDate, maxDate)
                     setMayorData(mayorData)
                     applyMayorDataToChart(chartOptions, mayorData, 4)
-                } catch (e) { }
+                } catch (e) {}
 
                 setAvgPrice(Math.round(priceSum / prices.length))
                 setNoDataFound(prices.length === 0)
@@ -416,9 +420,7 @@ function AuctionHousePriceGraph(props: Props) {
                     <div className="spinner-border text-primary" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </div>
-                    <p style={{ marginTop: '10px', fontSize: '14px', color: 'var(--bs-secondary)' }}>
-                        {loadingMessage}
-                    </p>
+                    <p style={{ marginTop: '10px', fontSize: '14px', color: 'var(--bs-secondary)' }}>{loadingMessage}</p>
                 </div>
             ) : (
                 getLoadingElement()
@@ -430,10 +432,9 @@ function AuctionHousePriceGraph(props: Props) {
                 <p>No data found</p>
             </div>
         </div>
-    ) : null;
+    ) : null
 
     if (fetchspan === DateRange.YEAR && !isLoading && !isYearLoading && !hasPremium) {
-
         graphOverlayElement = (
             <div className={styles.graphOverlay} style={{ padding: '20px' }}>
                 <div style={{ textAlign: 'center' }}>
@@ -477,7 +478,7 @@ function AuctionHousePriceGraph(props: Props) {
                 disableYear={false}
                 item={props.item}
                 dateRangesToDisplay={
-                    itemFilter && JSON.stringify(itemFilter) !== '{}' 
+                    itemFilter && JSON.stringify(itemFilter) !== '{}'
                         ? [DateRange.ACTIVE, DateRange.DAY, DateRange.WEEK, DateRange.MONTH, DateRange.YEAR]
                         : [DateRange.ACTIVE, DateRange.DAY, DateRange.WEEK, DateRange.MONTH, DateRange.ALL]
                 }
@@ -518,86 +519,82 @@ function AuctionHousePriceGraph(props: Props) {
                     </span>
                 </div>
 
-
-
                 {/* Year Statistics Section */}
                 {fetchspan === DateRange.YEAR && yearStatistics && (
                     <div style={{ marginTop: '20px', padding: '15px', backgroundColor: 'var(--bs-secondary)', borderRadius: '5px' }}>
                         <h6 style={{ marginBottom: '15px', color: 'var(--bs-warning)' }}>📊 Statistics Summary</h6>
-                        
+
                         {!yearStatistics.isPremiumPreview ? (
                             <>
-                            <div className="row">
-                                <div className="col-md-6">
-                                    <div style={{ marginBottom: '10px' }}>
-                                        <strong>📈 Total Auctions:</strong> <Number number={yearStatistics.totalAuctions || 0} />
+                                <div className="row">
+                                    <div className="col-md-6">
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <strong>📈 Total Auctions:</strong> <Number number={yearStatistics.totalAuctions || 0} />
+                                        </div>
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <strong>💰 Total Coins Transferred:</strong> <Number number={yearStatistics.totalCoinsTransferred || 0} />
+                                        </div>
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <strong>🏪 Total Sellers:</strong> <Number number={yearStatistics.totalSellers || 0} />
+                                        </div>
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <strong>🛒 Total Buyers:</strong> <Number number={yearStatistics.totalBuyers || 0} />
+                                        </div>
                                     </div>
-                                    <div style={{ marginBottom: '10px' }}>
-                                        <strong>💰 Total Coins Transferred:</strong> <Number number={yearStatistics.totalCoinsTransferred || 0} />
-                                    </div>
-                                    <div style={{ marginBottom: '10px' }}>
-                                        <strong>🏪 Total Sellers:</strong> <Number number={yearStatistics.totalSellers || 0} />
-                                    </div>
-                                    <div style={{ marginBottom: '10px' }}>
-                                        <strong>🛒 Total Buyers:</strong> <Number number={yearStatistics.totalBuyers || 0} />
+                                    <div className="col-md-6">
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <strong>📦 Items Sold:</strong> <Number number={yearStatistics.totalItemsSold || 0} />
+                                        </div>
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <strong>⚡ BIN Count:</strong> <Number number={yearStatistics.binCount || 0} />
+                                        </div>
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <strong>🎯 Total Bids:</strong> <Number number={yearStatistics.totalBids || 0} />
+                                        </div>
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <strong>⏱️ Avg Sell Time:</strong>{' '}
+                                            {yearStatistics.averageSellTimeSeconds
+                                                ? `${Math.round(yearStatistics.averageSellTimeSeconds / 3600)} hours`
+                                                : 'N/A'}
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <div style={{ marginBottom: '10px' }}>
-                                        <strong>📦 Items Sold:</strong> <Number number={yearStatistics.totalItemsSold || 0} />
+                                {(yearStatistics.totalAuctions || 0) > 399000 && (
+                                    <div className="row">
+                                        <div className="col-12" style={{ marginTop: '12px', color: 'var(--bs-warning)' }}>
+                                            <strong>Note:</strong> Yearly queries are limited to 400k auctions to manage data size. To get more insights, please
+                                            add more filters or specify a different date range.
+                                        </div>
                                     </div>
-                                    <div style={{ marginBottom: '10px' }}>
-                                        <strong>⚡ BIN Count:</strong> <Number number={yearStatistics.binCount || 0} />
-                                    </div>
-                                    <div style={{ marginBottom: '10px' }}>
-                                        <strong>🎯 Total Bids:</strong> <Number number={yearStatistics.totalBids || 0} />
-                                    </div>
-                                    <div style={{ marginBottom: '10px' }}>
-                                        <strong>⏱️ Avg Sell Time:</strong> {
-                                            yearStatistics.averageSellTimeSeconds 
-                                                ? `${Math.round(yearStatistics.averageSellTimeSeconds / 3600)} hours`
-                                                : 'N/A'
-                                        }
-                                    </div>
+                                )}
+                            </>
+                        ) : yearStatistics && yearStatistics.isPremiumRequired ? (
+                            <div style={{ textAlign: 'center', padding: '20px' }}>
+                                <div style={{ fontSize: '48px', marginBottom: '15px' }}>🔒</div>
+                                <h5 style={{ color: 'var(--bs-warning)', marginBottom: '10px' }}>Premium Feature</h5>
+                                <p style={{ color: 'var(--bs-secondary)', marginBottom: '15px' }}>
+                                    This feature requires a premium account. Sign in to check your access or visit the premium page to learn more.
+                                </p>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', alignItems: 'center' }}>
+                                    <GoogleSignIn onAfterLogin={handleAfterLoginForPremium} />
+                                    <Link href="/premium">
+                                        <button className="btn btn-sm btn-outline-warning">Go to Premium</button>
+                                    </Link>
                                 </div>
                             </div>
-                            {(yearStatistics.totalAuctions || 0) > 399000 && (
-                                <div className="row">
-                                    <div className="col-12" style={{ marginTop: '12px', color: 'var(--bs-warning)' }}>
-                                        <strong>Note:</strong>{' '}Yearly queries are limited to 400k auctions to manage data size. To get more insights, please add more filters or specify a different date range.
-                                    </div>
-                                </div>
-                            )}
-                            </>
                         ) : (
-                            yearStatistics && yearStatistics.isPremiumRequired ? (
-                                <div style={{ textAlign: 'center', padding: '20px' }}>
-                                    <div style={{ fontSize: '48px', marginBottom: '15px' }}>🔒</div>
-                                    <h5 style={{ color: 'var(--bs-warning)', marginBottom: '10px' }}>Premium Feature</h5>
-                                    <p style={{ color: 'var(--bs-secondary)', marginBottom: '15px' }}>
-                                        This feature requires a premium account. Sign in to check your access or visit the premium page to learn more.
-                                    </p>
-                                    <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', alignItems: 'center' }}>
-                                        <GoogleSignIn onAfterLogin={handleAfterLoginForPremium} />
-                                        <Link href="/premium">
-                                            <button className="btn btn-sm btn-outline-warning">Go to Premium</button>
-                                        </Link>
-                                    </div>
+                            <div style={{ textAlign: 'center', padding: '20px' }}>
+                                <div style={{ fontSize: '48px', marginBottom: '15px' }}>🔒</div>
+                                <h5 style={{ color: 'var(--bs-warning)', marginBottom: '10px' }}>Premium Feature</h5>
+                                <p style={{ color: 'var(--bs-secondary)', marginBottom: '15px' }}>Unlock detailed year statistics with premium access!</p>
+                                <div style={{ fontSize: '14px', color: 'var(--bs-info)' }}>
+                                    📊 View complete market analysis
+                                    <br />
+                                    💰 Track historical price trends
+                                    <br />
+                                    📈 Access seller/buyer statistics
                                 </div>
-                            ) : (
-                                <div style={{ textAlign: 'center', padding: '20px' }}>
-                                    <div style={{ fontSize: '48px', marginBottom: '15px' }}>🔒</div>
-                                    <h5 style={{ color: 'var(--bs-warning)', marginBottom: '10px' }}>Premium Feature</h5>
-                                    <p style={{ color: 'var(--bs-secondary)', marginBottom: '15px' }}>
-                                        Unlock detailed year statistics with premium access!
-                                    </p>
-                                    <div style={{ fontSize: '14px', color: 'var(--bs-info)' }}>
-                                        📊 View complete market analysis<br/>
-                                        💰 Track historical price trends<br/>
-                                        📈 Access seller/buyer statistics
-                                    </div>
-                                </div>
-                            )
+                            </div>
                         )}
                     </div>
                 )}
@@ -614,36 +611,36 @@ function AuctionHousePriceGraph(props: Props) {
                 </div>
                 <hr />
             </div>
-            
+
             {fetchspan === DateRange.ACTIVE ? (
                 <ActiveAuctions item={props.item} filter={itemFilter} />
             ) : (
                 <div>
                     {fetchspan !== DateRange.YEAR && <RelatedItems tag={props.item.tag} />}
-                    <RecentAuctions 
-                        item={props.item} 
-                        itemFilter={itemFilter || {}} 
+                    <RecentAuctions
+                        item={props.item}
+                        itemFilter={itemFilter || {}}
                         yearRecentSamples={
                             fetchspan === DateRange.YEAR && yearStatistics
-                                ? ( (yearStatistics.recentSamples || yearStatistics.recentAuctions) || [] ).map(s => ({
-                                    end: s.end ? new Date(s.end) : new Date(),
-                                    price: s.price,
-                                    seller: { name: s.seller || '', uuid: '' , iconUrl: undefined },
-                                    uuid: s.uuid || '',
-                                    playerName: s.playerName || ''
-                                }))
+                                ? (yearStatistics.recentSamples || yearStatistics.recentAuctions || []).map(s => ({
+                                      end: s.end ? new Date(s.end) : new Date(),
+                                      price: s.price,
+                                      seller: { name: s.seller || '', uuid: '', iconUrl: undefined },
+                                      uuid: s.uuid || '',
+                                      playerName: s.playerName || ''
+                                  }))
                                 : undefined
                         }
                         isYearView={fetchspan === DateRange.YEAR}
                         onChangeToActiveAuctions={() => {
                             onRangeChange(DateRange.ACTIVE)
                             let searchParams = new URLSearchParams(window.location.search)
-                            searchParams.set('range', "active")
+                            searchParams.set('range', 'active')
                             router.replace(`${pathname}?${searchParams.toString()}`)
                             setTimeout(() => {
                                 setRangeSelectKey(generateUUID())
                             }, 500)
-                        }} 
+                        }}
                     />
                 </div>
             )}

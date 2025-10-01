@@ -10,7 +10,7 @@ export default async function Page() {
     const queryClient = getQueryClient()
     queryClient.prefetchQuery({
         queryKey: [getGetApiFlipFusionQueryKey()],
-        queryFn: () => getApiFlipFusion(),
+        queryFn: () => getApiFlipFusion()
     })
     return (
         <>
@@ -28,4 +28,12 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Fusion Flips', 'Discover profitable Hypixel SkyBlock Fusion machine flips.', undefined, ['shards', 'flips', 'hypixel', 'skyblock', 'flip', 'fusion', 'shard flipper'])
+export const metadata = getHeadMetadata('Fusion Flips', 'Discover profitable Hypixel SkyBlock Fusion machine flips.', undefined, [
+    'shards',
+    'flips',
+    'hypixel',
+    'skyblock',
+    'flip',
+    'fusion',
+    'shard flipper'
+])

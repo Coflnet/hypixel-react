@@ -12,7 +12,7 @@ import { getEmbedDescription } from '../page'
 import { Container } from 'react-bootstrap'
 
 export default async function Page(props) {
-    const params = await props.params;
+    const params = await props.params
     let flipData = await getFlipData(params.uuid, params.flipUid)
 
     let flipTrackingResponse = parseFlipTrackingResponse(flipData.flipTrackingResponse)
@@ -72,7 +72,7 @@ async function getFlipData(uuid: string, flipUid: string) {
 }
 
 export async function generateMetadata(props) {
-    const params = await props.params;
+    const params = await props.params
     function getTargetFlipEmbedDescription(targetFlip: FlipTrackingFlip) {
         return `${targetFlip.profit > 0 ? '📈 Profit' : '📉 Loss'}:  ${numberWithThousandsSeparators(targetFlip.profit)} Coins ${
             targetFlip.profit > 0 ? `(${numberWithThousandsSeparators(Math.round((targetFlip.profit / targetFlip.pricePaid) * 98))}%)` : ''

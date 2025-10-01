@@ -28,4 +28,7 @@ export default function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Payment Canceled', 'Payment was canceled. No charges were made to your account. You can still access our free Hypixel SkyBlock tools or try upgrading to premium again anytime.')
+export const metadata = getHeadMetadata(
+    'Payment Canceled',
+    'Payment was canceled. No charges were made to your account. You can still access our free Hypixel SkyBlock tools or try upgrading to premium again anytime.'
+)

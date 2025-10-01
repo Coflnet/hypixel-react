@@ -1,7 +1,7 @@
 'use client'
 import moment from 'moment'
 import Link from 'next/link'
-import { useEffect, useState, type JSX } from 'react';
+import { useEffect, useState, type JSX } from 'react'
 import { Badge, Button, Card, ListGroup, Modal, OverlayTrigger, Tooltip as TooltipBootstrap } from 'react-bootstrap'
 import Countdown from 'react-countdown'
 import { toast } from 'react-toastify'
@@ -476,8 +476,7 @@ function AuctionDetails(props: Props) {
                                 if (enchantment.name === 'Ultimate Reiterate') {
                                     enchantment.name = 'Ultimate Duplex'
                                 }
-                                if (enchantment.name === 'Dragon Hunter')
-                                    enchantment.name = 'Gravity'
+                                if (enchantment.name === 'Dragon Hunter') enchantment.name = 'Gravity'
                                 let enchantmentString = <span>{enchantment.name}</span>
 
                                 if (enchantment.color) {

@@ -10,23 +10,20 @@ import { PremiumTier } from '../components/Premium/PremiumPurchaseWizard/types'
  * @param additionalParams - Additional URL parameters (e.g., campaign tracking)
  * @returns Complete URL with tier parameter
  */
-export const generatePremiumUpgradeUrl = (
-    tier: PremiumTier, 
-    additionalParams?: Record<string, string>
-): string => {
+export const generatePremiumUpgradeUrl = (tier: PremiumTier, additionalParams?: Record<string, string>): string => {
     const baseUrl = '/premium'
     const params = new URLSearchParams()
-    
+
     // Add tier parameter
     params.set('tier', tier)
-    
+
     // Add any additional parameters
     if (additionalParams) {
         Object.entries(additionalParams).forEach(([key, value]) => {
             params.set(key, value)
         })
     }
-    
+
     return `${baseUrl}?${params.toString()}`
 }
 
@@ -37,20 +34,17 @@ export const generateCampaignLinks = {
     /**
      * Premium Plus direct purchase link (skips tier selection)
      */
-    premiumPlusDirect: (campaign?: string) => 
-        generatePremiumUpgradeUrl(PremiumTier.PREMIUM_PLUS, campaign ? { campaign } : {}),
-    
+    premiumPlusDirect: (campaign?: string) => generatePremiumUpgradeUrl(PremiumTier.PREMIUM_PLUS, campaign ? { campaign } : {}),
+
     /**
      * Premium upgrade link (good for Starter users)
      */
-    premiumUpgrade: (campaign?: string) => 
-        generatePremiumUpgradeUrl(PremiumTier.PREMIUM, campaign ? { campaign } : {}),
-    
+    premiumUpgrade: (campaign?: string) => generatePremiumUpgradeUrl(PremiumTier.PREMIUM, campaign ? { campaign } : {}),
+
     /**
      * Starter Premium link (for new users)
      */
-    starterPremium: (campaign?: string) => 
-        generatePremiumUpgradeUrl(PremiumTier.STARTER, campaign ? { campaign } : {})
+    starterPremium: (campaign?: string) => generatePremiumUpgradeUrl(PremiumTier.STARTER, campaign ? { campaign } : {})
 }
 
 /**
@@ -98,13 +92,17 @@ export const getTierDisplayName = (tier: PremiumTier): string => {
 export const isTierHigher = (tierA: PremiumTier, tierB: PremiumTier): boolean => {
     const getTierRank = (tier: PremiumTier): number => {
         switch (tier) {
-            case PremiumTier.STARTER: return 1
-            case PremiumTier.PREMIUM: return 2
-            case PremiumTier.PREMIUM_PLUS: return 3
-            default: return 0
+            case PremiumTier.STARTER:
+                return 1
+            case PremiumTier.PREMIUM:
+                return 2
+            case PremiumTier.PREMIUM_PLUS:
+                return 3
+            default:
+                return 0
         }
     }
-    
+
     return getTierRank(tierA) > getTierRank(tierB)
 }
 
@@ -115,9 +113,9 @@ export const isTierHigher = (tierA: PremiumTier, tierB: PremiumTier): boolean =>
  */
 export const parseTierFromUrl = (tierParam: string | null): PremiumTier | null => {
     if (!tierParam) return null
-    
+
     const normalized = tierParam.toLowerCase().replace(/[-_]/g, '')
-    
+
     switch (normalized) {
         case 'starter':
             return PremiumTier.STARTER
@@ -133,18 +131,18 @@ export const parseTierFromUrl = (tierParam: string | null): PremiumTier | null =
 
 /**
  * Example usage for marketing campaigns:
- * 
+ *
  * // Generate direct Premium Plus purchase link
  * const premiumPlusLink = generateCampaignLinks.premiumPlusDirect('summer2024')
  * // Result: '/premium?tier=premium_plus&campaign=summer2024'
- * 
+ *
  * // Generate upgrade link for email campaign
- * const upgradeLink = generatePremiumUpgradeUrl(PremiumTier.PREMIUM, { 
+ * const upgradeLink = generatePremiumUpgradeUrl(PremiumTier.PREMIUM, {
  *     campaign: 'email_upgrade',
  *     source: 'newsletter'
  * })
  * // Result: '/premium?tier=premium&campaign=email_upgrade&source=newsletter'
- * 
+ *
  * // Check if user can be upsold
  * const currentTier = PremiumTier.STARTER
  * const nextTier = getNextTierUp(currentTier)

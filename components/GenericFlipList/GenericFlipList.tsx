@@ -42,7 +42,6 @@ export interface SortOption<T> {
     sortFunction(items: T[], ...args: any[]): T[]
 }
 
-
 let observer: MutationObserver
 
 export function GenericFlipList<T>({
@@ -53,16 +52,15 @@ export function GenericFlipList<T>({
     filterFunction,
     getItemKeyAction,
     censoredItemGenerator,
-    premiumMessage = "The top 3 flips can only be seen with starter premium or better",
-    clickMessage = "Click on a flip for further details",
+    premiumMessage = 'The top 3 flips can only be seen with starter premium or better',
+    clickMessage = 'Click on a flip for further details',
     showColumns = false,
     customFilters,
     sortFunctionArgs = [],
     customItemWrapper,
     onAfterSignIn,
     customHeader,
-    getFlipLink
-    ,
+    getFlipLink,
     renderBatchSize = 42,
     initialRenderCount = 42
 }: FlipListProps<T>) {
@@ -75,14 +73,7 @@ export function GenericFlipList<T>({
     const [columns, setColumns] = useState<number>()
     const [showPremiumModal, setShowPremiumModal] = useState(false)
 
-    const { processedItems, isProcessing } = useSortedAndFilteredItems(
-        items,
-        orderBy,
-        nameFilter,
-        minimumProfit,
-        filterFunction,
-        sortFunctionArgs
-    )
+    const { processedItems, isProcessing } = useSortedAndFilteredItems(items, orderBy, nameFilter, minimumProfit, filterFunction, sortFunctionArgs)
 
     // Batch rendering state to limit DOM nodes for very large lists
     const safeInitial = Math.max(3, initialRenderCount || 0)
@@ -168,23 +159,29 @@ export function GenericFlipList<T>({
         setMinimumProfit(e.target.value)
     }, [])
 
-    const updateOrderBy = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
-        if (!isProcessing) {
-            let selectedIndex = event.target.options.selectedIndex
-            let value = event.target.options[selectedIndex].getAttribute('value')!
-            let sortOption = sortOptions.find(option => option.value === value)
-            if (sortOption) {
-                setOrderBy(sortOption)
+    const updateOrderBy = useCallback(
+        (event: ChangeEvent<HTMLSelectElement>) => {
+            if (!isProcessing) {
+                let selectedIndex = event.target.options.selectedIndex
+                let value = event.target.options[selectedIndex].getAttribute('value')!
+                let sortOption = sortOptions.find(option => option.value === value)
+                if (sortOption) {
+                    setOrderBy(sortOption)
+                }
             }
-        }
-    }, [isProcessing, sortOptions])
+        },
+        [isProcessing, sortOptions]
+    )
 
-    const handleColumnChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
-        if (!isProcessing) {
-            const value = parseInt(event.target.value, 10)
-            setColumns(value)
-        }
-    }, [isProcessing])
+    const handleColumnChange = useCallback(
+        (event: ChangeEvent<HTMLSelectElement>) => {
+            if (!isProcessing) {
+                const value = parseInt(event.target.value, 10)
+                setColumns(value)
+            }
+        },
+        [isProcessing]
+    )
 
     const blurStyle: React.CSSProperties = {
         WebkitFilter: 'blur(5px)',
@@ -360,33 +357,17 @@ export function GenericFlipList<T>({
                 {!isLoggedIn ? <hr /> : ''}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Form.Control
-                    className={styles.filterInput}
-                    placeholder="Item name..."
-                    onChange={onNameFilterChange}
-                />
-                <Form.Select
-                    className={styles.filterInput}
-                    defaultValue={orderBy.value}
-                    onChange={updateOrderBy}
-                >
+                <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
+                <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {sortOptions.map(option => (
                         <option key={option.value} value={option.value}>
                             {option.label}
                         </option>
                     ))}
                 </Form.Select>
-                <Form.Control
-                    className={styles.filterInput}
-                    placeholder="Minimum Profit"
-                    onChange={onMinimumProfitChange}
-                />
+                <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />
                 {showColumns && (
-                    <Form.Select
-                        className={styles.filterInput}
-                        value={columns}
-                        onChange={handleColumnChange}
-                    >
+                    <Form.Select className={styles.filterInput} value={columns} onChange={handleColumnChange}>
                         <option value={1}>1 Column</option>
                         <option value={2}>2 Columns</option>
                         <option value={3}>3 Columns</option>
@@ -402,14 +383,17 @@ export function GenericFlipList<T>({
             <p>{clickMessage}</p>
             <div className={flipListClass}>
                 {isProcessing ? (
-                    <div className={styles.loadingContainer} style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        minHeight: '200px',
-                        flexDirection: 'column',
-                        gap: '16px'
-                    }}>
+                    <div
+                        className={styles.loadingContainer}
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            minHeight: '200px',
+                            flexDirection: 'column',
+                            gap: '16px'
+                        }}
+                    >
                         <Spinner animation="border" role="status" variant="primary" />
                         <span>Processing items...</span>
                     </div>
@@ -426,7 +410,7 @@ export function GenericFlipList<T>({
                     </>
                 )}
             </div>
-            <Link href="/flips" >
+            <Link href="/flips">
                 <p style={{ textAlign: 'center', marginTop: '20px' }}>See all hypixel skyblock flips</p>
             </Link>
         </div>

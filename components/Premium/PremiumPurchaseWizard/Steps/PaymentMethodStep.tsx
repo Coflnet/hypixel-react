@@ -12,9 +12,7 @@ export default function PaymentMethodStep({ selectedType, onTypeSelect }: Props)
     return (
         <div className={styles.stepContent}>
             <h4 className={styles.stepQuestion}>How would you like to pay?</h4>
-            <p className={styles.stepDescription}>
-                Choose your preferred payment method. Both options provide the same premium features.
-            </p>
+            <p className={styles.stepDescription}>Choose your preferred payment method. Both options provide the same premium features.</p>
 
             <div className={styles.optionsGrid}>
                 <Card
@@ -24,8 +22,11 @@ export default function PaymentMethodStep({ selectedType, onTypeSelect }: Props)
                     <Card.Body className={styles.optionBody}>
                         <div className={styles.optionIcon}>💳</div>
                         <h5 className={styles.paymentTitle}>Subscription</h5>
-                        <p className={styles.paymentDescription}>Cancel any time (on this page)<br />
-                            Supports discount codes</p>
+                        <p className={styles.paymentDescription}>
+                            Cancel any time (on this page)
+                            <br />
+                            Supports discount codes
+                        </p>
                         <small className={styles.recommendation}>Most Popular</small>
                     </Card.Body>
                 </Card>

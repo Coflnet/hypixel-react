@@ -143,8 +143,9 @@ function Ref() {
                             </p>
                             {refInfo?.referedCount > 7 && refInfo?.purchasedCoins === 0 ? (
                                 <p style={{ color: 'orange' }}>
-                                    Automatic referral grant is limited to <b>7 people per month</b>. Content creators who expect more
-                                    referrals should contact support to have their referrals audited. Sadly we saw too many people abuse the refferal system at 7 or more referrals per month.
+                                    Automatic referral grant is limited to <b>7 people per month</b>. Content creators who expect more referrals should contact
+                                    support to have their referrals audited. Sadly we saw too many people abuse the refferal system at 7 or more referrals per
+                                    month.
                                 </p>
                             ) : null}
                             <p>

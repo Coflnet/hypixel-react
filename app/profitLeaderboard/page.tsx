@@ -12,7 +12,7 @@ export default async function Page() {
     const queryClient = getQueryClient()
     queryClient.prefetchQuery({
         queryKey: [getGetApiLeaderboardProfitQueryKey()],
-        queryFn: () => getApiLeaderboardProfit(),
+        queryFn: () => getApiLeaderboardProfit()
     })
     return (
         <>
@@ -30,4 +30,13 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Profit Leaderboard', 'Explore the top Hypixel SkyBlock traders with our Profit Leaderboard', undefined, ['leaderboard', 'profit', 'hypixel', 'skyblock', 'traders', 'trading', 'auction', 'bazaar'])
+export const metadata = getHeadMetadata('Profit Leaderboard', 'Explore the top Hypixel SkyBlock traders with our Profit Leaderboard', undefined, [
+    'leaderboard',
+    'profit',
+    'hypixel',
+    'skyblock',
+    'traders',
+    'trading',
+    'auction',
+    'bazaar'
+])

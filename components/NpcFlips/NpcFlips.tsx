@@ -35,10 +35,10 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
 export function NpcFlips() {
     const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
         queryKey: [getGetApiFlipNpcQueryKey()],
-        queryFn: () => getApiFlipNpc(),
+        queryFn: () => getApiFlipNpc()
     })
 
-    const crafts = useMemo(() => flips ? parseProfitableCrafts(flips) : [], [flips])
+    const crafts = useMemo(() => (flips ? parseProfitableCrafts(flips) : []), [flips])
 
     function renderFlipContent(craft: ProfitableCraft) {
         return (
@@ -121,7 +121,8 @@ export function NpcFlips() {
     return (
         <>
             <p>This is a complete list the best items to flip from npc to either bazaar or the auction house in hypixel skyblock for a profit.</p>
-            <details><summary>How to do npc flipping</summary>
+            <details>
+                <summary>How to do npc flipping</summary>
                 <ol>
                     <li>Find an item you can afford and looks promising in the list</li>
                     <li>Click on the item to open the item page</li>
@@ -131,27 +132,46 @@ export function NpcFlips() {
                     <li>After it sold, repeat</li>
                 </ol>
             </details>
-            <details><summary>What is volume?</summary>
+            <details>
+                <summary>What is volume?</summary>
                 <p>Volume is how many items are sold per day on average. The higher the volume the easier it is to sell your item.</p>
-                <p>For bazaar items this is how many items are sold on bazaar per day, for auction house items this is how many items are sold on auction house per day.</p>
-            </details>
-            <details><summary>What is median?</summary>
-                <p>The median is what an item usually sells for, you can learn more with <a href="https://www.youtube.com/watch?v=nfMo5CeJDgc">this video</a>.</p>
-                <p>This is a good indicator of the actual price of an item as it is not influenced by outliers like the average price is.</p>
-            </details>
-            <details><summary>How the Purchase Cost is calculated</summary>
-                <p>The displayed purchase cost is the sum of coins + item purchase cost required to get an item from the NPC.<br />
-                    For example <b>Wither Goggles</b> purchase cost is <b>5m</b> Skyblock Coins combined with the cost of <b>Shadow Goggles</b> both of which you hand to the <a href="https://wiki.hypixel.net/Ophelia">Ophelia NPC</a></p>
-            </details>
-            <details><summary>Is there a limit to how many items I can buy from an NPC?</summary>
-                <p>Yes, many NPC items have a limit to how many items you can buy from them per day. <br />
-                    This is usually 640 items per day for bazaar items.<br />
+                <p>
+                    For bazaar items this is how many items are sold on bazaar per day, for auction house items this is how many items are sold on auction house
+                    per day.
                 </p>
             </details>
-            <details><summary>Some items are inaccessible</summary>
-                <p>Some npc are only accessible during special skyblock events. If that event is not active you can't currently do the flip. <br />
+            <details>
+                <summary>What is median?</summary>
+                <p>
+                    The median is what an item usually sells for, you can learn more with <a href="https://www.youtube.com/watch?v=nfMo5CeJDgc">this video</a>.
+                </p>
+                <p>This is a good indicator of the actual price of an item as it is not influenced by outliers like the average price is.</p>
+            </details>
+            <details>
+                <summary>How the Purchase Cost is calculated</summary>
+                <p>
+                    The displayed purchase cost is the sum of coins + item purchase cost required to get an item from the NPC.
+                    <br />
+                    For example <b>Wither Goggles</b> purchase cost is <b>5m</b> Skyblock Coins combined with the cost of <b>Shadow Goggles</b> both of which
+                    you hand to the <a href="https://wiki.hypixel.net/Ophelia">Ophelia NPC</a>
+                </p>
+            </details>
+            <details>
+                <summary>Is there a limit to how many items I can buy from an NPC?</summary>
+                <p>
+                    Yes, many NPC items have a limit to how many items you can buy from them per day. <br />
+                    This is usually 640 items per day for bazaar items.
+                    <br />
+                </p>
+            </details>
+            <details>
+                <summary>Some items are inaccessible</summary>
+                <p>
+                    Some npc are only accessible during special skyblock events. If that event is not active you can't currently do the flip. <br />
                     Note that you can learn from the price difference. <br />
-                    Buy more when the event is active and sell them later when its not. Doing it this way with a bit of waiting can net you way more profit with npc flips.</p>
+                    Buy more when the event is active and sell them later when its not. Doing it this way with a bit of waiting can net you way more profit with
+                    npc flips.
+                </p>
             </details>
             <br />
             <GenericFlipList
@@ -159,8 +179,8 @@ export function NpcFlips() {
                 sortOptions={SORT_OPTIONS}
                 renderFlipContentAction={renderFlipContent}
                 filterFunction={filterFunction}
-                getFlipLink={(craft) => `https://sky.coflnet.com/item/${craft.item.tag}`}
-                getItemKeyAction={(craft) => craft.item.tag}
+                getFlipLink={craft => `https://sky.coflnet.com/item/${craft.item.tag}`}
+                getItemKeyAction={craft => craft.item.tag}
                 censoredItemGenerator={censoredItemGenerator}
                 premiumMessage="The top 3 flips can only be seen with starter premium or better"
                 clickMessage="Click on a flip for further details"

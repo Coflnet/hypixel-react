@@ -50,13 +50,7 @@ const RELATIVE_TIME_DIVISIONS: ReadonlyArray<{ amount: number; unit: Intl.Relati
     { amount: Number.POSITIVE_INFINITY, unit: 'year' }
 ]
 
-const SHORT_NUMBER_UNITS = [
-    { mult: 1e12 },
-    { mult: 1e9 },
-    { mult: 1e6 },
-    { mult: 1e3 },
-    { mult: 1 }
-]
+const SHORT_NUMBER_UNITS = [{ mult: 1e12 }, { mult: 1e9 }, { mult: 1e6 }, { mult: 1e3 }, { mult: 1 }]
 
 function calculateDelta(current?: number | null, previous?: number | null): number | null {
     if (current === null || current === undefined || previous === null || previous === undefined) {
@@ -218,12 +212,7 @@ export function TopMovers() {
             <>
                 <h4>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                        <img
-                            src={imageUrl}
-                            alt={entry.displayName}
-                            style={{ width: 32, height: 32, verticalAlign: 'middle' }}
-                            loading="lazy"
-                        />
+                        <img src={imageUrl} alt={entry.displayName} style={{ width: 32, height: 32, verticalAlign: 'middle' }} loading="lazy" />
                         <span>{entry.displayName}</span>
                     </span>
                 </h4>
@@ -261,7 +250,9 @@ export function TopMovers() {
     return (
         <div>
             <p>
-                Track the biggest Hypixel SkyBlock price movers from the last 24 hours. Filter by name, require a minimum coin swing, and click any row to jump straight to the live item details.<br />
+                Track the biggest Hypixel SkyBlock price movers from the last 24 hours. Filter by name, require a minimum coin swing, and click any row to jump
+                straight to the live item details.
+                <br />
                 Profit of price swings on items, but beware sometimes prices won't recover for a long time.
             </p>
             {lastUpdatedText && (
