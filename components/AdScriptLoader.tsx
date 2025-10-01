@@ -2,11 +2,11 @@
 
 import { usePathname } from 'next/navigation'
 import Script from 'next/script'
-import { useShouldShowAds } from '../hooks/useShouldShowAds'
+import { useAds } from './Providers/AdsProvider'
 
 export default function AdScriptLoader() {
     const pathname = usePathname() || ''
-    const shouldShowAds = useShouldShowAds()
+    const { shouldShowAds } = useAds()
 
     const matchesAdRoute = pathname.startsWith('/item') || pathname.includes('flip')
     const shouldLoadAds = shouldShowAds && matchesAdRoute
