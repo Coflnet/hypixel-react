@@ -7,15 +7,13 @@ import { Button, Form, Modal } from 'react-bootstrap'
 import { NumericFormat } from 'react-number-format'
 import { v4 as generateUUID } from 'uuid'
 import api from '../../../api/ApiHelper'
-import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { getFlipCustomizeSettings, getCurrentProfitCalculationState } from '../../../utils/FlipUtils'
+import { getCurrentProfitCalculationState } from '../../../utils/FlipUtils'
 import { getDecimalSeparator, getThousandSeparator } from '../../../utils/Formatter'
 import {
     FLIPPER_FILTER_KEY,
     FLIP_CUSTOMIZING_KEY,
     ITEM_FILER_SHOW_ADVANCED,
     getSetting,
-    getSettingsObject,
     mapRestrictionsToApiFormat,
     setSetting
 } from '../../../utils/SettingsUtils'
@@ -26,6 +24,7 @@ import styles from './FlipperFilter.module.css'
 import { getURLSearchParam } from '../../../utils/Parser/URLParser'
 import { RestrictionCreateState } from '../FlipRestrictionList/NewRestriction/NewRestriction'
 import { isValidTokenAvailable } from '../../GoogleSignIn/GoogleSignIn'
+import { useFlipSettings } from '../../Providers/FlipSettingsProvider'
 
 interface Props {
     onChange(filter: FlipperFilter)
@@ -34,13 +33,15 @@ interface Props {
 }
 
 function FlipperFilter(props: Props) {
+    const { flipperFilter: contextFlipperFilter, flipCustomizeSettings: contextFlipCustomizeSettings, refreshSettings } = useFlipSettings()
+    
     let [prefillRestriction] = useState<RestrictionCreateState>(
         getURLSearchParam('prefillRestriction') ? JSON.parse(getURLSearchParam('prefillRestriction')!) : undefined
     )
     let [showRestrictionList, setShowRestrictionList] = useState(!!prefillRestriction)
     let [isAdvanced, setIsAdvanced] = useState(getSetting(ITEM_FILER_SHOW_ADVANCED, 'false') === 'true')
-    let [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
-    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
+    let [localFlipCustomizeSettings, setLocalFlipCustomizeSettings] = useState<FlipCustomizeSettings>(contextFlipCustomizeSettings)
+    let [localFlipperFilter, setLocalFlipperFilter] = useState<FlipperFilter>(contextFlipperFilter)
     let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
     let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(generateUUID())
     let [isSSR, setIsSSR] = useState(true)
@@ -50,17 +51,10 @@ function FlipperFilter(props: Props) {
     let { trackEvent } = useMatomo()
 
     useEffect(() => {
-        setFlipCustomizeSettings(getFlipCustomizeSettings())
-        setFlipperFilter(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
+        setLocalFlipCustomizeSettings(contextFlipCustomizeSettings)
+        setLocalFlipperFilter(contextFlipperFilter)
         setIsSSR(false)
-        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, e => {
-            if ((e as any).detail?.apiUpdate) {
-                setFlipCustomizeKey(generateUUID())
-            }
-            setFlipCustomizeSettings(getFlipCustomizeSettings())
-            setFlipperFilter(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
-        })
-    }, [])
+    }, [contextFlipCustomizeSettings, contextFlipperFilter])
 
     let onlyUnsoldRef = useRef(null)
 
@@ -76,15 +70,15 @@ function FlipperFilter(props: Props) {
             setSetting(FLIPPER_FILTER_KEY, JSON.stringify(filter))
         }
 
-        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
+        setLocalFlipperFilter(filter)
+        refreshSettings()
         props.onChange(filter)
     }
 
     function onSettingsChange(key: string, value: any, apiKey?: string) {
-        let filter = flipperFilter
+        let filter = { ...localFlipperFilter }
         filter[key] = value
         api.setFlipSetting(apiKey || key, value)
-        setFlipperFilter(flipperFilter)
         onFilterChange(filter)
     }
 
@@ -97,11 +91,12 @@ function FlipperFilter(props: Props) {
     }
 
     function onProfitCalculationButtonClick() {
-        let flipPriceCalculationState = getCurrentProfitCalculationState(flipCustomizeSettings)
+        let flipPriceCalculationState = getCurrentProfitCalculationState(localFlipCustomizeSettings)
+        let newSettings = { ...localFlipCustomizeSettings }
 
         if (flipPriceCalculationState === 'lbin' || flipPriceCalculationState === 'custom') {
-            flipCustomizeSettings.finders = [1, 4]
-            flipCustomizeSettings.useLowestBinForProfit = false
+            newSettings.finders = [1, 4]
+            newSettings.useLowestBinForProfit = false
             api.setFlipSetting('lbin', false)
             api.setFlipSetting('finders', 5)
             trackEvent({
@@ -113,8 +108,8 @@ function FlipperFilter(props: Props) {
                 action: 'lbin: false'
             })
         } else {
-            flipCustomizeSettings.finders = [2]
-            flipCustomizeSettings.useLowestBinForProfit = true
+            newSettings.finders = [2]
+            newSettings.useLowestBinForProfit = true
             api.setFlipSetting('lbin', true)
             api.setFlipSetting('finders', 2)
             trackEvent({
@@ -126,9 +121,9 @@ function FlipperFilter(props: Props) {
                 action: 'lbin: false'
             })
         }
-        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
-        setFlipCustomizeSettings({ ...flipCustomizeSettings })
-        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
+        setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(newSettings))
+        setLocalFlipCustomizeSettings(newSettings)
+        refreshSettings()
     }
 
     const debounceMinProfitChangeFunction = (function () {
@@ -178,10 +173,10 @@ function FlipperFilter(props: Props) {
         </Modal>
     )
 
-    let flipPriceCalculationState = getCurrentProfitCalculationState(flipCustomizeSettings)
+    let flipPriceCalculationState = getCurrentProfitCalculationState(localFlipCustomizeSettings)
 
     return (
-        <div className={styles.flipperFilter}>
+        <div className={styles.localFlipperFilter}>
             <div className={styles.flipperFilterGroup}>
                 <Form.Group className={styles.filterTextfield}>
                     <Tooltip
@@ -203,7 +198,7 @@ function FlipperFilter(props: Props) {
                         onValueChange={value => {
                             debounceMinProfitChangeFunction(value.floatValue || 0)
                         }}
-                        placeholder={!props.isLoggedIn ? 'Please login first' : null}
+                        placeholder={!props.isLoggedIn ? 'Please login first' : undefined}
                         className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                         type="text"
                         disabled={!props.isLoggedIn}
@@ -211,7 +206,7 @@ function FlipperFilter(props: Props) {
                             return numberFieldMaxValue(value.floatValue, 10000000000)
                         }}
                         customInput={Form.Control}
-                        defaultValue={flipperFilter.minProfit}
+                        defaultValue={localFlipperFilter.minProfit}
                         thousandSeparator={getThousandSeparator()}
                         decimalSeparator={getDecimalSeparator()}
                         allowNegative={false}
@@ -242,14 +237,14 @@ function FlipperFilter(props: Props) {
                             <Form.Label
                                 htmlFor="onlyBinCheckbox"
                                 className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}
-                                defaultChecked={flipperFilter.onlyBin}
+                                defaultChecked={localFlipperFilter.onlyBin}
                             >
                                 Only BIN Auctions
                             </Form.Label>
                         }
                         tooltipContent={
                             <span>
-                                {flipperFilter.onlyBin ? 'Do not display' : 'Display'} auction flips that are about to end and could be profited from with the
+                                {localFlipperFilter.onlyBin ? 'Do not display' : 'Display'} auction flips that are about to end and could be profited from with the
                                 current bid
                             </span>
                         }
@@ -260,7 +255,7 @@ function FlipperFilter(props: Props) {
                             onSettingsChange('onlyBin', e.target.checked)
                         }}
                         disabled={disabled}
-                        defaultChecked={flipperFilter.onlyBin}
+                        defaultChecked={localFlipperFilter.onlyBin}
                         className={styles.flipperFilterFormfield}
                         type="checkbox"
                     />
@@ -357,12 +352,12 @@ function FlipperFilter(props: Props) {
                                 }}
                                 className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                                 disabled={!props.isLoggedIn}
-                                placeholder={!props.isLoggedIn ? 'Please login first' : null}
+                                placeholder={!props.isLoggedIn ? 'Please login first' : undefined}
                                 isAllowed={value => {
                                     return numberFieldMaxValue(value.floatValue, 10000000000)
                                 }}
                                 customInput={Form.Control}
-                                defaultValue={flipperFilter.minProfitPercent}
+                                defaultValue={localFlipperFilter.minProfitPercent}
                                 thousandSeparator={getThousandSeparator()}
                                 decimalSeparator={getDecimalSeparator()}
                                 allowNegative={false}
@@ -386,12 +381,12 @@ function FlipperFilter(props: Props) {
                                 }}
                                 className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                                 disabled={!props.isLoggedIn}
-                                placeholder={!props.isLoggedIn ? 'Please login first' : null}
+                                placeholder={!props.isLoggedIn ? 'Please login first' : undefined}
                                 isAllowed={value => {
                                     return numberFieldMaxValue(value.floatValue, 120)
                                 }}
                                 customInput={Form.Control}
-                                defaultValue={flipperFilter.minVolume}
+                                defaultValue={localFlipperFilter.minVolume}
                                 thousandSeparator={getThousandSeparator()}
                                 decimalSeparator={getDecimalSeparator()}
                                 allowNegative={false}
@@ -409,12 +404,12 @@ function FlipperFilter(props: Props) {
                                 }}
                                 className={`${styles.flipperFilterFormfield} ${styles.flipperFilterFormfieldText}`}
                                 disabled={!props.isLoggedIn}
-                                placeholder={!props.isLoggedIn ? 'Please login first' : null}
+                                placeholder={!props.isLoggedIn ? 'Please login first' : undefined}
                                 isAllowed={value => {
                                     return numberFieldMaxValue(value.floatValue, 10000000000)
                                 }}
                                 customInput={Form.Control}
-                                defaultValue={flipperFilter.maxCost}
+                                defaultValue={localFlipperFilter.maxCost}
                                 thousandSeparator={getThousandSeparator()}
                                 decimalSeparator={getDecimalSeparator()}
                                 allowNegative={false}
@@ -431,7 +426,7 @@ function FlipperFilter(props: Props) {
                                 onChange={e => {
                                     onSettingsChange('onlyUnsold', e.target.checked, 'showHideSold')
                                 }}
-                                defaultChecked={flipperFilter.onlyUnsold}
+                                defaultChecked={localFlipperFilter.onlyUnsold}
                                 className={styles.flipperFilterFormfield}
                                 type="checkbox"
                                 disabled={disabled}
