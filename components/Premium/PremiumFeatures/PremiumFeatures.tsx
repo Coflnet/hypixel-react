@@ -13,11 +13,7 @@ function PremiumFeatures() {
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
         </svg>
     )
-    let checkIconElement = (
-        <td className={styles.premiumProductColumn}>
-            {checkIconSvg}
-        </td>
-    )
+    let checkIconElement = <td className={styles.premiumProductColumn}>{checkIconSvg}</td>
 
     let xIconElement = (
         <td className={styles.premiumProductColumn}>
@@ -154,7 +150,9 @@ function PremiumFeatures() {
                                     </span>
                                 }
                                 type="hover"
-                                tooltipContent={<p>Replay all active auctions against your flip filter to find flips that were created while you were offline</p>}
+                                tooltipContent={
+                                    <p>Replay all active auctions against your flip filter to find flips that were created while you were offline</p>
+                                }
                             />
                         </td>
                         {xIconElement}
@@ -193,7 +191,8 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>In game lowball helper
+                        <td className={styles.featureColumn}>
+                            In game lowball helper
                             <Tooltip
                                 content={
                                     <span style={{ marginLeft: '5px' }}>
@@ -217,7 +216,8 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Access to archive
+                        <td className={styles.featureColumn}>
+                            Access to archive
                             <Tooltip
                                 content={
                                     <span style={{ marginLeft: '5px' }}>
@@ -265,15 +265,18 @@ function PremiumFeatures() {
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>Use /cofl forge in game</td>
-                        <td className={styles.premiumProductColumn}><Tooltip
-                            content={
-                                <span style={{ marginLeft: '5px' }}>
-                                    {checkIconSvg}<HelpIcon />
-                                </span>
-                            }
-                            type="hover"
-                            tooltipContent={<p>The top 3 options require a paid plan</p>}
-                        /></td>
+                        <td className={styles.premiumProductColumn}>
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        {checkIconSvg}
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>The top 3 options require a paid plan</p>}
+                            />
+                        </td>
                         {checkIconElement}
                         {checkIconElement}
                         {checkIconElement}

@@ -55,8 +55,8 @@ function Flipper(props: Props) {
     let [flips, setFlips] = useState<FlipAuction[]>(
         props.flips
             ? props.flips.map(parseFlipAuction).filter(flip => {
-                return flipperFilter.onlyUnsold ? !flip.sold : true
-            })
+                  return flipperFilter.onlyUnsold ? !flip.sold : true
+              })
             : []
     )
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -79,7 +79,6 @@ function Flipper(props: Props) {
 
     let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID())
 
-                                
     const { show } = useContextMenu({
         id: FLIP_CONEXT_MENU_ID
     })
@@ -164,7 +163,6 @@ function Flipper(props: Props) {
     }
 
     let loadHasPremium = () => {
-
         let onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
             setActivePremiumProduct(getHighestPriorityPremiumProduct(products))
@@ -180,14 +178,18 @@ function Flipper(props: Props) {
             setIsLoading(false)
         }
 
-        api.getPremiumProducts().then(products => {
-            onAfterPremiumProductsLoaded(products)
-        }).catch(() => {
-            onAfterPremiumProductsLoaded([{
-                expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-                productSlug: 'premium',
-            }])
-        })
+        api.getPremiumProducts()
+            .then(products => {
+                onAfterPremiumProductsLoaded(products)
+            })
+            .catch(() => {
+                onAfterPremiumProductsLoaded([
+                    {
+                        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+                        productSlug: 'premium'
+                    }
+                ])
+            })
     }
 
     function onLogin() {
@@ -206,7 +208,7 @@ function Flipper(props: Props) {
 
     function onArrowRightClick() {
         if (listRef.current) {
-            ; (listRef.current as any).scrollToItem(flips.length - 1)
+            ;(listRef.current as any).scrollToItem(flips.length - 1)
         }
     }
 
@@ -351,7 +353,7 @@ function Flipper(props: Props) {
         setFlipperFilter(newFilter)
         setFlips([])
         if (listRef.current) {
-            ; (listRef.current as any)?.scrollToItem(flips.length - 1)
+            ;(listRef.current as any)?.scrollToItem(flips.length - 1)
         }
     }
 
@@ -410,7 +412,7 @@ function Flipper(props: Props) {
             () => {
                 window.location.reload()
             },
-            () => { },
+            () => {},
             true
         )
         localStorage.removeItem('userSettings')

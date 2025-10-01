@@ -74,7 +74,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     }
 
                     let display = convertTagToName(localFilter[key])
-                    let info: string | null = null;
+                    let info: string | null = null
 
                     if (key === 'ItemNameContains') {
                         display = localFilter[key]
@@ -117,7 +117,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
 
                     // Special case for skin filter
                     if (key === SKIN_FILTER || key === PET_SKIN_FILTER) {
-                        info = 'This filter only works on applied skins on pets/armor. For the items there is the "ItemCategory" filter.';
+                        info = 'This filter only works on applied skins on pets/armor. For the items there is the "ItemCategory" filter.'
                     }
 
                     if (!localFilter[key] && !display) {
@@ -125,14 +125,16 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     }
 
                     return (
-                        <span key={key} >
+                        <span key={key}>
                             <div className="ellipse mb-2" title={display}>
                                 {camelCaseToSentenceCase(key)}: {display}
-                                {info ? <Tooltip
-                                    type="hover"
-                                    content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer', marginLeft: 5 }} />}
-                                    tooltipContent={<span>{info}</span>}
-                                /> : null}
+                                {info ? (
+                                    <Tooltip
+                                        type="hover"
+                                        content={<HelpIcon style={{ color: '#007bff', cursor: 'pointer', marginLeft: 5 }} />}
+                                        tooltipContent={<span>{info}</span>}
+                                    />
+                                ) : null}
                             </div>
 
                             {props.isEditable ? (

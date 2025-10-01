@@ -2,7 +2,7 @@
 import DeleteIcon from '@mui/icons-material/Delete'
 import UndoIcon from '@mui/icons-material/Undo'
 import Link from 'next/link'
-import { useEffect, useState, type JSX } from 'react';
+import { useEffect, useState, type JSX } from 'react'
 import { Badge, Button, ListGroup, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
@@ -505,12 +505,19 @@ function SubscriptionList() {
             {notificationTargetsElement}
 
             <div>
-            <h3>What are Notifiers?</h3>
-            <p>Notifiers allow you to subscribe to events happening on skyblock. Most common used are price drops or jumps, auctions expring or being sold and new rare items being listed on ah</p>
-            <p>To subscribe to something click the <Button style={{ width: 'max-content' }} onClick={openDialog}>
-                <NotificationIcon />
-                 Notify
-            </Button> Button on a page you want to be notified about</p>
+                <h3>What are Notifiers?</h3>
+                <p>
+                    Notifiers allow you to subscribe to events happening on skyblock. Most common used are price drops or jumps, auctions expring or being sold
+                    and new rare items being listed on ah
+                </p>
+                <p>
+                    To subscribe to something click the{' '}
+                    <Button style={{ width: 'max-content' }} onClick={openDialog}>
+                        <NotificationIcon />
+                        Notify
+                    </Button>{' '}
+                    Button on a page you want to be notified about
+                </p>
             </div>
         </div>
     )

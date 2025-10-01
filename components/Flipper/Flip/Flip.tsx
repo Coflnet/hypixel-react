@@ -2,7 +2,7 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
-import { useEffect, type JSX } from 'react';
+import { useEffect, type JSX } from 'react'
 import { Badge, Card } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
@@ -112,9 +112,9 @@ function Flip(props: Props) {
         }
 
         if (settings.shortNumbers) {
-            return <span>{formatToPriceToShorten(price)}</span>;
+            return <span>{formatToPriceToShorten(price)}</span>
         }
-        return <Number number={price} />;
+        return <Number number={price} />
     }
 
     let stars = props.flip.item.name?.match(/✪+/gm)
@@ -157,7 +157,9 @@ function Flip(props: Props) {
                         <p>
                             <span>Cost: </span>
                             <br />
-                            <b suppressHydrationWarning style={{ color: 'red' }}>{formatPrices(props.flip.cost)} Coins</b>
+                            <b suppressHydrationWarning style={{ color: 'red' }}>
+                                {formatPrices(props.flip.cost)} Coins
+                            </b>
                         </p>
                     )}
                     {settings.hideMedianPrice ? null : (

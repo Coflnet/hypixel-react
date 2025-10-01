@@ -80,4 +80,7 @@ export default function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('API', 'Access comprehensive Hypixel SkyBlock auction and bazaar data through our free API. Get real-time prices, historical data, item information, and player statistics for your applications and tools.')
+export const metadata = getHeadMetadata(
+    'API',
+    'Access comprehensive Hypixel SkyBlock auction and bazaar data through our free API. Get real-time prices, historical data, item information, and player statistics for your applications and tools.'
+)

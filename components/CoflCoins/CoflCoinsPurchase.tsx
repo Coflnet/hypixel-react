@@ -122,13 +122,13 @@ function Payment(props: Props) {
                 ) : (
                     <CountrySelect key="loading-country-select" isLoading />
                 )}
-                
+
                 {!props.cancellationRightLossConfirmed && (
                     <Alert variant="warning" style={{ marginTop: '20px' }}>
                         Please note the information regarding your cancellation right above.
                     </Alert>
                 )}
-                
+
                 {!selectedCountry && (
                     <Alert variant="info" style={{ marginTop: '20px' }}>
                         Please select your country. This information is necessary for tax purposes.
@@ -144,20 +144,21 @@ function Payment(props: Props) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div>
                         {defaultCountry ? (
-                            <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
+                            <CountrySelect
+                                key="country-select"
+                                isLoading={!defaultCountry}
+                                defaultCountry={defaultCountry}
+                                onCountryChange={setSelectedCountry}
+                            />
                         ) : (
                             <CountrySelect key="loading-country-select" isLoading />
                         )}
                     </div>
-                    <Button 
-                        variant="outline-secondary"
-                        size="sm"
-                        onClick={() => setUseWizard(false)}
-                    >
+                    <Button variant="outline-secondary" size="sm" onClick={() => setUseWizard(false)}>
                         Switch to Classic View
                     </Button>
                 </div>
-                
+
                 <CoflCoinPurchaseWizard
                     coflCoins={coflCoins}
                     countryCode={selectedCountry?.value}
@@ -180,11 +181,7 @@ function Payment(props: Props) {
                         <CountrySelect key="loading-country-select" isLoading />
                     )}
                 </div>
-                <Button 
-                    variant="outline-primary"
-                    size="sm"
-                    onClick={() => setUseWizard(true)}
-                >
+                <Button variant="outline-primary" size="sm" onClick={() => setUseWizard(true)}>
                     Switch to New Wizard
                 </Button>
             </div>

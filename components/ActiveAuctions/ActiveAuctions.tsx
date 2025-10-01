@@ -61,7 +61,7 @@ function ActiveAuctions(props: Props) {
 
         var filterString = JSON.stringify({
             item: itemRef.current,
-            filter: filterRef.current,
+            filter: filterRef.current
         })
         if (isLoadingElements.current && !reset) {
             return
@@ -125,29 +125,31 @@ function ActiveAuctions(props: Props) {
 
     function onAfterLogin() {
         console.log('onAfterLogin called')
-        api.getPremiumProducts().then(products => {
-            setIsLoggedIn(true)
-            let activePremium = getHighestPriorityPremiumProduct(products)
-            if (!activePremium) {
-                return
-            }
-            let highestPremium = getPremiumType(activePremium)
-            premiumType = highestPremium
-            setPremiumType(() => {
-                setAllElementsLoaded(() => {
-                    if (highestPremium !== null) {
-                        loadActiveAuctions(true)
-                    }
-                    return false
+        api.getPremiumProducts()
+            .then(products => {
+                setIsLoggedIn(true)
+                let activePremium = getHighestPriorityPremiumProduct(products)
+                if (!activePremium) {
+                    return
+                }
+                let highestPremium = getPremiumType(activePremium)
+                premiumType = highestPremium
+                setPremiumType(() => {
+                    setAllElementsLoaded(() => {
+                        if (highestPremium !== null) {
+                            loadActiveAuctions(true)
+                        }
+                        return false
+                    })
+                    return highestPremium
                 })
-                return highestPremium
             })
-        }).catch(() => {
-            setIsLoggedIn(false)
-            setPremiumType(PREMIUM_TYPES.find(p => p.productId === 'premium'))
-            setAllElementsLoaded(false)
-            loadActiveAuctions(true)
-        })
+            .catch(() => {
+                setIsLoggedIn(false)
+                setPremiumType(PREMIUM_TYPES.find(p => p.productId === 'premium'))
+                setAllElementsLoaded(false)
+                loadActiveAuctions(true)
+            })
     }
 
     let activeAuctionList = activeAuctions.map((activeAuction, i) => {

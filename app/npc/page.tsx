@@ -10,7 +10,7 @@ export default async function Page() {
     const queryClient = getQueryClient()
     queryClient.prefetchQuery({
         queryKey: [getGetApiFlipNpcQueryKey()],
-        queryFn: () => getApiFlipNpc(),
+        queryFn: () => getApiFlipNpc()
     })
     return (
         <>
@@ -28,4 +28,9 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('NPC Flips', 'Discover profitable Hypixel SkyBlock NPC flipping opportunities. Buy from NPCs and sell on the Auction House or Bazaar for a profit.', undefined, ['npc', 'flips', 'hypixel', 'skyblock', 'flip', 'npc flips', 'npc flipper'])
+export const metadata = getHeadMetadata(
+    'NPC Flips',
+    'Discover profitable Hypixel SkyBlock NPC flipping opportunities. Buy from NPCs and sell on the Auction House or Bazaar for a profit.',
+    undefined,
+    ['npc', 'flips', 'hypixel', 'skyblock', 'flip', 'npc flips', 'npc flipper']
+)
