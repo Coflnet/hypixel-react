@@ -21,7 +21,6 @@ export default function NitroAdSlot({ slotId, config, className, style }: NitroA
 
     useEffect(() => {
         if (!shouldShowAds) {
-            // ensure ad is torn down if user becomes premium
             if (hasRequestedRef.current && typeof window !== 'undefined') {
                 const nitro = (window as any).nitroAds
                 if (nitro && typeof nitro.removeAd === 'function') {
@@ -47,12 +46,12 @@ export default function NitroAdSlot({ slotId, config, className, style }: NitroA
                 return
             }
             const nitro = (window as any).nitroAds
-            if (nitro && typeof nitro.createAd === 'function') {
+                if (nitro && typeof nitro.createAd === 'function') {
                 hasRequestedRef.current = true
                 try {
                     nitro.createAd(slotId, configRef.current)
                 } catch (e) {
-                    // allow retry if nitro throws synchronously
+                    
                     hasRequestedRef.current = false
                 }
                 return
