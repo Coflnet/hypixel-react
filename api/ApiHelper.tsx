@@ -1668,43 +1668,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getPriceMovements = (itemTags: string[]): Promise<Record<string, ItemPriceMovement>> => {
-        if (!itemTags || itemTags.length === 0) {
-            return Promise.resolve({})
-        }
-
-        let params = new URLSearchParams()
-        itemTags.forEach(tag => {
-            if (tag) {
-                params.append('itemTags', tag)
-            }
-        })
-
-        return new Promise((resolve, reject) => {
-            httpApi.sendApiRequest({
-                type: RequestType.PRICE_CHANGE,
-                data: '',
-                customRequestURL: `${getApiEndpoint()}/${RequestType.PRICE_CHANGE}?${params.toString()}`,
-                resolve: function (data) {
-                    if (!data) {
-                        resolve({})
-                        return
-                    }
-
-                    let parsed: Record<string, ItemPriceMovement> = {}
-                    Object.keys(data).forEach(tag => {
-                        parsed[tag] = parsePriceMovement(tag, data[tag])
-                    })
-                    resolve(parsed)
-                },
-                reject: function (error) {
-                    apiErrorHandler(RequestType.PRICE_CHANGE, error, { itemTags })
-                    reject(error)
-                }
-            })
-        })
-    }
-
     let setFlipSetting = (key: string, value: any): Promise<void> => {
         if (sessionStorage.getItem('googleId') === null) {
             return Promise.resolve()
@@ -2848,7 +2811,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getBazaarTags,
         getPreloadFlips,
         getItemPriceSummary,
-    getPriceMovements,
         purchaseWithCoflcoins,
         subscribeCoflCoinChange,
         getCoflcoinBalance,

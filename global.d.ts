@@ -260,7 +260,6 @@ interface API {
     getPremiumProducts(): Promise<PremiumProduct[]>
     unsubscribeAll(): Promise<void>
     getItemNames(items: Item[]): Promise<{ [key: string]: string }>
-    getPriceMovements(itemTags: string[]): Promise<Record<string, ItemPriceMovement>>
     checkFilter(auction: AuctionDetails, filter: ItemFilter): Promise<boolean>
     refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void, onError?: () => void)
     getRelatedItems(tag: string): Promise<Item[]>

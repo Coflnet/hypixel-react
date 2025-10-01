@@ -1,4 +1,3 @@
-import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
 import { getSettingsObject, setSetting, ITEM_FAVORITES_KEY } from './SettingsUtils'
 import { isClientSideRendering } from './SSRUtils'
 
@@ -8,7 +7,6 @@ function persistFavorites(favorites: FavoriteItemEntry[]) {
 	}
 
 	setSetting(ITEM_FAVORITES_KEY, JSON.stringify(favorites))
-	document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FAVORITES_UPDATED, { detail: favorites }))
 }
 
 export function getFavoriteItems(): FavoriteItemEntry[] {
@@ -27,6 +25,11 @@ export function isItemFavorite(tag: string | undefined): boolean {
 	return getFavoriteItems().some(f => f.tag === tag)
 }
 
+/**
+ * @deprecated These functions are currently unused in the codebase (see comment by @matthias-luger).
+ * Keep exported for compatibility, but prefer using `toggleFavoriteItem` which handles both add and remove.
+ * If you decide to remove them, search for usages across the repo before deleting.
+ */
 export function addFavoriteItem(item: FavoriteItemEntry): FavoriteItemEntry[] {
 	if (!isClientSideRendering()) {
 		return []
@@ -46,6 +49,11 @@ export function addFavoriteItem(item: FavoriteItemEntry): FavoriteItemEntry[] {
 	return newFavorites
 }
 
+/**
+ * @deprecated These functions are currently unused in the codebase (see comment by @matthias-luger).
+ * Prefer `toggleFavoriteItem` which will remove an existing favorite.
+ * Retained for compatibility — consider removing after confirming no usages remain.
+ */
 export function removeFavoriteItem(tag: string): FavoriteItemEntry[] {
 	if (!isClientSideRendering()) {
 		return []

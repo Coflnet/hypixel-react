@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import StarBorderIcon from '@mui/icons-material/StarBorder'
 import StarIcon from '@mui/icons-material/Star'
 import styles from './FavoriteToggle.module.css'
-import { isItemFavorite, toggleFavoriteItem } from '../../utils/FavoriteItemUtils'
-import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
+import { isItemFavorite } from '../../utils/FavoriteItemUtils'
+import { useFavorites } from './FavoritesContext'
 
 interface Props {
     item?: Item
@@ -15,6 +15,7 @@ interface Props {
 }
 
 function FavoriteToggle({ item, className, showLabel = false, size = 'medium' }: Props) {
+    const { toggle } = useFavorites()
     let [isFavorite, setIsFavorite] = useState(false)
 
     useEffect(() => {
@@ -25,18 +26,9 @@ function FavoriteToggle({ item, className, showLabel = false, size = 'medium' }:
         setIsFavorite(isItemFavorite(item.tag))
     }, [item?.tag])
 
-    useEffect(() => {
-        function handleFavoritesUpdate(_event?: Event) {
-            if (!item?.tag) {
-                return
-            }
-            setIsFavorite(isItemFavorite(item.tag))
-        }
-        document.addEventListener(CUSTOM_EVENTS.FAVORITES_UPDATED, handleFavoritesUpdate)
-        return () => {
-            document.removeEventListener(CUSTOM_EVENTS.FAVORITES_UPDATED, handleFavoritesUpdate)
-        }
-    }, [item?.tag])
+    // When favorites change elsewhere, the provider will update storage and state; we
+    // reflect that via the shared utils read above. The provider will be responsible
+    // for keeping favorites in sync across the app.
 
     function onToggle() {
         if (!item?.tag) {
@@ -50,8 +42,8 @@ function FavoriteToggle({ item, className, showLabel = false, size = 'medium' }:
             bazaar: item.bazaar
         }
 
-        let result = toggleFavoriteItem(entry)
-        setIsFavorite(result.isFavorite)
+        const isFav = toggle(entry)
+        setIsFavorite(isFav)
     }
 
     let classNames = [styles.button]
