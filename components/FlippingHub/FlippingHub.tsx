@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { Container, Card, Row, Col } from 'react-bootstrap'
-import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule, SwapHoriz } from '@mui/icons-material'
+import { Card, Row, Col } from 'react-bootstrap'
+import { Pets, Build, Storefront, Agriculture, ShowChart, Handyman, Help, JoinFull, Volcano, QuestionMark, MenuBook, DonutSmall, SmartToy, Schedule, SwapHoriz, TrendingUp } from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
 const flipKinds = [
@@ -43,9 +43,15 @@ const flipKinds = [
         icon: <Schedule fontSize="large" />
     },
     {
+        name: 'Top Movers',
+        path: '/topMovers',
+        description: 'Monitor the biggest 24h price swings across Hypixel SkyBlock items with filters, sorting, and direct item links.',
+        icon: <TrendingUp fontSize="large" />
+    },
+    {
         name: 'Forge Flips',
-        path: undefined,
-        description: <span>Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes. Run <code>/cofl forge</code> with our mod to access</span>,
+        path: '/forge',
+        description: <span>Forge Flips focus on the Dwarven Mines and Crystal Hollows. Upgrade and forge items for profit, track cooldowns, and discover the most valuable forge recipes in-game or right here on the site.</span>,
         icon: <Volcano fontSize="large" />
     },
     {
