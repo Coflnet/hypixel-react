@@ -89,7 +89,6 @@ export function MainApp(props: any) {
     useEffect(() => {
         function onNitroOptOut() {
             try {
-                // mirror the CMP opt-out into our app consent flow
                 pushInstruction('forgetConsentGiven')
                 Cookies.set('nonEssentialCookiesAllowed', false)
             } catch (e) {}
@@ -114,11 +113,10 @@ export function MainApp(props: any) {
     }, [])
 
     useEffect(() => {
-        // detect whether NitroPay CMP banner is present; if so, suppress our cookie banner
         function checkNitroCMP() {
             try {
                 const banner = document.querySelector('#ncmp__tool .ncmp__banner')
-                // consider banner present if element exists and is active or just exists
+                
                 const present = !!banner && (banner.classList.contains('ncmp__active') || true)
                 setHasNitroCMP(present)
             } catch (e) {
@@ -126,7 +124,7 @@ export function MainApp(props: any) {
             }
         }
 
-        // initial check
+        
         checkNitroCMP()
 
         const obs = new MutationObserver(() => checkNitroCMP())
