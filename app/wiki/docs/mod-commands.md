@@ -1,8 +1,13 @@
-# Coflnet SkyModCommands – Complete Command Reference
+---
+title: "Mod commands reference"
+description: "Comprehensive list of SkyCofl mod commands with options and usage details"
+order: 10
+---
 
-> Comprehensive, SEO-friendly documentation for every public `/cofl` and `/cl` command in Coflnet's SkyBlock mod, generated from the latest source code.
+# Command Reference
 
-This guide groups **all commands with `IsPublic == true`** so you always know which slash commands are visible in the in-game help menu. Each entry lists aliases, argument syntax, account tier requirements, and the most important tips for Hypixel SkyBlock flipping, bazaar trading, configuration management, and QoL automation. Use the table of contents to jump straight to the tools you need.
+This guide groups all public commands so you always know which slash commands are visible in the in-game help menu. Each entry lists aliases, argument syntax, account tier requirements, and the most important tips for Hypixel SkyBlock bazaar flipping, trading, configuration management, and QoL automation.  
+By the time you read this there may be new commands available, the tab-auto complete in game will update automatically as we add new commands.
 
 ## Quick tips
 
@@ -15,107 +20,6 @@ This guide groups **all commands with `IsPublic == true`** so you always know wh
 - Account tier gates are enforced server-side. This reference repeats them so you can plan upgrades.
 
 - Hover text inside the mod UI often shows extra tooltips—clickable links are noted below when relevant.
-
-## External Commands
-
-### ImportTfmCommand
-
-- **Primary syntax:** `/cofl importtfm` (also `/cl importtfm`)
-
-- **Summary:** Import blacklists from tfm
-
-- **In-game blurb:** Usage: /cofl importtfm &lt;identifier&gt; &lt;userName&gt; where &lt;identifier&gt; is one of user, enchant or item (counter part to /tfm export &lt;identifier&gt;)
-
-- **Account requirements:** Available to all verified accounts. No premium tier needed.
-
-- **Arguments & options:**
-	- `<identifier>` – choose `user`, `item`, or `enchant` to mirror the `/tfm export` namespace you're importing from. The command validates the value case-insensitively.
-	- `<userName>` – the TFManager profile name that published the blacklist. The server pulls `https://tfm.thom.club/get_blacklist?blacklist_id=<userName>&type=<identifier>` and converts the JSON payload into Coflnet filters.
-	- On success the entries are appended to your `/cl bl list` blacklist and immediately saved. Existing entries are left untouched.
-	- If the request fails or arguments are missing you'll receive a usage prompt explaining the proper syntax.
-
-- **Note:** Importing an item blacklist will automatically map TFManager rarities, pet level flags (`==MAX`, `==CANDIED`) and seller filters into Coflnet's `ItemTag`, `Rarity`, `PetLevel`, and other metadata so you can start filtering Hypixel auctions instantly.
-
-
-
-### ReplayActiveCommand
-
-- **Primary syntax:** `/cofl replayactive` (also `/cl replayactive`)
-
-- **Summary:** Replay all active auctions against your filter
-
-- **In-game blurb:** Useful to recheck auctions that have been listed while you were offline This will take a while to dearchive all active auctions
-
-- **Account requirements:** Requires **Premium Plus** (`AccountTier.PREMIUM_PLUS`) and an active whitelist entry using the USER finder. The command aborts with a clickable upgrade prompt if you don't meet the requirements.
-
-- **Arguments & options:**
-	- Runs without arguments. The mod streams every still-active auction from the Hypixel archive and replays it through the USER finder, honouring your current whitelist filters.
-	- Progress feedback appears in 10 steps (10% increments). Expect a lengthy run while old auctions are reprocessed.
-	- Make sure `/cofl set sniper,user` is enabled—otherwise the command prompts you to toggle the finder before replaying.
-
-- **Note:** Use this after downtime to backfill missed deals; pairing it with tight whitelists ensures only personally curated flips reach your chat.
-
-
-
-### ReplayFlips
-
-- **Primary syntax:** `/cofl replayflips` (also `/cl replayflips`)
-
-- **Summary:** Replay all flips from the last x hours
-
-- **In-game blurb:** Meant for config creators to test their config
-
-- **Account requirements:** Requires **Premium Plus** (`socket.ReguirePremPlus()`). Also blocked if your config has `BlockExport` enabled—intended for authors testing their own profiles.
-
-- **Arguments & options:**
-	- `[hours={2}]` – optional number of hours (float accepted) to rewind, defaulting to `2`. Maximum window is `48` hours; higher values return an in-game error message.
-	- The command streams archived flip events from Kafka in chronological order. Every 40 auctions the system pauses briefly to avoid flood protection, and it clears spam counters to keep your session healthy.
-	- If your flipping is disabled or blocked (e.g., `/cofl blocked` issues) the command surfaces a helper message instead of replaying.
-
-- **Note:** Ideal for config sellers—replay a fresh dataset after tweaking filters to confirm the mod still flags the right profit windows.
-
-
-
-## Fairness Commands
-
-### CaptchaCommand
-
-- **Primary syntax:** `/cofl captcha` (also `/cl captcha`)
-
-- **Summary:** Solve a captcha
-
-- **In-game blurb:** You will be asked to solve a captcha if you are afk for too long You can also use this command to get a new captcha Example: /cl captcha another Use /cl captcha vertical to letters below each other Which helps if you have a mod with different font Captchas are necesary to prevent bots from using the flipper
-
-- **Account requirements:** Available to every logged-in player. Captcha data is only stored while your account is verified; otherwise the command tells you to log in.
-
-- **Arguments & options:**
-	- `another` – immediately requests a fresh captcha challenge, counting the current attempt as failed (used after a misread).
-	- `vertical`, `big`, `optifine`, `short` – switch the captcha font to match your resource pack so characters align correctly.
-	- `config` workflows – `/cofl captcha config full|part` opens chooser menus for bold/slim glyphs; `/cofl captcha config set &lt;full|part&gt; &lt;chars&gt;` applies manual overrides when custom fonts break alignment.
-	- `debug` – prints diagnostic glyph tables to help the developers replicate rendering issues.
-	- Any other token is treated as a captcha answer. Correct answers lower the required solve counter; incorrect ones increment it and requeue a new puzzle.
-
-- **Note:** Solving the captcha resets AFK delay, so mention it in your flipping guides when teaching users how to clear 12s penalties quickly.
-
-
-
-### DelayCommand
-
-- **Primary syntax:** `/cofl delay` (also `/cl delay`)
-
-- **Summary:** Shows your current delay
-
-- **In-game blurb:** To allow everyone to get some flips, each user gets delayed when he is found to buy too fast The delay decreases over time and is not fully applied to all flips You can reduce this by buying slower Very high profit flips are excepted from this
-
-- **Account requirements:** Works for all connected users. If you're unverified or using the free tier the response explains your baseline delay and links to upgrades when appropriate.
-
-- **Arguments & options:**
-	- No arguments are needed. Each invocation recalculates your current queue delay, macro delay, license modifiers, and fairness penalties, then prints contextual tooltips.
-	- The command auto-detects when flips are disabled and offers a clickable `/cofl flip` toggle.
-	- If captchas are outstanding it injects a `/cofl captcha` shortcut; if certain settings (e.g., showing seller name) slow down processing, it surfaces `/cofl set` quick actions to disable them.
-	- Internal counters add slight randomness after spammy use—wait a few seconds before re-running for identical values.
-
-- **Note:** Mention this command in fairness and macro compliance articles—it's the fastest way to diagnose why flips arrive late and how premium tiers, licenses, or captcha solves influence latency.
 
 
 
@@ -672,7 +576,7 @@ This guide groups **all commands with `IsPublic == true`** so you always know wh
 
 - **Summary:** Set your account nickname
 
-- **In-game blurb:** This will be displayed in chat instead of your minecraft name You can clear it by typing /cofl nickname clear Note that if your nickname contains inappropriate words your account may be suspended
+- **In-game blurb:** This will be displayed in chat instead of your minecraft name You can clear it by typing `/cofl nickname clear` Note that if your nickname contains inappropriate words your account may be suspended
 
 - **Account requirements:** Requires login. Setting a nickname (anything other than `clear`) is gated behind Premium Plus and can only be changed once every two days.
 
@@ -737,44 +641,14 @@ This guide groups **all commands with `IsPublic == true`** so you always know wh
 ### ReportCommand
 
  **Tier requirement:** None (works for every verified user).
- **Arguments & subcommands:**
-	 - `/cofl importtfm <identifier> <userName>` – downloads a blacklist export from Thom's Flipping Mod (TFM) and merges it into your Coflnet blacklist.
-	 - `<identifier>` accepts `user`, `item`, or `enchant` (mirrors the TFM export categories).
-	 - `<userName>` must be the TFM profile that published the blacklist.
-	 - Invalid or missing arguments echo the usage string and do not change your filters.
 
 - **In-game blurb:** /cofl report &lt;message&gt; When executed returns you a case id. Please use that id to post into the bug report channel on discord. Isses can be fixed very quickly if you include as much information as possible.
-
- **Tier requirement:** Premium Plus (`super_premium`) or higher.
- **Arguments & subcommands:**
-	 - Run without arguments to replay every currently active auction against your personal filter.
-	 - Requires the `USER` flip finder to be enabled and at least one whitelist entry; the command exits early with instructions if either prerequisite is missing.
-	 - Emits progress updates in 10% increments while replaying batches of 100,000 auctions.
-
-
- **Tier requirement:** Premium Plus and a self-authored config (export-blocked configs are refused).
- **Arguments & subcommands:**
-	 - `/cofl replayflips` – replays the last 2 hours of flips (default window).
-	 - `/cofl replayflips <hours>` – replace `<hours>` with a decimal number between `0` and `48` to widen the replay window.
-	 - The command validates the number, caps the window at 48 hours, and stops if you currently have flipping disabled.
-	 - While replays run, the client throttles output in batches of 40 flips to avoid spam penalties.
-- **Primary syntax:** `/cofl restore` (also `/cl restore`)
-
-- **Summary:** Restore settings from backup
-
-- **In-game blurb:** You probably want to use the restore option in /cofl backup list instead of this one directly
-
-- **Account requirements:** Requires login because backups live in your cloud settings. Running the restore updates the mod config immediately.
-
-- **Arguments & subcommands:**
-	- `<name>` – restores the backup created via `/cofl backup add <name>`. The name search is case-sensitive; if the entry is missing the command throws a helpful error.
-	- You normally execute this via the `[RESTORE]` button in `/cofl backup`, but manual calls work the same way.
 
 
 
 ### SetCommand (alias `s`)
 
-- **Primary syntax:** `/cofl set` (also `/cl set`)
+- **Primary syntax:** `/cofl set` (also `/cl s`)
 
 - **Summary:** Sets a setting
 
@@ -861,7 +735,7 @@ This guide groups **all commands with `IsPublic == true`** so you always know wh
 
 ### CraftsCommand (alias `craft`)
 
-- **Primary syntax:** `/cofl crafts` (also `/cl crafts`)
+- **Primary syntax:** `/cofl crafts` (also `/cl craft`)
 
 - **Summary:** Displays craft flips you can do.
 
@@ -958,7 +832,7 @@ This guide groups **all commands with `IsPublic == true`** so you always know wh
 
 - **Summary:** No description in attributes
 
-- **Account requirements:** Requires login and an active profile ID (swap islands once if the mod hasn’t captured it yet). The command scans your stored chests, inventory, sacks, and more.
+- **Account requirements:** Requires login and an active profile ID (swap islands once if the mod hasn’t captured it yet). The command scans your stored chests, inventory and more.
 
 - **Arguments & subcommands:**
 	- No argument – enumerates every item the mod knows about, grouped by container (chests, wardrobes, backpacks, etc.). Click an entry to auto-run the command that opens the container and highlights the slot.
@@ -1208,4 +1082,103 @@ This guide groups **all commands with `IsPublic == true`** so you always know wh
 	- When verification is missing but your session token is stale, the command restarts `/cofl start` to refresh it automatically.
 	- If you’re verified but not eligible to send CoflCoins (e.g. multiple emails) the command explains why and suggests upgrading to Premium Plus to lift the restriction.
 
+## Fairness Commands
+
+### CaptchaCommand
+
+- **Primary syntax:** `/cofl captcha` (also `/cl captcha`)
+
+- **Summary:** Solve a captcha
+
+- **In-game blurb:** You will be asked to solve a captcha if you are afk for too long You can also use this command to get a new captcha Example: /cl captcha another Use /cl captcha vertical to letters below each other Which helps if you have a mod with different font Captchas are necesary to prevent bots from using the flipper
+
+- **Account requirements:** Available to every logged-in player. Captcha data is only stored while your account is verified; otherwise the command tells you to log in.
+
+- **Arguments & options:**
+	- `another` – immediately requests a fresh captcha challenge, counting the current attempt as failed (used after a misread).
+	- `vertical`, `big`, `optifine`, `short` – switch the captcha font to match your resource pack so characters align correctly.
+	- `config` workflows – `/cofl captcha config full|part` opens chooser menus for bold/slim glyphs; `/cofl captcha config set &lt;full|part&gt; &lt;chars&gt;` applies manual overrides when custom fonts break alignment.
+	- `debug` – prints diagnostic glyph tables to help the developers replicate rendering issues.
+	- Any other token is treated as a captcha answer. Correct answers lower the required solve counter; incorrect ones increment it and requeue a new puzzle.
+
+- **Note:** Solving the captcha resets AFK delay, so mention it in your flipping guides when teaching users how to clear 12s penalties quickly.
+
+
+
+### DelayCommand
+
+- **Primary syntax:** `/cofl delay` (also `/cl delay`)
+
+- **Summary:** Shows your current delay
+
+- **In-game blurb:** To allow everyone to get some flips, each user gets delayed when he is found to buy too fast The delay decreases over time and is not fully applied to all flips You can reduce this by buying slower Very high profit flips are excepted from this
+
+- **Account requirements:** Works for all connected users. If you're unverified or using the free tier the response explains your baseline delay and links to upgrades when appropriate.
+
+- **Arguments & options:**
+	- No arguments are needed. Each invocation recalculates your current queue delay, macro delay, license modifiers, and fairness penalties, then prints contextual tooltips.
+	- The command auto-detects when flips are disabled and offers a clickable `/cofl flip` toggle.
+	- If captchas are outstanding it injects a `/cofl captcha` shortcut; if certain settings (e.g., showing seller name) slow down processing, it surfaces `/cofl set` quick actions to disable them.
+	- Internal counters add slight randomness after spammy use—wait a few seconds before re-running for identical values.
+
+- **Note:** Mention this command in fairness and macro compliance articles—it's the fastest way to diagnose why flips arrive late and how premium tiers, licenses, or captcha solves influence latency.
+
+
+## External Commands
+
+### ImportTfmCommand
+
+- **Primary syntax:** `/cofl importtfm` (also `/cl importtfm`)
+
+- **Summary:** Import blacklists from tfm
+
+- **In-game blurb:** Usage: /cofl importtfm &lt;identifier&gt; &lt;userName&gt; where &lt;identifier&gt; is one of user, enchant or item (counter part to /tfm export &lt;identifier&gt;)
+
+- **Account requirements:** Available to all verified accounts. No premium tier needed.
+
+- **Arguments & options:**
+	- `<identifier>` – choose `user`, `item`, or `enchant` to mirror the `/tfm export` namespace you're importing from. The command validates the value case-insensitively.
+	- `<userName>` – the TFManager profile name that published the blacklist. The server pulls `https://tfm.thom.club/get_blacklist?blacklist_id=<userName>&type=<identifier>` and converts the JSON payload into Coflnet filters.
+	- On success the entries are appended to your `/cl bl list` blacklist and immediately saved. Existing entries are left untouched.
+	- If the request fails or arguments are missing you'll receive a usage prompt explaining the proper syntax.
+
+- **Note:** Importing an item blacklist will automatically map TFManager rarities, pet level flags (`==MAX`, `==CANDIED`) and seller filters into Coflnet's `ItemTag`, `Rarity`, `PetLevel`, and other metadata so you can start filtering Hypixel auctions instantly.
+
+
+
+### ReplayActiveCommand
+
+- **Primary syntax:** `/cofl replayactive` (also `/cl replayactive`)
+
+- **Summary:** Replay all active auctions against your filter
+
+- **In-game blurb:** Useful to recheck auctions that have been listed while you were offline This will take a while to dearchive all active auctions
+
+- **Account requirements:** Requires **Premium Plus** (`AccountTier.PREMIUM_PLUS`) and an active whitelist entry using the USER finder. The command aborts with a clickable upgrade prompt if you don't meet the requirements.
+
+- **Arguments & options:**
+	- Runs without arguments. The mod streams every still-active auction from the Hypixel archive and replays it through the USER finder, honouring your current whitelist filters.
+	- Progress feedback appears in 10 steps (10% increments). Expect a lengthy run while old auctions are reprocessed.
+	- Make sure `/cofl set sniper,user` is enabled—otherwise the command prompts you to toggle the finder before replaying.
+
+- **Note:** Use this after downtime to backfill missed deals; pairing it with tight whitelists ensures only personally curated flips reach your chat.
+
+
+
+### ReplayFlips
+
+- **Primary syntax:** `/cofl replayflips` (also `/cl replayflips`)
+
+- **Summary:** Replay all flips from the last x hours
+
+- **In-game blurb:** Meant for config creators to test their config
+
+- **Account requirements:** Requires **Premium Plus** (`socket.ReguirePremPlus()`). Also blocked if your config has `BlockExport` enabled—intended for authors testing their own profiles.
+
+- **Arguments & options:**
+	- `[hours={2}]` – optional number of hours (float accepted) to rewind, defaulting to `2`. Maximum window is `48` hours; higher values return an in-game error message.
+	- The command streams archived flip events from Kafka in chronological order. Every 40 auctions the system pauses briefly to avoid flood protection, and it clears spam counters to keep your session healthy.
+	- If your flipping is disabled or blocked (e.g., `/cofl blocked` issues) the command surfaces a helper message instead of replaying.
+
+- **Note:** Ideal for config sellers—replay a fresh dataset after tweaking filters to confirm the mod still flags the right profit windows.
 
