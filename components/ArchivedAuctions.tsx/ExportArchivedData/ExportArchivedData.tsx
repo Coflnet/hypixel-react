@@ -160,7 +160,7 @@ function ExportArchivedData(props: Props) {
                             setShowConfirmDialog(true)
                         }}
                     >
-                        Start Export for <NumberElement number={1500} /> CoflCoins
+                        Start Export
                     </Button>
                 </Modal.Body>
             </Modal>
@@ -171,7 +171,7 @@ function ExportArchivedData(props: Props) {
                 <Modal.Body>
                     <div>
                         <p>
-                            Are you sure you want to start the export for <NumberElement number={1500} /> CoflCoins?
+                            Are you sure you want to start the export? It can't be canceled once started.
                         </p>
                         <div style={{ display: 'flex', gap: 5, justifyContent: 'space-between' }}>
                             <Button
