@@ -96,7 +96,7 @@ These settings control the core flip-finding behavior and filtering rules.
 - **Type:** Double (sales per day)
 - **Default:** `0.1`
 - **Description:** Minimum average **daily sales volume** (how many times the item sells per 24 hours).
-- **Low volume risk:** Items with <1 sale/day may take longer to resell.
+- **Low volume risk:** Items with &lt;1 sale/day may take longer to resell.
 - **Decimal values:** `0.1` means roughly 1 sale every 10 days.
 
 ### maxCost (MaxCost)
