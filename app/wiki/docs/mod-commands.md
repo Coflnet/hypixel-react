@@ -69,13 +69,13 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Summary:** No description in attributes
 
-- **Account requirements:** Requires you to be logged in so the server can edit your persisted flip settings (`FlipSettings.BlackList`).
+- **Account requirements:** Requires you to be logged in so the server can edit your persisted flip settings.
 
 - **Arguments & options:**
 	- `/cl bl add <item> [filter=value ...]` – searches the item API and lets you confirm via clickable chat buttons. Works with filters like `Seller=IGN`, `Enchantment=Sharpness`, or ranges `EnchantLvl=1-5`.
 	- `/cl bl addall <search>` – adds every search match in one go when bulk banning modifiers.
-	- `/cl bl list` – prints your current rules with enable/disable toggles.
-	- `/cl bl rm &lt;id|*&gt;` – remove a single entry or wipe the list with `*`.
+	- `/cl bl list <search>` – prints your current rules with enable/disable toggles.
+	- `/cl bl rm <id>` – remove a single entry or wipe the list with (easier to click on elements from `search`).
 	- `/cl bl edit <id>|enable|disable|remove` – quick inline toggles for existing filters.
 	- Special filter helpers: `duration=12h` or `5d` auto-convert to a timed `removeAfter` tag; `tag=` / `tags=` assign custom labels for organization.
 
