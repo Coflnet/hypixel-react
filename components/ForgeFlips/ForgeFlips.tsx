@@ -45,18 +45,27 @@ function getCraftProfit(craft?: ProfitableCraft | null) {
     return craft.sellPrice - craft.craftCost
 }
 
-function formatDuration(minutes: number) {
-    if (!Number.isFinite(minutes) || minutes <= 0) {
+function formatDuration(seconds: number) {
+    // API provides duration in seconds. Convert to minutes/hours/days for display.
+    if (!Number.isFinite(seconds) || seconds <= 0) {
         return 'Unknown'
     }
+    const minutes = seconds / 60
     const hours = minutes / 60
+
+    if (minutes < 1) {
+        return `${Math.round(seconds)} s`
+    }
+
     if (hours < 1) {
         return `${Math.round(minutes)} min`
     }
+
     const days = hours / 24
     if (days >= 1) {
         return `${days.toFixed(days >= 2 ? 0 : 1)} d`
     }
+
     return `${hours.toFixed(hours >= 10 ? 0 : 1)} h`
 }
 
