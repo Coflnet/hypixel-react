@@ -284,7 +284,16 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `<offset>` – integer hour offset from UTC (e.g., `-6` for CST, `1` for CET). Non-integers throw an `invalid_arguments` error.
 	- After success the command echoes the localized current time using your configured locale (falls back to `en-US`).
 
-- **Note:** Mention it alongside reminder commands—accurate timezone data keeps notification schedules aligned across continents.
+
+ - **Detected timezone & copyable command (web UI):** When viewing this reference on the website we detect your browser timezone and surface it here as a convenience along with a one-click copy button that copies the correctly formatted command for your offset.
+
+	- Example (live):
+
+<TimezoneDetect />
+
+	- The copied command uses the integer hour offset. If your offset includes minutes (rare) the UI will round to the nearest hour and show a short note explaining the rounding.
+
+- **Note:** This setting is used for display only
 
 
 
