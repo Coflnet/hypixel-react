@@ -5,6 +5,7 @@ import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { notFound } from 'next/navigation'
 import matter from 'gray-matter'
+import TimezoneDetect from '../../../components/TimezoneDetect/TimezoneDetect'
 
 const docsDirectory = path.join(process.cwd(), 'app/wiki/docs')
 
@@ -38,6 +39,7 @@ export default async function WikiPage(props) {
                         rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings]
                     }
                 }}
+                components={{ TimezoneDetect }}
             />
         </article>
     )
