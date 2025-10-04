@@ -33,7 +33,8 @@ export function useSortedAndFilteredItems<T>(
     sortFunctionArgs: any[] = [],
     debounceMs: number = 300
 ) {
-    const [processedItems, setProcessedItems] = useState<T[]>(items)
+    const initialItems: T[] = Array.isArray(items) ? items : []
+    const [processedItems, setProcessedItems] = useState<T[]>(initialItems)
     const [isProcessing, setIsProcessing] = useState(false)
     const [debouncedNameFilter, setDebouncedNameFilter] = useState(nameFilter)
     const [debouncedMinimumProfit, setDebouncedMinimumProfit] = useState(minimumProfit)
@@ -80,7 +81,11 @@ export function useSortedAndFilteredItems<T>(
             try {
                 setIsProcessing(true)
 
-                if (currentItems.length === 0) {
+                // Normalize incoming items to an array to avoid runtime errors when
+                // callers accidentally pass non-array data.
+                const inputItems: T[] = Array.isArray(currentItems) ? currentItems : []
+
+                if (inputItems.length === 0) {
                     if (processingId === processingIdRef.current && !abortController.signal.aborted) {
                         setProcessedItems([])
                     }
@@ -93,7 +98,7 @@ export function useSortedAndFilteredItems<T>(
                     return
                 }
 
-                let sortedItems = [...currentItems]
+                let sortedItems = [...inputItems]
                 if (currentOrderBy) {
                     if (currentItems.length > 1000) {
                         await new Promise(resolve => setTimeout(resolve, 0))
@@ -103,7 +108,8 @@ export function useSortedAndFilteredItems<T>(
                         return
                     }
 
-                    sortedItems = currentOrderBy.sortFunction([...currentItems], ...currentSortFunctionArgs)
+                    // Make sure we pass an array to the sort function.
+                    sortedItems = currentOrderBy.sortFunction([...inputItems], ...currentSortFunctionArgs)
                 }
 
                 if (processingId !== processingIdRef.current || abortController.signal.aborted) {
@@ -127,13 +133,13 @@ export function useSortedAndFilteredItems<T>(
                 }
 
                 if (processingId === processingIdRef.current && !abortController.signal.aborted) {
-                    setProcessedItems(filteredItems)
+                    setProcessedItems(Array.isArray(filteredItems) ? filteredItems : [])
                 }
             } catch (error) {
                 if (!abortController.signal.aborted) {
                     console.error('Error during processing:', error)
                     if (processingId === processingIdRef.current) {
-                        setProcessedItems([...currentItems])
+                        setProcessedItems(Array.isArray(currentItems) ? [...currentItems] : [])
                     }
                 }
             } finally {

@@ -137,6 +137,14 @@ export const SITEMAP_CONFIG = {
             description: 'Calculate attribute fusion costs and profits for Hypixel SkyBlock items.',
             keywords: ['attribute fusion', 'fusion calculator', 'attribute costs', 'fusion profit']
         },
+        {
+            url: '/mayor',
+            priority: 0.7,
+            changefreq: 'daily' as const,
+            title: 'Mayor Flips - Election Price Prediction & Historic Analysis',
+            description: 'Maximize profits with Hypixel SkyBlock mayor flips! Discover items predicted to change value when the next mayor is elected based on historic price data.',
+            keywords: ['mayor flips', 'hypixel skyblock', 'mayor election', 'derpy mayor', 'diana mayor', 'price prediction', 'election profit', 'historic prices']
+        },
         // Wiki pages
         {
             url: '/wiki',

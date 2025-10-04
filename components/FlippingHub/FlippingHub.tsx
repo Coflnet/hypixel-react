@@ -18,7 +18,8 @@ import {
     SmartToy,
     Schedule,
     SwapHoriz,
-    TrendingUp
+    TrendingUp,
+    HowToVote
 } from '@mui/icons-material'
 import Tooltip from '../Tooltip/Tooltip'
 
@@ -88,6 +89,13 @@ const flipKinds = [
             </span>
         ),
         icon: <Volcano fontSize="large" />
+    },
+    {
+        name: 'Mayor Flips',
+        path: '/mayor',
+        description:
+            'Capitalize on Hypixel SkyBlock mayor elections! Our analysis uses historic price data from previous mayor terms to predict which items will surge or drop when the next mayor is elected. Perfect for planning ahead and maximizing election profits.',
+        icon: <HowToVote fontSize="large" />
     },
     {
         name: 'NPC Flips',

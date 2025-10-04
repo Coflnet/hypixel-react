@@ -26,6 +26,7 @@ import type {
 
 import type {
   ArchiveResponse,
+  AttributeFlip,
   AuctionPreview,
   AuctionResult,
   AveragePrice,
@@ -69,7 +70,10 @@ import type {
   GetApiCraftProfitParams,
   GetApiDataAiParams,
   GetApiFilterOptionsParams,
+  GetApiFlipAttribute401One,
+  GetApiFlipAttributeParams,
   GetApiFlipBazaarSpreadDeemand401One,
+  GetApiFlipMayor401One,
   GetApiFlipNpcReverse401One,
   GetApiFlipNpcReverseParams,
   GetApiFlipStatsFinderFinderNameParams,
@@ -85,7 +89,6 @@ import type {
   GetApiItemPriceItemTagHistoryYearParams,
   GetApiItemPriceItemTagParams,
   GetApiLeaderboardProfitParams,
-  GetApiLinkvertise401One,
   GetApiLinkvertiseParams,
   GetApiMayorParams,
   GetApiModItemUuidParams,
@@ -3362,6 +3365,141 @@ export function useGetApiFlipUpdateWhen<TData = Awaited<ReturnType<typeof getApi
 
 
 /**
+ * @summary Attribute-based craft flips
+ */
+export type getApiFlipAttributeResponse200 = {
+  data: AttributeFlip[]
+  status: 200
+}
+
+export type getApiFlipAttributeResponse401ApplicationJson = {
+  data: GetApiFlipAttribute401One
+  status: 401
+}
+
+export type getApiFlipAttributeResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiFlipAttributeResponse403 = {
+  data: null
+  status: 403
+}
+    
+export type getApiFlipAttributeResponseComposite = getApiFlipAttributeResponse200 | getApiFlipAttributeResponse401ApplicationJson | getApiFlipAttributeResponse401TextPlain | getApiFlipAttributeResponse403;
+    
+export type getApiFlipAttributeResponse = getApiFlipAttributeResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiFlipAttributeUrl = (params?: GetApiFlipAttributeParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/flip/attribute?${stringifiedParams}` : `https://sky.coflnet.com/api/flip/attribute`
+}
+
+export const getApiFlipAttribute = async (params?: GetApiFlipAttributeParams, options?: RequestInit): Promise<getApiFlipAttributeResponse> => {
+  
+  const res = await fetch(getGetApiFlipAttributeUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiFlipAttributeResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiFlipAttributeResponse
+}
+
+
+
+export const getGetApiFlipAttributeQueryKey = (params?: GetApiFlipAttributeParams,) => {
+    return [`https://sky.coflnet.com/api/flip/attribute`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getGetApiFlipAttributeQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipAttribute>>, TError = GetApiFlipAttribute401One | string | null>(params?: GetApiFlipAttributeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipAttribute>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiFlipAttributeQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipAttribute>>> = ({ signal }) => getApiFlipAttribute(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiFlipAttribute>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiFlipAttributeQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipAttribute>>>
+export type GetApiFlipAttributeQueryError = GetApiFlipAttribute401One | string | null
+
+
+export function useGetApiFlipAttribute<TData = Awaited<ReturnType<typeof getApiFlipAttribute>>, TError = GetApiFlipAttribute401One | string | null>(
+ params: undefined |  GetApiFlipAttributeParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipAttribute>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiFlipAttribute>>,
+          TError,
+          Awaited<ReturnType<typeof getApiFlipAttribute>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiFlipAttribute<TData = Awaited<ReturnType<typeof getApiFlipAttribute>>, TError = GetApiFlipAttribute401One | string | null>(
+ params?: GetApiFlipAttributeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipAttribute>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiFlipAttribute>>,
+          TError,
+          Awaited<ReturnType<typeof getApiFlipAttribute>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiFlipAttribute<TData = Awaited<ReturnType<typeof getApiFlipAttribute>>, TError = GetApiFlipAttribute401One | string | null>(
+ params?: GetApiFlipAttributeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipAttribute>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Attribute-based craft flips
+ */
+
+export function useGetApiFlipAttribute<TData = Awaited<ReturnType<typeof getApiFlipAttribute>>, TError = GetApiFlipAttribute401One | string | null>(
+ params?: GetApiFlipAttributeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipAttribute>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiFlipAttributeQueryOptions(params,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * @summary Spread based bazaar flips
  */
 export type getApiFlipBazaarSpreadResponse200 = {
@@ -3719,8 +3857,23 @@ export type getApiFlipMayorResponse200 = {
   data: MayorDiffFlip[]
   status: 200
 }
+
+export type getApiFlipMayorResponse401ApplicationJson = {
+  data: GetApiFlipMayor401One
+  status: 401
+}
+
+export type getApiFlipMayorResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiFlipMayorResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiFlipMayorResponseComposite = getApiFlipMayorResponse200;
+export type getApiFlipMayorResponseComposite = getApiFlipMayorResponse200 | getApiFlipMayorResponse401ApplicationJson | getApiFlipMayorResponse401TextPlain | getApiFlipMayorResponse403;
     
 export type getApiFlipMayorResponse = getApiFlipMayorResponseComposite & {
   headers: Headers;
@@ -3758,7 +3911,7 @@ export const getGetApiFlipMayorQueryKey = () => {
     }
 
     
-export const getGetApiFlipMayorQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiFlipMayorQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = GetApiFlipMayor401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -3777,10 +3930,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiFlipMayorQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipMayor>>>
-export type GetApiFlipMayorQueryError = unknown
+export type GetApiFlipMayorQueryError = GetApiFlipMayor401One | string | null
 
 
-export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = unknown>(
+export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = GetApiFlipMayor401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipMayor>>,
@@ -3790,7 +3943,7 @@ export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipM
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = unknown>(
+export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = GetApiFlipMayor401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipMayor>>,
@@ -3800,12 +3953,12 @@ export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipM
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = unknown>(
+export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = GetApiFlipMayor401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = unknown>(
+export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = GetApiFlipMayor401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -9752,23 +9905,8 @@ export type getApiLinkvertiseResponse200 = {
   data: null
   status: 200
 }
-
-export type getApiLinkvertiseResponse401ApplicationJson = {
-  data: GetApiLinkvertise401One
-  status: 401
-}
-
-export type getApiLinkvertiseResponse401TextPlain = {
-  data: string
-  status: 401
-}
-
-export type getApiLinkvertiseResponse403 = {
-  data: null
-  status: 403
-}
     
-export type getApiLinkvertiseResponseComposite = getApiLinkvertiseResponse200 | getApiLinkvertiseResponse401ApplicationJson | getApiLinkvertiseResponse401TextPlain | getApiLinkvertiseResponse403;
+export type getApiLinkvertiseResponseComposite = getApiLinkvertiseResponse200;
     
 export type getApiLinkvertiseResponse = getApiLinkvertiseResponseComposite & {
   headers: Headers;
@@ -9813,7 +9951,7 @@ export const getGetApiLinkvertiseQueryKey = (params?: GetApiLinkvertiseParams,) 
     }
 
     
-export const getGetApiLinkvertiseQueryOptions = <TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = GetApiLinkvertise401One | string | null>(params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiLinkvertiseQueryOptions = <TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -9832,10 +9970,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiLinkvertiseQueryResult = NonNullable<Awaited<ReturnType<typeof getApiLinkvertise>>>
-export type GetApiLinkvertiseQueryError = GetApiLinkvertise401One | string | null
+export type GetApiLinkvertiseQueryError = unknown
 
 
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = GetApiLinkvertise401One | string | null>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
  params: undefined |  GetApiLinkvertiseParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiLinkvertise>>,
@@ -9845,7 +9983,7 @@ export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLin
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = GetApiLinkvertise401One | string | null>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
  params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiLinkvertise>>,
@@ -9855,12 +9993,12 @@ export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLin
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = GetApiLinkvertise401One | string | null>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
  params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = GetApiLinkvertise401One | string | null>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
  params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
