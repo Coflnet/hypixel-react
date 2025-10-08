@@ -13,10 +13,9 @@ export const PREMIUM_TYPES: PremiumType[] = [
         durationString: 'month',
         priority: PREMIUM_RANK.PREMIUM,
         options: [
-            { value: 1, label: '1 hour', productId: 'premium-hour', price: 150 },
-            { value: 1, label: '1 week', productId: 'premium-week', price: 1000 },
             { value: 1, label: '1 month', productId: 'premium', price: 1800 },
-            { value: 1, label: '1 year', productId: 'premium-year', price: 20000 }
+            { value: 3, label: '3 month', productId: 'premium', price: 1800*3 },
+            { value: 12, label: '1 year', productId: 'premium', price: 1800*12 }
         ]
     },
     {
