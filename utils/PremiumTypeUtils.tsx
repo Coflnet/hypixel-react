@@ -14,8 +14,8 @@ export const PREMIUM_TYPES: PremiumType[] = [
         priority: PREMIUM_RANK.PREMIUM,
         options: [
             { value: 1, label: '1 month', productId: 'premium', price: 1800 },
-            { value: 3, label: '3 month', productId: 'premium', price: 1800*3 },
-            { value: 12, label: '1 year', productId: 'premium', price: 1800*12 }
+            { value: 3, label: '3 month', productId: 'premium', price: 1800 },
+            { value: 12, label: '1 year', productId: 'premium', price: 1800 }
         ]
     },
     {
