@@ -38,7 +38,9 @@ const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Dur
             case Duration.MONTHLY:
                 return lowerLabel.includes('month') || lowerLabel.includes('4 weeks')
             case Duration.QUARTER:
-                return lowerLabel.includes('11 weeks') || lowerLabel.includes('6 months')
+                // Prefer an option explicitly representing 3 months (value === 3) or matching common quarterly labels
+                if ((option as any).value === 3) return true
+                return lowerLabel.includes('3 month') || lowerLabel.includes('3 months') || lowerLabel.includes('11 weeks') || lowerLabel.includes('6 months')
             case Duration.YEARLY:
                 return lowerLabel.includes('year') || lowerLabel.includes('12 months')
             default:
@@ -154,7 +156,9 @@ function BuyPremium(props: Props) {
             case Duration.WEEK:
                 return '1 Week'
             case Duration.MONTHLY:
-                return 'Monthly'
+                return '1 Month'
+            case Duration.QUARTER:
+                return '3 Months'
             case Duration.QUARTER:
                 return 'Quarterly'
             case Duration.YEARLY:
@@ -184,8 +188,7 @@ function BuyPremium(props: Props) {
                         <strong>Payment Method:</strong> CoflCoins
                     </p>
                     <p>
-                        <strong>Duration:</strong> {purchasePremiumOption.value > 1 ? purchasePremiumOption.value + 'x' : ''}
-                        {purchasePremiumOption.label}
+                        <strong>Duration:</strong> {purchasePremiumOption.label}
                     </p>
                     <p>
                         <strong>Price:</strong> <Number number={getPurchasePrice()} /> CoflCoins
