@@ -76,6 +76,26 @@ function BuyPremium(props: Props) {
     let [showPrepaidConfirmationDialog, setShowPrepaidConfirmationDialog] = useState(false)
     let coflCoins = useCoflCoins()
 
+    function scrollToCoflCoinsPurchase() {
+        if (typeof window === 'undefined') return
+        const el = document.getElementById('coflcoins-purchase')
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        } else {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+        }
+    }
+
+    function handleAttemptPurchaseClick() {
+        if (getPurchasePrice() > coflCoins) {
+            // Not enough coins -> scroll to CoflCoins top-up section
+            toast.info('You do not have enough CoflCoins. Scrolling to top-up options...')
+            scrollToCoflCoinsPurchase()
+            return
+        }
+        setShowPrepaidConfirmationDialog(true)
+    }
+
     // Set initial selection based on wizard choices
     useEffect(() => {
         const premiumType = getInitialPremiumType()
@@ -243,8 +263,8 @@ function BuyPremium(props: Props) {
                         variant="success"
                         size="lg"
                         className={styles.purchaseButton}
-                        onClick={() => setShowPrepaidConfirmationDialog(true)}
-                        disabled={getPurchasePrice() > coflCoins || isPurchasing}
+                        onClick={handleAttemptPurchaseClick}
+                        disabled={isPurchasing}
                     >
                         Purchase for <Number number={getPurchasePrice()} /> CoflCoins
                     </Button>
@@ -341,10 +361,8 @@ function BuyPremium(props: Props) {
                             <Button
                                 style={{ marginTop: '10px' }}
                                 variant="success"
-                                onClick={() => {
-                                    setShowPrepaidConfirmationDialog(true)
-                                }}
-                                disabled={getPurchasePrice() > coflCoins || isPurchasing}
+                                onClick={handleAttemptPurchaseClick}
+                                disabled={isPurchasing}
                             >
                                 Purchase
                             </Button>
