@@ -11,7 +11,7 @@ export default async function Page() {
     const queryClient = getQueryClient()
     queryClient.prefetchQuery({
         queryKey: [getGetApiFlipBazaarSpreadQueryKey()],
-        queryFn: () => getApiFlipBazaarSpread(),
+        queryFn: () => getApiFlipBazaarSpread()
     })
     return (
         <>
@@ -29,4 +29,9 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Bazaar Flips', 'Discover profitable Hypixel SkyBlock bazaar flipping opportunities. Real-time flip analysis, buy/sell spreads, and insta-buy order data to maximize your coin profits.', undefined, ['bazaar', 'flips', 'hypixel', 'skyblock', 'flip', 'bazaar flips', 'bazaar flipper'])
+export const metadata = getHeadMetadata(
+    'Bazaar Flips',
+    'Discover profitable Hypixel SkyBlock bazaar flipping opportunities. Real-time flip analysis, buy/sell spreads, and insta-buy order data to maximize your coin profits.',
+    undefined,
+    ['bazaar', 'flips', 'hypixel', 'skyblock', 'flip', 'bazaar flips', 'bazaar flipper']
+)

@@ -70,9 +70,8 @@ function ExportArchivedData(props: Props) {
                     <p>Export an auction history as a CSV file that you can import into Excel or other programs.</p>
                     <div style={{ marginBottom: '15px' }}>
                         <p>
-                            Clicking start export schedules one export to go through our archive and extract the items matching
-                            the specified filter. Each export will contain up to{' '} <NumberElement number={1000} /> auctions
-                            matching your filter. You can shedule 4 exports at once.
+                            Clicking start export schedules one export to go through our archive and extract the items matching the specified filter. Each
+                            export will contain up to <NumberElement number={1000} /> auctions matching your filter. You can shedule 4 exports at once.
                         </p>
                         <hr />
                         <p style={{ margin: 0 }}>The file will be sent to the following Discord Webhook:</p>
@@ -161,7 +160,7 @@ function ExportArchivedData(props: Props) {
                             setShowConfirmDialog(true)
                         }}
                     >
-                        Start Export for <NumberElement number={1500} /> CoflCoins
+                        Start Export
                     </Button>
                 </Modal.Body>
             </Modal>
@@ -172,7 +171,7 @@ function ExportArchivedData(props: Props) {
                 <Modal.Body>
                     <div>
                         <p>
-                            Are you sure you want to start the export for <NumberElement number={1500} /> CoflCoins?
+                            Are you sure you want to start the export? It can't be canceled once started.
                         </p>
                         <div style={{ display: 'flex', gap: 5, justifyContent: 'space-between' }}>
                             <Button

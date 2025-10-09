@@ -95,7 +95,7 @@ function RecentAuctions(props: Props) {
             }
         }
 
-    let page = Math.ceil(recentAuctions.length / FETCH_RESULT_SIZE)
+        let page = Math.ceil(recentAuctions.length / FETCH_RESULT_SIZE)
         let maxPages = 10
         switch (premiumType?.priority) {
             case PREMIUM_RANK.STARTER:
@@ -160,7 +160,6 @@ function RecentAuctions(props: Props) {
     }
 
     function onAfterLogin() {
-
         let onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
             setIsLoggedIn(true)
             let activePremium = getHighestPriorityPremiumProduct(products)
@@ -180,14 +179,18 @@ function RecentAuctions(props: Props) {
             })
         }
 
-        api.getPremiumProducts().then(products => {
-            onAfterPremiumProductsLoaded(products)
-        }).catch(() => {
-            onAfterPremiumProductsLoaded([{
-                expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365), // 1 year
-                productSlug: 'premium',
-            }])
-        })
+        api.getPremiumProducts()
+            .then(products => {
+                onAfterPremiumProductsLoaded(products)
+            })
+            .catch(() => {
+                onAfterPremiumProductsLoaded([
+                    {
+                        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365), // 1 year
+                        productSlug: 'premium'
+                    }
+                ])
+            })
     }
 
     let recentAuctionList = recentAuctions.map(recentAuction => {
@@ -290,7 +293,7 @@ function RecentAuctions(props: Props) {
                                 <Button>Archived Auctions</Button>
                             </Link>
                         ) : (
-                                <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+                            <div style={{ textAlign: 'center', marginBottom: '15px' }}>
                                 You can search through all our archived auctions with <Link href={'/premium?tier=premium_plus'}>Premium+</Link>
                             </div>
                         )}
@@ -304,7 +307,7 @@ function RecentAuctions(props: Props) {
                     wasAlreadyLoggedIn,
                     premiumType,
                     onAfterLogin,
-                        <span style={{ textAlign: 'center', marginBottom: '15px' }}>
+                    <span style={{ textAlign: 'center', marginBottom: '15px' }}>
                         You currently use Starter Premium. You can see up to 120 recent auctions with <Link href={'/premium?tier=premium'}>Premium</Link>
                     </span>
                 )}

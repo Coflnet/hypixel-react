@@ -1,13 +1,9 @@
-import Link from 'next/link';
-import { getDocs } from './lib';
-import Search from '../../components/Search/Search';
+import Link from 'next/link'
+import { getDocs } from './lib'
+import Search from '../../components/Search/Search'
 
-export default async function WikiLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
-    const docs = await getDocs();
+export default async function WikiLayout({ children }: { children: React.ReactNode }) {
+    const docs = await getDocs()
     return (
         <div className="container mt-4">
             <div className="row">
@@ -21,10 +17,8 @@ export default async function WikiLayout({
                         ))}
                     </nav>
                 </div>
-                <div className="col-md-9">
-                    {children}
-                </div>
+                <div className="col-md-9">{children}</div>
             </div>
         </div>
-    );
+    )
 }

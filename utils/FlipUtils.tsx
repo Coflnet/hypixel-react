@@ -158,7 +158,8 @@ export const FLIP_FINDERS = [
             <span>
                 Displays any auction that would be at least 5% more expensive to craft. <br />
                 Sums up clean+modifier cost. <br />
-                You can adjust weights of every attribute with the <b>CraftCostWeight</b> filter.<br />
+                You can adjust weights of every attribute with the <b>CraftCostWeight</b> filter.
+                <br />
                 Note that this does not indicate that the item will sell for that price.
             </span>
         ),

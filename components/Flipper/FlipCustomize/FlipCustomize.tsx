@@ -1,6 +1,6 @@
 'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import React, { ChangeEvent, useEffect, useState, type JSX } from 'react';
+import React, { ChangeEvent, useEffect, useState, type JSX } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { DEMO_FLIP, FLIP_FINDERS, getFlipFinders, getFlipCustomizeSettings } from '../../../utils/FlipUtils'
 import {
@@ -143,8 +143,16 @@ function FlipCustomize() {
         }
 
         addWarningForFinder('TFM', warnings, 'The "TFM"-Finder is outdated and therefore considered risky. Only use if you know what you are doing.')
-        addWarningForFinder('Stonks', warnings, 'The "Stonks"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.')
-        addWarningForFinder('CraftCost', warnings, 'The "CraftCost"-Finder sums up craft cost. It does not mean its estimations are correct, please report any cases where you know they are not.')
+        addWarningForFinder(
+            'Stonks',
+            warnings,
+            'The "Stonks"-Finder is work in progress and therefore considered risky. Only use if you know what you are doing.'
+        )
+        addWarningForFinder(
+            'CraftCost',
+            warnings,
+            'The "CraftCost"-Finder sums up craft cost. It does not mean its estimations are correct, please report any cases where you know they are not.'
+        )
 
         if (warnings.length === 0) {
             return null

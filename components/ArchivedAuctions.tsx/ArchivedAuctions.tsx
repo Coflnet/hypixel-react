@@ -71,10 +71,12 @@ const ArchivedAuctionsList = (props: Props) => {
         } catch (e) {
             let filters = await loadFilters()
             setIsLoggedIn(false)
-            setPremiumProducts([{
-                expires: new Date(Date.now() + 100 * 60 * 60 * 24 * 365),
-                productSlug: "premium",
-            }])
+            setPremiumProducts([
+                {
+                    expires: new Date(Date.now() + 100 * 60 * 60 * 24 * 365),
+                    productSlug: 'premium'
+                }
+            ])
             setFilters(filters)
         }
     }

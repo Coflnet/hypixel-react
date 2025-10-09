@@ -2032,26 +2032,83 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getMayorData = (start: Date, end: Date): Promise<MayorData[]> => {
-        let params = new URLSearchParams()
-        params.set('from', start.toISOString())
-        params.set('to', end.toISOString())
+    const HOUR_IN_MS = 60 * 60 * 1000
+    const MAYOR_FAILURE_COOLDOWN_MS = 2 * 60 * 1000
+    const mayorDataCache = new Map<string, MayorData[]>()
+    const mayorDataRequestCache = new Map<string, Promise<MayorData[]>>()
+    const mayorDataFailureCache = new Map<string, number>()
 
-        return new Promise((resolve, reject) => {
+    let normaliseMayorRange = (start: Date, end: Date) => {
+        let from = new Date(start.getTime())
+        let to = new Date(end.getTime())
+
+        if (to < from) {
+            ;[from, to] = [to, from]
+        }
+
+        from.setMinutes(0, 0, 0)
+        to.setMinutes(0, 0, 0)
+
+        if (to.getTime() <= from.getTime()) {
+            to = new Date(from.getTime() + HOUR_IN_MS)
+        } else if (to.getTime() < end.getTime()) {
+            to = new Date(to.getTime() + HOUR_IN_MS)
+        }
+
+        return { from, to }
+    }
+
+    let getMayorCacheKey = (from: Date, to: Date) => `${from.toISOString()}_${to.toISOString()}`
+
+    let getMayorData = (start: Date, end: Date): Promise<MayorData[]> => {
+        let { from, to } = normaliseMayorRange(start, end)
+        let cacheKey = getMayorCacheKey(from, to)
+
+        let cached = mayorDataCache.get(cacheKey)
+        if (cached) {
+            return Promise.resolve(cached)
+        }
+
+        let inFlight = mayorDataRequestCache.get(cacheKey)
+        if (inFlight) {
+            return inFlight
+        }
+
+        let lastFailure = mayorDataFailureCache.get(cacheKey)
+        if (lastFailure && Date.now() - lastFailure < MAYOR_FAILURE_COOLDOWN_MS) {
+            return Promise.reject(new Error('Mayor data request suppressed after recent failure.'))
+        }
+
+        let params = new URLSearchParams()
+        params.set('from', from.toISOString())
+        params.set('to', to.toISOString())
+
+        let requestPromise = new Promise<MayorData[]>((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.MAYOR_DATA,
                 customRequestURL: `${getApiEndpoint()}/mayor?${params.toString()}`,
                 data: '',
                 resolve: data => {
-                    resolve(data.map(parseMayorData))
+                    mayorDataRequestCache.delete(cacheKey)
+                    mayorDataFailureCache.delete(cacheKey)
+
+                    let parsed = data.map(parseMayorData)
+                    mayorDataCache.set(cacheKey, parsed)
+                    resolve(parsed)
                 },
                 reject: (error: any) => {
+                    mayorDataRequestCache.delete(cacheKey)
+                    mayorDataFailureCache.set(cacheKey, Date.now())
+
                     // temporarly don't show mayor errors
                     //apiErrorHandler(RequestType.MAYOR_DATA, error, { start, end })
                     reject(error)
                 }
             })
         })
+
+        mayorDataRequestCache.set(cacheKey, requestPromise)
+        return requestPromise
     }
 
     let getTransactions = (): Promise<Transaction[]> => {

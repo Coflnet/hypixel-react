@@ -33,7 +33,7 @@ function Premium() {
     useEffect(() => {
         setIsSSR(false)
         setCancellationRightLossConfirmed(localStorage.getItem(CANCELLATION_RIGHT_CONFIRMED) === 'true')
-        
+
         // Check for tier parameter to show upgrade wizard
         checkForUpgradeRequest()
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,11 +42,11 @@ function Premium() {
     // Check if user is requesting an upgrade via URL parameter
     function checkForUpgradeRequest() {
         if (typeof window === 'undefined') return
-        
+
         const urlParams = new URLSearchParams(window.location.search)
         const tierParam = urlParams.get('tier')
         const upgradeParam = urlParams.get('upgrade')
-        
+
         // Show upgrade wizard if tier parameter is present or upgrade=true
         if (tierParam && parseTierFromUrl(tierParam)) {
             setShowUpgradeWizard(true)
@@ -67,7 +67,7 @@ function Premium() {
                 setHasPremium(true)
                 setActivePremiumProduct(activePremiumProduct)
             }
-            
+
             // Check for upgrade request after loading premium status
             checkForUpgradeRequest()
         })
@@ -140,8 +140,8 @@ function Premium() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h2>{hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
                         {hasPremium && showUpgradeWizard && (
-                            <Button 
-                                variant="outline-secondary" 
+                            <Button
+                                variant="outline-secondary"
                                 size="sm"
                                 onClick={() => {
                                     setShowUpgradeWizard(false)
@@ -169,10 +169,7 @@ function Premium() {
                     <hr />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h2>Extend Premium</h2>
-                        <Button 
-                            variant="success" 
-                            onClick={() => setShowUpgradeWizard(true)}
-                        >
+                        <Button variant="success" onClick={() => setShowUpgradeWizard(true)}>
                             🚀 Upgrade to Higher Tier
                         </Button>
                     </div>
@@ -250,7 +247,9 @@ function Premium() {
                             </label>
                         </div>
                     ) : null}
-                    <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
+                    <div id="coflcoins-purchase">
+                        <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
+                    </div>
                 </div>
             ) : null}
             <hr />

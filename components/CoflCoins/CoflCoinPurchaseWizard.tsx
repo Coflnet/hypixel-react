@@ -38,13 +38,8 @@ function CoflCoinPurchaseWizard({ coflCoins, countryCode, onPayPalPay, onStripeP
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-            {step === 'amount' && (
-                <CoflCoinAmountSelection
-                    coflCoins={coflCoins}
-                    onAmountSelected={handleAmountSelected}
-                />
-            )}
-            
+            {step === 'amount' && <CoflCoinAmountSelection coflCoins={coflCoins} onAmountSelected={handleAmountSelected} />}
+
             {step === 'payment' && selectedOption && (
                 <CoflCoinPaymentSelection
                     selectedOption={selectedOption}

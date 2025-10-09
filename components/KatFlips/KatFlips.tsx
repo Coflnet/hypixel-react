@@ -88,7 +88,8 @@ export function KatFlips(props: Props) {
                     <span style={{ width: '150px', float: 'left' }}>Volume:</span> <Number number={Math.round(flip.volume)} />
                 </p>
                 <p>
-                    <span style={{ width: '150px', float: 'left' }}>Target Rarity:</span> <span style={getStyleForTier(flip.targetRarity)}>{flip.targetRarity}</span>
+                    <span style={{ width: '150px', float: 'left' }}>Target Rarity:</span>{' '}
+                    <span style={getStyleForTier(flip.targetRarity)}>{flip.targetRarity}</span>
                 </p>
                 <p>
                     <span style={{ width: '150px', float: 'left' }}>Time:</span> {flip.coreData.hours} Hours
@@ -98,18 +99,15 @@ export function KatFlips(props: Props) {
                     <span style={{ width: '150px', float: 'left' }}>Material Cost:</span> <Number number={Math.round(flip.materialCost)} /> Coins
                 </p>
                 {flip.coreData?.materials && Object.keys(flip.coreData?.materials).length > 0 ? (
-                    <div style={{ display: "grid", gridTemplateColumns: "150px 1fr" }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr' }}>
                         <span style={{ width: '150px', float: 'left' }}>Material{Object.keys(flip.coreData.materials).length > 1 ? 's' : ''}:</span>
                         <div>
                             {Object.entries(flip.coreData.materials).map(([material, amount]) => {
-                                return (
-                                    <p key={material}>
-                                        {`${amount}x ${convertTagToName(material)}`}
-                                    </p>
-                                )
+                                return <p key={material}>{`${amount}x ${convertTagToName(material)}`}</p>
                             })}
                         </div>
-                    </div>) : null}
+                    </div>
+                ) : null}
             </>
         )
     }
@@ -149,7 +147,7 @@ export function KatFlips(props: Props) {
                     tier: 'LEGENDARY',
                     iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
                 },
-                materials: { 'CoflCoin': 1 }
+                materials: { CoflCoin: 1 }
             },
             cost: 12345,
             materialCost: 696969,
@@ -171,7 +169,7 @@ export function KatFlips(props: Props) {
             renderFlipContentAction={renderFlipContent}
             onFlipClick={onFlipClick}
             filterFunction={filterFunction}
-            getItemKeyAction={(flip) => flip.originAuctionUUID || ''}
+            getItemKeyAction={flip => flip.originAuctionUUID || ''}
             censoredItemGenerator={censoredItemGenerator}
             premiumMessage="The top 3 flips can only be seen with starter premium or better"
             clickMessage="Click on a flip for further details"

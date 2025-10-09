@@ -1,10 +1,8 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
-import api from '../api/ApiHelper'
-import { CUSTOM_EVENTS } from '../api/ApiTypes.d'
-import { getCurrentCoflCoins, subscribeToCoflcoinChange } from './CoflCoinsUtils'
-import { isClientSideRendering } from './SSRUtils'
-import { getURLSearchParam } from './Parser/URLParser'
 import { useRouter } from 'next/navigation'
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
+import { getCurrentCoflCoins, subscribeToCoflcoinChange } from './CoflCoinsUtils'
+import { getURLSearchParam } from './Parser/URLParser'
+import { isClientSideRendering } from './SSRUtils'
 
 export function useForceUpdate() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

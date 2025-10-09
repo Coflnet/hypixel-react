@@ -4,7 +4,7 @@ description: "API access for developers"
 order: 10
 ---
 
-We provide a free API for developers to access most of our data. You can check out the swagger documentation [here](https://api.skycofl.com/api).
+We provide a free API for developers to access most of our data. You can check out the openapi documentation [here](https://sky.coflnet.com/api).
 
 ## Player Data
 We extract player specific game data via our mod directly from the skyblock to build features with.  
@@ -53,3 +53,5 @@ For example:
 * For player data link to `https://sky.coflnet.com/player/{userId}`
 * For flips link to the relevant flip page or [`https://sky.coflnet.com/flips`](https://sky.coflnet.com/flips)
 
+### Commercial Use
+If you use our API in a commercial product, you are required to also help us fund our servers directly via subscribing to premium+.

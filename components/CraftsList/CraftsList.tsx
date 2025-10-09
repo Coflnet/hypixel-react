@@ -54,7 +54,7 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
 ]
 
 export function CraftsList(props: Props) {
-    const crafts = useMemo(() => props.crafts ? parseProfitableCrafts(props.crafts) : [], [props.crafts])
+    const crafts = useMemo(() => (props.crafts ? parseProfitableCrafts(props.crafts) : []), [props.crafts])
 
     function renderFlipContent(craft: ProfitableCraft) {
         return (
@@ -175,7 +175,7 @@ export function CraftsList(props: Props) {
             sortOptions={SORT_OPTIONS}
             renderFlipContentAction={renderFlipContent}
             filterFunction={filterFunction}
-            getItemKeyAction={(craft) => craft.item.tag}
+            getItemKeyAction={craft => craft.item.tag}
             censoredItemGenerator={censoredItemGenerator}
             premiumMessage="The top 3 crafts can only be seen with starter premium or better"
             clickMessage="Click on a craft for further details"

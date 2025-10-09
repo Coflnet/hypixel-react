@@ -1,6 +1,6 @@
 'use client'
 import moment from 'moment'
-import { useEffect, useRef, useState, type JSX } from 'react';
+import { useEffect, useRef, useState, type JSX } from 'react'
 import Card from 'react-bootstrap/Card'
 import { Table } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
@@ -86,7 +86,7 @@ function BazaarSnapshot(props: Props) {
         })
     }
 
-    function getInformationBody(data: BazaarSnapshotData, type:string): JSX.Element {
+    function getInformationBody(data: BazaarSnapshotData, type: string): JSX.Element {
         return (
             <div>
                 <p>
@@ -129,7 +129,7 @@ function BazaarSnapshot(props: Props) {
                             style={
                                 {
                                     '--gradient-color': color,
-                                    '--gradient-width': `${(order.amount / maxAmount) * 100}%`,
+                                    '--gradient-width': `${(order.amount / maxAmount) * 100}%`
                                 } as React.CSSProperties
                             }
                         >

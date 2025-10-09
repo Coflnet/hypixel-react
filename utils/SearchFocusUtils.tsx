@@ -12,18 +12,18 @@ export function isSearchInputInUse(searchInputId: string): boolean {
     if (typeof document === 'undefined') {
         return false // Server-side rendering
     }
-    
+
     const searchInput = document.getElementById(searchInputId) as HTMLInputElement
     if (!searchInput) {
         return false
     }
-    
+
     // Check if the search input has focus
     const hasFocus = document.activeElement === searchInput
-    
+
     // Check if the search input contains text
     const hasText = searchInput.value && searchInput.value.trim().length > 0
-    
+
     return hasFocus || !!hasText
 }
 
@@ -55,25 +55,27 @@ export function isAnySearchInputInUse(): boolean {
     if (typeof document === 'undefined') {
         return false // Server-side rendering
     }
-    
+
     // Get all input elements that might be search inputs
-    const searchInputs = document.querySelectorAll([
-        'input[type="text"].searchBar',
-        'input[id="search-bar"]',
-        'input[id^="search-bar-"]',
-        'input[placeholder*="Search"]',
-        'input[placeholder*="search"]'
-    ].join(', '))
-    
+    const searchInputs = document.querySelectorAll(
+        [
+            'input[type="text"].searchBar',
+            'input[id="search-bar"]',
+            'input[id^="search-bar-"]',
+            'input[placeholder*="Search"]',
+            'input[placeholder*="search"]'
+        ].join(', ')
+    )
+
     for (let i = 0; i < searchInputs.length; i++) {
         const htmlInput = searchInputs[i] as HTMLInputElement
         const hasFocus = document.activeElement === htmlInput
         const hasText = htmlInput.value && htmlInput.value.trim().length > 0
-        
+
         if (hasFocus || hasText) {
             return true
         }
     }
-    
+
     return false
 }

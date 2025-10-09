@@ -28,43 +28,41 @@ const coflCoinOptions: CoflCoinOption[] = [
         paypalPrice: 8.69,
         stripePrice: 8.42,
         lemonsqueezyPrice: 8.69,
-        paypalProductId: "p_cc_1800",
-        stripeProductId: "s_cc_1800",
-        lemonsqueezyProductId: "l_cc_1800"
+        paypalProductId: 'p_cc_1800',
+        stripeProductId: 's_cc_1800',
+        lemonsqueezyProductId: 'l_cc_1800'
     },
     {
         amount: 5400,
         paypalPrice: 22.99,
         stripePrice: 22.69,
         lemonsqueezyPrice: 22.69,
-        paypalProductId: "p_cc_5400",
-        stripeProductId: "s_cc_5400",
-        lemonsqueezyProductId: "l_cc_5400"
+        paypalProductId: 'p_cc_5400',
+        stripeProductId: 's_cc_5400',
+        lemonsqueezyProductId: 'l_cc_5400'
     },
     {
         amount: 10800,
         paypalPrice: 39.69,
         stripePrice: 38.99,
         lemonsqueezyPrice: 39.69,
-        paypalProductId: "p_cc_10800",
-        stripeProductId: "s_cc_10800",
-        lemonsqueezyProductId: "l_cc_10800"
+        paypalProductId: 'p_cc_10800',
+        stripeProductId: 's_cc_10800',
+        lemonsqueezyProductId: 'l_cc_10800'
     },
     {
         amount: 21600,
         paypalPrice: 78.69,
         stripePrice: 74.99,
         lemonsqueezyPrice: 78.69,
-        paypalProductId: "p_cc_21600",
-        stripeProductId: "s_cc_21600",
-        lemonsqueezyProductId: "l_cc_21600"
+        paypalProductId: 'p_cc_21600',
+        stripeProductId: 's_cc_21600',
+        lemonsqueezyProductId: 'l_cc_21600'
     }
 ]
 
 function getPricePerCoin(option: CoflCoinOption, provider: 'paypal' | 'stripe' | 'lemonsqueezy' = 'stripe'): number {
-    const price = provider === 'paypal' ? option.paypalPrice :
-        provider === 'stripe' ? option.stripePrice :
-            option.lemonsqueezyPrice
+    const price = provider === 'paypal' ? option.paypalPrice : provider === 'stripe' ? option.stripePrice : option.lemonsqueezyPrice
     return price / option.amount
 }
 
@@ -85,15 +83,17 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
     const needsSpecificAmount = remainder !== 0
     const specificAmount = needsSpecificAmount ? 1800 - remainder : 0
 
-    const specificOption: CoflCoinOption | null = needsSpecificAmount ? {
-        amount: 1800 + specificAmount,
-        paypalPrice: (baseOption.paypalPrice / 1800) * (1800 + specificAmount),
-        stripePrice: (baseOption.stripePrice / 1800) * (1800 + specificAmount),
-        lemonsqueezyPrice: (baseOption.lemonsqueezyPrice / 1800) * (1800 + specificAmount),
-        paypalProductId: baseOption.paypalProductId,
-        stripeProductId: baseOption.stripeProductId,
-        lemonsqueezyProductId: baseOption.lemonsqueezyProductId
-    } : null
+    const specificOption: CoflCoinOption | null = needsSpecificAmount
+        ? {
+              amount: 1800 + specificAmount,
+              paypalPrice: (baseOption.paypalPrice / 1800) * (1800 + specificAmount),
+              stripePrice: (baseOption.stripePrice / 1800) * (1800 + specificAmount),
+              lemonsqueezyPrice: (baseOption.lemonsqueezyPrice / 1800) * (1800 + specificAmount),
+              paypalProductId: baseOption.paypalProductId,
+              stripeProductId: baseOption.stripeProductId,
+              lemonsqueezyProductId: baseOption.lemonsqueezyProductId
+          }
+        : null
 
     const allOptions = specificOption ? [specificOption, ...coflCoinOptions] : coflCoinOptions
 
@@ -128,7 +128,7 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
         // Only allow numbers
         const numericValue = value.replace(/[^0-9]/g, '')
         setCustomAmount(numericValue)
-        
+
         // If we have a valid custom amount, clear the selected predefined option
         if (numericValue && parseInt(numericValue) >= 1800) {
             setSelectedOption(null)
@@ -168,8 +168,8 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
             {specificOption && (
                 <div className="alert alert-info" role="alert" style={{ marginBottom: '20px' }}>
                     <p className="mb-0 small">
-                        <strong>Recommended:</strong> Your current balance isn't divisible by 1800.
-                        Consider buying <Number number={specificOption.amount} /> CoflCoins to optimize your premium purchases.
+                        <strong>Recommended:</strong> Your current balance isn't divisible by 1800. Consider buying <Number number={specificOption.amount} />{' '}
+                        CoflCoins to optimize your premium purchases.
                     </p>
                 </div>
             )}
@@ -191,17 +191,13 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                             className={`${styles.premiumPlanCard} ${isSelected ? 'border-primary shadow' : 'border-secondary'}`}
                             style={{
                                 cursor: 'pointer',
-                                transform: (isSelected || (isCustom && shouldExpandCustom)) ? 'translateY(-2px)' : 'none'
+                                transform: isSelected || (isCustom && shouldExpandCustom) ? 'translateY(-2px)' : 'none'
                             }}
                             onClick={() => !isCustom && handlePredefinedOptionSelect(option)}
                         >
                             <Card.Header className="position-relative">
-                                <Card.Title>
-                                    {isCustom ? 'Custom Amount' : <Number number={option.amount} />}
-                                </Card.Title>
-                                {isSpecialOption && (
-                                    <span className="position-absolute top-0 end-0 mt-2 me-2 badge bg-success">OPTIMAL</span>
-                                )}
+                                <Card.Title>{isCustom ? 'Custom Amount' : <Number number={option.amount} />}</Card.Title>
+                                {isSpecialOption && <span className="position-absolute top-0 end-0 mt-2 me-2 badge bg-success">OPTIMAL</span>}
                                 {!isCustom && savings > 0 && (
                                     <span className="position-absolute top-0 end-0 mt-2 me-2 badge bg-warning text-dark">SAVE {Math.round(savings)}%</span>
                                 )}
@@ -219,9 +215,7 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                                                 </div>
                                             )}
 
-                                            {isSpecialOption && (
-                                                <div className="small text-info mb-2">Makes your total divisible by 1800</div>
-                                            )}
+                                            {isSpecialOption && <div className="small text-info mb-2">Makes your total divisible by 1800</div>}
                                         </>
                                     )}
 
@@ -244,14 +238,17 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                                                                 type="text"
                                                                 placeholder="1800"
                                                                 value={customAmount}
-                                                                onChange={(e) => handleCustomAmountChange(e.target.value)}
+                                                                onChange={e => handleCustomAmountChange(e.target.value)}
                                                             />
                                                             <InputGroup.Text>CoflCoins</InputGroup.Text>
                                                         </InputGroup>
                                                         {customAmount && (
                                                             <Form.Text className="text-muted">
                                                                 {isCustomAmountValid() ? (
-                                                                    <>Price: €{calculateCustomPrice(getCustomAmountValue(), baseOption.stripePrice).toFixed(2)}</>
+                                                                    <>
+                                                                        Price: €
+                                                                        {calculateCustomPrice(getCustomAmountValue(), baseOption.stripePrice).toFixed(2)}
+                                                                    </>
                                                                 ) : (
                                                                     <span className="text-danger">Minimum amount is 1800 CoflCoins</span>
                                                                 )}
@@ -263,7 +260,13 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                                                         <Button variant="primary" disabled={!isCustomAmountValid()} onClick={handleCustomAmountSelect}>
                                                             Continue
                                                         </Button>
-                                                        <Button variant="outline-secondary" onClick={() => { setShowCustomInput(false); setCustomAmount('') }}>
+                                                        <Button
+                                                            variant="outline-secondary"
+                                                            onClick={() => {
+                                                                setShowCustomInput(false)
+                                                                setCustomAmount('')
+                                                            }}
+                                                        >
                                                             Cancel
                                                         </Button>
                                                     </div>
@@ -278,13 +281,13 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                 })}
             </div>
 
-            
-
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                marginTop: '30px'
-            }}>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginTop: '30px'
+                }}
+            >
                 <Button
                     variant="primary"
                     size="lg"
@@ -296,7 +299,13 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                         fontWeight: '600'
                     }}
                 >
-                    {selectedOption ? <span>Continue with <NumberElement number={selectedOption.amount} /> CoflCoins</span> : 'Select an Amount'}
+                    {selectedOption ? (
+                        <span>
+                            Continue with <NumberElement number={selectedOption.amount} /> CoflCoins
+                        </span>
+                    ) : (
+                        'Select an Amount'
+                    )}
                 </Button>
             </div>
         </div>

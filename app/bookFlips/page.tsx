@@ -11,7 +11,7 @@ export default async function Page() {
     const queryClient = getQueryClient()
     queryClient.prefetchQuery({
         queryKey: [getGetApiFlipBazaarBooksQueryKey()],
-        queryFn: () => getApiFlipBazaarBooks(),
+        queryFn: () => getApiFlipBazaarBooks()
     })
     return (
         <>

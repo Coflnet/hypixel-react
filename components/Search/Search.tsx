@@ -66,7 +66,7 @@ function Search(props: Props) {
 
     // Generate unique ID for this search instance
     const searchId = useRef(`search-bar-${Math.random().toString(36).substr(2, 9)}`)
-    
+
     // Use 'search-bar' for global search (when navbar is not hidden), unique ID for others
     const inputId = props.hideNavbar ? searchId.current : 'search-bar'
 
@@ -315,14 +315,14 @@ function Search(props: Props) {
      * This prevents secondary search components from stealing focus from primary ones
      */
     function shouldPreventAutoFocus(): boolean {
-        // If this is a secondary search (has hideNavbar or specific placeholder), 
+        // If this is a secondary search (has hideNavbar or specific placeholder),
         // check if any other search inputs are in use
         const isSecondarySearch = props.hideNavbar || (props.placeholder && props.placeholder !== 'Search player/item')
-        
+
         if (isSecondarySearch) {
             return isAnySearchInputInUse()
         }
-        
+
         return false
     }
 

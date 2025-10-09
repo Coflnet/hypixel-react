@@ -9,59 +9,59 @@ export const BASE_PRICES = {
 
 // VAT rates by country code
 export const VAT_RATES: { [countryCode: string]: number } = {
-    'DE': 0.19, // Germany 19%
-    'AT': 0.20, // Austria 20%
-    'BE': 0.21, // Belgium 21%
-    'BG': 0.20, // Bulgaria 20%
-    'HR': 0.25, // Croatia 25%
-    'CY': 0.19, // Cyprus 19%
-    'CZ': 0.21, // Czech Republic 21%
-    'DK': 0.25, // Denmark 25%
-    'EE': 0.20, // Estonia 20%
-    'FI': 0.24, // Finland 24%
-    'FR': 0.20, // France 20%
-    'GR': 0.24, // Greece 24%
-    'HU': 0.27, // Hungary 27%
-    'IE': 0.23, // Ireland 23%
-    'IT': 0.22, // Italy 22%
-    'LV': 0.21, // Latvia 21%
-    'LT': 0.21, // Lithuania 21%
-    'LU': 0.17, // Luxembourg 17%
-    'MT': 0.18, // Malta 18%
-    'NL': 0.21, // Netherlands 21%
-    'PL': 0.23, // Poland 23%
-    'PT': 0.23, // Portugal 23%
-    'RO': 0.19, // Romania 19%
-    'SK': 0.20, // Slovakia 20%
-    'SI': 0.22, // Slovenia 22%
-    'ES': 0.21, // Spain 21%
-    'SE': 0.25, // Sweden 25%
-    'GB': 0.20, // United Kingdom 20%
-    'NO': 0.25, // Norway 25%
-    'CH': 0.077, // Switzerland 7.7%
-    'CA': 0.13, // Canada (average HST/GST+PST) 13%
-    'AU': 0.10, // Australia 10%
-    'NZ': 0.15, // New Zealand 15%
-    'JP': 0.10, // Japan 10%
-    'SG': 0.08, // Singapore 8%
-    'IN': 0.18, // India 18%
-    'BR': 0.17, // Brazil (ICMS average) 17%
-    'MX': 0.16, // Mexico 16%
-    'KR': 0.10, // South Korea 10%
-    'ZA': 0.15, // South Africa 15%
-    'TR': 0.18, // Turkey 18%
-    'IL': 0.17, // Israel 17%
-    'TH': 0.07, // Thailand 7%
-    'MY': 0.06, // Malaysia 6%
-    'PH': 0.12, // Philippines 12%
-    'VN': 0.10, // Vietnam 10%
-    'ID': 0.11, // Indonesia 11%
-    'CL': 0.19, // Chile 19%
-    'AR': 0.21, // Argentina 21%
-    'CO': 0.19, // Colombia 19%
-    'PE': 0.18, // Peru 18%
-    'UY': 0.22, // Uruguay 22%
-    'EC': 0.12, // Ecuador 12%
+    DE: 0.19, // Germany 19%
+    AT: 0.2, // Austria 20%
+    BE: 0.21, // Belgium 21%
+    BG: 0.2, // Bulgaria 20%
+    HR: 0.25, // Croatia 25%
+    CY: 0.19, // Cyprus 19%
+    CZ: 0.21, // Czech Republic 21%
+    DK: 0.25, // Denmark 25%
+    EE: 0.2, // Estonia 20%
+    FI: 0.24, // Finland 24%
+    FR: 0.2, // France 20%
+    GR: 0.24, // Greece 24%
+    HU: 0.27, // Hungary 27%
+    IE: 0.23, // Ireland 23%
+    IT: 0.22, // Italy 22%
+    LV: 0.21, // Latvia 21%
+    LT: 0.21, // Lithuania 21%
+    LU: 0.17, // Luxembourg 17%
+    MT: 0.18, // Malta 18%
+    NL: 0.21, // Netherlands 21%
+    PL: 0.23, // Poland 23%
+    PT: 0.23, // Portugal 23%
+    RO: 0.19, // Romania 19%
+    SK: 0.2, // Slovakia 20%
+    SI: 0.22, // Slovenia 22%
+    ES: 0.21, // Spain 21%
+    SE: 0.25, // Sweden 25%
+    GB: 0.2, // United Kingdom 20%
+    NO: 0.25, // Norway 25%
+    CH: 0.077, // Switzerland 7.7%
+    CA: 0.13, // Canada (average HST/GST+PST) 13%
+    AU: 0.1, // Australia 10%
+    NZ: 0.15, // New Zealand 15%
+    JP: 0.1, // Japan 10%
+    SG: 0.08, // Singapore 8%
+    IN: 0.18, // India 18%
+    BR: 0.17, // Brazil (ICMS average) 17%
+    MX: 0.16, // Mexico 16%
+    KR: 0.1, // South Korea 10%
+    ZA: 0.15, // South Africa 15%
+    TR: 0.18, // Turkey 18%
+    IL: 0.17, // Israel 17%
+    TH: 0.07, // Thailand 7%
+    MY: 0.06, // Malaysia 6%
+    PH: 0.12, // Philippines 12%
+    VN: 0.1, // Vietnam 10%
+    ID: 0.11, // Indonesia 11%
+    CL: 0.19, // Chile 19%
+    AR: 0.21, // Argentina 21%
+    CO: 0.19, // Colombia 19%
+    PE: 0.18, // Peru 18%
+    UY: 0.22, // Uruguay 22%
+    EC: 0.12 // Ecuador 12%
 }
 
 export interface PriceInfo {
@@ -74,9 +74,9 @@ export interface PriceInfo {
 }
 
 export function calculatePrice(tier: PremiumTier, countryCode?: string, discountPercent: number = 0): PriceInfo {
-    let basePrice = BASE_PRICES[tier];
-    basePrice *= (1 - discountPercent / 100)
-    const vatRate = countryCode ? (VAT_RATES[countryCode.toUpperCase()] || 0) : 0
+    let basePrice = BASE_PRICES[tier]
+    basePrice *= 1 - discountPercent / 100
+    const vatRate = countryCode ? VAT_RATES[countryCode.toUpperCase()] || 0 : 0
     const vatAmount = basePrice * vatRate
     const totalPrice = basePrice + vatAmount
 
