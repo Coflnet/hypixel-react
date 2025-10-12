@@ -130,12 +130,12 @@ export function FusionFlips() {
     return (
         <>
             <p>
-                This is a curated list of profitable Fusion Flips in Hypixel SkyBlock — find opportunities to fuse shards and sell the fused shard for a profit.
+                This is a curated list of profitable Skyblock Fusion Flips in Hypixel SkyBlock — find opportunities to fuse shards and sell the fused shard for a profit.
                 The list highlights input cost, output value, output count and trade volume so you can quickly spot high-margin fusion flips. This is one of the
                 newest Skyblock money making methods introduced with the the <strong>Galatea Foraging update</strong>.
             </p>
             <details>
-                <summary>How to do fusion flipping</summary>
+                <summary>How to profit of hypixel skyblock fusion flipping</summary>
                 <ol>
                     <li>Pick a fusion flip that has a positive profit from the list below.</li>
                     <li>Buy order the displayed amount of each shard</li>
