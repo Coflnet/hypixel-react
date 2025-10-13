@@ -40,7 +40,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- Automatically filters out flips the tracker knows already sold; expect fresher opportunities than raw API dumps.
 	- Displays clickable `/viewauction <uuid>` shortcuts so you can jump into Hypixel instantly.
 
-- **Note:** Pair this command with tight blacklists/whitelists—your landing page can pitch “unsold flip leads” as a Premium feature using these curated alerts.
+- **Note:** Use tight blacklists and whitelists to reduce noise and surface only actionable unsold flip leads; test rules with `bl list` after adding them.
 
 
 
@@ -59,7 +59,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- The command auto-hides “manipulated” items if you toggled `HideManipulated` in settings; it strikes those entries when visibility is forced.
 	- Each row exposes `/bz <query>` so you can open Hypixel’s bazaar instantly, plus hover notes covering profit/hour, fees, and hourly volume.
 
-- **Note:** Highlight that the algorithm already subtracts the 1.25% bazaar tax and respects purse size—perfect for long-tail keywords like “best Hypixel bazaar flips per hour Coflnet.”
+- **Note:** Bazaar results already subtract the 1.25% bazaar fee and respect your purse size—use search and paging to focus the list on items you can afford.
 
 
 
@@ -79,7 +79,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `/cl bl edit <id>|enable|disable|remove` – quick inline toggles for existing filters.
 	- Special filter helpers: `duration=12h` or `5d` auto-convert to a timed `removeAfter` tag; `tag=` / `tags=` assign custom labels for organization.
 
-- **Note:** Because filters compile to in-game expressions instantly, promote this command as the mod’s “anti-trash firewall”—great keyword fodder for “Coflnet blacklist syntax” tutorials.
+- **Note:** Filters compile immediately into in-game rules. When creating or editing blacklist entries, verify the results with `bl list` and use `addall` cautiously when bulk-adding.
 
 
 
@@ -98,7 +98,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `disable` / `enable` – opt yourself out of (or back into) appearing on the board. The command persists the flag via `disable-buy-speed-board` setting.
 	- Invalid arguments trigger a usage reminder, so stick to page numbers or the reserved keywords above.
 
-- **Note:** Ideal for “fastest flippers” bragging rights content—embed the opt-out tip so privacy-conscious readers trust your guide.
+- **Note:** You can opt out of the buyspeedboard (`disable`) if you don't want your name shown; use `enable` to return. Opting out preserves your privacy.
 
 
 
@@ -118,7 +118,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- Free-text search narrows to specific item tags/names; combine with sorting for “/cofl bzmove asc shark fin”.
 	- Hover text reveals weekly volume; low-volume items are greyed with strike-through to flag manipulation risk.
 
-- **Note:** Position it as a daily bazaar trend scanner. Keywords like “24h Hypixel bazaar movers” and “Coflnet bzmove asc” convert well.
+- **Note:** Use `asc` to view biggest price drops and append `buy`/`sell` plus a search term to narrow movement analysis to items you trade.
 
 
 
@@ -135,7 +135,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- Any additional search string (e.g., `/cl cheapattrib mana`) narrows to matching attribute names.
 	- Each entry links to the bazaar (`/bz <shard>`) and marks whether it’s for unlocking or upgrading.
 
-- **Note:** Because the command cross-references your profile via `PlayerStateApi`, it’s fantastic for personalized “cheapest attribute shards right now” blog content.
+- **Note:** This command uses your synced profile (via `PlayerStateApi`) for personalized recommendations—ensure your account is verified and profile data is up to date for accurate results.
 
 
 
@@ -156,7 +156,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- No argument – simple toggle that flips the current state.
 	- After every change the mod confirms the new status and, for auto-flipper clients, warns that flips remain on until the client stops.
 
-- **Note:** Mention this command in “pause flipping safely” guides—especially for users sharing licenses or troubleshooting filter changes.
+- **Note:** Use `never` to permanently disable flips and `off`/`disable` for temporary pauses; the command confirms each change so you can avoid accidental shutdowns.
 
 
 
@@ -175,7 +175,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `page` paginates through results. Mix in search text to filter item names before paging.
 	- Each entry links to both the buy and sell auction pages with hover breakdowns showing profit modifiers and finder type.
 
-- **Note:** Great anchor for “track your Hypixel flip profit” articles—call out that Premium Plus unlocks 180 days when combined with `/cl profit`.
+- **Note:** Requesting more than 14 days of history requires Premium Plus. Use the `days` parameter to adjust the window and `sort` to change ordering.
 
 
 
@@ -194,7 +194,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- Output includes clickable links to each player’s public flip history.
 	- Behind the scenes the command refreshes stale leaderboard rows (>1 hour old), so running it regularly keeps the global board up to date.
 
-- **Note:** Anchor community “top flip profit” roundups to this command—encourage readers to upgrade for full access.
+- **Note:** Viewing the full top-ten leaderboard requires Premium Plus. Without it you still receive your personal rank and a limited view of the board.
 
 
 
@@ -212,7 +212,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `[page]` – navigate the weekly “biggest loss” board.
 	- Entries display losses as negative profit values and link to each player’s flips so you can audit mistakes.
 
-- **Note:** Perfect cautionary content—create “what not to do” guides referencing real leaderboard data each week.
+- **Note:** Use the loserboard to review losing flips and click entries to inspect details—it's useful for learning common mistakes to avoid.
 
 
 
@@ -231,7 +231,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- Hover text reveals the current vs. expected price, plus which mayor term the data references.
 	- Clicking opens the item on sky.coflnet.com for deeper analysis.
 
-- **Note:** Use this data in election-prep articles—“next mayor price predictions” is a high-converting keyword cluster.
+- **Note:** Mayor-based suggestions are historical estimates, not guarantees. Treat them as one data point and always double-check current market prices before trading.
 
 
 
@@ -248,7 +248,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- If you supply any text accidentally, the command warns you it should be used without arguments.
 	- When average ping is high and you’re on the EU region, it suggests switching to US servers (auto-switches for Premium Plus auto flippers when thresholds are met).
 
-- **Note:** Include `/cofl ping` in latency troubleshooting posts—it’s the definitive way to measure actual flip delivery delay.
+- **Note:** Run `/cofl ping` without arguments to measure average flip latency. If ping is high, try switching regions or checking your network connection.
 
 
 
@@ -268,7 +268,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `{days}` (optional, default `7`) – number of days to analyze, capped according to your tier. Non-numeric input triggers a usage error.
 	- Output includes total profit, spend volume, average margin, and the best/worst flips with clickable links. Hover text breaks down contributions by finder type (TFM, Sniper, etc.).
 
-- **Note:** This is the command readers expect in “track Coflnet flip profit” tutorials—mention the Premium Plus upsell for longer retrospectives.
+- **Note:** Default `days` is 7. Non-numeric input triggers a usage error. Use the optional `[ign]` to view another player if you have permission.
 
 
 
@@ -293,7 +293,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 	- The copied command uses the integer hour offset. If your offset includes minutes (rare) the UI will round to the nearest hour and show a short note explaining the rounding.
 
-- **Note:** This setting is used for display only
+- **Note:** This timezone setting affects only how times are displayed in the UI; it does not change server timestamps or scheduling logic.
 
 
 
@@ -313,7 +313,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- Auto-detects scriptable macro clients that can’t reconnect and warns you instead of breaking the session.
 	- US routing picks the best endpoint (`sky-us` or `us-linode`) after verifying reachability.
 
-- **Note:** Pair `/cofl switchregion` with your ping optimization guides—especially when recommending Premium Plus for low-latency US routing.
+- **Note:** Switching to the US region may require Premium Plus; check your ping first (`/cofl ping`) to confirm the change improves latency.
 
 
 
@@ -331,7 +331,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- Runs without arguments. Fetches the past 48 hours of tracked player trades and prints gains/losses with time-since information.
 	- Coin transfers appear as `coins` entries; items show as “an item” until attribution improves (the feature is still marked WIP).
 
-- **Note:** Promote this command when teaching lowballers how to audit flips done via direct trades instead of auctions.
+- **Note:** `trades` shows recent direct-trade activity and coin transfers—use it to audit flips that won't appear in auction histories.
 
 
 
@@ -347,7 +347,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- Identical subcommands to `/cl bl` (`add`, `addall`, `list`, `rm`, `edit`), but entries act as overrides that bypass matching blacklist rules.
 	- Suggested use: add high-priority items or sellers you always want to see, even if a broad blacklist would block them.
 
-- **Note:** Market this as the “VIP override” system—great for long-tail phrases like “Coflnet whitelist filters for Hypixel flips.”
+- **Note:** Whitelist entries take precedence over blacklist rules. Use the whitelist for trusted sellers or high-priority items you never want filtered out.
 
 
 
@@ -1110,7 +1110,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `debug` – prints diagnostic glyph tables to help the developers replicate rendering issues.
 	- Any other token is treated as a captcha answer. Correct answers lower the required solve counter; incorrect ones increment it and requeue a new puzzle.
 
-- **Note:** Solving the captcha resets AFK delay, so mention it in your flipping guides when teaching users how to clear 12s penalties quickly.
+- **Note:** Solving a captcha resets AFK penalties and helps resume normal flip delivery. If a captcha is unreadable, use `captcha another` to request a new one.
 
 
 
@@ -1130,7 +1130,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- If captchas are outstanding it injects a `/cofl captcha` shortcut; if certain settings (e.g., showing seller name) slow down processing, it surfaces `/cofl set` quick actions to disable them.
 	- Internal counters add slight randomness after spammy use—wait a few seconds before re-running for identical values.
 
-- **Note:** Mention this command in fairness and macro compliance articles—it's the fastest way to diagnose why flips arrive late and how premium tiers, licenses, or captcha solves influence latency.
+- **Note:** Use `/cofl delay` to inspect current fairness penalties and recommended actions (slow down buying, solve captchas, or check license status) to reduce delays.
 
 
 ## External Commands
@@ -1151,7 +1151,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- On success the entries are appended to your `/cl bl list` blacklist and immediately saved. Existing entries are left untouched.
 	- If the request fails or arguments are missing you'll receive a usage prompt explaining the proper syntax.
 
-- **Note:** Importing an item blacklist will automatically map TFManager rarities, pet level flags (`==MAX`, `==CANDIED`) and seller filters into Coflnet's `ItemTag`, `Rarity`, `PetLevel`, and other metadata so you can start filtering Hypixel auctions instantly.
+- **Note:** Imported TFManager blacklists are mapped to Coflnet filter fields (rarity, pet flags, seller filters). Review imported entries with `bl list` and adjust before bulk-saving.
 
 
 
@@ -1170,7 +1170,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- Progress feedback appears in 10 steps (10% increments). Expect a lengthy run while old auctions are reprocessed.
 	- Make sure `/cofl set sniper,user` is enabled—otherwise the command prompts you to toggle the finder before replaying.
 
-- **Note:** Use this after downtime to backfill missed deals; pairing it with tight whitelists ensures only personally curated flips reach your chat.
+- **Note:** `replayactive` can be time-consuming. Run it with a focused whitelist to limit results and only if you have Premium Plus and enough time for the backfill.
 
 
 
