@@ -109,6 +109,11 @@ export default async function Page() {
                     <p>
                         <a href="https://coflnet.com/imprint">Imprint</a>
                     </p>
+                    <p>
+                        Update ads privacy settings here:
+                        <span data-ccpa-link="1"></span>
+                        <div id="ncmp-consent-link"></div>
+                    </p>
                 </Card>
             </Container>
         </>
