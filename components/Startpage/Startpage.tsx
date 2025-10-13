@@ -417,6 +417,14 @@ function Startpage(props: Props) {
                         We built a mod, discord bot and android app as well as provide access to most of our data via a free API. You can find more information
                         on the <Link href="/wiki/api">wiki api page</Link>.
                     </p>
+
+                    <p>
+                        Update ads privacy settings on the{' '}
+                        <a href="/about" style={{ textDecoration: 'underline' }} onClick={onRecentChangesClick}>
+                            about page
+                        </a> (ads are not loaded on this page)
+                        .
+                    </p>
                 </Card.Body>
             </Card>
         </div>
