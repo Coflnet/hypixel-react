@@ -5,15 +5,14 @@ import Image from 'next/image'
 import { useEffect, type JSX } from 'react'
 import { Badge, Card } from 'react-bootstrap'
 import { toast } from 'react-toastify'
-import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
-import { getFlipCustomizeSettings, getFlipFinders } from '../../../utils/FlipUtils'
+import { getFlipFinders } from '../../../utils/FlipUtils'
 import { formatDungeonStarsInString, formatToPriceToShorten, getMinecraftColorCodedElement, getStyleForTier } from '../../../utils/Formatter'
-import { useForceUpdate } from '../../../utils/Hooks'
 import { CopyButton } from '../../CopyButton/CopyButton'
 import Number from '../../Number/Number'
 import styles from './Flip.module.css'
 import { writeToClipboard } from '../../../utils/ClipboardUtils'
 import api from '../../../api/ApiHelper'
+import { useFlipSettings } from '../../Providers/FlipSettingsProvider'
 
 interface Props {
     flip: FlipAuction
@@ -24,18 +23,8 @@ interface Props {
 }
 
 function Flip(props: Props) {
-    let settings = getFlipCustomizeSettings()
-    let forceUpdate = useForceUpdate()
+    const { flipCustomizeSettings: settings } = useFlipSettings()
     let { trackEvent } = useMatomo()
-
-    useEffect(() => {
-        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, forceUpdate)
-
-        return () => {
-            document.removeEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, forceUpdate)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
 
     function getLowestBinLink(itemTag: string) {
         return '/item/' + itemTag + '?range=active&itemFilter=eyJCaW4iOiJ0cnVlIn0%3D'
@@ -82,7 +71,6 @@ function Flip(props: Props) {
     }
 
     function getProfitElement(flip: FlipAuction): JSX.Element {
-        let settings = getFlipCustomizeSettings()
         let profit = flip.profit
         let preSymbol = profit > 0 ? '+' : ''
         let profitPercentElement = <span>({Math.round((profit / flip.cost) * 100)}%)</span>
