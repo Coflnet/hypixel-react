@@ -81,8 +81,7 @@ export function useSortedAndFilteredItems<T>(
             try {
                 setIsProcessing(true)
 
-                // Normalize incoming items to an array to avoid runtime errors when
-                // callers accidentally pass non-array data.
+                // Normalize incoming items to an array to avoid runtime errors when callers pass non-array data.
                 const inputItems: T[] = Array.isArray(currentItems) ? currentItems : []
 
                 if (inputItems.length === 0) {
@@ -108,7 +107,6 @@ export function useSortedAndFilteredItems<T>(
                         return
                     }
 
-                    // Make sure we pass an array to the sort function.
                     sortedItems = currentOrderBy.sortFunction([...inputItems], ...currentSortFunctionArgs)
                 }
 

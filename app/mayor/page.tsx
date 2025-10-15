@@ -8,17 +8,6 @@ import { getApiFlipMayor, getGetApiFlipMayorQueryKey } from '../../api/_generate
 
 export default async function Page() {
     const queryClient = getQueryClient()
-    try {
-        await queryClient.prefetchQuery({
-            queryKey: [getGetApiFlipMayorQueryKey()],
-            queryFn: () => getApiFlipMayor()
-        })
-    } catch (e) {
-        // If the endpoint requires authentication and we don't have a server-side
-        // token, prefetch can fail with 401/403. Don't block rendering — the
-        // client will re-fetch with the user's token when available.
-        console.warn('Prefetching mayor flips failed (likely unauthenticated):', e)
-    }
 
     return (
         <>

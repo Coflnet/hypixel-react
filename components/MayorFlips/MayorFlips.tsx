@@ -178,7 +178,6 @@ export function MayorFlips() {
                 events.
             </p>
             {!hasPremium ? (
-                // TODO: combine this with the other premium notices once merged
                 <div data-nosnippet data-robots="noindex">
                     <Alert variant="warning">
                         <a
