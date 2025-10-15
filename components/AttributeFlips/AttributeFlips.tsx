@@ -1,12 +1,12 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import moment from 'moment'
 import { Alert, Badge, Button } from 'react-bootstrap'
 import PremiumNotifier from '../Premium/PremiumNotifier'
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useQueryClient, useSuspenseQuery, useIsFetching } from '@tanstack/react-query'
 import api from '../../api/ApiHelper'
 import Number from '../Number/Number'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
@@ -14,6 +14,7 @@ import { GenericFlipList, SortOption } from '../GenericFlipList'
 import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
 import {
     getApiFlipAttribute,
+    getGetApiFlipAttributeQueryKey,
     getGetApiFlipAttributeQueryOptions,
     type getApiFlipAttributeResponse
 } from '../../api/_generated/skyApi'
@@ -308,13 +309,29 @@ function onFlipClick(flip: GeneratedAttributeFlip): void {
 
 export function AttributeFlips() {
     const queryClient = useQueryClient()
+    const [googleToken, setGoogleToken] = useState('')
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return
+        }
+        const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
+        setGoogleToken(token)
+    }, [])
+
     const { data: response } = useSuspenseQuery<getApiFlipAttributeResponse>({
-        queryKey: ['attributeFlips', 'default'],
-        queryFn: () => getApiFlipAttribute()
+        queryKey: [getGetApiFlipAttributeQueryKey(), googleToken],
+        queryFn: () => getApiFlipAttribute(undefined, googleToken ? { headers: { GoogleToken: googleToken } } : undefined)
     })
 
+    // Detect active fetches for this query (useful during login/refresh flows).
+    const fetchingCount = useIsFetching({ queryKey: [getGetApiFlipAttributeQueryKey(), googleToken] })
+    const isFetching = fetchingCount > 0
+
     const handleAfterLogin = useCallback(() => {
-        queryClient.invalidateQueries({ queryKey: ['attributeFlips', 'default'] })
+        const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
+        setGoogleToken(token)
+        queryClient.invalidateQueries({ queryKey: [getGetApiFlipAttributeQueryKey(), token] })
     }, [queryClient])
 
     if (response.status !== 200 || !Array.isArray(response.data)) {
@@ -322,27 +339,13 @@ export function AttributeFlips() {
             ? response.data
             : (response.data && typeof response.data === 'object' && 'message' in response.data ? String((response.data as any).message) : undefined)
 
-        return (
-            <div className={styles.alertWrapper}>
-                <PremiumNotifier messageFromApi={messageFromApi} onAfterLogin={handleAfterLogin}>
-                    <p>
-                        Attribute flips are high-tier crafting plays where you stack enchants, attribute shards, reforges, and other upgrades to push an item&apos;s resale value.
-                    </p>
-                    <p>
-                        Because the workflow is so intricate and data-heavy, we keep this toolbox exclusively for members with premium access.
-                    </p>
-                </PremiumNotifier>
-            </div>
-        )
-    }
-
-    const flips = response.data as GeneratedAttributeFlip[]
-
-    return (
-        <div className={styles.attributeFlips}>
+        const explanatorySection = (
             <div>
                 <p>
-                    Attribute flips let you upgrade items with enchants, attribute shards, hot potato books, or other modifiers and sell the finished item for a profit. This list compares the base auction cost, upgrade materials, and projected sale price so you can focus on the most profitable upgrades.
+                    Attribute flips are high-tier crafting plays where you stack enchants, attribute shards, reforges, and other upgrades to push an item&apos;s resale value.
+                </p>
+                <p>
+                    Because the workflow is so intricate and data-heavy, we keep this toolbox exclusively for members with premium access.
                 </p>
                 <details>
                     <summary>How to perform attribute flips</summary>
@@ -363,6 +366,49 @@ export function AttributeFlips() {
                     </ul>
                 </details>
             </div>
+        )
+
+        return (
+            <div className={styles.alertWrapper}>
+                {explanatorySection}
+                {!isFetching ? (
+                    <PremiumNotifier messageFromApi={messageFromApi} onAfterLogin={handleAfterLogin} />
+                ) : null}
+            </div>
+        )
+    }
+
+    const flips = response.data as GeneratedAttributeFlip[]
+
+    const explanatorySection = (
+        <div>
+            <p>
+                Attribute flips let you upgrade items with enchants, attribute shards, hot potato books, or other modifiers and sell the finished item for a profit. This list compares the base auction cost, upgrade materials, and projected sale price so you can focus on the most profitable upgrades.
+            </p>
+            <details>
+                <summary>How to perform attribute flips</summary>
+                <ol>
+                    <li>Pick a flip with positive profit and healthy volume.</li>
+                    <li>Buy the base item from the Auction House using the suggested auction link.</li>
+                    <li>Purchase the listed upgrade materials or craft the required shards.</li>
+                    <li>Apply the upgrades via the Hex, anvil, attribute fusion or relevant stations.</li>
+                    <li>Create a BIN auction with the target price and monitor the market.</li>
+                </ol>
+            </details>
+            <details>
+                <summary>Tips for safer flipping</summary>
+                <ul>
+                    <li>Check the recent sale history of the finished item before investing.</li>
+                    <li>Consider setting buy orders for expensive materials to improve margins.</li>
+                    <li>Adjust the sale price slightly below the target if the market is moving.</li>
+                </ul>
+            </details>
+        </div>
+    )
+
+    return (
+        <div className={styles.attributeFlips}>
+            {explanatorySection}
             <GenericFlipList
                 items={flips}
                 sortOptions={SORT_OPTIONS}
