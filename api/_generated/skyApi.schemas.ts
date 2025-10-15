@@ -60,6 +60,121 @@ export interface ArchiveResponse {
   queryStatus: QueryStatus;
 }
 
+/**
+ * Represents a profitable attribute-based crafting opportunity.
+ */
+export interface AttributeFlip {
+  /**
+   * Item tag of the base item.
+   * @nullable
+   */
+  tag?: string | null;
+  /**
+   * Display name resolved for the item.
+   * @nullable
+   */
+  itemName?: string | null;
+  /**
+   * Identifier of the auction to purchase as the base.
+   * @nullable
+   */
+  auctionToBuy?: string | null;
+  /** Coins required to buy the base auction. */
+  auctionPrice: number;
+  /**
+   * Additional materials required to craft the upgrade.
+   * @nullable
+   */
+  ingredients?: AttributeFlipIngredient[] | null;
+  startingKey?: AttributeFlipAuctionKey;
+  endingKey?: AttributeFlipAuctionKey;
+  /** Expected sale price after applying the upgrades. */
+  target: number;
+  /** Estimated total crafting cost for the upgrades. */
+  estimatedCraftingCost: number;
+  /** Timestamp when the flip was identified. */
+  foundAt: string;
+  /** Observed volume of relevant trades. */
+  volume: number;
+}
+
+/**
+ * Represents the state of an auction before or after crafting.
+ */
+export interface AttributeFlipAuctionKey {
+  /**
+   * Name of the reforge applied to the item.
+   * @nullable
+   */
+  reforge?: string | null;
+  /**
+   * Rarity tier of the item.
+   * @nullable
+   */
+  tier?: string | null;
+  /**
+   * List of enchantments present on the item.
+   * @nullable
+   */
+  enchants?: AttributeFlipEnchant[] | null;
+  /**
+   * Additional attribute modifiers applied to the item.
+   * @nullable
+   */
+  modifiers?: AttributeFlipModifier[] | null;
+  /** Stack size of the item. */
+  count: number;
+}
+
+/**
+ * Represents an enchantment applied during an attribute flip.
+ */
+export interface AttributeFlipEnchant {
+  /**
+   * Enchantment identifier.
+   * @nullable
+   */
+  type?: string | null;
+  /** Enchantment level. */
+  lvl: number;
+}
+
+/**
+ * Represents an ingredient required for an attribute flip.
+ */
+export interface AttributeFlipIngredient {
+  /**
+   * Item identifier for the ingredient.
+   * @nullable
+   */
+  itemId?: string | null;
+  /**
+   * Attribute or component name consumed.
+   * @nullable
+   */
+  attributeName?: string | null;
+  /** Quantity of the ingredient needed. */
+  amount: number;
+  /** Estimated market price contribution for the ingredient. */
+  price: number;
+}
+
+/**
+ * Represents an attribute modifier key/value pair on the item.
+ */
+export interface AttributeFlipModifier {
+  /**
+   * Name of the modifier.
+   * @nullable
+   */
+  key?: string | null;
+  /**
+   * Value stored for the modifier.
+   * @nullable
+   */
+  value?: string | null;
+}
+
 export interface AuctionPreview {
   /** @nullable */
   seller: string | null;
@@ -2522,6 +2637,17 @@ export type PostApiDataPlayerNamesParams = {
 source?: string;
 };
 
+export type GetApiFlipAttributeParams = {
+/**
+ * Optional sort key: profit, price, volume, age
+ */
+sort?: string;
+};
+
+export type GetApiFlipAttribute401One = {
+  message?: string;
+};
+
 export type GetApiFlipBazaarSpreadDeemand401One = {
   message?: string;
 };
@@ -2721,10 +2847,6 @@ export type PostApiTopupLemonsqueezyProductSlug401One = {
 export type GetApiLinkvertiseParams = {
 hash?: string;
 email?: string;
-};
-
-export type GetApiLinkvertise401One = {
-  message?: string;
 };
 
 export type PostApiServicePurchase401One = {
