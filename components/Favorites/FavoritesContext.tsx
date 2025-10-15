@@ -21,14 +21,12 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     }
 
     function add(item: FavoriteItemEntry) {
-        // ensure the item is favorited (toggleFavoriteItem returns isFavorite)
         const result = toggleFavoriteItem(item)
-        // if it was already favorite, result.isFavorite will be true and favorites unchanged
+        
         setFavorites(result.favorites)
     }
 
     function remove(tag: string) {
-        // remove by toggling when item exists — construct a minimal entry with the tag
         const result = toggleFavoriteItem({ tag } as FavoriteItemEntry)
         setFavorites(result.favorites)
     }
@@ -39,7 +37,6 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         return result.isFavorite
     }
 
-    // keep in sync with external changes (localStorage updates from other tabs)
     useEffect(() => {
         function onStorage(e: StorageEvent) {
             if (e.key === undefined || e.key === null) {

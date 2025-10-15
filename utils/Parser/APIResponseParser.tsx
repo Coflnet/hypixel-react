@@ -495,27 +495,6 @@ export function parseItemSummary(price): ItemPriceSummary {
     }
 }
 
-export function parsePriceMovement(tag: string, movement): ItemPriceMovement {
-    if (!movement) {
-        return {
-            tag,
-            recent: 0,
-            monthly: 0,
-            volume: 0,
-            now: 0
-        }
-    }
-
-    return {
-        tag,
-        recent: movement.recent ?? 0,
-        monthly: movement.monthly ?? 0,
-        volume: movement.volume ?? 0,
-        now: movement.now ?? 0,
-        lastUpdated: movement.lastUpdated ? new Date(movement.lastUpdated) : undefined
-    }
-}
-
 export function parsePaymentResponse(payment): PaymentResponse {
     return {
         id: payment.id,

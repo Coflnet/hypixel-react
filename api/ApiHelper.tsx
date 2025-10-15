@@ -38,7 +38,6 @@ import {
     parseRefInfo,
     parseSearchResultItem,
     parseSkyblockProfile,
-    parsePriceMovement,
     parseSubscription,
     parseTradeObject,
     parseTransaction

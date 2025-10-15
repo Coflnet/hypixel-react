@@ -3,7 +3,6 @@
 import { useMemo } from 'react'
 import { Spinner } from 'react-bootstrap'
 import { useGetApiPricesChange } from '../../api/_generated/skyApi'
-import { parsePriceMovement } from '../../utils/Parser/APIResponseParser'
 import { useFavorites } from './FavoritesContext'
 import FavoriteItemCard from './FavoriteItemCard'
 import styles from './FavoriteItemsBar.module.css'
@@ -32,7 +31,15 @@ function FavoriteItemsBar() {
         const raw = data.data
         const parsed: Record<string, ItemPriceMovement> = {}
         Object.keys(raw).forEach(tag => {
-            parsed[tag] = parsePriceMovement(tag, raw[tag])
+            const movement = raw[tag]
+            parsed[tag] = {
+                tag,
+                recent: movement?.recent ?? 0,
+                monthly: movement?.monthly ?? 0,
+                volume: movement?.volume ?? 0,
+                now: movement?.now ?? 0,
+                lastUpdated: movement?.lastUpdated ? new Date(movement.lastUpdated) : undefined
+            }
         })
         return parsed
     }, [data])
