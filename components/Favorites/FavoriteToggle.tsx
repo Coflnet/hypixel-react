@@ -26,10 +26,6 @@ function FavoriteToggle({ item, className, showLabel = false, size = 'medium' }:
         setIsFavorite(isItemFavorite(item.tag))
     }, [item?.tag])
 
-    // When favorites change elsewhere, the provider will update storage and state; we
-    // reflect that via the shared utils read above. The provider will be responsible
-    // for keeping favorites in sync across the app.
-
     function onToggle() {
         if (!item?.tag) {
             return

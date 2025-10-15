@@ -1,80 +1,44 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { Badge, Spinner } from 'react-bootstrap'
-import api from '../../api/ApiHelper'
-import { getApiPricesChange } from '../../api/_generated/skyApi'
+import { useMemo } from 'react'
+import { Spinner } from 'react-bootstrap'
+import { useGetApiPricesChange } from '../../api/_generated/skyApi'
 import { parsePriceMovement } from '../../utils/Parser/APIResponseParser'
-import { convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
-import { getFavoriteItems } from '../../utils/FavoriteItemUtils'
 import { useFavorites } from './FavoritesContext'
-import FavoriteToggle from './FavoriteToggle'
 import FavoriteItemCard from './FavoriteItemCard'
-import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import styles from './FavoriteItemsBar.module.css'
 
 const REFRESH_INTERVAL = 5 * 60 * 1000
 
 function FavoriteItemsBar() {
     const { favorites } = useFavorites()
-    let [priceMovements, setPriceMovements] = useState<Record<string, ItemPriceMovement>>({})
-    let [isLoading, setIsLoading] = useState(false)
-    let [error, setError] = useState<string | null>(null)
-    // Favorites are provided by FavoritesProvider; no DOM custom events required.
-
-    useEffect(() => {
-        let cancelled = false
-        let intervalId: NodeJS.Timeout | null = null
-
-        async function fetchMovements() {
-            if (favorites.length === 0) {
-                setPriceMovements({})
-                setIsLoading(false)
-                setError(null)
-                return
-            }
-
-            setIsLoading(true)
-            setError(null)
-            try {
-                const resp = await getApiPricesChange({ itemTags: favorites.map(f => f.tag) })
-                const raw = resp.data || {}
-                const parsed: Record<string, ItemPriceMovement> = {}
-                Object.keys(raw).forEach(tag => {
-                    parsed[tag] = parsePriceMovement(tag, raw[tag])
-                })
-                if (!cancelled) {
-                    setPriceMovements(parsed)
-                }
-            } catch (e) {
-                if (!cancelled) {
-                    setError('Failed to load price movement data. Please try again later.')
-                }
-            } finally {
-                if (!cancelled) {
-                    setIsLoading(false)
-                }
+    
+    const { data, isLoading, isError } = useGetApiPricesChange(
+        favorites.length > 0 ? { itemTags: favorites.map(f => f.tag) } : undefined,
+        {
+            query: {
+                enabled: favorites.length > 0,
+                refetchInterval: REFRESH_INTERVAL,
+                staleTime: REFRESH_INTERVAL
             }
         }
+    )
 
-        fetchMovements()
-
-        if (favorites.length > 0) {
-            intervalId = setInterval(fetchMovements, REFRESH_INTERVAL)
+    const priceMovements = useMemo(() => {
+        if (!data?.data) {
+            return {}
         }
+        
+        const raw = data.data
+        const parsed: Record<string, ItemPriceMovement> = {}
+        Object.keys(raw).forEach(tag => {
+            parsed[tag] = parsePriceMovement(tag, raw[tag])
+        })
+        return parsed
+    }, [data])
 
-        return () => {
-            cancelled = true
-            if (intervalId) {
-                clearInterval(intervalId)
-            }
-        }
-    }, [favorites])
-
-    let lastUpdatedText = useMemo(() => {
-        let timestamps = Object.values(priceMovements)
+    const lastUpdatedText = useMemo(() => {
+        const timestamps = Object.values(priceMovements)
             .map(movement => movement.lastUpdated?.getTime())
             .filter(Boolean) as number[]
 
@@ -82,7 +46,7 @@ function FavoriteItemsBar() {
             return null
         }
 
-        let latest = Math.max(...timestamps)
+        const latest = Math.max(...timestamps)
         return new Date(latest)
     }, [priceMovements])
 
@@ -99,7 +63,7 @@ function FavoriteItemsBar() {
                     {lastUpdatedText ? <span>Last updated {lastUpdatedText.toLocaleTimeString()}</span> : null}
                 </div>
             </div>
-            {error ? <p className={styles.error}>{error}</p> : null}
+            {isError ? <p className={styles.error}>Failed to load price movement data. Please try again later.</p> : null}
             <div className={styles.list}>
                 {favorites.map(favorite => {
                     const movement = priceMovements[favorite.tag]
