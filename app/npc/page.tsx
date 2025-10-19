@@ -5,6 +5,7 @@ import { getQueryClient } from '../../utils/QueryUtils'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { getApiFlipNpc, getGetApiFlipNpcQueryKey } from '../../api/_generated/skyApi'
 import { NpcFlips } from '../../components/NpcFlips/NpcFlips'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
     const queryClient = getQueryClient()
@@ -24,6 +25,7 @@ export default async function Page() {
                     <NpcFlips />
                 </HydrationBoundary>
             </Container>
+            <BottomBanner />
         </>
     )
 }

@@ -6,6 +6,7 @@ import { getApiFlipBazaarBooks, getGetApiFlipBazaarBooksQueryKey } from '../../a
 import { getQueryClient } from '../../utils/QueryUtils'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { BookFlips } from '../../components/BookFlips/BookFlips'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
     const queryClient = getQueryClient()
@@ -25,6 +26,7 @@ export default async function Page() {
                     <BookFlips />
                 </HydrationBoundary>
             </Container>
+            <BottomBanner />
         </>
     )
 }

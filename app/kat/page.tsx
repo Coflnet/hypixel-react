@@ -3,6 +3,7 @@ import { initAPI } from '../../api/ApiHelper'
 import { KatFlips } from '../../components/KatFlips/KatFlips'
 import Search from '../../components/Search/Search'
 import { getHeadMetadata } from '../../utils/SSRUtils'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
     let api = initAPI(true)
@@ -15,6 +16,7 @@ export default async function Page() {
                 <hr />
                 <KatFlips flips={flips} />
             </Container>
+            <BottomBanner />
         </>
     )
 }

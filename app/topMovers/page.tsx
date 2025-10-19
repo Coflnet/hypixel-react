@@ -2,6 +2,7 @@ import { Container } from 'react-bootstrap'
 import NavBar from '../../components/NavBar/NavBar'
 import TopMovers from '../../components/TopMovers'
 import { getHeadMetadata } from '../../utils/SSRUtils'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default function Page() {
     return (
@@ -14,6 +15,7 @@ export default function Page() {
                 <hr />
                 <TopMovers />
             </Container>
+            <BottomBanner />
         </>
     )
 }

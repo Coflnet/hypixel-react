@@ -4,14 +4,18 @@ import { notFound } from 'next/navigation'
 import PlayerDetails from '../../../components/PlayerDetails/PlayerDetails'
 import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponseParser'
 import { Container } from 'react-bootstrap'
+import { BottomBanner } from '../../../components/BottomBanner/BottomBanner'
 
 export default async function Page(props) {
     const params = await props.params
     let playerInfo = await getPlayerInfo(params.uuid)
     return (
-        <Container>
-            <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} />
-        </Container>
+        <>
+            <Container>
+                <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} />
+            </Container>
+            <BottomBanner />
+        </>
     )
 }
 

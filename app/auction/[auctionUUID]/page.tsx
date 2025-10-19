@@ -7,6 +7,7 @@ import AuctionDetails from '../../../components/AuctionDetails/AuctionDetails'
 import Search from '../../../components/Search/Search'
 import { parseAuctionDetails } from '../../../utils/Parser/APIResponseParser'
 import { Container } from 'react-bootstrap'
+import { BottomBanner } from '../../../components/BottomBanner/BottomBanner'
 
 async function getAuctionDetails(auctionUUID: string) {
     let api = initAPI(true)
@@ -117,6 +118,7 @@ export default async function Page(props) {
                     copyButtonValue="ingame"
                 />
             </Container>
+            <BottomBanner />
         </>
     )
 }

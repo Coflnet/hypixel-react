@@ -381,36 +381,6 @@ export function GenericFlipList<T>({
             <hr />
             {/* Premium modal trigger moved to the blurred message so users and crawlers still see the message in-place */}
             <PremiumModal show={showPremiumModal} onHide={() => setShowPremiumModal(false)} />
-            <NitroAdSlot
-                slotId="flips-side"
-                config={{
-                    format: 'rail',
-                    rail: 'right',
-                    railOffsetTop: 0,
-                    railOffsetBottom: 0,
-                    railCollisionWhitelist: [],
-                    railCloseColor: '#666666',
-                    railSpacing: 10,
-                    railStack: false,
-                    railStickyTop: 0,
-                    railVerticalAlign: 'center',
-                    sizes: [
-                        ['160', '600'],
-                        ['300', '600'],
-                        ['300', '250'],
-                        ['320', '50'],
-                        ['320', '100'],
-                        ['320', '480']
-                    ],
-                    report: {
-                        enabled: true,
-                        icon: true,
-                        wording: 'Report Ad',
-                        position: 'bottom-right'
-                    },
-                    "mediaQuery": "(min-width: 1025px)"
-                }}
-            />
             <p>{clickMessage}</p>
             <div className={flipListClass}>
                 {isProcessing ? (
