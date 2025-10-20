@@ -37,7 +37,7 @@ export function ProfitLeaderboardComponent() {
             <br />
             The board resets every Monday Morning and gets updated whenever the tracked flips of a player are viewed.
             <br />
-            Ultime list to find skyblock bilonaires!
+            Ultime list to find skyblock billionaires!
         </p>
     )
 
