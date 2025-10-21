@@ -9,7 +9,8 @@ export default function AdScriptLoader() {
     const { shouldShowAds } = useAds()
 
     const matchesAdRoute = pathname.startsWith('/item') || pathname.includes('flip')
-            || pathname.startsWith('/bazaar') || pathname.startsWith('/kat') || pathname.startsWith('/crafts')
+        || pathname.startsWith('/bazaar') || pathname.startsWith('/kat') || pathname.startsWith('/crafts')
+        || pathname.startsWith('/about')
     const shouldLoadAds = shouldShowAds && matchesAdRoute
 
     if (!shouldLoadAds) {
