@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.coflnet.sky",
+      "sha256_cert_fingerprints": [
+        "41:B2:2A:96:4A:E2:FA:AB:1F:A7:1A:20:7D:E6:89:ED:65:6F:C8:6B:50:AE:DB:89:86:E1:46:B2:30:F9:16:CF",
+        "D4:D8:C4:8F:78:7C:D8:73:35:3E:D3:0F:14:31:5D:50:AF:88:1C:FD:75:06:47:F5:0D:32:20:4F:43:16:85:AA"
+      ]
+    }
+  }
+]
