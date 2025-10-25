@@ -18,7 +18,7 @@ export function Providers({ children }) {
         <MatomoProvider value={matomoTrackingInstance}>
             <QueryClientProvider client={queryClient}>
                 <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
-                    <FavoritesProvider>{children}
+                    <FavoritesProvider>
                         <AdsProvider>
                             <FlipSettingsProvider>{children}</FlipSettingsProvider>
                         </AdsProvider>
