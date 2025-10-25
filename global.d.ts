@@ -37,6 +37,22 @@ interface Item {
     bazaar?: boolean
 }
 
+interface FavoriteItemEntry {
+    tag: string
+    name?: string
+    iconUrl?: string
+    bazaar?: boolean
+    addedAt?: string
+}
+
+interface FavoriteItemEntry {
+    tag: string
+    name?: string
+    iconUrl?: string
+    bazaar?: boolean
+    addedAt?: string
+}
+
 interface ItemPrice {
     item: Item
     end: Date
@@ -460,6 +476,15 @@ interface ItemPriceSummary {
     mode: number
     volume: number
     max: number
+}
+
+interface ItemPriceMovement {
+    tag: string
+    recent: number
+    monthly: number
+    volume: number
+    now: number
+    lastUpdated?: Date
 }
 
 interface PaymentResponse {

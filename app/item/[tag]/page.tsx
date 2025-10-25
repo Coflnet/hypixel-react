@@ -33,7 +33,7 @@ export default async function Page(props) {
     return (
         <>
             <Container>
-                <Search selected={getItem()} type="item" />
+                <Search selected={getItem()} type="item" showFavoriteToggle />
                 {item.bazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
             </Container>
             <NitroAdSlot

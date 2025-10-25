@@ -27,6 +27,7 @@ import {
 import { ITEM_ICON_TYPE, getSetting, setSetting } from '../../utils/SettingsUtils'
 import { isAnySearchInputInUse } from '../../utils/SearchFocusUtils'
 import ClientOnly from '../ClientOnly/ClientOnly'
+import FavoriteToggle from '../Favorites/FavoriteToggle'
 
 interface Props {
     selected?: Player | Item
@@ -43,6 +44,7 @@ interface Props {
     onResetClick?()
     hideOptions?: boolean
     keyForPinnedItems?: string
+    showFavoriteToggle?: boolean
 }
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
@@ -248,6 +250,13 @@ function Search(props: Props) {
                     />
                 </ClientOnly>
                 {props.selected.name || convertTagToName((props.selected as Item).tag)}
+                {props.showFavoriteToggle && props.type === 'item' && props.selected ? (
+                    <FavoriteToggle
+                        item={props.selected as Item}
+                        className={styles.favoriteToggle}
+                        size="small"
+                    />
+                ) : null}
                 {props.enableReset ? (
                     <ClearIcon onClick={props.onResetClick} style={{ cursor: 'pointer', color: 'red', marginLeft: '10px', fontWeight: 'bold' }} />
                 ) : null}

@@ -2,7 +2,7 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
-import { type JSX } from 'react';
+import { type JSX } from 'react'
 import { Badge, Card } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { getFlipFinders } from '../../../utils/FlipUtils'
