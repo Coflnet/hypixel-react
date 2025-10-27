@@ -2652,6 +2652,10 @@ export type GetApiFlipBazaarSpreadDeemand401One = {
   message?: string;
 };
 
+export type GetApiFlipMayor401One = {
+  message?: string;
+};
+
 export type GetApiFlipNpcReverseParams = {
 requestRefresh?: boolean;
 };

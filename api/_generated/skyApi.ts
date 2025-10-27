@@ -73,6 +73,7 @@ import type {
   GetApiFlipAttribute401One,
   GetApiFlipAttributeParams,
   GetApiFlipBazaarSpreadDeemand401One,
+  GetApiFlipMayor401One,
   GetApiFlipNpcReverse401One,
   GetApiFlipNpcReverseParams,
   GetApiFlipStatsFinderFinderNameParams,
@@ -3856,8 +3857,23 @@ export type getApiFlipMayorResponse200 = {
   data: MayorDiffFlip[]
   status: 200
 }
+
+export type getApiFlipMayorResponse401ApplicationJson = {
+  data: GetApiFlipMayor401One
+  status: 401
+}
+
+export type getApiFlipMayorResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiFlipMayorResponse403 = {
+  data: null
+  status: 403
+}
     
-export type getApiFlipMayorResponseComposite = getApiFlipMayorResponse200;
+export type getApiFlipMayorResponseComposite = getApiFlipMayorResponse200 | getApiFlipMayorResponse401ApplicationJson | getApiFlipMayorResponse401TextPlain | getApiFlipMayorResponse403;
     
 export type getApiFlipMayorResponse = getApiFlipMayorResponseComposite & {
   headers: Headers;
@@ -3895,7 +3911,7 @@ export const getGetApiFlipMayorQueryKey = () => {
     }
 
     
-export const getGetApiFlipMayorQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiFlipMayorQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = GetApiFlipMayor401One | string | null>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -3914,10 +3930,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiFlipMayorQueryResult = NonNullable<Awaited<ReturnType<typeof getApiFlipMayor>>>
-export type GetApiFlipMayorQueryError = unknown
+export type GetApiFlipMayorQueryError = GetApiFlipMayor401One | string | null
 
 
-export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = unknown>(
+export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = GetApiFlipMayor401One | string | null>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipMayor>>,
@@ -3927,7 +3943,7 @@ export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipM
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = unknown>(
+export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = GetApiFlipMayor401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipMayor>>,
@@ -3937,12 +3953,12 @@ export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipM
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = unknown>(
+export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = GetApiFlipMayor401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = unknown>(
+export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipMayor>>, TError = GetApiFlipMayor401One | string | null>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipMayor>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
