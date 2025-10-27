@@ -5,6 +5,7 @@ import ForgeFlips from '../../components/ForgeFlips'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import { getQueryClient } from '../../utils/QueryUtils'
 import { getApiFlipForge, getGetApiFlipForgeQueryKey } from '../../api/_generated/skyApi'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
     const queryClient = getQueryClient()
@@ -25,6 +26,7 @@ export default async function Page() {
                     <ForgeFlips />
                 </HydrationBoundary>
             </Container>
+            <BottomBanner />
         </>
     )
 }

@@ -121,7 +121,7 @@ const flipKinds = [
     },
     {
         name: 'Item Upgrade Flips',
-        path: undefined,
+        path: '/attributeFlips',
         description: (
             <span>
                 Use the the hex or just manually apply enchantments, Hot potato books etc to an item to make it worth more than it costs. Available via{' '}

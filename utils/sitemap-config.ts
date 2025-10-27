@@ -138,6 +138,14 @@ export const SITEMAP_CONFIG = {
             keywords: ['attribute fusion', 'fusion calculator', 'attribute costs', 'fusion profit']
         },
         {
+            url: '/attributeFlips',
+            priority: 0.8,
+            changefreq: 'hourly' as const,
+            title: 'Attribute Item Upgrade Flips Profit Calculator',
+            description: 'Identify profitable Hypixel SkyBlock attribute flips by comparing base auction costs, upgrade materials, and target sale prices.',
+            keywords: ['attribute flips', 'item upgrades', 'attribute shards', 'hypixel attributes', 'hex upgrades']
+        },
+        {
             url: '/mayor',
             priority: 0.7,
             changefreq: 'daily' as const,

@@ -4,6 +4,7 @@ import NavBar from '../../components/NavBar/NavBar'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import { getQueryClient } from '../../utils/QueryUtils'
 import { ReverseNpcFlips } from '../../components/ReverseNpcFlips/ReverseNpcFlips'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
     const queryClient = getQueryClient()
@@ -20,6 +21,7 @@ export default async function Page() {
                     <ReverseNpcFlips />
                 </HydrationBoundary>
             </Container>
+            <BottomBanner />
         </>
     )
 }

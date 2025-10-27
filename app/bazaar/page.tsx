@@ -6,6 +6,7 @@ import { getApiFlipBazaarSpread, getGetApiFlipBazaarSpreadQueryKey, useGetApiFli
 import { BazaarFlips } from '../../components/BazaarFlips/BazaarFlips'
 import { getQueryClient } from '../../utils/QueryUtils'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
     const queryClient = getQueryClient()
@@ -25,6 +26,7 @@ export default async function Page() {
                     <BazaarFlips />
                 </HydrationBoundary>
             </Container>
+            <BottomBanner />
         </>
     )
 }

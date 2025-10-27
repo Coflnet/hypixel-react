@@ -1898,6 +1898,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     },
                     resolve: products => {
                         localStorage.setItem(LAST_PREMIUM_PRODUCTS, JSON.stringify(products))
+                        if (typeof window !== 'undefined') {
+                            try {
+                                window.dispatchEvent(new CustomEvent('premium.products.updated'))
+                            } catch (e) {}
+                        }
                         resolve(parsePremiumProducts(products))
                     },
                     reject: (error: any) => {

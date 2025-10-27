@@ -1,6 +1,15 @@
 // declaration.d.ts
 declare module '*.scss'
 
+declare global {
+  interface Window {
+    __cmp?: any;
+    __tcfapi?: any;
+    nitroAds?: any;
+    __npcmp?: any;
+  }
+}
+
 interface Player {
     name: string
     uuid: string
@@ -26,6 +35,22 @@ interface Item {
     category?: string
     iconUrl?: string
     bazaar?: boolean
+}
+
+interface FavoriteItemEntry {
+    tag: string
+    name?: string
+    iconUrl?: string
+    bazaar?: boolean
+    addedAt?: string
+}
+
+interface FavoriteItemEntry {
+    tag: string
+    name?: string
+    iconUrl?: string
+    bazaar?: boolean
+    addedAt?: string
 }
 
 interface ItemPrice {
@@ -451,6 +476,15 @@ interface ItemPriceSummary {
     mode: number
     volume: number
     max: number
+}
+
+interface ItemPriceMovement {
+    tag: string
+    recent: number
+    monthly: number
+    volume: number
+    now: number
+    lastUpdated?: Date
 }
 
 interface PaymentResponse {

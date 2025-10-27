@@ -5,6 +5,7 @@ import { getQueryClient } from '../../utils/QueryUtils'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { getApiFlipFusion, getGetApiFlipFusionQueryKey } from '../../api/_generated/skyApi'
 import { FusionFlips } from '../../components/FusionFlips/FusionFlips'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
     const queryClient = getQueryClient()
@@ -24,6 +25,7 @@ export default async function Page() {
                     <FusionFlips />
                 </HydrationBoundary>
             </Container>
+            <BottomBanner />
         </>
     )
 }

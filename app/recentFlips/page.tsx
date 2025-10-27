@@ -2,6 +2,7 @@ import { getHeadMetadata } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
 import RecentFlipsDynamicWrapper from '../../components/RecentFlips/RecentFlipsDynamicWrapper'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
     return (
@@ -14,6 +15,7 @@ export default async function Page() {
                 <hr />
                 <RecentFlipsDynamicWrapper />
             </Container>
+            <BottomBanner />
         </>
     )
 }

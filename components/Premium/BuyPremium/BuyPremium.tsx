@@ -38,7 +38,9 @@ const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Dur
             case Duration.MONTHLY:
                 return lowerLabel.includes('month') || lowerLabel.includes('4 weeks')
             case Duration.QUARTER:
-                return lowerLabel.includes('11 weeks') || lowerLabel.includes('6 months')
+                // Prefer an option explicitly representing 3 months (value === 3) or matching common quarterly labels
+                if ((option as any).value === 3) return true
+                return lowerLabel.includes('3 month') || lowerLabel.includes('3 months') || lowerLabel.includes('11 weeks') || lowerLabel.includes('6 months')
             case Duration.YEARLY:
                 return lowerLabel.includes('year') || lowerLabel.includes('12 months')
             default:
@@ -73,6 +75,26 @@ function BuyPremium(props: Props) {
     let [purchasePremiumOption, setPurchasePremiumOption] = useState<PremiumTypeOption>(findMatchingPremiumOption(initialPremiumType, props.selectedDuration))
     let [showPrepaidConfirmationDialog, setShowPrepaidConfirmationDialog] = useState(false)
     let coflCoins = useCoflCoins()
+
+    function scrollToCoflCoinsPurchase() {
+        if (typeof window === 'undefined') return
+        const el = document.getElementById('coflcoins-purchase')
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        } else {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+        }
+    }
+
+    function handleAttemptPurchaseClick() {
+        if (getPurchasePrice() > coflCoins) {
+            // Not enough coins -> scroll to CoflCoins top-up section
+            toast.info('You do not have enough CoflCoins. Scrolling to top-up options...')
+            scrollToCoflCoinsPurchase()
+            return
+        }
+        setShowPrepaidConfirmationDialog(true)
+    }
 
     // Set initial selection based on wizard choices
     useEffect(() => {
@@ -154,7 +176,9 @@ function BuyPremium(props: Props) {
             case Duration.WEEK:
                 return '1 Week'
             case Duration.MONTHLY:
-                return 'Monthly'
+                return '1 Month'
+            case Duration.QUARTER:
+                return '3 Months'
             case Duration.QUARTER:
                 return 'Quarterly'
             case Duration.YEARLY:
@@ -184,8 +208,7 @@ function BuyPremium(props: Props) {
                         <strong>Payment Method:</strong> CoflCoins
                     </p>
                     <p>
-                        <strong>Duration:</strong> {purchasePremiumOption.value > 1 ? purchasePremiumOption.value + 'x' : ''}
-                        {purchasePremiumOption.label}
+                        <strong>Duration:</strong> {purchasePremiumOption.label}
                     </p>
                     <p>
                         <strong>Price:</strong> <Number number={getPurchasePrice()} /> CoflCoins
@@ -240,8 +263,8 @@ function BuyPremium(props: Props) {
                         variant="success"
                         size="lg"
                         className={styles.purchaseButton}
-                        onClick={() => setShowPrepaidConfirmationDialog(true)}
-                        disabled={getPurchasePrice() > coflCoins || isPurchasing}
+                        onClick={handleAttemptPurchaseClick}
+                        disabled={isPurchasing}
                     >
                         Purchase for <Number number={getPurchasePrice()} /> CoflCoins
                     </Button>
@@ -338,10 +361,8 @@ function BuyPremium(props: Props) {
                             <Button
                                 style={{ marginTop: '10px' }}
                                 variant="success"
-                                onClick={() => {
-                                    setShowPrepaidConfirmationDialog(true)
-                                }}
-                                disabled={getPurchasePrice() > coflCoins || isPurchasing}
+                                onClick={handleAttemptPurchaseClick}
+                                disabled={isPurchasing}
                             >
                                 Purchase
                             </Button>

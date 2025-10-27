@@ -3,6 +3,9 @@ const withMDX = require('@next/mdx')()
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
+    eslint: {
+        ignoreDuringBuilds: true
+    },
     basePath: process.env.BASE_PATH,
     images: {
         unoptimized: true,

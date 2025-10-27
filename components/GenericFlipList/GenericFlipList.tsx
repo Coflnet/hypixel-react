@@ -8,6 +8,7 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import api from '../../api/ApiHelper'
 import styles from './GenericFlipList.module.css'
 import { useSortedAndFilteredItems } from '../../hooks/useSortedAndFilteredItems'
+import NitroAdSlot from '../Ads/NitroAdSlot'
 
 export interface FlipListProps<T> {
     items: T[]

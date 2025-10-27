@@ -247,7 +247,9 @@ function Premium() {
                             </label>
                         </div>
                     ) : null}
-                    <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
+                    <div id="coflcoins-purchase">
+                        <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
+                    </div>
                 </div>
             ) : null}
             <hr />

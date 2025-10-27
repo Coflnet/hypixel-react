@@ -29,12 +29,19 @@ interface Props {
 function NavBar(props: Props) {
     let [isWideOpen, setIsWideOpen] = useState(false)
     let [isHovering, setIsHovering] = useState(false)
-    let [isSmall, setIsSmall] = useState(true)
-    let [collapsed, setCollapsed] = useState(true)
+    let [isSmall, setIsSmall] = useState(() => {
+        if (typeof window === 'undefined') {
+            return false
+        }
+
+        return window.innerWidth < 1500
+    })
     let forceUpdate = useForceUpdate()
 
+    const collapsed = isSmall ? false : !isWideOpen && !isHovering
+
     useEffect(() => {
-        setIsSmall(document.body.clientWidth < 1500)
+        setIsSmall(window.innerWidth < 1500)
 
         window.addEventListener('resize', resizeHandler)
 
@@ -55,17 +62,6 @@ function NavBar(props: Props) {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isWideOpen])
-
-    useEffect(() => {
-        setCollapsed(isCollapsed())
-    }, [isSmall, isWideOpen, isHovering])
-
-    function isCollapsed() {
-        if (isSmall) {
-            return false
-        }
-        return !isWideOpen && !isHovering
-    }
 
     function outsideClickHandler(evt) {
         const flyoutEl = document.getElementById('navBar')
@@ -108,7 +104,7 @@ function NavBar(props: Props) {
         }
         resizePromise = setTimeout(() => {
             setIsWideOpen(false)
-            setIsSmall(document.body.clientWidth < 1500)
+            setIsSmall(window.innerWidth < 1500)
             forceUpdate()
             resizePromise = null
             let el = document.getElementById('pro-sidebar')
@@ -145,7 +141,7 @@ function NavBar(props: Props) {
                     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <div>
                             <div className={styles.logo}>
-                                <Image src="/logo512.png" alt="Logo" width={40} height={40} style={{ translate: '-5px' }} /> {!isCollapsed() ? 'SkyCofl' : ''}
+                                <Image src="/logo512.png" alt="Logo" width={40} height={40} style={{ translate: '-5px' }} /> {!collapsed ? 'SkyCofl' : ''}
                             </div>
                         </div>
                         <hr />

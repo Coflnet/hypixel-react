@@ -1,0 +1,18 @@
+ .premiumTitle {
+     font-size: 1.0rem;
+     font-weight: 600;
+     margin-bottom: 0.5rem;
+ }
+
+ .apiMessage {
+     margin-top: 0.5rem;
+     opacity: 0.85;
+ }
+
+ .ctaRow {
+     margin-top: 0.75rem;
+     display: flex;
+     flex-wrap: wrap;
+     gap: 0.75rem;
+     align-items: center;
+ }

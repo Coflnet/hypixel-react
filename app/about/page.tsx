@@ -1,6 +1,7 @@
 import React from 'react'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
+import NcmpConsentLink from '../../components/NcmpConsentLink'
 import { Card, Container } from 'react-bootstrap'
 
 export default async function Page() {
@@ -109,6 +110,12 @@ export default async function Page() {
                     <p>
                         <a href="https://coflnet.com/imprint">Imprint</a>
                     </p>
+                    <div>
+                        Update ads privacy settings here:
+                        <span data-ccpa-link="1"></span>
+                        <div id="ncmp-consent-link"></div>
+                    </div>
+                    <NcmpConsentLink />
                 </Card>
             </Container>
         </>

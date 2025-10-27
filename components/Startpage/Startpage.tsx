@@ -9,6 +9,7 @@ import moment from 'moment'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
+import { useFavorites } from '../Favorites/FavoritesContext'
 import Card from 'react-bootstrap/Card'
 import Badge from 'react-bootstrap/Badge'
 import { FixedSizeList as List } from 'react-window'
@@ -36,6 +37,7 @@ function Startpage(props: Props) {
     let [newItems, setNewItems] = useState<Item[]>(props.newItems || [])
     let [recentUpdate, setRecentUpdate] = useState<any | null>(null)
     let [isSSR, setIsSSR] = useState(true)
+    const { favorites } = useFavorites()
 
     useEffect(() => {
         setIsSSR(false)
@@ -310,12 +312,16 @@ function Startpage(props: Props) {
 
     return (
         <div>
-            <div style={{ textAlign: 'center' }}>
-                <hr />
-                <h1>Skyblock Auction House History</h1>
-                <p style={{ fontSize: 'larger' }}>Browse through over 800 million auctions, over two million players and the bazaar of hypixel skyblock</p>
-                <hr />
-            </div>
+            {favorites.length === 0 ? (
+                <div style={{ textAlign: 'center' }}>
+                    <hr />
+                    <h1>Skyblock Auction House History</h1>
+                    <p style={{ fontSize: 'larger' }}>
+                        Browse through over 800 million auctions, over two million players and the bazaar of hypixel skyblock
+                    </p>
+                    <hr />
+                </div>
+            ) : null}
             <Card className={styles.startpageCard}>
                 <Card.Header>
                     <Card.Title>
@@ -416,6 +422,14 @@ function Startpage(props: Props) {
                     <p>
                         We built a mod, discord bot and android app as well as provide access to most of our data via a free API. You can find more information
                         on the <Link href="/wiki/api">wiki api page</Link>.
+                    </p>
+
+                    <p>
+                        Update ads privacy settings on the{' '}
+                        <a href="/about" style={{ textDecoration: 'underline' }} onClick={onRecentChangesClick}>
+                            about page
+                        </a> (ads are not loaded on this page)
+                        .
                     </p>
                 </Card.Body>
             </Card>

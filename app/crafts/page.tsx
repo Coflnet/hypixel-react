@@ -3,6 +3,7 @@ import { initAPI } from '../../api/ApiHelper'
 import { CraftsList } from '../../components/CraftsList/CraftsList'
 import Search from '../../components/Search/Search'
 import { getHeadMetadata } from '../../utils/SSRUtils'
+import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
     let api = initAPI(true)
@@ -16,6 +17,7 @@ export default async function Page() {
                 <hr />
                 <CraftsList crafts={crafts} bazaarTags={bazaarTags} />
             </Container>
+            <BottomBanner />
         </>
     )
 }

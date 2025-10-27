@@ -34,7 +34,7 @@ export const getDurationDisplayName = (duration: Duration | null): string => {
         case Duration.HOUR: return '1 Hour'
         case Duration.DAY: return '1 Day'
         case Duration.WEEK: return '1 Week'
-        case Duration.MONTHLY: return 'Monthly'
+        case Duration.MONTHLY: return '1 Month'
         case Duration.QUARTER: return 'Quarterly'
         case Duration.YEARLY: return 'Yearly'
         default: return ''
@@ -53,7 +53,7 @@ export const getDurationOptions = (tier: PremiumTier, type: PurchaseType) => {
             case PremiumTier.PREMIUM:
                 return [
                     { label: '1 Month', desc: 'Monthly access', icon: '📅', value: Duration.MONTHLY },
-                    { label: '6 Months', desc: 'Half-year access', icon: '🕒', value: Duration.QUARTER },
+                    { label: '3 Months', desc: 'Short-term quarterly access', icon: '📆', value: Duration.QUARTER },
                     { label: '12 Months', desc: 'Full year access', icon: '🎯', value: Duration.YEARLY }
                 ]
             case PremiumTier.PREMIUM_PLUS:
