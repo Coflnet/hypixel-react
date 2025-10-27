@@ -60,7 +60,7 @@
     background-color: transparent; /* neutral background replaced with Bootstrap defaults */
     border-color: var(--bs-border-color, #d1d7de);
     font-weight: 600;
-    color: var(--bs-secondary); /* muted text */
+    color: var(--bs-gray); /* muted text */
 }
 
 /** Show the selected price option more clearly as selected **/
@@ -88,7 +88,6 @@
 .summarySection h6 {
     font-weight: 700;
     margin-bottom: 10px;
-    border: 2px solid var(--bs-success); /* darker green border for better contrast */
 }
 
 .summarySection p {
@@ -139,7 +138,7 @@
 
 .purchaseInfo {
     font-style: italic;
-    color: var(--bs-secondary);
+    color: var(--bs-gray);
     margin-bottom: 20px;
 }
 

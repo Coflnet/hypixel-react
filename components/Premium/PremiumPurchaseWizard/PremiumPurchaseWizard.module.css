@@ -102,11 +102,11 @@
 .optionBody h5 {
     margin-bottom: 10px;
     font-weight: 600;
-    color: var(--bs-secondary);
+    color: var(--bs-gray);
 }
 
 .optionBody p {
-    color: var(--bs-secondary);
+    color: var(--bs-gray);
     margin-bottom: 10px;
     font-size: 0.9rem;
 }
@@ -157,7 +157,7 @@
 
 .summaryBox p {
     margin-bottom: 8px;
-    color: var(--bs-secondary);
+    color: var(--bs-gray);
 }
 
 .purchaseComponent {
@@ -178,6 +178,8 @@
 }
 
 .backButton, .nextButton {
+    color: var(--bs-gray);
+    background-color: transparent;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -209,7 +211,7 @@
 
 .finalStep {
     text-align: center;
-    color: var(--bs-secondary);
+    color: var(--bs-gray);
     font-style: italic;
 }
 

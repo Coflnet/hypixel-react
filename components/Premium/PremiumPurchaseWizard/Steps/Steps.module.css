@@ -125,7 +125,7 @@
 .optionCard.selected .coflcoinsDescription,
 .optionCard.selected .infoText,
 .optionCard.selected .featureList li {
-    color: var(--selected-text-secondary);
+    color: var(--bs-gray);
 }
 
 .optionCard.selected .tierPremium {
@@ -286,7 +286,7 @@
 
 .summaryDetails p {
     margin-bottom: 8px;
-    color: var(--bs-secondary); /* muted for summary text */
+    color: var(--bs-gray); /* muted for summary text */
     font-size: 0.95rem;
     line-height: 1.4;
 }
@@ -371,7 +371,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    color: var(--bs-secondary);
+    color: var(--bs-gray);
     font-weight: 600;
 }
 
