@@ -296,6 +296,8 @@ export const Category = {
   CONSUMABLES: 'CONSUMABLES',
   BLOCKS: 'BLOCKS',
   MISC: 'MISC',
+  cosmetic: 'cosmetic',
+  dyes: 'dyes',
 } as const;
 
 export interface CoflnetSkyMayorModelsMinister {
@@ -588,6 +590,7 @@ export interface DescriptionSetting {
   replaceGoldWith: string | null;
   /** @nullable */
   replaceWhiteWith: string | null;
+  noCookie: boolean;
   /** @nullable */
   fields?: DescriptionField[][] | null;
   highlightInfo?: HighlightInfo;
@@ -777,7 +780,7 @@ export const EnchantmentType = {
   quick_bite: 'quick_bite',
   absorb: 'absorb',
   arcane: 'arcane',
-  drain: 'drain',
+  drainRenamed: 'drainRenamed',
   ultimate_first_impression: 'ultimate_first_impression',
   forest_pledge: 'forest_pledge',
   ultimate_missile: 'ultimate_missile',
@@ -1072,6 +1075,19 @@ export interface FuseFlip {
   /** @nullable */
   output?: string | null;
   outputCount: number;
+}
+
+export interface GooglePlayPurchaseRequest {
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  purchaseToken: string | null;
+  /** @nullable */
+  packageName: string | null;
+  /** @nullable */
+  userId: string | null;
+  /** @nullable */
+  customAmount?: number | null;
 }
 
 export interface GraphResult {
@@ -1654,6 +1670,7 @@ export interface ModSettings {
   maxItemsInInventory: number;
   disableSpamProtection: boolean;
   tempBlacklistThreshold: number;
+  useSellerProfileButton: boolean;
 }
 
 /**
@@ -2472,8 +2489,13 @@ export interface TopUpArguments {
 export interface TopUpIdResponse {
   /** @nullable */
   id?: string | null;
-  /** @nullable */
+  /**
+   * @deprecated
+   * @nullable
+   */
   dirctLink?: string | null;
+  /** @nullable */
+  directLink?: string | null;
 }
 
 export interface TopUpProduct {
@@ -2841,6 +2863,10 @@ export type PostApiTopupStripeProductSlug401One = {
 };
 
 export type PostApiTopupPaypalProductSlug401One = {
+  message?: string;
+};
+
+export type PostApiTopupPlaystore401One = {
   message?: string;
 };
 

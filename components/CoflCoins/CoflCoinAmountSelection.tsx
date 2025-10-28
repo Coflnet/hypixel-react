@@ -10,9 +10,11 @@ interface CoflCoinOption {
     paypalPrice: number
     stripePrice: number
     lemonsqueezyPrice: number
+    googlePlayPrice: number
     paypalProductId: string
     stripeProductId: string
     lemonsqueezyProductId: string
+    googlePlayProductId: string
     discount?: number
     isCustom?: boolean
 }
@@ -28,41 +30,49 @@ const coflCoinOptions: CoflCoinOption[] = [
         paypalPrice: 8.69,
         stripePrice: 8.42,
         lemonsqueezyPrice: 8.69,
+        googlePlayPrice: 8.42,
         paypalProductId: 'p_cc_1800',
         stripeProductId: 's_cc_1800',
-        lemonsqueezyProductId: 'l_cc_1800'
+        lemonsqueezyProductId: 'l_cc_1800',
+        googlePlayProductId: 'ps_1800'
     },
     {
         amount: 5400,
         paypalPrice: 22.99,
         stripePrice: 22.69,
         lemonsqueezyPrice: 22.69,
+        googlePlayPrice: 22.69,
         paypalProductId: 'p_cc_5400',
         stripeProductId: 's_cc_5400',
-        lemonsqueezyProductId: 'l_cc_5400'
+        lemonsqueezyProductId: 'l_cc_5400',
+        googlePlayProductId: 'ps_5400'
     },
     {
         amount: 10800,
         paypalPrice: 39.69,
         stripePrice: 38.99,
         lemonsqueezyPrice: 39.69,
+        googlePlayPrice: 38.99,
         paypalProductId: 'p_cc_10800',
         stripeProductId: 's_cc_10800',
-        lemonsqueezyProductId: 'l_cc_10800'
+        lemonsqueezyProductId: 'l_cc_10800',
+        googlePlayProductId: 'ps_10800'
     },
     {
         amount: 21600,
         paypalPrice: 78.69,
         stripePrice: 74.99,
         lemonsqueezyPrice: 78.69,
+        googlePlayPrice: 74.99,
         paypalProductId: 'p_cc_21600',
         stripeProductId: 's_cc_21600',
-        lemonsqueezyProductId: 'l_cc_21600'
+        lemonsqueezyProductId: 'l_cc_21600',
+        googlePlayProductId: 'ps_21600'
     }
 ]
 
-function getPricePerCoin(option: CoflCoinOption, provider: 'paypal' | 'stripe' | 'lemonsqueezy' = 'stripe'): number {
-    const price = provider === 'paypal' ? option.paypalPrice : provider === 'stripe' ? option.stripePrice : option.lemonsqueezyPrice
+function getPricePerCoin(option: CoflCoinOption, provider: 'paypal' | 'stripe' | 'lemonsqueezy' | 'googleplay' = 'stripe'): number {
+    const price = provider === 'paypal' ? option.paypalPrice : provider === 'stripe' ? option.stripePrice : provider === 'googleplay' ? option.googlePlayPrice : option.lemonsqueezyPrice
     return price / option.amount
 }
 
@@ -89,9 +99,11 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
               paypalPrice: (baseOption.paypalPrice / 1800) * (1800 + specificAmount),
               stripePrice: (baseOption.stripePrice / 1800) * (1800 + specificAmount),
               lemonsqueezyPrice: (baseOption.lemonsqueezyPrice / 1800) * (1800 + specificAmount),
+              googlePlayPrice: (baseOption.googlePlayPrice / 1800) * (1800 + specificAmount),
               paypalProductId: baseOption.paypalProductId,
               stripeProductId: baseOption.stripeProductId,
-              lemonsqueezyProductId: baseOption.lemonsqueezyProductId
+              lemonsqueezyProductId: baseOption.lemonsqueezyProductId,
+              googlePlayProductId: baseOption.googlePlayProductId
           }
         : null
 
@@ -118,9 +130,11 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
             paypalPrice: calculateCustomPrice(amount, baseOption.paypalPrice),
             stripePrice: calculateCustomPrice(amount, baseOption.stripePrice),
             lemonsqueezyPrice: calculateCustomPrice(amount, baseOption.lemonsqueezyPrice),
+            googlePlayPrice: calculateCustomPrice(amount, baseOption.googlePlayPrice),
             paypalProductId: baseOption.paypalProductId,
             stripeProductId: baseOption.stripeProductId,
-            lemonsqueezyProductId: baseOption.lemonsqueezyProductId
+            lemonsqueezyProductId: baseOption.lemonsqueezyProductId,
+            googlePlayProductId: baseOption.googlePlayProductId
         }
     }
 
@@ -153,9 +167,11 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
         paypalPrice: calculateCustomPrice(getCustomAmountValue(), baseOption.paypalPrice),
         stripePrice: calculateCustomPrice(getCustomAmountValue(), baseOption.stripePrice),
         lemonsqueezyPrice: calculateCustomPrice(getCustomAmountValue(), baseOption.lemonsqueezyPrice),
+        googlePlayPrice: calculateCustomPrice(getCustomAmountValue(), baseOption.googlePlayPrice),
         paypalProductId: baseOption.paypalProductId,
         stripeProductId: baseOption.stripeProductId,
         lemonsqueezyProductId: baseOption.lemonsqueezyProductId,
+        googlePlayProductId: baseOption.googlePlayProductId,
         isCustom: true
     }
 

@@ -8,9 +8,11 @@ interface CoflCoinOption {
     paypalPrice: number
     stripePrice: number
     lemonsqueezyPrice: number
+    googlePlayPrice: number
     paypalProductId: string
     stripeProductId: string
     lemonsqueezyProductId: string
+    googlePlayProductId: string
 }
 
 interface Props {
@@ -19,10 +21,12 @@ interface Props {
     onPayPalPay: (productId: string, coflCoins?: number) => void
     onStripePay: (productId: string, coflCoins?: number) => void
     onLemonSqueezyPay: (productId: string, coflCoins?: number) => void
+    onGooglePlayPay: (productId: string, purchaseToken: string, coflCoins?: number) => void
     loadingProductId: string
+    isGooglePlayAvailable?: boolean
 }
 
-function CoflCoinPurchaseWizard({ coflCoins, countryCode, onPayPalPay, onStripePay, onLemonSqueezyPay, loadingProductId }: Props) {
+function CoflCoinPurchaseWizard({ coflCoins, countryCode, onPayPalPay, onStripePay, onLemonSqueezyPay, onGooglePlayPay, loadingProductId, isGooglePlayAvailable }: Props) {
     const [step, setStep] = useState<'amount' | 'payment'>('amount')
     const [selectedOption, setSelectedOption] = useState<CoflCoinOption | null>(null)
 
@@ -49,7 +53,9 @@ function CoflCoinPurchaseWizard({ coflCoins, countryCode, onPayPalPay, onStripeP
                     onPayPalPay={onPayPalPay}
                     onStripePay={onStripePay}
                     onLemonSqueezyPay={onLemonSqueezyPay}
+                    onGooglePlayPay={onGooglePlayPay}
                     loadingProductId={loadingProductId}
+                    isGooglePlayAvailable={isGooglePlayAvailable}
                 />
             )}
         </div>

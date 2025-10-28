@@ -6,7 +6,7 @@ import Number from '../Number/Number'
 import type { JSX } from 'react'
 
 interface Props {
-    type: 'PayPal' | 'Stripe' | 'LemonSqueezy'
+    type: 'PayPal' | 'Stripe' | 'LemonSqueezy' | 'Google Play'
     price: number
     disabledTooltip: JSX.Element | undefined
     onPay()
@@ -39,6 +39,7 @@ export default function GenericProviderPurchaseCard(props: Props) {
                 ) : null}
                 {props.type === 'Stripe' && <span>Buy with other payment methods</span>}
                 {props.type === 'LemonSqueezy' && <span>Continue to payment</span>}
+                {props.type === 'Google Play' && <span>Buy with Google Play</span>}
             </div>
             <Tooltip
                 type="hover"

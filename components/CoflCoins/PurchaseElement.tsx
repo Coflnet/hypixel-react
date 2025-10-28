@@ -14,16 +14,20 @@ interface Props {
     paypalPrice: number
     lemonsqueezyPrice: number
     lemonsqueezyProductId: string
+    googlePlayPrice: number
+    googlePlayProductId: string
     disabledTooltip: JSX.Element | undefined
     loadingProductId: string
     onPayPalPay(prodcutId: string, coflCoins?: number)
     onStripePay(producctId: string, coflCoins?: number)
     onLemonSqeezyPay(productId: string, coflCoins?: number)
+    onGooglePlayPay(productId: string, purchaseToken: string, coflCoins?: number)
     isDisabled: boolean
     redirectLink?: string
     countryCode?: string
     discount?: number
     isSpecial1800CoinsMultiplier?: boolean
+    isGooglePlayAvailable?: boolean
 }
 
 // prettier-ignore
@@ -110,6 +114,24 @@ export default function PurchaseElement(props: Props) {
                             !shouldPassCustomAmount
                                 ? props.lemonsqueezyProductId === props.loadingProductId
                                 : `${props.lemonsqueezyProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
+                        }
+                        disabledTooltip={props.disabledTooltip}
+                    />
+                )}
+                {props.isGooglePlayAvailable && (
+                    <GenericProviderPurchaseCard
+                        type="Google Play"
+                        isDisabled={isDisabled}
+                        onPay={() => {
+                            // Trigger Google Play billing flow - the token will come from TWA callback
+                            props.onGooglePlayPay(props.googlePlayProductId, '', shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
+                        }}
+                        price={props.googlePlayPrice}
+                        discount={props.discount}
+                        isRedirecting={
+                            !shouldPassCustomAmount
+                                ? props.googlePlayProductId === props.loadingProductId
+                                : `${props.googlePlayProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                         }
                         disabledTooltip={props.disabledTooltip}
                     />

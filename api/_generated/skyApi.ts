@@ -120,6 +120,7 @@ import type {
   GetApiTradesOwn401One,
   GetApiTradesParams,
   GetApiUserPrivacy401One,
+  GooglePlayPurchaseRequest,
   GraphResult,
   Int32Int64ValueTuple,
   InventoryBatchLookup,
@@ -176,6 +177,7 @@ import type {
   PostApiServicePurchase401One,
   PostApiTopupLemonsqueezyProductSlug401One,
   PostApiTopupPaypalProductSlug401One,
+  PostApiTopupPlaystore401One,
   PostApiTopupStripeProductSlug401One,
   PostApiTrades401One,
   PostApiUserPrivacy401One,
@@ -9792,6 +9794,104 @@ export const usePostApiTopupPaypalProductSlug = <TError = PostApiTopupPaypalProd
       > => {
 
       const mutationOptions = getPostApiTopupPaypalProductSlugMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+export type postApiTopupPlaystoreResponse200 = {
+  data: boolean
+  status: 200
+}
+
+export type postApiTopupPlaystoreResponse401ApplicationJson = {
+  data: PostApiTopupPlaystore401One
+  status: 401
+}
+
+export type postApiTopupPlaystoreResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiTopupPlaystoreResponse403 = {
+  data: null
+  status: 403
+}
+    
+export type postApiTopupPlaystoreResponseComposite = postApiTopupPlaystoreResponse200 | postApiTopupPlaystoreResponse401ApplicationJson | postApiTopupPlaystoreResponse401TextPlain | postApiTopupPlaystoreResponse403;
+    
+export type postApiTopupPlaystoreResponse = postApiTopupPlaystoreResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiTopupPlaystoreUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/topup/playstore`
+}
+
+export const postApiTopupPlaystore = async (googlePlayPurchaseRequest: GooglePlayPurchaseRequest, options?: RequestInit): Promise<postApiTopupPlaystoreResponse> => {
+  
+  const res = await fetch(getPostApiTopupPlaystoreUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      googlePlayPurchaseRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiTopupPlaystoreResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiTopupPlaystoreResponse
+}
+
+
+
+
+export const getPostApiTopupPlaystoreMutationOptions = <TError = PostApiTopupPlaystore401One | string | null,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystore>>, TError,{data: GooglePlayPurchaseRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystore>>, TError,{data: GooglePlayPurchaseRequest}, TContext> => {
+
+const mutationKey = ['postApiTopupPlaystore'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTopupPlaystore>>, {data: GooglePlayPurchaseRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiTopupPlaystore(data,fetchOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiTopupPlaystoreMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupPlaystore>>>
+    export type PostApiTopupPlaystoreMutationBody = GooglePlayPurchaseRequest
+    export type PostApiTopupPlaystoreMutationError = PostApiTopupPlaystore401One | string | null
+
+    export const usePostApiTopupPlaystore = <TError = PostApiTopupPlaystore401One | string | null,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystore>>, TError,{data: GooglePlayPurchaseRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiTopupPlaystore>>,
+        TError,
+        {data: GooglePlayPurchaseRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiTopupPlaystoreMutationOptions(options);
 
       return useMutation(mutationOptions , queryClient);
     }

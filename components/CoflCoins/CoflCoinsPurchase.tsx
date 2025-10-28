@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Alert, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
+import { postApiTopupPlaystore } from '../../api/_generated/skyApi'
 import { useCoflCoins } from '../../utils/Hooks'
 import CoflCoinPurchaseWizard from './CoflCoinPurchaseWizard'
 import PurchaseElement from './PurchaseElement'
@@ -23,11 +24,71 @@ function Payment(props: Props) {
     let [defaultCountry, setDefaultCountry] = useState<Country>()
     let [selectedCountry, setSelectedCountry] = useState<Country>()
     let [useWizard, setUseWizard] = useState(true)
+    let [isGooglePlayAvailable, setIsGooglePlayAvailable] = useState(false)
     let coflCoins = useCoflCoins()
     let isDisabled = !props.cancellationRightLossConfirmed || !selectedCountry
 
+    function checkGooglePlayAvailability() {
+        // Check if we're in a TWA (Trusted Web Activity) or have Google Play Billing available
+        // This checks for the Android interface injected by the TWA
+        setIsGooglePlayAvailable(typeof (window as any).AndroidInterface !== 'undefined' || typeof (window as any).requestGooglePlayPurchase !== 'undefined')
+    }
+
+    function setupGooglePlayCallback() {
+        // Set up callback for TWA Google Play billing response
+        ;(window as any).onGooglePlayPurchaseComplete = async (purchaseToken: string, productId: string, packageName: string) => {
+            const loadingKey = loadingId || productId
+            try {
+                const googleToken = sessionStorage.getItem('googleId')
+                if (!googleToken) {
+                    toast.error('Please login to complete the purchase')
+                    setLoadingId('')
+                    return
+                }
+
+                // Extract coin amount from loading ID if it's a custom amount
+                let customAmount: number | undefined
+                if (loadingKey.includes('_')) {
+                    const parts = loadingKey.split('_')
+                    customAmount = parseInt(parts[1])
+                }
+
+                // Call the generated API with GoogleToken header
+                const response = await postApiTopupPlaystore(
+                    {
+                        productId,
+                        purchaseToken,
+                        packageName,
+                        userId: googleToken,
+                        customAmount
+                    },
+                    {
+                        headers: {
+                            GoogleToken: googleToken
+                        }
+                    }
+                )
+
+                if (response.status === 200) {
+                    setLoadingId('')
+                    toast.success('Purchase successful! Your CoflCoins have been added.')
+                    // Refresh coflcoins balance
+                    document.dispatchEvent(new CustomEvent('coflcoin-update'))
+                } else {
+                    throw new Error('Purchase verification failed')
+                }
+            } catch (error) {
+                setLoadingId('')
+                toast.error('Google Play purchase verification failed. Please contact support.')
+                console.error('Google Play purchase error:', error)
+            }
+        }
+    }
+
     useEffect(() => {
         loadDefaultCountry()
+        checkGooglePlayAvailability()
+        setupGooglePlayCallback()
     }, [])
 
     async function loadDefaultCountry() {
@@ -94,6 +155,60 @@ function Payment(props: Props) {
                 window.open(data.directLink, '_self')
             })
             .catch(onPaymentRedirectFail)
+    }
+
+    function onPayGooglePlay(productId: string, purchaseToken: string, coflCoins?: number) {
+        setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
+        
+        // Check if we have a purchase token (from TWA callback) or need to trigger billing
+        if (purchaseToken) {
+            // Token provided directly (manual entry or already processed)
+            const googleToken = sessionStorage.getItem('googleId')
+            if (!googleToken) {
+                toast.error('Please login to complete the purchase')
+                setLoadingId('')
+                return
+            }
+
+            postApiTopupPlaystore(
+                {
+                    productId,
+                    purchaseToken,
+                    packageName: 'com.coflnet.app',
+                    userId: googleToken,
+                    customAmount: coflCoins
+                },
+                {
+                    headers: {
+                        GoogleToken: googleToken
+                    }
+                }
+            )
+                .then(response => {
+                    if (response.status === 200) {
+                        setLoadingId('')
+                        toast.success('Purchase successful! Your CoflCoins have been added.')
+                        document.dispatchEvent(new CustomEvent('coflcoin-update'))
+                    } else {
+                        throw new Error('Purchase verification failed')
+                    }
+                })
+                .catch(error => {
+                    setLoadingId('')
+                    toast.error('Google Play purchase failed. Please try again.')
+                    console.error('Google Play purchase error:', error)
+                })
+        } else {
+            // Trigger Google Play billing flow via TWA
+            if (typeof (window as any).AndroidInterface !== 'undefined' && (window as any).AndroidInterface.requestGooglePlayPurchase) {
+                ;(window as any).AndroidInterface.requestGooglePlayPurchase(productId)
+            } else if (typeof (window as any).requestGooglePlayPurchase !== 'undefined') {
+                ;(window as any).requestGooglePlayPurchase(productId)
+            } else {
+                toast.error('Google Play billing is not available')
+                setLoadingId('')
+            }
+        }
     }
 
     function onPaymentRedirectFail() {
@@ -165,7 +280,9 @@ function Payment(props: Props) {
                     onPayPalPay={onPayPaypal}
                     onStripePay={onPayStripe}
                     onLemonSqueezyPay={onPayLemonSqueezy}
+                    onGooglePlayPay={onPayGooglePlay}
                     loadingProductId={loadingId}
+                    isGooglePlayAvailable={isGooglePlayAvailable}
                 />
             </div>
         )
@@ -194,15 +311,19 @@ function Payment(props: Props) {
                     paypalPrice={8.69}
                     stripePrice={8.42}
                     lemonsqueezyPrice={8.69}
+                    googlePlayPrice={8.42}
                     disabledTooltip={disabledTooltip}
                     isDisabled={isDisabled}
                     onPayPalPay={onPayPaypal}
                     onStripePay={onPayStripe}
                     onLemonSqeezyPay={onPayLemonSqueezy}
+                    onGooglePlayPay={onPayGooglePlay}
                     paypalProductId="p_cc_1800"
                     stripeProductId="s_cc_1800"
                     lemonsqueezyProductId="l_cc_1800"
+                    googlePlayProductId="ps_1800"
                     countryCode={selectedCountry ? selectedCountry.value : undefined}
+                    isGooglePlayAvailable={isGooglePlayAvailable}
                 />
                 <PurchaseElement
                     coflCoinsToBuy={5400}
@@ -211,15 +332,19 @@ function Payment(props: Props) {
                     paypalPrice={22.99}
                     stripePrice={22.69}
                     lemonsqueezyPrice={22.69}
+                    googlePlayPrice={22.69}
                     disabledTooltip={disabledTooltip}
                     isDisabled={isDisabled}
                     onPayPalPay={onPayPaypal}
                     onStripePay={onPayStripe}
                     onLemonSqeezyPay={onPayLemonSqueezy}
+                    onGooglePlayPay={onPayGooglePlay}
                     paypalProductId="p_cc_5400"
                     stripeProductId="s_cc_5400"
                     lemonsqueezyProductId="l_cc_5400"
+                    googlePlayProductId="ps_5400"
                     countryCode={selectedCountry ? selectedCountry.value : undefined}
+                    isGooglePlayAvailable={isGooglePlayAvailable}
                 />
                 {!showAll ? (
                     <Button
@@ -240,15 +365,19 @@ function Payment(props: Props) {
                             paypalPrice={39.69}
                             stripePrice={38.99}
                             lemonsqueezyPrice={39.69}
+                            googlePlayPrice={38.99}
                             disabledTooltip={disabledTooltip}
                             isDisabled={isDisabled}
                             onPayPalPay={onPayPaypal}
                             onStripePay={onPayStripe}
                             onLemonSqeezyPay={onPayLemonSqueezy}
+                            onGooglePlayPay={onPayGooglePlay}
                             paypalProductId="p_cc_10800"
                             stripeProductId="s_cc_10800"
                             lemonsqueezyProductId="l_cc_10800"
+                            googlePlayProductId="ps_10800"
                             countryCode={selectedCountry ? selectedCountry.value : undefined}
+                            isGooglePlayAvailable={isGooglePlayAvailable}
                         />
                         <PurchaseElement
                             coflCoinsToBuy={21600}
@@ -257,15 +386,19 @@ function Payment(props: Props) {
                             paypalPrice={78.69}
                             stripePrice={74.99}
                             lemonsqueezyPrice={78.69}
+                            googlePlayPrice={74.99}
                             disabledTooltip={disabledTooltip}
                             isDisabled={isDisabled}
                             onPayPalPay={onPayPaypal}
                             onStripePay={onPayStripe}
                             onLemonSqeezyPay={onPayLemonSqueezy}
+                            onGooglePlayPay={onPayGooglePlay}
                             paypalProductId="p_cc_21600"
                             stripeProductId="s_cc_21600"
                             lemonsqueezyProductId="l_cc_21600"
+                            googlePlayProductId="ps_21600"
                             countryCode={selectedCountry ? selectedCountry.value : undefined}
+                            isGooglePlayAvailable={isGooglePlayAvailable}
                         />
                         {coflCoins % 1800 != 0 ? (
                             <PurchaseElement
@@ -275,16 +408,20 @@ function Payment(props: Props) {
                                 paypalPrice={(8.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
                                 stripePrice={(8.42 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
                                 lemonsqueezyPrice={(8.69 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
+                                googlePlayPrice={(8.42 / 1800) * (1800 + (1800 - (coflCoins % 1800)))}
                                 disabledTooltip={disabledTooltip}
                                 isDisabled={isDisabled}
                                 onPayPalPay={onPayPaypal}
                                 onStripePay={onPayStripe}
                                 onLemonSqeezyPay={onPayLemonSqueezy}
+                                onGooglePlayPay={onPayGooglePlay}
                                 isSpecial1800CoinsMultiplier
                                 paypalProductId="p_cc_1800"
                                 stripeProductId="s_cc_1800"
                                 lemonsqueezyProductId="l_cc_1800"
+                                googlePlayProductId="ps_1800"
                                 countryCode={selectedCountry ? selectedCountry.value : undefined}
+                                isGooglePlayAvailable={isGooglePlayAvailable}
                             />
                         ) : null}
                     </>

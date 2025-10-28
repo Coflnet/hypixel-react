@@ -10,9 +10,11 @@ interface CoflCoinOption {
     paypalPrice: number
     stripePrice: number
     lemonsqueezyPrice: number
+    googlePlayPrice: number
     paypalProductId: string
     stripeProductId: string
     lemonsqueezyProductId: string
+    googlePlayProductId: string
 }
 
 interface Props {
@@ -23,10 +25,12 @@ interface Props {
     onPayPalPay: (productId: string, coflCoins?: number) => void
     onStripePay: (productId: string, coflCoins?: number) => void
     onLemonSqueezyPay: (productId: string, coflCoins?: number) => void
+    onGooglePlayPay: (productId: string, purchaseToken: string, coflCoins?: number) => void
     loadingProductId: string
+    isGooglePlayAvailable?: boolean
 }
 
-function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoins, onPayPalPay, onStripePay, onLemonSqueezyPay, loadingProductId }: Props) {
+function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoins, onPayPalPay, onStripePay, onLemonSqueezyPay, onGooglePlayPay, loadingProductId, isGooglePlayAvailable }: Props) {
     return (
         <div>
             <div
@@ -104,16 +108,20 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                     paypalPrice={selectedOption.paypalPrice}
                     stripePrice={selectedOption.stripePrice}
                     lemonsqueezyPrice={selectedOption.lemonsqueezyPrice}
+                    googlePlayPrice={selectedOption.googlePlayPrice}
                     paypalProductId={selectedOption.paypalProductId}
                     stripeProductId={selectedOption.stripeProductId}
                     lemonsqueezyProductId={selectedOption.lemonsqueezyProductId}
+                    googlePlayProductId={selectedOption.googlePlayProductId}
                     countryCode={countryCode}
                     onPayPalPay={onPayPalPay}
                     onStripePay={onStripePay}
                     onLemonSqeezyPay={onLemonSqueezyPay}
+                    onGooglePlayPay={onGooglePlayPay}
                     loadingProductId={loadingProductId}
                     disabledTooltip={undefined}
                     isDisabled={false}
+                    isGooglePlayAvailable={isGooglePlayAvailable}
                 />
             </div>
 
