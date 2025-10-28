@@ -7,6 +7,21 @@ declare global {
     __tcfapi?: any;
     nitroAds?: any;
     __npcmp?: any;
+    AndroidBilling?: {
+      isAvailable(): boolean;
+      purchaseProduct(productId: string): void;
+    };
+  }
+
+  interface WindowEventMap {
+    androidBillingReady: Event;
+    androidBillingSuccess: CustomEvent<{
+      productId: string;
+      purchaseToken: string;
+    }>;
+    androidBillingError: CustomEvent<{
+      error: string;
+    }>;
   }
 }
 

@@ -56,7 +56,9 @@ export default function GenericProviderPurchaseCard(props: Props) {
                         >
                             {props.isRedirecting ? (
                                 <p className={styles.manualRedirectLink}>
-                                    {props.redirectLink ? (
+                                    {props.type === 'Google Play' ? (
+                                        <span>Opening Google Play...</span>
+                                    ) : props.redirectLink ? (
                                         <>
                                             Redirecting to PayPal...
                                             <br /> Not working?{' '}

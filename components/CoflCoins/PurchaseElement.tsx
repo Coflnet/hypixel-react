@@ -44,6 +44,11 @@ export default function PurchaseElement(props: Props) {
     // Pass custom amount for both special multiplier and custom amounts from wizard
     const shouldPassCustomAmount = props.isSpecial1800CoinsMultiplier || isCustomAmount
 
+    console.log('PurchaseElement render', {
+        coflCoinsToBuy: props.coflCoinsToBuy,
+        isGooglePlayAvailable: props.isGooglePlayAvailable
+    })
+
     return (
         <Card className={styles.premiumPlanCard} style={props.isSpecial1800CoinsMultiplier ? { width: '100%' } : {}}>
             <Card.Header>

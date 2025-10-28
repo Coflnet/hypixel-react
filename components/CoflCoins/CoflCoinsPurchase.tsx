@@ -28,68 +28,83 @@ function Payment(props: Props) {
     let coflCoins = useCoflCoins()
     let isDisabled = !props.cancellationRightLossConfirmed || !selectedCountry
 
-    function checkGooglePlayAvailability() {
-        // Check if we're in a TWA (Trusted Web Activity) or have Google Play Billing available
-        // This checks for the Android interface injected by the TWA
-        setIsGooglePlayAvailable(typeof (window as any).AndroidInterface !== 'undefined' || typeof (window as any).requestGooglePlayPurchase !== 'undefined')
-    }
-
-    function setupGooglePlayCallback() {
-        // Set up callback for TWA Google Play billing response
-        ;(window as any).onGooglePlayPurchaseComplete = async (purchaseToken: string, productId: string, packageName: string) => {
-            const loadingKey = loadingId || productId
-            try {
-                const googleToken = sessionStorage.getItem('googleId')
-                if (!googleToken) {
-                    toast.error('Please login to complete the purchase')
-                    setLoadingId('')
-                    return
-                }
-
-                // Extract coin amount from loading ID if it's a custom amount
-                let customAmount: number | undefined
-                if (loadingKey.includes('_')) {
-                    const parts = loadingKey.split('_')
-                    customAmount = parseInt(parts[1])
-                }
-
-                // Call the generated API with GoogleToken header
-                const response = await postApiTopupPlaystore(
-                    {
-                        productId,
-                        purchaseToken,
-                        packageName,
-                        userId: googleToken,
-                        customAmount
-                    },
-                    {
-                        headers: {
-                            GoogleToken: googleToken
-                        }
-                    }
-                )
-
-                if (response.status === 200) {
-                    setLoadingId('')
-                    toast.success('Purchase successful! Your CoflCoins have been added.')
-                    // Refresh coflcoins balance
-                    document.dispatchEvent(new CustomEvent('coflcoin-update'))
-                } else {
-                    throw new Error('Purchase verification failed')
-                }
-            } catch (error) {
-                setLoadingId('')
-                toast.error('Google Play purchase verification failed. Please contact support.')
-                console.error('Google Play purchase error:', error)
-            }
-        }
-    }
-
     useEffect(() => {
         loadDefaultCountry()
-        checkGooglePlayAvailability()
-        setupGooglePlayCallback()
+        
+        // Set up event listeners for Android Billing
+        const handleBillingSuccess = (event: Event) => {
+            const customEvent = event as CustomEvent<{ productId: string; purchaseToken: string }>
+            console.log('[Billing] androidBillingSuccess event received', customEvent.detail)
+            
+            setLoadingId('')
+            toast.success('Purchase successful! Your CoflCoins have been added.')
+            // Refresh coflcoins balance
+            document.dispatchEvent(new CustomEvent('coflcoin-update'))
+        }
+
+        const handleBillingError = (event: Event) => {
+            const customEvent = event as CustomEvent<{ error: string }>
+            console.error('[Billing] androidBillingError event received', customEvent.detail)
+            
+            setLoadingId('')
+            
+            // Don't show error for user cancellation
+            if (customEvent.detail.error === 'User canceled purchase') {
+                toast.info('Purchase cancelled')
+            } else {
+                toast.error(`Purchase failed: ${customEvent.detail.error}`)
+            }
+        }
+
+        window.addEventListener('androidBillingSuccess', handleBillingSuccess)
+        window.addEventListener('androidBillingError', handleBillingError)
+        
+        // Check for Android Billing availability with a delay to allow TWA to inject
+        const checkTimer = setTimeout(() => {
+            checkGooglePlayAvailability()
+        }, 500)
+        
+        // Also check when page becomes visible (TWA might inject after initial load)
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                checkGooglePlayAvailability()
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+        
+        // Listen for billing ready event
+        const handleBillingReady = () => {
+            console.log('[Billing] Android Billing is ready')
+            checkGooglePlayAvailability()
+        }
+        window.addEventListener('androidBillingReady', handleBillingReady)
+        
+        return () => {
+            clearTimeout(checkTimer)
+            document.removeEventListener('visibilitychange', handleVisibilityChange)
+            window.removeEventListener('androidBillingReady', handleBillingReady)
+            window.removeEventListener('androidBillingSuccess', handleBillingSuccess)
+            window.removeEventListener('androidBillingError', handleBillingError)
+        }
     }, [])
+
+    function checkGooglePlayAvailability() {
+        // Check if we're in the Android TWA with AndroidBilling bridge
+        const hasAndroidBilling = !!(window as any).AndroidBilling
+        const available = hasAndroidBilling && typeof (window as any).AndroidBilling.isAvailable === 'function'
+            ? (window as any).AndroidBilling.isAvailable()
+            : false
+        
+        console.log('[Billing] checkGooglePlayAvailability result:', available, {
+            hasAndroidBilling,
+            isAvailableMethod: typeof (window as any).AndroidBilling?.isAvailable,
+            androidBillingKeys: hasAndroidBilling ? Object.keys((window as any).AndroidBilling || {}) : [],
+            windowKeys: Object.keys(window)
+                .filter(k => k.toLowerCase().includes('android') || k.toLowerCase().includes('billing'))
+        })
+        
+        setIsGooglePlayAvailable(available)
+    }
 
     async function loadDefaultCountry() {
         let cachedCountryCode = localStorage.getItem(USER_COUNTRY_CODE)
@@ -158,56 +173,29 @@ function Payment(props: Props) {
     }
 
     function onPayGooglePlay(productId: string, purchaseToken: string, coflCoins?: number) {
+        // Note: purchaseToken parameter is ignored - it's only for API compatibility
+        // The Android app handles the purchase token and server validation
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
+        console.log('[Billing] onPayGooglePlay called', { productId, coflCoins })
         
-        // Check if we have a purchase token (from TWA callback) or need to trigger billing
-        if (purchaseToken) {
-            // Token provided directly (manual entry or already processed)
-            const googleToken = sessionStorage.getItem('googleId')
-            if (!googleToken) {
-                toast.error('Please login to complete the purchase')
-                setLoadingId('')
-                return
-            }
+        // Check if Android Billing is available
+        if (!(window as any).AndroidBilling) {
+            toast.error('Google Play billing is not available')
+            setLoadingId('')
+            return
+        }
 
-            postApiTopupPlaystore(
-                {
-                    productId,
-                    purchaseToken,
-                    packageName: 'com.coflnet.app',
-                    userId: googleToken,
-                    customAmount: coflCoins
-                },
-                {
-                    headers: {
-                        GoogleToken: googleToken
-                    }
-                }
-            )
-                .then(response => {
-                    if (response.status === 200) {
-                        setLoadingId('')
-                        toast.success('Purchase successful! Your CoflCoins have been added.')
-                        document.dispatchEvent(new CustomEvent('coflcoin-update'))
-                    } else {
-                        throw new Error('Purchase verification failed')
-                    }
-                })
-                .catch(error => {
-                    setLoadingId('')
-                    toast.error('Google Play purchase failed. Please try again.')
-                    console.error('Google Play purchase error:', error)
-                })
-        } else {
-            // Trigger Google Play billing flow via TWA
-            if (typeof (window as any).AndroidInterface !== 'undefined' && (window as any).AndroidInterface.requestGooglePlayPurchase) {
-                ;(window as any).AndroidInterface.requestGooglePlayPurchase(productId)
-            } else if (typeof (window as any).requestGooglePlayPurchase !== 'undefined') {
-                ;(window as any).requestGooglePlayPurchase(productId)
-            } else {
-                toast.error('Google Play billing is not available')
-                setLoadingId('')
-            }
+        // Trigger Google Play billing flow via AndroidBilling bridge
+        console.log('[Billing] Calling AndroidBilling.purchaseProduct with product:', productId)
+        
+        try {
+            ;(window as any).AndroidBilling.purchaseProduct(productId)
+            // Note: The result will come through androidBillingSuccess or androidBillingError events
+            // The Android app will automatically validate with the server
+        } catch (error) {
+            console.error('[Billing] Failed to trigger purchase:', error)
+            toast.error('Failed to start purchase flow')
+            setLoadingId('')
         }
     }
 
