@@ -7,6 +7,7 @@ declare global {
     __tcfapi?: any;
     nitroAds?: any;
     __npcmp?: any;
+    __billingInitialized?: boolean;
     AndroidBilling?: {
       isAvailable(): boolean;
       purchaseProduct(productId: string): void;

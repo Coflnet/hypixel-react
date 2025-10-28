@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Alert, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
@@ -28,10 +28,30 @@ function Payment(props: Props) {
     let coflCoins = useCoflCoins()
     let isDisabled = !props.cancellationRightLossConfirmed || !selectedCountry
 
-    useEffect(() => {
+    // Initialize billing on first render
+    if (typeof window !== 'undefined' && !(window as any).__billingInitialized) {
+        (window as any).__billingInitialized = true
+        initializeBilling()
+    }
+
+    function initializeBilling() {
+        // Load country
         loadDefaultCountry()
         
-        // Set up event listeners for Android Billing
+        // Check for Android Billing availability with a delay
+        setTimeout(() => {
+            checkGooglePlayAvailability()
+        }, 500)
+        
+        // Also check when page becomes visible
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                checkGooglePlayAvailability()
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+        
+        // Set up event listeners for Android Billing events (CustomEvents)
         const handleBillingSuccess = (event: Event) => {
             const customEvent = event as CustomEvent<{ productId: string; purchaseToken: string }>
             console.log('[Billing] androidBillingSuccess event received', customEvent.detail)
@@ -49,7 +69,7 @@ function Payment(props: Props) {
             setLoadingId('')
             
             // Don't show error for user cancellation
-            if (customEvent.detail.error === 'User canceled purchase') {
+            if (customEvent.detail.error === 'Purchase canceled by user') {
                 toast.info('Purchase cancelled')
             } else {
                 toast.error(`Purchase failed: ${customEvent.detail.error}`)
@@ -59,48 +79,44 @@ function Payment(props: Props) {
         window.addEventListener('androidBillingSuccess', handleBillingSuccess)
         window.addEventListener('androidBillingError', handleBillingError)
         
-        // Check for Android Billing availability with a delay to allow TWA to inject
-        const checkTimer = setTimeout(() => {
-            checkGooglePlayAvailability()
-        }, 500)
-        
-        // Also check when page becomes visible (TWA might inject after initial load)
-        const handleVisibilityChange = () => {
-            if (!document.hidden) {
-                checkGooglePlayAvailability()
+        // Also listen for postMessage from Android app
+        const handleMessage = (event: MessageEvent) => {
+            console.log('[Billing] Received postMessage:', event.data)
+            
+            if (event.data?.type === 'androidBillingSuccess') {
+                const { productId, purchaseToken } = event.data
+                console.log('[Billing] Purchase success via postMessage', { productId, purchaseToken })
+                setLoadingId('')
+                toast.success('Purchase successful! Your CoflCoins have been added.')
+                document.dispatchEvent(new CustomEvent('coflcoin-update'))
+            } else if (event.data?.type === 'androidBillingError') {
+                const { error } = event.data
+                console.error('[Billing] Purchase error via postMessage', error)
+                setLoadingId('')
+                if (error === 'Purchase canceled by user') {
+                    toast.info('Purchase cancelled')
+                } else {
+                    toast.error(`Purchase failed: ${error}`)
+                }
             }
         }
-        document.addEventListener('visibilitychange', handleVisibilityChange)
         
-        // Listen for billing ready event
-        const handleBillingReady = () => {
-            console.log('[Billing] Android Billing is ready')
-            checkGooglePlayAvailability()
-        }
-        window.addEventListener('androidBillingReady', handleBillingReady)
-        
-        return () => {
-            clearTimeout(checkTimer)
-            document.removeEventListener('visibilitychange', handleVisibilityChange)
-            window.removeEventListener('androidBillingReady', handleBillingReady)
-            window.removeEventListener('androidBillingSuccess', handleBillingSuccess)
-            window.removeEventListener('androidBillingError', handleBillingError)
-        }
-    }, [])
+        window.addEventListener('message', handleMessage)
+    }
 
     function checkGooglePlayAvailability() {
-        // Check if we're in the Android TWA with AndroidBilling bridge
-        const hasAndroidBilling = !!(window as any).AndroidBilling
-        const available = hasAndroidBilling && typeof (window as any).AndroidBilling.isAvailable === 'function'
-            ? (window as any).AndroidBilling.isAvailable()
-            : false
+        // Check if we're running in the Android app
+        // The Android app is a TWA, so we check user agent and assume billing is available
+        const isAndroid = /android/i.test(navigator.userAgent)
+        const isTWA = document.referrer.includes('android-app://com.coflnet.sky')
+        const available = isAndroid && (isTWA || window.matchMedia('(display-mode: standalone)').matches)
         
         console.log('[Billing] checkGooglePlayAvailability result:', available, {
-            hasAndroidBilling,
-            isAvailableMethod: typeof (window as any).AndroidBilling?.isAvailable,
-            androidBillingKeys: hasAndroidBilling ? Object.keys((window as any).AndroidBilling || {}) : [],
-            windowKeys: Object.keys(window)
-                .filter(k => k.toLowerCase().includes('android') || k.toLowerCase().includes('billing'))
+            isAndroid,
+            isTWA,
+            isStandalone: window.matchMedia('(display-mode: standalone)').matches,
+            userAgent: navigator.userAgent,
+            referrer: document.referrer
         })
         
         setIsGooglePlayAvailable(available)
@@ -178,20 +194,22 @@ function Payment(props: Props) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
         console.log('[Billing] onPayGooglePlay called', { productId, coflCoins })
         
-        // Check if Android Billing is available
-        if (!(window as any).AndroidBilling) {
-            toast.error('Google Play billing is not available')
-            setLoadingId('')
-            return
-        }
-
-        // Trigger Google Play billing flow via AndroidBilling bridge
-        console.log('[Billing] Calling AndroidBilling.purchaseProduct with product:', productId)
+        // Trigger Google Play billing flow via deep link
+        // The Android app will intercept this URL and start the billing flow
+        const deepLink = `skycofl://billing/purchase?productId=${encodeURIComponent(productId)}`
+        console.log('[Billing] Triggering purchase via deep link:', deepLink)
         
         try {
-            ;(window as any).AndroidBilling.purchaseProduct(productId)
-            // Note: The result will come through androidBillingSuccess or androidBillingError events
-            // The Android app will automatically validate with the server
+            // Try to navigate to the deep link
+            window.location.href = deepLink
+            
+            // Set a timeout to show error if nothing happens
+            setTimeout(() => {
+                if (loadingId) {
+                    // If still loading after 30 seconds, something went wrong
+                    console.warn('[Billing] Purchase timed out - no response from Android app')
+                }
+            }, 30000)
         } catch (error) {
             console.error('[Billing] Failed to trigger purchase:', error)
             toast.error('Failed to start purchase flow')
