@@ -229,14 +229,13 @@ function Payment(props: Props) {
             .catch(onPaymentRedirectFail)
     }
 
-    function onPayGooglePlay(productId: string, purchaseToken: string, coflCoins?: number) {
-        // Note: purchaseToken parameter is ignored - it's only for API compatibility
-        // The Android app handles the purchase token and server validation
+    function onPayGooglePlay(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
         console.log('[Billing] onPayGooglePlay called', { productId, coflCoins })
         
-        // Get userId from backend first
-        postApiTopupPlaystore()
+        const googleToken = typeof window !== 'undefined' ? sessionStorage.getItem('googleId') : null
+        const requestOptions: RequestInit | undefined = googleToken ? { headers: { GoogleToken: googleToken } } : undefined
+        postApiTopupPlaystore(requestOptions)
             .then(response => {
                 if (response.status !== 200) {
                     throw new Error('Failed to get user ID from backend')

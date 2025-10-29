@@ -21,7 +21,7 @@ interface Props {
     onPayPalPay: (productId: string, coflCoins?: number) => void
     onStripePay: (productId: string, coflCoins?: number) => void
     onLemonSqueezyPay: (productId: string, coflCoins?: number) => void
-    onGooglePlayPay: (productId: string, purchaseToken: string, coflCoins?: number) => void
+    onGooglePlayPay: (productId: string, coflCoins?: number) => void
     loadingProductId: string
     isGooglePlayAvailable?: boolean
 }

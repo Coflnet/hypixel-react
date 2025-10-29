@@ -21,7 +21,7 @@ interface Props {
     onPayPalPay(prodcutId: string, coflCoins?: number)
     onStripePay(producctId: string, coflCoins?: number)
     onLemonSqeezyPay(productId: string, coflCoins?: number)
-    onGooglePlayPay(productId: string, purchaseToken: string, coflCoins?: number)
+    onGooglePlayPay(productId: string, coflCoins?: number)
     isDisabled: boolean
     redirectLink?: string
     countryCode?: string
@@ -129,7 +129,7 @@ export default function PurchaseElement(props: Props) {
                         isDisabled={isDisabled}
                         onPay={() => {
                             // Trigger Google Play billing flow - the token will come from TWA callback
-                            props.onGooglePlayPay(props.googlePlayProductId, '', shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
+                            props.onGooglePlayPay(props.googlePlayProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
                         }}
                         price={props.googlePlayPrice}
                         discount={props.discount}
