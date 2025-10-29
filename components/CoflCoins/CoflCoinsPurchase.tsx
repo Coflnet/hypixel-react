@@ -35,6 +35,34 @@ function Payment(props: Props) {
     }
 
     function initializeBilling() {
+        // Check for billing errors in URL hash
+        const hash = window.location.hash
+        if (hash.startsWith('#billing_error_')) {
+            const errorMatch = hash.match(/#billing_error_([^_]+)_(.+)/)
+            if (errorMatch) {
+                const errorId = errorMatch[1]
+                const errorMessage = decodeURIComponent(errorMatch[2].replace(/\+/g, ' '))
+                
+                console.error('[Billing] Error from Android:', { errorId, errorMessage })
+                
+                // Show user-friendly error message
+                let userMessage = 'Purchase failed: ' + errorMessage
+                if (errorMessage === 'Server validation failed' || errorMessage === 'Product not found') {
+                    userMessage += '. Please contact support if this issue persists.'
+                }
+                
+                toast.error(userMessage, { autoClose: 10000 })
+                
+                // Clear the error from URL
+                window.history.replaceState(null, '', window.location.pathname + window.location.search)
+                
+                // Clear loading state if it matches the error ID
+                if (loadingId && loadingId.includes(errorId)) {
+                    setLoadingId('')
+                }
+            }
+        }
+        
         // Load country
         loadDefaultCountry()
         
@@ -68,11 +96,17 @@ function Payment(props: Props) {
             
             setLoadingId('')
             
-            // Don't show error for user cancellation
-            if (customEvent.detail.error === 'Purchase canceled by user') {
+            // Show user-friendly error message
+            const error = customEvent.detail.error
+            let userMessage = 'Purchase failed: ' + error
+            if (error === 'Server validation failed' || error === 'Product not found') {
+                userMessage += '. Please contact support if this issue persists.'
+            }
+            
+            if (error === 'Purchase canceled by user') {
                 toast.info('Purchase cancelled')
             } else {
-                toast.error(`Purchase failed: ${customEvent.detail.error}`)
+                toast.error(userMessage, { autoClose: 10000 })
             }
         }
 
@@ -93,10 +127,17 @@ function Payment(props: Props) {
                 const { error } = event.data
                 console.error('[Billing] Purchase error via postMessage', error)
                 setLoadingId('')
+                
+                // Show user-friendly error message
+                let userMessage = 'Purchase failed: ' + error
+                if (error === 'Server validation failed' || error === 'Product not found') {
+                    userMessage += '. Please contact support if this issue persists.'
+                }
+                
                 if (error === 'Purchase canceled by user') {
                     toast.info('Purchase cancelled')
                 } else {
-                    toast.error(`Purchase failed: ${error}`)
+                    toast.error(userMessage, { autoClose: 10000 })
                 }
             }
         }
@@ -194,27 +235,45 @@ function Payment(props: Props) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
         console.log('[Billing] onPayGooglePlay called', { productId, coflCoins })
         
-        // Trigger Google Play billing flow via deep link
-        // The Android app will intercept this URL and start the billing flow
-        const deepLink = `skycofl://billing/purchase?productId=${encodeURIComponent(productId)}`
-        console.log('[Billing] Triggering purchase via deep link:', deepLink)
-        
-        try {
-            // Try to navigate to the deep link
-            window.location.href = deepLink
-            
-            // Set a timeout to show error if nothing happens
-            setTimeout(() => {
-                if (loadingId) {
-                    // If still loading after 30 seconds, something went wrong
-                    console.warn('[Billing] Purchase timed out - no response from Android app')
+        // Get userId from backend first
+        postApiTopupPlaystore()
+            .then(response => {
+                if (response.status !== 200) {
+                    throw new Error('Failed to get user ID from backend')
                 }
-            }, 30000)
-        } catch (error) {
-            console.error('[Billing] Failed to trigger purchase:', error)
-            toast.error('Failed to start purchase flow')
-            setLoadingId('')
+                
+                const userId = response.data.userId
+                if (!userId) {
+                    throw new Error('User ID not found in response')
+                }
+                
+                // Trigger Google Play billing flow via deep link with userId
+                const deepLink = `skycofl://billing/purchase?productId=${encodeURIComponent(productId)}&userId=${encodeURIComponent(userId)}`
+                console.log('[Billing] Triggering purchase via deep link:', deepLink)
+                
+                navigateTo(deepLink)
+                
+                // Set a timeout to show error if nothing happens
+                setTimeout(() => {
+                    if (loadingId) {
+                        console.warn('[Billing] Purchase timed out - no response from Android app')
+                    }
+                }, 30000)
+            })
+            .catch(error => {
+                console.error('[Billing] Failed to get userId or trigger purchase:', error)
+                toast.error('Failed to start purchase flow')
+                setLoadingId('')
+            })
+    }
+
+    function navigateTo(url: string) {
+        // Enable mock by setting window.__mockDeepLink = true in the browser console
+        if ((window as any).__mockDeepLink) {
+            console.log('[Billing] MOCK navigate to', url)
+            return
         }
+        window.location.href = url
     }
 
     function onPaymentRedirectFail() {

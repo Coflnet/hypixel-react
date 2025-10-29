@@ -159,6 +159,8 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
     const handlePredefinedOptionSelect = (option: CoflCoinOption) => {
         setSelectedOption(option)
         setCustomAmount('')
+        // Auto-advance to payment selection for predefined packages
+        onAmountSelected(option)
     }
 
     // Build a lightweight custom option placeholder (will be shown as a card)

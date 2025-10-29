@@ -1842,6 +1842,11 @@ export interface PlayerResult {
   hitCount: number;
 }
 
+export interface PlaystorTopup {
+  /** @nullable */
+  userId?: string | null;
+}
+
 export interface PremiumSubscription {
   /** @nullable */
   externalId?: string | null;

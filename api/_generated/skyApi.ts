@@ -142,6 +142,7 @@ import type {
   NpcFlip,
   Offer,
   PlayerResult,
+  PlaystorTopup,
   PostApiAuctionsUidsSold200One,
   PostApiAuctionsUidsSold200Three,
   PostApiAuctionsUidsSold200Two,
@@ -9799,7 +9800,7 @@ export const usePostApiTopupPaypalProductSlug = <TError = PostApiTopupPaypalProd
     }
     
 export type postApiTopupPlaystoreResponse200 = {
-  data: boolean
+  data: PlaystorTopup
   status: 200
 }
 
@@ -9832,15 +9833,14 @@ export const getPostApiTopupPlaystoreUrl = () => {
   return `https://sky.coflnet.com/api/topup/playstore`
 }
 
-export const postApiTopupPlaystore = async (googlePlayPurchaseRequest: GooglePlayPurchaseRequest, options?: RequestInit): Promise<postApiTopupPlaystoreResponse> => {
+export const postApiTopupPlaystore = async ( options?: RequestInit): Promise<postApiTopupPlaystoreResponse> => {
   
   const res = await fetch(getPostApiTopupPlaystoreUrl(),
   {      
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
-    body: JSON.stringify(
-      googlePlayPurchaseRequest,)
+    method: 'POST'
+    
+    
   }
 )
 
@@ -9854,8 +9854,8 @@ export const postApiTopupPlaystore = async (googlePlayPurchaseRequest: GooglePla
 
 
 export const getPostApiTopupPlaystoreMutationOptions = <TError = PostApiTopupPlaystore401One | string | null,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystore>>, TError,{data: GooglePlayPurchaseRequest}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystore>>, TError,{data: GooglePlayPurchaseRequest}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystore>>, TError,void, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystore>>, TError,void, TContext> => {
 
 const mutationKey = ['postApiTopupPlaystore'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
@@ -9867,10 +9867,10 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTopupPlaystore>>, {data: GooglePlayPurchaseRequest}> = (props) => {
-          const {data} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTopupPlaystore>>, void> = () => {
+          
 
-          return  postApiTopupPlaystore(data,fetchOptions)
+          return  postApiTopupPlaystore(fetchOptions)
         }
 
         
@@ -9879,19 +9879,102 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PostApiTopupPlaystoreMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupPlaystore>>>
-    export type PostApiTopupPlaystoreMutationBody = GooglePlayPurchaseRequest
+    
     export type PostApiTopupPlaystoreMutationError = PostApiTopupPlaystore401One | string | null
 
     export const usePostApiTopupPlaystore = <TError = PostApiTopupPlaystore401One | string | null,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystore>>, TError,{data: GooglePlayPurchaseRequest}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystore>>, TError,void, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiTopupPlaystore>>,
+        TError,
+        void,
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiTopupPlaystoreMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+export type postApiTopupPlaystoreCompleteResponse200 = {
+  data: boolean
+  status: 200
+}
+    
+export type postApiTopupPlaystoreCompleteResponseComposite = postApiTopupPlaystoreCompleteResponse200;
+    
+export type postApiTopupPlaystoreCompleteResponse = postApiTopupPlaystoreCompleteResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiTopupPlaystoreCompleteUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/topup/playstore/complete`
+}
+
+export const postApiTopupPlaystoreComplete = async (googlePlayPurchaseRequest: GooglePlayPurchaseRequest, options?: RequestInit): Promise<postApiTopupPlaystoreCompleteResponse> => {
+  
+  const res = await fetch(getPostApiTopupPlaystoreCompleteUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      googlePlayPurchaseRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiTopupPlaystoreCompleteResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiTopupPlaystoreCompleteResponse
+}
+
+
+
+
+export const getPostApiTopupPlaystoreCompleteMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystoreComplete>>, TError,{data: GooglePlayPurchaseRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystoreComplete>>, TError,{data: GooglePlayPurchaseRequest}, TContext> => {
+
+const mutationKey = ['postApiTopupPlaystoreComplete'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTopupPlaystoreComplete>>, {data: GooglePlayPurchaseRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiTopupPlaystoreComplete(data,fetchOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiTopupPlaystoreCompleteMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupPlaystoreComplete>>>
+    export type PostApiTopupPlaystoreCompleteMutationBody = GooglePlayPurchaseRequest
+    export type PostApiTopupPlaystoreCompleteMutationError = unknown
+
+    export const usePostApiTopupPlaystoreComplete = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupPlaystoreComplete>>, TError,{data: GooglePlayPurchaseRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiTopupPlaystoreComplete>>,
         TError,
         {data: GooglePlayPurchaseRequest},
         TContext
       > => {
 
-      const mutationOptions = getPostApiTopupPlaystoreMutationOptions(options);
+      const mutationOptions = getPostApiTopupPlaystoreCompleteMutationOptions(options);
 
       return useMutation(mutationOptions , queryClient);
     }
