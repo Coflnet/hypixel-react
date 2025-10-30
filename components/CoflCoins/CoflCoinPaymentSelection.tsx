@@ -28,9 +28,10 @@ interface Props {
     onGooglePlayPay: (productId: string, coflCoins?: number) => void
     loadingProductId: string
     isGooglePlayAvailable?: boolean
+    isAndroidApp?: boolean
 }
 
-function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoins, onPayPalPay, onStripePay, onLemonSqueezyPay, onGooglePlayPay, loadingProductId, isGooglePlayAvailable }: Props) {
+function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoins, onPayPalPay, onStripePay, onLemonSqueezyPay, onGooglePlayPay, loadingProductId, isGooglePlayAvailable, isAndroidApp }: Props) {
     return (
         <div>
             <div
@@ -95,6 +96,22 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                 </Card.Body>
             </Card>
 
+            {isAndroidApp && (
+                <Alert variant="info" style={{ marginBottom: '20px' }}>
+                    <Alert.Heading style={{ fontSize: '0.95rem', marginBottom: '8px' }}>💡 Limited to Google Play</Alert.Heading>
+                    <p style={{ marginBottom: 0, fontSize: '0.9rem' }}>
+                        The Android app only supports Google Play Billing. For other payment methods like PayPal or Stripe, visit the <a 
+                            href="https://coflnet.com/premium" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ fontWeight: '600' }}
+                        >
+                            website
+                        </a>.
+                    </p>
+                </Alert>
+            )}
+
             <div style={{ marginBottom: '20px' }}>
                 <h5>Choose Payment Method</h5>
                 <p style={{ color: '#adb5bd', fontSize: '0.9rem', margin: 0 }}>
@@ -122,6 +139,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                     disabledTooltip={undefined}
                     isDisabled={false}
                     isGooglePlayAvailable={isGooglePlayAvailable}
+                    isAndroidApp={isAndroidApp}
                 />
             </div>
 

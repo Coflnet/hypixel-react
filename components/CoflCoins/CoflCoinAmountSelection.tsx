@@ -22,6 +22,7 @@ interface CoflCoinOption {
 interface Props {
     onAmountSelected: (option: CoflCoinOption) => void
     coflCoins: number
+    userCountryCode?: string
 }
 
 const coflCoinOptions: CoflCoinOption[] = [
@@ -30,44 +31,44 @@ const coflCoinOptions: CoflCoinOption[] = [
         paypalPrice: 8.69,
         stripePrice: 8.42,
         lemonsqueezyPrice: 8.69,
-        googlePlayPrice: 8.42,
+        googlePlayPrice: 11.99,
         paypalProductId: 'p_cc_1800',
         stripeProductId: 's_cc_1800',
         lemonsqueezyProductId: 'l_cc_1800',
-        googlePlayProductId: 'ps_1800'
+        googlePlayProductId: 'ps_cc_1800'
     },
     {
         amount: 5400,
         paypalPrice: 22.99,
         stripePrice: 22.69,
         lemonsqueezyPrice: 22.69,
-        googlePlayPrice: 22.69,
+        googlePlayPrice: 29.99,
         paypalProductId: 'p_cc_5400',
         stripeProductId: 's_cc_5400',
         lemonsqueezyProductId: 'l_cc_5400',
-        googlePlayProductId: 'ps_5400'
+        googlePlayProductId: 'ps_cc_5400'
     },
     {
         amount: 10800,
         paypalPrice: 39.69,
         stripePrice: 38.99,
         lemonsqueezyPrice: 39.69,
-        googlePlayPrice: 38.99,
+        googlePlayPrice: 49.99,
         paypalProductId: 'p_cc_10800',
         stripeProductId: 's_cc_10800',
         lemonsqueezyProductId: 'l_cc_10800',
-        googlePlayProductId: 'ps_10800'
+        googlePlayProductId: 'ps_cc_10800'
     },
     {
         amount: 21600,
         paypalPrice: 78.69,
         stripePrice: 74.99,
         lemonsqueezyPrice: 78.69,
-        googlePlayPrice: 74.99,
+        googlePlayPrice: 89.99,
         paypalProductId: 'p_cc_21600',
         stripeProductId: 's_cc_21600',
         lemonsqueezyProductId: 'l_cc_21600',
-        googlePlayProductId: 'ps_21600'
+        googlePlayProductId: 'ps_cc_21600'
     }
 ]
 
@@ -82,11 +83,17 @@ function calculateSavings(baseOption: CoflCoinOption, currentOption: CoflCoinOpt
     return ((basePricePerCoin - currentPricePerCoin) / basePricePerCoin) * 100
 }
 
-function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
+function CoflCoinAmountSelection({ onAmountSelected, coflCoins, userCountryCode }: Props) {
     const [selectedOption, setSelectedOption] = useState<CoflCoinOption | null>(null)
     const [customAmount, setCustomAmount] = useState<string>('')
     const [showCustomInput, setShowCustomInput] = useState(false)
     const baseOption = coflCoinOptions[0]
+
+    // Check if running in Android app (TWA or standalone mode)
+    const isAndroidApp = typeof window !== 'undefined' &&
+        (/android/i.test(navigator.userAgent) &&
+            (document.referrer.includes('android-app://com.coflnet.sky') ||
+                window.matchMedia('(display-mode: standalone)').matches))
 
     // Check if user needs specific amount to make their coins divisible by 1800
     const remainder = coflCoins % 1800
@@ -95,21 +102,21 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
 
     const specificOption: CoflCoinOption | null = needsSpecificAmount
         ? {
-              amount: 1800 + specificAmount,
-              paypalPrice: (baseOption.paypalPrice / 1800) * (1800 + specificAmount),
-              stripePrice: (baseOption.stripePrice / 1800) * (1800 + specificAmount),
-              lemonsqueezyPrice: (baseOption.lemonsqueezyPrice / 1800) * (1800 + specificAmount),
-              googlePlayPrice: (baseOption.googlePlayPrice / 1800) * (1800 + specificAmount),
-              paypalProductId: baseOption.paypalProductId,
-              stripeProductId: baseOption.stripeProductId,
-              lemonsqueezyProductId: baseOption.lemonsqueezyProductId,
-              googlePlayProductId: baseOption.googlePlayProductId
-          }
+            amount: 1800 + specificAmount,
+            paypalPrice: (baseOption.paypalPrice / 1800) * (1800 + specificAmount),
+            stripePrice: (baseOption.stripePrice / 1800) * (1800 + specificAmount),
+            lemonsqueezyPrice: (baseOption.lemonsqueezyPrice / 1800) * (1800 + specificAmount),
+            googlePlayPrice: (baseOption.googlePlayPrice / 1800) * (1800 + specificAmount),
+            paypalProductId: baseOption.paypalProductId,
+            stripeProductId: baseOption.stripeProductId,
+            lemonsqueezyProductId: baseOption.lemonsqueezyProductId,
+            googlePlayProductId: baseOption.googlePlayProductId
+        }
         : null
 
     const allOptions = specificOption ? [specificOption, ...coflCoinOptions] : coflCoinOptions
 
-    // Custom amount helpers
+    const optionsToDisplay = isAndroidApp ? coflCoinOptions : allOptions
     const getCustomAmountValue = (): number => {
         return parseInt(customAmount) || 0
     }
@@ -177,13 +184,14 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
         isCustom: true
     }
 
-    const displayedOptions = [...allOptions, customOptionPlaceholder]
+    // On Android app, don't show custom option
+    const displayedOptions = isAndroidApp ? optionsToDisplay : [...optionsToDisplay, customOptionPlaceholder]
 
     return (
         <div>
             <h4 style={{ marginBottom: '30px', textAlign: 'center' }}>Choose CoflCoin Amount</h4>
 
-            {specificOption && (
+            {!isAndroidApp && specificOption && (
                 <div className="alert alert-info" role="alert" style={{ marginBottom: '20px' }}>
                     <p className="mb-0 small">
                         <strong>Recommended:</strong> Your current balance isn't divisible by 1800. Consider buying <Number number={specificOption.amount} />{' '}
@@ -326,6 +334,47 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins }: Props) {
                     )}
                 </Button>
             </div>
+                        {!isAndroidApp && (
+                <Alert variant="info" style={{ marginBottom: '20px', marginTop: '20px' }}>
+                    <div style={{ fontSize: '0.95rem' }}>
+                        <strong>💡 More Payment Options Available!</strong>
+                        <p style={{ marginBottom: '0.5rem', marginTop: '0.5rem' }}>
+                            Download our <a
+                                href="https://play.google.com/store/apps/details?id=com.coflnet.sky"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ fontWeight: '600' }}
+                            >
+                                Android app
+                            </a> to access additional payment methods including:
+                        </p>
+                        <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
+                            <li>Google Play gift cards</li>
+                            <li>Carrier billing</li>
+                            {userCountryCode === 'IN' && <li><strong>UPI payments</strong></li>}
+                            <li>And more region-specific options</li>
+                        </ul>
+                    </div>
+                </Alert>
+            )}
+
+            {isAndroidApp && (
+                <Alert variant="info" style={{ marginBottom: '20px' }}>
+                    <div style={{ fontSize: '0.95rem' }}>
+                        <strong>💡 Additional Payment Options</strong>
+                        <p style={{ marginBottom: 0, marginTop: '0.5rem' }}>
+                            More payment options including PayPal, Stripe, and region-specific methods are available on our <a 
+                                href="https://coflnet.com/premium" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ fontWeight: '600' }}
+                            >
+                                website
+                            </a>.
+                        </p>
+                    </div>
+                </Alert>
+            )}
         </div>
     )
 }

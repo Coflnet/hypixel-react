@@ -28,6 +28,7 @@ interface Props {
     discount?: number
     isSpecial1800CoinsMultiplier?: boolean
     isGooglePlayAvailable?: boolean
+    isAndroidApp?: boolean
 }
 
 // prettier-ignore
@@ -43,6 +44,47 @@ export default function PurchaseElement(props: Props) {
 
     // Pass custom amount for both special multiplier and custom amounts from wizard
     const shouldPassCustomAmount = props.isSpecial1800CoinsMultiplier || isCustomAmount
+    // Build Google Play card once and reuse it to avoid duplication
+    const googlePlayCard = (
+        <>
+            {props.isGooglePlayAvailable ? (
+                <GenericProviderPurchaseCard
+                    type="Google Play"
+                    isDisabled={isDisabled}
+                    onPay={() => {
+                        props.onGooglePlayPay(props.googlePlayProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
+                    }}
+                    price={props.googlePlayPrice}
+                    discount={props.discount}
+                    isRedirecting={
+                        !shouldPassCustomAmount
+                            ? props.googlePlayProductId === props.loadingProductId
+                            : `${props.googlePlayProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
+                    }
+                    disabledTooltip={props.disabledTooltip}
+                />
+            ) : (
+                    <a href='https://play.google.com/store/apps/details?id=com.coflnet.sky'><p style={{ color: '#adb5bd', marginBottom: 0 }}>There are more options, eg. gift cards in our android app.</p>
+                        </a>
+            )}
+        </>
+    )
+
+    // On Android app, only show Google Play option (reuse googlePlayCard)
+    if (props.isAndroidApp) {
+        return (
+            <Card className={styles.premiumPlanCard} style={props.isSpecial1800CoinsMultiplier ? { width: '100%' } : {}}>
+                <Card.Header>
+                    <Card.Title>
+                        <Number number={props.coflCoinsToBuy} /> CoflCoins
+                    </Card.Title>
+                </Card.Header>
+                <Card.Body>
+                    {googlePlayCard}
+                </Card.Body>
+            </Card>
+        )
+    }
 
     console.log('PurchaseElement render', {
         coflCoinsToBuy: props.coflCoinsToBuy,
@@ -123,24 +165,7 @@ export default function PurchaseElement(props: Props) {
                         disabledTooltip={props.disabledTooltip}
                     />
                 )}
-                {props.isGooglePlayAvailable && (
-                    <GenericProviderPurchaseCard
-                        type="Google Play"
-                        isDisabled={isDisabled}
-                        onPay={() => {
-                            // Trigger Google Play billing flow - the token will come from TWA callback
-                            props.onGooglePlayPay(props.googlePlayProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
-                        }}
-                        price={props.googlePlayPrice}
-                        discount={props.discount}
-                        isRedirecting={
-                            !shouldPassCustomAmount
-                                ? props.googlePlayProductId === props.loadingProductId
-                                : `${props.googlePlayProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
-                        }
-                        disabledTooltip={props.disabledTooltip}
-                    />
-                )}
+                {googlePlayCard}
             </Card.Body>
         </Card>
     )

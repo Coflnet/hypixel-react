@@ -385,7 +385,7 @@ function Payment(props: Props) {
                     paypalProductId="p_cc_1800"
                     stripeProductId="s_cc_1800"
                     lemonsqueezyProductId="l_cc_1800"
-                    googlePlayProductId="ps_1800"
+                    googlePlayProductId="ps_cc_1800"
                     countryCode={selectedCountry ? selectedCountry.value : undefined}
                     isGooglePlayAvailable={isGooglePlayAvailable}
                 />
@@ -406,7 +406,7 @@ function Payment(props: Props) {
                     paypalProductId="p_cc_5400"
                     stripeProductId="s_cc_5400"
                     lemonsqueezyProductId="l_cc_5400"
-                    googlePlayProductId="ps_5400"
+                    googlePlayProductId="ps_cc_5400"
                     countryCode={selectedCountry ? selectedCountry.value : undefined}
                     isGooglePlayAvailable={isGooglePlayAvailable}
                 />
@@ -439,7 +439,7 @@ function Payment(props: Props) {
                             paypalProductId="p_cc_10800"
                             stripeProductId="s_cc_10800"
                             lemonsqueezyProductId="l_cc_10800"
-                            googlePlayProductId="ps_10800"
+                            googlePlayProductId="ps_cc_10800"
                             countryCode={selectedCountry ? selectedCountry.value : undefined}
                             isGooglePlayAvailable={isGooglePlayAvailable}
                         />
@@ -460,7 +460,7 @@ function Payment(props: Props) {
                             paypalProductId="p_cc_21600"
                             stripeProductId="s_cc_21600"
                             lemonsqueezyProductId="l_cc_21600"
-                            googlePlayProductId="ps_21600"
+                            googlePlayProductId="ps_cc_21600"
                             countryCode={selectedCountry ? selectedCountry.value : undefined}
                             isGooglePlayAvailable={isGooglePlayAvailable}
                         />
@@ -483,7 +483,7 @@ function Payment(props: Props) {
                                 paypalProductId="p_cc_1800"
                                 stripeProductId="s_cc_1800"
                                 lemonsqueezyProductId="l_cc_1800"
-                                googlePlayProductId="ps_1800"
+                                googlePlayProductId="ps_cc_1800"
                                 countryCode={selectedCountry ? selectedCountry.value : undefined}
                                 isGooglePlayAvailable={isGooglePlayAvailable}
                             />
