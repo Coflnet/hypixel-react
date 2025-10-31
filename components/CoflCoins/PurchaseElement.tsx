@@ -25,10 +25,14 @@ interface Props {
     isDisabled: boolean
     redirectLink?: string
     countryCode?: string
-    discount?: number
+    paypalDiscount?: number
+    stripeDiscount?: number
+    lemonSqueezyDiscount?: number
+    googlePlayDiscount?: number
     isSpecial1800CoinsMultiplier?: boolean
     isGooglePlayAvailable?: boolean
     isAndroidApp?: boolean
+    currencyCode?: string
 }
 
 // prettier-ignore
@@ -55,25 +59,24 @@ export default function PurchaseElement(props: Props) {
                         props.onGooglePlayPay(props.googlePlayProductId, shouldPassCustomAmount ? props.coflCoinsToBuy : undefined)
                     }}
                     price={props.googlePlayPrice}
-                    discount={props.discount}
+                    discount={props.googlePlayDiscount}
                     isRedirecting={
                         !shouldPassCustomAmount
                             ? props.googlePlayProductId === props.loadingProductId
                             : `${props.googlePlayProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                     }
                     disabledTooltip={props.disabledTooltip}
+                    currencyCode={props.currencyCode}
                 />
             ) : (
-                    <a href='https://play.google.com/store/apps/details?id=com.coflnet.sky'><p style={{ color: '#adb5bd', marginBottom: 0 }}>There are more options, eg. gift cards in our android app.</p>
+                <a href='https://play.google.com/store/apps/details?id=com.coflnet.sky'><p style={{ color: '#adb5bd', marginBottom: 0 }}>There are more options, eg. gift cards in our android app.</p>
                         </a>
             )}
         </>
-    )
-
-    // On Android app, only show Google Play option (reuse googlePlayCard)
+    )    // On Android app, only show Google Play option (reuse googlePlayCard)
     if (props.isAndroidApp) {
         return (
-            <Card className={styles.premiumPlanCard} style={props.isSpecial1800CoinsMultiplier ? { width: '100%' } : {}}>
+            <Card className={styles.premiumPlanCard} style={{ width: '100%' }}>
                 <Card.Header>
                     <Card.Title>
                         <Number number={props.coflCoinsToBuy} /> CoflCoins
@@ -92,7 +95,7 @@ export default function PurchaseElement(props: Props) {
     })
 
     return (
-        <Card className={styles.premiumPlanCard} style={props.isSpecial1800CoinsMultiplier ? { width: '100%' } : {}}>
+        <Card className={styles.premiumPlanCard} style={{ width: '100%' }}>
             <Card.Header>
                 <Card.Title>
                     <Number number={props.coflCoinsToBuy} /> CoflCoins
@@ -122,13 +125,14 @@ export default function PurchaseElement(props: Props) {
                             }}
                             price={props.paypalPrice}
                             redirectLink={props.redirectLink}
-                            discount={props.discount}
+                            discount={props.paypalDiscount}
                             isRedirecting={
                                 !shouldPassCustomAmount
                                     ? props.paypalProductId === props.loadingProductId
                                     : `${props.paypalProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                             }
                             disabledTooltip={props.disabledTooltip}
+                            currencyCode={props.currencyCode}
                         />
                         <GenericProviderPurchaseCard
                             type="Stripe"
@@ -138,13 +142,14 @@ export default function PurchaseElement(props: Props) {
                             }}
                             price={props.stripePrice}
                             redirectLink={props.redirectLink}
-                            discount={props.discount}
+                            discount={props.stripeDiscount}
                             isRedirecting={
                                 !shouldPassCustomAmount
                                     ? props.stripeProductId === props.loadingProductId
                                     : `${props.stripeProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                             }
                             disabledTooltip={props.disabledTooltip}
+                            currencyCode={props.currencyCode}
                         />
                     </>
                 ) : (
@@ -156,13 +161,14 @@ export default function PurchaseElement(props: Props) {
                         }}
                         price={props.lemonsqueezyPrice}
                         redirectLink={props.redirectLink}
-                        discount={props.discount}
+                        discount={props.lemonSqueezyDiscount}
                         isRedirecting={
                             !shouldPassCustomAmount
                                 ? props.lemonsqueezyProductId === props.loadingProductId
                                 : `${props.lemonsqueezyProductId}_${props.coflCoinsToBuy}` === props.loadingProductId
                         }
                         disabledTooltip={props.disabledTooltip}
+                        currencyCode={props.currencyCode}
                     />
                 )}
                 {googlePlayCard}

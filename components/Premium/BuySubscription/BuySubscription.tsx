@@ -1,21 +1,151 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import api from '../../../api/ApiHelper'
-import { Button, Card, Col, Row } from 'react-bootstrap'
+import { Button, Card, Col, Row, Form } from 'react-bootstrap'
 import styles from './BuySubscription.module.css'
 import NumberElement from '../../Number/Number'
 import { toast } from 'react-toastify'
 import { Duration, PremiumTier, getTierDisplayName } from '../PremiumPurchaseWizard/types'
+import { postApiTopupRates } from '../../../api/_generated/skyApi'
+import { BatchProductPricingResponse } from '../../../api/_generated/skyApi.schemas'
 
 interface Props {
     activePremiumProduct: PremiumProduct
     selectedTier?: PremiumTier
     selectedDuration?: Duration | null
+    creatorCode?: string
 }
 
 function BuySubscription(props: Props) {
     const [selectedPremiumType, setSelectedPremiumType] = useState<PremiumType>()
     const [isYearOption, setIsYearOption] = useState<boolean>()
+    const [creatorCode, setCreatorCode] = useState(props.creatorCode || '')
+    const [isLoadingPrices, setIsLoadingPrices] = useState(false)
+    const [pricingData, setPricingData] = useState<BatchProductPricingResponse | null>(null)
+    const [pricingError, setPricingError] = useState<string | null>(null)
+    const [appliedCreatorCode, setAppliedCreatorCode] = useState<string | null>(null)
+
+    // Get country code from localStorage
+    const countryCode = typeof window !== 'undefined' ? localStorage.getItem('countryCode') || 'US' : 'US'
+
+    // Fetch pricing when component mounts or when dependencies change
+    useEffect(() => {
+        fetchPricing(creatorCode)
+    }, [])
+
+    const fetchPricing = async (code: string) => {
+        setIsLoadingPrices(true)
+        setPricingError(null)
+
+        try {
+            // Get product slugs based on selected tier
+            let productSlugs: string[] = []
+            if (props.selectedTier && props.selectedDuration !== undefined) {
+                const productId = getProductIdForTier(props.selectedTier, props.selectedDuration === Duration.YEARLY)
+                productSlugs = [productId]
+            } else {
+                // If no tier selected, fetch pricing for all options
+                productSlugs = [
+                    'l_premium',
+                    'l_premium-year',
+                    'l_prem_plus',
+                    'l_prem_plus-year',
+                    'l_starter_premium'
+                ]
+            }
+
+            const googleToken = sessionStorage.getItem('googleId')
+            const headers: Record<string, string> = {}
+            if (googleToken) {
+                headers.GoogleToken = googleToken
+            }
+
+            const response = await postApiTopupRates({
+                productSlugs: productSlugs,
+                countryCode: countryCode,
+                creatorCode: code || null
+            }, {
+                headers: headers
+            })
+
+            if (response.status === 200) {
+                setPricingData(response.data)
+                setAppliedCreatorCode(code || null)
+            } else {
+                setPricingError('Failed to load pricing information')
+            }
+        } catch (error) {
+            console.error('Error fetching pricing:', error)
+            setPricingError('Failed to load pricing information')
+        } finally {
+            setIsLoadingPrices(false)
+        }
+    }
+
+    const getProductIdForTier = (tier: PremiumTier, isYearly: boolean): string => {
+        let productId = ''
+        if (tier === PremiumTier.PREMIUM) {
+            productId = 'l_premium'
+        } else if (tier === PremiumTier.PREMIUM_PLUS) {
+            productId = 'l_prem_plus'
+        } else if (tier === PremiumTier.STARTER) {
+            productId = 'l_starter_premium'
+        }
+        if (isYearly && tier !== PremiumTier.STARTER) {
+            productId += '-year'
+        }
+        return productId
+    }
+
+    const getProviderPrice = (productSlug: string, providerName: string): number | null => {
+        if (!pricingData || !pricingData.products) return null
+        const product = pricingData.products.find(p => p.productSlug === productSlug)
+        if (!product || !product.providers) return null
+        const provider = product.providers.find(p => p.providerName === providerName)
+        if (!provider) return null
+        // Return discounted price if available, otherwise original price (in cents)
+        return provider.discountedPrice !== undefined ? provider.discountedPrice : provider.originalPrice
+    }
+
+    const getProviderOriginalPrice = (productSlug: string, providerName: string): number | null => {
+        if (!pricingData || !pricingData.products) return null
+        const product = pricingData.products.find(p => p.productSlug === productSlug)
+        if (!product || !product.providers) return null
+        const provider = product.providers.find(p => p.providerName === providerName)
+        return provider?.originalPrice || null
+    }
+
+    const getCurrencyCode = (productSlug: string, providerName: string): string => {
+        if (!pricingData || !pricingData.products) return 'EUR'
+        const product = pricingData.products.find(p => p.productSlug === productSlug)
+        if (!product || !product.providers) return 'EUR'
+        const provider = product.providers.find(p => p.providerName === providerName)
+        return provider?.currencyCode || 'EUR'
+    }
+
+    const getCurrencySymbol = (currencyCode: string): string => {
+        const currencyMap: Record<string, string> = {
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'INR': '₹',
+            'JPY': '¥',
+            'CNY': '¥',
+            'CAD': 'C$',
+            'AUD': 'A$'
+        }
+        return currencyMap[currencyCode] || currencyCode
+    }
+
+    const getDiscountPercent = (productSlug: string): number | null => {
+        if (!pricingData || !pricingData.products) return null
+        const product = pricingData.products.find(p => p.productSlug === productSlug)
+        return product?.discountPercent || null
+    }
+
+    const applyCreatorCode = () => {
+        fetchPricing(creatorCode)
+    }
 
     // If we have wizard selections, use them to determine the selected type and duration
     const wizardSelectedType = props.selectedTier
@@ -46,6 +176,19 @@ function BuySubscription(props: Props) {
         }
         const yearOption = isYearOption !== undefined ? isYearOption : wizardIsYearOption
 
+        // Try to get price from API pricing data first
+        if (pricingData && pricingData.products) {
+            const productId = getProductIdForTier(
+                props.selectedTier || PremiumTier.PREMIUM,
+                yearOption
+            )
+            const price = getProviderPrice(productId, 'lemonsqueezy')
+            if (price !== null) {
+                return price / 100 // Convert from cents to euros
+            }
+        }
+
+        // Fallback to hardcoded prices
         if (targetType.productId === 'premium') {
             return yearOption ? 96.69 : 8.69
         }
@@ -80,7 +223,10 @@ function BuySubscription(props: Props) {
             productId += '-year'
         }
 
-        api.purchasePremiumSubscription(productId, googleToken)
+        // Add creator code to the product ID if it's applied
+        const productIdWithCode = appliedCreatorCode ? `${productId}?creatorCode=${encodeURIComponent(appliedCreatorCode)}` : productId
+
+        api.purchasePremiumSubscription(productIdWithCode, googleToken)
             .then(data => {
                 window.open(data.directLink, '_self')
             })
@@ -164,6 +310,43 @@ function BuySubscription(props: Props) {
                         )}
                     </ul>
                 </div>
+
+                <Card style={{ marginBottom: '20px' }}>
+                    <Card.Header>
+                        <Card.Title>Creator Code</Card.Title>
+                    </Card.Header>
+                    <Card.Body>
+                        <Form.Group>
+                            <Form.Control
+                                type="text"
+                                placeholder="Enter creator code (optional)"
+                                value={creatorCode}
+                                onChange={e => setCreatorCode(e.target.value)}
+                                disabled={isLoadingPrices}
+                            />
+                            <Button
+                                variant="primary"
+                                onClick={applyCreatorCode}
+                                disabled={isLoadingPrices}
+                                style={{ marginTop: '10px', width: '100%' }}
+                            >
+                                {isLoadingPrices ? 'Loading...' : 'Apply Code'}
+                            </Button>
+                        </Form.Group>
+                        {pricingError && (
+                            <div style={{ color: 'red', marginTop: '10px' }}>
+                                {pricingError}
+                            </div>
+                        )}
+                        {appliedCreatorCode && !pricingError && (
+                            <div style={{ marginTop: '10px', color: getDiscountPercent(getProductIdForTier(props.selectedTier!, yearOption)) ? 'green' : 'blue' }}>
+                                {getDiscountPercent(getProductIdForTier(props.selectedTier!, yearOption)) 
+                                    ? `Creator code applied! You get ${getDiscountPercent(getProductIdForTier(props.selectedTier!, yearOption))}% off` 
+                                    : 'Creator code applied'}
+                            </div>
+                        )}
+                    </Card.Body>
+                </Card>
 
                 <div className={styles.purchaseButtonContainer}>
                     <Button
