@@ -97,29 +97,29 @@ function BuySubscription(props: Props) {
         return productId
     }
 
-    const getProviderPrice = (productSlug: string, providerName: string): number | null => {
+    const getProviderPrice = (productSlug: string, providerSlug: string): number | null => {
         if (!pricingData || !pricingData.products) return null
         const product = pricingData.products.find(p => p.productSlug === productSlug)
         if (!product || !product.providers) return null
-        const provider = product.providers.find(p => p.providerName === providerName)
+        const provider = product.providers.find(p => p.providerSlug === providerSlug)
         if (!provider) return null
-        // Return discounted price if available, otherwise original price (in cents)
+        // API returns prices in the main currency unit (EUR, USD, etc.), not cents
         return provider.discountedPrice !== undefined ? provider.discountedPrice : provider.originalPrice
     }
 
-    const getProviderOriginalPrice = (productSlug: string, providerName: string): number | null => {
+    const getProviderOriginalPrice = (productSlug: string, providerSlug: string): number | null => {
         if (!pricingData || !pricingData.products) return null
         const product = pricingData.products.find(p => p.productSlug === productSlug)
         if (!product || !product.providers) return null
-        const provider = product.providers.find(p => p.providerName === providerName)
+        const provider = product.providers.find(p => p.providerSlug === providerSlug)
         return provider?.originalPrice || null
     }
 
-    const getCurrencyCode = (productSlug: string, providerName: string): string => {
+    const getCurrencyCode = (productSlug: string, providerSlug: string): string => {
         if (!pricingData || !pricingData.products) return 'EUR'
         const product = pricingData.products.find(p => p.productSlug === productSlug)
         if (!product || !product.providers) return 'EUR'
-        const provider = product.providers.find(p => p.providerName === providerName)
+        const provider = product.providers.find(p => p.providerSlug === providerSlug)
         return provider?.currencyCode || 'EUR'
     }
 
@@ -145,6 +145,28 @@ function BuySubscription(props: Props) {
 
     const applyCreatorCode = () => {
         fetchPricing(creatorCode)
+    }
+
+    // Get display currency and price info
+    const getDisplayCurrency = (): string => {
+        if (!pricingData || !pricingData.products || !props.selectedTier) return 'Euro'
+        const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
+        const currencyCode = getCurrencyCode(productId, 'lemonsqueezy')
+        const symbol = getCurrencySymbol(currencyCode)
+        return symbol === currencyCode ? currencyCode : symbol
+    }
+
+    const getOriginalPrice = (): number | null => {
+        if (!pricingData || !pricingData.products || !props.selectedTier) return null
+        const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
+        return getProviderOriginalPrice(productId, 'lemonsqueezy')
+    }
+
+    const hasActiveDiscount = (): boolean => {
+        if (!pricingData || !pricingData.products || !props.selectedTier) return false
+        const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
+        const discountPercent = getDiscountPercent(productId)
+        return discountPercent !== null && discountPercent > 0
     }
 
     // If we have wizard selections, use them to determine the selected type and duration
@@ -184,7 +206,7 @@ function BuySubscription(props: Props) {
             )
             const price = getProviderPrice(productId, 'lemonsqueezy')
             if (price !== null) {
-                return price / 100 // Convert from cents to euros
+                return price // API returns price in main currency unit (EUR, USD, etc.)
             }
         }
 
@@ -261,13 +283,37 @@ function BuySubscription(props: Props) {
                     <p>
                         {yearOption ? (
                             <>
-                                <strong>Price:</strong> <NumberElement number={price} /> Euro (+VAT) per year&nbsp;
+                                <strong>Price:</strong> <NumberElement number={price} /> {getDisplayCurrency()} (+VAT) per year&nbsp;
+                                {hasActiveDiscount() && getOriginalPrice() && (
+                                    <>
+                                        {' '}
+                                        <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>
+                                            <NumberElement number={getOriginalPrice()!} /> {getDisplayCurrency()}
+                                        </span>
+                                        {' '}
+                                        <span style={{ color: '#4caf50', fontWeight: 'bold' }}>
+                                            {getDiscountPercent(getProductIdForTier(props.selectedTier!, wizardIsYearOption))}% OFF
+                                        </span>
+                                    </>
+                                )}
                                 <br />
-                                (<NumberElement number={parseFloat((price / 13).toFixed(2))} /> Euro (+VAT) per 4 weeks)
+                                (<NumberElement number={parseFloat((price / 13).toFixed(2))} /> {getDisplayCurrency()} (+VAT) per 4 weeks)
                             </>
                         ) : (
                             <>
-                                <strong>Price:</strong> <NumberElement number={price} /> Euro (+VAT) per 4 weeks
+                                <strong>Price:</strong> <NumberElement number={price} /> {getDisplayCurrency()} (+VAT) per 4 weeks
+                                {hasActiveDiscount() && getOriginalPrice() && (
+                                    <>
+                                        {' '}
+                                        <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>
+                                            <NumberElement number={getOriginalPrice()!} /> {getDisplayCurrency()}
+                                        </span>
+                                        {' '}
+                                        <span style={{ color: '#4caf50', fontWeight: 'bold' }}>
+                                            {getDiscountPercent(getProductIdForTier(props.selectedTier!, wizardIsYearOption))}% OFF
+                                        </span>
+                                    </>
+                                )}
                             </>
                         )}
                     </p>
