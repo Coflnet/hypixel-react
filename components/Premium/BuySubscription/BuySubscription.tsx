@@ -28,7 +28,6 @@ function BuySubscription(props: Props) {
     // Get country code from localStorage
     const countryCode = typeof window !== 'undefined' ? localStorage.getItem('countryCode') || 'US' : 'US'
 
-    // Fetch pricing when component mounts or when dependencies change
     useEffect(() => {
         fetchPricing(creatorCode)
     }, [])
@@ -38,13 +37,11 @@ function BuySubscription(props: Props) {
         setPricingError(null)
 
         try {
-            // Get product slugs based on selected tier
             let productSlugs: string[] = []
             if (props.selectedTier && props.selectedDuration !== undefined) {
                 const productId = getProductIdForTier(props.selectedTier, props.selectedDuration === Duration.YEARLY)
                 productSlugs = [productId]
             } else {
-                // If no tier selected, fetch pricing for all options
                 productSlugs = [
                     'l_premium',
                     'l_premium-year',
@@ -83,44 +80,31 @@ function BuySubscription(props: Props) {
     }
 
     const getProductIdForTier = (tier: PremiumTier, isYearly: boolean): string => {
-        let productId = ''
-        if (tier === PremiumTier.PREMIUM) {
-            productId = 'l_premium'
-        } else if (tier === PremiumTier.PREMIUM_PLUS) {
-            productId = 'l_prem_plus'
-        } else if (tier === PremiumTier.STARTER) {
-            productId = 'l_starter_premium'
+        const tierMap: Record<PremiumTier, string> = {
+            [PremiumTier.PREMIUM]: 'l_premium',
+            [PremiumTier.PREMIUM_PLUS]: 'l_prem_plus',
+            [PremiumTier.STARTER]: 'l_starter_premium'
         }
-        if (isYearly && tier !== PremiumTier.STARTER) {
-            productId += '-year'
-        }
-        return productId
+        const productId = tierMap[tier]
+        return isYearly && tier !== PremiumTier.STARTER ? `${productId}-year` : productId
+    }
+
+    const getProvider = (productSlug: string, providerSlug: string) => {
+        const product = pricingData?.products?.find(p => p.productSlug === productSlug)
+        return product?.providers?.find(p => p.providerSlug === providerSlug)
     }
 
     const getProviderPrice = (productSlug: string, providerSlug: string): number | null => {
-        if (!pricingData || !pricingData.products) return null
-        const product = pricingData.products.find(p => p.productSlug === productSlug)
-        if (!product || !product.providers) return null
-        const provider = product.providers.find(p => p.providerSlug === providerSlug)
-        if (!provider) return null
-        // API returns prices in the main currency unit (EUR, USD, etc.), not cents
-        return provider.discountedPrice !== undefined ? provider.discountedPrice : provider.originalPrice
+        const provider = getProvider(productSlug, providerSlug)
+        return provider ? (provider.discountedPrice ?? provider.originalPrice) : null
     }
 
     const getProviderOriginalPrice = (productSlug: string, providerSlug: string): number | null => {
-        if (!pricingData || !pricingData.products) return null
-        const product = pricingData.products.find(p => p.productSlug === productSlug)
-        if (!product || !product.providers) return null
-        const provider = product.providers.find(p => p.providerSlug === providerSlug)
-        return provider?.originalPrice || null
+        return getProvider(productSlug, providerSlug)?.originalPrice ?? null
     }
 
     const getCurrencyCode = (productSlug: string, providerSlug: string): string => {
-        if (!pricingData || !pricingData.products) return 'EUR'
-        const product = pricingData.products.find(p => p.productSlug === productSlug)
-        if (!product || !product.providers) return 'EUR'
-        const provider = product.providers.find(p => p.providerSlug === providerSlug)
-        return provider?.currencyCode || 'EUR'
+        return getProvider(productSlug, providerSlug)?.currencyCode ?? 'EUR'
     }
 
     const getCurrencySymbol = (currencyCode: string): string => {
@@ -134,55 +118,53 @@ function BuySubscription(props: Props) {
             'CAD': 'C$',
             'AUD': 'A$'
         }
-        return currencyMap[currencyCode] || currencyCode
+        return currencyMap[currencyCode] ?? currencyCode
     }
 
     const getDiscountPercent = (productSlug: string): number | null => {
-        if (!pricingData || !pricingData.products) return null
-        const product = pricingData.products.find(p => p.productSlug === productSlug)
-        return product?.discountPercent || null
+        return pricingData?.products?.find(p => p.productSlug === productSlug)?.discountPercent ?? null
     }
 
     const applyCreatorCode = () => {
         fetchPricing(creatorCode)
     }
 
-    // Get display currency and price info
+    const getCurrentProductId = () => {
+        return props.selectedTier ? getProductIdForTier(props.selectedTier, wizardIsYearOption) : null
+    }
+
     const getDisplayCurrency = (): string => {
-        if (!pricingData || !pricingData.products || !props.selectedTier) return 'Euro'
-        const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
+        const productId = getCurrentProductId()
+        if (!productId) return 'Euro'
         const currencyCode = getCurrencyCode(productId, 'lemonsqueezy')
         const symbol = getCurrencySymbol(currencyCode)
         return symbol === currencyCode ? currencyCode : symbol
     }
 
     const getOriginalPrice = (): number | null => {
-        if (!pricingData || !pricingData.products || !props.selectedTier) return null
-        const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
-        return getProviderOriginalPrice(productId, 'lemonsqueezy')
+        const productId = getCurrentProductId()
+        return productId ? getProviderOriginalPrice(productId, 'lemonsqueezy') : null
     }
 
     const hasActiveDiscount = (): boolean => {
-        if (!pricingData || !pricingData.products || !props.selectedTier) return false
-        const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
+        const productId = getCurrentProductId()
+        if (!productId) return false
         const discountPercent = getDiscountPercent(productId)
         return discountPercent !== null && discountPercent > 0
     }
 
     // If we have wizard selections, use them to determine the selected type and duration
+    const getTierProductId = (tier: PremiumTier): string => {
+        const tierToProductMap: Record<PremiumTier, string> = {
+            [PremiumTier.PREMIUM]: 'premium',
+            [PremiumTier.PREMIUM_PLUS]: 'premium_plus',
+            [PremiumTier.STARTER]: 'starter_premium'
+        }
+        return tierToProductMap[tier] ?? 'premium'
+    }
+
     const wizardSelectedType = props.selectedTier
-        ? PREMIUM_TYPES.find(type => {
-              switch (props.selectedTier) {
-                  case PremiumTier.PREMIUM:
-                      return type.productId === 'premium'
-                  case PremiumTier.PREMIUM_PLUS:
-                      return type.productId === 'premium_plus'
-                  case PremiumTier.STARTER:
-                      return type.productId === 'starter_premium'
-                  default:
-                      return type.productId === 'premium'
-              }
-          })
+        ? PREMIUM_TYPES.find(type => type.productId === getTierProductId(props.selectedTier!))
         : undefined
 
     const wizardIsYearOption = props.selectedDuration === Duration.YEARLY
@@ -193,60 +175,46 @@ function BuySubscription(props: Props) {
 
     function getSubscriptionPrice() {
         const targetType = selectedPremiumType || wizardSelectedType
-        if (!targetType) {
-            return -1
-        }
+        if (!targetType) return -1
+
         const yearOption = isYearOption !== undefined ? isYearOption : wizardIsYearOption
 
-        // Try to get price from API pricing data first
-        if (pricingData && pricingData.products) {
-            const productId = getProductIdForTier(
-                props.selectedTier || PremiumTier.PREMIUM,
-                yearOption
-            )
+        if (pricingData?.products) {
+            const productId = getProductIdForTier(props.selectedTier || PremiumTier.PREMIUM, yearOption)
             const price = getProviderPrice(productId, 'lemonsqueezy')
-            if (price !== null) {
-                return price // API returns price in main currency unit (EUR, USD, etc.)
-            }
+            if (price !== null) return price
         }
 
-        // Fallback to hardcoded prices
-        if (targetType.productId === 'premium') {
-            return yearOption ? 96.69 : 8.69
+        const fallbackPrices: Record<string, { monthly: number; yearly: number }> = {
+            'premium': { monthly: 8.69, yearly: 96.69 },
+            'premium_plus': { monthly: 35.69, yearly: 354.2 },
+            'starter_premium': { monthly: 16.99, yearly: 16.99 }
         }
-        if (targetType.productId === 'premium_plus') {
-            return yearOption ? 354.2 : 35.69
-        }
-        if (targetType.productId === 'starter_premium') {
-            return 16.99 // only yearly option
-        }
-        return -1
+
+        const prices = fallbackPrices[targetType.productId]
+        return prices ? (yearOption ? prices.yearly : prices.monthly) : -1
     }
 
     function startSubscriptionPurchase(targetType: PremiumType, yearOption: boolean) {
         if (!targetType) return
+        
         const googleToken = sessionStorage.getItem('googleId')
         if (!googleToken) {
             toast.error('Please login to continue with the purchase')
             return
         }
 
-        let productId = ''
-        if (targetType.productId === 'premium') {
-            productId = 'l_premium'
-        }
-        if (targetType.productId === 'premium_plus') {
-            productId = 'l_prem_plus'
-        }
-        if (targetType.productId === 'starter_premium') {
-            productId = 'l_starter_premium'
-        }
-        if (yearOption) {
-            productId += '-year'
+        const productIdMap: Record<string, string> = {
+            'premium': 'l_premium',
+            'premium_plus': 'l_prem_plus',
+            'starter_premium': 'l_starter_premium'
         }
 
-        // Add creator code to the product ID if it's applied
-        const productIdWithCode = appliedCreatorCode ? `${productId}?creatorCode=${encodeURIComponent(appliedCreatorCode)}` : productId
+        const baseProductId = productIdMap[targetType.productId]
+        const productId = yearOption ? `${baseProductId}-year` : baseProductId
+        const productIdWithCode = appliedCreatorCode 
+            ? `${productId}?creatorCode=${encodeURIComponent(appliedCreatorCode)}` 
+            : productId
 
         api.purchasePremiumSubscription(productIdWithCode, googleToken)
             .then(data => {
@@ -257,7 +225,6 @@ function BuySubscription(props: Props) {
             })
     }
 
-    // If coming from wizard, show only the selected option with summary
     if (props.selectedTier && props.selectedDuration !== undefined) {
         const targetType = wizardSelectedType!
         const yearOption = wizardIsYearOption

@@ -40,7 +40,6 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
     const [pricingError, setPricingError] = useState<string | null>(null)
     const [appliedCreatorCode, setAppliedCreatorCode] = useState<string | null>(null)
 
-    // Fetch pricing on mount and when dependencies change
     useEffect(() => {
         fetchPricing(creatorCode)
     }, [selectedOption.paypalProductId, selectedOption.stripeProductId, selectedOption.lemonsqueezyProductId, selectedOption.googlePlayProductId, countryCode])
@@ -58,7 +57,6 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                 headers.GoogleToken = googleToken
             }
 
-            // Fetch pricing for all payment providers
             const response = await postApiTopupRates({
                 productSlugs: [
                     selectedOption.paypalProductId,
@@ -95,36 +93,26 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
         fetchPricing('')
     }
 
-    // Extract pricing data for display  
+    const getProvider = (providerSlug: string, productSlug: string) => {
+        const product = pricingData?.products?.find(p => p.productSlug === productSlug)
+        return product?.providers?.find(p => p.providerSlug === providerSlug)
+    }
+
     const getProviderPrice = (providerSlug: string, productSlug: string): number | null => {
-        if (!pricingData?.products) return null
-        const product = pricingData.products.find(p => p.productSlug === productSlug)
-        if (!product?.providers) return null
-        const provider = product.providers.find(p => p.providerSlug === providerSlug)
-        // discountedPrice is already in the main currency unit (EUR, USD, etc.), not cents
-        return provider ? provider.discountedPrice : null
+        return getProvider(providerSlug, productSlug)?.discountedPrice ?? null
     }
 
     const getProviderOriginalPrice = (providerSlug: string, productSlug: string): number | null => {
-        if (!pricingData?.products) return null
-        const product = pricingData.products.find(p => p.productSlug === productSlug)
-        if (!product?.providers) return null
-        const provider = product.providers.find(p => p.providerSlug === providerSlug)
-        // originalPrice is already in the main currency unit (EUR, USD, etc.), not cents
-        return provider ? provider.originalPrice : null
+        return getProvider(providerSlug, productSlug)?.originalPrice ?? null
     }
 
     const getGooglePlayProductId = (): string => {
-        if (!pricingData?.products) return selectedOption.googlePlayProductId
-        const product = pricingData.products.find(p => p.productSlug === selectedOption.googlePlayProductId)
-        if (!product?.providers) return selectedOption.googlePlayProductId
-        const googleProvider = product.providers.find(p => p.providerSlug === 'googlepay')
-        return googleProvider?.googlePlayProductId || selectedOption.googlePlayProductId
+        const googleProvider = getProvider('googlepay', selectedOption.googlePlayProductId)
+        return googleProvider?.googlePlayProductId ?? selectedOption.googlePlayProductId
     }
 
     const getCurrencyCode = (): string => {
-        if (!pricingData?.products?.[0]?.providers) return 'EUR'
-        return pricingData.products[0].providers[0]?.currencyCode || 'EUR'
+        return pricingData?.products?.[0]?.providers?.[0]?.currencyCode ?? 'EUR'
     }
 
     const getDiscountMultiplier = (providerSlug: string, productSlug: string): number | undefined => {
@@ -140,20 +128,36 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
     const discountPercent = pricingData?.discountPercent || 0
     const hasDiscount = discountPercent > 0
 
-    // Use dynamic prices if available, otherwise fall back to defaults
-    // Always use originalPrice for display - the discount multiplier will show the discounted price
-    const dynamicPayPalPrice = getProviderOriginalPrice('paypal', selectedOption.paypalProductId) ?? selectedOption.paypalPrice
-    const dynamicStripePrice = getProviderOriginalPrice('stripe', selectedOption.stripeProductId) ?? selectedOption.stripePrice
-    const dynamicLemonSqueezyPrice = getProviderOriginalPrice('lemonsqueezy', selectedOption.lemonsqueezyProductId) ?? selectedOption.lemonsqueezyPrice
-    const dynamicGooglePlayPrice = getProviderOriginalPrice('googlepay', selectedOption.googlePlayProductId) ?? selectedOption.googlePlayPrice
+    const providers = ['paypal', 'stripe', 'lemonsqueezy', 'googlepay'] as const
+    const providerProducts = {
+        paypal: selectedOption.paypalProductId,
+        stripe: selectedOption.stripeProductId,
+        lemonsqueezy: selectedOption.lemonsqueezyProductId,
+        googlepay: selectedOption.googlePlayProductId
+    }
+    const providerFallbacks = {
+        paypal: selectedOption.paypalPrice,
+        stripe: selectedOption.stripePrice,
+        lemonsqueezy: selectedOption.lemonsqueezyPrice,
+        googlepay: selectedOption.googlePlayPrice
+    }
+
+    const dynamicPrices = {
+        paypal: getProviderOriginalPrice('paypal', providerProducts.paypal) ?? providerFallbacks.paypal,
+        stripe: getProviderOriginalPrice('stripe', providerProducts.stripe) ?? providerFallbacks.stripe,
+        lemonsqueezy: getProviderOriginalPrice('lemonsqueezy', providerProducts.lemonsqueezy) ?? providerFallbacks.lemonsqueezy,
+        googlepay: getProviderOriginalPrice('googlepay', providerProducts.googlepay) ?? providerFallbacks.googlepay
+    }
+
+    const discountMultipliers = {
+        paypal: getDiscountMultiplier('paypal', providerProducts.paypal),
+        stripe: getDiscountMultiplier('stripe', providerProducts.stripe),
+        lemonsqueezy: getDiscountMultiplier('lemonsqueezy', providerProducts.lemonsqueezy),
+        googlepay: getDiscountMultiplier('googlepay', providerProducts.googlepay)
+    }
+
     const dynamicGooglePlayProductId = getGooglePlayProductId()
     const currencyCode = getCurrencyCode()
-    
-    // Calculate discount multipliers for each provider
-    const paypalDiscountMultiplier = getDiscountMultiplier('paypal', selectedOption.paypalProductId)
-    const stripeDiscountMultiplier = getDiscountMultiplier('stripe', selectedOption.stripeProductId)
-    const lemonSqueezyDiscountMultiplier = getDiscountMultiplier('lemonsqueezy', selectedOption.lemonsqueezyProductId)
-    const googlePlayDiscountMultiplier = getDiscountMultiplier('googlepay', selectedOption.googlePlayProductId)
 
     return (
         <div>
@@ -252,10 +256,10 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                 {/* Payment Provider Options */}
                 <PurchaseElement
                     coflCoinsToBuy={selectedOption.amount}
-                    paypalPrice={dynamicPayPalPrice}
-                    stripePrice={dynamicStripePrice}
-                    lemonsqueezyPrice={dynamicLemonSqueezyPrice}
-                    googlePlayPrice={dynamicGooglePlayPrice}
+                    paypalPrice={dynamicPrices.paypal}
+                    stripePrice={dynamicPrices.stripe}
+                    lemonsqueezyPrice={dynamicPrices.lemonsqueezy}
+                    googlePlayPrice={dynamicPrices.googlepay}
                     paypalProductId={selectedOption.paypalProductId}
                     stripeProductId={selectedOption.stripeProductId}
                     lemonsqueezyProductId={selectedOption.lemonsqueezyProductId}
@@ -270,10 +274,10 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                     isDisabled={false}
                     isGooglePlayAvailable={isGooglePlayAvailable}
                     isAndroidApp={isAndroidApp}
-                    paypalDiscount={paypalDiscountMultiplier}
-                    stripeDiscount={stripeDiscountMultiplier}
-                    lemonSqueezyDiscount={lemonSqueezyDiscountMultiplier}
-                    googlePlayDiscount={googlePlayDiscountMultiplier}
+                    paypalDiscount={discountMultipliers.paypal}
+                    stripeDiscount={discountMultipliers.stripe}
+                    lemonSqueezyDiscount={discountMultipliers.lemonsqueezy}
+                    googlePlayDiscount={discountMultipliers.googlepay}
                     currencyCode={currencyCode}
                 />
 
