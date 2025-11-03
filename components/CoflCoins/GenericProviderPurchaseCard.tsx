@@ -3,6 +3,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import styles from './CoflCoinsPurchase.module.css'
 import HelpIcon from '@mui/icons-material/Help'
 import Number from '../Number/Number'
+import { getCurrencySymbol } from '../../utils/pricingUtils'
 import type { JSX } from 'react'
 
 interface Props {
@@ -22,21 +23,7 @@ export default function GenericProviderPurchaseCard(props: Props) {
         return Math.round(price * 100) / 100
     }
 
-    const getCurrencySymbol = (code?: string): string => {
-        const currencyMap: Record<string, string> = {
-            'USD': '$',
-            'EUR': '€',
-            'GBP': '£',
-            'INR': '₹',
-            'JPY': '¥',
-            'CNY': '¥',
-            'CAD': 'C$',
-            'AUD': 'A$',
-        }
-        return code ? (currencyMap[code] || code) : '€'
-    }
-
-    const currencySymbol = getCurrencySymbol(props.currencyCode)
+    const currencySymbol = props.currencyCode ? getCurrencySymbol(props.currencyCode) : '€'
 
     return (
         <div className={styles.paymentOption}>

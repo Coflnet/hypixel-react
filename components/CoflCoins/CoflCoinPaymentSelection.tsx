@@ -6,6 +6,7 @@ import PurchaseElement from './PurchaseElement'
 import styles from './CoflCoinsPurchase.module.css'
 import { postApiTopupRates } from '../../api/_generated/skyApi'
 import type { BatchProductPricingResponse, ProviderPricingOption } from '../../api/_generated/skyApi.schemas'
+import { getProvider, getProviderPrice, getProviderOriginalPrice } from '../../utils/pricingUtils'
 
 interface CoflCoinOption {
     amount: number
@@ -93,21 +94,20 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
         fetchPricing('')
     }
 
-    const getProvider = (providerSlug: string, productSlug: string) => {
-        const product = pricingData?.products?.find(p => p.productSlug === productSlug)
-        return product?.providers?.find(p => p.providerSlug === providerSlug)
+    const getProviderForComponent = (providerSlug: string, productSlug: string) => {
+        return getProvider(pricingData, providerSlug, productSlug)
     }
 
-    const getProviderPrice = (providerSlug: string, productSlug: string): number | null => {
-        return getProvider(providerSlug, productSlug)?.discountedPrice ?? null
+    const getProviderPriceForComponent = (providerSlug: string, productSlug: string): number | null => {
+        return getProviderPrice(pricingData, providerSlug, productSlug)
     }
 
-    const getProviderOriginalPrice = (providerSlug: string, productSlug: string): number | null => {
-        return getProvider(providerSlug, productSlug)?.originalPrice ?? null
+    const getProviderOriginalPriceForComponent = (providerSlug: string, productSlug: string): number | null => {
+        return getProviderOriginalPrice(pricingData, providerSlug, productSlug)
     }
 
     const getGooglePlayProductId = (): string => {
-        const googleProvider = getProvider('googlepay', selectedOption.googlePlayProductId)
+        const googleProvider = getProviderForComponent('googlepay', selectedOption.googlePlayProductId)
         return googleProvider?.googlePlayProductId ?? selectedOption.googlePlayProductId
     }
 
@@ -116,8 +116,8 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
     }
 
     const getDiscountMultiplier = (providerSlug: string, productSlug: string): number | undefined => {
-        const originalPrice = getProviderOriginalPrice(providerSlug, productSlug)
-        const discountedPrice = getProviderPrice(providerSlug, productSlug)
+        const originalPrice = getProviderOriginalPriceForComponent(providerSlug, productSlug)
+        const discountedPrice = getProviderPriceForComponent(providerSlug, productSlug)
         
         if (originalPrice && discountedPrice && originalPrice > discountedPrice) {
             return discountedPrice / originalPrice
@@ -143,10 +143,10 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
     }
 
     const dynamicPrices = {
-        paypal: getProviderOriginalPrice('paypal', providerProducts.paypal) ?? providerFallbacks.paypal,
-        stripe: getProviderOriginalPrice('stripe', providerProducts.stripe) ?? providerFallbacks.stripe,
-        lemonsqueezy: getProviderOriginalPrice('lemonsqueezy', providerProducts.lemonsqueezy) ?? providerFallbacks.lemonsqueezy,
-        googlepay: getProviderOriginalPrice('googlepay', providerProducts.googlepay) ?? providerFallbacks.googlepay
+        paypal: getProviderOriginalPriceForComponent('paypal', providerProducts.paypal) ?? providerFallbacks.paypal,
+        stripe: getProviderOriginalPriceForComponent('stripe', providerProducts.stripe) ?? providerFallbacks.stripe,
+        lemonsqueezy: getProviderOriginalPriceForComponent('lemonsqueezy', providerProducts.lemonsqueezy) ?? providerFallbacks.lemonsqueezy,
+        googlepay: getProviderOriginalPriceForComponent('googlepay', providerProducts.googlepay) ?? providerFallbacks.googlepay
     }
 
     const discountMultipliers = {
