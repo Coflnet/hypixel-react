@@ -17,6 +17,7 @@ import Flip from '../Flip/Flip'
 import HelpIcon from '@mui/icons-material/Help'
 import Select, { components } from 'react-select'
 import FormatElement from './FormatElement/FormatElement'
+import SettingCheckbox from './SettingCheckbox/SettingCheckbox'
 import styles from './FlipCustomize.module.css'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
@@ -201,96 +202,82 @@ function FlipCustomize() {
             <div className={styles.sectionLeft}>
                 <Form className={styles.section}>
                     <div>
-                        <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideCost">
-                                Cost
-                            </Form.Label>
-                            <Form.Check
-                                onChange={event => {
-                                    updateApiSetting('showCost', event.target.checked)
-                                    setFlipCustomizeSetting('hideCost', !event.target.checked)
-                                }}
-                                defaultChecked={!flipCustomizeSettings.hideCost}
-                                id="hideCost"
-                                style={{ display: 'inline' }}
-                                type="checkbox"
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideEstimatedProfit">
-                                Estimated Profit
-                            </Form.Label>
-                            <Form.Check
-                                onChange={event => {
-                                    updateApiSetting('showEstProfit', event.target.checked)
-                                    setFlipCustomizeSetting('hideEstimatedProfit', !event.target.checked)
-                                }}
-                                defaultChecked={!flipCustomizeSettings.hideEstimatedProfit}
-                                id="hideEstimatedProfit"
-                                style={{ display: 'inline' }}
-                                type="checkbox"
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideSecondLowestBin">
-                                Second lowest BIN
-                            </Form.Label>
-                            <Form.Check
-                                onChange={event => {
-                                    updateApiSetting('showSlbin', event.target.checked)
-                                    setFlipCustomizeSetting('hideSecondLowestBin', !event.target.checked)
-                                }}
-                                defaultChecked={!flipCustomizeSettings.hideSecondLowestBin}
-                                id="hideSecondLowestBin"
-                                style={{ display: 'inline' }}
-                                type="checkbox"
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideVolume">
-                                Volume
-                            </Form.Label>
-                            <Form.Check
-                                onChange={event => {
-                                    updateApiSetting('showVolume', event.target.checked)
-                                    setFlipCustomizeSetting('hideVolume', !event.target.checked)
-                                }}
-                                defaultChecked={!flipCustomizeSettings.hideVolume}
-                                id="hideVolume"
-                                style={{ display: 'inline' }}
-                                type="checkbox"
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="shortNumbers">
-                                Shorten numbers?
-                            </Form.Label>
-                            <Form.Check
-                                onChange={event => {
-                                    updateApiSetting('modShortNumbers', event.target.checked)
-                                    setFlipCustomizeSetting('shortNumbers', event.target.checked)
-                                }}
-                                defaultChecked={flipCustomizeSettings.shortNumbers}
-                                id="shortNumbers"
-                                style={{ display: 'inline' }}
-                                type="checkbox"
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideProfitPercent">
-                                Profit percent?
-                            </Form.Label>
-                            <Form.Check
-                                onChange={event => {
-                                    updateApiSetting('showProfitPercent', event.target.checked)
-                                    setFlipCustomizeSetting('hideProfitPercent', !event.target.checked)
-                                }}
-                                defaultChecked={!flipCustomizeSettings.hideProfitPercent}
-                                id="hideProfitPercent"
-                                style={{ display: 'inline' }}
-                                type="checkbox"
-                            />
-                        </Form.Group>
+                        <SettingCheckbox
+                            id="hideCost"
+                            label="Cost"
+                            apiKey="showCost"
+                            settingKey="hideCost"
+                            defaultChecked={!flipCustomizeSettings.hideCost}
+                            inverted={true}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
+                        <SettingCheckbox
+                            id="hideEstimatedProfit"
+                            label="Estimated Profit"
+                            apiKey="showEstProfit"
+                            settingKey="hideEstimatedProfit"
+                            defaultChecked={!flipCustomizeSettings.hideEstimatedProfit}
+                            inverted={true}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
+                        <SettingCheckbox
+                            id="hideSecondLowestBin"
+                            label="Second lowest BIN"
+                            apiKey="showSlbin"
+                            settingKey="hideSecondLowestBin"
+                            defaultChecked={!flipCustomizeSettings.hideSecondLowestBin}
+                            inverted={true}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
+                        <SettingCheckbox
+                            id="hideVolume"
+                            label="Volume"
+                            apiKey="showVolume"
+                            settingKey="hideVolume"
+                            defaultChecked={!flipCustomizeSettings.hideVolume}
+                            inverted={true}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
+                        <SettingCheckbox
+                            id="shortNumbers"
+                            label="Shorten numbers?"
+                            apiKey="modShortNumbers"
+                            settingKey="shortNumbers"
+                            defaultChecked={!!flipCustomizeSettings.shortNumbers}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
+                        <SettingCheckbox
+                            id="hideProfitPercent"
+                            label="Profit percent?"
+                            apiKey="showProfitPercent"
+                            settingKey="hideProfitPercent"
+                            defaultChecked={!flipCustomizeSettings.hideProfitPercent}
+                            inverted={true}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
+                        <SettingCheckbox
+                            id="hideProfit"
+                            label="Profit (absolute)"
+                            apiKey="showProfit"
+                            settingKey="hideProfit"
+                            defaultChecked={!flipCustomizeSettings.hideProfit}
+                            inverted={true}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
                         <Form.Group>
                             <Form.Label className={styles.label} htmlFor="hideMaxExtraInfo">
                                 Max. extra info fields
@@ -306,36 +293,28 @@ function FlipCustomize() {
                         </Form.Group>
                     </div>
                     <div>
-                        <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideMedianPrice">
-                                Median price
-                            </Form.Label>
-                            <Form.Check
-                                onChange={event => {
-                                    updateApiSetting('showMedPrice', event.target.checked)
-                                    setFlipCustomizeSetting('hideMedianPrice', !event.target.checked)
-                                }}
-                                defaultChecked={!flipCustomizeSettings.hideMedianPrice}
-                                id="hideMedianPrice"
-                                style={{ display: 'inline' }}
-                                type="checkbox"
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideLowestBin">
-                                Lowest BIN
-                            </Form.Label>
-                            <Form.Check
-                                onChange={event => {
-                                    updateApiSetting('showLbin', event.target.checked)
-                                    setFlipCustomizeSetting('hideLowestBin', !event.target.checked)
-                                }}
-                                defaultChecked={!flipCustomizeSettings.hideLowestBin}
-                                id="hideLowestBin"
-                                style={{ display: 'inline' }}
-                                type="checkbox"
-                            />
-                        </Form.Group>
+                        <SettingCheckbox
+                            id="hideMedianPrice"
+                            label="Median price"
+                            apiKey="showMedPrice"
+                            settingKey="hideMedianPrice"
+                            defaultChecked={!flipCustomizeSettings.hideMedianPrice}
+                            inverted={true}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
+                        <SettingCheckbox
+                            id="hideLowestBin"
+                            label="Lowest BIN"
+                            apiKey="showLbin"
+                            settingKey="hideLowestBin"
+                            defaultChecked={!flipCustomizeSettings.hideLowestBin}
+                            inverted={true}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
                         <Form.Group>
                             <Form.Label className={styles.label} htmlFor="hideSeller">
                                 Seller{'  '}
@@ -360,36 +339,28 @@ function FlipCustomize() {
                                 type="checkbox"
                             />
                         </Form.Group>
-                        <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="hideCopySuccessMessage">
-                                Show copy message
-                            </Form.Label>
-                            <Form.Check
-                                onChange={event => {
-                                    updateApiSetting('showCopySuccessMessage', event.target.checked)
-                                    setFlipCustomizeSetting('hideCopySuccessMessage', !event.target.checked)
-                                }}
-                                defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage}
-                                id="hideCopySuccessMessage"
-                                style={{ display: 'inline' }}
-                                type="checkbox"
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label className={styles.label} htmlFor="disableLinks">
-                                Disable links
-                            </Form.Label>
-                            <Form.Check
-                                onChange={event => {
-                                    updateApiSetting('showLinks', !event.target.checked)
-                                    setFlipCustomizeSetting('disableLinks', event.target.checked)
-                                }}
-                                defaultChecked={flipCustomizeSettings.disableLinks}
-                                id="disableLinks"
-                                style={{ display: 'inline' }}
-                                type="checkbox"
-                            />
-                        </Form.Group>
+                        <SettingCheckbox
+                            id="hideCopySuccessMessage"
+                            label="Show copy message"
+                            apiKey="showCopySuccessMessage"
+                            settingKey="hideCopySuccessMessage"
+                            defaultChecked={!flipCustomizeSettings.hideCopySuccessMessage}
+                            inverted={true}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
+                        <SettingCheckbox
+                            id="disableLinks"
+                            label="Disable links"
+                            apiKey="showLinks"
+                            settingKey="disableLinks"
+                            defaultChecked={!!flipCustomizeSettings.disableLinks}
+                            inverted={true}
+                            labelClass={styles.label}
+                            updateApiSetting={updateApiSetting}
+                            setFlipCustomizeSetting={setFlipCustomizeSetting}
+                        />
                         <Form.Group>
                             <Form.Label className={styles.label} htmlFor="useLowestBinForProfit">
                                 Use lowest BIN <br /> to calc. profit{' '}
@@ -404,7 +375,7 @@ function FlipCustomize() {
                                     updateApiSetting('lbin', event.target.checked)
                                     setFlipCustomizeSetting('useLowestBinForProfit', event.target.checked)
                                 }}
-                                defaultChecked={flipCustomizeSettings.useLowestBinForProfit}
+                                defaultChecked={!!flipCustomizeSettings.useLowestBinForProfit}
                                 id="useLowestBinForProfit"
                                 style={{ display: 'inline' }}
                                 type="checkbox"
@@ -433,117 +404,339 @@ function FlipCustomize() {
                     <h5>Mod settings</h5>
                     <Form className={styles.section}>
                         <div>
+                            <SettingCheckbox
+                                id="justProfit"
+                                label="Just show profit"
+                                apiKey="modJustProfit"
+                                settingKey="justProfit"
+                                defaultChecked={!!flipCustomizeSettings.justProfit}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="blockTenSecMsg"
+                                label='"Flips in 10 seconds"'
+                                apiKey="modBlockTenSecMsg"
+                                settingKey="blockTenSecMsg"
+                                defaultChecked={!flipCustomizeSettings.blockTenSecMsg}
+                                inverted={true}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="hideSellerOpenBtn"
+                                label="Seller AH Button"
+                                apiKey="showSellerOpenBtn"
+                                settingKey="hideSellerOpenBtn"
+                                defaultChecked={!flipCustomizeSettings.hideSellerOpenBtn}
+                                inverted={true}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="modCountdown"
+                                label="Countdown"
+                                apiKey="modCountdown"
+                                settingKey="modCountdown"
+                                defaultChecked={!!flipCustomizeSettings.modCountdown}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                        </div>
+                        <div>
+                            <SettingCheckbox
+                                id="soundOnFlip"
+                                label="Play flip sound"
+                                apiKey="modSoundOnFlip"
+                                settingKey="soundOnFlip"
+                                defaultChecked={!!flipCustomizeSettings.soundOnFlip}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="hideModChat"
+                                label="Mod Chat"
+                                apiKey="modChat"
+                                settingKey="hideModChat"
+                                defaultChecked={!flipCustomizeSettings.hideModChat}
+                                inverted={true}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="hideLore"
+                                label="Item lore (on hover)"
+                                apiKey="showLore"
+                                settingKey="hideLore"
+                                defaultChecked={!flipCustomizeSettings.hideLore}
+                                inverted={true}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="soundOnOutbid"
+                                label="Play sound on outbid"
+                                apiKey="modSoundOnOutbid"
+                                settingKey="soundOnOutbid"
+                                defaultChecked={!!flipCustomizeSettings.soundOnOutbid}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="shortNames"
+                                label="Short names (no reforges)"
+                                apiKey="modShortNames"
+                                settingKey="shortNames"
+                                defaultChecked={!!flipCustomizeSettings.shortNames}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                        </div>
+                    </Form>
+                    <div style={{ marginLeft: '30px', marginRight: '30px' }}>
+                        <FormatElement onChange={onModFormatChange} settings={flipCustomizeSettings} labelClass={styles.label} />
+                    </div>
+                    <h6 style={{ marginTop: '20px', marginLeft: '30px' }}>Additional Mod Settings</h6>
+                    <Form className={styles.section}>
+                        <div>
+                            <SettingCheckbox
+                                id="hideNoBestFlip"
+                                label='Hide "No best flip" msg'
+                                apiKey="modHideNoBestFlip"
+                                settingKey="hideNoBestFlip"
+                                defaultChecked={!!flipCustomizeSettings.hideNoBestFlip}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="streamerMode"
+                                label="Streamer mode"
+                                apiKey="modStreamerMode"
+                                settingKey="streamerMode"
+                                defaultChecked={!!flipCustomizeSettings.streamerMode}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="normalSoldFlips"
+                                label="Normal sold flips"
+                                apiKey="modNormalSoldFlips"
+                                settingKey="normalSoldFlips"
+                                defaultChecked={!!flipCustomizeSettings.normalSoldFlips}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                        </div>
+                        <div>
+                            <SettingCheckbox
+                                id="hideSoldAuction"
+                                label="Hide sold auctions"
+                                apiKey="showHideSold"
+                                settingKey="hideSoldAuction"
+                                defaultChecked={!!flipCustomizeSettings.hideSoldAuction}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="hideManipulated"
+                                label="Hide manipulated items"
+                                apiKey="showHideManipulated"
+                                settingKey="hideManipulated"
+                                defaultChecked={!!flipCustomizeSettings.hideManipulated}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="autoStartFlipper"
+                                label="Auto start flipper"
+                                apiKey="modAutoStartFlipper"
+                                settingKey="autoStartFlipper"
+                                defaultChecked={!!flipCustomizeSettings.autoStartFlipper}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="quickSell"
+                                label="Quick sell"
+                                apiKey="modQuickSell"
+                                settingKey="quickSell"
+                                defaultChecked={!!flipCustomizeSettings.quickSell}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="disableSpamProtection"
+                                label="Disable spam protection"
+                                apiKey="modDisableSpamProtection"
+                                settingKey="disableSpamProtection"
+                                defaultChecked={!!flipCustomizeSettings.disableSpamProtection}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="tempBlacklistSpam"
+                                label="Temp blacklist spam"
+                                apiKey="modTempBlacklistSpam"
+                                settingKey="tempBlacklistSpam"
+                                defaultChecked={!!flipCustomizeSettings.tempBlacklistSpam}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="dataOnlyMode"
+                                label="Data only mode"
+                                apiKey="modDataOnlyMode"
+                                settingKey="dataOnlyMode"
+                                defaultChecked={!!flipCustomizeSettings.dataOnlyMode}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                            <SettingCheckbox
+                                id="noBedDelay"
+                                label="No bed delay"
+                                apiKey="modNoBedDelay"
+                                settingKey="noBedDelay"
+                                defaultChecked={!!flipCustomizeSettings.noBedDelay}
+                                labelClass={styles.label}
+                                updateApiSetting={updateApiSetting}
+                                setFlipCustomizeSetting={setFlipCustomizeSetting}
+                            />
+                        </div>
+                    </Form>
+                    <h6 style={{ marginTop: '20px', marginLeft: '30px' }}>Numeric Mod Settings</h6>
+                    <Form className={styles.section}>
+                        <div>
                             <Form.Group>
-                                <Form.Label className={styles.label} htmlFor="justProfit">
-                                    Just show profit
+                                <Form.Label className={styles.label} htmlFor="maxPercentOfPurse">
+                                    Max % of purse
                                 </Form.Label>
-                                <Form.Check
+                                <Form.Control
+                                    min={0}
+                                    max={100}
                                     onChange={event => {
-                                        updateApiSetting('modJustProfit', event.target.checked)
-                                        setFlipCustomizeSetting('justProfit', event.target.checked)
+                                        const value = parseInt(event.target.value) || 0
+                                        api.setFlipSetting('modMaxPercentOfPurse', value)
+                                        setFlipCustomizeSetting('maxPercentOfPurse', value)
+                                        trackChange('maxPercentOfPurse')
                                     }}
-                                    defaultChecked={flipCustomizeSettings.justProfit}
-                                    id="justProfit"
-                                    style={{ display: 'inline' }}
-                                    type="checkbox"
+                                    defaultValue={flipCustomizeSettings.maxPercentOfPurse}
+                                    type="number"
+                                    id="maxPercentOfPurse"
                                 />
                             </Form.Group>
                             <Form.Group>
-                                <Form.Label className={styles.label} htmlFor="blockTenSecMsg">
-                                    "Flips in 10 seconds"
+                                <Form.Label className={styles.label} htmlFor="maxItemsInInventory">
+                                    Max flip items in inventory
                                 </Form.Label>
-                                <Form.Check
+                                <Form.Control
+                                    min={0}
+                                    max={999}
                                     onChange={event => {
-                                        updateApiSetting('modBlockTenSecMsg', !event.target.checked)
-                                        setFlipCustomizeSetting('blockTenSecMsg', !event.target.checked)
+                                        const value = parseInt(event.target.value) || 0
+                                        api.setFlipSetting('modMaxItemsInInventory', value)
+                                        setFlipCustomizeSetting('maxItemsInInventory', value)
+                                        trackChange('maxItemsInInventory')
                                     }}
-                                    defaultChecked={!flipCustomizeSettings.blockTenSecMsg}
-                                    id="blockTenSecMsg"
-                                    style={{ display: 'inline' }}
-                                    type="checkbox"
+                                    defaultValue={flipCustomizeSettings.maxItemsInInventory}
+                                    type="number"
+                                    id="maxItemsInInventory"
                                 />
                             </Form.Group>
                             <Form.Group>
-                                <Form.Label className={styles.label} htmlFor="hideSellerOpenBtn">
-                                    Seller AH Button
+                                <Form.Label className={styles.label} htmlFor="tempBlacklistThreshold">
+                                    Temp blacklist threshold (%)
                                 </Form.Label>
-                                <Form.Check
+                                <Form.Control
+                                    min={0}
+                                    max={100}
                                     onChange={event => {
-                                        updateApiSetting('showSellerOpenBtn', event.target.checked)
-                                        setFlipCustomizeSetting('hideSellerOpenBtn', !event.target.checked)
+                                        const value = parseInt(event.target.value) || 0
+                                        api.setFlipSetting('modTempBlacklistThreshold', value)
+                                        setFlipCustomizeSetting('tempBlacklistThreshold', value)
+                                        trackChange('tempBlacklistThreshold')
                                     }}
-                                    defaultChecked={!flipCustomizeSettings.hideSellerOpenBtn}
-                                    id="hideSellerOpenBtn"
-                                    style={{ display: 'inline' }}
-                                    type="checkbox"
+                                    defaultValue={flipCustomizeSettings.tempBlacklistThreshold}
+                                    type="number"
+                                    id="tempBlacklistThreshold"
                                 />
                             </Form.Group>
                             <Form.Group>
-                                <Form.Label className={styles.label} htmlFor="modCountdown">
-                                    Countdown
+                                <Form.Label className={styles.label} htmlFor="ahListHours">
+                                    AH list hours
                                 </Form.Label>
-                                <Form.Check
+                                <Form.Control
+                                    min={0}
+                                    max={48}
                                     onChange={event => {
-                                        updateApiSetting('modCountdown', event.target.checked)
-                                        setFlipCustomizeSetting('modCountdown', event.target.checked)
+                                        const value = parseInt(event.target.value) || 0
+                                        api.setFlipSetting('modAhListHours', value)
+                                        setFlipCustomizeSetting('ahListHours', value)
+                                        trackChange('ahListHours')
                                     }}
-                                    defaultChecked={flipCustomizeSettings.modCountdown}
-                                    id="modCountdown"
-                                    style={{ display: 'inline' }}
-                                    type="checkbox"
+                                    defaultValue={flipCustomizeSettings.ahListHours}
+                                    type="number"
+                                    id="ahListHours"
                                 />
                             </Form.Group>
                         </div>
                         <div>
                             <Form.Group>
-                                <Form.Label className={styles.label} htmlFor="soundOnFlip">
-                                    Play flip sound
+                                <Form.Label className={styles.label} htmlFor="blockedMsg">
+                                    Minutes between blocked msgs
                                 </Form.Label>
-                                <Form.Check
+                                <Form.Control
+                                    min={0}
+                                    max={127}
                                     onChange={event => {
-                                        updateApiSetting('modSoundOnFlip', event.target.checked)
-                                        setFlipCustomizeSetting('soundOnFlip', event.target.checked)
+                                        const value = parseInt(event.target.value) || 0
+                                        api.setFlipSetting('modBlockedMsg', value)
+                                        setFlipCustomizeSetting('blockedMsg', value)
+                                        trackChange('blockedMsg')
                                     }}
-                                    defaultChecked={flipCustomizeSettings.soundOnFlip}
-                                    id="soundOnFlip"
-                                    style={{ display: 'inline' }}
-                                    type="checkbox"
-                                />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label className={styles.label} htmlFor="hideModChat">
-                                    Mod Chat
-                                </Form.Label>
-                                <Form.Check
-                                    onChange={event => {
-                                        updateApiSetting('modChat', event.target.checked)
-                                        setFlipCustomizeSetting('hideModChat', !event.target.checked)
-                                    }}
-                                    defaultChecked={!flipCustomizeSettings.hideModChat}
-                                    id="hideModChat"
-                                    style={{ display: 'inline' }}
-                                    type="checkbox"
-                                />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label className={styles.label} htmlFor="hideLore">
-                                    Item lore (on hover)
-                                </Form.Label>
-                                <Form.Check
-                                    onChange={event => {
-                                        updateApiSetting('showLore', event.target.checked)
-                                        setFlipCustomizeSetting('hideLore', !event.target.checked)
-                                    }}
-                                    defaultChecked={!flipCustomizeSettings.hideLore}
-                                    id="hideLore"
-                                    style={{ display: 'inline' }}
-                                    type="checkbox"
+                                    defaultValue={flipCustomizeSettings.blockedMsg}
+                                    type="number"
+                                    id="blockedMsg"
                                 />
                             </Form.Group>
                         </div>
                     </Form>
-                    <div style={{ marginLeft: '30px', marginRight: '30px' }}>
-                        <FormatElement onChange={onModFormatChange} settings={flipCustomizeSettings} labelClass={styles.label} />
+                    <div style={{ marginLeft: '30px', marginRight: '30px', marginTop: '15px' }}>
+                        <Form.Group>
+                            <Form.Label className={styles.label} htmlFor="blockedFormat">
+                                Blocked format
+                            </Form.Label>
+                            <Form.Control
+                                onChange={event => {
+                                    const value = event.target.value
+                                    api.setFlipSetting('modBlockedFormat', value)
+                                    setFlipCustomizeSetting('blockedFormat', value)
+                                    trackChange('blockedFormat')
+                                }}
+                                defaultValue={flipCustomizeSettings.blockedFormat}
+                                type="text"
+                                id="blockedFormat"
+                                placeholder="Custom format for blocked flips"
+                            />
+                        </Form.Group>
                     </div>
                 </div>
                 <hr />

@@ -389,6 +389,7 @@ interface FlipCustomizeSettings {
     soundOnFlip?: boolean
     shortNumbers?: boolean
     hideProfitPercent?: boolean
+    hideProfit?: boolean
     finders?: number[]
     blockTenSecMsg?: boolean
     hideModChat?: boolean
@@ -397,6 +398,25 @@ interface FlipCustomizeSettings {
     modFormat?: string
     modCountdown?: boolean
     blockExport?: boolean
+    soundOnOutbid?: boolean
+    shortNames?: boolean
+    hideNoBestFlip?: boolean
+    streamerMode?: boolean
+    normalSoldFlips?: boolean
+    hideSoldAuction?: boolean
+    hideManipulated?: boolean
+    maxPercentOfPurse?: number
+    quickSell?: boolean
+    maxItemsInInventory?: number
+    disableSpamProtection?: boolean
+    tempBlacklistSpam?: boolean
+    tempBlacklistThreshold?: number
+    noBedDelay?: boolean
+    autoStartFlipper?: boolean
+    dataOnlyMode?: boolean
+    ahListHours?: number
+    blockedMsg?: number
+    blockedFormat?: string
 }
 
 interface FlipRestriction {
