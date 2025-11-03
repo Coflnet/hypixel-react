@@ -3,6 +3,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import styles from './CoflCoinsPurchase.module.css'
 import HelpIcon from '@mui/icons-material/Help'
 import Number from '../Number/Number'
+import { getCurrencySymbol } from '../../utils/pricingUtils'
 import type { JSX } from 'react'
 
 interface Props {
@@ -14,12 +15,16 @@ interface Props {
     isRedirecting: boolean
     redirectLink?: string
     discount?: number
+    currencyCode?: string
 }
 
 export default function GenericProviderPurchaseCard(props: Props) {
     function getRoundedPrice(price: number) {
         return Math.round(price * 100) / 100
     }
+
+    const currencySymbol = props.currencyCode ? getCurrencySymbol(props.currencyCode) : '€'
+
     return (
         <div className={styles.paymentOption}>
             <div className={styles.paymentLabel}>
@@ -78,14 +83,14 @@ export default function GenericProviderPurchaseCard(props: Props) {
                                 </p>
                             ) : (
                                 <span>
-                                    <Number number={getRoundedPrice(props.discount ? props.price * props.discount : props.price)} /> Euro
+                                    <Number number={getRoundedPrice(props.discount ? props.price * props.discount : props.price)} /> {currencySymbol}
                                     {props.discount ? (
                                         <span style={{ color: 'red', fontWeight: 'bold', paddingLeft: '20px' }}>
                                             {Math.round((1 - props.discount) * 100)}% OFF
                                         </span>
                                     ) : null}
                                     {props.discount ? (
-                                        <p style={{ fontSize: 'x-small', margin: 0, padding: 0 }}>Original price: {getRoundedPrice(props.price)}</p>
+                                        <p style={{ fontSize: 'x-small', margin: 0, padding: 0 }}>Original price: {getRoundedPrice(props.price)} {currencySymbol}</p>
                                     ) : null}
                                 </span>
                             )}

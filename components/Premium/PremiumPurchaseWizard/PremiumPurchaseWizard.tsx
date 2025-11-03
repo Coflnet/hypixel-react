@@ -20,6 +20,7 @@ function PremiumPurchaseWizard(props: Props) {
     const [selectedTier, setSelectedTier] = useState<PremiumTier | null>(null)
     const [selectedType, setSelectedType] = useState<PurchaseType | null>(null)
     const [selectedDuration, setSelectedDuration] = useState<Duration | null>(null)
+    const [creatorCode, setCreatorCode] = useState('')
 
     const totalSteps = 4
 
@@ -186,6 +187,7 @@ function PremiumPurchaseWizard(props: Props) {
                         activePremiumProduct={props.activePremiumProduct}
                         premiumSubscriptions={props.premiumSubscriptions}
                         onNewActivePremiumProduct={props.onNewActivePremiumProduct}
+                        creatorCode={creatorCode}
                     />
                 )
             default:

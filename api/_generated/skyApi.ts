@@ -30,6 +30,8 @@ import type {
   AuctionPreview,
   AuctionResult,
   AveragePrice,
+  BatchPricingRequest,
+  BatchProductPricingResponse,
   BidResult,
   BinResponse,
   BookFlip,
@@ -179,6 +181,7 @@ import type {
   PostApiTopupLemonsqueezyProductSlug401One,
   PostApiTopupPaypalProductSlug401One,
   PostApiTopupPlaystore401One,
+  PostApiTopupRates401One,
   PostApiTopupStripeProductSlug401One,
   PostApiTrades401One,
   PostApiUserPrivacy401One,
@@ -9975,6 +9978,104 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       > => {
 
       const mutationOptions = getPostApiTopupPlaystoreCompleteMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+export type postApiTopupRatesResponse200 = {
+  data: BatchProductPricingResponse
+  status: 200
+}
+
+export type postApiTopupRatesResponse401ApplicationJson = {
+  data: PostApiTopupRates401One
+  status: 401
+}
+
+export type postApiTopupRatesResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiTopupRatesResponse403 = {
+  data: null
+  status: 403
+}
+    
+export type postApiTopupRatesResponseComposite = postApiTopupRatesResponse200 | postApiTopupRatesResponse401ApplicationJson | postApiTopupRatesResponse401TextPlain | postApiTopupRatesResponse403;
+    
+export type postApiTopupRatesResponse = postApiTopupRatesResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostApiTopupRatesUrl = () => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/topup/rates`
+}
+
+export const postApiTopupRates = async (batchPricingRequest: BatchPricingRequest, options?: RequestInit): Promise<postApiTopupRatesResponse> => {
+  
+  const res = await fetch(getPostApiTopupRatesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      batchPricingRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: postApiTopupRatesResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as postApiTopupRatesResponse
+}
+
+
+
+
+export const getPostApiTopupRatesMutationOptions = <TError = PostApiTopupRates401One | string | null,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupRates>>, TError,{data: BatchPricingRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupRates>>, TError,{data: BatchPricingRequest}, TContext> => {
+
+const mutationKey = ['postApiTopupRates'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTopupRates>>, {data: BatchPricingRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiTopupRates(data,fetchOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiTopupRatesMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupRates>>>
+    export type PostApiTopupRatesMutationBody = BatchPricingRequest
+    export type PostApiTopupRatesMutationError = PostApiTopupRates401One | string | null
+
+    export const usePostApiTopupRates = <TError = PostApiTopupRates401One | string | null,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupRates>>, TError,{data: BatchPricingRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiTopupRates>>,
+        TError,
+        {data: BatchPricingRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiTopupRatesMutationOptions(options);
 
       return useMutation(mutationOptions , queryClient);
     }

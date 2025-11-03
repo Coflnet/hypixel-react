@@ -222,6 +222,23 @@ export interface Banking {
   balance: number;
 }
 
+export interface BatchPricingRequest {
+  /** @nullable */
+  productSlugs?: string[] | null;
+  /** @nullable */
+  countryCode?: string | null;
+  /** @nullable */
+  creatorCode?: string | null;
+}
+
+export interface BatchProductPricingResponse {
+  /** @nullable */
+  creatorCode?: string | null;
+  discountPercent: number;
+  /** @nullable */
+  products?: ProductPricingResponse[] | null;
+}
+
 export interface BazaarFlip {
   /** @nullable */
   itemTag?: string | null;
@@ -1939,6 +1956,16 @@ export interface PrivacySettings {
   autoStart: boolean;
 }
 
+export interface ProductPricingResponse {
+  /** @nullable */
+  productSlug?: string | null;
+  /** @nullable */
+  creatorCode?: string | null;
+  discountPercent: number;
+  /** @nullable */
+  providers?: ProviderPricingOption[] | null;
+}
+
 export type ProductType = typeof ProductType[keyof typeof ProductType];
 
 
@@ -1996,6 +2023,25 @@ export interface PropertyChange {
   /** @nullable */
   description: string | null;
   effect: number;
+}
+
+export interface ProviderPricingOption {
+  /** @nullable */
+  providerSlug?: string | null;
+  /** @nullable */
+  providerName?: string | null;
+  originalPrice: number;
+  discountedPrice: number;
+  discountAmount: number;
+  /** @nullable */
+  currencyCode?: string | null;
+  coinsAmount: number;
+  /** @nullable */
+  productTitle?: string | null;
+  /** @nullable */
+  productDescription?: string | null;
+  /** @nullable */
+  googlePlayProductId?: string | null;
 }
 
 export interface PublicSubscription {
@@ -2872,6 +2918,10 @@ export type PostApiTopupPaypalProductSlug401One = {
 };
 
 export type PostApiTopupPlaystore401One = {
+  message?: string;
+};
+
+export type PostApiTopupRates401One = {
   message?: string;
 };
 

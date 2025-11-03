@@ -11,6 +11,7 @@ interface Props {
     activePremiumProduct: PremiumProduct
     premiumSubscriptions: PremiumSubscription[]
     onNewActivePremiumProduct: () => void
+    creatorCode?: string
 }
 
 export default function PurchaseCompletionStep({
@@ -19,12 +20,18 @@ export default function PurchaseCompletionStep({
     selectedDuration,
     activePremiumProduct,
     premiumSubscriptions,
-    onNewActivePremiumProduct
+    onNewActivePremiumProduct,
+    creatorCode
 }: Props) {
     return (
         <div className={styles.stepContent}>
             {selectedType === PurchaseType.SUBSCRIPTION && (
-                <BuySubscription activePremiumProduct={activePremiumProduct} selectedTier={selectedTier} selectedDuration={selectedDuration} />
+                <BuySubscription 
+                    activePremiumProduct={activePremiumProduct} 
+                    selectedTier={selectedTier} 
+                    selectedDuration={selectedDuration}
+                    creatorCode={creatorCode}
+                />
             )}
             {selectedType === PurchaseType.COFLCOINS && (
                 <BuyPremium
