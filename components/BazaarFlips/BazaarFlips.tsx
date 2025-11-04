@@ -143,6 +143,11 @@ export function BazaarFlips() {
                     <br />
                     We enhanced this by marking items that are probably manipulated to protect you from losing coins.
                 </p>
+                <p>
+                    <strong>Want more accurate flips?</strong> Check out our{' '}
+                    <Link href="/premiumBazaar">Premium Bazaar Flips</Link> that use real-time market data and demand analysis
+                    instead of weekly averages for more accurate profit estimates. Premium subscription required.
+                </p>
             </details>
             <details>
                 <summary>How do we detect manipulated items?</summary>

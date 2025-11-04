@@ -25,6 +25,10 @@ export default async function Page() {
                 <Link href="/bazaar" style={{ marginTop: '20px', display: 'inline-block' }}>
                     Go to Bazaar Flips
                 </Link>
+                <span style={{ marginLeft: '12px' }} />
+                <Link href="/premiumBazaar" style={{ marginTop: '20px', display: 'inline-block' }}>
+                    Premium Bazaar Flips (premium required)
+                </Link>
             </Container>
         </>
     )

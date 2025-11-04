@@ -68,6 +68,17 @@ const flipKinds = [
         icon: <ShowChart fontSize="large" />
     },
     {
+        name: 'Premium Bazaar Flips',
+        path: '/premiumBazaar',
+        description: (
+            <span>
+                Premium bazaar flips use real-time market demand and order-book analysis to provide more accurate profit estimates than spread-based
+                flips. Requires a premium subscription to access our real-time tracking infrastructure.
+            </span>
+        ),
+        icon: <ShowChart fontSize="large" />
+    },
+    {
         name: 'Recent Flips',
         path: '/recentFlips',
         description: 'See the most recent profitable flips found by our system. Great for discovering what is currently being flipped and for how much profit.',
