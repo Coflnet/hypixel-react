@@ -4,8 +4,8 @@ import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-
 import { getHeadMetadata } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
-    "Safe Flip Tracker Tools for Hypixel Skyblock | Guide",
-    "Learn about safe and compliant tools to track your flipping profits in Hypixel Skyblock without risking a ban."
+    "Safe Profit Tracker Tools for Hypixel Skyblock | Ban-Free Monitoring",
+    "Complete guide to safe, ban-free tracking tools: SkyCofl Mod automatic logging, web dashboards, spreadsheet tracking, API tools. Compare tools, learn best practices, avoid automation risks."
 );
 
 export default function SafeTrackerToolsPage() {
@@ -119,6 +119,99 @@ export default function SafeTrackerToolsPage() {
                             <CardText>
                                 Start tracking smarter today: <Link href="/mod">Download the SkyCofl Mod</Link>
                             </CardText>
+
+                            <hr />
+                            <CardTitle as="h4" className="mt-4">FAQ: Tracking Tools & Data Privacy</CardTitle>
+
+                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                                <CardBody>
+                                    <CardTitle as="h5">Q: Is using the SkyCofl Mod against Hypixel's TOS?</CardTitle>
+                                    <CardText>
+                                        <strong>A:</strong> No. The SkyCofl Mod is fully compliant because it <strong>only reads and displays data</strong>—it never automates actions, injects chat commands, or manipulates gameplay. Hypixel explicitly permits client-side mods that provide information without automation.
+                                    </CardText>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                                <CardBody>
+                                    <CardTitle as="h5">Q: Can using a tracking tool get me banned?</CardTitle>
+                                    <CardText>
+                                        <strong>A:</strong> Only if the tool automates actions. The SkyCofl Mod, spreadsheets, and manual tracking are 100% safe. Any tool that claims to automate flipping (auto-clicking, auto-claiming orders, etc.) is bannable.
+                                    </CardText>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                                <CardBody>
+                                    <CardTitle as="h5">Q: Should I use the SkyCofl Mod or track manually?</CardTitle>
+                                    <CardText>
+                                        <strong>A:</strong> The SkyCofl Mod is recommended. It automatically logs every transaction, calculates taxes, and syncs to our website for advanced analytics. Manual spreadsheet tracking works but is tedious and error-prone. Use the mod.
+                                    </CardText>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                                <CardBody>
+                                    <CardTitle as="h5">Q: What data does the SkyCofl Mod collect?</CardTitle>
+                                    <CardText>
+                                        <strong>A:</strong> The mod logs transactions (buy/sell prices, quantities, taxes, profit), items collected (mining, farming, fishing, etc.), and playtime. This data is stored locally first and synced to our servers only when you choose to use the web dashboard. You control your privacy.
+                                    </CardText>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                                <CardBody>
+                                    <CardTitle as="h5">Q: How often should I check my profit data?</CardTitle>
+                                    <CardText>
+                                        <strong>A:</strong> Review weekly to identify trends and adjust strategy. Check /cofl profit daily for a quick summary. The more frequently you review, the faster you optimize. But weekly reviews are the practical minimum.
+                                    </CardText>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                                <CardBody>
+                                    <CardTitle as="h5">Q: Can I export my flip data?</CardTitle>
+                                    <CardText>
+                                        <strong>A:</strong> Yes! The SkyCofl Mod syncs data to our website where you can export to CSV. This is useful for advanced analysis, creating your own charts, or backing up your data. Spreadsheets also support export.
+                                    </CardText>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                                <CardBody>
+                                    <CardTitle as="h5">Q: If I stop using the mod, do I lose my history?</CardTitle>
+                                    <CardText>
+                                        <strong>A:</strong> No. Data synced to our website is preserved even if you uninstall the mod. You can always download your history as CSV or revisit the web dashboard later.
+                                    </CardText>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                                <CardBody>
+                                    <CardTitle as="h5">Q: Why should I care about tracking if I'm just having fun?</CardTitle>
+                                    <CardText>
+                                        <strong>A:</strong> Tracking reveals what's actually working. You might THINK your flips are profitable, but taxes might be eating profit. Tracking forces reality. Many "fun" flippers find they're actually making 50% less than they thought—and adjust strategy accordingly.
+                                    </CardText>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                                <CardBody>
+                                    <CardTitle as="h5">Q: Can I track income from methods other than flipping?</CardTitle>
+                                    <CardText>
+                                        <strong>A:</strong> Yes! The SkyCofl Mod tracks mining, farming, fishing, crafting, slaying, and more. The /cofl profit command shows a breakdown by income source. This helps you compare which method is actually most profitable for YOUR playstyle.
+                                    </CardText>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                                <CardBody>
+                                    <CardTitle as="h5">Q: Are there any tracking tools I should avoid?</CardTitle>
+                                    <CardText>
+                                        <strong>A:</strong> Yes. Avoid any tool that promises "automation," "autoclicking," "auto-flipping," or "guaranteed profits." These are bannable and/or scams. Stick to <Link href="/mod">the official SkyCofl Mod</Link> or manual spreadsheets.
+                                    </CardText>
+                                </CardBody>
+                            </Card>
 
                             <hr />
                             <Link href="/guides" passHref>

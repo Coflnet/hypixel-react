@@ -4,8 +4,8 @@ import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-
 import { getHeadMetadata } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
-    "How to Avoid Flipping Taxes and Transfer Losses | Hypixel Skyblock",
-    "Learn how to minimize taxes and transfer losses when flipping items in Hypixel Skyblock to maximize your profits."
+    "Minimize Flipping Taxes & Losses | Bazaar Fees, AH Tax, Price Crashes",
+    "Master tax minimization: Bazaar 1.25%, AH 1%–2.5%, Derpy discount. Avoid price crashes, cancelled orders, scams. Use order strategy to beat fees."
 );
 
 export default function AvoidTaxesAndLossesPage() {
@@ -126,7 +126,140 @@ export default function AvoidTaxesAndLossesPage() {
                                 Learn more in our <Link href="/guides/tracking-profits-automatically">profit tracking guide</Link> and <Link href="/wiki/docs/mod-commands">mod commands reference</Link>.
                             </CardText>
 
-                            <hr />
+                            <CardTitle as="h2" className="mt-4">Advanced: Profit calculation examples</CardTitle>
+
+                            <CardTitle as="h3">Bazaar flip (high volume, low margin)</CardTitle>
+                            <ul>
+                                <li>Buy 64 × Sugar Cane @ 1,000 coins = 64,000 coins spent</li>
+                                <li>Sell 64 × Sugar Cane @ 1,100 coins = 70,400 coins gross</li>
+                                <li>Bazaar tax (1.25%): 70,400 × 0.0125 = 880 coins</li>
+                                <li><strong>Net profit: 70,400 − 880 − 64,000 = 5,520 coins (8.6% net margin)</strong></li>
+                                <li>Coins/flip: 5,520 (fast, maybe 20 min)</li>
+                            </ul>
+
+                            <CardTitle as="h3">Auction House flip (unique item, high margin)</CardTitle>
+                            <ul>
+                                <li>Buy rare pet @ 50M coins (mid-tier)</li>
+                                <li>Sell rare pet @ 65M coins</li>
+                                <li>AH tax (2.5% for &gt;10M): 65M × 0.025 = 1.625M coins</li>
+                                <li><strong>Net profit: 65M − 1.625M − 50M = 13.375M (26.75% net margin)</strong></li>
+                                <li>But holds 2–5 days (lower coins/hour)</li>
+                            </ul>
+
+                            <CardTitle as="h3">Derpy mayor advantage</CardTitle>
+                            <ul>
+                                <li><strong>Normal mayor:</strong> Sell @ 50M, tax 2.5% = 1.25M coins lost</li>
+                                <li><strong>Derpy mayor:</strong> Sell @ 50M, tax 1.25% = 625k coins lost</li>
+                                <li><strong>Savings: 625k per flip!</strong> Perfect time to offload high-value AH inventory.</li>
+                            </ul>
+
+                            <CardTitle as="h2" className="mt-4">Strategy: Beat the fees through order placement</CardTitle>
+
+                            <CardTitle as="h3">Example: Standard instant-buy/sell (loses to fees)</CardTitle>
+                            <ul>
+                                <li>Instant buy @ 1,000 coins per unit (current market price)</li>
+                                <li>Instant sell @ 1,100 coins per unit (current market price)</li>
+                                <li>Gross margin: 10% = 100 coins per unit</li>
+                                <li>Tax (1.25%): −12.5 coins per unit</li>
+                                <li><strong>Net: 87.5 coins per unit = 8.75% net margin</strong></li>
+                            </ul>
+
+                            <CardTitle as="h3">Example: Smart order placement (beats fees)</CardTitle>
+                            <ul>
+                                <li>Place buy order @ 990 coins (1% below instant-buy wall)</li>
+                                <li>Wait 10–20 min for fill</li>
+                                <li>Place sell offer @ 1,120 coins (2% above instant-sell wall)</li>
+                                <li>Wait 15–30 min for fill</li>
+                                <li>Gross margin: 13% = 130 coins per unit</li>
+                                <li>Tax (1.25%): −14.4 coins per unit</li>
+                                <li><strong>Net: 115.6 coins per unit = 11.7% net margin</strong></li>
+                                <li><strong>Improvement: +34% more profit than instant trades!</strong></li>
+                            </ul>
+
+                            <CardTitle as="h2" className="mt-4">Common flipping tax mistakes</CardTitle>
+
+                            <CardTitle as="h3">❌ Mistake 1: Ignoring the 1.25% Bazaar fee</CardTitle>
+                            <CardText>
+                                <strong>Wrong thinking:</strong> "5% margin = 50k profit on 1M sale"
+                                <br />
+                                <strong>Correct thinking:</strong> "5% margin − 1.25% tax = 3.75% net = 37.5k profit on 1M sale"
+                                <br />
+                                <strong>Impact:</strong> Flipping "breakeven" items (2% margin) actually loses money after fees!
+                            </CardText>
+
+                            <CardTitle as="h3">❌ Mistake 2: Instant-buying + instant-selling (giving away 10%+ of margin)</CardTitle>
+                            <CardText>
+                                Using instant trades is convenient but expensive. You're paying the market's bid-ask spread on entry and exit.
+                                <br />
+                                <strong>Fix:</strong> Slow down. Place orders. Wait 10–30 min for fills. Capture the spread instead of losing it.
+                            </CardText>
+
+                            <CardTitle as="h3">❌ Mistake 3: Not comparing Bazaar vs AH taxes</CardTitle>
+                            <CardText>
+                                Example: selling an enchanted book
+                                <br />
+                                <strong>Bazaar (1.25% tax):</strong> Sell @ 1M, lose 12.5k
+                                <br />
+                                <strong>AH (1% + 500 for under 1M):</strong> Sell @ 1M, lose 10,500
+                                <br />
+                                <strong>AH is actually cheaper!</strong> But AH takes longer to sell.
+                            </CardText>
+
+                            <CardTitle as="h3">❌ Mistake 4: Holding during price crashes</CardTitle>
+                            <CardText>
+                                You bought sugar cane @ 1,000 with plan to sell @ 1,100. Then a new farming event makes sugar cane crash to 900.
+                                <br />
+                                <strong>Loss:</strong> −100 coins per unit + 1.25% tax on whatever you finally sell it for = −11.25 coins/unit minimum = −13.75 coins/unit total impact.
+                                <br />
+                                <strong>Prevention:</strong> Avoid holding during unknown events. Use <Link href="/topMovers">Top Movers</Link> to spot early crashes.
+                            </CardText>
+
+                            <CardTitle as="h2" className="mt-4">Tax optimization checklist</CardTitle>
+
+                            <CardTitle as="h3">Before every flip, ask:</CardTitle>
+                            <ul>
+                                <li>☐ Have I calculated net profit after taxes? (Use our tools—they auto-calculate)</li>
+                                <li>☐ Is my net margin above 2% (Bazaar) or 3% (AH)? If not, skip.</li>
+                                <li>☐ Can I use buy/sell orders instead of instant? (Usually +5–10% profit)</li>
+                                <li>☐ Is Derpy mayor active? (If yes and I'm doing AH, lock in sales now)</li>
+                                <li>☐ Have I checked <Link href="/topMovers">Top Movers</Link>? (Avoid items with &gt;5% volatility in 24h)</li>
+                                <li>☐ Will this item hold its value overnight? (If not, finish flip before log off)</li>
+                            </ul>
+
+                            <CardTitle as="h2" className="mt-4">FAQ: Taxes and losses</CardTitle>
+
+                            <CardTitle as="h3">Is the 1.25% Bazaar tax unavoidable?</CardTitle>
+                            <CardText>
+                                <strong>Almost. </strong>You can reduce from 1.25% to 1.125% by claiming orders manually via Mod, but it's marginal (0.125%). The primary way to "beat" taxes is through better order placement, which increases margins by 3–10%.
+                            </CardText>
+
+                            <CardTitle as="h3">When should I use Auction House despite higher taxes?</CardTitle>
+                            <CardText>
+                                When the margin opportunity exceeds the tax penalty.
+                                <br />
+                                <strong>Example:</strong> 50% AH margin (tax 2.5%) = 47.5% net &gt;&gt; 5% Bazaar margin (tax 1.25%) = 3.75% net
+                                <br />
+                                <strong>Rule:</strong> AH wins when margin &gt; 2× Bazaar available margin. At 5M+ capital, this flips.
+                            </CardText>
+
+                            <CardTitle as="h3">What's the biggest source of loss: taxes or price crashes?</CardTitle>
+                            <CardText>
+                                <strong>Price crashes.</strong> Taxes are 1–2.5%. Crashes can be 20–50%. Avoid volatility &gt;&gt; optimize taxes.
+                            </CardText>
+
+                            <CardTitle as="h3">If I cancel an order, do I lose money?</CardTitle>
+                            <CardText>
+                                <strong>No direct fee,</strong> but you lose opportunity cost (time + capital locked). Only cancel if item is tanking or order won't fill in reasonable time (&gt;1h).
+                            </CardText>
+
+                            <CardTitle as="h2" className="mt-4">Related guides</CardTitle>
+                            <ul>
+                                <li><Link href="/guides/how-to-flip">How to Flip</Link> — mechanics review</li>
+                                <li><Link href="/guides/tracking-profits-automatically">Track Profits Automatically</Link> — SkyCofl Mod setup</li>
+                                <li><Link href="/guides/how-to-avoid-scams">How to Avoid Scams</Link></li>
+                                <li><Link href="/mayor">Mayor Flips</Link> — see mayor perks affecting prices</li>
+                                <li><Link href="/topMovers">Top Movers</Link> — avoid volatile items</li>
+                            </ul>
                             <Link href="/guides" passHref>
                                 Back to Guides
                             </Link>
