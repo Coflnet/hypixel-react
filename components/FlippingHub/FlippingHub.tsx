@@ -91,6 +91,12 @@ const flipKinds = [
         icon: <TrendingUp fontSize="large" />
     },
     {
+        name: 'Flipping Guides',
+        path: '/guides',
+        description: 'Learn the ins and outs of flipping with our comprehensive guides. From basic concepts to advanced strategies, we have everything you need to become a flipping master.',
+        icon: <Help fontSize="large" />
+    },
+    {
         name: 'Forge Flips',
         path: '/forge',
         description: (
