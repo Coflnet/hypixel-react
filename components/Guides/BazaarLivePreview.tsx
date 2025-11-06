@@ -3,10 +3,10 @@ import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import Number from '../Number/Number'
-import { getGetApiFlipBazaarSpreadQueryOptions } from '../../api/_generated/skyApi'
+import { useGetApiFlipBazaarSpread } from '../../api/_generated/skyApi'
 
 export default function BazaarLivePreview() {
-  const query = useQuery(getGetApiFlipBazaarSpreadQueryOptions())
+  const query = useGetApiFlipBazaarSpread()
 
   if (query.isLoading) return <p>Loading live bazaar data…</p>
   if (query.isError) return <p>Unable to load live bazaar data.</p>
