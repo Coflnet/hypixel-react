@@ -123,7 +123,10 @@ export function FusionFlips() {
             inputCost: 42,
             outputCount: 69,
             outputValue: 123123,
-            volume: 123123
+            volume: 123123,
+            inputVolume: 0,
+            inputs: null,
+            output: null
         }
     }
 

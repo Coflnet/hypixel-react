@@ -130,7 +130,19 @@ export function PremiumBazaarFlips() {
                     <Number number={Math.round(flip.flip?.currentProfitPerHour || 0)} /> Coins
                 </p>
                 <p>
-                    <span style={{ width: '180px', float: 'left' }}>Volume:</span>
+                    <span style={{ width: '180px', float: 'left' }}>Buy Price:</span>
+                    {formatToPriceToShorten(flip.flip?.buyPrice || 0)} Coins
+                </p>
+                <p>
+                    <span style={{ width: '180px', float: 'left' }}>Sell Price:</span>
+                    {formatToPriceToShorten(flip.flip?.sellPrice || 0)} Coins
+                </p>
+                <p>
+                    <span style={{ width: '180px', float: 'left' }}>Median:</span>
+                    {formatToPriceToShorten(flip.flip?.medianValue || 0)} Coins
+                </p>
+                <p>
+                    <span style={{ width: '180px', float: 'left' }}>Est. Sales/hour:</span>
                     <Number number={Math.round(flip.flip?.volume || 0)} />
                 </p>
                 <p>
@@ -180,7 +192,10 @@ export function PremiumBazaarFlips() {
                 currentProfitPerHour: -100000,
                 volume: -1,
                 itemTag: 'BARRIER',
-                timestamp: ''
+                timestamp: '',
+                buyPrice: 0,
+                sellPrice: 0,
+                medianValue: 0
             }
         }
     }

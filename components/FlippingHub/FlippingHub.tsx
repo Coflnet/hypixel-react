@@ -6,6 +6,7 @@ import {
     Pets,
     Build,
     Storefront,
+    LocalOffer,
     Agriculture,
     ShowChart,
     Handyman,
@@ -76,7 +77,7 @@ const flipKinds = [
                 flips. Requires a premium subscription to access our real-time tracking infrastructure.
             </span>
         ),
-        icon: <ShowChart fontSize="large" />
+        icon: <LocalOffer fontSize="large" />
     },
     {
         name: 'Recent Flips',

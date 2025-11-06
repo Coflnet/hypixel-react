@@ -30,7 +30,6 @@ import type {
   AuctionPreview,
   AuctionResult,
   AveragePrice,
-  BatchPricingRequest,
   BatchProductPricingResponse,
   BidResult,
   BinResponse,
@@ -169,6 +168,7 @@ import type {
   PostApiPlayerNames200Two,
   PostApiPremiumPricesAdjusted401One,
   PostApiPremiumSubscriptionSubscriptionSlug401One,
+  PostApiPremiumSubscriptionSubscriptionSlugParams,
   PostApiPremiumUserOwns200One,
   PostApiPremiumUserOwns200Three,
   PostApiPremiumUserOwns200Two,
@@ -190,6 +190,7 @@ import type {
   PriceStatistics,
   PriceSumary,
   PricingBreakdwon,
+  PricingRequest,
   PrivacySettings,
   Profile,
   ProfitableCraft,
@@ -10016,7 +10017,7 @@ export const getPostApiTopupRatesUrl = () => {
   return `https://sky.coflnet.com/api/topup/rates`
 }
 
-export const postApiTopupRates = async (batchPricingRequest: BatchPricingRequest, options?: RequestInit): Promise<postApiTopupRatesResponse> => {
+export const postApiTopupRates = async (pricingRequest: PricingRequest, options?: RequestInit): Promise<postApiTopupRatesResponse> => {
   
   const res = await fetch(getPostApiTopupRatesUrl(),
   {      
@@ -10024,7 +10025,7 @@ export const postApiTopupRates = async (batchPricingRequest: BatchPricingRequest
     method: 'POST',
     headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
     body: JSON.stringify(
-      batchPricingRequest,)
+      pricingRequest,)
   }
 )
 
@@ -10038,8 +10039,8 @@ export const postApiTopupRates = async (batchPricingRequest: BatchPricingRequest
 
 
 export const getPostApiTopupRatesMutationOptions = <TError = PostApiTopupRates401One | string | null,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupRates>>, TError,{data: BatchPricingRequest}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupRates>>, TError,{data: BatchPricingRequest}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupRates>>, TError,{data: PricingRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiTopupRates>>, TError,{data: PricingRequest}, TContext> => {
 
 const mutationKey = ['postApiTopupRates'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
@@ -10051,7 +10052,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTopupRates>>, {data: BatchPricingRequest}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiTopupRates>>, {data: PricingRequest}> = (props) => {
           const {data} = props ?? {};
 
           return  postApiTopupRates(data,fetchOptions)
@@ -10063,15 +10064,15 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PostApiTopupRatesMutationResult = NonNullable<Awaited<ReturnType<typeof postApiTopupRates>>>
-    export type PostApiTopupRatesMutationBody = BatchPricingRequest
+    export type PostApiTopupRatesMutationBody = PricingRequest
     export type PostApiTopupRatesMutationError = PostApiTopupRates401One | string | null
 
     export const usePostApiTopupRates = <TError = PostApiTopupRates401One | string | null,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupRates>>, TError,{data: BatchPricingRequest}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiTopupRates>>, TError,{data: PricingRequest}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiTopupRates>>,
         TError,
-        {data: BatchPricingRequest},
+        {data: PricingRequest},
         TContext
       > => {
 
@@ -10780,17 +10781,26 @@ export type postApiPremiumSubscriptionSubscriptionSlugResponse = postApiPremiumS
   headers: Headers;
 }
 
-export const getPostApiPremiumSubscriptionSubscriptionSlugUrl = (subscriptionSlug: string,) => {
+export const getPostApiPremiumSubscriptionSubscriptionSlugUrl = (subscriptionSlug: string,
+    params?: PostApiPremiumSubscriptionSubscriptionSlugParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `https://sky.coflnet.com/api/premium/subscription/${subscriptionSlug}`
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/premium/subscription/${subscriptionSlug}?${stringifiedParams}` : `https://sky.coflnet.com/api/premium/subscription/${subscriptionSlug}`
 }
 
-export const postApiPremiumSubscriptionSubscriptionSlug = async (subscriptionSlug: string, options?: RequestInit): Promise<postApiPremiumSubscriptionSubscriptionSlugResponse> => {
+export const postApiPremiumSubscriptionSubscriptionSlug = async (subscriptionSlug: string,
+    params?: PostApiPremiumSubscriptionSubscriptionSlugParams, options?: RequestInit): Promise<postApiPremiumSubscriptionSubscriptionSlugResponse> => {
   
-  const res = await fetch(getPostApiPremiumSubscriptionSubscriptionSlugUrl(subscriptionSlug),
+  const res = await fetch(getPostApiPremiumSubscriptionSubscriptionSlugUrl(subscriptionSlug,params),
   {      
     ...options,
     method: 'POST'
@@ -10809,8 +10819,8 @@ export const postApiPremiumSubscriptionSubscriptionSlug = async (subscriptionSlu
 
 
 export const getPostApiPremiumSubscriptionSubscriptionSlugMutationOptions = <TError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | null,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext> => {
 
 const mutationKey = ['postApiPremiumSubscriptionSubscriptionSlug'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
@@ -10822,10 +10832,10 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, {subscriptionSlug: string}> = (props) => {
-          const {subscriptionSlug} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, {subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}> = (props) => {
+          const {subscriptionSlug,params} = props ?? {};
 
-          return  postApiPremiumSubscriptionSubscriptionSlug(subscriptionSlug,fetchOptions)
+          return  postApiPremiumSubscriptionSubscriptionSlug(subscriptionSlug,params,fetchOptions)
         }
 
         
@@ -10841,11 +10851,11 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary Purchase a service
  */
 export const usePostApiPremiumSubscriptionSubscriptionSlug = <TError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | null,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>,
         TError,
-        {subscriptionSlug: string},
+        {subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams},
         TContext
       > => {
 

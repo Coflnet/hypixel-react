@@ -222,15 +222,6 @@ export interface Banking {
   balance: number;
 }
 
-export interface BatchPricingRequest {
-  /** @nullable */
-  productSlugs?: string[] | null;
-  /** @nullable */
-  countryCode?: string | null;
-  /** @nullable */
-  creatorCode?: string | null;
-}
-
 export interface BatchProductPricingResponse {
   /** @nullable */
   creatorCode?: string | null;
@@ -528,6 +519,9 @@ export interface DemandFlip {
   currentProfitPerHour: number;
   timestamp: string;
   volume: number;
+  buyPrice: number;
+  sellPrice: number;
+  medianValue: number;
 }
 
 export interface DemandSpreadFlip {
@@ -582,6 +576,7 @@ export const DescriptionField = {
   NpcSellPrice: 'NpcSellPrice',
   ColorCode: 'ColorCode',
   DefaultLore: 'DefaultLore',
+  AiEstimate: 'AiEstimate',
   BAZAAR_COST: 'BAZAAR_COST',
 } as const;
 
@@ -1088,6 +1083,7 @@ export interface FuseFlip {
   inputs?: FuseFlipInputs;
   inputCost: number;
   volume: number;
+  inputVolume: number;
   outputValue: number;
   /** @nullable */
   output?: string | null;
@@ -1939,6 +1935,15 @@ export interface PricingBreakdwon {
   craftPrice: CraftPrice[] | null;
 }
 
+export interface PricingRequest {
+  /** @nullable */
+  productSlugs?: string[] | null;
+  /** @nullable */
+  countryCode?: string | null;
+  /** @nullable */
+  creatorCode?: string | null;
+}
+
 export interface PrivacySettings {
   /** @nullable */
   chatRegex: string | null;
@@ -2185,10 +2190,10 @@ export const Reforge = {
   Fabled: 'Fabled',
   Precise: 'Precise',
   Giant: 'Giant',
-  warped_on_aote: 'warped_on_aote',
+  aoteStone: 'aoteStone',
   Spiritual: 'Spiritual',
   Treacherous: 'Treacherous',
-  Renowned: 'Renowned',
+  RENOWED: 'RENOWED',
   Reinforced: 'Reinforced',
   rich_bow: 'rich_bow',
   Spiked: 'Spiked',
@@ -2299,6 +2304,7 @@ export const Reforge = {
   moonglade: 'moonglade',
   bloodshot: 'bloodshot',
   blood_shot: 'blood_shot',
+  erudite: 'erudite',
 } as const;
 
 export interface RequiredCollection {
@@ -2535,6 +2541,11 @@ export interface TopUpArguments {
    * @nullable
    */
   cancelUrl?: string | null;
+  /**
+   * An optional creator code to apply to the purchase
+   * @nullable
+   */
+  creatorCode?: string | null;
 }
 
 export interface TopUpIdResponse {
@@ -2954,6 +2965,10 @@ export type PostApiPremiumUserOwns401One = {
 
 export type GetApiPremiumTransactions401One = {
   message?: string;
+};
+
+export type PostApiPremiumSubscriptionSubscriptionSlugParams = {
+creatorCode?: string;
 };
 
 export type PostApiPremiumSubscriptionSubscriptionSlug401One = {
