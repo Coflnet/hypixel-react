@@ -174,7 +174,7 @@ export default function AutomatingFlipsPage() {
                                     <CardTitle as="h5">What if I don't care and am very lazy</CardTitle>
                                     <CardText>
                                         For a while we blocked every macroer completely but we noticed we can't punish people macroing they will just go somewhere else and than our fairness system falls appart, only hypixel can.
-                                        So if you don't care about your account you can use <a href="https://discord.gg/pR3h4ap95w">IdleMine</a> to afk on any minecraft server 24/7.
+                                        So if you don't care about your account you can use <a href="https://idlemine.net">IdleMine</a> to afk on any minecraft server 24/7.
                                         And if you really don't care <a href="https://docs.tpm.lol/">TPM</a> is the fastest known macro client that can do auction flipping for you.
                                         We tolerate players using it in a limited fashion so we can reserve low to median profit flips for legitimate players (they are sent a few seconds earlier to mod users).
                                         Sadly the auction house flipping part of skyblock is broken for everyone because of macroers, its a race to the bottom.

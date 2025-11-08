@@ -37,8 +37,8 @@ export default function BazaarVsAuctionHousePage() {
                                     </tr>
                                     <tr>
                                         <td><strong>Flip Speed</strong></td>
-                                        <td>30–90 min (buy order fill + sell offer fill)</td>
-                                        <td>1–7 days (auction duration + resale time)</td>
+                                        <td>average 30–90 min (buy order fill + sell offer fill)</td>
+                                        <td>often multiple days</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Profit Margin</strong></td>
@@ -47,13 +47,13 @@ export default function BazaarVsAuctionHousePage() {
                                     </tr>
                                     <tr>
                                         <td><strong>Volume</strong></td>
-                                        <td>High (flip 10–50 times/day per item)</td>
-                                        <td>Low (1–3 flips/week per item category)</td>
+                                        <td>High (flip thousands-millions of items per day)</td>
+                                        <td>Low (usually 10s of items per day)</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Capital Required</strong></td>
-                                        <td>500k–3M to start, 10M+ to scale</td>
-                                        <td>3M–10M minimum, 50M+ for high-value pets/gear</td>
+                                        <td>500k–3M to start, 100M+ to scale and at least Skybock Level 7</td>
+                                        <td>3M–10M minimum, 500M+ for high-value pets/gear</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Complexity</strong></td>

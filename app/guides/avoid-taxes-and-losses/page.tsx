@@ -24,7 +24,8 @@ export default function AvoidTaxesAndLossesPage() {
                             
                             <CardTitle as="h3" className="mt-3">Bazaar Tax (1.25%)</CardTitle>
                             <CardText>
-                                Every item sold on the Bazaar is subject to a <strong>1.25% tax</strong> on the sell price. This is automatically deducted when you collect your coins from a sell order. This tax was reduced from 2.5% thanks to the Bazaar community upgrade.
+                                Every item sold on the Bazaar is subject to a <strong>1.25% tax</strong> on the sell price. This is automatically deducted when you collect your coins from a sell order.
+                                This can be reduced to 1.125% by claiming a free cummunity upgrade and further via a paid cumminity upgrade option with the NPC Elisabeth.
                             </CardText>
                             <CardText>
                                 <strong>Example:</strong> If you sell an item for 1,000,000 coins, you'll receive 987,500 coins (1.25% = 12,500 coins in tax).
@@ -32,18 +33,18 @@ export default function AvoidTaxesAndLossesPage() {
 
                             <CardTitle as="h3" className="mt-3">Auction House Tax (Variable)</CardTitle>
                             <CardText>
-                                The Auction House has a more complex tax structure that depends on the sell price:
+                                The Auction House has a more complex tax structure that depends on the sell price, for BIN auctions its:
                             </CardText>
                             <ul>
-                                <li>Items selling for under 1M coins: <strong>1% + 500 coins</strong></li>
-                                <li>Items selling for 1M - 10M coins: <strong>2%</strong></li>
-                                <li>Items selling for over 10M coins: <strong>2.5%</strong></li>
+                                <li>Items selling for under 10M coins: <strong>1%</strong></li>
+                                <li>Items selling for 10M - 100M coins: <strong>2%</strong></li>
+                                <li>Items selling for over 100M coins: <strong>2.5%</strong></li>
                             </ul>
                             <CardText>
-                                During <strong>Derpy Mayor</strong> events, Auction House taxes are reduced by 50%, making it a great time to flip high-value items.
+                                During <strong>Derpy Mayor</strong> events, Auction House taxes are up quadrupled, this only affects the claim tax tho which is normally 1% but during derpy its 4% (on top ofthe rates limited above) but only on items above 1m in price.
                             </CardText>
                             <CardText>
-                                Use the <strong>/cofl ahtax &lt;sellAmount&gt;</strong> command to calculate the exact tax for any sell amount. The command automatically accounts for Derpy's discount if active. See the <Link href="/wiki/docs/mod-commands#ahtaxcommand-alias-t">full command reference</Link>.
+                                Use the <strong>/cofl ahtax &lt;sellAmount&gt;</strong> command to calculate the exact tax for any sell amount (BIN auctions). The command automatically accounts for Derpy's extra costs (it assumes that auctions are claimed within derpy). See the <Link href="/wiki/docs/mod-commands#ahtaxcommand-alias-t">full command reference</Link>.
                             </CardText>
 
                             <CardTitle as="h2" className="mt-4">How to Minimize Tax Impact</CardTitle>
@@ -57,8 +58,8 @@ export default function AvoidTaxesAndLossesPage() {
                                 Net Profit = (Sell Price × 0.9875) - Buy Price
                             </CardText>
                             <CardText>
-                                <strong>Formula for Auction House (over 10M):</strong><br />
-                                Net Profit = (Sell Price × 0.975) - Buy Price
+                                <strong>Formula for Auction House (simplified for over 10M):</strong><br />
+                                Net Profit = (Sell Price × 0.97) - Buy Price
                             </CardText>
                             <CardText>
                                 Our <Link href="/bazaar">Bazaar Flips</Link> and <Link href="/flipper">AH Flipper</Link> tools automatically calculate net profit after taxes, so you always see accurate profit estimates.
@@ -76,21 +77,16 @@ export default function AvoidTaxesAndLossesPage() {
                                 This strategy alone can improve your margins by 5-15%, which far exceeds the 1.25% Bazaar tax.
                             </CardText>
 
-                            <CardTitle as="h3" className="mt-3">3. Take Advantage of Derpy Mayor</CardTitle>
+                            <CardTitle as="h3" className="mt-3">3. Be patient</CardTitle>
                             <CardText>
-                                When <strong>Derpy</strong> is mayor, Auction House fees are cut in half. This is the perfect time to flip high-value items (over 10M coins), as the tax drops from 2.5% to just 1.25%. Check our <Link href="/mayor">Mayor Flips</Link> page to see predicted price changes based on the current mayor.
-                            </CardText>
-
-                            <CardTitle as="h3" className="mt-3">4. Choose the Right Marketplace</CardTitle>
-                            <CardText>
-                                For items available on both the Bazaar and Auction House, always calculate which platform will give you better net profit after taxes:
+                                Allow time for your buy and sell orders to fill rather than rushing to instant trades. The longer you wait, the better prices you can often achieve, further offsetting tax costs.
                             </CardText>
                             <ul>
-                                <li>The Bazaar has a flat 1.25% tax, making it better for most commodity items.</li>
-                                <li>The Auction House can be better for unique items (enchants, pets) where you can get a premium price that exceeds the higher tax.</li>
+                                <li>Prices often swing intra day so you may want to place both buy and sell orders at repeating peaks</li>
+                                <li>Each time you log on you just collect the coins from sold items and items from filled buy orders and set up new orders</li>
                             </ul>
 
-                            <CardTitle as="h2" className="mt-4">Avoiding Transfer Losses</CardTitle>
+                            <CardTitle as="h2" className="mt-4">Noteable Risks</CardTitle>
 
                             <CardTitle as="h3" className="mt-3">1. Cancelled Orders</CardTitle>
                             <CardText>
@@ -110,17 +106,17 @@ export default function AvoidTaxesAndLossesPage() {
                                 <li>Flip high-volume, stable items rather than volatile ones.</li>
                                 <li>Check our <Link href="/topMovers">Top Movers</Link> page or use <strong>/cofl bzmove</strong> to see recent price trends.</li>
                                 <li>Set price alerts using <strong>/cofl reminder</strong> for items you're currently holding.</li>
-                                <li>Don't hold items overnight unless you're confident in their stability.</li>
+                                <li>Don't hold items overnight unless you're confident in their stability (eg not related to planed skyblock updates).</li>
                             </ul>
 
                             <CardTitle as="h3" className="mt-3">3. Coin Transfers and Trading</CardTitle>
                             <CardText>
-                                Direct player-to-player trades and coin transfers have no tax, but they carry significant risk of scams. Only trade directly with players you trust completely, and always use the official trade menu to verify items before accepting. See our <Link href="/guides/how-to-avoid-scams">scam prevention guide</Link> for more details.
+                                Direct player-to-player trades and coin transfers have no tax, but they carry significant risk of scams. Only trade directly with players you trust completely, and always double check prices to verify items before accepting. See our <Link href="/guides/how-to-avoid-scams">scam prevention guide</Link> for more details.
                             </CardText>
 
                             <CardTitle as="h2" className="mt-4">Track Everything Automatically</CardTitle>
                             <CardText>
-                                The <strong>SkyCofl Mod</strong> automatically tracks all your flips and calculates the exact profit after taxes. Use <strong>/cofl flips</strong> to review your flip history and see which items are actually profitable after all fees. The mod also tracks any losses from price crashes or cancelled orders, giving you a complete financial picture.
+                                The <strong>SkyCofl Mod</strong> automatically tracks all your flips and calculates the exact profit after taxes. Use <strong>/cofl flips</strong> to review your flip history and see which items are actually profitable after all fees. The mod also tracks any losses from price crashes or auction relisting fees, giving you a complete financial picture.
                             </CardText>
                             <CardText>
                                 Learn more in our <Link href="/guides/tracking-profits-automatically">profit tracking guide</Link> and <Link href="/wiki/docs/mod-commands">mod commands reference</Link>.
@@ -146,23 +142,7 @@ export default function AvoidTaxesAndLossesPage() {
                                 <li>But holds 2–5 days (lower coins/hour)</li>
                             </ul>
 
-                            <CardTitle as="h3">Derpy mayor advantage</CardTitle>
-                            <ul>
-                                <li><strong>Normal mayor:</strong> Sell @ 50M, tax 2.5% = 1.25M coins lost</li>
-                                <li><strong>Derpy mayor:</strong> Sell @ 50M, tax 1.25% = 625k coins lost</li>
-                                <li><strong>Savings: 625k per flip!</strong> Perfect time to offload high-value AH inventory.</li>
-                            </ul>
 
-                            <CardTitle as="h2" className="mt-4">Strategy: Beat the fees through order placement</CardTitle>
-
-                            <CardTitle as="h3">Example: Standard instant-buy/sell (loses to fees)</CardTitle>
-                            <ul>
-                                <li>Instant buy @ 1,000 coins per unit (current market price)</li>
-                                <li>Instant sell @ 1,100 coins per unit (current market price)</li>
-                                <li>Gross margin: 10% = 100 coins per unit</li>
-                                <li>Tax (1.25%): −12.5 coins per unit</li>
-                                <li><strong>Net: 87.5 coins per unit = 8.75% net margin</strong></li>
-                            </ul>
 
                             <CardTitle as="h3">Example: Smart order placement (beats fees)</CardTitle>
                             <ul>
@@ -194,17 +174,6 @@ export default function AvoidTaxesAndLossesPage() {
                                 <strong>Fix:</strong> Slow down. Place orders. Wait 10–30 min for fills. Capture the spread instead of losing it.
                             </CardText>
 
-                            <CardTitle as="h3">❌ Mistake 3: Not comparing Bazaar vs AH taxes</CardTitle>
-                            <CardText>
-                                Example: selling an enchanted book
-                                <br />
-                                <strong>Bazaar (1.25% tax):</strong> Sell @ 1M, lose 12.5k
-                                <br />
-                                <strong>AH (1% + 500 for under 1M):</strong> Sell @ 1M, lose 10,500
-                                <br />
-                                <strong>AH is actually cheaper!</strong> But AH takes longer to sell.
-                            </CardText>
-
                             <CardTitle as="h3">❌ Mistake 4: Holding during price crashes</CardTitle>
                             <CardText>
                                 You bought sugar cane @ 1,000 with plan to sell @ 1,100. Then a new farming event makes sugar cane crash to 900.
@@ -221,7 +190,7 @@ export default function AvoidTaxesAndLossesPage() {
                                 <li>☐ Have I calculated net profit after taxes? (Use our tools—they auto-calculate)</li>
                                 <li>☐ Is my net margin above 2% (Bazaar) or 3% (AH)? If not, skip.</li>
                                 <li>☐ Can I use buy/sell orders instead of instant? (Usually +5–10% profit)</li>
-                                <li>☐ Is Derpy mayor active? (If yes and I'm doing AH, lock in sales now)</li>
+                                <li>☐ Is Derpy mayor active? (If yes you can still buy and resell the flip but you may want to wait for claiming)</li>
                                 <li>☐ Have I checked <Link href="/topMovers">Top Movers</Link>? (Avoid items with &gt;5% volatility in 24h)</li>
                                 <li>☐ Will this item hold its value overnight? (If not, finish flip before log off)</li>
                             </ul>
@@ -235,7 +204,7 @@ export default function AvoidTaxesAndLossesPage() {
 
                             <CardTitle as="h3">When should I use Auction House despite higher taxes?</CardTitle>
                             <CardText>
-                                When the margin opportunity exceeds the tax penalty.
+                                When the margin opportunity exceeds the tax penalty. Also most expensive items are only sellable on the AH.
                                 <br />
                                 <strong>Example:</strong> 50% AH margin (tax 2.5%) = 47.5% net &gt;&gt; 5% Bazaar margin (tax 1.25%) = 3.75% net
                                 <br />
@@ -249,7 +218,8 @@ export default function AvoidTaxesAndLossesPage() {
 
                             <CardTitle as="h3">If I cancel an order, do I lose money?</CardTitle>
                             <CardText>
-                                <strong>No direct fee,</strong> but you lose opportunity cost (time + capital locked). Only cancel if item is tanking or order won't fill in reasonable time (&gt;1h).
+                                <strong>No direct fee,</strong> but if you relist an item on the auction house you will have to pay the listing fee again.
+                                On the bazaar you have a maximum amount of coin value that you can create orders for per day, so replacing orders will be impossible if you do it a lot. Only cancel if item is tanking or order won't fill in reasonable time (&gt;1h).
                             </CardText>
 
                             <CardTitle as="h2" className="mt-4">Related guides</CardTitle>

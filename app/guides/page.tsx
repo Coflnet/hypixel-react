@@ -112,9 +112,6 @@ export default function GuidesPage() {
                                 <li>
                                     <Link href="/guides/buying-skyblock-coins">Buying Hypixel Skyblock Coins: Risks, Bans, and Safe Alternatives</Link> - Why buying coins is dangerous
                                 </li>
-                                <li>
-                                    <Link href="/guides/bazaar-apis">Hypixel Bazaar APIs: A Developer's Guide to Live Price Data</Link> - For developers building flipping tools
-                                </li>
                             </ul>
 
                             <hr className="mt-4" />
