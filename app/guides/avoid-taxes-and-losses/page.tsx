@@ -41,7 +41,7 @@ export default function AvoidTaxesAndLossesPage() {
                                 <li>Items selling for over 100M coins: <strong>2.5%</strong></li>
                             </ul>
                             <CardText>
-                                During <strong>Derpy Mayor</strong> events, Auction House taxes are up quadrupled, this only affects the claim tax tho which is normally 1% but during derpy its 4% (on top ofthe rates limited above) but only on items above 1m in price.
+                                During <strong>Derpy Mayor</strong> events, Auction House claiming taxes increase. This affects the claim portion of AH fees (typically on higher-value items), so be sure to account for the higher claiming cost when estimating net profit on items above 1M in price.
                             </CardText>
                             <CardText>
                                 Use the <strong>/cofl ahtax &lt;sellAmount&gt;</strong> command to calculate the exact tax for any sell amount (BIN auctions). The command automatically accounts for Derpy's extra costs (it assumes that auctions are claimed within derpy). See the <Link href="/wiki/docs/mod-commands#ahtaxcommand-alias-t">full command reference</Link>.

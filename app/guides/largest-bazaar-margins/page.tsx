@@ -114,7 +114,7 @@ export default function LargestBazaarMarginsPage() {
 
                             <CardTitle as="h3">2. Mayor changes (predictable)</CardTitle>
                             <CardText>
-                                <strong>Derpy mayor:</strong> AH taxes drop 50% → players offload inventory → prices adjust (some drop, some spike based on buyer demand).
+                                <strong>Derpy mayor:</strong> AH claiming taxes increase during the event → players may offload inventory differently once claiming is more expensive, so prices can adjust (some drop, some spike based on buyer demand).
                                 <br />
                                 <strong>Action:</strong> Check <Link href="/mayor">Mayor Flips</Link> for predicted changes. Front-run the crowd.
                             </CardText>

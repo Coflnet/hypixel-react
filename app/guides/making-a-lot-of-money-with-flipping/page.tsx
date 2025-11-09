@@ -17,80 +17,92 @@ export default function MakingMoneyWithFlippingPage() {
                         <CardBody>
                             <CardTitle as="h1">How to make a lot of money with flipping — the short answer</CardTitle>
                             <CardText>
-                                Scale from 10M to 100M+ by: (1) diversifying across Bazaar (60%), Crafts (20%), AH (20%), (2) exploiting mayor perks and events, (3) reinvesting 100% of profits until 50M, then banking some, (4) using premium tools for edge, (5) running 30–50 active flips simultaneously. Timeline: 3–6 months from 10M to 100M with consistent 15–20% daily ROI.
+                                Scale from 10M to 100M+ by: (1) diversifying across Bazaar, Crafts, AuctionHouse, (2) exploiting mayor perks and events,
+                                (3) reinvesting 100% of profits (4) using premium tools for edge,
+                                (5) run multiple active flips simultaneously. Timeline: 1 week from 10M to 100M.
                             </CardText>
 
                             <CardTitle as="h2" className="mt-3">The scaling pyramid: 10M → 50M → 100M</CardTitle>
 
-                            <CardTitle as="h3">Phase 1: From 10M to 50M (6–12 weeks)</CardTitle>
+                            <CardTitle as="h2" className="mt-3">Stage-based scaling (aligns with timeline)</CardTitle>
+
+                            <CardTitle as="h3">Stage 1: 0–5M</CardTitle>
                             <CardText>
-                                <strong>Goal:</strong> Prove consistent 15–20% daily ROI. Build reputation + experience.
+                                <strong>Goal:</strong> Build initial Coin and learn reliable, low-risk flips. Target modest daily ROI focused on consistency.
                             </CardText>
                             <ul>
-                                <li><strong>Capital allocation:</strong>
-                                    <ul>
-                                        <li>Bazaar (60%): 6M across 20–30 items @ 200k per item. Target 10–15 flips/day per item.</li>
-                                        <li>Crafts (25%): 2.5M actively flipped across 4–5 recipes. Target 1–3 flips/day per recipe.</li>
-                                        <li>AH (10%): 1M reserve for opportunity plays. Target 1–2 high-margin flips/week.</li>
-                                        <li>Event/Reserve (5%): 0.5M for mayor spike plays.</li>
-                                    </ul>
-                                </li>
-                                <li><strong>Daily workflow:</strong>
-                                    <ol>
-                                        <li>Check <Link href="/topMovers">Top Movers</Link> & <Link href="/mayor">Mayor</Link> for events (10 min)</li>
-                                        <li>Open <Link href="/bazaar">Bazaar Flips</Link>, place 20–30 buy orders (15 min)</li>
-                                        <li>Collect fills every 20 min, place sell orders (active play 2–3 hours)</li>
-                                        <li>Track profits with /cofl profit (5 min)</li>
-                                    </ol>
-                                </li>
-                                <li><strong>Reinvestment discipline:</strong> 100% of profits reinvested. Never bank coins until 50M.</li>
-                                <li><strong>Expected result:</strong> 10M → 50M in 45–60 days (if flipping 3–4 hours/day)</li>
+                                <li><strong>Daily ROI target:</strong> 5–10%</li>
+                                <li><strong>Time to next level:</strong> ~2 days (aggressive micro-flips + NPC/minions)</li>
+                                <li><strong>Strategy focus:</strong> NPC, minions, farming and instant craft flips</li>
+                                <li><strong>Typical allocation:</strong> Bazaar-heavy small stacks, fast crafts and farming income. Keep risk minimal.</li>
                             </ul>
 
-                            <CardTitle as="h3">Phase 2: From 50M to 100M (4–8 weeks)</CardTitle>
+                            <CardTitle as="h3">Stage 2: 5M–100M</CardTitle>
                             <CardText>
-                                <strong>Goal:</strong> Shift focus to higher-margin plays. Capital is large enough to absorb niche risks.
+                                <strong>Goal:</strong> Rapid growth using higher-frequency Bazaar and craft flips while introducing AH opportunistically.
                             </CardText>
                             <ul>
-                                <li><strong>Capital allocation (evolves):</strong>
+                                <li><strong>Daily ROI target:</strong> 12–18%</li>
+                                <li><strong>Time to next level:</strong> ~7 days (with disciplined reinvestment)</li>
+                                <li><strong>Strategy focus:</strong> Bazaar + Crafts + AH (minor)</li>
+                                <li><strong>Coin allocation example:</strong>
                                     <ul>
-                                        <li>Bazaar (45%): 22.5M. Reduced frequency (5–8 flips/day per item) since capital's high. Increase sizing to 30–50% per flip. Let compounding work.</li>
-                                        <li>Crafts (20%): 10M. Expand to 8–10 active recipes. Some recipes now at 1M+ scale = 20–30% margins.</li>
-                                        <li>AH (20%): 10M. Now run 3–6 active listings simultaneously. Target 3–5 high-margin plays/week.</li>
-                                        <li>Event/Premium (15%): 7.5M. Derpy mayor plays, balance updates, new items.</li>
+                                        <li>Bazaar ~60% (diversified across many items)</li>
+                                        <li>Crafts ~25% (active recipes, fast turnover)</li>
+                                        <li>AH ~10% (opportunity plays)</li>
+                                        <li>Reserve/Event ~5%</li>
                                     </ul>
                                 </li>
-                                <li><strong>Focus shift:</strong> Less volume, more margin. Bazaar becomes maintenance (easier), AH becomes primary growth engine.</li>
-                                <li><strong>Expected result:</strong> 50M → 100M in 30–45 days (with 10–15% daily ROI, slowing from compounding base)</li>
+                                <li><strong>Workflow highlights:</strong> Use Top Movers/Mayor scans, keep buy orders active, and reinvest nearly all profits until you pass 50M.</li>
                             </ul>
 
-                            <CardTitle as="h2" className="mt-4">Advanced strategies for high-capital flippers</CardTitle>
+                            <CardTitle as="h3">Stage 3: 100M–1B</CardTitle>
+                            <CardText>
+                                <strong>Goal:</strong> Shift toward higher-margin, lower-frequency plays; AH becomes a primary growth engine.
+                            </CardText>
+                            <ul>
+                                <li><strong>Daily ROI target:</strong> 8–15%</li>
+                                <li><strong>Time to next level:</strong> 14–30 days</li>
+                                <li><strong>Strategy focus:</strong> AH primary, Bazaar maintenance</li>
+                                <li><strong>Coin allocation example:</strong> More balance toward AH and high-margin crafts; Bazaar becomes maintenance.</li>
+                            </ul>
+
+                            <CardTitle as="h3">Stage 4: &gt;1B</CardTitle>
+                            <CardText>
+                                <strong>Goal:</strong> Preserve and grow Coin with high-margin, low-risk plays. Focus on stability and selective risk.
+                            </CardText>
+                            <ul>
+                                <li><strong>Daily ROI target:</strong> 5–10%</li>
+                                <li><strong>Time horizon:</strong> Indefinite — focus on long-term stability</li>
+                                <li><strong>Strategy focus:</strong> High-margin plays only, limit risk; mayor-cycle based investing selectively</li>
+                            </ul>
+
+                            <CardTitle as="h2" className="mt-4">Advanced strategies for high-Coin flippers</CardTitle>
 
                             <CardTitle as="h3">1. Exploit mayor events (1–3M per spike)</CardTitle>
                             <CardText>
                                 <strong>Strategy:</strong> Hold 5–10M in reserve. When predictable mayor perks hit, deploy aggressively.
                             </CardText>
                             <ul>
-                                <li><strong>Derpy mayor:</strong> AH taxes drop 50%. Front-run high-value AH inventory before event ends. Profit: 25–50% on 5M commitment = 1.25–2.5M gain.</li>
                                 <li><strong>New balance patch:</strong> Items with changed crafting costs become arbitrage opportunities. Buy materials before patch hits, sell after market reprices.</li>
                                 <li><strong>Double XP events:</strong> Items spike in demand (players farming). Flip in 2–3 day window, exit before crash.</li>
                                 <li><strong>New boss releases:</strong> Boss materials tank initially, stabilize after 1–2 weeks. Buy dips, sell stabilization (20–40% margins).</li>
                             </ul>
 
-                            <CardTitle as="h3">2. Master craft flipping at scale</CardTitle>
+                            <CardTitle as="h3">2. Master craft flipping</CardTitle>
                             <CardText>
-                                <strong>At 50M+, craft flipping is faster money than pure Bazaar flipping.</strong>
+                                <strong>Craft flipping is faster money than pure Bazaar flipping.</strong>
                             </CardText>
                             <ul>
                                 <li><strong>High-volume recipes (5–20% margins):</strong>
                                     <ul>
-                                        <li>Enchanted Blocks: Cobblestone → blocks. 50–100 flips/week. 200k–500k/flip.</li>
-                                        <li>Compacting chains: 160 unenchanted → 1 enchanted. 10–20% margins on demand items.</li>
+                                        <li>Compacting: easy to do many of with a <Link href="/item/PERSONAL_COMPACTOR_4000">Personal Compactor</Link>.</li>
+                                        <li>In deemand items: Search for high volume items that maybe have multiple craft steps for extra profit.</li>
                                     </ul>
                                 </li>
                                 <li><strong>High-margin recipes (20–50% margins):</strong>
                                     <ul>
-                                        <li>Armor reforges: Combine base armor + gems. 1M–5M/flip. 2–5 flips/week.</li>
+                                        <li>Bits items: eg Jumbo Backpacks can be a way to double your coins each time</li>
                                         <li>Dungeon prep crafts: Items for end-game grind. Margins 30–60% if you get materials right.</li>
                                         <li>Pet food combos: Niche but 15–30% margins. 100k–500k/flip.</li>
                                     </ul>
@@ -98,22 +110,22 @@ export default function MakingMoneyWithFlippingPage() {
                                 <li><strong>Tracking:</strong> Use <Link href="/crafts">Craft Flips</Link> to monitor recipe profitability. Dump recipes with &lt;8% margin.</li>
                             </ul>
 
-                            <CardTitle as="h3">3. AH flipping for high capital (30–100%+ margins)</CardTitle>
+                            <CardTitle as="h3">3. AH flipping for high Coin (30–100%+ margins)</CardTitle>
                             <CardText>
                                 <strong>At 50M+, AH flipping should yield 30–100%+ margins on niche items.</strong>
                             </CardText>
                             <ul>
                                 <li><strong>Meta pets:</strong> Dragon, Phoenix, Griffin. 20M–100M price range. 20–40% margins if you buy right.</li>
-                                <li><strong>God-roll gear:</strong> Perfect enchants + reforges. 5M–50M range. 15–50% margins.</li>
+                                <li><strong>Hyperions:</strong> People are lazy and will prefer buying maxed or maxed looking Hypierions.</li>
                                 <li><strong>Dungeon equipment:</strong> New drops from balances changes. 1M–10M range. 20–60% margins in first 2 weeks.</li>
-                                <li><strong>Tip:</strong> Use <Link href="/flipper">AH Flipper</Link> to find undervalued items. Premium tool shows demand signals.</li>
+                                <li><strong>Tip:</strong> Use <Link href="/flipper">AH Flipper</Link> to find undervalued items.</li>
                             </ul>
 
-                            <CardTitle as="h3">4. Profit reinvestment discipline (reinvest until 50M, then bank)</CardTitle>
+                            <CardTitle as="h3">4. Profit reinvestment discipline</CardTitle>
                             <CardText>
                                 <strong>Reinvest 100% until 50M.</strong> After 50M, can bank 20–30% of profits safely.
                                 <br />
-                                <strong>Why?</strong> Compounding is exponential at scale. Holding cash slows growth.
+                                <strong>Why?</strong> Compounding is exponential at scale. Holding or even spending coins before that slows growth.
                                 <br />
                                 <strong>Banking strategy once 50M+:</strong> Hoard 10M (emergency fund) + 5–10M (opportunity fund). Rest stays deployed.
                             </CardText>
@@ -124,28 +136,14 @@ export default function MakingMoneyWithFlippingPage() {
                                 <br />
                                 <strong>Cost:</strong> Premium subscription (varies)
                                 <br />
-                                <strong>ROI:</strong> If premium saves 1 hour/day of research, and your time is worth 1M coins/hour = 365M/year value. Subscription pays for itself instantly.
+                                <strong>ROI:</strong> Average profits of premium users vs its cost are 10x better than buying Booster Cookies.
                             </CardText>
 
                             <CardTitle as="h2" className="mt-4">Common scaling mistakes</CardTitle>
 
-                            <CardTitle as="h3">❌ Mistake: Spreading too thin</CardTitle>
+                            <CardTitle as="h3">❌ Mistake: Holding Coin as "safety net"</CardTitle>
                             <CardText>
-                                "I'll flip 100 different items!" Result: Can't monitor them all. Orders fail, losses mount.
-                                <br />
-                                <strong>Fix:</strong> Limit to 20–30 active Bazaar items, 5–8 craft recipes, 3–6 AH listings. Quality &gt; quantity.
-                            </CardText>
-
-                            <CardTitle as="h3">❌ Mistake: Not tracking ROI by item</CardTitle>
-                            <CardText>
-                                Item A yields 8%, Item B yields 2%. But you're flipping both equally.
-                                <br />
-                                <strong>Fix:</strong> Use /cofl profit weekly. Drop bottom 10% of items. Double down on top performers.
-                            </CardText>
-
-                            <CardTitle as="h3">❌ Mistake: Holding capital as "safety net"</CardTitle>
-                            <CardText>
-                                Once you reach 20M+, you stop reinvesting "just in case." Result: 10M in Bazaar, 3M locked, 7M liquid. You miss 30% growth from deployed capital.
+                                Once you reach 20M+, you stop reinvesting "just in case." Result: 10M in Bazaar, 3M locked, 7M liquid. You miss 30% growth from deployed Coin.
                                 <br />
                                 <strong>Fix:</strong> Reinvest 100% until 50M. Then keep only 15–20% as reserves.
                             </CardText>
@@ -155,7 +153,7 @@ export default function MakingMoneyWithFlippingPage() {
                             <table className="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Capital Level</th>
+                                        <th>Coin Level</th>
                                         <th>Daily ROI Target</th>
                                         <th>Time to Next Level</th>
                                         <th>Strategy Focus</th>
@@ -163,34 +161,28 @@ export default function MakingMoneyWithFlippingPage() {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>1M–5M</td>
+                                        <td>0–5M</td>
                                         <td>5–10%</td>
-                                        <td>14–21 days</td>
-                                        <td>Bazaar volume only</td>
+                                        <td>3 days</td>
+                                        <td>NPC, minions, farming and instant craft flips</td>
                                     </tr>
                                     <tr>
-                                        <td>5M–10M</td>
-                                        <td>10–15%</td>
-                                        <td>14–21 days</td>
-                                        <td>Bazaar + Crafts hybrid</td>
-                                    </tr>
-                                    <tr>
-                                        <td>10M–50M</td>
+                                        <td>5M–100M</td>
                                         <td>12–18%</td>
-                                        <td>30–45 days</td>
+                                        <td>7 days</td>
                                         <td>Bazaar + Crafts + AH (minor)</td>
                                     </tr>
                                     <tr>
-                                        <td>50M–100M</td>
+                                        <td>100M-1B</td>
                                         <td>8–15%</td>
-                                        <td>30–45 days</td>
-                                        <td>AH primary, Crafts secondary, Bazaar maintenance</td>
+                                        <td>14–30 days</td>
+                                        <td>AH primary, Bazaar</td>
                                     </tr>
                                     <tr>
-                                        <td>&gt;100M</td>
+                                        <td>&gt;1B</td>
                                         <td>5–10%</td>
                                         <td>Indefinite (focus on stability)</td>
-                                        <td>High-margin plays only, limit risk</td>
+                                        <td>High-margin plays only, limit risk mayor cycle based investing</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -201,17 +193,13 @@ export default function MakingMoneyWithFlippingPage() {
                             <CardText>
                                 <strong>Theoretical minimum:</strong> ~90 days (if 20% daily ROI + reinvestment)
                                 <br />
-                                <strong>Realistic:</strong> 120–180 days (accounting for market variations, learning curve, 2–3 hours/day playtime)
+                                <strong>Realistic:</strong> With our Premium+ plan it should take about one week. If you are just using premium or our free tier it may take a couple of weeks.
+                                Most of our premium+ users have more than 1 billion networth and make an average of 100m per day or more.
                             </CardText>
 
-                            <CardTitle as="h3">At what capital should I stop Bazaar flipping?</CardTitle>
+                            <CardTitle as="h3">At what Coin should I stop Bazaar flipping?</CardTitle>
                             <CardText>
-                                <strong>Never completely.</strong> But shift: Bazaar 60% (10M) at 10M capital → Bazaar 20% (10M) at 50M capital. High-margin plays beat volume at scale.
-                            </CardText>
-
-                            <CardTitle as="h3">What's the biggest bottleneck to scaling?</CardTitle>
-                            <CardText>
-                                <strong>Playtime.</strong> You can't actively flip 100 items if you're only playing 1 hour/day. Scale depends on attention. At 50M+, you can flip less frequently (AH takes 1–7 days/flip) so time requirement drops.
+                                <strong>Never completely.</strong> The biggest limitation of flipping on hypixel skyblock is the limited order/auction slots. If you have multiple billions you may want to look into rare item investing.
                             </CardText>
 
                             <CardTitle as="h2" className="mt-4">Related guides</CardTitle>
