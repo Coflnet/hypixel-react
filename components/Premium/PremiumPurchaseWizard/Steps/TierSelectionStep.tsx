@@ -65,7 +65,7 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
     const premiumPlusPricing = calculatePrice(PremiumTier.PREMIUM_PLUS, selectedCountry?.value)
     const discountInfo: ActiveDiscount = {
         description: 'Summer End Discount',
-        percentage: 40,
+        percentage: 0,
         code: 'NOMACRO'
     }
     const premiumPlusDiscounted = calculatePrice(PremiumTier.PREMIUM_PLUS, selectedCountry?.value, discountInfo.percentage) // 10% discount
