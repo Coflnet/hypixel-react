@@ -232,7 +232,7 @@ export default function OptimalMinionSetupsPage() {
                             <hr />
                             <CardTitle as="h4" className="mt-4">FAQ: Minion Setup & Optimization</CardTitle>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: How many minions do I need to make serious money?</CardTitle>
                                     <CardText>
@@ -241,7 +241,7 @@ export default function OptimalMinionSetupsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Is it worth upgrading Tier 1 to Tier 11 on one minion, or buying new minions?</CardTitle>
                                     <CardText>
@@ -250,7 +250,7 @@ export default function OptimalMinionSetupsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Should I buy a Enchanted Lava Bucket for every minion?</CardTitle>
                                     <CardText>
@@ -259,7 +259,7 @@ export default function OptimalMinionSetupsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: How often do I need to collect from minions?</CardTitle>
                                     <CardText>
@@ -268,7 +268,7 @@ export default function OptimalMinionSetupsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Is it worth combining Catalysts + Enchanted Lava Bucket?</CardTitle>
                                     <CardText>
@@ -277,7 +277,7 @@ export default function OptimalMinionSetupsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Can I make more flipping than minions generate?</CardTitle>
                                     <CardText>
@@ -286,7 +286,7 @@ export default function OptimalMinionSetupsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: When should I start minion farming?</CardTitle>
                                     <CardText>
@@ -295,7 +295,7 @@ export default function OptimalMinionSetupsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Do minions work while I'm offline?</CardTitle>
                                     <CardText>

@@ -125,7 +125,7 @@ export default function BestItemToFlipRightNowPage() {
                             <hr />
                             <CardTitle as="h4" className="mt-4">FAQ: Finding & Flipping Right Now</CardTitle>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: How often should I check for new flips?</CardTitle>
                                     <CardText>
@@ -134,7 +134,7 @@ export default function BestItemToFlipRightNowPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Should I flip the highest-margin item?</CardTitle>
                                     <CardText>
@@ -143,7 +143,7 @@ export default function BestItemToFlipRightNowPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: What if an item looks good but I've never flipped it before?</CardTitle>
                                     <CardText>
@@ -152,7 +152,7 @@ export default function BestItemToFlipRightNowPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Can I use Top Movers to predict future spikes?</CardTitle>
                                     <CardText>
@@ -161,7 +161,7 @@ export default function BestItemToFlipRightNowPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Should I use Premium Bazaar or stick with free tools?</CardTitle>
                                     <CardText>
@@ -170,7 +170,7 @@ export default function BestItemToFlipRightNowPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: What spreads should I target as a beginner?</CardTitle>
                                     <CardText>
@@ -179,7 +179,7 @@ export default function BestItemToFlipRightNowPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: How much capital do I need to flip RIGHT NOW?</CardTitle>
                                     <CardText>
@@ -188,7 +188,7 @@ export default function BestItemToFlipRightNowPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Are there ever "always profitable" items?</CardTitle>
                                     <CardText>

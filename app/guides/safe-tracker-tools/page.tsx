@@ -123,7 +123,7 @@ export default function SafeTrackerToolsPage() {
                             <hr />
                             <CardTitle as="h4" className="mt-4">FAQ: Tracking Tools & Data Privacy</CardTitle>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Is using the SkyCofl Mod against Hypixel's TOS?</CardTitle>
                                     <CardText>
@@ -132,7 +132,7 @@ export default function SafeTrackerToolsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Can using a tracking tool get me banned?</CardTitle>
                                     <CardText>
@@ -141,7 +141,7 @@ export default function SafeTrackerToolsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Should I use the SkyCofl Mod or track manually?</CardTitle>
                                     <CardText>
@@ -150,7 +150,7 @@ export default function SafeTrackerToolsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: What data does the SkyCofl Mod collect?</CardTitle>
                                     <CardText>
@@ -159,7 +159,7 @@ export default function SafeTrackerToolsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: How often should I check my profit data?</CardTitle>
                                     <CardText>
@@ -168,7 +168,7 @@ export default function SafeTrackerToolsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Can I export my flip data?</CardTitle>
                                     <CardText>
@@ -177,7 +177,7 @@ export default function SafeTrackerToolsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: If I stop using the mod, do I lose my history?</CardTitle>
                                     <CardText>
@@ -186,7 +186,7 @@ export default function SafeTrackerToolsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Why should I care about tracking if I'm just having fun?</CardTitle>
                                     <CardText>
@@ -195,7 +195,7 @@ export default function SafeTrackerToolsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Can I track income from methods other than flipping?</CardTitle>
                                     <CardText>
@@ -204,7 +204,7 @@ export default function SafeTrackerToolsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Are there any tracking tools I should avoid?</CardTitle>
                                     <CardText>

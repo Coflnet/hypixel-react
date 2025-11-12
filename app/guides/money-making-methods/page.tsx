@@ -275,7 +275,7 @@ export default function MoneyMakingMethodsPage() {
                             <hr />
                             <CardTitle as="h4" className="mt-4">FAQ: Money-Making Methods</CardTitle>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Which method makes the most coins per hour?</CardTitle>
                                     <CardText>
@@ -284,7 +284,7 @@ export default function MoneyMakingMethodsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Should I farm or flip?</CardTitle>
                                     <CardText>
@@ -293,7 +293,7 @@ export default function MoneyMakingMethodsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: How do I know which method is most profitable for me RIGHT NOW?</CardTitle>
                                     <CardText>
@@ -302,7 +302,7 @@ export default function MoneyMakingMethodsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Is there any "always profitable" method?</CardTitle>
                                     <CardText>
@@ -311,7 +311,7 @@ export default function MoneyMakingMethodsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Can I combine methods?</CardTitle>
                                     <CardText>
@@ -320,7 +320,7 @@ export default function MoneyMakingMethodsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: What if I don't have time for active grinding?</CardTitle>
                                     <CardText>
@@ -329,7 +329,7 @@ export default function MoneyMakingMethodsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: Is flipping actually better than everything else?</CardTitle>
                                     <CardText>
@@ -338,7 +338,7 @@ export default function MoneyMakingMethodsPage() {
                                 </CardBody>
                             </Card>
 
-                            <Card className="mt-3" style={{ backgroundColor: "#f8f9fa" }}>
+                            <Card className="mt-3">
                                 <CardBody>
                                     <CardTitle as="h5">Q: How much capital do I need to "succeed" at flipping?</CardTitle>
                                     <CardText>
