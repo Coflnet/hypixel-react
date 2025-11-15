@@ -11,12 +11,12 @@ Welcome to the comprehensive guide for SkyCofl's Hypixel SkyBlock tools and feat
 ## Getting Started
 
 - [What is SkyCofl?](#what-is-skycofl)
-- [Quick Start Guide](./quick-start)
-- [Account Setup](./account-setup)
+- [Quick Start Guide](/wiki/quick-start)
+- [Account Setup](/wiki/account-setup)
 
 ## Core Features
 
-- [Auction House Browser](./auction-house)
+- [Auction House Browser](/wiki/auction-house)
 - [Item Flipper](./flipper)
 
 ## Tools & Utilities
@@ -24,6 +24,7 @@ Welcome to the comprehensive guide for SkyCofl's Hypixel SkyBlock tools and feat
 - [Minecraft Mod](./mod)
 - [Profitable Crafts](/crafts)
 - [Kat Flips](/kat)
+- [Skyblock flipping hub](/flips)
 
 
 ## What is SkyCofl?
