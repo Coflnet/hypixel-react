@@ -9,7 +9,8 @@ export function getHeadMetadata(
     description: string = 'Browse over 800 million auctions, and the bazaar of Hypixel SkyBlock.',
     imageUrl: string = 'https://sky.coflnet.com/logo192.png',
     keywords: string[] = [],
-    embedTitle: string = 'Skyblock Auction House History | Hypixel SkyBlock AH history'
+    embedTitle: string = 'Skyblock Auction House History | Hypixel SkyBlock AH history',
+    canonicalUrl?: string
 ): Metadata {
     return {
         title: title,
@@ -24,6 +25,7 @@ export function getHeadMetadata(
                 width: 64
             }
         },
-        keywords: [...keywords, 'hypixel', 'skyblock', 'auction', 'history', 'bazaar', 'tracker'].join(',')
+        keywords: [...keywords, 'hypixel', 'skyblock', 'auction', 'history', 'bazaar', 'tracker'].join(','),
+        ...(canonicalUrl && { alternates: { canonical: canonicalUrl } })
     }
 }

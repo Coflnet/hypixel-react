@@ -5,7 +5,11 @@ import { getHeadMetadata } from "../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Complete Hypixel Skyblock Flipping Guides | Learn Bazaar & Auction House Strategies",
-    "Master Hypixel Skyblock flipping with our comprehensive guides. Learn bazaar flipping, auction house strategies, profit tracking, scam prevention, and advanced money-making methods."
+    "Master Hypixel Skyblock flipping with our comprehensive guides. Learn bazaar flipping, auction house strategies, profit tracking, scam prevention, and advanced money-making methods.",
+    undefined,
+    [],
+    undefined,
+    "https://sky.coflnet.com/guides"
 );
 
 export default function GuidesPage() {
