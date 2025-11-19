@@ -367,7 +367,7 @@ function BuySubscription(props: Props) {
                             const activeEl = document.activeElement as HTMLElement | null
                             if (activeEl && activeEl.tagName === 'BUTTON') {
                                 activeEl.innerText = 'Redirecting to payment provider...'
-                                    ; (activeEl as HTMLButtonElement).disabled = true
+                                ;(activeEl as HTMLButtonElement).disabled = true
                             }
                         }}
                     >
