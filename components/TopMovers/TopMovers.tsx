@@ -279,6 +279,7 @@ export function TopMovers() {
                     getFlipLink={getFlipLink}
                     renderBatchSize={60}
                     initialRenderCount={60}
+                    minimumPlaceholder="Minimum Movement"
                 />
             ) : null}
         </div>

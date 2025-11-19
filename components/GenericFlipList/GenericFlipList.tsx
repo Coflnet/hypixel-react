@@ -26,6 +26,8 @@ export interface FlipListProps<T> {
     customItemWrapper?: (item: T, blur: boolean, key: string, content: React.ReactNode, flipCardClass: string) => React.ReactNode
     onAfterSignIn?: () => void
     customHeader?: (isLoggedIn: boolean) => React.ReactNode
+    // Override the placeholder text for the minimum input. Defaults to "Minimum Profit"
+    minimumPlaceholder?: string
     // Optional: provide a function that returns a href for a flip item.
     // If provided, non-blurred flips will be wrapped in a plain <a> so
     // the link exists in the HTML for users/search engines with JS disabled.
@@ -63,7 +65,8 @@ export function GenericFlipList<T>({
     customHeader,
     getFlipLink,
     renderBatchSize = 42,
-    initialRenderCount = 42
+    initialRenderCount = 42,
+    minimumPlaceholder
 }: FlipListProps<T>) {
     const [nameFilter, setNameFilter] = useState<string | null>()
     const [minimumProfit, setMinimumProfit] = useState<number>(0)
@@ -366,7 +369,7 @@ export function GenericFlipList<T>({
                         </option>
                     ))}
                 </Form.Select>
-                <Form.Control className={styles.filterInput} placeholder="Minimum Profit" onChange={onMinimumProfitChange} />
+                <Form.Control className={styles.filterInput} placeholder={minimumPlaceholder ?? "Minimum Profit"} onChange={onMinimumProfitChange} />
                 {showColumns && (
                     <Form.Select className={styles.filterInput} value={columns} onChange={handleColumnChange}>
                         <option value={1}>1 Column</option>
