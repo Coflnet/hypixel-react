@@ -47,6 +47,12 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
                 })
     },
     {
+        label: 'Profit x Volume',
+        value: 'profitTimesVolume',
+        sortFunction: (crafts: ProfitableCraft[]) =>
+            crafts.sort((a, b) => (b.sellPrice - b.craftCost) * b.volume - (a.sellPrice - a.craftCost) * a.volume)
+    },
+    {
         label: 'Volume',
         value: 'volume',
         sortFunction: crafts => crafts.sort((a, b) => b.volume - a.volume)

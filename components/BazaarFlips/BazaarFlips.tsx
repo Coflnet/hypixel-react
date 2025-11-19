@@ -41,6 +41,11 @@ const SORT_OPTIONS: SortOption<SpreadFlip>[] = [
         label: 'Price ⇩',
         value: 'priceAsc',
         sortFunction: flips => flips.sort((a, b) => (b.flip?.sellPrice || 0) - (a.flip?.sellPrice || 0))
+    },
+    {
+        label: 'Price x Volume ⇩',
+        value: 'priceTimesVolumeAsc',
+        sortFunction: flips => flips.sort((a, b) => ((a.flip?.sellPrice || 0) * (a.flip?.volume || 0)) - ((b.flip?.sellPrice || 0) * (b.flip?.volume || 0)))
     }
 ]
 
