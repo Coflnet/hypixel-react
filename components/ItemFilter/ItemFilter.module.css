@@ -27,7 +27,13 @@
 
 .itemFilter .addFilterSelect {
     width: 100%;
-    margin-bottom: 25px;
+}
+
+.itemFilter .filterHelpText {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin: 0;
+    font-style: italic;
 }
 
 @media (max-width: 768px) {

@@ -12,13 +12,10 @@ import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter
 import { FilterType, hasFlag } from '../FilterElement/FilterType'
 import { Typeahead, TypeaheadRef } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
-import { btoaUnicode } from '../../utils/Base64Utils'
 import { ITEM_FILTER_USE_COUNT, LAST_USED_FILTER, getSettingsObject, setSetting } from '../../utils/SettingsUtils'
 import ModAdvert from './ModAdvert'
-import { isClientSideRendering } from '../../utils/SSRUtils'
 import { isAnySearchInputInUse } from '../../utils/SearchFocusUtils'
 import { usePathname, useRouter } from 'next/navigation'
-import option from '../PriceGraph/AuctionHousePriceGraph/PriceGraphConfig'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -399,75 +396,77 @@ function ItemFilter(props: Props) {
                         <Form style={{ marginBottom: '5px' }}>
                             <Form.Group>
                                 {props?.filters && props.filters?.length > 0 ? (
-                                    <Typeahead
-                                        id="add-filter-typeahead"
-                                        autoFocus={
-                                            props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 &&
-                                                  !isAnySearchInputInUse()
-                                                : props.autoSelect
-                                        }
-                                        defaultOpen={
-                                            props.autoSelect === undefined
-                                                ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 &&
-                                                  !isAnySearchInputInUse()
-                                                : props.autoSelect
-                                        }
-                                        ref={typeaheadRef}
-                                        placeholder="Add filter"
-                                        className={styles.addFilterSelect}
-                                        onChange={addFilter}
-                                        options={sortedFilterOptions || []}
-                                        labelKey={(options: FilterOptions) => {
-                                            let text = typeaheadRef.current?.state.text
-                                            let optionsString = ''
-                                            let name = options.name
-                                            let searchString = name?.replace(/\s/g, '').toLowerCase()
-                                            let description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
+                                    <div className={styles.addFilterSelect}>
+                                        <Typeahead
+                                            id="add-filter-typeahead"
+                                            autoFocus={
+                                                props.autoSelect === undefined
+                                                    ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 &&
+                                                    !isAnySearchInputInUse()
+                                                    : props.autoSelect
+                                            }
+                                            defaultOpen={
+                                                props.autoSelect === undefined
+                                                    ? Object.keys(getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)).length === 0 &&
+                                                    !isAnySearchInputInUse()
+                                                    : props.autoSelect
+                                            }
+                                            ref={typeaheadRef}
+                                            placeholder="Add filter"
+                                            onChange={addFilter}
+                                            options={sortedFilterOptions || []}
+                                            labelKey={(options: FilterOptions) => {
+                                                let text = typeaheadRef.current?.state.text
+                                                let optionsString = ''
+                                                let name = options.name
+                                                let searchString = name?.replace(/\s/g, '').toLowerCase()
+                                                let description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
 
-                                            // If the restult was found because of the options, show the options at the end of the string
-                                            if (text && !searchString?.includes(text) && !description.includes(text)) {
-                                                let searchString = text.replace(/\s/g, '').toLowerCase()
+                                                // If the restult was found because of the options, show the options at the end of the string
+                                                if (text && !searchString?.includes(text) && !description.includes(text)) {
+                                                    let searchString = text.replace(/\s/g, '').toLowerCase()
+                                                    let matchingOptions = options.options.filter(option => option.toLowerCase().includes(searchString))
+
+                                                    if (matchingOptions.length > 0) {
+                                                        optionsString = matchingOptions
+                                                            .map(option => {
+                                                                if (option.toLowerCase() === option) {
+                                                                    return convertTagToName(option).trim()
+                                                                }
+                                                                if (option.toUpperCase() === option) {
+                                                                    return convertTagToName(option).trim()
+                                                                }
+                                                                return camelCaseToSentenceCase(option).trim()
+                                                            })
+                                                            .join(', ')
+                                                    }
+                                                }
+
+                                                if (name[0].toLowerCase() === name[0]) {
+                                                    return `${convertTagToName(name)} ${optionsString ? `(${optionsString})` : ''}`
+                                                }
+
+                                                return `${camelCaseToSentenceCase(name)} ${optionsString ? `(${optionsString})` : ''}`
+                                            }}
+                                            filterBy={(options: FilterOptions, props) => {
+                                                let searchString = props.text.replace(/\s/g, '').toLowerCase()
+                                                let name = (props.labelKey as Function)(options).toLowerCase()
+                                                let initials = name.match(/\b\w/g).join('')
+                                                let description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
+
                                                 let matchingOptions = options.options.filter(option => option.toLowerCase().includes(searchString))
 
-                                                if (matchingOptions.length > 0) {
-                                                    optionsString = matchingOptions
-                                                        .map(option => {
-                                                            if (option.toLowerCase() === option) {
-                                                                return convertTagToName(option).trim()
-                                                            }
-                                                            if (option.toUpperCase() === option) {
-                                                                return convertTagToName(option).trim()
-                                                            }
-                                                            return camelCaseToSentenceCase(option).trim()
-                                                        })
-                                                        .join(', ')
-                                                }
-                                            }
-
-                                            if (name[0].toLowerCase() === name[0]) {
-                                                return `${convertTagToName(name)} ${optionsString ? `(${optionsString})` : ''}`
-                                            }
-
-                                            return `${camelCaseToSentenceCase(name)} ${optionsString ? `(${optionsString})` : ''}`
-                                        }}
-                                        filterBy={(options: FilterOptions, props) => {
-                                            let searchString = props.text.replace(/\s/g, '').toLowerCase()
-                                            let name = (props.labelKey as Function)(options).toLowerCase()
-                                            let initials = name.match(/\b\w/g).join('')
-                                            let description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
-
-                                            let matchingOptions = options.options.filter(option => option.toLowerCase().includes(searchString))
-
-                                            return (
-                                                name.replace(/\s/g, '').includes(searchString) ||
-                                                initials.includes(searchString) ||
-                                                description.includes(searchString) ||
-                                                matchingOptions.length > 0
-                                            )
-                                        }}
-                                        emptyLabel={props.emptyLabel || 'No matches found. Filters which would not show any results are hidden'}
-                                    ></Typeahead>
+                                                return (
+                                                    name.replace(/\s/g, '').includes(searchString) ||
+                                                    initials.includes(searchString) ||
+                                                    description.includes(searchString) ||
+                                                    matchingOptions.length > 0
+                                                )
+                                            }}
+                                            emptyLabel={props.emptyLabel || 'No matches found. Filters which would not show any results are hidden'}
+                                        ></Typeahead>
+                                        <p className={styles.filterHelpText}>You can search for filters both by their name and possible values (if available)</p>
+                                    </div>
                                 ) : (
                                     <Spinner animation="border" role="status" variant="primary" />
                                 )}
