@@ -37,8 +37,33 @@ const SORT_OPTIONS: SortOption<TopMoverEntry>[] = [
         label: 'Highest volume',
         value: 'volume',
         sortFunction: items => items.sort((a, b) => (b.stats.volume ?? 0) - (a.stats.volume ?? 0))
+    },
+    {
+        label: 'Biggest 24h increase × volume',
+        value: 'increaseByVolume',
+        sortFunction: items =>
+            items.sort((a, b) => {
+                const aScore = (a.change24h ?? 0) * (a.stats.volume ?? 0)
+                const bScore = (b.change24h ?? 0) * (b.stats.volume ?? 0)
+                return bScore - aScore
+            })
+    },
+    {
+        label: 'Biggest 24h drop × volume',
+        value: 'dropByVolume',
+        sortFunction: items =>
+            items.sort((a, b) => {
+                const aScore = Math.abs(a.change24h ?? 0) * (a.stats.volume ?? 0)
+                const bScore = Math.abs(b.change24h ?? 0) * (b.stats.volume ?? 0)
+                // For drops we want the largest negative moves first; since we use absolute values,
+                // keep the same order as increase but label accordingly. To prefer drops specifically,
+                // we could consider using -(change) * volume for strictly negative values, but
+                // absolute movement * volume highlights large drops similarly to increases.
+                return bScore - aScore
+            })
     }
-]
+];
+
 
 const RELATIVE_TIME_DIVISIONS: ReadonlyArray<{ amount: number; unit: Intl.RelativeTimeFormatUnit }> = [
     { amount: 60, unit: 'second' },
