@@ -85,6 +85,7 @@ export function setSettingsFromServerSide(
             hideModChat: !settings.mod.chat,
             modFormat: settings.mod.format,
             modCountdown: settings.mod.countdown,
+            blockHighCompetition: settings.mod.blockHighCompetition,
             disableLinks: !settings.visibility.links,
             hideCopySuccessMessage: !settings.visibility.copySuccessMessage,
             finders: FLIP_FINDERS.filter(finder => {
@@ -422,7 +423,8 @@ export function mapSettingsToApiFormat(filter: FlipperFilter, flipSettings: Flip
             blockTenSecMsg: flipSettings.blockTenSecMsg,
             format: flipSettings.modFormat,
             chat: !flipSettings.hideModChat,
-            countdown: flipSettings.modCountdown
+            countdown: flipSettings.modCountdown,
+            blockHighCompetition: flipSettings.blockHighCompetition
         },
         visibility: {
             cost: !flipSettings.hideCost,

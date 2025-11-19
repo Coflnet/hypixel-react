@@ -203,7 +203,8 @@ export const DEFAULT_FLIP_SETTINGS = {
         hideModChat: false,
         hideSellerOpenBtn: false,
         modFormat: '',
-        modCountdown: false
+        modCountdown: false,
+        blockHighCompetition: false
     } as FlipCustomizeSettings,
     RESTRICTIONS: [] as FlipRestriction[],
     FILTER: {
