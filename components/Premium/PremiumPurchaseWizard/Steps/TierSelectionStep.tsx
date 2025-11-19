@@ -59,7 +59,6 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
         }
     }
 
-    // Calculate prices for each tier based on selected country
     const starterPricing = calculatePrice(PremiumTier.STARTER, selectedCountry?.value)
     const premiumPricing = calculatePrice(PremiumTier.PREMIUM, selectedCountry?.value)
     const premiumPlusPricing = calculatePrice(PremiumTier.PREMIUM_PLUS, selectedCountry?.value)
@@ -70,7 +69,6 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
     }
     const premiumPlusDiscounted = calculatePrice(PremiumTier.PREMIUM_PLUS, selectedCountry?.value, discountInfo.percentage) // 10% discount
 
-    // Helper function to get tier rank for comparison
     const getTierRank = (tier: PremiumTier): number => {
         switch (tier) {
             case PremiumTier.STARTER:
@@ -84,18 +82,15 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
         }
     }
 
-    // Helper function to check if tier can be selected (upgrade only)
     const canSelectTier = (tier: PremiumTier): boolean => {
         if (!isUpgrade || !currentTier) return true
         return getTierRank(tier) > getTierRank(currentTier)
     }
 
-    // Helper function to check if tier should be highlighted as suggested
     const isSuggestedTier = (tier: PremiumTier): boolean => {
         return suggestedTier === tier
     }
 
-    // Helper function to get tier display status
     const getTierStatus = (tier: PremiumTier): string => {
         if (!isUpgrade || !currentTier) return ''
 
@@ -108,7 +103,6 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
         return 'higher-upgrade'
     }
 
-    // Format expiry date
     const formatExpiryDate = (date: Date): string => {
         return date.toLocaleDateString('en-US', {
             year: 'numeric',

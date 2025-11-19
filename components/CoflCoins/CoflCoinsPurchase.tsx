@@ -42,35 +42,35 @@ function Payment(props: Props) {
             if (errorMatch) {
                 const errorId = errorMatch[1]
                 const errorMessage = decodeURIComponent(errorMatch[2].replace(/\+/g, ' '))
-                
+
                 console.error('[Billing] Error from Android:', { errorId, errorMessage })
-                
+
                 // Show user-friendly error message
                 let userMessage = 'Purchase failed: ' + errorMessage
                 if (errorMessage === 'Server validation failed' || errorMessage === 'Product not found') {
                     userMessage += '. Please contact support if this issue persists.'
                 }
-                
+
                 toast.error(userMessage, { autoClose: 10000 })
-                
+
                 // Clear the error from URL
                 window.history.replaceState(null, '', window.location.pathname + window.location.search)
-                
+
                 // Clear loading state if it matches the error ID
                 if (loadingId && loadingId.includes(errorId)) {
                     setLoadingId('')
                 }
             }
         }
-        
+
         // Load country
         loadDefaultCountry()
-        
+
         // Check for Android Billing availability with a delay
         setTimeout(() => {
             checkGooglePlayAvailability()
         }, 500)
-        
+
         // Also check when page becomes visible
         const handleVisibilityChange = () => {
             if (!document.hidden) {
@@ -78,12 +78,12 @@ function Payment(props: Props) {
             }
         }
         document.addEventListener('visibilitychange', handleVisibilityChange)
-        
+
         // Set up event listeners for Android Billing events (CustomEvents)
         const handleBillingSuccess = (event: Event) => {
             const customEvent = event as CustomEvent<{ productId: string; purchaseToken: string }>
             console.log('[Billing] androidBillingSuccess event received', customEvent.detail)
-            
+
             setLoadingId('')
             toast.success('Purchase successful! Your CoflCoins have been added.')
             // Refresh coflcoins balance
@@ -93,16 +93,16 @@ function Payment(props: Props) {
         const handleBillingError = (event: Event) => {
             const customEvent = event as CustomEvent<{ error: string }>
             console.error('[Billing] androidBillingError event received', customEvent.detail)
-            
+
             setLoadingId('')
-            
+
             // Show user-friendly error message
             const error = customEvent.detail.error
             let userMessage = 'Purchase failed: ' + error
             if (error === 'Server validation failed' || error === 'Product not found') {
                 userMessage += '. Please contact support if this issue persists.'
             }
-            
+
             if (error === 'Purchase canceled by user') {
                 toast.info('Purchase cancelled')
             } else {
@@ -112,11 +112,11 @@ function Payment(props: Props) {
 
         window.addEventListener('androidBillingSuccess', handleBillingSuccess)
         window.addEventListener('androidBillingError', handleBillingError)
-        
+
         // Also listen for postMessage from Android app
         const handleMessage = (event: MessageEvent) => {
             console.log('[Billing] Received postMessage:', event.data)
-            
+
             if (event.data?.type === 'androidBillingSuccess') {
                 const { productId, purchaseToken } = event.data
                 console.log('[Billing] Purchase success via postMessage', { productId, purchaseToken })
@@ -127,13 +127,13 @@ function Payment(props: Props) {
                 const { error } = event.data
                 console.error('[Billing] Purchase error via postMessage', error)
                 setLoadingId('')
-                
+
                 // Show user-friendly error message
                 let userMessage = 'Purchase failed: ' + error
                 if (error === 'Server validation failed' || error === 'Product not found') {
                     userMessage += '. Please contact support if this issue persists.'
                 }
-                
+
                 if (error === 'Purchase canceled by user') {
                     toast.info('Purchase cancelled')
                 } else {
@@ -141,17 +141,15 @@ function Payment(props: Props) {
                 }
             }
         }
-        
+
         window.addEventListener('message', handleMessage)
     }
 
     function checkGooglePlayAvailability() {
-        // Check if we're running in the Android app
-        // The Android app is a TWA, so we check user agent and assume billing is available
         const isAndroid = /android/i.test(navigator.userAgent)
         const isTWA = document.referrer.includes('android-app://com.coflnet.sky')
         const available = isAndroid && (isTWA || window.matchMedia('(display-mode: standalone)').matches)
-        
+
         console.log('[Billing] checkGooglePlayAvailability result:', available, {
             isAndroid,
             isTWA,
@@ -159,7 +157,7 @@ function Payment(props: Props) {
             userAgent: navigator.userAgent,
             referrer: document.referrer
         })
-        
+
         setIsGooglePlayAvailable(available)
     }
 
@@ -232,7 +230,7 @@ function Payment(props: Props) {
     function onPayGooglePlay(productId: string, coflCoins?: number) {
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
         console.log('[Billing] onPayGooglePlay called', { productId, coflCoins })
-        
+
         const googleToken = typeof window !== 'undefined' ? sessionStorage.getItem('googleId') : null
         const requestOptions: RequestInit | undefined = googleToken ? { headers: { GoogleToken: googleToken } } : undefined
         postApiTopupPlaystore(requestOptions)
@@ -240,18 +238,18 @@ function Payment(props: Props) {
                 if (response.status !== 200) {
                     throw new Error('Failed to get user ID from backend')
                 }
-                
+
                 const userId = response.data.userId
                 if (!userId) {
                     throw new Error('User ID not found in response')
                 }
-                
+
                 // Trigger Google Play billing flow via deep link with userId
                 const deepLink = `skycofl://billing/purchase?productId=${encodeURIComponent(productId)}&userId=${encodeURIComponent(userId)}`
                 console.log('[Billing] Triggering purchase via deep link:', deepLink)
-                
+
                 navigateTo(deepLink)
-                
+
                 // Set a timeout to show error if nothing happens
                 setTimeout(() => {
                     if (loadingId) {

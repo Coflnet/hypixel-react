@@ -3,10 +3,9 @@ import { useState, useEffect } from 'react'
 import { Card, Button, Alert, Form, InputGroup, Spinner } from 'react-bootstrap'
 import Number from '../Number/Number'
 import PurchaseElement from './PurchaseElement'
-import styles from './CoflCoinsPurchase.module.css'
 import { postApiTopupRates } from '../../api/_generated/skyApi'
-import type { BatchProductPricingResponse, ProviderPricingOption } from '../../api/_generated/skyApi.schemas'
-import { getProvider, getProviderPrice, getProviderOriginalPrice } from '../../utils/pricingUtils'
+import type { BatchProductPricingResponse } from '../../api/_generated/skyApi.schemas'
+import { getProvider, getProviderPrice, getProviderOriginalPrice } from '../../utils/PricingUtils'
 
 interface CoflCoinOption {
     amount: number
@@ -118,7 +117,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
     const getDiscountMultiplier = (providerSlug: string, productSlug: string): number | undefined => {
         const originalPrice = getProviderOriginalPriceForComponent(providerSlug, productSlug)
         const discountedPrice = getProviderPriceForComponent(providerSlug, productSlug)
-        
+
         if (originalPrice && discountedPrice && originalPrice > discountedPrice) {
             return discountedPrice / originalPrice
         }
@@ -227,9 +226,9 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                 <Alert variant="info" style={{ marginBottom: '20px' }}>
                     <Alert.Heading style={{ fontSize: '0.95rem', marginBottom: '8px' }}>💡 Limited to Google Play</Alert.Heading>
                     <p style={{ marginBottom: 0, fontSize: '0.9rem' }}>
-                        The Android app only supports Google Play Billing. For other payment methods like PayPal or Stripe, visit the <a 
-                            href="https://coflnet.com/premium" 
-                            target="_blank" 
+                        The Android app only supports Google Play Billing. For other payment methods like PayPal or Stripe, visit the <a
+                            href="https://coflnet.com/premium"
+                            target="_blank"
                             rel="noopener noreferrer"
                             style={{ fontWeight: '600' }}
                         >
@@ -247,8 +246,8 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
             </div>
 
             {/* Responsive Grid Layout: Payment Options + Creator Code */}
-            <div style={{ 
-                display: 'grid', 
+            <div style={{
+                display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
                 gap: '20px',
                 marginBottom: '20px'

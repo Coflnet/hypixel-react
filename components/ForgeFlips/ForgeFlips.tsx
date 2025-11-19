@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import Image from 'next/image'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import api from '../../api/ApiHelper'
