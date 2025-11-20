@@ -402,8 +402,10 @@ function BuySubscription(props: Props) {
                                     variant="success"
                                     className={styles.purchaseButton}
                                     onClick={() => {
+                                        const type = PREMIUM_TYPES.find(type => type.productId === 'premium_plus')
                                         setIsYearOption(false)
-                                        setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium_plus'))
+                                        setSelectedPremiumType(type)
+                                        if (type) startSubscriptionPurchase(type, false)
                                     }}
                                 >
                                     <NumberElement number={35.69} /> Euro (+VAT) / 4 weeks
@@ -417,8 +419,10 @@ function BuySubscription(props: Props) {
                                             variant="success"
                                             className={styles.purchaseButton}
                                             onClick={() => {
+                                                const type = PREMIUM_TYPES.find(type => type.productId === 'premium_plus')
                                                 setIsYearOption(true)
-                                                setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium_plus'))
+                                                setSelectedPremiumType(type)
+                                                if (type) startSubscriptionPurchase(type, true)
                                             }}
                                         >
                                             <NumberElement number={354.2} /> Euro (+VAT) / 52 weeks (23% off)
@@ -445,7 +449,10 @@ function BuySubscription(props: Props) {
                                     variant="success"
                                     className={styles.purchaseButton}
                                     onClick={() => {
-                                        setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium'))
+                                        const type = PREMIUM_TYPES.find(type => type.productId === 'premium')
+                                        setIsYearOption(false)
+                                        setSelectedPremiumType(type)
+                                        if (type) startSubscriptionPurchase(type, false)
                                     }}
                                 >
                                     <NumberElement number={8.69} /> Euro (+VAT) / 4 weeks
@@ -459,8 +466,10 @@ function BuySubscription(props: Props) {
                                     variant="success"
                                     className={styles.purchaseButton}
                                     onClick={() => {
+                                        const type = PREMIUM_TYPES.find(type => type.productId === 'premium')
                                         setIsYearOption(true)
-                                        setSelectedPremiumType(PREMIUM_TYPES.find(type => type.productId === 'premium'))
+                                        setSelectedPremiumType(type)
+                                        if (type) startSubscriptionPurchase(type, true)
                                     }}
                                 >
                                     <NumberElement number={96.69} /> Euro (+VAT) / 52 weeks (14% off)
