@@ -143,6 +143,7 @@ function FlipCustomize() {
         }
 
         addWarningForFinder('TFM', warnings, 'The "TFM"-Finder is outdated and therefore considered risky. Only use if you know what you are doing.')
+        addWarningForFinder('AI', warnings, 'The "AI"-Finder can make mistakes be sure to check it and report issues if you find any wrong estimations.')
         addWarningForFinder(
             'Stonks',
             warnings,

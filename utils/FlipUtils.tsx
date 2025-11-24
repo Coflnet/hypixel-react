@@ -106,7 +106,7 @@ export const FLIP_FINDERS = [
         description: "Uses the same algorithm as Sniper but doesn't require the item to be below lowest bin and only 5% below the median sell value.",
         selectable: true
     },
-    { value: '8', label: 'AI', shortLabel: 'AI', default: false, description: '', selectable: false },
+    { value: '8', label: 'AI', shortLabel: 'AI', default: false, description: 'This is an algorigthm based on machine learning. It gets a feeling of how much something is worth and reports that back', selectable: true },
     {
         value: '16',
         label: 'User (whitelists)',
@@ -133,7 +133,7 @@ export const FLIP_FINDERS = [
                 The integration is currently under development.",
             </span>
         ),
-        selectable: true
+        selectable: false
     },
     {
         value: '64',
